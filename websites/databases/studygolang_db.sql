@@ -68,7 +68,7 @@ CREATE TABLE `user_login` (
   `uid` int unsigned NOT NULL,
   `email` varchar(128) NOT NULL DEFAULT '',
   `username` varchar(20) NOT NULL COMMENT '用户名',
-  `passcode` char(20) NOT NULL DEFAULT '' COMMENT '加密随机数',
+  `passcode` char(12) NOT NULL DEFAULT '' COMMENT '加密随机数',
   `passwd` char(32) NOT NULL DEFAULT '' COMMENT 'md5密码',
   PRIMARY KEY (`uid`),
   UNIQUE KEY (`username`),

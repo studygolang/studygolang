@@ -116,7 +116,11 @@ padding: 3px;
 $(function(){
     $('#createuser').submit(function(){
         $.post($("#createuser").attr('action'), $("#createuser").serialize(), function(data){
-            $('#alert_info').html(data.error)
+            if (data.errno) {
+                $('#alert_info').html(data.error)
+            } else {
+                $('#alert_info').html("添加成功！")
+            }
         });
         return false;
     });

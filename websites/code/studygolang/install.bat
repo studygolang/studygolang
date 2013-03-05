@@ -11,6 +11,8 @@ goto end
 set OLDGOPATH=%GOPATH%
 set GOPATH=%~dp0;%~dp0..\thirdparty
 
+gofmt -w src
+
 go install studygolang
 go install test
 

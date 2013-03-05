@@ -11,7 +11,7 @@ func initRouter() *mux.Router {
 	router.HandleFunc("/", IndexHandler)
 	router.HandleFunc("/topics/new", NewTopicHandler)
 	// admin 子系统
-	router.HandleFunc("/admin", admin.IndexHandler)	// 支持/admin访问
+	router.HandleFunc("/admin", admin.IndexHandler) // 支持/admin访问
 	subrouter := router.PathPrefix("/admin").Subrouter()
 	subrouter.HandleFunc("/", admin.IndexHandler)
 	// 用户管理

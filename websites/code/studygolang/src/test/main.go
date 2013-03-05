@@ -4,25 +4,25 @@ import (
 	"database/sql"
 	"fmt"
 	//_ "github.com/Go-SQL-Driver/MySQL"
+	"errors"
 	"reflect"
 	"strings"
-	"errors"
 )
 
 func main() {
 	//db, err := sql.Open("mysql", "root:@/studygolang?charset=utf8")
 	//if err != nil {
-		//panic(err)
+	//panic(err)
 	//}
 	//defer db.Close()
 	//// insert(db)
 	////update(db)
 	//var user = struct {
-	    //Username string
-	    //Email string
+	//Username string
+	//Email string
 	//}{
-		//"22",
-		//"fwef@163.com",
+	//"22",
+	//"fwef@163.com",
 	//}
 	//FindAll(db, &user)
 	arr := []string{}
@@ -53,7 +53,7 @@ func FindAll(db *sql.DB, model interface{}) {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	stmt.QueryRow(1)
 }
 

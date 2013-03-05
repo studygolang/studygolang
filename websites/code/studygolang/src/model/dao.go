@@ -12,7 +12,7 @@ type Dao struct {
 	// 构造sql语句相关
 	tablename string
 	where     string
-	whereVal []interface{}	// where条件对应中字段对应的值
+	whereVal  []interface{} // where条件对应中字段对应的值
 	limit     string
 	order     string
 	// 插入需要
@@ -73,7 +73,7 @@ func (this *Dao) SetWhere(args ...string) {
 	for i, arg := range args {
 		parts := strings.SplitN(arg, "=", 2)
 		if len(parts) != 2 {
-		    // TODO:怎么处理
+			// TODO:怎么处理
 		}
 		fields[i] = parts[0] + "=?"
 		this.whereVal[i] = parts[1]
@@ -83,7 +83,7 @@ func (this *Dao) SetWhere(args ...string) {
 
 func (this *Dao) SelectCols() string {
 	if this.selectCols == "" {
-	    return "*"
+		return "*"
 	}
 	return this.selectCols
 }

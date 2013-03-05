@@ -1,19 +1,19 @@
 package model_test
 
 import (
+	"encoding/json"
 	. "model"
 	"testing"
-	//"encoding/json"
 )
 
 func TestNewUserLogin(t *testing.T) {
 	userLogin := NewUserLogin()
-	// userData := `{"uid":123234,"username":"poalris","email":"studygolang@gmail.com","passwd":"123456"}`
-	// json.Unmarshal([]byte(userData), userLogin)
-	err := userLogin.Find()
-	// affectedNum, err := userLogin.Insert()
+	userData := `{"uid":"1111","username":"poalris","email":"studygolang@gmail.com","passwd":"123456"}`
+	json.Unmarshal([]byte(userData), userLogin)
+	// err := userLogin.Find()
+	affectedNum, err := userLogin.Insert()
 	if err != nil {
-	    t.Fatal(err)
+		t.Fatal(err)
 	}
-	t.Error(userLogin.Uid)
+	t.Log(affectedNum)
 }
