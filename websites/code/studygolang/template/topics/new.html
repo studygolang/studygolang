@@ -1,0 +1,101 @@
+{{template "header"}}
+<div id="main" class="container-fluid">
+  <div class="content">
+    <div class="box">
+      <form accept-charset="UTF-8" action="/topics" class="simple_form form-horizontal new_topic" id="new_topic" method="post" novalidate="novalidate">
+        <div style="margin:0;padding:0;display:inline">
+          <input name="authenticity_token" type="hidden" value="akaN6qrCyNOili4mgo2qBZrdEWqX6DzoDABRpFoQWC4=">
+        </div>
+        <fieldset>
+          <legend>新建帖子</legend>
+          <div class="control-group string required">
+            <label class="string required control-label" for="topic_title"><abbr title="required">*</abbr> 标题</label>
+            <div class="controls">
+              <span class="node_select span2">
+                <select id="topic_node_id" name="topic[node_id]" style="width: 145px; display: none;" class="chzn-done"><option value="">选择节点</option>
+                </select>
+              </span>
+              <input class="span4" id="topic_title" name="topic[title]" size="30" type="text">
+            </div>
+          </div>
+          <div class="control-group text required">
+            <label class="text required control-label" for="topic_body"><abbr title="required">*</abbr> 正文</label>
+            <div class="controls">
+              <div class="wmd-panel">
+                <div id="wmd-button-bar"></div>
+                <textarea class="wmd-input" id="wmd-input"></textarea>
+              </div>
+              <div>预览</div>
+              <div id="wmd-preview" class="wmd-panel wmd-preview"></div>
+            </div>
+          </div>
+          <div class="form-actions">
+            <input class="btn btn-primary" data-disable-with="正在保存" name="commit" type="submit" value="保存">
+            <a href="http://ruby-china.org/topics" class="btn reset">取消</a>
+          </div>
+        </fieldset>
+      </form>
+  </div>
+</div>
+
+<div class="sidebar">
+  <div id="topic_new_tip" class="box">
+    <h2>发帖说明</h2>
+    <span class="body help-block">
+      <ul>
+        <li>支持 Markdown 格式, <strong>**粗体**</strong>、~~删除线~~、<code>`单行代码`</code></li>
+        <li>支持表情，见 <a href="http://www.emoji-cheat-sheet.com/" target="_blank" rel="nofollow">Emoji cheat sheet</a></li>
+        <li>按“M”键查看更多 <a href="http://ruby-china.org/topics/new#markdown_help_tip_modal" data-toggle="modal" data-keyboard="true" data-backdrop="true">帮助</a>。</li>
+      </ul>
+      <div id="markdown_help_tip_modal" class="modal hide fade">
+        <div class="modal-header">
+          <a href="http://ruby-china.org/topics/new#" class="close" data-dismiss="modal">×</a>
+          <h4>格式说明</h4>
+        </div>
+        <div class="modal-body">
+          <ul>
+            <li>支持 Markdown 格式</li>
+            <li><strong>**粗体**</strong>、~~删除线~~、<code>`单行代码`</code></li>
+            <li>http://example.org 自动加链接</li>
+            <li>@name  会链接到用户页面，并会通知他</li>
+            <li>![Alt text here](http://foo.com/bar.jpg) 显示图片</li>
+            <li>多行代码格式，使用3个`包起来，注意要换行，第一个```后面接语言名称(ruby,bash,html,css,python,erb,java... <a href="http://pygments.org/docs/lexers/" target="_blank">更多</a>)<br>
+              比如这样：
+                <pre style="border:0;background:#FFF;margin:0;">```ruby
+      class Hello
+      end
+      ```       </pre>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </span>
+  </div>
+</div>
+{{template "footer"}}
+
+{{define "title"}}发新帖{{end}}
+{{define "css"}}
+<link href="/static/css/markdown.css" media="screen" rel="stylesheet" type="text/css">
+{{end}}
+{{define "js"}}
+<script type="text/javascript" src="/static/js/Markdown.Converter.js"></script>
+<script type="text/javascript" src="/static/js/Markdown.Sanitizer.js"></script>
+<script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
+<script type="text/javascript">
+    (function () {
+        var topicConverter = Markdown.getSanitizingConverter();
+        
+        topicConverter.hooks.chain("preBlockGamut", function (text, rbg) {
+            return text.replace(/^ {0,3}""" *\n((?:.*?\n)+?) {0,3}""" *$/gm, function (whole, inner) {
+                return "<blockquote>" + rbg(inner) + "</blockquote>\n";
+            });
+        });
+        
+        var topicEditor = new Markdown.Editor(topicConverter);
+        
+        topicEditor.run();
+    })();
+</script>
+{{end}}
