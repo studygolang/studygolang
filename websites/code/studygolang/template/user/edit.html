@@ -17,7 +17,7 @@
           <div class="control-group email required"><label class="email required control-label" for="user_email"><abbr title="required">*</abbr> Email</label><div class="controls"><input class="string email required span4" disabled="disabled" id="user_email" name="email" size="50" type="email" value="{{.user.Email}}"></div></div>
           <div class="control-group">
             <div class="controls">
-              <label for="user_email_public" class="checkbox"><input {{if .user.Open}}checked="checked"{{end}} id="user_email_public" name="open" type="checkbox" value="{{.user.Open}}"> 公开 Email</label>
+              <label for="user_email_public" class="checkbox"><input {{if .user.Open}}checked="checked"{{end}} id="user_email_public" name="open" type="checkbox"> 公开 Email</label>
             </div>
           </div>
           <div class="control-group string optional"><label class="string optional control-label" for="user_city">城市</label><div class="controls"><input class="string optional span3" id="user_city" name="city" size="50" type="text" value="{{.user.City}}"/><p class="help-block">请用中文填写所在城市</p></div></div>
@@ -96,7 +96,7 @@ $(function(){
                 alert(data.error);
             } else {
                 alert(data.msg);
-                loaction.reload();
+                location.reload();
             }
         });
         return false;

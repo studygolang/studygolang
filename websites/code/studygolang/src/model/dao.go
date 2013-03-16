@@ -63,6 +63,11 @@ func (this *Dao) Insert() (sql.Result, error) {
 // Update 更新数据
 func (this *Dao) Update() error {
 	strSql := util.UpdateSql(this)
+	if strSql == "" {
+		// 没有字段需要更新，当作更新成功
+		logger.Errorln("no field need update")
+		return nil
+	}
 	logger.Debugln("Update sql:", strSql)
 	err := this.Open()
 	if err != nil {

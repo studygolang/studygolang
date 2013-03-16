@@ -30,6 +30,9 @@ func InsertSql(sqler Sqler) string {
 
 func UpdateSql(sqler Sqler) string {
 	columnStr := strings.Join(sqler.Columns(), ",")
+	if columnStr == "" {
+		return ""
+	}
 	where := sqler.GetWhere()
 	if where != "" {
 		where = "WHERE " + where

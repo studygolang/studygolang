@@ -25,10 +25,12 @@
             <label>ID:</label>
             <strong class="fn">{{.user.Username}}</strong>
           </li>
+          {{if .user.Open}}
           <li>
             <label>Email:</label>
             <span><a href="mailto:{{.user.Email}}">{{.user.Email}}</a></span>
           </li>
+          {{end}}
           <li>
             <label>注册时间:</label>
             <span>{{.user.Ctime}}</span>
