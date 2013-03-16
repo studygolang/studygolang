@@ -775,12 +775,12 @@ else
                 [ \t]*
                 (.+?)           // $2 = Header text
                 [ \t]*
-                \#*             // optional closing #'s (not counted)
+                \#*             // optional closing #'s (not counted)(polaris:改为必须)
                 \n+
             /gm, function() {...});
             */
 
-            text = text.replace(/^(\#{1,6})[ \t]*(.+?)[ \t]*\#*\n+/gm,
+            text = text.replace(/^(\#{1,6})[ \t]*(.+?)[ \t]*\#+\n+/gm,
                 function (wholeMatch, m1, m2) {
                     var h_level = m1.length;
                     return "<h" + h_level + ">" + _RunSpanGamut(m2) + "</h" + h_level + ">\n\n";

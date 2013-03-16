@@ -1,19 +1,22 @@
 package controller
 
 import (
-	"config"
-	"fmt"
-	"html/template"
+	"filter"
 	"net/http"
+	"service"
 )
 
-var ROOT = config.ROOT
-
+// 首页
 func IndexHandler(rw http.ResponseWriter, req *http.Request) {
-	tpl, err := template.ParseFiles(ROOT+"/template/index.html", ROOT+"/template/common/header.html", ROOT+"/template/common/footer.html")
-	if err != nil {
-		fmt.Fprintln(rw, err)
-		return
-	}
-	tpl.Execute(rw, nil)
+	nodes := genNodes()
+	// 获取最新帖子
+	newTopics, _ := service.FindTopics(1, 10, "", "ctime DESC")
+	// 获取热门帖子
+	hotTopics := service.FindHotTopics()
+	// 获得最新博文
+	articles := service.FindNewBlogs()
+	// 设置内容模板
+	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/index.html")
+	// 设置模板数据
+	filter.SetData(req, map[string]interface{}{"news": newTopics, "hots": hotTopics, "articles": articles, "nodes": nodes})
 }

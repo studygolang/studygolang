@@ -1,0 +1,66 @@
+{{define "topnav"}}
+<li class="first"><a href="/">首页</a><span class="divider">/</span></li>
+<li class=""><a href="/users" itemprop="url"><span itemprop="title">会员</span></a><span class="divider">/</span></li>
+<li class="last active"><a href="/account/register" itemprop="url"><span itemprop="title">注册新会员</span></a></li>
+{{end}}
+{{define "content"}}
+<div id="main" class="container-fluid">
+  <div class="content">
+    <div class="box">
+      <form accept-charset="UTF-8" action="/account/register.json" class="simple_form form-horizontal new_user" id="createuser" method="post" novalidate="novalidate"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="✓"><input name="authenticity_token" type="hidden" value="ic0nAF+lsXAKee1TjLaX6ykAZe2EXUEvlXvrHVY3Skg="></div>
+        <div class="alert alert-block alert-error" id="alert_info" style="display:none;">
+         <a class="close" data-dismiss='alert' href="#">×</a>
+         <p><strong>有 6 处问题导致无法提交:</strong></p>
+         <ul>
+           <li>Email 不能为空字符</li>
+           <li>Email 不能为空字符</li>
+           <li>密码 不能为空字符</li>
+           <li>用户名 只允许数字、大小写字母和下划线</li>
+           <li>用户名 过短（最短为 3 个字符）</li>
+           <li>用户名 不能为空字符</li>
+         </ul>
+        </div>
+        <fieldset>
+          <legend>注册新用户</legend>
+          <div class="control-group string required"><label class="string required control-label" for="username"><abbr title="required">*</abbr> 用户名</label><div class="controls"><input class="string required" id="username" name="username" size="50" placeholder="请填写用户名" type="text"><p class="help-block">非Email。谨慎填写，以后不可修改。</p></div></div>
+          <div class="control-group email required"><label class="email required control-label" for="email"><abbr title="required">*</abbr> Email</label><div class="controls"><input class="string email required span5" id="email" name="email" placeholder="foo@bar.com" size="50" type="email" value=""><p class="help-block">保存以后就不可以改了哦！</p></div></div>
+          <div class="control-group password optional"><label class="password optional control-label" for="passwd">密码</label><div class="controls"><input class="password optional" id="passwd" name="passwd" size="50" placeholder="请填写密码" type="password"></div></div>
+          <div class="control-group password optional"><label class="password optional control-label" for="pass2">确认密码</label><div class="controls"><input class="password optional" id="pass2" name="pass2" size="50" type="password" placeholder="请再次输入密码" ></div></div>
+          <div class="form-actions">
+            <input class="btn btn-primary" data-disable-with="正在提交" name="commit" type="submit" value="提交注册信息">
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="box">
+      <h2>已经有帐号了？</h2>
+      <p style="line-height:20px;">
+        <a href="/account/login">登录</a><br>
+        <!--<a href="/account/forgetpasswd">忘记了密码?</a><br>-->
+      </p>
+    </div>
+  </div>
+</div>
+{{end}}
+{{define "title"}}注册会员 {{end}}
+{{define "js"}}
+<script type="text/javascript">
+$(function(){
+    // 提交注册用户表单
+    $('#createuser').submit(function(){
+        $.post($("#createuser").attr('action'), $("#createuser").serialize(), function(data){
+            if (data.errno) {
+                $('#alert_info').html(data.error).show()
+            } else {
+                location.href="/"
+            }
+        });
+        return false;
+    });
+    
+})
+</script>
+{{end}}

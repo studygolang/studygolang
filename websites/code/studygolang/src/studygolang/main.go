@@ -1,6 +1,7 @@
 package main
 
 import (
+	. "config"
 	"log"
 	"math/rand"
 	"net/http"
@@ -15,7 +16,10 @@ func init() {
 }
 
 func main() {
+	// 服务静态文件
+	http.Handle("/static/", http.FileServer(http.Dir(ROOT)))
+
 	router := initRouter()
 	http.Handle("/", router)
-	log.Fatal(http.ListenAndServe("127.0.0.1:8080", nil))
+	log.Fatal(http.ListenAndServe(Config["host"], nil))
 }

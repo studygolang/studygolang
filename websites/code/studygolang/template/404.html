@@ -1,0 +1,26 @@
+{{define "topnav"}}
+<li class="first last active"><a href="/">返回首页</a></li>
+{{end}}
+{{define "content"}}
+<div id="main" class="container-fluid">
+  <div class="content">
+    <h2>对不起，此页面不存在</h2>
+    <p>将在<span id="jumpTo">5</span>秒后跳转到<a href="/">首页</a></p>
+  </div>
+</div>
+{{end}}
+{{define "title"}}对不起，此页面不存在 {{end}}
+{{define "js"}}
+<script type="text/javascript">
+function countDown(secs, surl){     
+    var jumpTo = document.getElementById('jumpTo');
+    jumpTo.innerHTML=secs;  
+    if(--secs>0){     
+        setTimeout("countDown("+secs+",'"+surl+"')",1000);     
+    } else {       
+        location.href=surl;     
+    }
+} 
+countDown(5,'/');
+</script>
+{{end}}

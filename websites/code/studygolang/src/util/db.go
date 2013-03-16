@@ -9,31 +9,51 @@ type Sqler interface {
 	Tablename() string
 	Columns() []string
 	SelectCols() string // 需要查询哪些字段
-	Where() string
-	Order() string
-	Limit() string
+	GetWhere() string
+	GetOrder() string
+	GetLimit() string
 }
 
 func InsertSql(sqler Sqler) string {
 	columns := sqler.Columns()
-	columnStr := strings.Join(columns, ",")
+	columnStr := "`" + strings.Join(columns, "`,`") + "`"
 	placeHolder := strings.Repeat("?,", len(columns))
-	sql := fmt.Sprintf("INSERT INTO %s(%s) VALUES(%s)", sqler.Tablename(), columnStr, placeHolder[:len(placeHolder)-1])
-	return sql
+	sql := fmt.Sprintf("INSERT INTO `%s`(%s) VALUES(%s)", sqler.Tablename(), columnStr, placeHolder[:len(placeHolder)-1])
+	return strings.TrimSpace(sql)
+}
+
+func UpdateSql(sqler Sqler) string {
+	columnStr := strings.Join(sqler.Columns(), ",")
+	where := sqler.GetWhere()
+	if where != "" {
+		where = "WHERE " + where
+	}
+	sql := fmt.Sprintf("UPDATE `%s` SET %s %s", sqler.Tablename(), columnStr, where)
+	return strings.TrimSpace(sql)
+}
+
+func CountSql(sqler Sqler) string {
+	where := sqler.GetWhere()
+	if where != "" {
+		where = "WHERE " + where
+	}
+	sql := fmt.Sprintf("SELECT COUNT(1) AS total FROM `%s` %s", sqler.Tablename(), where)
+	return strings.TrimSpace(sql)
 }
 
 func SelectSql(sqler Sqler) string {
-	where := sqler.Where()
-	if sqler.Where() != "" {
+	where := sqler.GetWhere()
+	if where != "" {
 		where = "WHERE " + where
 	}
-	order := sqler.Order()
+	order := sqler.GetOrder()
 	if order != "" {
 		order = "ORDER BY " + order
 	}
-	limit := sqler.Limit()
+	limit := sqler.GetLimit()
 	if limit != "" {
 		limit = "LIMIT " + limit
 	}
-	return fmt.Sprintf("SELECT %s FROM %s %s %s %s", sqler.SelectCols(), sqler.Tablename(), where, order, limit)
+	sql := fmt.Sprintf("SELECT %s FROM `%s` %s %s %s", sqler.SelectCols(), sqler.Tablename(), where, order, limit)
+	return strings.TrimSpace(sql)
 }

@@ -1,0 +1,39 @@
+{{define "topnav"}}
+<li class="first"><a href="/">首页</a><span class="divider">/</span></li>
+<li class=""><a href="/users" itemprop="url"><span itemprop="title">会员</span></a><span class="divider">/</span></li>
+<li class="last active"><a href="/account/forgetpwd" itemprop="url"><span itemprop="title">忘记密码</span></a></li>
+{{end}}
+{{define "content"}}
+<div id="main" class="container-fluid">
+  <div class="sidebar">
+    <div class="box">
+      <a href="/account/login">登录</a><br>
+      <a href="/account/register">注册</a><br>
+    </div>
+  </div>
+  <div class="content">
+    <div class="box">
+    {{if .success}}
+      <h2>重置密码邮件已发出</h2>
+      {{.success}}
+    {{else}}
+      {{if .error}}
+      <div class="alert alert-block alert-error" id="alert_info">
+        {{.error}}
+      </div>
+      {{end}}
+      <form accept-charset="UTF-8" action="/account/forgetpwd" class="simple_form form-horizontal new_user" id="new_user" method="post" novalidate="novalidate"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="✓"><input name="authenticity_token" type="hidden" value="Q5KtNKOpMlEUGI8j1iEvsXpS2hzjv9eyLZeh8pg0BwE="></div>
+        <fieldset>
+          <legend>忘记了密码</legend>
+          <div class="control-group email required"><label class="email required control-label" for="user_email"><abbr title="required">*</abbr> Email</label><div class="controls"><input class="string email required" id="user_email" name="email" size="50" type="email" value=""><p class="help-block">将会发送一个找回密码的特别链接到您的邮箱，通过该链接可以进入重置密码的页面。</p></div></div>
+          <div class="form-actions">
+            <input class="btn btn-primary" data-disable-with="正在提交" name="commit" type="submit" value="找回密码">
+          </div>
+        </fieldset>
+      </form>
+      {{end}}
+    </div>
+  </div>
+</div>
+{{end}}
+{{define "title"}}忘记密码 {{end}}

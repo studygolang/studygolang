@@ -1,0 +1,57 @@
+{{define "topnav"}}
+<li class="first"><a href="/">首页</a><span class="divider">/</span></li>
+<li class=""><a href="/users" itemprop="url"><span itemprop="title">会员</span></a><span class="divider">/</span></li>
+<li class="last active"><a href="/account/resetpwd" itemprop="url"><span itemprop="title">忘记密码</span></a></li>
+{{end}}
+{{define "content"}}
+<div id="main" class="container-fluid">
+  <div class="sidebar">
+    <div class="box">
+      <a href="/account/login">登录</a><br>
+      <a href="/account/register">注册</a><br>
+    </div>
+  </div>
+  <div class="content">
+    <div class="box">
+    {{if .valid}}
+      {{if .success}}
+        {{.success}}
+      {{else}}
+      <div class="alert alert-block alert-error" id="alert_info" {{if not .error}}style="display:none;"{{end}}>
+        {{if .error}}{{.error}}{{end}}
+      </div>
+      <form accept-charset="UTF-8" action="/account/resetpwd" class="simple_form form-horizontal new_user" id="new_user" method="post" novalidate="novalidate"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="✓"><input name="code" type="hidden" value="{{.code}}"></div>
+        <fieldset>
+          <legend>重置密码</legend>
+          <div class="control-group password optional"><label class="password optional control-label" for="user_password">新密码</label><div class="controls"><input class="password optional" id="user_password" name="passwd" size="50" type="password"></div></div>
+          <div class="control-group password optional"><label class="password optional control-label" for="user_password_confirmation">确认密码</label><div class="controls"><input class="password optional" id="user_password_confirmation" name="pass2" size="50" type="password"></div></div>
+          <div class="form-actions">
+            <input class="btn btn-success" data-disable-with="正在保存" name="commit" type="submit" value="重置密码">
+          </div>
+        </fieldset>
+      </form>
+      {{end}}
+    {{else}}
+      {{.error}}
+    {{end}}
+    </div>
+  </div>
+</div>
+{{end}}
+{{define "title"}}重置密码 {{end}}
+{{define "js"}}
+{{if or .error .success}}
+<script type="text/javascript">
+function countDown(secs, surl){     
+    var jumpTo = document.getElementById('jumpTo');
+    jumpTo.innerHTML = secs;  
+    if(--secs>0){     
+        setTimeout("countDown("+secs+",'"+surl+"')",1000);     
+    } else {       
+        location.href = surl;     
+    }
+}
+countDown(3, $('#jump_url').attr("href"));
+</script>
+{{end}}
+{{end}}

@@ -55,3 +55,28 @@ func ConvertAssign(dest interface{}, form url.Values) error {
 	}
 	return nil
 }
+
+func Struct2Map(dest map[string]interface{}, src interface{}) error {
+	if dest == nil {
+		return fmt.Errorf("Struct2Map(dest is %v)", dest)
+	}
+	srcType := reflect.TypeOf(src)
+	srcValue := reflect.Indirect(reflect.ValueOf(src))
+	if srcValue.Kind() != reflect.Struct {
+		return fmt.Errorf("Struct2Map(non-struct %s)", srcType)
+	}
+	srcType = srcValue.Type()
+	fieldNum := srcType.NumField()
+	for i := 0; i < fieldNum; i++ {
+		// struct 字段的反射类型（StructField）
+		fieldType := srcType.Field(i)
+		// 非导出字段不处理
+		if fieldType.PkgPath != "" {
+			continue
+		}
+		tag := fieldType.Tag.Get("json")
+		fieldValue := srcValue.Field(i)
+		dest[tag] = fieldValue.Interface()
+	}
+	return nil
+}

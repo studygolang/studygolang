@@ -54,18 +54,18 @@
 
 	<header id="header">
 		<hgroup>
-			<h1 class="site_title"><a href="/admin">Golang中文社区 | Go语言学习园地</a></h1>
+			<h1 class="site_title"><a href="/admin/">Golang中文社区 | Go语言学习园地</a></h1>
 			<h2 class="section_title">仪表盘</h2><div class="btn_view_site"><a href="/">查看站点</a></div>
 		</hgroup>
 	</header> <!-- end of header bar -->
 	
 	<section id="secondary_bar">
 		<div class="user">
-			<p>John Doe (<a href="#">3 Messages</a>)</p>
+			<p>{{.user.username}}</p>
 			<!-- <a class="logout_user" href="#" title="Logout">Logout</a> -->
 		</div>
 		<div class="breadcrumbs_container">
-			<article class="breadcrumbs"><a href="/admin">管理后台</a> <div class="breadcrumb_divider"></div> <a class="current">仪表盘</a></article>
+			<article class="breadcrumbs"><a href="/admin/">管理后台</a> <div class="breadcrumb_divider"></div> <a class="current">仪表盘</a></article>
 		</div>
 	</section><!-- end of secondary bar -->
 	
@@ -74,11 +74,11 @@
 			<input type="text" value="Quick Search" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;">
 		</form>
 		<hr/>
-		<h3>内容管理</h3>
+		<h3>社区管理</h3>
 		<ul class="toggle">
-			<li class="icn_new_article"><a href="#">New Article</a></li>
-			<li class="icn_edit_article"><a href="#">Edit Articles</a></li>
-			<li class="icn_categories"><a href="#">Categories</a></li>
+			<li class="icn_new_article"><a href="/admin/topics">所有帖子</a></li>
+			<li class="icn_categories"><a href="/admin/nodes">所有节点</a></li>
+			<li class="icn_edit_article"><a href="#">Categories</a></li>
 			<li class="icn_tags"><a href="#">Tags</a></li>
 		</ul>
 		<h3>用户管理</h3>
@@ -109,7 +109,7 @@
 	</aside><!-- end of sidebar -->
 	
 	<section id="main" class="column">
-    {{template "content"}}
+    {{template "content" .}}
 	</section>
 
 

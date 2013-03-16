@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// 校验表单数据
 func Validate(data url.Values, rules map[string]map[string]map[string]string) (errMsg string) {
 	for field, rule := range rules {
 		val := data.Get(field)

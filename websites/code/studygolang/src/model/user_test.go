@@ -7,6 +7,18 @@ import (
 )
 
 func TestNewUserLogin(t *testing.T) {
+	user := NewUser()
+	userList, err := user.FindAll()
+	for _, tmpUser := range userList {
+		t.Log(tmpUser.Name)
+		t.Log("===")
+	}
+	if err == nil {
+		t.Fatal(err)
+	}
+}
+
+func testInsert(t *testing.T) {
 	userLogin := NewUserLogin()
 	userData := `{"uid":"1111","username":"poalris","email":"studygolang@gmail.com","passwd":"123456"}`
 	json.Unmarshal([]byte(userData), userLogin)

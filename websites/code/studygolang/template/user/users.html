@@ -1,0 +1,34 @@
+{{define "topnav"}}
+<li class="first"><a href="/">首页</a><span class="divider">/</span></li>
+<li class="last active"><a href="/users" itemprop="url"><span itemprop="title">会员</span></a></li>
+{{end}}
+{{define "content"}}
+<div id="main" class="container-fluid">
+      <div id="users">
+  <div class="info">目前已经有 {{.total}} 位会员加入了 Golang中文社区。</div>
+  <div id="hot_users" class="user_list box clearfix">
+    <h2>活跃会员</h2>
+      {{range .actives}}
+      <div class="item span1">
+        <div class="avatar"><a href="/user/{{.Username}}" title="{{.Username}}"><img alt="{{.Username}}" class="uface" src="{{gravatar .Email 48}}" style="width:48px;height:48px;"></a></div>
+        <div class="name"><a href="/user/{{.Username}}" data-name="{{.Username}}">{{.Username}}</a></div>
+      </div>
+      {{end}}
+  </div>
+
+  <div id="recent_users" class="user_list box clearfix">
+    <h2>最新加入的会员</h2>
+      {{range .news}}
+      <div class="item span1">
+        <div class="avatar"><a href="/user/{{.Username}}" title="{{.Username}}"><img alt="{{.Username}}" class="uface" src="{{gravatar .Email 48}}" style="width:48px;height:48px;"></a></div>
+        <div class="name"><a href="/user/{{.Username}}" data-name="{{.Username}}">{{.Username}}</a></div>
+      </div>
+      {{end}}
+  </div>
+</div>
+
+    </div>
+  </div>
+  {{end}}
+  {{define "title"}}会员列表 {{end}}
+{{define "css"}}<link href="/static/css/users.css" media="screen" rel="stylesheet" type="text/css">{{end}}

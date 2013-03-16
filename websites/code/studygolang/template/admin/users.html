@@ -9,108 +9,39 @@
   </header>
 
   <div class="tab_container">
-    <div id="tab1" class="tab_content">
+    <div class="tab_content">
       <table class="tablesorter" cellspacing="0"> 
         <thead> 
           <tr> 
               <th></th> 
-              <th>Entry Name</th> 
-              <th>Category</th> 
-              <th>Created On</th> 
-              <th>Actions</th> 
+              <th>用户名</th> 
+              <th>姓名</th>
+              <th>角色</th>
+              <th>电子邮件</th>
+              <th>帖子数</th>
+              <th>操作</th>
           </tr> 
         </thead> 
-        <tbody> 
+        <tbody>
+          {{range .users}}
           <tr> 
               <td><input type="checkbox"></td> 
-              <td>Lorem Ipsum Dolor Sit Amet</td> 
-              <td>Articles</td> 
-              <td>5th April 2011</td> 
-              <td><input type="image" src="/static/img/admin/icn_edit.png" title="Edit"><input type="image" src="/static/img/admin/icn_trash.png" title="Trash"></td> 
-          </tr> 
-          <tr> 
-              <td><input type="checkbox"></td> 
-              <td>Ipsum Lorem Dolor Sit Amet</td> 
-              <td>Freebies</td> 
-              <td>6th April 2011</td> 
-              <td><input type="image" src="/static/img/admin/icn_edit.png" title="Edit"><input type="image" src="/static/img/admin/icn_trash.png" title="Trash"></td> 
+              <td>{{.Username}}</td> 
+              <td>{{.Name}}</td>
+              <td>{{range .Rolenames}}{{.}}{{end}}</td>
+              <td>{{.Email}}</td> 
+              <td></td> 
+              <td><input type="image" src="/static/img/admin/icn_edit.png" title="Edit"><input type="image" src="/static/img/admin/icn_trash.png" title="Trash"></td>
           </tr>
+          {{else}}
           <tr> 
-              <td><input type="checkbox"></td> 
-              <td>Sit Amet Dolor Ipsum</td> 
-              <td>Tutorials</td> 
-              <td>10th April 2011</td> 
-              <td><input type="image" src="/static/img/admin/icn_edit.png" title="Edit"><input type="image" src="/static/img/admin/icn_trash.png" title="Trash"></td> 
-          </tr> 
-          <tr> 
-              <td><input type="checkbox"></td> 
-              <td>Dolor Lorem Amet</td> 
-              <td>Articles</td> 
-              <td>16th April 2011</td> 
-              <td><input type="image" src="/static/img/admin/icn_edit.png" title="Edit"><input type="image" src="/static/img/admin/icn_trash.png" title="Trash"></td> 
+              <td colspan="7" style="text-align:center;color:red;">暂时没有任何用户！</td> 
           </tr>
-          <tr> 
-              <td><input type="checkbox"></td> 
-              <td>Dolor Lorem Amet</td> 
-              <td>Articles</td> 
-              <td>16th April 2011</td> 
-              <td><input type="image" src="/static/img/admin/icn_edit.png" title="Edit"><input type="image" src="/static/img/admin/icn_trash.png" title="Trash"></td> 
-          </tr>  
-        </tbody> 
-      </table>
-    </div><!-- end of #tab1 -->
-    
-    <div id="tab2" class="tab_content">
-      <table class="tablesorter" cellspacing="0"> 
-        <thead> 
-          <tr> 
-              <th></th> 
-              <th>Comment</th> 
-              <th>Posted by</th>
-              <th>Posted On</th>
-              <th>Actions</th> 
-          </tr> 
-        </thead> 
-        <tbody> 
-          <tr> 
-              <td><input type="checkbox"></td> 
-              <td>Lorem Ipsum Dolor Sit Amet</td> 
-              <td>Mark Corrigan</td> 
-              <td>5th April 2011</td> 
-              <td><input type="image" src="/static/img/admin/icn_edit.png" title="Edit"><input type="image" src="/static/img/admin/icn_trash.png" title="Trash"></td> 
-          </tr> 
-          <tr> 
-              <td><input type="checkbox"></td> 
-              <td>Ipsum Lorem Dolor Sit Amet</td> 
-              <td>Jeremy Usbourne</td> 
-              <td>6th April 2011</td> 
-              <td><input type="image" src="/static/img/admin/icn_edit.png" title="Edit"><input type="image" src="/static/img/admin/icn_trash.png" title="Trash"></td> 
-          </tr>
-          <tr> 
-              <td><input type="checkbox"></td> 
-              <td>Sit Amet Dolor Ipsum</td> 
-              <td>Super Hans</td> 
-              <td>10th April 2011</td> 
-              <td><input type="image" src="/static/img/admin/icn_edit.png" title="Edit"><input type="image" src="/static/img/admin/icn_trash.png" title="Trash"></td> 
-          </tr> 
-          <tr> 
-              <td><input type="checkbox"></td> 
-              <td>Dolor Lorem Amet</td> 
-              <td>Alan Johnson</td> 
-              <td>16th April 2011</td> 
-              <td><input type="image" src="/static/img/admin/icn_edit.png" title="Edit"><input type="image" src="/static/img/admin/icn_trash.png" title="Trash"></td> 
-          </tr> 
-          <tr> 
-              <td><input type="checkbox"></td> 
-              <td>Dolor Lorem Amet</td> 
-              <td>Dobby</td> 
-              <td>16th April 2011</td> 
-              <td><input type="image" src="/static/img/admin/icn_edit.png" title="Edit"><input type="image" src="/static/img/admin/icn_trash.png" title="Trash"></td> 
-          </tr> 
+          {{end}}
         </tbody> 
       </table>
 
-    </div><!-- end of #tab2 -->
+    </div><!-- end of #tab1 -->
     
   </div><!-- end of .tab_container -->
 

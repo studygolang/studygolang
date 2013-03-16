@@ -13,8 +13,8 @@ set GOPATH=%~dp0;%~dp0..\thirdparty
 
 gofmt -w src
 
-go install studygolang
-go install test
+go install -tags "debug" studygolang
+go install -tags "debug" datamig
 
 set GOPATH=%OLDGOPATH%
 

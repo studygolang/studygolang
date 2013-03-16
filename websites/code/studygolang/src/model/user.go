@@ -2,8 +2,8 @@ package model
 
 import (
 	"fmt"
+	"logger"
 	"math/rand"
-	"time"
 	"util"
 )
 
@@ -34,20 +34,52 @@ func (this *UserLogin) Insert() (int64, error) {
 	return result.RowsAffected()
 }
 
-func (this *UserLogin) Find() error {
-	row, err := this.Dao.Find()
-	if err != nil {
-		return err
-	}
-	return row.Scan(&this.Uid, &this.Username, &this.Passwd, &this.Email, &this.passcode)
+func (this *UserLogin) Find(selectCol ...string) error {
+	return this.Dao.Find(this.colFieldMap(), selectCol...)
+}
+
+// 为了支持连写
+func (this *UserLogin) Where(condition string) *UserLogin {
+	this.Dao.Where(condition)
+	return this
+}
+
+// 为了支持连写
+func (this *UserLogin) Set(clause string) *UserLogin {
+	this.Dao.Set(clause)
+	return this
 }
 
 func (this *UserLogin) prepareInsertData() {
 	this.columns = []string{"uid", "username", "passwd", "email", "passcode"}
+	this.GenMd5Passwd("")
+	this.colValues = []interface{}{this.Uid, this.Username, this.Passwd, this.Email, this.passcode}
+}
+
+// 生成加密密码
+func (this *UserLogin) GenMd5Passwd(origPwd string) string {
+	if origPwd == "" {
+		origPwd = this.Passwd
+	}
 	this.passcode = fmt.Sprintf("%x", rand.Int31())
 	// 密码经过md5(passwd+passcode)加密保存
-	this.Passwd = util.Md5(this.Passwd + this.passcode)
-	this.colValues = []interface{}{this.Uid, this.Username, this.Passwd, this.Email, this.passcode}
+	this.Passwd = util.Md5(origPwd + this.passcode)
+	return this.Passwd
+}
+
+// 由于在DAO中没法调用 具体 model 的方法，如果将该映射关系定义为 具体 model 字段，有些浪费
+func (this *UserLogin) colFieldMap() map[string]interface{} {
+	return map[string]interface{}{
+		"uid":      &this.Uid,
+		"username": &this.Username,
+		"passwd":   &this.Passwd,
+		"email":    &this.Email,
+		"passcode": &this.passcode,
+	}
+}
+
+func (this *UserLogin) GetPasscode() string {
+	return this.passcode
 }
 
 // 用户基本信息
@@ -64,9 +96,12 @@ type User struct {
 	Website   string `json:"website"`
 	Status    string `json:"status"`
 	Introduce string `json:"introduce"`
-	// 不导出
-	open  int
-	ctime time.Time
+	Ctime     string `json:"ctime"`
+	Open      int    `json:"open"`
+
+	// 非用户表中的信息，为了方便放在这里
+	Roleids   []int
+	Rolenames []string
 
 	// 内嵌
 	*Dao
@@ -78,7 +113,203 @@ func NewUser() *User {
 	}
 }
 
-func (this *User) Insert() (int64, error) {
+func (this *User) Insert() (int, error) {
+	this.prepareInsertData()
+	result, err := this.Dao.Insert()
+	if err != nil {
+		return 0, err
+	}
+	id, err := result.LastInsertId()
+	return int(id), err
+}
+
+func (this *User) Find(selectCol ...string) error {
+	return this.Dao.Find(this.colFieldMap(), selectCol...)
+}
+
+func (this *User) FindAll(selectCol ...string) ([]*User, error) {
+	if len(selectCol) == 0 {
+		selectCol = util.MapKeys(this.colFieldMap())
+	}
+	rows, err := this.Dao.FindAll(selectCol...)
+	if err != nil {
+		return nil, err
+	}
+	// TODO:
+	userList := make([]*User, 0, 10)
+	logger.Debugln("selectCol", selectCol)
+	colNum := len(selectCol)
+	for rows.Next() {
+		user := NewUser()
+		err = this.Scan(rows, colNum, user.colFieldMap(), selectCol...)
+		if err != nil {
+			logger.Errorln("User FindAll Scan Error:", err)
+			continue
+		}
+		userList = append(userList, user)
+	}
+	return userList, nil
+}
+
+func (this *User) Where(condition string) *User {
+	this.Dao.Where(condition)
+	return this
+}
+
+// 为了支持连写
+func (this *User) Set(clause string) *User {
+	this.Dao.Set(clause)
+	return this
+}
+
+// 为了支持连写
+func (this *User) Limit(limit string) *User {
+	this.Dao.Limit(limit)
+	return this
+}
+
+// 为了支持连写
+func (this *User) Order(order string) *User {
+	this.Dao.Order(order)
+	return this
+}
+
+func (this *User) prepareInsertData() {
+	this.columns = []string{"username", "email", "name", "avatar", "city", "company", "github", "weibo", "website", "status", "introduce"}
+	this.colValues = []interface{}{this.Username, this.Email, this.Name, this.Avatar, this.City, this.Company, this.Github, this.Weibo, this.Website, this.Status, this.Introduce}
+}
+
+func (this *User) colFieldMap() map[string]interface{} {
+	return map[string]interface{}{
+		"uid":       &this.Uid,
+		"username":  &this.Username,
+		"email":     &this.Email,
+		"name":      &this.Name,
+		"avatar":    &this.Avatar,
+		"city":      &this.City,
+		"company":   &this.Company,
+		"github":    &this.Github,
+		"weibo":     &this.Weibo,
+		"website":   &this.Website,
+		"status":    &this.Status,
+		"introduce": &this.Introduce,
+		"open":      &this.Open,
+		"ctime":     &this.Ctime,
+	}
+}
+
+// 活跃用户信息
+type UserActive struct {
+	Uid      int    `json:"uid"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Avatar   string `json:"avatar"`
+	Mtime    string `json:"mtime"`
+
+	// 内嵌
+	*Dao
+}
+
+func NewUserActive() *UserActive {
+	return &UserActive{
+		Dao: &Dao{tablename: "user_active"},
+	}
+}
+
+func (this *UserActive) Insert() (int, error) {
+	this.prepareInsertData()
+	result, err := this.Dao.Insert()
+	if err != nil {
+		return 0, err
+	}
+	id, err := result.LastInsertId()
+	return int(id), err
+}
+
+func (this *UserActive) Find(selectCol ...string) error {
+	return this.Dao.Find(this.colFieldMap(), selectCol...)
+}
+
+func (this *UserActive) FindAll(selectCol ...string) ([]*UserActive, error) {
+	if len(selectCol) == 0 {
+		selectCol = util.MapKeys(this.colFieldMap())
+	}
+	rows, err := this.Dao.FindAll(selectCol...)
+	if err != nil {
+		return nil, err
+	}
+	// TODO:
+	userList := make([]*UserActive, 0, 10)
+	logger.Debugln("selectCol", selectCol)
+	colNum := len(selectCol)
+	for rows.Next() {
+		user := NewUserActive()
+		err = this.Scan(rows, colNum, user.colFieldMap(), selectCol...)
+		if err != nil {
+			logger.Errorln("User FindAll Scan Error:", err)
+			continue
+		}
+		userList = append(userList, user)
+	}
+	return userList, nil
+}
+
+// 设置更新字段
+func (this *UserActive) Set(clause string) *UserActive {
+	this.Dao.Set(clause)
+	return this
+}
+
+// 为了支持连写
+func (this *UserActive) Where(condition string) *UserActive {
+	this.Dao.Where(condition)
+	return this
+}
+
+// 为了支持连写
+func (this *UserActive) Limit(limit string) *UserActive {
+	this.Dao.Limit(limit)
+	return this
+}
+
+// 为了支持连写
+func (this *UserActive) Order(order string) *UserActive {
+	this.Dao.Order(order)
+	return this
+}
+
+func (this *UserActive) prepareInsertData() {
+	this.columns = []string{"uid", "username", "email", "avatar"}
+	this.colValues = []interface{}{this.Uid, this.Username, this.Email, this.Avatar}
+}
+
+func (this *UserActive) colFieldMap() map[string]interface{} {
+	return map[string]interface{}{
+		"uid":      &this.Uid,
+		"username": &this.Username,
+		"email":    &this.Email,
+		"avatar":   &this.Avatar,
+		"mtime":    &this.Mtime,
+	}
+}
+
+// 用户角色信息
+type UserRole struct {
+	Uid    int `json:"uid"`
+	Roleid int `json:"roleid"`
+	ctime  string
+
+	//
+	*Dao
+}
+
+func NewUserRole() *UserRole {
+	return &UserRole{
+		Dao: &Dao{tablename: "user_role"},
+	}
+}
+
+func (this *UserRole) Insert() (int64, error) {
 	this.prepareInsertData()
 	result, err := this.Dao.Insert()
 	if err != nil {
@@ -87,15 +318,52 @@ func (this *User) Insert() (int64, error) {
 	return result.LastInsertId()
 }
 
-func (this *User) Find() error {
-	row, err := this.Dao.Find()
-	if err != nil {
-		return err
-	}
-	return row.Scan(&this.Uid, &this.Username, &this.Email, &this.Name, &this.open)
+func (this *UserRole) Find(selectCol ...string) error {
+	return this.Dao.Find(this.colFieldMap(), selectCol...)
 }
 
-func (this *User) prepareInsertData() {
-	this.columns = []string{"username", "email", "name", "avatar", "city", "company", "github", "weibo", "website", "status", "introduce"}
-	this.colValues = []interface{}{this.Username, this.Email, this.Name, this.Avatar, this.City, this.Company, this.Github, this.Weibo, this.Website, this.Status, this.Introduce}
+func (this *UserRole) FindAll(selectCol ...string) ([]*UserRole, error) {
+	if len(selectCol) == 0 {
+		selectCol = util.MapKeys(this.colFieldMap())
+	}
+	rows, err := this.Dao.FindAll(selectCol...)
+	if err != nil {
+		logger.Errorln("[UserRole.FindAll] error:", err)
+		return nil, err
+	}
+	// TODO:
+	userRoleList := make([]*UserRole, 0, 10)
+	colNum := len(selectCol)
+	for rows.Next() {
+		userRole := NewUserRole()
+		colFieldMap := userRole.colFieldMap()
+		scanInterface := make([]interface{}, 0, colNum)
+		for _, column := range selectCol {
+			scanInterface = append(scanInterface, colFieldMap[column])
+		}
+		err = rows.Scan(scanInterface...)
+		if err != nil {
+			logger.Errorln("[UserRole.FindAll Rows] error:", err)
+		}
+		userRoleList = append(userRoleList, userRole)
+	}
+	return userRoleList, nil
+}
+
+func (this *UserRole) Where(condition string) *UserRole {
+	this.Dao.Where(condition)
+	return this
+}
+
+func (this *UserRole) prepareInsertData() {
+	this.columns = []string{"uid", "roleid"}
+	this.colValues = []interface{}{this.Uid, this.Roleid}
+}
+
+func (this *UserRole) colFieldMap() map[string]interface{} {
+	return map[string]interface{}{
+		"uid":    &this.Uid,
+		"roleid": &this.Roleid,
+		"ctime":  &this.ctime,
+	}
 }
