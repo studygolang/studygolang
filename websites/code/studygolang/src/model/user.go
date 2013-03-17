@@ -205,11 +205,18 @@ func (this *User) colFieldMap() map[string]interface{} {
 }
 
 // 活跃用户信息
+// 活跃度规则：
+//	1、注册成功后 +2
+//	2、登录一次 +1
+//	3、修改资料 +1
+//	4、发帖子 + 10
+//	5、评论 +5
 type UserActive struct {
 	Uid      int    `json:"uid"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Avatar   string `json:"avatar"`
+	Weight   int    `json:"weight"`
 	Mtime    string `json:"mtime"`
 
 	// 内嵌
@@ -285,8 +292,8 @@ func (this *UserActive) Order(order string) *UserActive {
 }
 
 func (this *UserActive) prepareInsertData() {
-	this.columns = []string{"uid", "username", "email", "avatar"}
-	this.colValues = []interface{}{this.Uid, this.Username, this.Email, this.Avatar}
+	this.columns = []string{"uid", "username", "email", "avatar", "weight"}
+	this.colValues = []interface{}{this.Uid, this.Username, this.Email, this.Avatar, this.Weight}
 }
 
 func (this *UserActive) colFieldMap() map[string]interface{} {
@@ -295,6 +302,7 @@ func (this *UserActive) colFieldMap() map[string]interface{} {
 		"username": &this.Username,
 		"email":    &this.Email,
 		"avatar":   &this.Avatar,
+		"weight":   &this.Weight,
 		"mtime":    &this.Mtime,
 	}
 }

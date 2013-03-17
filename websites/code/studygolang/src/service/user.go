@@ -20,6 +20,7 @@ func CreateUser(form url.Values) (errMsg string, err error) {
 	user := model.NewUser()
 	err = util.ConvertAssign(user, form)
 	if err != nil {
+		logger.Errorln("user ConvertAssign error", err)
 		errMsg = err.Error()
 		return
 	}
@@ -58,10 +59,23 @@ func CreateUser(form url.Values) (errMsg string, err error) {
 	}
 	userRole.Roleid = roleId
 	userRole.Uid = uid
-	userRole.Insert()
+	if _, err = userRole.Insert(); err != nil {
+		logger.Errorln("userRole insert Error:", err)
+	}
+
+	// 存用户活跃信息，初始活跃+2
+	userActive := model.NewUserActive()
+	userActive.Uid = uid
+	userActive.Username = user.Username
+	userActive.Email = user.Email
+	userActive.Weight = 2
+	if _, err = userActive.Insert(); err != nil {
+		logger.Errorln("UserActive insert Error:", err)
+	}
 	return
 }
 
+// 修改用户资料
 func UpdateUser(form url.Values) (errMsg string, err error) {
 	fields := []string{"name", "open", "city", "company", "github", "weibo", "website", "status", "introduce"}
 	setClause := GenSetClause(form, fields)
@@ -72,6 +86,10 @@ func UpdateUser(form url.Values) (errMsg string, err error) {
 		errMsg = "对不起，服务器内部错误，请稍后再试！"
 		return
 	}
+
+	// 修改用户资料，活跃度+1
+	go IncUserWeight("username="+username, 1)
+
 	return
 }
 
@@ -236,6 +254,10 @@ func Login(username, passwd string) (*model.UserLogin, error) {
 		logger.Infof("用户名 %s 填写的密码错误", username)
 		return nil, ErrPasswd
 	}
+
+	// 登录，活跃度+1
+	go IncUserWeight("uid="+strconv.Itoa(userLogin.Uid), 1)
+
 	return userLogin, nil
 }
 
@@ -273,4 +295,11 @@ func GenSetClause(form url.Values, fields []string) string {
 		return stringBuilder.String()[1:]
 	}
 	return ""
+}
+
+// 增加或减少用户活跃度
+func IncUserWeight(where string, weight int) {
+	if err := model.NewUserActive().Where(where).Increment("weight", weight); err != nil {
+		logger.Errorln("UserActive update Error:", err)
+	}
 }

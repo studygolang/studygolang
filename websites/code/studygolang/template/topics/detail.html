@@ -29,12 +29,14 @@
           </div>
         </div>
         <div class="body entry-content">{{.topic.content}}</div>
+        <!--
         <div class="tools pull-right">
           <a href="#" data-followed="false" data-id="{{.topic.tid}}" onclick="return Topics.follow(this);" rel="twipsy" data-original-title=""><i class="icon small_follow"></i> 关注</a>
           <a href="#" class="likeable" data-count="1" data-id="{{.topic.tid}}" data-state="" data-type="Topic" onclick="return App.likeable(this);" rel="twipsy" data-original-title="喜欢"><i class="icon small_like"></i> <span>1人喜欢</span></a>
           <a href="#" class="icon small_bookmark" data-id="{{.topic.tid}}" onclick="return Topics.favorite(this);" rel="twipsy" data-original-title="收藏"></a>
           <a href="/topics/9274/edit" class="icon small_edit" title="修改本帖"></a>
         </div>
+        -->
         <div class="social-share-button" data-title="{{.topic.title}} | Golang China | Golang中文社区 | Go语言学习园地 via: @studygolang " data-img="" data-url="">
           <a href="#" class="social-share-button-weibo" data-site="weibo" onclick="return SocialShareButton.share(this);" rel="nofollow " title="分享到新浪微博"></a>
           <a href="#" class="social-share-button-tqq" data-site="tqq" onclick="return SocialShareButton.share(this);" rel="nofollow " title="分享到腾讯微博"></a>
@@ -77,6 +79,7 @@
       </div>
     </div>
     {{end}}
+    {{if .me}}
     <div id="reply" class="form box">
       <form accept-charset="UTF-8" action="/comment/{{.topic.tid}}.json" class="new_reply" data-remote="true" id="new_reply" method="post">
         <div style="margin:0;padding:0;display:inline">
@@ -118,6 +121,13 @@
         </span>
       </form>
     </div>
+    {{else}}
+    <div id="reply" class="form box">
+        <div style="padding:20px;">
+        需要 <a href="/account/login" class="btn btn-primary">登录</a> 后方可回复, 如果你还没有账号你可以 <a href="/account/register" class="btn btn-danger">注册</a> 一个帐号。
+        </div>
+    </div>
+    {{end}}
   </div>
 
   <div class="sidebar">
@@ -156,6 +166,8 @@
 <script type="text/javascript" src="/static/js/social-share-button.js"></script>
 <script type="text/javascript">
 (function () {
+    {{if .me}}
+    // 评论框
     var topicConverter = Markdown.getSanitizingConverter();
     
     topicConverter.hooks.chain("preBlockGamut", function (text, rbg) {
@@ -167,6 +179,7 @@
     var topicEditor = new Markdown.Editor(topicConverter);
     
     topicEditor.run();
+    {{end}}
     // 转换主帖
     var converter = new Markdown.Converter();
     $('.entry-content').html(converter.makeHtml($('.entry-content').html()));

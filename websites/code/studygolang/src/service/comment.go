@@ -86,5 +86,8 @@ func PostComment(objid, objtype, uid int, content string, objname string) error 
 		go commenter.UpdateComment(cid, objid, uid, time.Now().Format("2006-01-02 15:04:05"))
 	}
 
+	// 发评论，活跃度+5
+	go IncUserWeight("uid="+strconv.Itoa(uid), 5)
+
 	return nil
 }

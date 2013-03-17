@@ -7,6 +7,7 @@
 package filter
 
 import (
+	"config"
 	"github.com/gorilla/context"
 	"github.com/gorilla/sessions"
 	"github.com/studygolang/mux"
@@ -72,8 +73,7 @@ func setUser(req *http.Request, user map[string]interface{}) {
 	context.Set(req, userkey, user)
 }
 
-// TODO:cookie secret key
-var Store = sessions.NewCookieStore([]byte("fwe323"))
+var Store = sessions.NewCookieStore([]byte(config.Config["cookie_secret"]))
 
 // 获得当前登录用户
 func CurrentUser(req *http.Request) (map[string]interface{}, bool) {

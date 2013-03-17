@@ -31,6 +31,10 @@ func PublishTopic(topic *model.Topic) (errMsg string, err error) {
 		logger.Errorln(errMsg, "：", err)
 		return
 	}
+
+	// 发布帖子，活跃度+10
+	go IncUserWeight("uid="+strconv.Itoa(topic.Uid), 10)
+
 	return
 }
 
