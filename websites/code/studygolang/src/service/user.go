@@ -273,6 +273,22 @@ func UpdatePasswd(username, passwd string) (string, error) {
 	return "", nil
 }
 
+// 获取用户信息
+func getUserInfos(uids map[int]int) map[int]*model.User {
+	// 获取用户信息
+	inUids := util.Join(util.MapIntKeys(uids), ",")
+	users, err := model.NewUser().Where("uid in(" + inUids + ")").FindAll()
+	if err != nil {
+		logger.Errorln("user service getUserInfos Error:", err)
+		return map[int]*model.User{}
+	}
+	userMap := make(map[int]*model.User, len(users))
+	for _, user := range users {
+		userMap[user.Uid] = user
+	}
+	return userMap
+}
+
 // 会员总数
 func CountUsers() int {
 	total, err := model.NewUserLogin().Count()

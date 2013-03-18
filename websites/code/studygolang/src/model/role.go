@@ -57,14 +57,9 @@ func (this *Role) FindAll(selectCol ...string) ([]*Role, error) {
 	colNum := len(selectCol)
 	for rows.Next() {
 		role := NewRole()
-		colFieldMap := role.colFieldMap()
-		scanInterface := make([]interface{}, 0, colNum)
-		for _, column := range selectCol {
-			scanInterface = append(scanInterface, colFieldMap[column])
-		}
-		err = rows.Scan(scanInterface...)
+		err = this.Scan(rows, colNum, role.colFieldMap(), selectCol...)
 		if err != nil {
-			logger.Errorln("FindAll Scan Error:", err)
+			logger.Errorln("Role FindAll Scan Error:", err)
 			continue
 		}
 		roleList = append(roleList, role)

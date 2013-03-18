@@ -211,6 +211,7 @@ func (this *User) colFieldMap() map[string]interface{} {
 //	3、修改资料 +1
 //	4、发帖子 + 10
 //	5、评论 +5
+//	6、创建Wiki页 +10
 type UserActive struct {
 	Uid      int    `json:"uid"`
 	Username string `json:"username"`
@@ -350,14 +351,10 @@ func (this *UserRole) FindAll(selectCol ...string) ([]*UserRole, error) {
 	colNum := len(selectCol)
 	for rows.Next() {
 		userRole := NewUserRole()
-		colFieldMap := userRole.colFieldMap()
-		scanInterface := make([]interface{}, 0, colNum)
-		for _, column := range selectCol {
-			scanInterface = append(scanInterface, colFieldMap[column])
-		}
-		err = rows.Scan(scanInterface...)
+		err = this.Scan(rows, colNum, userRole.colFieldMap(), selectCol...)
 		if err != nil {
-			logger.Errorln("[UserRole.FindAll Rows] error:", err)
+			logger.Errorln("UserRole FindAll Scan Error:", err)
+			continue
 		}
 		userRoleList = append(userRoleList, userRole)
 	}

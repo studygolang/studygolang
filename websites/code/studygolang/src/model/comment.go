@@ -67,12 +67,7 @@ func (this *Comment) FindAll(selectCol ...string) ([]*Comment, error) {
 	colNum := len(selectCol)
 	for rows.Next() {
 		comment := NewComment()
-		colFieldMap := comment.colFieldMap()
-		scanInterface := make([]interface{}, 0, colNum)
-		for _, column := range selectCol {
-			scanInterface = append(scanInterface, colFieldMap[column])
-		}
-		err = rows.Scan(scanInterface...)
+		err = this.Scan(rows, colNum, comment.colFieldMap(), selectCol...)
 		if err != nil {
 			logger.Errorln("Comment FindAll Scan Error:", err)
 			continue

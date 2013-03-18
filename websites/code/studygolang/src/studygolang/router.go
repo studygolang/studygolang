@@ -51,6 +51,11 @@ func initRouter() *mux.Router {
 	router.HandleFunc("/users", UsersHandler)
 	router.HandleFunc("/user/{username:\\w+}", UserHomeHandler)
 
+	// wiki
+	router.HandleFunc("/wiki", WikisHandler)
+	router.HandleFunc("/wiki/new{json:(|.json)}", NewWikiPageHandler).AppendFilterChain(loginFilterChain)
+	router.HandleFunc("/wiki/{uri}", WikiContentHandler)
+
 	// 酷站
 	router.HandleFunc("/sites", SitesHandler)
 	// 资源

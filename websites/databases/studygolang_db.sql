@@ -171,7 +171,7 @@ CREATE TABLE `user_info` (
 DROP TABLE IF EXISTS `user_active`;
 CREATE TABLE `user_active` (
   `uid` int unsigned NOT NULL,
-  `email` varchar(128) NOT NULL DEFAULT '',
+  `email` varchar(128) NOT NULL,
   `username` varchar(20) NOT NULL COMMENT '用户名',
   `weight` smallint NOT NULL DEFAULT 1 COMMENT '活跃度，越大越活跃',
   `avatar` varchar(128) NOT NULL DEFAULT '' COMMENT '头像(暂时使用http://www.gravatar.com)',
@@ -263,16 +263,18 @@ CREATE TABLE `message` (
 
 /*---------------------------------------------------------------------------*
   NAME: wiki
-  用途：wiki页
+  用途：wiki页（需要考虑审核问题？）
 *---------------------------------------------------------------------------*/
 DROP TABLE IF EXISTS `wiki`;
 CREATE TABLE `wiki` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL COMMENT 'wiki标题',
   `content` longtext NOT NULL COMMENT 'wiki内容',
+  `uri` varchar(50) NOT NULL COMMENT 'uri',
   `uid` int unsigned NOT NULL COMMENT '作者',
   `cuid` varchar(100) NOT NULL DEFAULT '' COMMENT '贡献者',
-  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `ctime` timestamp NOT NULL DEFAULT 0,
+  `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY (`uid`)
+  UNIQUE KEY (`uri`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

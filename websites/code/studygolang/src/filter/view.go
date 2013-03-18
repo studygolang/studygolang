@@ -96,7 +96,7 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 	// 这样，在ParseFiles时，新返回的*Template便还是原来的模板实例
 	tpl, err := template.New(this.baseTplName).Funcs(funcMap).ParseFiles(append(this.commonHtmlFiles, config.ROOT+contentHtml)...)
 	if err != nil {
-		logger.Errorln("解析模板出错（ParseFiles）：", err)
+		logger.Errorf("解析模板出错（ParseFiles）：[%q] %s\n", req.RequestURI, err)
 		return false
 	}
 	// 如果没有定义css和js模板，则定义之
@@ -113,7 +113,7 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 	data["me"] = me
 	err = tpl.Execute(rw, data)
 	if err != nil {
-		logger.Errorln("执行模板出错（Execute）：", err)
+		logger.Errorf("执行模板出错（Execute）：[%q] %s\n", req.RequestURI, err)
 	}
 	return true
 }

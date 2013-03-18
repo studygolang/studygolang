@@ -171,12 +171,7 @@ func (this *TopicEx) FindAll(selectCol ...string) ([]*TopicEx, error) {
 	colNum := len(selectCol)
 	for rows.Next() {
 		topicEx := NewTopicEx()
-		colFieldMap := topicEx.colFieldMap()
-		scanInterface := make([]interface{}, 0, colNum)
-		for _, column := range selectCol {
-			scanInterface = append(scanInterface, colFieldMap[column])
-		}
-		err = rows.Scan(scanInterface...)
+		err = this.Scan(rows, colNum, topicEx.colFieldMap(), selectCol...)
 		if err != nil {
 			logger.Errorln("TopicEx FindAll Scan Error:", err)
 			continue
@@ -264,12 +259,7 @@ func (this *TopicNode) FindAll(selectCol ...string) ([]*TopicNode, error) {
 	colNum := len(selectCol)
 	for rows.Next() {
 		node := NewTopicNode()
-		colFieldMap := node.colFieldMap()
-		scanInterface := make([]interface{}, 0, colNum)
-		for _, column := range selectCol {
-			scanInterface = append(scanInterface, colFieldMap[column])
-		}
-		err = rows.Scan(scanInterface...)
+		err = this.Scan(rows, colNum, node.colFieldMap(), selectCol...)
 		if err != nil {
 			logger.Errorln("TopicNode FindAll Scan Error:", err)
 			continue

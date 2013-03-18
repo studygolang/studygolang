@@ -300,22 +300,6 @@ func TopicsTotal() (total int) {
 	return
 }
 
-// 获取用户信息
-func getUserInfos(uids map[int]int) map[int]*model.User {
-	// 获取用户信息
-	inUids := util.Join(util.MapIntKeys(uids), ",")
-	users, err := model.NewUser().Where("uid in(" + inUids + ")").FindAll()
-	if err != nil {
-		logger.Errorln("topic service getUserInfos Error:", err)
-		return map[int]*model.User{}
-	}
-	userMap := make(map[int]*model.User, len(users))
-	for _, user := range users {
-		userMap[user.Uid] = user
-	}
-	return userMap
-}
-
 // 话题回复（评论）
 type TopicComment struct{}
 
