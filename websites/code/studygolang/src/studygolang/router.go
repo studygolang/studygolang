@@ -24,7 +24,9 @@ func initRouter() *mux.Router {
 	cookieFilter := new(filter.CookieFilter)
 	// 大部分handler都需要页面展示
 	frontViewFilter := filter.NewViewFilter()
-	router.FilterChain(mux.NewFilterChain([]mux.Filter{cookieFilter, frontViewFilter}...))
+	// 表单校验过滤器（配置了验证规则就会执行）
+	formValidateFilter := new(filter.FormValidateFilter)
+	router.FilterChain(mux.NewFilterChain([]mux.Filter{cookieFilter, formValidateFilter, frontViewFilter}...))
 
 	router.HandleFunc("/", IndexHandler)
 	router.HandleFunc("/topics{view:(|/popular|/no_reply|/last)}", TopicsHandler)
@@ -34,9 +36,8 @@ func initRouter() *mux.Router {
 	// 某个节点下的话题
 	router.HandleFunc("/topics/node{nid:[0-9]+}", NodesHandler)
 
-	formValidateFilter := new(filter.FormValidateFilter)
 	// 注册
-	router.HandleFunc("/account/register{json:(|.json)}", RegisterHandler).AppendFilterChain(mux.NewFilterChain(formValidateFilter))
+	router.HandleFunc("/account/register{json:(|.json)}", RegisterHandler)
 	// 登录
 	router.HandleFunc("/account/login", LoginHandler)
 	router.HandleFunc("/account/logout", LogoutHandler)

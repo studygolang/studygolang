@@ -26,11 +26,38 @@ func (this *LoginFilter) PreFilter(rw http.ResponseWriter, req *http.Request) bo
 	logger.Debugln("LoginFilter PreFilter...")
 	if _, ok := CurrentUser(req); !ok {
 		logger.Debugln("需要登录")
-		// 没有登录
+		// 支持跳转回原来访问的页面
+		NewFlash(rw, req).AddFlash(req.RequestURI, "uri")
 		util.Redirect(rw, req, "/account/login")
 		return false
 	}
 	return true
+}
+
+// flash messages
+type Flash struct {
+	rw  http.ResponseWriter
+	req *http.Request
+
+	session *sessions.Session
+}
+
+func NewFlash(rw http.ResponseWriter, req *http.Request) *Flash {
+	session, _ := Store.Get(req, "sg_flash")
+	return &Flash{rw: rw, req: req, session: session}
+}
+
+func (this *Flash) AddFlash(value interface{}, vars ...string) {
+	this.session.AddFlash(value, vars...)
+	this.session.Save(this.req, this.rw)
+}
+
+func (this *Flash) Flashes(vars ...string) []interface{} {
+	defer this.session.Save(this.req, this.rw)
+	if flashes := this.session.Flashes(vars...); len(flashes) > 0 {
+		return flashes
+	}
+	return nil
 }
 
 // 如果没登陆但有Cookie时，自动登录
@@ -39,10 +66,6 @@ type CookieFilter struct {
 }
 
 func (this *CookieFilter) PreFilter(rw http.ResponseWriter, req *http.Request) bool {
-	// 避免req.Form为nil
-	req.ParseForm()
-
-	logger.Debugln("CookieFilter PreFilter...")
 	user, _ := CurrentUser(req)
 	// 已登录且请求登录页面
 	if user != nil && req.RequestURI == "/account/login" {

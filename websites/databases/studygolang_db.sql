@@ -277,4 +277,23 @@ CREATE TABLE `wiki` (
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY (`uri`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) COMMENT 'wiki页' ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+/*---------------------------------------------------------------------------*
+  NAME: resource
+  用途：资源表：包括Golang资源下载
+*---------------------------------------------------------------------------*/
+DROP TABLE IF EXISTS `resource`;
+CREATE TABLE `resource` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL COMMENT 'wiki标题',
+  `content` longtext NOT NULL COMMENT 'wiki内容',
+  `uri` varchar(50) NOT NULL COMMENT 'uri',
+  `uid` int unsigned NOT NULL COMMENT '作者',
+  `cuid` varchar(100) NOT NULL DEFAULT '' COMMENT '贡献者',
+  `ctime` timestamp NOT NULL DEFAULT 0,
+  `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`uri`)
+) COMMENT 'wiki页' ENGINE=InnoDB DEFAULT CHARSET=utf8;

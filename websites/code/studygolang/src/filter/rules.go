@@ -6,6 +6,23 @@
 
 package filter
 
+import (
+	"regexp"
+)
+
+func Rule(uri string) map[string]map[string]map[string]string {
+	if rule, ok := rules[uri]; ok {
+		return rule
+	}
+	for key, rule := range rules {
+		reg := regexp.MustCompile(key)
+		if reg.MatchString(uri) {
+			return rule
+		}
+	}
+	return nil
+}
+
 // 定义所有表单验证规则
 var rules = map[string]map[string]map[string]map[string]string{
 	// 用户注册验证规则
@@ -31,8 +48,7 @@ var rules = map[string]map[string]map[string]map[string]string{
 	// 发新帖
 	"/topics/new.json": {
 		"nid": {
-			"require": {"error": "请选择节点"},
-			"int":     {},
+			"int": {"range": "0,", "error": "请选择节点"},
 		},
 		"title": {
 			"require": {"error": "标题不能为空"},
@@ -41,6 +57,27 @@ var rules = map[string]map[string]map[string]map[string]string{
 		"content": {
 			"require": {"error": "内容不能为空！"},
 			"length":  {"range": "2,", "error": "话题内容长度必不能少于%d个字符"},
+		},
+	},
+	// 发回复
+	`/comment/\d+\.json`: {
+		"content": {
+			"require": {"error": "内容不能为空！"},
+			"length":  {"range": "2,", "error": "回复内容长度必不能少于%d个字符"},
+		},
+	},
+	// 发wiki
+	"/wiki/new.json": {
+		"title": {
+			"require": {"error": "标题不能为空"},
+			"length":  {"range": "3,", "error": "标题长度必不能少于%d个字符"},
+		},
+		"uri": {
+			"require": {"error": "URL不能为空"},
+		},
+		"content": {
+			"require": {"error": "内容不能为空！"},
+			"length":  {"range": "2,", "error": "内容长度必不能少于%d个字符"},
 		},
 	},
 }

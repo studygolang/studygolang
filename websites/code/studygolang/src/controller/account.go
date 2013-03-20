@@ -72,7 +72,14 @@ func LoginHandler(rw http.ResponseWriter, req *http.Request) {
 	// 登录成功，种cookie
 	setCookie(rw, req, userLogin.Username)
 
-	util.Redirect(rw, req, "/")
+	// 支持跳转到源页面
+	uri := "/"
+	values := filter.NewFlash(rw, req).Flashes("uri")
+	if values != nil {
+		uri = values[0].(string)
+	}
+	logger.Debugln("uri===", uri)
+	util.Redirect(rw, req, uri)
 }
 
 // 用户编辑个人信息

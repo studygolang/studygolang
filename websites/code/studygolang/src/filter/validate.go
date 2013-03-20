@@ -30,7 +30,7 @@ func (this *FormValidateFilter) PreFilter(rw http.ResponseWriter, req *http.Requ
 		uri = "/account/register.json"
 	}
 	// 验证表单
-	errMsg := Validate(req.Form, rules[uri])
+	errMsg := Validate(req.Form, Rule(uri))
 	logger.Debugln("validate:", errMsg)
 	// 验证失败
 	// TODO:暂时规定，要验证的表单提交都采用异步方式，期望返回json数据
@@ -84,7 +84,7 @@ func Validate(data url.Values, rules map[string]map[string]map[string]string) (e
 		}
 		// 检查【邮箱】
 		if emailInfo, ok := rule["email"]; ok {
-			validEmail := regexp.MustCompile(`^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+((\.[a-zA-Z0-9_-]{2,3}){1,2})$`)
+			validEmail := regexp.MustCompile(`^(\w)+([\w\.-])*@([\w-])+((\.[\w-]{2,3}){1,2})$`)
 			if !validEmail.MatchString(val) {
 				errMsg = emailInfo["error"]
 				return
@@ -129,15 +129,15 @@ func checkRange(src int, destRange string, msg string) (errMsg string) {
 		max = util.MustInt(parts[1])
 		if src > max {
 			errMsg = fmt.Sprintf(msg, max)
-			return
 		}
+		return
 	}
 	if parts[1] == "" {
 		min = util.MustInt(parts[0])
 		if src < min {
 			errMsg = fmt.Sprintf(msg, min)
-			return
 		}
+		return
 	}
 	if min == 0 {
 		min = util.MustInt(parts[0])

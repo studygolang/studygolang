@@ -90,7 +90,7 @@ func TopicDetailHandler(rw http.ResponseWriter, req *http.Request) {
 }
 
 // 新建帖子
-// uri: /topics/new
+// uri: /topics/new{json:(|.json)}
 func NewTopicHandler(rw http.ResponseWriter, req *http.Request) {
 	nodes := genNodes()
 	vars := mux.Vars(req)

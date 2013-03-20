@@ -8,5 +8,6 @@
 	"smtp_password": "example_password",
 	"smtp_host": "smtp.example.com",
 	"smtp_addr": "smtp.example.com:25",
-	"from_email": "example@example.com"
+	"from_email": "example@example.com",
+    "pid": "pid/studygolang.pid"
 }

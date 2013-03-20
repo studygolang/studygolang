@@ -11,6 +11,8 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"path/filepath"
+	"process"
 	"runtime"
 	"time"
 )
@@ -22,10 +24,21 @@ func init() {
 }
 
 func main() {
+	SavePid()
 	// 服务静态文件
 	http.Handle("/static/", http.FileServer(http.Dir(ROOT)))
 
 	router := initRouter()
 	http.Handle("/", router)
 	log.Fatal(http.ListenAndServe(Config["host"], nil))
+}
+
+// 保存PID
+func SavePid() {
+	pidFile := Config["pid"]
+	if !filepath.IsAbs(Config["pid"]) {
+		pidFile = ROOT + "/" + pidFile
+	}
+	// TODO：错误不处理
+	process.SavePidTo(pidFile)
 }

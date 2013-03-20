@@ -29,3 +29,6 @@ INSERT INTO `topics_node`(`parent`, `name`, `intro`) VALUES(0, 'Study Golang', '
 INSERT INTO `topics_node`(`parent`, `name`, `intro`) VALUES(14, '社区公告', '社区最新动态、公共以及其他信息');
 INSERT INTO `topics_node`(`parent`, `name`, `intro`) VALUES(14, '反馈', '使用过程中遇到了问题，可以在这里提交');
 INSERT INTO `topics_node`(`parent`, `name`, `intro`) VALUES(14, '社区开发', '对开发该社区感兴趣的可以一起加入进来哦');
+
+INSERT INTO `topics_node`(`parent`, `name`, `intro`) VALUES(0, '分享', '分享生活、学习、工作等方方面面');
+INSERT INTO `topics_node`(`parent`, `name`, `intro`) VALUES(18, 'Markdown', '当下Markdown是相当火，本站就使用Markdown发帖，有必要聊聊它的使用');
