@@ -221,8 +221,9 @@
 			return $("#btn_reply").button("loading");
 		});
 		*/
-
-		Topics.initUploader();
+	
+		// TODO 图片上传
+		//Topics.initUploader();
 		
 		$("a.at_floor").on("click", function(a){
 			var floor = $(this).data('floor');
