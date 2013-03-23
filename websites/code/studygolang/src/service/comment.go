@@ -14,6 +14,39 @@ import (
 	"util"
 )
 
+// 获得某个对象的所有评论
+// owner: 被评论对象属主
+// TODO:分页暂不做
+func FindObjComments(objid, objtype string, owner, lastCommentUid int /*, page, pageNum int*/) (comments []map[string]interface{}, ownerUser, lastReplyUser *model.User) {
+	commentList, err := model.NewComment().Where("objid=" + objid + " and objtype=" + objtype).FindAll()
+	if err != nil {
+		logger.Errorln("comment service FindObjComments Error:", err)
+		return
+	}
+
+	commentNum := len(commentList)
+	uids := make(map[int]int, commentNum+1)
+	uids[owner] = owner
+	for _, comment := range commentList {
+		uids[comment.Uid] = comment.Uid
+	}
+
+	// 获得用户信息
+	userMap := getUserInfos(uids)
+	ownerUser = userMap[owner]
+	if lastCommentUid != 0 {
+		lastReplyUser = userMap[lastCommentUid]
+	}
+	comments = make([]map[string]interface{}, 0, commentNum)
+	for _, comment := range commentList {
+		tmpMap := make(map[string]interface{})
+		util.Struct2Map(tmpMap, comment)
+		tmpMap["user"] = userMap[comment.Uid]
+		comments = append(comments, tmpMap)
+	}
+	return
+}
+
 // 获得某人在某种类型最近的评论
 func FindRecentComments(uid, objtype int) []*model.Comment {
 	comments, err := model.NewComment().Where("uid=" + strconv.Itoa(uid) + " AND objtype=" + strconv.Itoa(objtype)).Order("ctime DESC").Limit("0, 5").FindAll()

@@ -106,8 +106,8 @@ func (this *Topic) Order(order string) *Topic {
 }
 
 func (this *Topic) prepareInsertData() {
-	this.columns = []string{"title", "content", "nid", "uid"}
-	this.colValues = []interface{}{this.Title, this.Content, this.Nid, this.Uid}
+	this.columns = []string{"title", "content", "nid", "uid", "ctime"}
+	this.colValues = []interface{}{this.Title, this.Content, this.Nid, this.Uid, this.Ctime}
 }
 
 func (this *Topic) colFieldMap() map[string]interface{} {

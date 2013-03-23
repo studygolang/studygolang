@@ -394,6 +394,7 @@ background: #ffffff;
 display: block;
 width: 90%;
 float: left;
+line-height: 12px;
 }
 
 .module header {

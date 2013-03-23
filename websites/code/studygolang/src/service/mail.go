@@ -18,7 +18,7 @@ func SendMail(subject, content string, tos []string) error {
 	message := `From: Golang中文社区 | Go语言学习园地
 To: ` + strings.Join(tos, ",") + `
 Subject: ` + subject + `
-Content-Type: text/html
+Content-Type: text/html;charset=UTF-8
 
 ` + content
 

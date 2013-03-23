@@ -32,3 +32,8 @@ INSERT INTO `topics_node`(`parent`, `name`, `intro`) VALUES(14, '社区开发', 
 
 INSERT INTO `topics_node`(`parent`, `name`, `intro`) VALUES(0, '分享', '分享生活、学习、工作等方方面面');
 INSERT INTO `topics_node`(`parent`, `name`, `intro`) VALUES(18, 'Markdown', '当下Markdown是相当火，本站就使用Markdown发帖，有必要聊聊它的使用');
+
+
+INSERT INTO `resource_category`(`name`, `intro`) VALUES('精彩文章', '分享来自互联网关于Go语言的精彩文章');
+INSERT INTO `resource_category`(`name`, `intro`) VALUES('第三方库', '收集优秀的第三方库');
+INSERT INTO `resource_category`(`name`, `intro`) VALUES('Go语言资料', 'Go语言书籍、资料，提供下载地址或在线链接');

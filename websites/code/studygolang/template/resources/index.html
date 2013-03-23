@@ -1,0 +1,74 @@
+{{define "topnav"}}
+<li class="first"><a href="/">首页</a><span class="divider">/</span></li>
+<li class="last active"><a href="/resources/cat/{{.curCatid}}" itemprop="url"><span itemprop="title">资源索引</span></a></li>
+{{end}}
+{{define "content"}}
+<div id="main" class="container-fluid">
+  <div id="pages" class="content">
+    <div class="box">
+      <div class="tabbable" style="margin: 0 10px 9px;">
+        <ul class="nav nav-tabs">
+          {{range .categories}}
+          <li id="tb-{{.Catid}}" data-intro="{{.Intro}}"><a href="/resources/cat/{{.Catid}}">{{.Name}}</a></li>
+          {{end}}
+        </ul>
+        <div class="desc"><i class="icon-star"></i> <span id="cat_intro"></span></div>
+        <div class="tab-content">
+          <div class="tab-pane active" id="1">
+            {{range .resources}}
+            <div class="ulitem clearfix" data-id="{{.id}}">
+              <div class="">
+                <div class="ulinfo">
+                  <a class="avatar a-pop-info" href="/user/{{.user.Username}}"><img src="{{gravatar .user.Email 32}}"></a>
+                  <a class="link-url" href="{{.url}}" target="_blank" data-id="{{.id}}">{{.title}}</a>
+                  {{if .host}}
+                  <span class="host">({{.host}})</span>
+                  {{end}}
+                  <p class="ino">
+                    <i class="icon-user"></i><a class="a-pop-info" href="/user/{{.user.Username}}" title="{{.user.Username}}">{{.user.Username}}</a> 于
+                    <em><abbr class="timeago" title="{{formatTime .ctime}}"></abbr></em> 发布
+                  </p>
+                  <p class="edi">
+                    <a href="/resources/{{.id}}#comment" target="_blank">
+                      <i class="icon-comment"></i>{{if .cmtnum}} <b>{{.cmtnum}}</b> {{end}}评论
+                    </a>
+                    <!--<a href="#" class="do-fav"><i class="icon-heart"></i><span>收藏</span></a>-->
+                  </p>
+                </div>
+              </div>
+              <div class=""></div>
+            </div>
+            {{end}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="sidebar">
+    <div class="box center">
+       {{if .me.isadmin}}
+      <div class="content">
+        <a href="/resources/new" class="btn btn-success">分享资源</a>
+      </div>
+      {{end}}
+    </div>
+    <div class="box">
+      <h2 class="title">小贴士</h2>
+      <div class="content">
+        Go语言学习园地，Golang 中文社区，完全采用Go语言构建，将在近期开源，欢迎爱好者一起完善
+      </div>
+    </div>
+  </div>
+</div>
+{{end}}
+{{define "title"}}资源索引{{end}}
+{{define "css"}}<link href="/static/css/topics.css" media="screen" rel="stylesheet" type="text/css">{{end}}
+{{define "js"}}
+<script type="text/javascript">
+$(function(){
+    var intro = $('#tb-'+{{.curCatid}}).addClass("active").data('intro');
+    $('#cat_intro').html(intro);
+});
+</script>
+{{end}}

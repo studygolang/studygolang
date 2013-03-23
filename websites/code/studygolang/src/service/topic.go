@@ -10,11 +10,13 @@ import (
 	"logger"
 	"model"
 	"strconv"
+	"time"
 	"util"
 )
 
 // 发布帖子。入topics和topics_ex库
 func PublishTopic(topic *model.Topic) (errMsg string, err error) {
+	topic.Ctime = time.Now().Format("2006-01-02 15:04:05")
 	tid, err := topic.Insert()
 	if err != nil {
 		errMsg = "内部服务器错误"
@@ -69,34 +71,11 @@ func FindTopicByTid(tid string) (topicMap map[string]interface{}, replies []map[
 	topicMap["node"] = model.GetNodeName(topic.Nid)
 
 	// 回复信息（评论）
-	replyList, err := model.NewComment().Where("objid=" + tid + " and objtype=" + strconv.Itoa(model.TYPE_TOPIC)).FindAll()
-	if err != nil {
-		logger.Errorln("topic service FindTopicByTid Error:", err)
-		return
-	}
-
-	replyNum := len(replyList)
-	uids := make(map[int]int, replyNum+1)
-	uids[topic.Uid] = topic.Uid
-	for _, reply := range replyList {
-		uids[reply.Uid] = reply.Uid
-	}
-
-	// 获得用户信息
-	userMap := getUserInfos(uids)
-	topicMap["user"] = userMap[topic.Uid]
-
+	replies, owerUser, lastReplyUser := FindObjComments(tid, strconv.Itoa(model.TYPE_TOPIC), topic.Uid, topic.Lastreplyuid)
+	topicMap["user"] = owerUser
 	// 有人回复
 	if topic.Lastreplyuid != 0 {
-		topicMap["lastreplyusername"] = userMap[topicMap["lastreplyuid"].(int)].Username
-	}
-
-	replies = make([]map[string]interface{}, 0, replyNum)
-	for _, reply := range replyList {
-		tmpMap := make(map[string]interface{})
-		util.Struct2Map(tmpMap, reply)
-		tmpMap["user"] = userMap[reply.Uid]
-		replies = append(replies, tmpMap)
+		topicMap["lastreplyusername"] = lastReplyUser.Username
 	}
 	return
 }
@@ -112,8 +91,8 @@ func FindTopics(page, pageNum int, where string, orderSlice ...string) (topics [
 		offset = (page - 1) * pageNum
 	}
 	// 即使传了多个，也只取第一个
-	order := ""
-	if len(orderSlice) > 0 {
+	order := "mtime DESC"
+	if len(orderSlice) > 0 && orderSlice[0] != "" {
 		order = orderSlice[0]
 	}
 	return FindTopicsByWhere(where, order, strconv.Itoa(offset)+","+strconv.Itoa(pageNum))

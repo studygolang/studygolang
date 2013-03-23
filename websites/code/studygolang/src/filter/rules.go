@@ -48,7 +48,7 @@ var rules = map[string]map[string]map[string]map[string]string{
 	// 发新帖
 	"/topics/new.json": {
 		"nid": {
-			"int": {"range": "0,", "error": "请选择节点"},
+			"int": {"range": "1,", "error": "请选择节点：%d"},
 		},
 		"title": {
 			"require": {"error": "标题不能为空"},
@@ -78,6 +78,16 @@ var rules = map[string]map[string]map[string]map[string]string{
 		"content": {
 			"require": {"error": "内容不能为空！"},
 			"length":  {"range": "2,", "error": "内容长度必不能少于%d个字符"},
+		},
+	},
+	// 发资源
+	"/resources/new.json": {
+		"title": {
+			"require": {"error": "标题不能为空"},
+			"length":  {"range": "3,", "error": "标题长度必不能少于%d个字符"},
+		},
+		"catid": {
+			"int": {"range": "1,", "error": "请选择类别：%d"},
 		},
 	},
 }

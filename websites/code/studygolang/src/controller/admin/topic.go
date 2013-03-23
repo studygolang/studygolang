@@ -10,14 +10,21 @@ import (
 	"filter"
 	"model"
 	"net/http"
+	"service"
+	"strconv"
 )
 
 // 所有帖子（分页）
 func TopicsHandler(rw http.ResponseWriter, req *http.Request) {
-	user, _ := filter.CurrentUser(req)
-	// 设置内容模板
-	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/admin/users.html")
-	filter.SetData(req, map[string]interface{}{"user": user})
+	page, _ := strconv.Atoi(req.FormValue("p"))
+	if page == 0 {
+		page = 1
+	}
+	topics, _ := service.FindTopics(page, 0, "", "ctime DESC")
+	// pageHtml := service.GetPageHtml(page, total)
+	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/admin/topics.html")
+	// 设置模板数据
+	filter.SetData(req, map[string]interface{}{"topics": topics})
 }
 
 // 所有节点（分页）

@@ -80,6 +80,7 @@
     </div>
     {{end}}
     {{if .me}}
+    <div class="alert alert-block alert-error" id="alert_info" style="display:none;"></div>
     <div id="reply" class="form box">
       <form accept-charset="UTF-8" action="/comment/{{.topic.tid}}.json" class="new_reply" data-remote="true" id="new_reply" method="post">
         <div style="margin:0;padding:0;display:inline">
@@ -196,8 +197,7 @@ $(function(){
         var self = $(this);
         $.post(self.attr('action'), self.serialize(), function(data){
             if (data.errno) {
-                //$('#alert_info').html(data.error).show()
-                alert(data);
+                $('#alert_info').html(data.error).show()
             } else {
                 /*
                 var content = $('#wmd-input').val(),

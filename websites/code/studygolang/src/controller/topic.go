@@ -71,10 +71,6 @@ func NodesHandler(rw http.ResponseWriter, req *http.Request) {
 // uri: /topics/{tid:[0-9]+}
 func TopicDetailHandler(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
-	topic, replies, err := service.FindTopicByTid(vars["tid"])
-	if err != nil {
-		// TODO:
-	}
 	uid := 0
 	user, ok := filter.CurrentUser(req)
 	if ok {
@@ -83,6 +79,10 @@ func TopicDetailHandler(rw http.ResponseWriter, req *http.Request) {
 	// TODO:刷屏暂时不处理
 	// 增加浏览量
 	service.IncrTopicView(vars["tid"], uid)
+	topic, replies, err := service.FindTopicByTid(vars["tid"])
+	if err != nil {
+		// TODO:
+	}
 	// 设置内容模板
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/topics/detail.html")
 	// 设置模板数据

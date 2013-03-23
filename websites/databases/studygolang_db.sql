@@ -12,8 +12,8 @@ CREATE TABLE `topics` (
   `lastreplyuid` int unsigned NOT NULL DEFAULT 0 COMMENT '最后回复者',
   `lastreplytime` timestamp NOT NULL DEFAULT 0 COMMENT '最后回复时间',
   `flag` tinyint NOT NULL DEFAULT 0 COMMENT '审核标识,0-未审核;1-已审核;2-审核删除;3-用户自己删除',
-  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `mtime` timestamp NOT NULL DEFAULT 0,
+  `ctime` timestamp NOT NULL DEFAULT 0,
+  `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`tid`),
   KEY `uid` (`uid`),
   KEY `nid` (`nid`)
@@ -287,13 +287,39 @@ CREATE TABLE `wiki` (
 DROP TABLE IF EXISTS `resource`;
 CREATE TABLE `resource` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) NOT NULL COMMENT 'wiki标题',
-  `content` longtext NOT NULL COMMENT 'wiki内容',
-  `uri` varchar(50) NOT NULL COMMENT 'uri',
+  `title` varchar(255) NOT NULL COMMENT '资源标题',
+  `form` enum('只是链接','包括内容'),
+  `content` longtext NOT NULL COMMENT '资源内容',
+  `url` varchar(150) NOT NULL COMMENT '链接url',
   `uid` int unsigned NOT NULL COMMENT '作者',
-  `cuid` varchar(100) NOT NULL DEFAULT '' COMMENT '贡献者',
+  `catid` int unsigned NOT NULL COMMENT '所属类别',
   `ctime` timestamp NOT NULL DEFAULT 0,
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY (`uri`)
-) COMMENT 'wiki页' ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`id`)
+) COMMENT '资源' ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*---------------------------------------------------------------------------*
+  NAME: resource_ex
+  用途：资源扩展表（计数）
+*---------------------------------------------------------------------------*/
+DROP TABLE IF EXISTS `resource_ex`;
+CREATE TABLE `resource_ex` (
+  `id` int unsigned NOT NULL,
+  `viewnum` int unsigned NOT NULL DEFAULT 0 COMMENT '浏览数',
+  `cmtnum` int unsigned NOT NULL DEFAULT 0 COMMENT '回复数',
+  `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) COMMENT '资源扩展表' ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*---------------------------------------------------------------------------*
+  NAME: resource_category
+  用途：资源分类表
+*---------------------------------------------------------------------------*/
+DROP TABLE IF EXISTS `resource_category`;
+CREATE TABLE `resource_category` (
+  `catid` int unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(20) NOT NULL COMMENT '分类名',
+  `intro` varchar(50) NOT NULL DEFAULT '' COMMENT '分类简介',
+  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`catid`)
+) COMMENT '资源分类表' ENGINE=InnoDB DEFAULT CHARSET=utf8;

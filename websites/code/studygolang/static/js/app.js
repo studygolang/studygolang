@@ -122,7 +122,7 @@
 			// App.initNotificationSubscribe();
 		}
 		
-		$("form.new_topic,form.new_reply,form.new_note,form.new_page").sisyphus({timeout:2});
+		$("form.new_topic,form.new_reply,form.new_note,form.new_page,form.new_resource").sisyphus({timeout:2});
 		
 		$("form a.reset").click(function(){
 			return $.sisyphus().manuallyReleaseData()

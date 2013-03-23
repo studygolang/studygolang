@@ -60,7 +60,10 @@ func initRouter() *mux.Router {
 	// 酷站
 	router.HandleFunc("/sites", SitesHandler)
 	// 资源
-	router.HandleFunc("/resources", ResourcesHandler)
+	router.HandleFunc("/resources", ResIndexHandler)
+	router.HandleFunc("/resources/cat/{catid:[0-9]+}", CatResourcesHandler)
+	router.HandleFunc("/resources/{id:[0-9]+}", ResourceDetailHandler)
+	router.HandleFunc("/resources/new{json:(|.json)}", NewResourceHandler).AppendFilterChain(loginFilterChain)
 
 	// 评论
 	router.HandleFunc("/comment/{objid:[0-9]+}.json", CommentHandler).AppendFilterChain(loginFilterChain)
@@ -75,7 +78,7 @@ func initRouter() *mux.Router {
 	// 管理后台权限检查过滤器
 	adminFilter := new(filter.AdminFilter)
 	backViewFilter := filter.NewViewFilter(config.ROOT + "/template/admin/common.html")
-	adminFilterChain := mux.NewFilterChain([]mux.Filter{loginFilter, adminFilter, backViewFilter}...)
+	adminFilterChain := mux.NewFilterChain([]mux.Filter{loginFilter, adminFilter, formValidateFilter, backViewFilter}...)
 	// admin 子系统
 	// router.HandleFunc("/admin", admin.IndexHandler).AppendFilterChain(loginFilterChain) // 支持"/admin访问"
 	subrouter := router.PathPrefix("/admin").Subrouter()

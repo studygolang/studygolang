@@ -4,8 +4,8 @@
 {{define "content"}}
   <div id="main" class="container-fluid">
     <!--
-    <div class="alert alert-warning" style="text-align:center; margin-bottom:10px;">Study Golang，对！没错！这里就是 Golang 社区，目前这里已经是国内最权威的 Golang 社区，拥有国内所有资深的 Golang 工程师。-->
-    </div>
+    <div class="alert alert-warning" style="text-align:center; margin-bottom:10px;">Study Golang，对！没错！这里就是 Golang 社区，目前这里已经是国内最权威的 Golang 社区，拥有国内所有资深的 Golang 工程师。
+    </div>-->
     <div id="sections" class="box">
       <h2>推荐博客文章</h2>
       <ul>
@@ -28,13 +28,12 @@
     </div>
     <div class="home_suggest_topics">
       <div class="high_likes_topics box">
-        <h2 class="title">推荐帖子</h2>
+        <h2 class="title">最新资源</h2>
         <ul>
-          {{range .hots}}
+          {{range .resources}}
           <li>
             <a href="/user/{{.username}}"><img alt="{{.user.Username}}" title="{{.user.Username}}" class="uface" src="{{gravatar .user.Email 16}}" style="width:16px;height:16px;"></a>
-            <a href="/topics/{{.tid}}" title="{{.title}}">{{substring .title 28 "..."}}</a>
-            <span class="count">{{.like}} 人喜欢 {{.reply}} 人回复</span>
+            <a href="/resources/{{.id}}" title="{{.title}}">{{substring .title 33 "..."}}</a>
           </li>
           {{end}}
         </ul>

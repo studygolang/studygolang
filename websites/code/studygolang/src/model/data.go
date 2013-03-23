@@ -23,11 +23,16 @@ var (
 	nodeRWMutex sync.RWMutex
 	// 节点信息
 	AllNode []map[string]interface{}
+
+	catRWMutex sync.RWMutex
+	// 资源分类
+	AllCategory []*ResourceCat
 )
 
 func init() {
 	UpdateAllRole()
 	UpdateAllNode()
+	UpdateAllCategory()
 }
 
 // 更新 AllRole 数据
@@ -115,4 +120,26 @@ func GetNodesName(nids []int) map[int]string {
 		}
 	}
 	return nodes
+}
+
+// 更新 AllCategory 数据
+func UpdateAllCategory() {
+	var err error
+	AllCategory, err = NewResourceCat().FindAll()
+	if err != nil {
+		logger.Errorln("获取资源分类数据失败：", err)
+		return
+	}
+}
+
+// 获得分类名
+func GetCategoryName(catid int) string {
+	catRWMutex.RLock()
+	defer catRWMutex.RUnlock()
+	for _, cat := range AllCategory {
+		if cat.Catid == catid {
+			return cat.Name
+		}
+	}
+	return ""
 }

@@ -1,36 +1,52 @@
 {{define "topnav"}}
 <li class="first"><a href="/">首页</a><span class="divider">/</span></li>
-<li class=""><a href="/wiki" itemprop="url"><span itemprop="title">Wiki</span></a><span class="divider">/</span></li>
-<li class="last active"><a href="/wiki/new" itemprop="url"><span itemprop="title">新建Wiki页</span></a></li>
+<li class=""><a href="/resources" itemprop="url"><span itemprop="title">资源</span></a><span class="divider">/</span></li>
+<li class="last active"><a href="/resources/new" itemprop="url"><span itemprop="title">资源发布</span></a></li>
 {{end}}
 {{define "content"}}
 <div id="main" class="container-fluid">
   <div class="content">
     <div class="box">
-      <form accept-charset="UTF-8" action="/wiki/new.json" class="simple_form form-horizontal new_page" id="new_page" method="post" novalidate="novalidate">
+      <form accept-charset="UTF-8" action="/resources/new.json" class="simple_form form-horizontal new_resource" id="new_resource" method="post" novalidate="novalidate">
         <div style="margin:0;padding:0;display:inline">
           <input name="authenticity_token" type="hidden" value="akaN6qrCyNOili4mgo2qBZrdEWqX6DzoDABRpFoQWC4=">
         </div>
         <div class="alert alert-block alert-error" id="alert_info" style="display:none;">
         </div>
         <fieldset>
-          <legend>新建Wiki页</legend>
+          <legend>发布资源</legend>
           <div class="control-group string required">
-            <label class="string required control-label" for="wiki_title"><abbr title="required">*</abbr> 标题</label>
+            <label class="string required control-label" for="resource_title"><abbr title="required">*</abbr> 标题</label>
             <div class="controls">
-              <input class="span4" id="wiki_title" name="title" size="30" placeholder="Wiki页面标题" type="text"/>
+              <span class="node_select span2">
+                <select id="resource_cate_id" name="catid" style="width: 145px;" class="chzn-done">
+                  <option value="0">选择类别</option>
+                  {{range .categories}}
+                    <option value="{{.Catid}}">{{.Name}}</option>
+                  {{end}}
+                </select>
+              </span>
+              <input class="span4" id="resource_title" name="title" size="30" type="text"/>
             </div>
           </div>
           <div class="control-group string required">
-            <label class="string required control-label" for="wiki_uri"><abbr title="required">*</abbr> URL</label>
+            <label class="string required control-label" for="resource_title"><abbr title="required">*</abbr> 资源形式</label>
             <div class="controls">
-              <div class="input-prepend">
-                <span class="add-on">http://studygolang.com/wiki/</span>
-                <input class="small" id="wiki_uri" name="uri" placeholder="Wiki页面访问地址" size="30" type="text"/>
-              </div>
+              <label class="radio">
+                <input type="radio" name="form" id="form1" value="只是链接" checked="checked">只是链接
+              </label>
+              <label class="radio">
+                <input type="radio" name="form" id="form2" value="包括内容">包括内容
+              </label>
             </div>
           </div>
-          <div class="control-group text required">
+          <div class="control-group string required" id="resource_url_div">
+            <label class="string required control-label" for="resource_url"><abbr title="required">*</abbr> 资源URL</label>
+            <div class="controls">
+              <input class="small" id="resource_url" name="url" placeholder="资源的url" size="30" type="text" value=""/>
+            </div>
+          </div>
+          <div class="control-group text required" id="resource_content_div" style="display:none;">
             <label class="text required control-label" for="wmd-input"><abbr title="required">*</abbr> 正文</label>
             <div class="controls">
               <div class="wmd-panel">
@@ -43,7 +59,7 @@
           </div>
           <div class="form-actions">
             <input class="btn btn-primary" data-disable-with="正在保存" name="commit" type="submit" value="保存">
-            <a href="/wiki" class="btn reset">取消</a>
+            <a href="/resources" class="btn reset">取消</a>
           </div>
         </fieldset>
       </form>
@@ -51,8 +67,8 @@
 </div>
 
 <div class="sidebar">
-  <div id="wiki_new_tip" class="box">
-    <h2>Wiki发表说明</h2>
+  <div id="resource_new_tip" class="box">
+    <h2>使用说明</h2>
     <span class="body help-block">
       <ul>
         <li>支持 Markdown 格式, <strong>**粗体**</strong>、~~删除线~~、<code>`单行代码`</code></li>
@@ -80,44 +96,55 @@
 </div>
 {{end}}
 
-{{define "title"}}新建Wiki页{{end}}
+{{define "title"}}发布资源{{end}}
 {{define "css"}}
 <link href="/static/css/markdown.css" media="screen" rel="stylesheet" type="text/css">
-<link href="/static/css/pages.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/topics.css" media="screen" rel="stylesheet" type="text/css">
 {{end}}
 {{define "js"}}
-<script type="text/javascript" src="/static/js/pages.js"></script>
+<script type="text/javascript" src="/static/js/topics.js"></script>
 <script type="text/javascript" src="/static/js/Markdown.Converter.js"></script>
 <script type="text/javascript" src="/static/js/Markdown.Sanitizer.js"></script>
 <script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
 <script type="text/javascript">
 (function () {
-    var wikiConverter = Markdown.getSanitizingConverter();
+    var topicConverter = Markdown.getSanitizingConverter();
     
-    wikiConverter.hooks.chain("preBlockGamut", function (text, rbg) {
+    topicConverter.hooks.chain("preBlockGamut", function (text, rbg) {
         return text.replace(/^ {0,3}""" *\n((?:.*?\n)+?) {0,3}""" *$/gm, function (whole, inner) {
             return "<blockquote>" + rbg(inner) + "</blockquote>\n";
         });
     });
     
-    var wikiEditor = new Markdown.Editor(wikiConverter);
+    var topicEditor = new Markdown.Editor(topicConverter);
     
-    wikiEditor.run();
+    topicEditor.run();
 })();
 
 $(function(){
     // 表单提交
-    $('#new_page').submit(function(){
+    $('#new_resource').submit(function(){
         var self = $(this);
         $.post(self.attr('action'), self.serialize(), function(data){
             if (data.errno) {
                 $('#alert_info').html(data.error).show()
             } else {
-                location.href = "/wiki/" + data.data.uri;
+                location.href="/resources";
             }
         });
         return false;
     });
+
+    $('input[name="form"]').click(function(){
+        if ($(this).attr('id') == 'form1') {
+            $('#resource_url_div').show();
+            $('#resource_content_div').hide();
+        } else {
+            $('#resource_url_div').hide();
+            $('#resource_content_div').show();
+        }
+    });
 })
+
 </script>
 {{end}}
