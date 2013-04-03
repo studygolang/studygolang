@@ -8,6 +8,8 @@ package main
 
 import (
 	. "config"
+	"controller"
+	"go.net/websocket"
 	"log"
 	"math/rand"
 	"net/http"
@@ -28,9 +30,16 @@ func main() {
 	// 服务静态文件
 	http.Handle("/static/", http.FileServer(http.Dir(ROOT)))
 
+	go ServeWebSocket()
+
 	router := initRouter()
 	http.Handle("/", router)
 	log.Fatal(http.ListenAndServe(Config["host"], nil))
+}
+
+func ServeWebSocket() {
+	http.Handle("/ws", websocket.Handler(controller.WsHandler))
+	log.Fatal(http.ListenAndServe(Config["wshost"], nil))
 }
 
 // 保存PID

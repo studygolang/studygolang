@@ -79,9 +79,20 @@ func FindResource(id string) (resourceMap map[string]interface{}, comments []map
 	return
 }
 
+// 通过id获得资源的所有者
+func getResourceOwner(id int) int {
+	resource := model.NewResource()
+	err := resource.Where("id=" + strconv.Itoa(id)).Find()
+	if err != nil {
+		logger.Errorln("resource service getResourceOwner Error:", err)
+		return 0
+	}
+	return resource.Uid
+}
+
 // 获得某个分类的资源列表
 func FindResourcesByCatid(catid string) []map[string]interface{} {
-	resourceList, err := model.NewResource().Where("catid=" + catid).FindAll()
+	resourceList, err := model.NewResource().Where("catid=" + catid).Order("mtime DESC").FindAll()
 	if err != nil {
 		logger.Errorln("resource service FindResourcesByCatid error:", err)
 		return nil
@@ -127,6 +138,7 @@ func FindResourcesByCatid(catid string) []map[string]interface{} {
 	return resources
 }
 
+// 获得最新资源
 func FindRecentResources() []map[string]interface{} {
 	resourceList, err := model.NewResource().Limit("0,10").Order("mtime DESC").FindAll()
 	if err != nil {
@@ -147,6 +159,39 @@ func FindRecentResources() []map[string]interface{} {
 		resources[i] = tmpMap
 	}
 	return resources
+}
+
+// 获取多个资源详细信息
+func FindResourcesByIds(ids []int) []*model.Resource {
+	if len(ids) == 0 {
+		return nil
+	}
+	inIds := util.Join(ids, ",")
+	resources, err := model.NewResource().Where("id in(" + inIds + ")").FindAll()
+	if err != nil {
+		logger.Errorln("resource service FindResourcesByIds error:", err)
+		return nil
+	}
+	return resources
+}
+
+// 提供给其他service调用（包内）
+func getResources(ids map[int]int) map[int]*model.Resource {
+	resources := FindResourcesByIds(util.MapIntKeys(ids))
+	resourceMap := make(map[int]*model.Resource, len(resources))
+	for _, resource := range resources {
+		resourceMap[resource.Id] = resource
+	}
+	return resourceMap
+}
+
+// 资源总数
+func ResourcesTotal() (total int) {
+	total, err := model.NewResource().Count()
+	if err != nil {
+		logger.Errorln("resource service ResourcesTotal error:", err)
+	}
+	return
 }
 
 // 资源评论

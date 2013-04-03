@@ -2,11 +2,11 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>{{template "title" .}} | Golang China | Golang中文社区 | Go语言学习园地</title>
+    <title>{{template "title" .}} | Golang China | Golang中文社区(Go语言构建) | Go语言学习园地</title>
     <link href="/static/css/front.css" media="screen" rel="stylesheet" type="text/css">
     {{template "css"}}
-    <meta name="keywords" content="Golang,Golang中文社区,Go语言学习,Go语言,学习Go语言,Go语言学习园地,Golang 中国,Golang中国,Golang China, Go语言论坛">
-    <meta name="description" content="中国 Golang 社区，Go语言学习园地，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。">
+    <meta name="keywords" content="Golang,Go社区,Golang中文社区,Go语言学习,Go语言,学习Go语言,Go语言学习园地,Golang 中国,Golang中国,Golang China, Go语言论坛">
+    <meta name="description" content="中国 Golang 社区，Go语言学习园地，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。完全Go语言实现。">
     <meta charset="utf-8">
     <link rel="shortcut icon" href="/static/img/go.ico">
     <link rel="dns-prefetch" href="">
@@ -25,7 +25,7 @@
             <a href="/"><img alt="Text_logo" src="/static/img/text_logo.png" style="width:123px;height:29px;"></a>
           </h3>
           <ul class="nav">
-            <li class="first {{.activeTopics}}"><a href="/topics">社区</a></li><li><a href="http://blog.studygolang.com">博客</a></li><li class="{{.activeWiki}}"><a href="/wiki">Wiki</a></li><li class="{{.activeResources}}"><a href="/resources">资源</a></li><li class="{{.activeSites}}"><a href="/sites">酷站</a></li><li class="last {{.activeUsers}}"><a href="/users">会员</a></li>
+            <li class="first {{.activeTopics}}"><a href="/topics">社区</a></li><li><a href="http://blog.studygolang.com">博客</a></li><li class="{{.activeResources}}"><a href="/resources">资源</a></li><li class="{{.activeWiki}}"><a href="/wiki">Wiki</a></li><li class="{{.activeSites}}"><a href="/sites">酷站</a></li><li class="last {{.activeUsers}}"><a href="/users">会员</a></li>
           </ul>
           <form action="/search" class="navbar-search pull-left" method="get">
             <input type="text" name="q" class="search-query span3" value="" placeholder="搜索">
@@ -33,7 +33,7 @@
           <ul class="nav pull-right" id="userbar">
             {{if .me}}
             <li>
-              <a href="/notifications" id="user_notifications_count"><span class="badge ">0</span></a>
+              <a href="/message/system" id="user_message_count"><span class="badge{{if .me.msgnum}} badge-warning{{end}}">{{.me.msgnum}}</span></a>
             </li>
             {{if .me.isadmin}}
             <li>
@@ -75,12 +75,14 @@
       <div class="container">
         <div>
           <div class="pull-left" style="margin-right:10px;">
-            <img src="/static/img/logo.png" style="width:48px;">
+            <img src="/static/img/logo.png" style="width:48px;" alt="golang logo">
           </div>
           <p class="links">
             <a href="/wiki/about">关于</a> | <a href="/api">API</a> | <a href="/wiki/contributors">贡献者</a> | <a href="/wiki/">帮助推广</a> | <a href="/topics/node16">反馈</a> | <a href="http://github.com/studygolang" target="_blank" rel="nofollow">Github</a> | <a href="http://weibo.com/studygolang" target="_blank" rel="nofollow">新浪微博</a>
           </p>
-          <p class="copyright">&copy;2013 studygolang.com 采用 <a href="http://golang.org" target="_blank">Go语言</a> + <a href="http://www.mysql.com/" target="_blank">MYSQL 构建</a><br/>中国 Golang 社区，Go语言学习园地，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。
+          <p class="copyright">&copy;2013 studygolang.com 采用 <a href="http://golang.org" target="_blank">Go语言</a> + <a href="http://www.mysql.com/" target="_blank">MYSQL 构建</a>
+          &nbsp;&nbsp;当前在线：<span id="onlineusers"></span>人&nbsp;&nbsp;历史最高：<span id="maxonline"></span>人
+          <br/>中国 Golang 社区，Go语言学习园地，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。
           <script type="text/javascript">
           var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
           document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F224c227cd9239761ec770bc8c1fb134c' type='text/javascript'%3E%3C/script%3E"));
@@ -114,5 +116,44 @@
     <!--<script type="text/javascript" src="/static/js/notification.js"></script>-->
     <script type="text/javascript" src="/static/js/app.js"></script>
     {{template "js" .}}
+    <script type="text/javascript">
+    window.WebSocket = window.WebSocket || window.MozWebSocket;
+    if (window.WebSocket) {
+        var wsUrl = 'ws://{{.wshost}}/ws?uid={{.me.uid}}';
+        var websocket = new WebSocket(wsUrl);
+
+        websocket.onopen = function(){
+            //alert("open");
+        }
+
+        websocket.onclose = function(){
+            //alert("close");
+        }
+
+        websocket.onmessage = function(msgEvent){
+            data = JSON.parse(msgEvent.data);
+            switch (data.type) {
+            case 0:
+                var $badge = $('#user_message_count .badge'),
+                    curVal = parseInt($badge.text(), 10);
+                totalVal = parseInt(data.body) + curVal;
+                if (totalVal > 0) {
+                    $badge.addClass('badge-warning').text(totalVal);
+                } else {
+                    $badge.removeClass('badge-warning').text(0);
+                }
+                break;
+            case 1:
+                $('#onlineusers').text(data.body.online);
+                if (data.body.maxonline) {
+                    $('#maxonline').text(data.body.maxonline);
+                }
+                break;
+            }
+        }
+        
+        // websocket.onerror = onError;
+    }
+    </script>
   </body>
 </html>

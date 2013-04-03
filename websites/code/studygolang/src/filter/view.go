@@ -50,6 +50,19 @@ var funcMap = template.FuncMap{
 		}
 		return utf8Str.Slice(0, length) + suffix
 	},
+	// if 比较
+	"eq": func(a, b string) bool {
+		if a == b {
+			return true
+		}
+		return false
+	},
+	"noteq": func(a, b string) bool {
+		if a == b {
+			return false
+		}
+		return true
+	},
 }
 
 // 保存模板路径的key
@@ -111,6 +124,8 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 	// 当前用户信息
 	me, _ := CurrentUser(req)
 	data["me"] = me
+	// websocket主机
+	data["wshost"] = config.Config["wshost"]
 	err = tpl.Execute(rw, data)
 	if err != nil {
 		logger.Errorf("执行模板出错（Execute）：[%q] %s\n", req.RequestURI, err)

@@ -11,7 +11,7 @@ goto end
 set OLDGOPATH=%GOPATH%
 set GOPATH=%~dp0
 
-go get -u github.com/Go-SQL-Driver/MySQL
+go get -u github.com/go-sql-driver/mysql
 go get -u github.com/studygolang/mux
 go get -u github.com/gorilla/sessions
 

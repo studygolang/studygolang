@@ -19,7 +19,7 @@
             <div class="ulitem clearfix" data-id="{{.id}}">
               <div class="">
                 <div class="ulinfo">
-                  <a class="avatar a-pop-info" href="/user/{{.user.Username}}"><img src="{{gravatar .user.Email 32}}"></a>
+                  <a class="avatar a-pop-info" href="/user/{{.user.Username}}"><img src="{{gravatar .user.Email 32}}" alt="{{.user.Username}}"></a>
                   <a class="link-url" href="{{.url}}" target="_blank" data-id="{{.id}}">{{.title}}</a>
                   {{if .host}}
                   <span class="host">({{.host}})</span>

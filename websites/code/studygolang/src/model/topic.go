@@ -81,7 +81,7 @@ func (this *Topic) FindAll(selectCol ...string) ([]*Topic, error) {
 	return topicList, nil
 }
 
-// 设置更新字段
+// 为了支持连写
 func (this *Topic) Set(clause string) *Topic {
 	this.Dao.Set(clause)
 	return this

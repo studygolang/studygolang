@@ -3,3 +3,17 @@
 .center {
 	text-align: center;
 }
+.entry-title {
+	word-wrap: break-word;
+	word-break: normal;
+}
+.w630 {
+	width:630px;
+}
+
+.cutoff {
+	width:16em;
+	overflow:hidden;
+	text-overflow:ellipsis;
+	white-space:nowrap;
+}

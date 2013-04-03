@@ -1,0 +1,86 @@
+{{define "topnav"}}
+<li class="first"><a href="/">首页</a><span class="divider">/</span></li>
+<li><a href="/message/system" itemprop="url"><span itemprop="title">消息</span></a><span class="divider">/</span></li>
+<li class="last active"><a href="/message/send" itemprop="url"><span itemprop="title">发送消息</span></a></li>
+{{end}}
+{{define "content"}}
+<div id="main" class="container-fluid">
+  <div class="box">
+    <form accept-charset="UTF-8" action="/message/send.json" class="simple_form form-horizontal new_message" id="new_message" method="post" novalidate="novalidate">
+      <div style="margin:0;padding:0;display:inline">
+        <input name="authenticity_token" type="hidden" value="akaN6qrCyNOili4mgo2qBZrdEWqX6DzoDABRpFoQWC4=">
+        <input name="to" type="hidden" value="{{.user.Uid}}">
+      </div>
+      <div class="alert alert-block alert-error" id="alert_info" style="display:none;">
+      </div>
+      <fieldset>
+        <legend>发送消息</legend>
+        <div class="control-group string required">
+          <label class="string control-label">发给</label>
+          <div class="controls">
+            <a href="/user/{{.user.Username}}" title="{{.user.Username}}" style="padding-top:5px;display:inline-block; *zoom:1;">{{.user.Username}}{{if .user.Name}}({{.user.Name}}){{end}}</a>
+          </div>
+        </div>
+        <div class="control-group text required" id="resource_content_div">
+          <label class="text required control-label" for="wmd-input"><abbr title="required">*</abbr> 内容</label>
+          <div class="controls">
+            <div class="wmd-panel">
+              <div id="wmd-button-bar"></div>
+              <textarea class="wmd-input" id="wmd-input" name="content"></textarea>
+            </div>
+            <div>预览</div>
+            <div id="wmd-preview" class="wmd-panel wmd-preview"></div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <input class="btn btn-primary" data-disable-with="正在发送" name="commit" type="submit" value="发送">
+          <a href="/user/{{.user.Username}}" class="btn reset">取消</a>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>
+{{end}}
+
+{{define "title"}}发送消息{{end}}
+{{define "css"}}
+<link href="/static/css/markdown.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/topics.css" media="screen" rel="stylesheet" type="text/css">
+{{end}}
+{{define "js"}}
+<script type="text/javascript" src="/static/js/topics.js"></script>
+<script type="text/javascript" src="/static/js/Markdown.Converter.js"></script>
+<script type="text/javascript" src="/static/js/Markdown.Sanitizer.js"></script>
+<script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
+<script type="text/javascript">
+(function () {
+    var topicConverter = Markdown.getSanitizingConverter();
+    
+    topicConverter.hooks.chain("preBlockGamut", function (text, rbg) {
+        return text.replace(/^ {0,3}""" *\n((?:.*?\n)+?) {0,3}""" *$/gm, function (whole, inner) {
+            return "<blockquote>" + rbg(inner) + "</blockquote>\n";
+        });
+    });
+    
+    var topicEditor = new Markdown.Editor(topicConverter);
+    
+    topicEditor.run();
+})();
+
+$(function(){
+    // 表单提交
+    $('#new_message').submit(function(){
+        var self = $(this);
+        $.post(self.attr('action'), self.serialize(), function(data){
+            if (data.errno) {
+                $('#alert_info').html(data.error).show()
+            } else {
+                location.href="/user/{{.user.Username}}";
+            }
+        });
+        return false;
+    });
+})
+
+</script>
+{{end}}

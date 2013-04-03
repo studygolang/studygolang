@@ -31,7 +31,7 @@
           </div>
           <div class="infos">
             <div class="title">
-              <a href="/topics/{{.tid}}" title="{{.title}}">{{.title}}</a>
+              <a href="/topics/{{.tid}}" title="{{.title}}">{{substring .title 60 "..."}}</a>
             </div>
             <div class="info">
               <a href="/topics/node{{.nid}}" class="node">{{.node}}</a>

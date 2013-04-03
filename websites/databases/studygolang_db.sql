@@ -231,35 +231,41 @@ CREATE TABLE `user_role` (
   PRIMARY KEY (`uid`, `roleid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*---------------------------------------------------------------------------*
-  NAME: notification
-  用途：通知表
-*---------------------------------------------------------------------------*/
-DROP TABLE IF EXISTS `notification`;
-CREATE TABLE `notification` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `content` text NOT NULL,
-  `read` tinyint NOT NULL DEFAULT 0 COMMENT '是否已读',
-  `uid` int unsigned NOT NULL,
-  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY (`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*---------------------------------------------------------------------------*
   NAME: message
-  用途：短消息（暂不实现）
+  用途：短消息（私信）
 *---------------------------------------------------------------------------*/
 DROP TABLE IF EXISTS `message`;
 CREATE TABLE `message` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `content` text NOT NULL,
-  `read` tinyint NOT NULL DEFAULT 0 COMMENT '是否已读',
-  `uid` int unsigned NOT NULL,
+  `content` text NOT NULL COMMENT '消息内容',
+  `hasread` enum('未读','已读') NOT NULL DEFAULT '未读',
+  `from` int unsigned NOT NULL DEFAULT 0 COMMENT '来自谁',
+  `fdel` enum('未删','已删') NOT NULL DEFAULT '未删' COMMENT '发送方删除标识',
+  `to` int unsigned NOT NULL COMMENT '发给谁',
+  `tdel` enum('未删','已删') NOT NULL DEFAULT '未删' COMMENT '接收方删除标识',
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY (`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  KEY (`to`),
+  KEY (`from`)
+) COMMENT 'message 短消息（私信）' ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*---------------------------------------------------------------------------*
+  NAME: system_message
+  用途：系统消息表
+*---------------------------------------------------------------------------*/
+DROP TABLE IF EXISTS `system_message`;
+CREATE TABLE `system_message` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `msgtype` tinyint NOT NULL DEFAULT 0 COMMENT '系统消息类型',
+  `hasread` enum('未读','已读') NOT NULL DEFAULT '未读',
+  `to` int unsigned NOT NULL COMMENT '发给谁',
+  `ext` text NOT NULL COMMENT '额外信息',
+  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY (`to`)
+) COMMENT 'system_message 系统消息表' ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*---------------------------------------------------------------------------*
   NAME: wiki

@@ -50,7 +50,7 @@ func (this *FormValidateFilter) PreFilter(rw http.ResponseWriter, req *http.Requ
 // 校验表单数据
 func Validate(data url.Values, rules map[string]map[string]map[string]string) (errMsg string) {
 	for field, rule := range rules {
-		val := data.Get(field)
+		val := strings.TrimSpace(data.Get(field))
 		// 检查【必填】
 		if requireInfo, ok := rule["require"]; ok {
 			if val == "" {

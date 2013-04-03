@@ -23,8 +23,10 @@ func IndexHandler(rw http.ResponseWriter, req *http.Request) {
 	articles := service.FindNewBlogs()
 	// 获得最新资源
 	resources := service.FindRecentResources()
+	// 活跃会员
+	activeUsers := service.FindActiveUsers(0, 9)
 	// 设置内容模板
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/index.html")
 	// 设置模板数据
-	filter.SetData(req, map[string]interface{}{"news": newTopics, "resources": resources, "articles": articles, "nodes": nodes})
+	filter.SetData(req, map[string]interface{}{"news": newTopics, "resources": resources, "articles": articles, "actives": activeUsers, "nodes": nodes})
 }

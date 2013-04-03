@@ -39,9 +39,11 @@
 {{define "css"}}
 <link href="/static/css/pages.css" media="screen" rel="stylesheet" type="text/css">
 <link href="/static/css/markdown.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/prettify.css" media="screen" rel="stylesheet" type="text/css">
 {{end}}
 {{define "js"}}
 <script type="text/javascript" src="/static/js/pages.js"></script>
+<script type="text/javascript" src="/static/js/prettify.js"></script>
 <script type="text/javascript" src="/static/js/Markdown.Converter.js"></script>
 <script type="text/javascript" src="/static/js/Markdown.Sanitizer.js"></script>
 <script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
@@ -50,7 +52,7 @@
 (function () {
     // 转换wiki
     var converter = new Markdown.Converter();
-    $('#content').html(converter.makeHtml($('#content').html()));
+    $('#content').html($(converter.makeHtml($('#content').html())).addClass('prettyprint'));
 })();
 </script>
 {{end}}

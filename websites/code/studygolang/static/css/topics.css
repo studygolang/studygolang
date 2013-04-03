@@ -41,3 +41,31 @@
 	margin-bottom: 3px;
 }
 
+/*消息列表*/
+.tab-pane li {
+  border-bottom: 1px dotted #999;
+  margin: 10px 0;
+  padding-bottom: 15px;
+  position: relative;
+}
+.tab-pane img {
+  float: left;
+  margin-right: 10px;
+}
+.tab-pane .cmd {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+a.delete:hover {
+  text-decoration: none;
+  color: white;
+  background-color: #C43C35;
+}
+#message h3 {
+  font-size: 13px;
+  color: #999;
+  line-height: 18px;
+  font-weight: normal;
+  padding-bottom: 8px;
+}

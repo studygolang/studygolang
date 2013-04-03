@@ -27,6 +27,8 @@ func FindObjComments(objid, objtype string, owner, lastCommentUid int /*, page, 
 	commentNum := len(commentList)
 	uids := make(map[int]int, commentNum+1)
 	uids[owner] = owner
+	// 避免某些情况下最后回复人没在回复列表中
+	uids[lastCommentUid] = lastCommentUid
 	for _, comment := range commentList {
 		uids[comment.Uid] = comment.Uid
 	}
@@ -67,6 +69,30 @@ func CommentsTotal(objtype int) (total int) {
 	return
 }
 
+// 获取多个评论信息
+func FindCommentsByIds(cids []int) []*model.Comment {
+	if len(cids) == 0 {
+		return nil
+	}
+	inCids := util.Join(cids, ",")
+	comments, err := model.NewComment().Where("cid in(" + inCids + ")").FindAll()
+	if err != nil {
+		logger.Errorln("comment service FindCommentsByIds error:", err)
+		return nil
+	}
+	return comments
+}
+
+// 提供给其他service调用（包内）
+func getComments(cids map[int]int) map[int]*model.Comment {
+	comments := FindCommentsByIds(util.MapIntKeys(cids))
+	commentMap := make(map[int]*model.Comment, len(comments))
+	for _, comment := range comments {
+		commentMap[comment.Cid] = comment
+	}
+	return commentMap
+}
+
 var commenters = make(map[string]Commenter)
 
 // 评论接口
@@ -86,7 +112,7 @@ func RegisterCommentObject(objname string, commenter Commenter) {
 	commenters[objname] = commenter
 }
 
-// 发表评论。入topics_reply库，更新topics和topics_ex库
+// 发表评论（或回复）。
 // objname 注册的评论对象名
 func PostComment(objid, objtype, uid int, content string, objname string) error {
 	comment := model.NewComment()
@@ -121,6 +147,17 @@ func PostComment(objid, objtype, uid int, content string, objname string) error 
 
 	// 发评论，活跃度+5
 	go IncUserWeight("uid="+strconv.Itoa(uid), 5)
+
+	// 给被评论对象所有者发系统消息
+	ext := map[string]interface{}{
+		"objid":   objid,
+		"objtype": objtype,
+		"cid":     cid,
+		"uid":     uid,
+	}
+	go SendSystemMsgTo(0, objtype, ext)
+
+	// TODO: @某人 发系统消息？
 
 	return nil
 }

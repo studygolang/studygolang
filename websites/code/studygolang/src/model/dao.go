@@ -10,7 +10,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	_ "github.com/Go-SQL-Driver/MySQL"
+	_ "github.com/go-sql-driver/mysql"
 	// _ "github.com/ziutek/mymysql/godrv"
 	. "config"
 	"logger"
@@ -83,6 +83,26 @@ func (this *Dao) Update() error {
 		return err
 	}
 	logger.Debugf("成功更新了`%s`表 %d 条记录", this.tablename, affected)
+	return nil
+}
+
+func (this *Dao) Delete() error {
+	strSql := util.DeleteSql(this)
+	logger.Debugln("Delete sql:", strSql)
+	err := this.Open()
+	if err != nil {
+		return err
+	}
+	defer this.Close()
+	result, err := this.Exec(strSql, append(this.colValues, this.whereVal...)...)
+	if err != nil {
+		return err
+	}
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	logger.Debugf("成功删除了`%s`表 %d 条记录", this.tablename, affected)
 	return nil
 }
 
@@ -180,6 +200,16 @@ func (this *Dao) FindAll(selectCol ...string) (*sql.Rows, error) {
 	return this.Query(strSql, this.whereVal...)
 }
 
+// 执行sql语句（查询语句）
+func (this *Dao) DoSql(strSql string, args ...interface{}) (*sql.Rows, error) {
+	err := this.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer this.Close()
+	return this.Query(strSql, args...)
+}
+
 // 用于FindAll中，具体model在遍历rows时调用（提取的公共代码）
 func (this *Dao) Scan(rows *sql.Rows, colNum int, colFieldMap map[string]interface{}, selectCol ...string) error {
 	scanInterface := make([]interface{}, 0, colNum)
@@ -263,7 +293,13 @@ func (this *Dao) Where(condition string) {
 		condition = strings.TrimSpace(condition)
 		parts := SplitIn(condition, "=", "<", ">")
 		if len(parts) >= 3 {
-			stringBuilder.Append(strings.TrimSpace(parts[0])).Append(strings.TrimSpace(parts[1]))
+			// 处理不等于
+			if strings.HasSuffix(parts[0], "!") {
+				stringBuilder.Append("`" + strings.Trim(parts[0], "` !") + "` !")
+			} else {
+				stringBuilder.Append("`" + strings.Trim(parts[0], "` ") + "`")
+			}
+			stringBuilder.Append(strings.TrimSpace(parts[1]))
 			if len(parts) > 3 {
 				// 判断是不是 ">="或"<="
 				if strings.ContainsAny(parts[2], "= & < & >") {
@@ -291,10 +327,11 @@ func (this *Dao) Where(condition string) {
 						// in中有多少个值
 						inLen := len(inVals)
 						qms := strings.Repeat("?,", inLen)
-						stringBuilder.Append(ins[0]).Append("(").Append(qms[:len(qms)-1]).Append(")")
+						field := ins[0][:len(ins[0])-3]
+						stringBuilder.Append("`" + strings.Trim(field, "` ") + "` in").Append("(").Append(qms[:len(qms)-1]).Append(")")
 					}
 				} else {
-					stringBuilder.Append(parts[0])
+					stringBuilder.Append("`" + strings.Trim(parts[0], "` ") + "`")
 				}
 			}
 		}

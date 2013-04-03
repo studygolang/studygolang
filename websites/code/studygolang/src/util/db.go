@@ -41,6 +41,15 @@ func UpdateSql(sqler Sqler) string {
 	return strings.TrimSpace(sql)
 }
 
+func DeleteSql(sqler Sqler) string {
+	where := sqler.GetWhere()
+	if where != "" {
+		where = "WHERE " + where
+	}
+	sql := fmt.Sprintf("DELETE FROM `%s` %s", sqler.Tablename(), where)
+	return strings.TrimSpace(sql)
+}
+
 func CountSql(sqler Sqler) string {
 	where := sqler.GetWhere()
 	if where != "" {

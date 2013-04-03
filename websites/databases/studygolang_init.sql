@@ -35,5 +35,6 @@ INSERT INTO `topics_node`(`parent`, `name`, `intro`) VALUES(18, 'Markdown', '当
 
 
 INSERT INTO `resource_category`(`name`, `intro`) VALUES('精彩文章', '分享来自互联网关于Go语言的精彩文章');
-INSERT INTO `resource_category`(`name`, `intro`) VALUES('第三方库', '收集优秀的第三方库');
+INSERT INTO `resource_category`(`name`, `intro`) VALUES('开源项目', '收集优秀的开源项目、第三方库');
 INSERT INTO `resource_category`(`name`, `intro`) VALUES('Go语言资料', 'Go语言书籍、资料，提供下载地址或在线链接');
+INSERT INTO `resource_category`(`name`, `intro`) VALUES('其他资源', '分享跟Go相关或其他有用的资源');

@@ -12,8 +12,13 @@
   <div class="content">
     <div class="box">
       <div class="userinfo vcard">
-        <div class="pull-right" style="text-align:center;">
+        <div class="pull-right center" style="width:120px;">
           <a href="/user/{{.user.Username}}" title="{{.user.Username}}"><img alt="{{.user.Username}}" class="uface" src="{{gravatar .user.Email 120}}" style="width:120px;height:120px;"></a>
+          {{if .me.username}}
+          {{if noteq .user.Username .me.username}}
+          <a class="btn btn-info" href="/message/send?username={{.user.Username}}" style="margin:10px;">发送消息</a>
+          {{end}}
+          {{end}}
         </div>
         <span class="label role">{{range .user.Rolenames}}{{.}} {{end}}</span>
         <ul>
@@ -25,6 +30,12 @@
             <label>ID:</label>
             <strong class="fn">{{.user.Username}}</strong>
           </li>
+          {{if .user.Name}}
+          <li>
+            <label>名字:</label>
+            <span>{{.user.Name}}</span>
+          </li>
+          {{end}}
           {{if .user.Open}}
           <li>
             <label>Email:</label>
@@ -45,9 +56,11 @@
         {{range .topics}}
         <li>
           <span class="node"><a href="/topics/node{{.Nid}}" class="node">{{.Node}}</a></span>
-          <a href="/topics/{{.Tid}}" title="{{.Title}}">{{.Title}}</a>
+          <a href="/topics/{{.Tid}}" title="{{.Title}}">{{substring .Title 60 "..."}}</a>
           <span class="info">at <abbr class="timeago" title="{{formatTime .Ctime}}"></abbr></span>
         </li>
+        {{else}}
+        <li class="alert alert-info center">暂无</li>
         {{end}}
       </ul>
     </div>
@@ -57,13 +70,15 @@
         {{range .replies}}
         <li>
           <div class="title">
-            <a href="/topics/{{.tid}}">{{.title}}</a>
+            <a href="/topics/{{.tid}}" title="{{.title}}">{{substring .title 60 "..."}}</a>
             <span class="info">at <abbr class="timeago" title="{{formatTime .replytime}}"></abbr></span>
           </div>
           <div class="body">
             {{.cmt_content}}
           </div>
         </li>
+        {{else}}
+        <li class="alert alert-info center">暂无</li>
         {{end}}
       </ul>
     </div>

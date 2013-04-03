@@ -16,6 +16,14 @@ import (
 )
 
 func CreateUser(form url.Values) (errMsg string, err error) {
+	if EmailExists(form.Get("email")) {
+		err = errors.New("该邮箱已注册过")
+		return
+	}
+	if UsernameExists(form.Get("username")) {
+		err = errors.New("用户名已存在")
+		return
+	}
 	// 存用户基本信息，产生自增长UID
 	user := model.NewUser()
 	err = util.ConvertAssign(user, form)
@@ -93,7 +101,7 @@ func UpdateUser(form url.Values) (errMsg string, err error) {
 	return
 }
 
-// 获取当前登录用户信息（常用信息）TODO:暂时只获取用户名、UID、是否是管理员
+// 获取当前登录用户信息（常用信息）
 func FindCurrentUser(username string) (user map[string]interface{}, err error) {
 	userLogin := model.NewUserLogin()
 	err = userLogin.Where("username=" + username).Find()
@@ -108,7 +116,11 @@ func FindCurrentUser(username string) (user map[string]interface{}, err error) {
 	user = map[string]interface{}{
 		"uid":      userLogin.Uid,
 		"username": userLogin.Username,
+		"email":    userLogin.Email,
 	}
+
+	// 获取未读消息数
+	user["msgnum"] = FindNotReadMsgNum(userLogin.Uid)
 
 	// 获取角色信息
 	userRoleList, err := model.NewUserRole().Where("uid=" + strconv.Itoa(userLogin.Uid)).FindAll()
@@ -179,6 +191,7 @@ func FindUserByUsername(username string) *model.User {
 	return user
 }
 
+// 获得活跃用户
 func FindActiveUsers(start, num int) []*model.UserActive {
 	activeUsers, err := model.NewUserActive().Order("weight DESC").Limit(strconv.Itoa(start) + "," + strconv.Itoa(num)).FindAll()
 	if err != nil {
@@ -275,6 +288,9 @@ func UpdatePasswd(username, passwd string) (string, error) {
 
 // 获取用户信息
 func getUserInfos(uids map[int]int) map[int]*model.User {
+	if len(uids) == 0 {
+		return nil
+	}
 	// 获取用户信息
 	inUids := util.Join(util.MapIntKeys(uids), ",")
 	users, err := model.NewUser().Where("uid in(" + inUids + ")").FindAll()

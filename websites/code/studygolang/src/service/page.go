@@ -7,6 +7,7 @@
 package service
 
 import (
+	"strconv"
 	"util"
 )
 
@@ -26,7 +27,12 @@ func GetPageHtml(curPage, total int) string {
 	}
 	// 显示5页，然后显示...，接着显示最后两页
 	stringBuilder := util.NewBuffer()
-	stringBuilder.Append(`<li class="prev previous_page disabled"><a href="#">← 上一页</a></li>`)
+	stringBuilder.Append(`<li class="prev previous_page">`)
+	// 当前是第一页
+	if curPage != 1 {
+		stringBuilder.Append(`<a href="/topics?p=` + strconv.Itoa(curPage-1) + `">← 上一页</a>`)
+	}
+	stringBuilder.Append(`</li>`)
 	before := 5
 	showPages := 8
 	for i := 0; i < pageCount; i++ {
@@ -52,6 +58,11 @@ func GetPageHtml(curPage, total int) string {
 		}
 		stringBuilder.Append(`<li><a href="/topics?p=`).AppendInt(i + 1).Append(`">`).AppendInt(i + 1).Append("</a></li>")
 	}
-	stringBuilder.Append(`<li class="next next_page "><a rel="next" href="/topics?page=2">下一页 →</a></li>`)
+	stringBuilder.Append(`<li class="next next_page ">`)
+	// 最后一页
+	if curPage < pageCount {
+		stringBuilder.Append(`<a href="/topics?p=` + strconv.Itoa(curPage+1) + `">下一页 →</a>`)
+	}
+	stringBuilder.Append(`</li>`)
 	return stringBuilder.String()
 }

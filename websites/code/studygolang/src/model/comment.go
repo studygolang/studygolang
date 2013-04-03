@@ -15,7 +15,7 @@ const (
 	TYPE_TOPIC    = iota // 帖子
 	TYPE_BLOG            // 博客
 	TYPE_RESOURCE        // 资源
-	TYPE_SITES           // 酷站
+	TYPE_WIKI            // WIKI
 )
 
 // 评论信息（通用）

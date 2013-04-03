@@ -7,6 +7,7 @@
 package service
 
 import (
+	"html/template"
 	"logger"
 	"model"
 	"strconv"
@@ -80,6 +81,18 @@ func FindTopicByTid(tid string) (topicMap map[string]interface{}, replies []map[
 	return
 }
 
+// 通过tid获得话题的所有者
+func getTopicOwner(tid int) int {
+	// 帖子信息
+	topic := model.NewTopic()
+	err := topic.Where("tid=" + strconv.Itoa(tid)).Find()
+	if err != nil {
+		logger.Errorln("topic service getTopicOwner Error:", err)
+		return 0
+	}
+	return topic.Uid
+}
+
 // 获得帖子列表页需要的数据
 // 如果order为空，则默认排序方式（之所以用不定参数，是为了可以不传）
 func FindTopics(page, pageNum int, where string, orderSlice ...string) (topics []map[string]interface{}, total int) {
@@ -109,6 +122,19 @@ func FindTopicsByNid(nid, curTid string) (topics []*model.Topic) {
 	return
 }
 
+// 获得社区最新公告
+func FindNoticeTopic() (topic *model.Topic) {
+	topics, err := model.NewTopic().Where("nid=15").Limit("0,1").Order("mtime DESC").FindAll()
+	if err != nil {
+		logger.Errorln("topic service FindTopicsByNid Error:", err)
+		return
+	}
+	if len(topics) > 0 {
+		topic = topics[0]
+	}
+	return
+}
+
 func FindTopicsByWhere(where, order, limit string) (topics []map[string]interface{}, total int) {
 	topicObj := model.NewTopic()
 	if where != "" {
@@ -122,13 +148,13 @@ func FindTopicsByWhere(where, order, limit string) (topics []map[string]interfac
 	}
 	topicList, err := topicObj.FindAll()
 	if err != nil {
-		logger.Errorln("topic service FindTopics Error:", err)
+		logger.Errorln("topic service topicObj.FindAll Error:", err)
 		return
 	}
 	// 获得总帖子数
 	total, err = topicObj.Count()
 	if err != nil {
-		logger.Errorln("topic service FindTopics Error:", err)
+		logger.Errorln("topic service topicObj.Count Error:", err)
 		return
 	}
 	count := len(topicList)
@@ -147,7 +173,7 @@ func FindTopicsByWhere(where, order, limit string) (topics []map[string]interfac
 	// 获取扩展信息（计数）
 	topicExList, err := model.NewTopicEx().Where("tid in(" + util.Join(tids, ",") + ")").FindAll()
 	if err != nil {
-		logger.Errorln("topic service FindTopics Error:", err)
+		logger.Errorln("topic service NewTopicEx FindAll Error:", err)
 		return
 	}
 	topicExMap := make(map[int]*model.TopicEx, len(topicExList))
@@ -255,13 +281,52 @@ func FindRecentReplies(comments []*model.Comment) []map[string]interface{} {
 
 // 获取多个帖子详细信息
 func FindTopicsByTids(tids []int) []*model.Topic {
+	if len(tids) == 0 {
+		return nil
+	}
 	inTids := util.Join(tids, ",")
 	topics, err := model.NewTopic().Where("tid in(" + inTids + ")").FindAll()
 	if err != nil {
-		logger.Errorln("topic service FindRecentReplies error:", err)
+		logger.Errorln("topic service FindTopicsByTids error:", err)
 		return nil
 	}
 	return topics
+}
+
+// 提供给其他service调用（包内）
+func getTopics(tids map[int]int) map[int]*model.Topic {
+	topics := FindTopicsByTids(util.MapIntKeys(tids))
+	topicMap := make(map[int]*model.Topic, len(topics))
+	for _, topic := range topics {
+		topicMap[topic.Tid] = topic
+	}
+	return topicMap
+}
+
+// 获得热门节点
+func FindHotNodes() []map[string]interface{} {
+	strSql := "SELECT nid, COUNT(1) AS topicnum FROM topics GROUP BY nid ORDER BY topicnum DESC LIMIT 10"
+	rows, err := model.NewTopic().DoSql(strSql)
+	if err != nil {
+		logger.Errorln("topic service FindHotNodes error:", err)
+		return nil
+	}
+	nodes := make([]map[string]interface{}, 0, 10)
+	for rows.Next() {
+		var nid, topicnum int
+		err = rows.Scan(&nid, &topicnum)
+		if err != nil {
+			logger.Errorln("rows.Scan error:", err)
+			continue
+		}
+		name := model.GetNodeName(nid)
+		node := map[string]interface{}{
+			"name": name,
+			"nid":  nid,
+		}
+		nodes = append(nodes, node)
+	}
+	return nodes
 }
 
 // 增加话题浏览数（TODO:刷屏暂时不处理）
@@ -274,9 +339,17 @@ func TopicsTotal() (total int) {
 	total, err := model.NewTopic().Count()
 	if err != nil {
 		logger.Errorln("topic service TopicsTotal error:", err)
-		return
 	}
 	return
+}
+
+// 安全过滤
+func JSEscape(topics []*model.Topic) []*model.Topic {
+	for i, topic := range topics {
+		topics[i].Title = template.JSEscapeString(topic.Title)
+		topics[i].Content = template.JSEscapeString(topic.Content)
+	}
+	return topics
 }
 
 // 话题回复（评论）

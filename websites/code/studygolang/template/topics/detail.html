@@ -13,7 +13,7 @@
           <div class="pull-right avatar_large">
             <a href="/user/{{.topic.user.Username}}"><img alt="{{.topic.user.Username}}" class="uface" src="{{gravatar .topic.user.Email 48}}" style="width:48px;height:48px;"></a>
           </div>
-          <h1 class="entry-title">{{.topic.title}}</h1>
+          <h1 class="entry-title w630">{{.topic.title}}</h1>
           <div class="info leader">
             <a href="/topics/node{{.topic.nid}}" class="node">{{.topic.node}}</a>
             •
@@ -158,9 +158,11 @@
 {{define "css"}}
 <link href="/static/css/markdown.css" media="screen" rel="stylesheet" type="text/css">
 <link href="/static/css/topics.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/prettify.css" media="screen" rel="stylesheet" type="text/css">
 {{end}}
 {{define "js"}}
 <script type="text/javascript" src="/static/js/topics.js"></script>
+<script type="text/javascript" src="/static/js/prettify.js"></script>
 <script type="text/javascript" src="/static/js/Markdown.Converter.js"></script>
 <script type="text/javascript" src="/static/js/Markdown.Sanitizer.js"></script>
 <script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
@@ -183,11 +185,13 @@
     {{end}}
     // 转换主帖
     var converter = new Markdown.Converter();
-    $('.entry-content').html(converter.makeHtml($('.entry-content').html()));
-
+    $('.entry-content').html($(converter.makeHtml($('.entry-content').html())).addClass('prettyprint'));
+    
     // 转换回复
     $('.reply-content').each(function(i){
-        $(this).html(converter.makeHtml($(this).html()));
+        if ($(this).html() != "") {
+            $(this).html($(converter.makeHtml($(this).html())).addClass('prettyprint'));
+        }
      });
 })();
 
@@ -231,12 +235,12 @@ $(function(){
         tid = otherTopics.data('tid'),
         nid = otherTopics.data('nid'),
         uri = '/topics/others/' + nid+'_'+tid+'.json';
-    $.get(uri, function(data){
+    $.getJSON(uri, function(data){
         if (!data.errno) {
             var topics = '';
-            for (var i in data.data) {
-                var topic = data.data[i];
-                topics += '<li><a href="/topics/"'+topic.tid+' title="'+topic.title+'">'+topic.title+'</a></li>';
+            for (var i in data.topics) {
+                var topic = data.topics[i];
+                topics += '<li class="cutoff"><a href="/topics/'+topic.tid+'" title="'+topic.title+'">'+topic.title+'</a></li>';
             }
             if (topics == "") {
                 otherTopics.parent('div.box').hide();

@@ -68,11 +68,20 @@ func initRouter() *mux.Router {
 	// 评论
 	router.HandleFunc("/comment/{objid:[0-9]+}.json", CommentHandler).AppendFilterChain(loginFilterChain)
 
+	// 消息相关
+	router.HandleFunc("/message/send{json:(|.json)}", SendMessageHandler).AppendFilterChain(loginFilterChain)
+	router.HandleFunc("/message/{msgtype:(system|inbox|outbox)}", MessageHandler).AppendFilterChain(loginFilterChain)
+	router.HandleFunc("/message/delete.json", DeleteMessageHandler).AppendFilterChain(loginFilterChain)
+
 	/////////////////// 异步请求 开始///////////////////////
 	// 某节点下其他帖子
 	router.HandleFunc("/topics/others/{nid:[0-9]+}_{tid:[0-9]+}.json", OtherTopicsHandler)
 	// 统计信息
 	router.HandleFunc("/topics/stat.json", StatHandler)
+	// 最新公告
+	router.HandleFunc("/topics/notice.json", NoticeHandler)
+	// 热门节点
+	router.HandleFunc("/nodes/hot.json", HotNodesHandler)
 	/////////////////// 异步请求 结束 ///////////////////////
 
 	// 管理后台权限检查过滤器
