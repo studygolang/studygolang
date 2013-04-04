@@ -43,20 +43,16 @@
 		},
 		
 		// 回复
-		reply:function(floor, username){
+		reply:function(floor, username) {
 			var reply_body = $("#wmd-input"),
 				new_text = "#"+floor+"楼 @"+username+" ";
-			if (reply_body.val().trim().length == 0) {
-				new_text += '';
-			} else {
-				//new_text = "\n"+new_text;
-			}
-			reply_body.focus().val(reply_body.val() + new_text);
+			new_text += reply_body.val();
+			reply_body.focus().val(new_text);
 			return false;
 		},
 		
 		// Given floor, calculate which page this floor is in
-		pageOfFloor:function(floor){
+		pageOfFloor:function(floor) {
 			return Math.floor((floor - 1) / Topics.replies_per_page) + 1
 		},
 		
@@ -199,6 +195,18 @@
 				$("i",el).attr("class", "icon small_followed");
 			}
 			return false;
+		},
+		analyzeAt: function(text) {
+			var result = {
+				floor:0,
+				username:[]
+			};
+			
+			String(text).replace(/^#(\d+)楼|[^@]*@([^\s@]{4,20})\s*/g, function (match, floor, username) {
+				floor && (result.floor = floor) || result.username.push(username);
+			});
+			
+			return result;
 		}
 	}
 		
@@ -216,12 +224,6 @@
 		// 不自动伸缩
 		// $("textarea").autoGrow();
 		
-		/*
-		$("#new_reply").submit(function(){
-			return $("#btn_reply").button("loading");
-		});
-		*/
-	
 		// TODO 图片上传
 		//Topics.initUploader();
 		
@@ -238,30 +240,92 @@
 		
 		// 绑定回复按钮
 		$("a.small_reply").on("click", function(){
-			return Topics.reply($(this).data("floor"), $(this).attr("data-login"));
+			return Topics.reply($(this).data("floor"), $(this).data("login"));
 		});
 
 		Topics.hookPreview($(".editor_toolbar"), $(".topic_editor"));
-		bodyEl.on("keydown.m", function(el){
+		/*bodyEl.on("keydown.m", function(el){
 			$("#markdown_help_tip_modal").modal({keyboard: true, backdrop:true, show:true});
-		});
+		});*/
 
 		// @ Reply
-		var users = App.scanLogins($("#topic_show .leader a[data-author]"));
-		$.extend(users, App.scanLogins($("#replies span.name a")));
-		users = function(){
+		var usersMap = App.scanLogins($("#topic_show .leader a[data-author]"));
+		$.extend(usersMap, App.scanLogins($("#replies span.name a")));
+		var users = function(){
 			var result = [];
-			for (var username in users) {
-				var user = {username: username, name: users[username]};
+			for (var username in usersMap) {
+				// @不出自己
+				if (username == MeUsername) {
+					continue;
+				}
+				var user = {uid: usersMap[username].uid, username: username, name: usersMap[username].name};
 				result.push(user);
 			}
 			return result;
 		}();
 		console.log(users);
-		// App.atReplyable("textarea", users);
+		
+		App.atReplyable(".cell_comments_new textarea", users);
+		// 回复表单提交
+		$("#new_reply").submit(function(env){
+			env.preventDefault();
+			var text = $('#wmd-input').val().trim();
+			if (text == "") {
+				$('#reply_content').addClass('error');
+				$('#alert_info').show().html("回复内容不能为空")
+				return false;
+			}
+			var result = Topics.analyzeAt(text),
+				usernameArr = result['username']
+				uidArr = [];
+			for (var i in usernameArr) {
+				// TODO:只支持参与过当前页面的用户
+				if (usernameArr[i] in usersMap) {
+					uidArr.push(usersMap[usernameArr[i]].uid);
+				}
+			}
+			$('#uid').val(uidArr.join(','));
+			var self = $(this);
+			$.post(self.attr('action'), self.serialize(), function(data){
+				if (data.errno) {
+					$('#reply_content').addClass('error');
+					$('#alert_info').show().html(data.error)
+				} else {
+					/*
+					var content = $('#wmd-input').val(),
+						floor = parseInt($('.small_reply').last().data('floor')) + 1;
+					var replyHtml = '<div class="reply" id="reply1">'+
+					'<div class="pull-left face"><a href="/user/{{.me.username}}"><img alt="{{.me.username}}" class="uface" src="{{gravatar .me.email 48}}" style="width:48px;height:48px;"></a></div>'+
+				  '<div class="infos">'+
+					'<div class="info">'+
+					  '<span class="name">'+
+						'<a href="/user/{{.me.username}}" data-name="{{.me.username}}">{{.me.username}}</a>'+floor+'楼, <abbr class="timeago" title="">'+$.timeago(new Date())+'</abbr>'+
+					  '</span>'+
+					  '<span class="opts">'+
+						'<a href="/topics/9173/replies/86742/edit" class="edit icon small_edit" data-uid="744" title="修改回帖"></a>'+
+						'<a href="#" class="icon small_reply" data-floor="1" data-login="{{.me.username}}" title="回复此楼"></a>'+
+					  '</span>'+
+					'</div>'+
+					'<div class="body reply-content"><p>'+content+'</p></div>'+
+				  '</div>'+
+				'</div>';
+				  $('.items').append(replyHtml);
+				  */
+				  // TODO:
+				  location.reload();
+				}
+			}, 'json');
+			return false;
+		});
+
 		// App.tipEmojis("textarea");
 
 		// Focus title field in new-topic page
 		$("body.topics-controller.new-action #topic_title").focus();
+
+		$('#wmd-input').on('focus', function(){
+			$(this).parents('.control-group').removeClass('error');
+			$('#alert_info').hide();
+		});
 	});
 }).call(this)

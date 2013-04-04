@@ -272,7 +272,7 @@ func FindRecentReplies(comments []*model.Comment) []map[string]interface{} {
 		oneReply := make(map[string]interface{})
 		oneReply["tid"] = topic.Tid
 		oneReply["title"] = topic.Title
-		oneReply["cmt_content"] = commentMap[topic.Tid].Content
+		oneReply["cmt_content"] = decodeCmtContent(commentMap[topic.Tid])
 		oneReply["replytime"] = commentMap[topic.Tid].Ctime
 		result[i] = oneReply
 	}

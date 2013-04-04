@@ -105,9 +105,14 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 	if contentHtml == "" {
 		return true
 	}
+	contentHtmls := strings.Split(contentHtml, ",")
+	for i, contentHtml := range contentHtmls {
+		contentHtmls[i] = config.ROOT + strings.TrimSpace(contentHtml)
+	}
+
 	// 为了使用自定义的模板函数，首先New一个以第一个模板文件名为模板名。
 	// 这样，在ParseFiles时，新返回的*Template便还是原来的模板实例
-	tpl, err := template.New(this.baseTplName).Funcs(funcMap).ParseFiles(append(this.commonHtmlFiles, config.ROOT+contentHtml)...)
+	tpl, err := template.New(this.baseTplName).Funcs(funcMap).ParseFiles(append(this.commonHtmlFiles, contentHtmls...)...)
 	if err != nil {
 		logger.Errorf("解析模板出错（ParseFiles）：[%q] %s\n", req.RequestURI, err)
 		return false

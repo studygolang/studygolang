@@ -17,7 +17,7 @@
           <div class="info leader">
             <a href="/topics/node{{.topic.nid}}" class="node">{{.topic.node}}</a>
             •
-            <a href="/user/{{.topic.user.Username}}" data-author="true" data-name="{{.topic.user.Name}}" title="{{.topic.user.Name}}">{{.topic.user.Username}}</a>
+            <a href="/user/{{.topic.user.Username}}" data-author="true" data-name="{{.topic.user.Name}}" data-uid="{{.topic.user.Uid}}" title="{{.topic.user.Name}}">{{.topic.user.Username}}</a>
             •
             于<abbr class="timeago" title="{{formatTime .topic.ctime}}"></abbr>发布
               {{if .topic.lastreplyuid}}
@@ -57,20 +57,18 @@
       </div>
       <div class="items">
         {{range .replies}}
-        <div class="reply" id="reply{{.floor}}">
+        <div class="reply" id="comment{{.floor}}">
           <div class="pull-left face"><a href="/user/{{.user.Username}}"><img alt="{{.user.Username}}" class="uface" src="{{gravatar .user.Email 48}}" style="width:48px;height:48px;"></a></div>
           <div class="infos">
             <div class="info">
               <span class="name">
-                <a href="/user/{{.user.Username}}" data-name="{{.user.Name}}" title="{{.user.Name}}">{{.user.Username}}</a>
+                <a href="/user/{{.user.Username}}" data-name="{{.user.Name}}" data-uid="{{.user.Uid}}" title="{{.user.Name}}">{{.user.Username}}</a>
                 {{.floor}}楼, <abbr class="timeago" title="{{formatTime .ctime}}"></abbr>
               </span>
-              <!--
               <span class="opts">
-                <a href="/topics/9173/replies/86742/edit" class="edit icon small_edit" data-uid="744" title="修改回帖"></a>
+                <!--<a href="/topics/9173/replies/86742/edit" class="edit icon small_edit" data-uid="744" title="修改回帖"></a>-->
                 <a href="#" class="icon small_reply" data-floor="{{.floor}}" data-login="{{.user.Username}}" title="回复此楼"></a>
               </span>
-              -->
             </div>
             <div class="body reply-content">{{.content}}</div>
           </div>
@@ -87,8 +85,9 @@
           <input name="utf8" type="hidden" value="✓"><input name="authenticity_token" type="hidden" value="akaN6qrCyNOili4mgo2qBZrdEWqX6DzoDABRpFoQWC4=">
           <input name="objtype" type="hidden" value="0">
           <input name="objname" type="hidden" value="topic">
+          <input id="uid" name="uid" type="hidden">
         </div>
-        <div class="wmd-panel cell_comments_new">
+        <div id="reply_content" class="control-group wmd-panel cell_comments_new">
           <div id="wmd-button-bar"></div>
           <textarea class="wmd-input" id="wmd-input" name="content" style="height:82px;"></textarea>
         </div>
@@ -168,6 +167,11 @@
 <script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
 <script type="text/javascript" src="/static/js/social-share-button.js"></script>
 <script type="text/javascript">
+{{if .me}}
+var MeUsername = {{.me.username}};
+{{else}}
+var MeUsername = 0;
+{{end}}
 (function () {
     {{if .me}}
     // 评论框
@@ -192,44 +196,12 @@
         if ($(this).html() != "") {
             $(this).html($(converter.makeHtml($(this).html())).addClass('prettyprint'));
         }
-     });
+    });
+    // 语法高亮
+    prettyPrint();
 })();
 
 $(function(){
-    // 表单提交
-    $('#new_reply').submit(function(){
-        var self = $(this);
-        $.post(self.attr('action'), self.serialize(), function(data){
-            if (data.errno) {
-                $('#alert_info').html(data.error).show()
-            } else {
-                /*
-                var content = $('#wmd-input').val(),
-                    floor = parseInt($('.small_reply').last().data('floor')) + 1;
-                var replyHtml = '<div class="reply" id="reply1">'+
-                '<div class="pull-left face"><a href="/user/{{.me.username}}"><img alt="{{.me.username}}" class="uface" src="{{gravatar .me.email 48}}" style="width:48px;height:48px;"></a></div>'+
-              '<div class="infos">'+
-                '<div class="info">'+
-                  '<span class="name">'+
-                    '<a href="/user/{{.me.username}}" data-name="{{.me.username}}">{{.me.username}}</a>'+floor+'楼, <abbr class="timeago" title="">'+$.timeago(new Date())+'</abbr>'+
-                  '</span>'+
-                  '<span class="opts">'+
-                    '<a href="/topics/9173/replies/86742/edit" class="edit icon small_edit" data-uid="744" title="修改回帖"></a>'+
-                    '<a href="#" class="icon small_reply" data-floor="1" data-login="{{.me.username}}" title="回复此楼"></a>'+
-                  '</span>'+
-                '</div>'+
-                '<div class="body reply-content"><p>'+content+'</p></div>'+
-              '</div>'+
-            '</div>';
-              $('.items').append(replyHtml);
-              */
-              // TODO:
-              location.reload();
-            }
-        }, 'json');
-        return false;
-    });
-    
     // 加载节点下其他话题
     var otherTopics = $('#other_topics'),
         tid = otherTopics.data('tid'),

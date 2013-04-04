@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -e
+
+if [ ! -f getpkg ]; then
+    echo 'getpkg must be run within its container folder' 1>&2
+    exit 1
+fi
+
+OLDGOPATH="$GOPATH"
+export GOPATH=`pwd`
+
+go get -u github.com/go-sql-driver/mysql
+go get -u github.com/studygolang/mux
+go get -u github.com/gorilla/sessions
+
+export GOPATH="$OLDGOPATH"
+export PATH="$OLDPATH"
+
+echo 'finished'

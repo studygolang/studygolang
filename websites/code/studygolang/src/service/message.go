@@ -10,6 +10,7 @@ import (
 	"logger"
 	"model"
 	"strconv"
+	"strings"
 	"util"
 )
 
@@ -63,6 +64,37 @@ func SendSystemMsgTo(to, msgtype int, ext map[string]interface{}) bool {
 	// 通过 WebSocket 通知对方
 	msg := NewMessage(WsMsgNotify, 1)
 	go Book.PostMessage(to, msg)
+	return true
+}
+
+// 给被@的用户发系统消息
+func SendSysMsgAtUids(uids string, ext map[string]interface{}) bool {
+	if uids == "" {
+		return true
+	}
+	message := model.NewSystemMessage()
+	message.Msgtype = model.MsgtypeAtMe
+	message.SetExt(ext)
+
+	msg := NewMessage(WsMsgNotify, 1)
+
+	uidSlice := strings.Split(uids, ",")
+	for _, uidStr := range uidSlice {
+		uid, _ := strconv.Atoi(strings.TrimSpace(uidStr))
+		if from, ok := ext["uid"]; ok {
+			// 自己的动作不发系统消息
+			if uid == from.(int) {
+				continue
+			}
+		}
+		message.To = uid
+		if _, err := message.Insert(); err != nil {
+			logger.Errorln("message service SendSysMsgAtUids Error:", err)
+			continue
+		}
+		// 通过 WebSocket 通知对方
+		go Book.PostMessage(uid, msg)
+	}
 	return true
 }
 
@@ -156,19 +188,22 @@ func FindSysMsgsByUid(uid string) []map[string]interface{} {
 				objUrl = "/wiki/" + strconv.Itoa(wikiMap[objid].Id)
 				title = "评论了你的Wiki页："
 			case model.MsgtypeAtMe:
+				title = "评论时提到了你，在"
 				switch int(ext["objtype"].(float64)) {
 				case model.TYPE_TOPIC:
 					objTitle = topicMap[objid].Title
 					objUrl = "/topics/" + strconv.Itoa(topicMap[objid].Tid)
+					title += "主题："
 				case model.TYPE_BLOG:
 				case model.TYPE_RESOURCE:
 					objTitle = resourceMap[objid].Title
 					objUrl = "/resources/" + strconv.Itoa(resourceMap[objid].Id)
+					title += "资源："
 				case model.TYPE_WIKI:
 					objTitle = wikiMap[objid].Title
 					objUrl = "/wiki/" + strconv.Itoa(wikiMap[objid].Id)
+					title += "wiki："
 				}
-				title = "评论提到了你，在："
 			}
 			tmpMap["objtitle"] = objTitle
 			tmpMap["objurl"] = objUrl
@@ -183,7 +218,7 @@ func FindSysMsgsByUid(uid string) []map[string]interface{} {
 		if val, ok := ext["content"]; ok {
 			tmpMap["content"] = val.(string)
 		} else if val, ok := ext["cid"]; ok {
-			tmpMap["content"] = commentMap[int(val.(float64))].Content
+			tmpMap["content"] = decodeCmtContent(commentMap[int(val.(float64))])
 		}
 		tmpMap["title"] = title
 		result[i] = tmpMap

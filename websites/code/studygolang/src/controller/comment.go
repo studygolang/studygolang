@@ -21,7 +21,7 @@ func CommentHandler(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	user, _ := filter.CurrentUser(req)
 	// 入库
-	err := service.PostComment(util.MustInt(vars["objid"]), util.MustInt(req.FormValue("objtype")), user["uid"].(int), req.FormValue("content"), req.FormValue("objname"))
+	err := service.PostComment(user["uid"].(int), util.MustInt(vars["objid"]), req.Form)
 	if err != nil {
 		fmt.Fprint(rw, `{"errno": 1, "error":"服务器内部错误"}`)
 		return

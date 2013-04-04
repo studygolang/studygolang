@@ -7,8 +7,12 @@
 package service
 
 import (
+	"fmt"
+	"html/template"
 	"logger"
 	"model"
+	"net/url"
+	"regexp"
 	"strconv"
 	"time"
 	"util"
@@ -43,10 +47,26 @@ func FindObjComments(objid, objtype string, owner, lastCommentUid int /*, page, 
 	for _, comment := range commentList {
 		tmpMap := make(map[string]interface{})
 		util.Struct2Map(tmpMap, comment)
+		tmpMap["content"] = decodeCmtContent(comment)
 		tmpMap["user"] = userMap[comment.Uid]
 		comments = append(comments, tmpMap)
 	}
 	return
+}
+
+func decodeCmtContent(comment *model.Comment) template.HTML {
+	// 安全过滤
+	content := template.HTMLEscapeString(comment.Content)
+	// @别人
+	reg := regexp.MustCompile(`@([^\s@]{4,20})`)
+	content = reg.ReplaceAllString(content, `<a href="/user/$1" title="@$1">@$1</a>`)
+
+	// 回复某一楼层
+	reg = regexp.MustCompile(`#(\d+)楼`)
+	url := fmt.Sprintf("%s%d#comment", model.PathUrlMap[comment.Objtype], comment.Objid)
+	content = reg.ReplaceAllString(content, `<a href="`+url+`$1" title="$1">#$1<span>楼</span></a>`)
+
+	return template.HTML(content)
 }
 
 // 获得某人在某种类型最近的评论
@@ -114,12 +134,14 @@ func RegisterCommentObject(objname string, commenter Commenter) {
 
 // 发表评论（或回复）。
 // objname 注册的评论对象名
-func PostComment(objid, objtype, uid int, content string, objname string) error {
+// uid 评论人
+func PostComment(uid, objid int, form url.Values) error {
 	comment := model.NewComment()
 	comment.Objid = objid
+	objtype := util.MustInt(form.Get("objtype"))
 	comment.Objtype = objtype
 	comment.Uid = uid
-	comment.Content = content
+	comment.Content = form.Get("content")
 
 	// TODO:评论楼层怎么处理，避免冲突？最后的楼层信息保存在内存中？
 
@@ -140,7 +162,7 @@ func PostComment(objid, objtype, uid int, content string, objname string) error 
 		return err
 	}
 	// 回调，不关心处理结果（有些对象可能不需要回调）
-	if commenter, ok := commenters[objname]; ok {
+	if commenter, ok := commenters[form.Get("objname")]; ok {
 		logger.Debugf("评论[objid:%d] [objtype:%d] [uid:%d] 成功，通知被评论者更新", objid, objtype, uid)
 		go commenter.UpdateComment(cid, objid, uid, time.Now().Format("2006-01-02 15:04:05"))
 	}
@@ -157,7 +179,8 @@ func PostComment(objid, objtype, uid int, content string, objname string) error 
 	}
 	go SendSystemMsgTo(0, objtype, ext)
 
-	// TODO: @某人 发系统消息？
+	// @某人 发系统消息
+	go SendSysMsgAtUids(form.Get("uid"), ext)
 
 	return nil
 }

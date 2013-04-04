@@ -66,7 +66,7 @@
 		// 绑定 @ 回复功能（输入框支持@自动提示）
 		atReplyable:function(dom, users){
 			if(users.length === 0 ) return;
-			return $(dom).atwho("@", {data:users, tpl:"<li data-value='${username}'>${username} <small>${name}</small></li>"});
+			$(dom).atwho("@", {data:users, tpl:"<li data-value='${username}'>${username} <small>${name}</small></li>"});
 		},
 		
 		// 支持 http://www.emoji-cheat-sheet.com/ 表情
@@ -86,18 +86,21 @@
 			var users = App.scanLogins($(".cell_comments .comment .info .name a"));
 			var result = [];
 			for (var username in users) {
-				var user = {username: username, name: users[username]};
+				var user = {uid: users[username].uid, username: username, name: users[username].name};
 				result.push(user);
 			}
 			App.atReplyable(".cell_comments_new textarea", result);
 		},
 		
 		// scan logins in jQuery collection and returns as a object,
-		// which key is username(账号）, and value is the name（姓名/昵称）.
+		// which key is username(账号）, and value is the object of {uid:xxx, name（姓名/昵称）:xxx}.
 		scanLogins:function(query){
 			var result = {};
 			query.each(function(){
-				result[$(this).text()] = $(this).data('name');
+				result[$(this).text()] = {
+					'uid':$(this).data('uid'),
+					'name':$(this).data('name')
+				};
 			});
 			return result;
 		},
@@ -108,7 +111,7 @@
 	};
 	
 	$(document).ready(function(){
-		App.initForDesktopView();
+		//App.initForDesktopView();
 		
 		// 【时间轴】插件
 		$("abbr.timeago").timeago();
@@ -128,6 +131,7 @@
 			return $.sisyphus().manuallyReleaseData()
 		});
 		
+		/*
 		// 绑定评论框（回复） Ctrl+Enter 提交事件
 		$(".cell_comments_new textarea").on("keydown","ctrl+return",function(env){
 			var tg = $(env.target);
@@ -136,6 +140,7 @@
 			}
 			return false;
 		});
+		*/
 
 		// Choose 样式（美化），需要http://davidwalsh.name/demo/jquery-chosen.php插件
 		// $("select").chosen();

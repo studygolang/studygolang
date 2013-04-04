@@ -18,6 +18,13 @@ const (
 	TYPE_WIKI            // WIKI
 )
 
+var PathUrlMap = map[int]string{
+	TYPE_TOPIC:    "/topics/",
+	TYPE_BLOG:     "/blog/",
+	TYPE_RESOURCE: "/resources/",
+	TYPE_WIKI:     "/wiki/",
+}
+
 // 评论信息（通用）
 type Comment struct {
 	Cid     int    `json:"cid"`

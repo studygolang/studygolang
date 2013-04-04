@@ -979,7 +979,7 @@ else
                     var codeblock = m1;
                     var nextChar = m2;
 
-                    codeblock = _EncodeCode(_Outdent(codeblock));
+                    //codeblock = _EncodeCode(_Outdent(codeblock));
                     codeblock = _Detab(codeblock);
                     codeblock = codeblock.replace(/^\n+/g, ""); // trim leading newlines
                     codeblock = codeblock.replace(/\n+$/g, ""); // trim trailing whitespace
