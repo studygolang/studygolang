@@ -18,6 +18,8 @@ INSERT INTO `topics_node`(`parent`, `name`, `intro`) VALUES(1, 'Go Web开发', '
 INSERT INTO `topics_node`(`parent`, `name`, `intro`) VALUES(1, 'Go问与答', '任何关于Go语言的问题都可以到这里提');
 INSERT INTO `topics_node`(`parent`, `name`, `intro`) VALUES(1, 'Go动态', 'Go语言相关资讯和最新动态');
 INSERT INTO `topics_node`(`parent`, `name`, `intro`) VALUES(1, 'Go开发工具', '交流Go开发工具的使用');
+INSERT INTO `topics_node`(`parent`, `name`, `intro`) VALUES(1, 'Go实战', 'Go语言实际使用经验交流');
+INSERT INTO `topics_node`(`parent`, `name`, `intro`) VALUES(1, 'Go工具链', '(go tool chain)Go提供的各种工具学习、使用');
 
 INSERT INTO `topics_node`(`parent`, `name`, `intro`) VALUES(0, '开源控', 'Golang本身开源，自然gopher们都是开源控');
 INSERT INTO `topics_node`(`parent`, `name`, `intro`) VALUES(9, 'Go Web框架', '开源的Go Web框架，你知道多少？使用了吗？');
