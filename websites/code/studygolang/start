@@ -8,3 +8,5 @@ if [ ! -f start ]; then
 fi
 
 bin/studygolang >> log/panic.log 2>&1 &
+
+echo "start successfully"

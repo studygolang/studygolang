@@ -9,7 +9,6 @@ goto end
 :ok
 
 taskkill /im studygolang.exe /f
-del /q /f /a pid\studygolang.pid
+del /q /f /a pid
 
 :end
-echo finished

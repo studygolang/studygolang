@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+if [ ! -f stop ]; then
+    echo 'stop must be run within its container folder' 1>&2
+    exit 1
+fi
+
+kill -9 `cat pid/*.pid`
+
+sleep 1
+rm -rf pid/*.pid

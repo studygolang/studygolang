@@ -8,7 +8,8 @@ goto end
 
 :ok
 
-START /b bin\studygolang >> log\panic.log 2>&1 &
+start /b bin\studygolang >> log\panic.log 2>&1 &
+
+echo start successfully
 
 :end
-echo finished
