@@ -11,10 +11,12 @@ goto end
 set OLDGOPATH=%GOPATH%
 set GOPATH=%~dp0;%~dp0..\thirdparty
 
+if not exist log mkdir log
+
 gofmt -w src
 
+:: -tags "debug" 表示测试
 go install -tags "debug" studygolang
-go install -tags "debug" datamig
 
 set GOPATH=%OLDGOPATH%
 

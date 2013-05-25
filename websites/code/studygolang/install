@@ -11,6 +11,10 @@ CURDIR=`pwd`
 OLDGOPATH="$GOPATH"
 export GOPATH="$CURDIR:$CURDIR/../thirdparty"
 
+if [ ! -d log ]; then
+    mkdir log
+fi
+
 gofmt -w src
 
 go install studygolang
