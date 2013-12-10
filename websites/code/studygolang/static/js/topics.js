@@ -263,7 +263,7 @@
 			}
 			return result;
 		}();
-		console.log(users);
+		// console.log(users);
 		
 		App.atReplyable(".cell_comments_new textarea", users);
 		// 回复表单提交
