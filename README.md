@@ -46,7 +46,7 @@ studygolang
 	// linux/mac 下执行
 	sh install
 	
-这样便编译好了 studygolang，下面运行 studygolang。（运行前可以根据需要修改 config/config.json 配置）
+这样便编译好了 studygolang，下面运行 studygolang。（运行前可以根据需要修改 config/config.json.example 配置，当然首先得改名为 config.json）
 
 	// windows 下执行
 	start.bat
