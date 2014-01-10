@@ -12,6 +12,7 @@ import (
 	"model"
 	"net/url"
 	"strconv"
+	"time"
 	"util"
 )
 
@@ -134,6 +135,9 @@ func FindCurrentUser(username string) (user map[string]interface{}, err error) {
 			user["isadmin"] = true
 		}
 	}
+
+	RecordLoginTime(username)
+
 	return
 }
 
@@ -271,7 +275,19 @@ func Login(username, passwd string) (*model.UserLogin, error) {
 	// 登录，活跃度+1
 	go IncUserWeight("uid="+strconv.Itoa(userLogin.Uid), 1)
 
+	RecordLoginTime(username)
+
 	return userLogin, nil
+}
+
+// 记录用户最后登录时间
+func RecordLoginTime(username string) error {
+	userLogin := model.NewUserLogin()
+	err := userLogin.Set("login_time=" + time.Now().Format("2006-01-02 15:04:05")).Where("username=" + username).Update()
+	if err != nil {
+		logger.Errorf("记录用户 %s 登录时间错误：%s", username, err)
+	}
+	return err
 }
 
 // 更新用户密码（用户名或email）

@@ -118,11 +118,14 @@ CREATE TABLE `user_login` (
   `username` varchar(20) NOT NULL COMMENT '用户名',
   `passcode` char(12) NOT NULL DEFAULT '' COMMENT '加密随机数',
   `passwd` char(32) NOT NULL DEFAULT '' COMMENT 'md5密码',
+  `login_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后一次登录时间（主动登录或cookie登录）',
   PRIMARY KEY (`uid`),
   UNIQUE KEY (`username`),
   UNIQUE KEY (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+alter table `studygolang`.`user_login` add column `login_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后一次登录时间（主动登录或cookie登录）' after `passwd`
+   
 /*---------------------------------------------------------------------------*
   NAME: bind_user
   用途：第三方绑定表

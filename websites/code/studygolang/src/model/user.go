@@ -15,11 +15,12 @@ import (
 
 // 用户登录信息
 type UserLogin struct {
-	Uid      int    `json:"uid"`
-	Username string `json:"username"`
-	Passwd   string `json:"passwd"`
-	Email    string `json:"email"`
-	passcode string // 加密随机串
+	Uid       int    `json:"uid"`
+	Username  string `json:"username"`
+	Passwd    string `json:"passwd"`
+	Email     string `json:"email"`
+	LoginTime string `json:"login_time"`
+	passcode  string // 加密随机串
 
 	// 数据库访问对象
 	*Dao
@@ -57,9 +58,9 @@ func (this *UserLogin) Set(clause string) *UserLogin {
 }
 
 func (this *UserLogin) prepareInsertData() {
-	this.columns = []string{"uid", "username", "passwd", "email", "passcode"}
+	this.columns = []string{"uid", "username", "passwd", "email", "login_time", "passcode"}
 	this.GenMd5Passwd("")
-	this.colValues = []interface{}{this.Uid, this.Username, this.Passwd, this.Email, this.passcode}
+	this.colValues = []interface{}{this.Uid, this.Username, this.Passwd, this.Email, this.LoginTime, this.passcode}
 }
 
 // 生成加密密码
@@ -76,11 +77,12 @@ func (this *UserLogin) GenMd5Passwd(origPwd string) string {
 // 由于在DAO中没法调用 具体 model 的方法，如果将该映射关系定义为 具体 model 字段，有些浪费
 func (this *UserLogin) colFieldMap() map[string]interface{} {
 	return map[string]interface{}{
-		"uid":      &this.Uid,
-		"username": &this.Username,
-		"passwd":   &this.Passwd,
-		"email":    &this.Email,
-		"passcode": &this.passcode,
+		"uid":        &this.Uid,
+		"username":   &this.Username,
+		"passwd":     &this.Passwd,
+		"email":      &this.Email,
+		"login_time": &this.LoginTime,
+		"passcode":   &this.passcode,
 	}
 }
 
