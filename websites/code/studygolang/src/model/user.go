@@ -45,6 +45,30 @@ func (this *UserLogin) Find(selectCol ...string) error {
 	return this.Dao.Find(this.colFieldMap(), selectCol...)
 }
 
+func (this *UserLogin) FindAll(selectCol ...string) ([]*UserLogin, error) {
+	if len(selectCol) == 0 {
+		selectCol = util.MapKeys(this.colFieldMap())
+	}
+	rows, err := this.Dao.FindAll(selectCol...)
+	if err != nil {
+		return nil, err
+	}
+	// TODO:
+	userList := make([]*UserLogin, 0, 10)
+	logger.Debugln("selectCol", selectCol)
+	colNum := len(selectCol)
+	for rows.Next() {
+		user := NewUserLogin()
+		err = this.Scan(rows, colNum, user.colFieldMap(), selectCol...)
+		if err != nil {
+			logger.Errorln("UserLogin FindAll Scan Error:", err)
+			continue
+		}
+		userList = append(userList, user)
+	}
+	return userList, nil
+}
+
 // 为了支持连写
 func (this *UserLogin) Where(condition string) *UserLogin {
 	this.Dao.Where(condition)

@@ -192,6 +192,7 @@ func (this *Dao) FindAll(selectCol ...string) (*sql.Rows, error) {
 	this.selectCols = "`" + strings.Join(selectCol, "`,`") + "`"
 	strSql := util.SelectSql(this)
 	logger.Debugln("FindAll sql:", strSql)
+	logger.Debugln("FindAll bind params:", this.whereVal)
 	err := this.Open()
 	if err != nil {
 		return nil, err
@@ -217,6 +218,16 @@ func (this *Dao) Scan(rows *sql.Rows, colNum int, colFieldMap map[string]interfa
 		scanInterface = append(scanInterface, colFieldMap[column])
 	}
 	return rows.Scan(scanInterface...)
+}
+
+// 执行 insert、update、delete 等操作
+func (this *Dao) Exec(strSql string, args ...interface{}) (sql.Result, error) {
+	err := this.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer this.Close()
+	return this.DB.Exec(strSql, args...)
 }
 
 /*

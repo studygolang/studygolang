@@ -1,15 +1,15 @@
 {
-    "domain": "dev.studygolang.com",
-    "host": "127.0.0.1:8080",
-    "wshost": "127.0.0.1:6090",
-    "drive_name": "mysql",
-    "dsn": "root:@tcp(localhost:3306)/studygolang?charset=utf8",
-    "cookie_secret": "2fwefefwf",
-    "smtp_username": "example_username",
+	"domain": "dev.studygolang.com",
+	"host": "127.0.0.1:8080",
+	"wshost": "127.0.0.1:6090",
+	"drive_name": "mysql",
+	"dsn": "root:@tcp(localhost:3306)/studygolang?charset=utf8",
+	"cookie_secret": "2fwefefwf",
+	"smtp_username": "example_username",
 	"smtp_password": "example_password",
 	"smtp_host": "smtp.example.com",
 	"smtp_addr": "smtp.example.com:25",
 	"from_email": "example@example.com",
-    "data": "data/max_online_num",
-    "pid": "pid/studygolang.pid"
+	"data": "data/max_online_num",
+	"pid": "pid/studygolang.pid"
 }

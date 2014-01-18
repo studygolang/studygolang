@@ -351,3 +351,24 @@ func IncUserWeight(where string, weight int) {
 		logger.Errorln("UserActive update Error:", err)
 	}
 }
+
+func DecrUserWeight(where string, divide int) {
+	if divide <= 0 {
+		return
+	}
+
+	strSql := "UPDATE user_active SET weight=weight/" + strconv.Itoa(divide) + " WHERE " + where
+	if result, err := model.NewUserActive().Exec(strSql); err != nil {
+		logger.Errorln("UserActive update Error:", err)
+	} else {
+		n, _ := result.RowsAffected()
+		logger.Debugln(strSql, "affected num:", n)
+	}
+}
+
+// 获取 loginTime 之前没有登录的用户
+func FindNotLoginUsers(loginTime string) (userList []*model.UserLogin, err error) {
+	userLogin := model.NewUserLogin()
+	userList, err = userLogin.Where("login_time<" + loginTime).FindAll()
+	return
+}

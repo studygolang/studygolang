@@ -32,6 +32,8 @@ func main() {
 
 	go ServeWebSocket()
 
+	go ServeBackGround()
+
 	router := initRouter()
 	http.Handle("/", router)
 	log.Fatal(http.ListenAndServe(Config["host"], nil))
