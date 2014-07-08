@@ -44,7 +44,7 @@ func TopicsHandler(rw http.ResponseWriter, req *http.Request) {
 		order = "ctime DESC"
 	}
 	topics, total := service.FindTopics(page, 0, where, order)
-	pageHtml := service.GetPageHtml(page, total)
+	pageHtml := service.GetPageHtml(page, total, "/topics")
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/topics/list.html")
 	// 设置模板数据
 	filter.SetData(req, map[string]interface{}{"activeTopics": "active", "topics": topics, "page": template.HTML(pageHtml), "nodes": nodes})
@@ -59,7 +59,7 @@ func NodesHandler(rw http.ResponseWriter, req *http.Request) {
 	}
 	vars := mux.Vars(req)
 	topics, total := service.FindTopics(page, 0, "nid="+vars["nid"])
-	pageHtml := service.GetPageHtml(page, total)
+	pageHtml := service.GetPageHtml(page, total, "/topics/node"+vars["nid"])
 	// 当前节点信息
 	node := model.GetNode(util.MustInt(vars["nid"]))
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/topics/node.html")

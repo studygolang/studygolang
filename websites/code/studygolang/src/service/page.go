@@ -7,7 +7,6 @@
 package service
 
 import (
-	"strconv"
 	"util"
 )
 
@@ -15,8 +14,8 @@ import (
 const PAGE_NUM = 15
 
 // 构造分页html
-// curPage 当前页码；total总记录数
-func GetPageHtml(curPage, total int) string {
+// curPage 当前页码；total总记录数；uri 当前uri
+func GetPageHtml(curPage, total int, uri string) string {
 	// 总页数
 	pageCount := total / PAGE_NUM
 	if total%PAGE_NUM != 0 {
@@ -30,7 +29,7 @@ func GetPageHtml(curPage, total int) string {
 	stringBuilder.Append(`<li class="prev previous_page">`)
 	// 当前是第一页
 	if curPage != 1 {
-		stringBuilder.Append(`<a href="/topics?p=` + strconv.Itoa(curPage-1) + `">← 上一页</a>`)
+		stringBuilder.Append(`<a href="`).Append(uri).Append("?p=").AppendInt(curPage - 1).Append(`">← 上一页</a>`)
 	}
 	stringBuilder.Append(`</li>`)
 	before := 5
@@ -40,7 +39,7 @@ func GetPageHtml(curPage, total int) string {
 			break
 		}
 		if curPage == i+1 {
-			stringBuilder.Append(`<li class="active"><a href="/topics?p=`).AppendInt(i + 1).Append(`">`).AppendInt(i + 1).Append("</a></li>")
+			stringBuilder.Append(`<li class="active"><a href="`).Append(uri).Append("?p=").AppendInt(i + 1).Append(`">`).AppendInt(i + 1).Append("</a></li>")
 			continue
 		}
 		// 分界点
@@ -56,12 +55,12 @@ func GetPageHtml(curPage, total int) string {
 			stringBuilder.Append(`<li class="disabled"><a href="#"><span class="gap">…</span></a></li>`)
 			continue
 		}
-		stringBuilder.Append(`<li><a href="/topics?p=`).AppendInt(i + 1).Append(`">`).AppendInt(i + 1).Append("</a></li>")
+		stringBuilder.Append(`<li><a href="`).Append(uri).Append("?p=").AppendInt(i + 1).Append(`">`).AppendInt(i + 1).Append("</a></li>")
 	}
 	stringBuilder.Append(`<li class="next next_page ">`)
 	// 最后一页
 	if curPage < pageCount {
-		stringBuilder.Append(`<a href="/topics?p=` + strconv.Itoa(curPage+1) + `">下一页 →</a>`)
+		stringBuilder.Append(`<a href="`).Append(uri).Append("?p=").AppendInt(curPage + 1).Append(`">下一页 →</a>`)
 	}
 	stringBuilder.Append(`</li>`)
 	return stringBuilder.String()

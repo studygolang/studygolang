@@ -92,6 +92,7 @@
           var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
           document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F224c227cd9239761ec770bc8c1fb134c' type='text/javascript'%3E%3C/script%3E"));
           </script>
+	  京ICP备14030343号-1
           </p>
         </div> 
       </div>
@@ -123,7 +124,8 @@
     <script type="text/javascript">
     window.WebSocket = window.WebSocket || window.MozWebSocket;
     if (window.WebSocket) {
-        var wsUrl = 'ws://{{.wshost}}/ws?uid={{.me.uid}}';
+        //var wsUrl = 'ws://{{.wshost}}/ws?uid={{.me.uid}}';
+        var wsUrl = 'ws://studygolang.com/ws?uid={{.me.uid}}';
         var websocket = new WebSocket(wsUrl);
 
         websocket.onopen = function(){
@@ -159,5 +161,11 @@
         // websocket.onerror = onError;
     }
     </script>
+    <!-- JiaThis Button BEGIN -->
+    <script type="text/javascript">
+    var jiathis_config = {data_track_clickback:'true'};
+    </script>
+    <script type="text/javascript" src="http://v3.jiathis.com/code_mini/jiathis_r.js?uid=1358871817652577" charset="utf-8"></script>
+    <!-- JiaThis Button END -->
   </body>
 </html>
