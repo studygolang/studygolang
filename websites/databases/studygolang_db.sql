@@ -123,8 +123,6 @@ CREATE TABLE `user_login` (
   UNIQUE KEY (`username`),
   UNIQUE KEY (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-alter table `studygolang`.`user_login` add column `login_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后一次登录时间（主动登录或cookie登录）' after `passwd`
    
 /*---------------------------------------------------------------------------*
   NAME: bind_user
