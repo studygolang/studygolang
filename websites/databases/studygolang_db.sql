@@ -121,7 +121,8 @@ CREATE TABLE `user_login` (
   `login_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后一次登录时间（主动登录或cookie登录）',
   PRIMARY KEY (`uid`),
   UNIQUE KEY (`username`),
-  UNIQUE KEY (`email`)
+  UNIQUE KEY (`email`),
+  KEY `logintime` (`login_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
    
 /*---------------------------------------------------------------------------*
