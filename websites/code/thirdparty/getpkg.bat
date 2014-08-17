@@ -14,8 +14,9 @@ set GOPATH=%~dp0
 go get -u github.com/go-sql-driver/mysql
 go get -u github.com/studygolang/mux
 go get -u github.com/gorilla/sessions
-hg clone https://code.google.com/p/go.net src/go.net
-go install go.net/websocket 
+go get -u github.com/robfig/cron
+:hg clone https://code.google.com/p/go.net src/go.net
+:go install go.net/websocket
 
 set GOPATH=%OLDGOPATH%
 

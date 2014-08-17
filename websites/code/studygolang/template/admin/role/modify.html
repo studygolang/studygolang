@@ -1,0 +1,28 @@
+{{define "content"}}
+<div class="pageheader notab">
+	<h1 class="pagetitle">修改角色</h1>
+</div><!--pageheader-->
+
+<div id="contentwraapper" class="contentwrapper">
+	<div id="tooltip" class="red"></div>
+	<form method="POST" action="/admin/user/role/modify" class="stdform" action-type="ajax-submit">
+		<input type="hidden" name="aid" value="{{.role.Roleid}}" />
+		<div>
+			<p>
+				<label for="name">角色名称</label>
+				<span class="field">
+					<input id="name" type="text" name="name" class="smallinput required" value="{{.role.Name}}" />
+				</span>
+			</p>
+		</div>
+		<div style="margin: 0 auto; width: 500px;"><input class="submit_btn" type="submit" name="save" value="提交" /></a></div>
+	</form>
+	<img id="loaders" src="/static/img/loaders/loader7.gif" alt="" class="hide"><blockquote></blockquote>
+</div><!--contentwrapper-->
+{{end}}
+
+{{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script	type="text/javascript" src="/static/js/admin/forms.js"></script>
+{{end}}

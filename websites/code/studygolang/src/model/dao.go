@@ -14,6 +14,7 @@ import (
 	// _ "github.com/ziutek/mymysql/godrv"
 	. "config"
 	"logger"
+	"reflect"
 	"sort"
 	"strings"
 	"util"
@@ -230,6 +231,121 @@ func (this *Dao) Exec(strSql string, args ...interface{}) (sql.Result, error) {
 	return this.DB.Exec(strSql, args...)
 }
 
+// 持久化 entity 到数据库
+func (this *Dao) Persist(entity interface{}) error {
+	strSql, args, err := genPersistParams(entity)
+
+	if err != nil {
+		logger.Errorln("Persist error:", err)
+		return err
+	}
+
+	logger.Debugln("Persist sql:", strSql)
+
+	err = this.Open()
+	if err != nil {
+		return err
+	}
+	defer this.Close()
+	result, err := this.Exec(strSql, args...)
+	if err != nil {
+		return err
+	}
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	logger.Debugf("成功更新了`%s`表 %d 条记录", this.tablename, affected)
+	return nil
+}
+
+func genPersistParams(entity interface{}) (string, []interface{}, error) {
+	strSql := "UPDATE `%s` SET %s WHERE %s"
+
+	var (
+		tablename string
+		set       = make([]string, 0, 8)
+		setArgs   = make([]interface{}, 0, 8)
+		where     = make([]string, 0, 2)
+		whereArgs = make([]interface{}, 0, 2)
+	)
+
+	entityType := reflect.TypeOf(entity)
+	if entityType.Kind() != reflect.Ptr {
+		return "", nil, fmt.Errorf("Persist(non-pointer %s)", entityType)
+	}
+	entityValue := reflect.Indirect(reflect.ValueOf(entity))
+	if entityValue.Kind() != reflect.Struct {
+		return "", nil, fmt.Errorf("Persist(non-struct %s)", entityValue)
+	}
+	entityType = entityValue.Type()
+	fieldNum := entityType.NumField()
+	for i := 0; i < fieldNum; i++ {
+		fieldValue := entityValue.Field(i)
+
+		// struct 字段的反射类型（StructField）
+		fieldType := entityType.Field(i)
+
+		if fieldType.Anonymous {
+			tablenameField := (reflect.Indirect(fieldValue)).FieldByName("tablename")
+			tablename = tablenameField.String()
+			continue
+		}
+		// 非导出字段不处理
+		if fieldType.PkgPath != "" {
+			continue
+		}
+		tag := fieldType.Tag.Get("json")
+		tags := strings.Split(tag, ",")
+
+		pk := fieldType.Tag.Get("pk")
+
+		// 字段本身的反射类型（field type）
+		fieldValType := fieldType.Type
+		switch fieldValType.Kind() {
+		case reflect.Int:
+			val := fieldValue.Int()
+
+			if len(tags) > 1 && tags[1] == "omitempty" &&
+				val == 0 {
+				continue
+			}
+
+			if pk == "1" {
+				whereArgs = append(whereArgs, val)
+			} else {
+				setArgs = append(setArgs, val)
+			}
+		case reflect.String:
+			val := fieldValue.String()
+
+			if len(tags) > 1 && tags[1] == "omitempty" &&
+				val == "" {
+				continue
+			}
+
+			if pk == "1" {
+				whereArgs = append(whereArgs, val)
+			} else {
+				setArgs = append(setArgs, val)
+			}
+		default:
+
+		}
+
+		if pk == "1" {
+			where = append(where, tag+"=?")
+		} else {
+			set = append(set, tag+"=?")
+		}
+	}
+
+	strSql = fmt.Sprintf(strSql, tablename, strings.Join(set, ","), strings.Join(where, " AND "))
+	args := append(setArgs, whereArgs...)
+
+	return strSql, args, nil
+}
+
 /*
 // FindAllEx 查找多条数据
 func (this *Dao) FindAllEx(selectCol ...string) (reflect.Value, error) {
@@ -296,8 +412,9 @@ func (this *Dao) ColValues() []interface{} {
 }
 
 // 查询条件处理（TODO:暂时没有处理between和in）
+// bug: aid='' 时，会自动去掉条件(FindAuthority)
 func (this *Dao) Where(condition string) {
-	this.whereVal = make([]interface{}, 0)
+	this.whereVal = make([]interface{}, 0, 5)
 	stringBuilder := util.NewBuffer()
 	conditions := SplitIn(condition, []string{" and ", " AND ", " or ", " OR "}...)
 	for _, condition := range conditions {

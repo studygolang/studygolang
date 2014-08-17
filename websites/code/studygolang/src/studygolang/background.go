@@ -7,6 +7,8 @@
 package main
 
 import (
+	"github.com/robfig/cron"
+	"global"
 	"logger"
 	"service"
 	"time"
@@ -15,9 +17,30 @@ import (
 
 // 后台运行的任务
 func ServeBackGround() {
+
+	go loadData()
+
+	c := cron.New()
+
+	c.AddFunc("@daily", decrUserActiveWeight)
+
+	c.Start()
+}
+
+func loadData() {
+	service.LoadAuthorities()
+	service.LoadRoles()
+	service.LoadRoleAuthorities()
+
 	for {
-		go decrUserActiveWeight()
-		time.Sleep(24 * time.Hour)
+		select {
+		case <-global.AuthorityChan:
+			service.LoadAuthorities()
+		case <-global.RoleChan:
+			service.LoadRoles()
+		case <-global.RoleAuthChan:
+			service.LoadRoleAuthorities()
+		}
 	}
 }
 

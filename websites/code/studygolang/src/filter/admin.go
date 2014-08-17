@@ -9,7 +9,7 @@ package filter
 import (
 	"github.com/studygolang/mux"
 	"net/http"
-	"util"
+	//"service"
 )
 
 // 管理后台权限检查过滤器
@@ -23,11 +23,16 @@ func (this *AdminFilter) PreFilter(rw http.ResponseWriter, req *http.Request) bo
 		if isAdmin, ok := user["isadmin"].(bool); !ok || !isAdmin {
 			return false
 		}
+		if req.RequestURI == "/admin" {
+			return true
+		}
+
+		//return service.HasAuthority(user["uid"].(int), req.RequestURI)
 	}
 	return true
 }
 
-// 没有权限时，跳转到没有权限提示页面
+// 没有权限时，返回 403
 func (this *AdminFilter) PreErrorHandle(rw http.ResponseWriter, req *http.Request) {
-	util.Redirect(rw, req, "/noauthorize")
+	rw.WriteHeader(http.StatusForbidden)
 }

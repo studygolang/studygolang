@@ -191,7 +191,9 @@ DROP TABLE IF EXISTS `role`;
 CREATE TABLE `role` (
   `roleid` int unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(128) NOT NULL DEFAULT '' COMMENT '角色名',
-  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `op_user` varchar(20) NOT NULL DEFAULT '' COMMENT '操作人',
+  `ctime` timestamp NOT NULL DEFAULT 0,
+  `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`roleid`),
   UNIQUE KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -204,9 +206,14 @@ DROP TABLE IF EXISTS `authority`;
 CREATE TABLE `authority` (
   `aid` int unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(128) NOT NULL DEFAULT '' COMMENT '权限名',
-  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `menu1` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '所属一级菜单，本身为一级菜单，则为0',
+  `menu2` int unsigned NOT NULL DEFAULT 0 COMMENT '所属二级菜单，本身为二级菜单，则为0',
+  `route` varchar(128) NOT NULL DEFAULT '' COMMENT '路由（权限）',
+  `op_user` varchar(20) NOT NULL COMMENT '操作人',
+  `ctime` timestamp NOT NULL DEFAULT 0,
+  `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`aid`),
-  UNIQUE KEY (`name`)
+  KEY (`route`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*---------------------------------------------------------------------------*
@@ -217,7 +224,9 @@ DROP TABLE IF EXISTS `role_authority`;
 CREATE TABLE `role_authority` (
   `roleid` int unsigned NOT NULL,
   `aid` int unsigned NOT NULL,
-  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `op_user` varchar(20) NOT NULL COMMENT '操作人',
+  `ctime` timestamp NOT NULL DEFAULT 0,
+  `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`roleid`, `aid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

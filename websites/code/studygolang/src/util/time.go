@@ -17,3 +17,7 @@ func TimeParseOften(value string) (time.Time, error) {
 	local, _ := time.LoadLocation("Local")
 	return time.ParseInLocation(TIME_LAYOUT_OFTEN, value, local)
 }
+
+func TimeNow() string {
+	return time.Now().Format(TIME_LAYOUT_OFTEN)
+}

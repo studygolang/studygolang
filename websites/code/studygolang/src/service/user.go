@@ -104,27 +104,27 @@ func UpdateUser(form url.Values) (errMsg string, err error) {
 
 // 获取当前登录用户信息（常用信息）
 func FindCurrentUser(username string) (user map[string]interface{}, err error) {
-	userLogin := model.NewUserLogin()
-	err = userLogin.Where("username=" + username).Find()
+	userInfo := model.NewUser()
+	err = userInfo.Where("username=" + username).Find()
 	if err != nil {
 		logger.Errorf("获取用户 %s 信息失败：%s", username, err)
 		return
 	}
-	if userLogin.Uid == 0 {
+	if userInfo.Uid == 0 {
 		logger.Infof("用户 %s 不存在！", username)
 		return
 	}
 	user = map[string]interface{}{
-		"uid":      userLogin.Uid,
-		"username": userLogin.Username,
-		"email":    userLogin.Email,
+		"uid":      userInfo.Uid,
+		"username": userInfo.Username,
+		"email":    userInfo.Email,
 	}
 
 	// 获取未读消息数
-	user["msgnum"] = FindNotReadMsgNum(userLogin.Uid)
+	user["msgnum"] = FindNotReadMsgNum(userInfo.Uid)
 
 	// 获取角色信息
-	userRoleList, err := model.NewUserRole().Where("uid=" + strconv.Itoa(userLogin.Uid)).FindAll()
+	userRoleList, err := model.NewUserRole().Where("uid=" + strconv.Itoa(userInfo.Uid)).FindAll()
 	if err != nil {
 		logger.Errorf("获取用户 %s 角色 信息失败：%s", username, err)
 		return

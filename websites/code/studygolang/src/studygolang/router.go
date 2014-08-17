@@ -23,10 +23,12 @@ func initRouter() *mux.Router {
 	// 所有的页面都需要先检查用户cookie是否存在，以便在没登录时自动登录
 	cookieFilter := new(filter.CookieFilter)
 	// 大部分handler都需要页面展示
-	frontViewFilter := filter.NewViewFilter()
+	frontViewFilter := filter.NewViewFilter(false)
 	// 表单校验过滤器（配置了验证规则就会执行）
 	formValidateFilter := new(filter.FormValidateFilter)
-	router.FilterChain(mux.NewFilterChain([]mux.Filter{cookieFilter, formValidateFilter, frontViewFilter}...))
+
+	fontFilterChan := mux.NewFilterChain([]mux.Filter{cookieFilter, formValidateFilter, frontViewFilter}...)
+	router.FilterChain(fontFilterChan)
 
 	router.HandleFunc("/", IndexHandler)
 	router.HandleFunc("/topics{view:(|/popular|/no_reply|/last)}", TopicsHandler)
@@ -86,29 +88,42 @@ func initRouter() *mux.Router {
 
 	// 管理后台权限检查过滤器
 	adminFilter := new(filter.AdminFilter)
-	backViewFilter := filter.NewViewFilter(config.ROOT + "/template/admin/common.html")
+	backViewFilter := filter.NewViewFilter(true, config.ROOT+"/template/admin/common.html")
 	adminFilterChain := mux.NewFilterChain([]mux.Filter{loginFilter, adminFilter, formValidateFilter, backViewFilter}...)
 	// admin 子系统
-	// router.HandleFunc("/admin", admin.IndexHandler).AppendFilterChain(loginFilterChain) // 支持"/admin访问"
+	router.FilterChain(adminFilterChain).HandleFunc("/admin", admin.IndexHandler).AppendFilterChain(loginFilterChain) // 支持"/admin访问"
 	subrouter := router.PathPrefix("/admin").Subrouter()
 	// 所有后台需要的过滤器链
 	subrouter.FilterChain(adminFilterChain)
-	subrouter.HandleFunc("/", admin.IndexHandler)
 
 	// 帖子管理
 	subrouter.HandleFunc("/topics", admin.TopicsHandler)
 	subrouter.HandleFunc("/nodes", admin.NodesHandler)
 
-	// 用户管理
+	///////////////// 用户管理 ////////////////////////
+	// 权限（路由）管理
+	subrouter.HandleFunc("/user/auth/list", admin.AuthListHandler)
+	subrouter.HandleFunc("/user/auth/query.html", admin.AuthQueryHandler)
+	subrouter.HandleFunc("/user/auth/new", admin.NewAuthorityHandler)
+	subrouter.HandleFunc("/user/auth/modify", admin.ModifyAuthorityHandler)
+	subrouter.HandleFunc("/user/auth/del", admin.DelAuthorityHandler)
+
+	// 角色 管理
+	subrouter.HandleFunc("/user/role/list", admin.RoleListHandler)
+	subrouter.HandleFunc("/user/role/query.html", admin.RoleQueryHandler)
+	subrouter.HandleFunc("/user/role/new", admin.NewRoleHandler)
+	subrouter.HandleFunc("/user/role/modify", admin.ModifyRoleHandler)
+	subrouter.HandleFunc("/user/role/del", admin.DelRoleHandler)
+
 	subrouter.HandleFunc("/users", admin.UsersHandler)
 	subrouter.HandleFunc("/newuser", admin.NewUserHandler)
 	subrouter.HandleFunc("/adduser", admin.AddUserHandler)
 	subrouter.HandleFunc("/profiler", admin.ProfilerHandler)
 
 	// 错误处理handler
-	router.HandleFunc("/noauthorize", NoAuthorizeHandler) // 无权限handler
+	router.FilterChain(fontFilterChan).HandleFunc("/noauthorize", NoAuthorizeHandler) // 无权限handler
 	// 404页面
-	router.HandleFunc("/{*}", NotFoundHandler)
+	router.FilterChain(fontFilterChan).HandleFunc("/{*}", NotFoundHandler)
 
 	return router
 }
