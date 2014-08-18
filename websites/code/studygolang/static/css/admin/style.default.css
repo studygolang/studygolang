@@ -1875,7 +1875,7 @@ blockquote.bq2 {
 .errorwrapper h1 { font-size: 32px; margin-bottom: 20px; }
 .errorwrapper h3 { font-size: 18px; }
 .errorwrapper ul { list-style: none; line-height: 28px; }
-.errorwrapper ul li { text-indent: 30px; background: url(../images/list.png) no-repeat 0 4px; }
+.errorwrapper ul li { text-indent: 30px; background: url(/static/img/admin/list.png) no-repeat 0 4px; }
 
 
 

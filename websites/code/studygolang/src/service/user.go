@@ -12,6 +12,7 @@ import (
 	"model"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 	"util"
 )
@@ -214,36 +215,29 @@ func FindNewUsers(start, num int) []*model.User {
 	return users
 }
 
-func FindUsers() (map[int]*model.User, error) {
-	userList, err := model.NewUser().FindAll()
+func FindUsersByPage(conds map[string]string, curPage, limit int) ([]*model.User, int) {
+	conditions := make([]string, 0, len(conds))
+	for k, v := range conds {
+		conditions = append(conditions, k+"="+v)
+	}
+
+	user := model.NewUser()
+
+	limitStr := strconv.Itoa(curPage*limit) + "," + strconv.Itoa(limit)
+	userList, err := user.Where(strings.Join(conditions, " AND ")).Limit(limitStr).
+		FindAll()
 	if err != nil {
-		logger.Errorln("user service FindUsers Error:", err)
-		return nil, err
+		logger.Errorln("user service FindUsersByPage Error:", err)
+		return nil, 0
 	}
-	userCount := len(userList)
-	userMap := make(map[int]*model.User, userCount)
-	uids := make([]int, userCount)
-	for i, user := range userList {
-		userMap[user.Uid] = user
-		uids[i] = user.Uid
-	}
-	// 获得角色信息
-	userRoleList, err := model.NewUserRole().Where("uid in (" + util.Join(uids, ",") + ")").FindAll()
+
+	total, err := user.Count()
 	if err != nil {
-		logger.Errorln("user service FindUsers Error:", err)
-		return nil, err
+		logger.Errorln("user service FindUsersByPage COUNT Error:", err)
+		return nil, 0
 	}
-	for _, userRole := range userRoleList {
-		user := userMap[userRole.Uid]
-		if len(user.Roleids) == 0 {
-			user.Roleids = []int{userRole.Roleid}
-			user.Rolenames = []string{model.AllRole[userRole.Roleid].Name}
-		} else {
-			user.Roleids = append(user.Roleids, userRole.Roleid)
-			user.Rolenames = append(user.Rolenames, model.AllRole[userRole.Roleid].Name)
-		}
-	}
-	return userMap, nil
+
+	return userList, total
 }
 
 var (

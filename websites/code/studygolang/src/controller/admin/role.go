@@ -92,8 +92,16 @@ func NewRoleHandler(rw http.ResponseWriter, req *http.Request) {
 			data["msg"] = "添加成功"
 		}
 	} else {
+
+		menu1, menu2 := service.GetMenus()
+		menu3 := service.GeneralAuthorities()
+
 		// 设置内容模板
 		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/admin/role/new.html")
+
+		data["allmenu1"] = menu1
+		data["allmenu2"] = menu2
+		data["allmenu3"] = menu3
 	}
 
 	filter.SetData(req, data)
@@ -122,10 +130,17 @@ func ModifyRoleHandler(rw http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+		menu1, menu2 := service.GetMenus()
+		menu3 := service.GeneralAuthorities()
+
 		// 设置内容模板
 		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/admin/role/modify.html")
 
+		data["allmenu1"] = menu1
+		data["allmenu2"] = menu2
+		data["allmenu3"] = menu3
 		data["role"] = role
+		data["role_auth"] = service.RoleAuthorities[role.Roleid]
 	}
 
 	filter.SetData(req, data)
@@ -138,7 +153,7 @@ func DelRoleHandler(rw http.ResponseWriter, req *http.Request) {
 
 	if _, err := strconv.Atoi(roleid); err != nil {
 		data["ok"] = 0
-		data["error"] = "aid不是整型"
+		data["error"] = "roleid不是整型"
 
 		filter.SetData(req, data)
 		return

@@ -108,7 +108,6 @@ type RoleAuthority struct {
 	Aid    int    `json:"aid"`
 	OpUser string `json:"op_user"`
 	Ctime  string `json:"ctime"`
-	Mtime  string `json:"mtime"`
 
 	// 内嵌
 	*Dao
@@ -157,9 +156,15 @@ func (this *RoleAuthority) FindAll(selectCol ...string) ([]*RoleAuthority, error
 	return roleAuthList, nil
 }
 
+// 为了支持连写
+func (this *RoleAuthority) Where(condition string) *RoleAuthority {
+	this.Dao.Where(condition)
+	return this
+}
+
 func (this *RoleAuthority) prepareInsertData() {
-	this.columns = []string{"roleid", "aid", "op_user", "ctime"}
-	this.colValues = []interface{}{this.Roleid, this.Aid, this.OpUser, this.Ctime, this.Mtime}
+	this.columns = []string{"roleid", "aid", "op_user"}
+	this.colValues = []interface{}{this.Roleid, this.Aid, this.OpUser}
 }
 
 func (this *RoleAuthority) colFieldMap() map[string]interface{} {
@@ -168,6 +173,5 @@ func (this *RoleAuthority) colFieldMap() map[string]interface{} {
 		"aid":     &this.Aid,
 		"op_user": &this.OpUser,
 		"ctime":   &this.Ctime,
-		"mtime":   &this.Mtime,
 	}
 }

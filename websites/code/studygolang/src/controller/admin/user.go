@@ -10,20 +10,34 @@ import (
 	"filter"
 	"fmt"
 	"html/template"
+	"logger"
 	"net/http"
 	"service"
 )
 
 // 所有用户（分页）
-func UsersHandler(rw http.ResponseWriter, req *http.Request) {
-	user, _ := filter.CurrentUser(req)
-	users, err := service.FindUsers()
-	if err != nil {
-		// TODO:
+func UserListHandler(rw http.ResponseWriter, req *http.Request) {
+	curPage, limit := parsePage(req)
+
+	users, total := service.FindUsersByPage(nil, curPage, limit)
+
+	if users == nil {
+		logger.Errorln("[UsersHandler]sql find error")
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
 	}
+
+	data := map[string]interface{}{
+		"datalist":   users,
+		"total":      total,
+		"totalPages": (total + limit - 1) / limit,
+		"page":       curPage + 1,
+		"limit":      limit,
+	}
+
 	// 设置内容模板
-	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/admin/users.html")
-	filter.SetData(req, map[string]interface{}{"user": user, "users": users})
+	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/admin/user/list.html,/template/admin/user/query.html")
+	filter.SetData(req, data)
 }
 
 // 添加新用户表单页面

@@ -115,7 +115,8 @@ func initRouter() *mux.Router {
 	subrouter.HandleFunc("/user/role/modify", admin.ModifyRoleHandler)
 	subrouter.HandleFunc("/user/role/del", admin.DelRoleHandler)
 
-	subrouter.HandleFunc("/users", admin.UsersHandler)
+	// 用户 管理
+	subrouter.HandleFunc("/user/user/list", admin.UserListHandler)
 	subrouter.HandleFunc("/newuser", admin.NewUserHandler)
 	subrouter.HandleFunc("/adduser", admin.AddUserHandler)
 	subrouter.HandleFunc("/profiler", admin.ProfilerHandler)

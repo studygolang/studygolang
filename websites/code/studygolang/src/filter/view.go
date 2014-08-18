@@ -52,6 +52,13 @@ var funcMap = template.FuncMap{
 		}
 		return utf8Str.Slice(0, length) + suffix
 	},
+	"add": func(nums ...int) int {
+		total := 0
+		for _, num := range nums {
+			total += num
+		}
+		return total
+	},
 }
 
 // 保存模板路径的key

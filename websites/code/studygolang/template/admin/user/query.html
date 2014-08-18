@@ -3,36 +3,26 @@
 <table id="logo_table" cellpadding="0" cellspacing="0" border="0" class="stdtable">
 	<thead class="center">
 		<tr>
-			<td width="3%">序号</td>
-			<td width="5%">名称</td>
-			<td width="3%">一级菜单</td>
-			<td width="3%">二级菜单</td>
-			<td width="5%">权限(路由)</td>
-			<td width="5%">操作人员</td>
+			<td width="3%">UID</td>
+			<td width="5%">用户名</td>
+			<td width="3%">姓名</td>
+			<td width="3%">电子邮件</td>
 			<td width="10%">创建时间</td>
-			<td width="10%">更新时间</td>
 			<td width="8%">操作</td>
 		</tr>
 	</thead>
 	<tbody class="center">
 		{{range .datalist}}
 			<tr>
-				<td>{{ .Aid }}</td>
-				<td>{{ .Name }}</td>
-				<td>{{if eq .Menu1 0}}是{{else}}否{{end}}</td>
-				<td>
-					{{if ne .Menu1 0}}
-						{{if eq .Menu2 0}}是{{else}}否{{end}}
-					{{end}}
-					</td>
-				<td>{{ .Route }}</td>
-				<td>{{ .OpUser }}</td>
+				<td>{{ .Uid }}</td>
+				<td>{{ .Username }}</td>
+				<td>{{.Name}}</td>
+				<td>{{.Email}}</td>
 				<td>{{ .Ctime }}</td>
-				<td>{{ .Mtime }}</td>
 				<td class="actions">
-					<a href="/admin/user/auth/modify?aid={{ .Aid }}">修改</a>
+					<a href="/admin/user/auth/modify?aid={{ .Uid }}">修改</a>
 					<a data-type="ajax-submit" href="#"
-						ajax-action="/admin/user/auth/del?aid={{ .Aid }}" 
+						ajax-action="/admin/user/auth/del?aid={{ .Uid }}" 
 						ajax-hint="是否确定要删除?"
 						success-hint="删除成功"
 						callback="delCallback">删除</a>

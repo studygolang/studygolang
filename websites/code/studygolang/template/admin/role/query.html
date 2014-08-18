@@ -20,7 +20,7 @@
 				<td>{{ .Ctime }}</td>
 				<td>{{ .Mtime }}</td>
 				<td class="actions">
-					<a href="/admin/user/role/modify?roleid={{ .Roleid }}">修改</a>
+					<a href="/admin/user/role/modify?roleid={{ .Roleid }}" target="_blank">修改</a>
 					<a data-type="ajax-submit" href="#"
 						ajax-action="/admin/user/role/del?roleid={{ .Roleid }}" 
 						ajax-hint="是否确定要删除?"

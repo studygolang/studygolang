@@ -1,51 +1,74 @@
 {{define "content"}}
 <div class="pageheader notab">
-	<h1 class="pagetitle">新建权限（路由）</h1>
+	<h1 class="pagetitle">新建角色</h1>
 </div><!--pageheader-->
 
 <div id="contentwraapper" class="contentwrapper">
 	<div id="tooltip" class="red"></div>
-	<form method="POST" action="/admin/user/auth/new" class="stdform" action-type="ajax-submit">
+	<form id="role_form" method="POST" action="/admin/user/role/new" class="stdform">
+		<div class="contenttitle2">
+			<h3>基本信息</h3>
+		</div>
 		<div>
 			<p>
-				<label for="name">权限名称</label>
+				<label for="name">角色名称</label>
 				<span class="field">
 					<input id="name" type="text" name="name" class="smallinput required" value="" />
 				</span>
 			</p>
 		</div>
-		<div>
-			<p>
-				<label>一级菜单</label>
-				<span class="field">
-					<select id="menu1" name="menu1" class="uniformselect">
-						<option value="0">请选择</option>
-						{{range .allmenu1}}
-						<option value="{{.Aid}}">{{.Name}}</option>
-						{{end}}
-					</select><span class="red">（注：如果一级菜单为空，添加的是一级菜单！）</span>
-				</span>
-			</p>
+		<div class="contenttitle2">
+			<h3>权限信息</h3>
 		</div>
 		<div>
-			<p>
-				<label>二级菜单</label>
-				<span class="field">
-					<select id="menu2" name="menu2" class="uniformselect">
-						<option value="0">请选择</option>
-					</select><span class="red">（注：如果选中了一级菜单，而二级菜单为空，添加的是一级菜单下的二级菜单！如果一、二级菜单都选中，那么添加的是普通路由）</span>
-				</span>
-			</p>
+			<table id="snap_table" cellpadding="0" cellspacing="0" border="0" class="stdtable">
+				<thead class="center">
+						<tr>
+								<td width="5%">序号</td>
+								<td width="20%">一级菜单</td>
+								<td width="20%">二级菜单</td>
+								<td width="20%">普通权限</td>
+						</tr>
+				</thead>
+				<tbody class="center">
+					{{range $i, $menu1 := .allmenu1}}
+					<tr>
+						<td class="img_seq">{{add $i 1}}</td>
+						<td>
+							<label for="menu_one_{{$menu1.Aid}}">
+								<input type="checkbox" id="menu_one_{{$menu1.Aid}}" class="js-checkbox" name="authority[]" value="{{$menu1.Aid}}" /> {{$menu1.Name}}
+							</lable>
+						</td>
+						<td>
+							<select id="menu_two_{{$menu1.Aid}}" class="js-select-mul" name="authority[]" multiple="multiple" size="10" style="min-width:0;width:300px;">
+								{{$curMenu2 := index $.allmenu2 (print $menu1.Aid)}}
+								{{range $oneMenu := $curMenu2}}
+								<option value="{{index $oneMenu 0}}">{{index $oneMenu 1}}</option>
+								{{end}}
+							</select>
+						</td>
+						<td>
+							<select id="menu_three_{{$menu1.Aid}}" class="js-select-mul" name="authority[]" multiple="multiple" size="10" style="min-width:0;width:300px;">
+							{{$curMenu3 := index $.allmenu3 $menu1.Aid}}
+							{{range $curMenu3}}
+							<option value="{{.Aid}}">{{.Name}}</option>
+							{{end}}
+							</select>
+						</td>
+					</tr>
+					{{end}}
+				</tbody>
+			</table>
+		</div>
+		<div class="contenttitle2">
+				<h3>操作</h3>
 		</div>
 		<div>
-			<p>
-				<label for="route">路由</label>
-				<span class="field">
-					<input id="route" type="text" name="route" class="smallinput required" value="" />
-				</span>
+			<p> 
+				<label>操作</label>
+				<input type="submit" class="submit radius2" value="提交" />
 			</p>
 		</div>
-		<div style="margin: 0 auto; width: 500px;"><input class="submit_btn" type="submit" name="save" value="提交" /></a></div>
 	</form>
 	<img id="loaders" src="/static/img/loaders/loader7.gif" alt="" class="hide"><blockquote></blockquote>
 </div><!--contentwrapper-->
@@ -55,8 +78,5 @@
 <script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
 <script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
 <script	type="text/javascript" src="/static/js/admin/forms.js"></script>
-<script type="text/javascript">
-	var ALL_MENU2 = {{.allmenu2}};
-</script>
-<script type="text/javascript" src="/static/js/admin/authority/new.js"></script>
+<script type="text/javascript" src="/static/js/admin/role/new.js"></script>
 {{end}}

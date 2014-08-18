@@ -78,10 +78,26 @@ func GetMenus() ([]*model.Authority, map[string][][]string) {
 	return menu1, menu2
 }
 
+// 除了一级、二级菜单之外的权限（路由）
+func GeneralAuthorities() map[int][]*model.Authority {
+	auths := make(map[int][]*model.Authority)
+
+	for _, authority := range Authorities {
+		if authority.Menu1 == 0 {
+			auths[authority.Aid] = make([]*model.Authority, 0, 8)
+		} else if authority.Menu2 != 0 {
+			auths[authority.Menu1] = append(auths[authority.Menu1], authority)
+		}
+	}
+
+	return auths
+}
+
 // 判断用户是否有某个权限
 func HasAuthority(uid int, route string) bool {
 	aidMap, err := userAuthority(strconv.Itoa(uid))
 	if err != nil {
+		logger.Errorln("HasAuthority:Read user authority error:", err)
 		return false
 	}
 
@@ -223,9 +239,7 @@ func LoadRoleAuthorities() error {
 	roleAuthLocker.Lock()
 	defer roleAuthLocker.Unlock()
 
-	if RoleAuthorities == nil {
-		RoleAuthorities = make(map[int][]int)
-	}
+	RoleAuthorities = make(map[int][]int)
 
 	for _, roleAuth := range roleAuthorities {
 		roleId := roleAuth.Roleid
@@ -236,6 +250,8 @@ func LoadRoleAuthorities() error {
 			RoleAuthorities[roleId] = []int{roleAuth.Aid}
 		}
 	}
+
+	logger.Infoln("LoadRoleAuthorities successfully!")
 
 	return nil
 }

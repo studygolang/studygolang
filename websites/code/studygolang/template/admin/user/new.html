@@ -1,17 +1,16 @@
 {{define "content"}}
 <div class="pageheader notab">
-	<h1 class="pagetitle">修改权限（路由）</h1>
+	<h1 class="pagetitle">新建权限（路由）</h1>
 </div><!--pageheader-->
 
 <div id="contentwraapper" class="contentwrapper">
 	<div id="tooltip" class="red"></div>
-	<form method="POST" action="/admin/user/auth/modify" class="stdform" action-type="ajax-submit">
-		<input type="hidden" name="aid" value="{{.authority.Aid}}" />
+	<form method="POST" action="/admin/user/auth/new" class="stdform" action-type="ajax-submit">
 		<div>
 			<p>
 				<label for="name">权限名称</label>
 				<span class="field">
-					<input id="name" type="text" name="name" class="smallinput required" value="{{.authority.Name}}" />
+					<input id="name" type="text" name="name" class="smallinput required" value="" />
 				</span>
 			</p>
 		</div>
@@ -22,7 +21,7 @@
 					<select id="menu1" name="menu1" class="uniformselect">
 						<option value="0">请选择</option>
 						{{range .allmenu1}}
-						<option value="{{.Aid}}"{{if eq .Aid $.authority.Menu1}} selected{{end}}>{{.Name}}</option>
+						<option value="{{.Aid}}">{{.Name}}</option>
 						{{end}}
 					</select><span class="red">（注：如果一级菜单为空，添加的是一级菜单！）</span>
 				</span>
@@ -42,7 +41,7 @@
 			<p>
 				<label for="route">路由</label>
 				<span class="field">
-					<input id="route" type="text" name="route" class="smallinput required" value="{{.authority.Route}}" />
+					<input id="route" type="text" name="route" class="smallinput required" value="" />
 				</span>
 			</p>
 		</div>
@@ -58,8 +57,6 @@
 <script	type="text/javascript" src="/static/js/admin/forms.js"></script>
 <script type="text/javascript">
 	var ALL_MENU2 = {{.allmenu2}};
-	var menu2 = {{.authority.Menu2}};
 </script>
 <script type="text/javascript" src="/static/js/admin/authority/new.js"></script>
-<script type="text/javascript" src="/static/js/admin/authority/modify.js"></script>
 {{end}}

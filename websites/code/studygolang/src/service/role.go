@@ -61,22 +61,25 @@ func FindRole(roleid string) *model.Role {
 }
 
 func SaveRole(form url.Values, opUser string) (errMsg string, err error) {
-	role := model.NewRole()
-	err = util.ConvertAssign(role, form)
-	if err != nil {
-		logger.Errorln("role ConvertAssign error", err)
-		errMsg = err.Error()
-		return
-	}
 
+	role := model.NewRole()
+	role.Name = form.Get("name")
 	role.OpUser = opUser
 
-	if role.Roleid != 0 {
-		err = role.Persist(role)
-	} else {
+	roleid := form.Get("roleid")
+	isNew := roleid == ""
+	if isNew {
 		role.Ctime = util.TimeNow()
 
 		_, err = role.Insert()
+	} else {
+		role.Roleid, err = strconv.Atoi(roleid)
+		if err != nil {
+			errMsg = "roleid invalid"
+			logger.Errorln(errMsg, ":", err)
+			return
+		}
+		err = role.Persist(role)
 	}
 
 	if err != nil {
@@ -85,15 +88,38 @@ func SaveRole(form url.Values, opUser string) (errMsg string, err error) {
 		return
 	}
 
+	roleAuth := model.NewRoleAuthority()
+	if !isNew {
+		// 如果是更新角色，将之前的角色权限都删除
+		roleAuth.Where("roleid=" + strconv.Itoa(role.Roleid)).Delete()
+	}
+
+	roleAuth.Roleid = role.Roleid
+	roleAuth.OpUser = opUser
+
+	// 增加角色拥有的权限
+	for _, aid := range form["authorities[]"] {
+		aid, err := strconv.Atoi(aid)
+		if err != nil {
+			continue
+		}
+		roleAuth.Aid = aid
+
+		roleAuth.Insert()
+	}
+
 	global.RoleChan <- struct{}{}
+	global.RoleAuthChan <- struct{}{}
 
 	return
 }
 
 func DelRole(roleid string) error {
 	err := model.NewRole().Where("roleid=" + roleid).Delete()
+	model.NewRoleAuthority().Where("roleid=" + roleid).Delete()
 
 	global.RoleChan <- struct{}{}
+	global.RoleAuthChan <- struct{}{}
 
 	return err
 }
