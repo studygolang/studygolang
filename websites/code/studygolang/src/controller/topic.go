@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"github.com/studygolang/mux"
 	"html/template"
-	"logger"
 	"model"
 	"net/http"
 	"service"
@@ -28,7 +27,7 @@ func init() {
 // 社区帖子列表页
 // uri: /topics{view:(|/popular|/no_reply|/last)}
 func TopicsHandler(rw http.ResponseWriter, req *http.Request) {
-	nodes := genNodes()
+	nodes := service.GenNodes()
 	// 设置内容模板
 	page, _ := strconv.Atoi(req.FormValue("p"))
 	if page == 0 {
@@ -61,7 +60,7 @@ func NodesHandler(rw http.ResponseWriter, req *http.Request) {
 	topics, total := service.FindTopics(page, 0, "nid="+vars["nid"])
 	pageHtml := service.GetPageHtml(page, total, "/topics/node"+vars["nid"])
 	// 当前节点信息
-	node := model.GetNode(util.MustInt(vars["nid"]))
+	node := service.GetNode(util.MustInt(vars["nid"]))
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/topics/node.html")
 	// 设置模板数据
 	filter.SetData(req, map[string]interface{}{"activeTopics": "active", "topics": topics, "page": template.HTML(pageHtml), "total": total, "node": node})
@@ -92,7 +91,7 @@ func TopicDetailHandler(rw http.ResponseWriter, req *http.Request) {
 // 新建帖子
 // uri: /topics/new{json:(|.json)}
 func NewTopicHandler(rw http.ResponseWriter, req *http.Request) {
-	nodes := genNodes()
+	nodes := service.GenNodes()
 	vars := mux.Vars(req)
 	title := req.FormValue("title")
 	// 请求新建帖子页面
@@ -115,29 +114,4 @@ func NewTopicHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 	fmt.Fprint(rw, `{"errno": 0, "error":""}`)
-}
-
-// 将node组织成一定结构，方便前端展示
-func genNodes() []map[string][]map[string]interface{} {
-	sameParent := make(map[string][]map[string]interface{})
-	allParentNodes := make([]string, 0)
-	for _, node := range model.AllNode {
-		if node["pid"].(int) != 0 {
-			if len(sameParent[node["parent"].(string)]) == 0 {
-				sameParent[node["parent"].(string)] = []map[string]interface{}{node}
-			} else {
-				sameParent[node["parent"].(string)] = append(sameParent[node["parent"].(string)], node)
-			}
-		} else {
-			allParentNodes = append(allParentNodes, node["name"].(string))
-		}
-	}
-	nodes := make([]map[string][]map[string]interface{}, 0)
-	for _, parent := range allParentNodes {
-		tmpMap := make(map[string][]map[string]interface{})
-		tmpMap[parent] = sameParent[parent]
-		nodes = append(nodes, tmpMap)
-	}
-	logger.Debugf("%v\n", nodes)
-	return nodes
 }

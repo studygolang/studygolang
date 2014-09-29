@@ -9,7 +9,7 @@ func parsePage(req *http.Request) (curPage, limit int) {
 
 	curPage, err := strconv.Atoi(req.FormValue("page"))
 	if err != nil {
-		curPage = 0
+		curPage = 1
 	}
 
 	limit, err = strconv.Atoi(req.FormValue("limit"))

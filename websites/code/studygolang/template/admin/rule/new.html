@@ -1,0 +1,97 @@
+{{define "content"}}
+<div class="pageheader notab">
+	<h1 class="pagetitle">新建抓取规则</h1>
+</div><!--pageheader-->
+
+<div id="contentwraapper" class="contentwrapper">
+	<div id="tooltip" class="red"></div>
+	<form method="POST" action="/admin/crawl/rule/new" class="stdform">
+		<div>
+			<p>
+				<label for="domain">来源域名</label>
+				<span class="field">
+					<input id="domain" type="text" name="domain" class="smallinput required" value="" />
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label>子PATH</label>
+				<span class="field">
+					<input type="text" name="subpath" class="smallinput" value="" />
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label>网站语言</label>
+				<span class="field">
+					<select name="lang" class="uniformselect">
+						<option value="0">中文</option>
+						<option value="1">英文</option>
+					</select>
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label>来源名称</label>
+				<span class="field">
+					<input type="text" name="name" class="smallinput required" value="" />
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label>标题规则</label>
+				<span class="field">
+					<input type="text" name="title" class="smallinput required" value="" />
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label>作者是否在链接中</label>
+				<span class="field">
+					<select name="in_url" class="uniformselect">
+						<option value="0">否</option>
+						<option value="1">是</option>
+					</select>
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label>作者规则</label>
+				<span class="field">
+					<input type="text" name="author" class="smallinput required" value="" />
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label>发布时间规则</label>
+				<span class="field">
+					<input type="text" name="pub_date" class="smallinput" value="" />
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label>内容规则</label>
+				<span class="field">
+					<input type="text" name="content" class="smallinput required" value="" />
+				</span>
+			</p>
+		</div>
+		<div style="margin: 0 auto; width: 500px;"><input class="submit_btn" type="submit" name="save" value="提交" /></a></div>
+	</form>
+	<img id="loaders" src="/static/img/loaders/loader7.gif" alt="" class="hide"><blockquote></blockquote>
+</div><!--contentwrapper-->
+{{end}}
+
+{{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script	type="text/javascript" src="/static/js/admin/forms.js"></script>
+{{end}}

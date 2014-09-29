@@ -31,6 +31,8 @@ func loadData() {
 	service.LoadAuthorities()
 	service.LoadRoles()
 	service.LoadRoleAuthorities()
+	service.LoadNodes()
+	service.LoadCategories()
 
 	for {
 		select {

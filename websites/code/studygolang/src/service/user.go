@@ -60,14 +60,7 @@ func CreateUser(form url.Values) (errMsg string, err error) {
 	// 存用户角色信息
 	userRole := model.NewUserRole()
 	// 默认为初级会员
-	roleId := model.AllRoleId[len(model.AllRoleId)-1]
-	if form.Get("roleid") != "" {
-		tmpId, err := strconv.Atoi(form.Get("roleid"))
-		if err == nil {
-			roleId = tmpId
-		}
-	}
-	userRole.Roleid = roleId
+	userRole.Roleid = Roles[len(Roles)-1].Roleid
 	userRole.Uid = uid
 	if _, err = userRole.Insert(); err != nil {
 		logger.Errorln("userRole insert Error:", err)
@@ -87,7 +80,7 @@ func CreateUser(form url.Values) (errMsg string, err error) {
 
 // 修改用户资料
 func UpdateUser(form url.Values) (errMsg string, err error) {
-	fields := []string{"name", "open", "city", "company", "github", "weibo", "website", "status", "introduce"}
+	fields := []string{"name", "open", "city", "company", "github", "weibo", "website", "monlog", "introduce"}
 	setClause := GenSetClause(form, fields)
 	username := form.Get("username")
 	err = model.NewUser().Set(setClause).Where("username=" + username).Update()
@@ -170,29 +163,59 @@ func EmailExists(email string) bool {
 
 // 获取单个用户信息
 func FindUserByUsername(username string) *model.User {
+	return findUserByUniq("username", username)
+}
+
+// 通过UID获取用户名
+func FindUsernameByUid(uid int) string {
 	user := model.NewUser()
-	err := user.Where("username=" + username).Find()
+	err := user.Where("uid=" + strconv.Itoa(uid)).Find()
 	if err != nil {
-		logger.Errorf("获取用户 %s 信息失败：%s", username, err)
+		logger.Errorf("获取用户 %s 信息失败：%s", uid, err)
+		return ""
+	}
+	if user.Uid == 0 {
+		return ""
+	}
+
+	return user.Username
+}
+
+// 获取单个用户信息
+func FindUserByUID(uid string) *model.User {
+	return findUserByUniq("uid", uid)
+}
+
+// 通过唯一键（uid或username）获取用户信息
+func findUserByUniq(field, val string) *model.User {
+	user := model.NewUser()
+	err := user.Where(field + "=" + val).Find()
+	if err != nil {
+		logger.Errorf("获取用户 %s 信息失败：%s", val, err)
 		return nil
 	}
 	if user.Uid == 0 {
 		return nil
 	}
 
-	// 获取角色信息
-	userRoleList, err := model.NewUserRole().Where("uid=" + strconv.Itoa(user.Uid)).FindAll()
+	// 获取用户角色信息
+	userRoleList, err := model.NewUserRole().
+		Order("roleid ASC").Where("uid="+strconv.Itoa(user.Uid)).FindAll("uid", "roleid")
 	if err != nil {
-		logger.Errorf("获取用户 %s 角色 信息失败：%s", username, err)
+		logger.Errorf("获取用户 %s 角色 信息失败：%s", val, err)
 		return nil
 	}
-	for _, userRole := range userRoleList {
-		if len(user.Roleids) == 0 {
-			user.Rolenames = []string{model.AllRole[userRole.Roleid].Name}
-		} else {
-			user.Rolenames = append(user.Rolenames, model.AllRole[userRole.Roleid].Name)
+
+	if roleNum := len(userRoleList); roleNum > 0 {
+		user.Roleids = make([]int, roleNum)
+		user.Rolenames = make([]string, roleNum)
+
+		for i, userRole := range userRoleList {
+			user.Roleids[i] = userRole.Roleid
+			user.Rolenames[i] = Roles[userRole.Roleid-1].Name
 		}
 	}
+
 	return user
 }
 
@@ -223,7 +246,7 @@ func FindUsersByPage(conds map[string]string, curPage, limit int) ([]*model.User
 
 	user := model.NewUser()
 
-	limitStr := strconv.Itoa(curPage*limit) + "," + strconv.Itoa(limit)
+	limitStr := strconv.Itoa((curPage-1)*limit) + "," + strconv.Itoa(limit)
 	userList, err := user.Where(strings.Join(conditions, " AND ")).Limit(limitStr).
 		FindAll()
 	if err != nil {

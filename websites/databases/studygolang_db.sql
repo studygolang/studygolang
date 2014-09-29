@@ -12,12 +12,15 @@ CREATE TABLE `topics` (
   `lastreplyuid` int unsigned NOT NULL DEFAULT 0 COMMENT '最后回复者',
   `lastreplytime` timestamp NOT NULL DEFAULT 0 COMMENT '最后回复时间',
   `flag` tinyint NOT NULL DEFAULT 0 COMMENT '审核标识,0-未审核;1-已审核;2-审核删除;3-用户自己删除',
+  `editor_uid` int unsigned NOT NULL DEFAULT 0 COMMENT '最后编辑人',
   `ctime` timestamp NOT NULL DEFAULT 0,
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`tid`),
   KEY `uid` (`uid`),
   KEY `nid` (`nid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+alter table `studygolang`.`topics` add column `editor_uid` int UNSIGNED DEFAULT '0' NOT NULL COMMENT '最后编辑人' after `lastreplytime`
 
 /*---------------------------------------------------------------------------*
   NAME: topics_ex
@@ -153,14 +156,16 @@ CREATE TABLE `user_info` (
   `username` varchar(20) NOT NULL COMMENT '用户名',
   `name` varchar(20) NOT NULL DEFAULT '' COMMENT '姓名',
   `avatar` varchar(128) NOT NULL DEFAULT '' COMMENT '头像(暂时使用http://www.gravatar.com)',
-  `city` varchar(10) NOT NULL DEFAULT '',
+  `city` varchar(10) NOT NULL DEFAULT '居住地',
   `company` varchar(64) NOT NULL DEFAULT '',
   `github` varchar(20) NOT NULL DEFAULT '',
   `weibo` varchar(20) NOT NULL DEFAULT '',
   `website` varchar(50) NOT NULL DEFAULT '' COMMENT '个人主页，博客',
-  `status` varchar(140) NOT NULL DEFAULT '' COMMENT '个人状态，签名',
+  `monlog` varchar(140) NOT NULL DEFAULT '' COMMENT '个人状态，签名，独白',
   `introduce` text NOT NULL COMMENT '个人简介',
-  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `status` tinyint unsigned NOT NULL DEFAULT '' COMMENT '用户账号状态。0-默认；1-已审核；2-拒绝；3-冻结；4-停号',
+  `ctime` timestamp NOT NULL DEFAULT 0,
+  `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`uid`),
   UNIQUE KEY (`username`),
   UNIQUE KEY (`email`)
@@ -225,8 +230,7 @@ CREATE TABLE `role_authority` (
   `roleid` int unsigned NOT NULL,
   `aid` int unsigned NOT NULL,
   `op_user` varchar(20) NOT NULL COMMENT '操作人',
-  `ctime` timestamp NOT NULL DEFAULT 0,
-  `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`roleid`, `aid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -340,3 +344,52 @@ CREATE TABLE `resource_category` (
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`catid`)
 ) COMMENT '资源分类表' ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*---------------------------------------------------------------------------*
+  NAME: articles
+  用途：网络文章聚合表
+*---------------------------------------------------------------------------*/
+DROP TABLE IF EXISTS `articles`;
+CREATE TABLE `articles` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `domain` varchar(50) NOT NULL DEFAULT '' COMMENT '来源域名（不一定是顶级域名）',
+  `name` varchar(30) NOT NULL DEFAULT '' COMMENT '来源名称',
+  `title` varchar(127) NOT NULL DEFAULT '' COMMENT '文章标题',
+  `author` varchar(255) NOT NULL DEFAULT '' COMMENT '文章作者(可能带html)',
+  `author_txt` varchar(30) NOT NULL DEFAULT '' COMMENT '文章作者(纯文本)',
+  `lang` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '语言：0-中文；1-英文',
+  `pub_date` varchar(20) NOT NULL DEFAULT '' COMMENT '发布时间',
+  `url` varchar(127) NOT NULL DEFAULT '' COMMENT '文章原始链接',
+  `content` text NOT NULL COMMENT '正文(带html)',
+  `txt` text NOT NULL COMMENT '正文(纯文本)',
+  `tags` varchar(50) NOT NULL DEFAULT '' COMMENT '文章tag',
+  `status` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '状态：0-初始抓取；1-已上线；2-下线',
+  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`url`),
+  KEY (`domain`),
+  KEY (`ctime`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '网络文章聚合表';
+
+/*---------------------------------------------------------------------------*
+  NAME: crawl_rule
+  用途：网站抓取规则表
+*---------------------------------------------------------------------------*/
+DROP TABLE IF EXISTS `crawl_rule`;
+CREATE TABLE `crawl_rule` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `domain` varchar(50) NOT NULL DEFAULT '' COMMENT '来源域名（不一定是顶级域名）',
+  `subpath` varchar(20) NOT NULL DEFAULT '' COMMENT '域名下面紧接着的path（区别同一网站多个路径不同抓取规则）',
+  `name` varchar(30) NOT NULL DEFAULT '' COMMENT '来源名称',
+  `lang` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '主要语言：0-中文;1-英文',
+  `title` varchar(127) NOT NULL DEFAULT '' COMMENT '文章标题规则',
+  `in_url` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '作者信息是否在url中；0-否;1-是(是的时候，author表示在url中的位置)',
+  `author` varchar(127) NOT NULL DEFAULT '' COMMENT '文章作者规则',
+  `pub_date` varchar(127) NOT NULL DEFAULT '' COMMENT '发布时间规则',
+  `content` varchar(127) NOT NULL DEFAULT '' COMMENT '正文规则',
+  `op_user` varchar(20) NOT NULL COMMENT '操作人',
+  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`domain`,`subpath`),
+  KEY (`ctime`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '网站抓取规则表';

@@ -14,13 +14,14 @@ import (
 
 // 首页
 func IndexHandler(rw http.ResponseWriter, req *http.Request) {
-	nodes := genNodes()
+	nodes := service.GenNodes()
+
 	// 获取最新帖子
 	newTopics, _ := service.FindTopics(1, 10, "", "ctime DESC")
 	// 获取热门帖子
 	//hotTopics := service.FindHotTopics()
 	// 获得最新博文
-	articles := service.FindNewBlogs()
+	blogs := service.FindNewBlogs()
 	// 获得最新资源
 	resources := service.FindRecentResources()
 	// 活跃会员
@@ -28,5 +29,5 @@ func IndexHandler(rw http.ResponseWriter, req *http.Request) {
 	// 设置内容模板
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/index.html")
 	// 设置模板数据
-	filter.SetData(req, map[string]interface{}{"news": newTopics, "resources": resources, "articles": articles, "actives": activeUsers, "nodes": nodes})
+	filter.SetData(req, map[string]interface{}{"news": newTopics, "resources": resources, "blogs": blogs, "actives": activeUsers, "nodes": nodes})
 }

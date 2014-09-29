@@ -12,13 +12,13 @@ import (
 )
 
 func TestFindNewBlogs(t *testing.T) {
-	articleList := FindNewBlogs()
-	if len(articleList) == 0 {
+	blogList := FindNewBlogs()
+	if len(blogList) == 0 {
 		t.Fatal("xxxx")
 	}
-	t.Log(len(articleList))
-	for k, article := range articleList {
-		t.Log(k, article)
+	t.Log(len(blogList))
+	for k, blog := range blogList {
+		t.Log(k, blog)
 		t.Log("===")
 	}
 }

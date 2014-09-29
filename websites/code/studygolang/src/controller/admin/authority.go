@@ -9,7 +9,6 @@ package admin
 import (
 	"encoding/json"
 	"filter"
-	"html/template"
 	"logger"
 	"net/http"
 	"service"
@@ -28,10 +27,10 @@ func AuthListHandler(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	data := map[string]interface{}{
-		"datalist":   service.Authorities[curPage:newLimit],
+		"datalist":   service.Authorities[(curPage - 1):newLimit],
 		"total":      total,
 		"totalPages": (total + limit - 1) / limit,
-		"page":       curPage + 1,
+		"page":       curPage,
 		"limit":      limit,
 	}
 
@@ -53,28 +52,17 @@ func AuthQueryHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	tpl, err := template.ParseFiles(ROOT+"/template/admin/common_query.html", ROOT+"/template/admin/authority/query.html")
-	if err != nil {
-		logger.Errorln("[AuthQueryHandler] parse file error:", err)
-		rw.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
 	data := map[string]interface{}{
 		"datalist":   authorities,
 		"total":      total,
 		"totalPages": (total + limit - 1) / limit,
-		"page":       curPage + 1,
+		"page":       curPage,
 		"limit":      limit,
 	}
 
-	err = tpl.Execute(rw, data)
-	if err != nil {
-		logger.Errorln("[AuthQueryHandler] execute file error:", err)
-		rw.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	return
+	// 设置内容模板
+	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/admin/authority/query.html")
+	filter.SetData(req, data)
 }
 
 func NewAuthorityHandler(rw http.ResponseWriter, req *http.Request) {

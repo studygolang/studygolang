@@ -184,3 +184,14 @@ func PostComment(uid, objid int, form url.Values) error {
 
 	return nil
 }
+
+func ModifyComment(cid, content string) (errMsg string, err error) {
+	err = model.NewComment().Set("content=" + content).Where("cid=" + cid).Update()
+	if err != nil {
+		logger.Errorf("更新评论内容 【%s】 失败：%s\n", cid, err)
+		errMsg = "对不起，服务器内部错误，请稍后再试！"
+		return
+	}
+
+	return
+}

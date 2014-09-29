@@ -5,8 +5,10 @@
 		<tr>
 			<td width="3%">UID</td>
 			<td width="5%">用户名</td>
-			<td width="3%">姓名</td>
-			<td width="3%">电子邮件</td>
+			<td width="3%">电子邮箱</td>
+			<td width="8%">头像</td>
+			<td width="4%">居住地</td>
+			<td width="4%">所在公司</td>
 			<td width="10%">创建时间</td>
 			<td width="8%">操作</td>
 		</tr>
@@ -16,16 +18,13 @@
 			<tr>
 				<td>{{ .Uid }}</td>
 				<td>{{ .Username }}</td>
-				<td>{{.Name}}</td>
 				<td>{{.Email}}</td>
+				<td>{{.Avatar}}</td>
+				<td>{{.City}}</td>
+				<td>{{.Company}}</td>
 				<td>{{ .Ctime }}</td>
 				<td class="actions">
-					<a href="/admin/user/auth/modify?aid={{ .Uid }}">修改</a>
-					<a data-type="ajax-submit" href="#"
-						ajax-action="/admin/user/auth/del?aid={{ .Uid }}" 
-						ajax-hint="是否确定要删除?"
-						success-hint="删除成功"
-						callback="delCallback">删除</a>
+					<a href="/admin/user/user/detail?uid={{ .Uid }}" target="_blank">详情</a>
 				</td>
 			</tr>
 		{{end}}

@@ -77,3 +77,6 @@ td .emtd {
 .cms_form ._img {margin-top: 5px;}
 .cms_form ._tag {font-weight: bold;}
 
+.txt {padding-top: 6px;}
+
+.newline {word-wrap: break-word; word-break: break-all;}

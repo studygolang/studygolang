@@ -9,7 +9,8 @@
  *  http://themeforest.net/category/site-templates/admin-templates
  */
 
-jQuery.noConflict();
+// 只使用 jquery
+// jQuery.noConflict();
 
 jQuery(document).ready(function(){
 								

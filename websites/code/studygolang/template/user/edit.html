@@ -41,7 +41,7 @@
             </div>
           </div>
           <div class="control-group string optional"><label class="string optional control-label" for="user_website">个人主页</label><div class="controls"><input class="string optional xxlarge" id="user_website" name="website" placeholder="http://" size="50" type="text" value="{{.user.Website}}"></div></div>
-          <div class="control-group string optional"><label class="string optional control-label" for="user_tagline">签名</label><div class="controls"><input class="string optional xxlarge" id="user_tagline" name="status" size="50" type="text" value="{{.user.Status}}"/></div></div>
+          <div class="control-group string optional"><label class="string optional control-label" for="user_tagline">签名</label><div class="controls"><input class="string optional xxlarge" id="user_tagline" name="status" size="50" type="text" value="{{.user.Monlog}}"/></div></div>
           <div class="control-group text optional"><label class="text optional control-label" for="user_bio">个人介绍</label><div class="controls"><textarea class="text optional xxlarge" cols="40" id="user_bio" name="introduce" rows="6">{{.user.Introduce}}</textarea></div></div>
           <div class="form-actions">
               <input class="btn btn-primary" data-disable-with="正在保存" name="commit" type="submit" value="更新资料"/>

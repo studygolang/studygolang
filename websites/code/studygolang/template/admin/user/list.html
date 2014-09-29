@@ -1,37 +1,40 @@
 {{define "content"}}
 <div class="pageheader notab">
 		<h1 class="pagetitle">用户管理</h1>
-		<span class="pagedesc">管理所有的线上用户信息</span>
+		<span class="pagedesc">管理所有线上用户的信息</span>
 </div><!--pageheader-->
 
 <div id="contentwrapper" class="contentwrapper">
 	<form id="queryform" class="stdform_q" action="" method="get">
-			<div>
-					<p>
-							<label>路由</label>
-							<span class="field"><input type="text" id="q_route" name="route" class="smallinput" value=""/></span>
-					</p>
-					<p>
-							<label>名称</label>
-							<span class="field"><input type="text" id="q_name" name="name" class="smallinput" value=""/></span>
-					</p>
-			</div>
-			<div>
-					<p>
-						<label>创建时间</label>
-						<span class="field">
-								<input type="text" id="create_time_min" name="create_time_min" class="smallinput date_time" style="width:80px;" value=""/> ～ 
-								<input type="text" id="create_time_max" name="create_time_max" class="smallinput date_time" style="width:80px;" value=""/>
-						</span>
-				</p>
-			</div>
-			<div>
-					<p> 
-							<label>&nbsp;</label>
-							<span class="field"><button id="queryform_sub" class="submit radius2">查询</button></span>
-							<span class="field"><a href="/admin/user/auth/new" class="submit radius2 abtn" target="_blank">新建</a></span>
-					</p>
-			</div>
+		<div>
+			<p>
+				<label>UID</label>
+				<span class="field"><input type="text" id="q_uid" name="uid" class="smallinput" value=""/></span>
+			</p>
+			<p>
+				<label>用户名</label>
+				<span class="field"><input type="text" id="q_username" name="username" class="smallinput" value=""/></span>
+			</p>
+			<p>
+				<label>电子邮箱</label>
+				<span class="field"><input type="text" id="q_email" name="email" class="smallinput" value=""/></span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label>创建时间</label>
+				<span class="field">
+					<input type="text" id="create_time_min" name="create_time_min" class="smallinput date_time" style="width:80px;" value=""/> ～ 
+					<input type="text" id="create_time_max" name="create_time_max" class="smallinput date_time" style="width:80px;" value=""/>
+				</span>
+		</p>
+		</div>
+		<div>
+			<p> 
+				<label>&nbsp;</label>
+				<span class="field"><button id="queryform_sub" class="submit radius2">查询</button></span>
+			</p>
+		</div>
 	</form>
 		<div class="contenttitle2">
 				<h3>数据列表</h3>
@@ -52,8 +55,9 @@
 var GLOBAL_CONF = {
     "action_query" : "/admin/user/user/query.html",
     "query_params" : {
-	    	'route' : '#q_route',
-	    	'name' : '#q_name',
+	    	'uid' : '#q_uid',
+	    	'username' : '#q_username',
+	    	'email' : '#q_email',
 	    	'create_time_min' : '#create_time_min',
 	    	'create_time_max' : '#create_time_max'
     }

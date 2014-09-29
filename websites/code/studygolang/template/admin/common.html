@@ -64,9 +64,9 @@
 					{{with $root := .}}
 						{{range $menu1 := $root.menu1}}
 						<li{{if eq $root.cur_menu1 $menu1.Aid }} class="current"{{end}}>
-							<a href="#formsub" class="elements">{{$menu1.Name}}</a>
+							<a href="#formsub{{$menu1.Aid}}" class="elements">{{$menu1.Name}}</a>
 							<span	class="arrow"></span>
-							<ul	id="formsub">
+							<ul	id="formsub{{$menu1.Aid}}">
 							{{range $menu2 := index $root.menu2 $menu1.Aid}}
 						 		<li{{with $uri := html $root.uri}}{{if eq $uri $menu2.Route }} class="current"{{end}}{{end}}><a href="{{$menu2.Route}}">{{$menu2.Name}}</a></li>
 							{{end}}

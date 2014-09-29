@@ -2464,12 +2464,14 @@ blockquote.bq2 {
 
 }
 
-form a { display: inline-block; border: 1px solid #f0882c; background: #fb9337; color: #fff; cursor: pointer; padding: 7px 10px; font-weight: bold; line-height: 15px; }
-form a.abtn:hover { background: #485B79; border: 1px solid #3f526f; color: #fff; }
-form a:active {
+#queryform a { display: inline-block; border: 1px solid #f0882c; background: #fb9337; color: #fff; cursor: pointer; padding: 7px 10px; font-weight: bold; line-height: 15px; }
+#queryform a.abtn:hover { background: #485B79; border: 1px solid #3f526f; color: #fff; }
+#queryform a:active {
 	-moz-box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.3); -webkit-box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.3);
 	box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .red { color: red }
 #tooltip {margin: 0 auto; width: 200px;}
+
+a.normal { text-decoration: underline; color: blue; }

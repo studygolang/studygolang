@@ -137,12 +137,12 @@ jQuery(document).ready(function($) {
 	});
 
 	// 查询结果(page为0表示当前页)
-	var queryResult = function(start) {
-		if (!start) {
-			start = $('#start').val();
+	var queryResult = function(page) {
+		if (!page) {
+			page = $('#cur_page').val();
 		}
 		var params = getParams();
-		params["start"] = start;
+		params["page"] = page;
 		params["limit"] = $('#limit').val();
 
 		showProgress();

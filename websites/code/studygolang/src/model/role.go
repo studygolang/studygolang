@@ -76,6 +76,12 @@ func (this *Role) Where(condition string) *Role {
 }
 
 // 为了支持连写
+func (this *Role) Order(order string) *Role {
+	this.Dao.Order(order)
+	return this
+}
+
+// 为了支持连写
 func (this *Role) Limit(limit string) *Role {
 	this.Dao.Limit(limit)
 	return this

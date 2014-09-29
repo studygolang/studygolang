@@ -56,7 +56,7 @@ func FindResource(id string) (resourceMap map[string]interface{}, comments []map
 	}
 	resourceMap = make(map[string]interface{})
 	util.Struct2Map(resourceMap, resource)
-	resourceMap["catname"] = model.GetCategoryName(resource.Catid)
+	resourceMap["catname"] = GetCategoryName(resource.Catid)
 	// 链接的host
 	if resource.Form == model.LinkForm {
 		urlObj, err := url.Parse(resource.Url)

@@ -91,12 +91,16 @@ func NewViewFilter(isBackView bool, files ...string) *ViewFilter {
 }
 
 func (this *ViewFilter) PreFilter(rw http.ResponseWriter, req *http.Request) bool {
+	logger.Debugln(req.RequestURI)
+
 	// ajax请求头设置
-	if strings.HasSuffix(req.RequestURI, ".json") || req.FormValue("format") == "json" {
-		logger.Debugln(req.RequestURI)
+	if strings.HasSuffix(req.URL.Path, ".json") || req.FormValue("format") == "json" {
 		setData(req, formatkey, "json")
 		rw.Header().Set("Content-Type", "application/json; charset=utf-8")
+	} else if strings.HasSuffix(req.URL.Path, ".html") {
+		setData(req, formatkey, "ajaxhtml")
 	}
+
 	return true
 }
 
@@ -105,8 +109,7 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 	data := GetData(req)
 
 	format := "html"
-	formatInter := getData(req, formatkey)
-	if formatInter != nil {
+	if formatInter := getData(req, formatkey); formatInter != nil {
 		format = formatInter.(string)
 	}
 
@@ -120,6 +123,30 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 			}
 			fmt.Fprint(rw, string(result))
 		}
+	case "ajaxhtml":
+		contentHtml := req.FormValue(CONTENT_TPL_KEY)
+		if contentHtml == "" {
+			return true
+		}
+
+		contentHtml = "/template/admin/common_query.html," + contentHtml
+		contentHtmls := strings.Split(contentHtml, ",")
+		for i, contentHtml := range contentHtmls {
+			contentHtmls[i] = config.ROOT + strings.TrimSpace(contentHtml)
+		}
+
+		tpl, err := template.New("common_query.html").Funcs(funcMap).ParseFiles(contentHtmls...)
+		if err != nil {
+			logger.Errorf("解析模板出错（ParseFiles）：[%q] %s\n", req.RequestURI, err)
+			return false
+		}
+
+		err = tpl.Execute(rw, data)
+		if err != nil {
+			logger.Errorf("执行模板出错（Execute）：[%q] %s\n", req.RequestURI, err)
+			return false
+		}
+
 	default:
 		contentHtml := req.FormValue(CONTENT_TPL_KEY)
 		if contentHtml == "" {
@@ -163,6 +190,7 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 		err = tpl.Execute(rw, data)
 		if err != nil {
 			logger.Errorf("执行模板出错（Execute）：[%q] %s\n", req.RequestURI, err)
+			return false
 		}
 	}
 

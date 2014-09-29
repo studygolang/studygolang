@@ -13,16 +13,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"sync"
 	"util"
-)
-
-var (
-	authLocker  sync.RWMutex
-	Authorities []*model.Authority
-
-	roleAuthLocker  sync.RWMutex
-	RoleAuthorities map[int][]int
 )
 
 // 获取用户菜单
@@ -123,7 +114,7 @@ func FindAuthoritiesByPage(conds map[string]string, curPage, limit int) ([]*mode
 
 	authority := model.NewAuthority()
 
-	limitStr := strconv.Itoa(curPage*limit) + "," + strconv.Itoa(limit)
+	limitStr := strconv.Itoa((curPage-1)*limit) + "," + strconv.Itoa(limit)
 	auhtorities, err := authority.Where(strings.Join(conditions, " AND ")).Limit(limitStr).
 		FindAll()
 	if err != nil {
@@ -210,48 +201,4 @@ func userAuthority(uid string) (map[int]bool, error) {
 	roleAuthLocker.RUnlock()
 
 	return aidMap, nil
-}
-
-// 将所有 权限 加载到内存中；后台修改权限时，重新加载一次
-func LoadAuthorities() error {
-	authorities, err := model.NewAuthority().FindAll()
-	if err != nil {
-		logger.Errorln("LoadAuthorities authority read fail:", err)
-		return err
-	}
-
-	authLocker.Lock()
-	defer authLocker.Unlock()
-
-	Authorities = authorities
-
-	return nil
-}
-
-// 将所有 角色拥有的权限 加载到内存中；后台修改时，重新加载一次
-func LoadRoleAuthorities() error {
-	roleAuthorities, err := model.NewRoleAuthority().FindAll()
-	if err != nil {
-		logger.Errorln("LoadRoleAuthorities role_authority read fail:", err)
-		return err
-	}
-
-	roleAuthLocker.Lock()
-	defer roleAuthLocker.Unlock()
-
-	RoleAuthorities = make(map[int][]int)
-
-	for _, roleAuth := range roleAuthorities {
-		roleId := roleAuth.Roleid
-
-		if authorities, ok := RoleAuthorities[roleId]; ok {
-			RoleAuthorities[roleId] = append(authorities, roleAuth.Aid)
-		} else {
-			RoleAuthorities[roleId] = []int{roleAuth.Aid}
-		}
-	}
-
-	logger.Infoln("LoadRoleAuthorities successfully!")
-
-	return nil
 }

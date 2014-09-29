@@ -8,7 +8,6 @@ package admin
 
 import (
 	"filter"
-	"html/template"
 	"logger"
 	"net/http"
 	"service"
@@ -27,10 +26,10 @@ func RoleListHandler(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	data := map[string]interface{}{
-		"datalist":   service.Roles[curPage:newLimit],
+		"datalist":   service.Roles[(curPage - 1):newLimit],
 		"total":      total,
 		"totalPages": (total + limit - 1) / limit,
-		"page":       curPage + 1,
+		"page":       curPage,
 		"limit":      limit,
 	}
 
@@ -52,28 +51,17 @@ func RoleQueryHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	tpl, err := template.ParseFiles(ROOT+"/template/admin/common_query.html", ROOT+"/template/admin/role/query.html")
-	if err != nil {
-		logger.Errorln("[RoleQueryHandler] parse file error:", err)
-		rw.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
 	data := map[string]interface{}{
 		"datalist":   roles,
 		"total":      total,
 		"totalPages": (total + limit - 1) / limit,
-		"page":       curPage + 1,
+		"page":       curPage,
 		"limit":      limit,
 	}
 
-	err = tpl.Execute(rw, data)
-	if err != nil {
-		logger.Errorln("[RoleQueryHandler] execute file error:", err)
-		rw.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	return
+	// 设置内容模板
+	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/admin/role/query.html")
+	filter.SetData(req, data)
 }
 
 func NewRoleHandler(rw http.ResponseWriter, req *http.Request) {

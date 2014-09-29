@@ -7,6 +7,7 @@
 package main
 
 import (
+	"api"
 	"config"
 	. "controller"
 	"controller/admin"
@@ -96,10 +97,6 @@ func initRouter() *mux.Router {
 	// 所有后台需要的过滤器链
 	subrouter.FilterChain(adminFilterChain)
 
-	// 帖子管理
-	subrouter.HandleFunc("/topics", admin.TopicsHandler)
-	subrouter.HandleFunc("/nodes", admin.NodesHandler)
-
 	///////////////// 用户管理 ////////////////////////
 	// 权限（路由）管理
 	subrouter.HandleFunc("/user/auth/list", admin.AuthListHandler)
@@ -117,9 +114,35 @@ func initRouter() *mux.Router {
 
 	// 用户 管理
 	subrouter.HandleFunc("/user/user/list", admin.UserListHandler)
-	subrouter.HandleFunc("/newuser", admin.NewUserHandler)
-	subrouter.HandleFunc("/adduser", admin.AddUserHandler)
-	subrouter.HandleFunc("/profiler", admin.ProfilerHandler)
+	subrouter.HandleFunc("/user/user/query.html", admin.UserQueryHandler)
+	subrouter.HandleFunc("/user/user/detail", admin.UserDetailHandler)
+
+	///////////////// 社区管理 //////////////////////////
+	// 帖子管理
+	subrouter.HandleFunc("/community/topic/list", admin.TopicListHandler)
+	subrouter.HandleFunc("/community/topic/query.html", admin.TopicQueryHandler)
+	subrouter.HandleFunc("/community/topic/modify", admin.ModifyTopicHandler)
+	subrouter.HandleFunc("/community/topic/del", admin.DelTopicHandler)
+	// 修改评论内容
+	subrouter.HandleFunc("/community/comment/modify", admin.ModifyCommentHandler)
+	subrouter.HandleFunc("/community/comment/del", admin.DelCommentHandler)
+
+	///////////////// 抓取管理 //////////////////////////
+	// 文章管理
+	subrouter.HandleFunc("/crawl/article/list", admin.ArticleListHandler)
+	subrouter.HandleFunc("/crawl/article/query.html", admin.ArticleQueryHandler)
+	subrouter.HandleFunc("/crawl/article/modify", admin.ModifyArticleHandler)
+	subrouter.HandleFunc("/crawl/article/del", admin.DelArticleHandler)
+	// 规则管理
+	subrouter.HandleFunc("/crawl/rule/list", admin.RuleListHandler)
+	subrouter.HandleFunc("/crawl/rule/query.html", admin.RuleQueryHandler)
+	subrouter.HandleFunc("/crawl/rule/new", admin.NewRuleHandler)
+	subrouter.HandleFunc("/crawl/rule/modify", admin.ModifyRuleHandler)
+	subrouter.HandleFunc("/crawl/rule/del", admin.DelRuleHandler)
+
+	apirouter := router.PathPrefix("/api").Subrouter()
+	apirouter.HandleFunc("/user/login", api.LoginHandler)
+	apirouter.HandleFunc("/blog/category/all", api.BlogCategoryHandler)
 
 	// 错误处理handler
 	router.FilterChain(fontFilterChan).HandleFunc("/noauthorize", NoAuthorizeHandler) // 无权限handler

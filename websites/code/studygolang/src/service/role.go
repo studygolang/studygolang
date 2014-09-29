@@ -13,13 +13,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"sync"
 	"util"
-)
-
-var (
-	roleLocker sync.RWMutex
-	Roles      []*model.Role
 )
 
 func FindRolesByPage(conds map[string]string, curPage, limit int) ([]*model.Role, int) {
@@ -30,7 +24,7 @@ func FindRolesByPage(conds map[string]string, curPage, limit int) ([]*model.Role
 
 	role := model.NewRole()
 
-	limitStr := strconv.Itoa(curPage*limit) + "," + strconv.Itoa(limit)
+	limitStr := strconv.Itoa((curPage-1)*limit) + "," + strconv.Itoa(limit)
 	roles, err := role.Where(strings.Join(conditions, " AND ")).Limit(limitStr).
 		FindAll()
 	if err != nil {
@@ -122,20 +116,4 @@ func DelRole(roleid string) error {
 	global.RoleAuthChan <- struct{}{}
 
 	return err
-}
-
-// 将所有 角色 加载到内存中；后台修改角色时，重新加载一次
-func LoadRoles() error {
-	roles, err := model.NewRole().FindAll()
-	if err != nil {
-		logger.Errorln("LoadRoles role read fail:", err)
-		return err
-	}
-
-	roleLocker.Lock()
-	defer roleLocker.Unlock()
-
-	Roles = roles
-
-	return nil
 }

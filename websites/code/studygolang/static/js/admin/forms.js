@@ -43,7 +43,11 @@ jQuery(document).ready(function($){
 	});
 	
 	///// FORM VALIDATION /////
-	jQuery('.stdform').validate();
+	jQuery('.stdform, .stdform_q').validate({
+		submitHandler: function(form){
+			formAjaxSubmit(form);
+		}
+	});
 	/*
 	jQuery("#form1").validate({
 		rules: {
@@ -68,12 +72,18 @@ jQuery(document).ready(function($){
 	// 表单ajax提交
 	$("form[action-type=ajax-submit]").on('submit', function(event){
 		event.preventDefault();
+		formAjaxSubmit(this);
+	});
+
+	// 异步提交表单
+	function formAjaxSubmit(form)
+	{
 		$('#loaders').show();
 
-		that = this;
+		that = form;
 
-		var url = $(this).attr('action'),
-			data = $(this).serialize();
+		var url = $(form).attr('action'),
+			data = $(form).serialize();
 
 		if (data) {
 			data += '&';
@@ -99,8 +109,7 @@ jQuery(document).ready(function($){
 				$('#loaders').hide();
 			}
 		});
-	});
-	
+	}
 	
 	///// TAG INPUT /////
 	

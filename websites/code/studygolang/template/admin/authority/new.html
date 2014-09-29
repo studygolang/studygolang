@@ -5,7 +5,7 @@
 
 <div id="contentwraapper" class="contentwrapper">
 	<div id="tooltip" class="red"></div>
-	<form method="POST" action="/admin/user/auth/new" class="stdform" action-type="ajax-submit">
+	<form method="POST" action="/admin/user/auth/new" class="stdform">
 		<div>
 			<p>
 				<label for="name">权限名称</label>
@@ -41,13 +41,13 @@
 			<p>
 				<label for="route">路由</label>
 				<span class="field">
-					<input id="route" type="text" name="route" class="smallinput required" value="" />
+					<input id="route" type="text" name="route" class="smallinput" value="" />
 				</span>
 			</p>
 		</div>
 		<div style="margin: 0 auto; width: 500px;"><input class="submit_btn" type="submit" name="save" value="提交" /></a></div>
 	</form>
-	<img id="loaders" src="/static/img/loaders/loader7.gif" alt="" class="hide"><blockquote></blockquote>
+	<img id="loaders" src="/static/img/loaders/loader7.gif" alt="" class="hide">
 </div><!--contentwrapper-->
 {{end}}
 

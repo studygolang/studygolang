@@ -12,7 +12,7 @@ import (
 )
 
 // wordpress文章信息
-type Article struct {
+type Blog struct {
 	Id          int    `json:"ID"`
 	PostTitle   string `json:"post_title"`
 	PostContent string `json:"post_content"`
@@ -26,17 +26,17 @@ type Article struct {
 	*Dao
 }
 
-func NewArticle() *Article {
-	return &Article{
+func NewBlog() *Blog {
+	return &Blog{
 		Dao: &Dao{tablename: "go_posts"},
 	}
 }
 
-func (this *Article) Find(selectCol ...string) error {
+func (this *Blog) Find(selectCol ...string) error {
 	return this.Dao.Find(this.colFieldMap(), selectCol...)
 }
 
-func (this *Article) FindAll(selectCol ...string) ([]*Article, error) {
+func (this *Blog) FindAll(selectCol ...string) ([]*Blog, error) {
 	if len(selectCol) == 0 {
 		selectCol = util.MapKeys(this.colFieldMap())
 	}
@@ -45,39 +45,39 @@ func (this *Article) FindAll(selectCol ...string) ([]*Article, error) {
 		return nil, err
 	}
 	// TODO:
-	articleList := make([]*Article, 0, 10)
+	blogList := make([]*Blog, 0, 10)
 	logger.Debugln("selectCol", selectCol)
 	colNum := len(selectCol)
 	for rows.Next() {
-		article := NewArticle()
-		err = this.Scan(rows, colNum, article.colFieldMap(), selectCol...)
+		blog := NewBlog()
+		err = this.Scan(rows, colNum, blog.colFieldMap(), selectCol...)
 		if err != nil {
-			logger.Errorln("Article FindAll Scan Error:", err)
+			logger.Errorln("Blog FindAll Scan Error:", err)
 			continue
 		}
-		articleList = append(articleList, article)
+		blogList = append(blogList, blog)
 	}
-	return articleList, nil
+	return blogList, nil
 }
 
-func (this *Article) Where(condition string) *Article {
+func (this *Blog) Where(condition string) *Blog {
 	this.Dao.Where(condition)
 	return this
 }
 
 // 为了支持连写
-func (this *Article) Limit(limit string) *Article {
+func (this *Blog) Limit(limit string) *Blog {
 	this.Dao.Limit(limit)
 	return this
 }
 
 // 为了支持连写
-func (this *Article) Order(order string) *Article {
+func (this *Blog) Order(order string) *Blog {
 	this.Dao.Order(order)
 	return this
 }
 
-func (this *Article) colFieldMap() map[string]interface{} {
+func (this *Blog) colFieldMap() map[string]interface{} {
 	return map[string]interface{}{
 		"ID":           &this.Id,
 		"post_title":   &this.PostTitle,

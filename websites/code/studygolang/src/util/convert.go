@@ -55,6 +55,16 @@ func ConvertAssign(dest interface{}, form url.Values) error {
 				// TODO:多个值如何处理？
 			}
 			fieldValue.SetString(val)
+		case reflect.Bool:
+			if len(form[tag]) > 1 {
+				// TODO:多个值如何处理？
+			}
+
+			var tmp bool
+			if val == "1" {
+				tmp = true
+			}
+			fieldValue.SetBool(tmp)
 		default:
 
 		}

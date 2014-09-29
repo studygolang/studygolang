@@ -91,6 +91,12 @@ func (this *Comment) Where(condition string) *Comment {
 }
 
 // 为了支持连写
+func (this *Comment) Set(clause string) *Comment {
+	this.Dao.Set(clause)
+	return this
+}
+
+// 为了支持连写
 func (this *Comment) Limit(limit string) *Comment {
 	this.Dao.Limit(limit)
 	return this
