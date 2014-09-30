@@ -89,6 +89,7 @@ func ParseArticle(articleUrl string) (*model.Article, error) {
 	article.Content = content
 	article.Txt = txt
 	article.PubDate = pubDate
+	article.Url = articleUrl
 
 	_, err = article.Insert()
 	if err != nil {
@@ -126,25 +127,39 @@ func FindArticleByPage(conds map[string]string, curPage, limit int) ([]*model.Ar
 }
 
 func FindArticleById(id string) (*model.Article, error) {
-	return nil, nil
+	article := model.NewArticle()
+	err := article.Where("id=" + id).Find()
+	if err != nil {
+		logger.Errorln("article service FindArticleById Error:", err)
+	}
+
+	return article, err
 }
 
 // 修改文章信息
 func ModifyArticle(form url.Values) (errMsg string, err error) {
 
-	fields := []string{"title", "content", "nid", "editor_uid"}
+	fields := []string{
+		"title", "author", "author_txt",
+		"lang", "pub_date", "content",
+		"tags", "status", "op_user",
+	}
 	setClause := GenSetClause(form, fields)
 
-	tid := form.Get("tid")
+	id := form.Get("id")
 
-	err = model.NewTopic().Set(setClause).Where("tid=" + tid).Update()
+	err = model.NewArticle().Set(setClause).Where("id=" + id).Update()
 	if err != nil {
-		logger.Errorf("更新帖子 【%s】 信息失败：%s\n", tid, err)
+		logger.Errorf("更新文章 【%s】 信息失败：%s\n", id, err)
 		errMsg = "对不起，服务器内部错误，请稍后再试！"
 		return
 	}
 
 	return
+}
+
+func DelArticle(id string) error {
+	return model.NewArticle().Where("id=" + id).Delete()
 }
 
 // 获取抓取规则列表（分页）

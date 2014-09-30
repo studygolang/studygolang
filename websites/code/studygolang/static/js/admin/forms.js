@@ -100,13 +100,14 @@ jQuery(document).ready(function($){
 				var errMsg = errorThrown == 'Forbidden' ? "亲，没权限呢!" : "亲，服务器忙!"; jAlert(errMsg, "提示");
 			},
 			"success" : function (data) {
-				$('#tooltip').text("操作成功！");
+				$('#loaders').hide();
+				jAlert("操作成功", "信息");
+				// $('#tooltip').text("操作成功！");
 				if (typeof formSuccCallback !== "undefined") {
 					formSuccCallback(data);
 				} else {
 					that.reset();
 				}
-				$('#loaders').hide();
 			}
 		});
 	}

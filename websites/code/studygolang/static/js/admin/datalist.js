@@ -6,11 +6,10 @@ jQuery(document).ready(function($) {
 		event.preventDefault();
 		var target = event.target;
 		var submitHint = $(target).attr("ajax-hint");
-		var answer = true;
-		if (submitHint) {
-			answer = confirm(submitHint);
-		}
-		if (answer) {
+		jConfirm(submitHint, "提示", function(answer) {
+			if (!answer) {
+				return false;
+			}
 			var action = $(target).attr("ajax-action");
 			$.ajax({
 				url : action,
@@ -21,7 +20,7 @@ jQuery(document).ready(function($) {
 					if (data.ok == 1) {
 						var successhint = $(target).attr("success-hint");
 						if (successhint != null && successhint != ""){
-							alert(successhint);
+							jAlert(successhint, "提示");
 						}
 						if ($(target).attr("callback")) {
 							var callback = $(target).attr("callback");
@@ -37,11 +36,11 @@ jQuery(document).ready(function($) {
 							}
 						}
 					} else {
-						alert(data.message);
+						jAlert(data.message, "提示");
 					}
 				}
 			});
-		}
+		});
 		return false;
 	}
 
@@ -57,11 +56,11 @@ jQuery(document).ready(function($) {
 		event.preventDefault();
 		var target = event.target;
 		var submitHint = $(target).attr("submit-hint");
-		var answer = true;
-		if (submitHint) {
-			answer = confirm(submitHint);
-		}
-		if (answer) {
+		jConfirm(submitHint, "提示", function(answer) {
+			if (!answer) {
+				return false;
+			}
+
 			var action = $(target).attr("submit-action");
 			$.ajax({
 				url : action,
@@ -72,7 +71,7 @@ jQuery(document).ready(function($) {
 					if (data.code == 0) {
 						var successhint = $(target).attr("success-hint");
 						if (successhint != null && successhint != ""){
-							alert(successhint);
+							jAlert(successhint, "提示");
 						}
 						if ($(target).attr("submit-redirect")) {
 							if ($(target).attr("submit-redirect") == "#") {
@@ -86,11 +85,11 @@ jQuery(document).ready(function($) {
 							//location.href = document.referrer;
 						}
 					} else {
-						alert(data.message);
+						jAlert(data.message, "提示");
 					}
 				}
 			});
-		}
+		});
 	});
 
 	var showProgress = function() {

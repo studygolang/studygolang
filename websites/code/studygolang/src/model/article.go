@@ -28,6 +28,7 @@ type Article struct {
 	Txt       string `json:"txt"`
 	Tags      string `json:"tags"`
 	Status    int    `json:"status"`
+	OpUser    string `json:"op_user"`
 	Ctime     string `json:"ctime"`
 
 	// 数据库访问对象
@@ -121,6 +122,7 @@ func (this *Article) colFieldMap() map[string]interface{} {
 		"txt":        &this.Txt,
 		"tags":       &this.Tags,
 		"status":     &this.Status,
+		"op_user":    &this.OpUser,
 		"ctime":      &this.Ctime,
 	}
 }
