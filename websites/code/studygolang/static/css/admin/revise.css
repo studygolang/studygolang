@@ -39,6 +39,11 @@ form input.smallinput[readonly="readonly"] {/* chenhogn3 */
     color:black;
     background-color:rgb(235, 235, 235);
 }
+form input.mediuminput {
+    width:400px;
+    line-height:16px;
+    height:16px;
+}
 .stdform_q .stdformbutton{
     clear:both;
     float:none;

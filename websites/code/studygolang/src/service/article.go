@@ -137,10 +137,13 @@ func FindArticleById(id string) (*model.Article, error) {
 }
 
 // 修改文章信息
-func ModifyArticle(form url.Values) (errMsg string, err error) {
+func ModifyArticle(user map[string]interface{}, form url.Values) (errMsg string, err error) {
+
+	username := user["username"].(string)
+	form.Set("op_user", username)
 
 	fields := []string{
-		"title", "author", "author_txt",
+		"title", "url", "author", "author_txt",
 		"lang", "pub_date", "content",
 		"tags", "status", "op_user",
 	}

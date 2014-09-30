@@ -9,6 +9,7 @@ package admin
 import (
 	"filter"
 	"logger"
+	"model"
 	"net/http"
 	"service"
 	"strconv"
@@ -71,7 +72,9 @@ func ModifyArticleHandler(rw http.ResponseWriter, req *http.Request) {
 	var data = make(map[string]interface{})
 
 	if req.PostFormValue("submit") == "1" {
-		errMsg, err := service.ModifyArticle(req.PostForm)
+		user, _ := filter.CurrentUser(req)
+
+		errMsg, err := service.ModifyArticle(user, req.PostForm)
 		if err != nil {
 			data["ok"] = 0
 			data["error"] = errMsg
@@ -90,6 +93,8 @@ func ModifyArticleHandler(rw http.ResponseWriter, req *http.Request) {
 		// 设置内容模板
 		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/admin/article/modify.html")
 		data["article"] = article
+		data["statusSlice"] = model.StatusSlice
+		data["langSlice"] = model.LangSlice
 	}
 
 	filter.SetData(req, data)

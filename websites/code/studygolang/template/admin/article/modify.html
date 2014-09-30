@@ -22,7 +22,15 @@
 			<p>
 				<label for="title">标题</label>
 				<span class="field">
-					<input id="title" type="text" name="title" class="smallinput required" value="{{.article.Title}}" />
+					<input id="title" type="text" name="title" class="mediuminput required" value="{{.article.Title}}" />
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label for="url">文章原始链接</label>
+				<span class="field">
+					<input id="url" type="text" name="url" class="mediuminput required" value="{{.article.Url}}" />&nbsp;<a href="{{.article.Url}}" target="_blank" style="color:blue;">查看</a>
 				</span>
 			</p>
 		</div>
@@ -30,18 +38,56 @@
 			<p>
 				<label>内容</label>
 				<span class="field">
-					<textarea>{{.article.Content}}</textarea>
+					<textarea rows="25" style="width:800px;">{{.article.Content}}</textarea>
 				</span>
 			</p>
 		</div>
 		<div>
 			<p>
+				<label for="author">作者(带HTML)</label>
+				<span class="field">
+					<input id="author" type="text" name="author" class="smallinput required" value="{{.article.Author}}" />
+				</span>
+			</p>
+			<p>
+				<label for="author_txt">作者(纯文本)</label>
+				<span class="field">
+					<input id="author_txt" type="text" name="author_txt" class="smallinput required" value="{{.article.AuthorTxt}}" />
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label for="pub_date">发布时间</label>
+				<span class="field">
+					<input id="pub_date" type="text" name="pub_date" class="smallinput required" value="{{.article.PubDate}}" />
+				</span>
+			</p>
+			<p>
+				<label>语言</label>
+				<span class="field">
+					<select name="lang" class="uniformselect">
+						{{range $i, $v := .langSlice}}
+						<option value="{{$i}}">{{$v}}</option>
+						{{end}}
+					</select>
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label for="tags">tags</label>
+				<span class="field">
+					<input id="tags" type="text" name="tags" class="smallinput required" value="{{.article.Tags}}" />
+				</span>
+			</p>
+			<p>
 				<label>状态</label>
 				<span class="field">
 					<select name="status" class="uniformselect">
-						<option value="0">未上线</option>
-						<option value="1">已上线</option>
-						<option value="2">已下线</option>
+						{{range $i, $v := .statusSlice}}
+						<option value="{{$i}}">{{$v}}</option>
+						{{end}}
 					</select>
 				</span>
 			</p>
@@ -88,5 +134,4 @@
 <script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
 <script type="text/javascript" src="/static/js/libs/jquery.cftoaster.1.0.1.js"></script>
 <script	type="text/javascript" src="/static/js/admin/forms.js"></script>
-<script type="text/javascript" src="/static/js/admin/topic/modify.js"></script>
 {{end}}

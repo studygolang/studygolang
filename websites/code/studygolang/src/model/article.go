@@ -11,7 +11,8 @@ import (
 	"util"
 )
 
-var LangMap = []string{"中文", "英文"}
+var LangSlice = []string{"中文", "英文"}
+var StatusSlice = []string{"未上线", "已上线", "已下线"}
 
 // 抓取的文章信息
 type Article struct {

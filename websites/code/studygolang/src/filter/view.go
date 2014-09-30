@@ -157,6 +157,13 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 			contentHtmls[i] = config.ROOT + strings.TrimSpace(contentHtml)
 		}
 
+		// TODO: 新模版过度
+		if strings.Contains(req.RequestURI, "articles") {
+			this.commonHtmlFiles = []string{config.ROOT + "/template/common/layout.html"}
+		} else {
+			this.commonHtmlFiles = []string{config.ROOT + "/template/common/base.html"}
+		}
+
 		// 为了使用自定义的模板函数，首先New一个以第一个模板文件名为模板名。
 		// 这样，在ParseFiles时，新返回的*Template便还是原来的模板实例
 		tpl, err := template.New(this.baseTplName).Funcs(funcMap).ParseFiles(append(this.commonHtmlFiles, contentHtmls...)...)
