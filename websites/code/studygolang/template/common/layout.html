@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<title>{{template "title" .}} | Golang China | Golang中文社区(Go语言构建) | Go语言学习园地</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="shortcut icon" href="/static/img/go.ico">
+	<link href="http://maxcdn.bootstrapcdn.com/bootswatch/3.2.0/cosmo/bootstrap.min.css" rel="stylesheet">
+	<link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+	<link href="/static/css/main.css" rel="stylesheet"/>
+</head>
+<body>
+	<header class="navbar navbar-default navbar-fixed-top" role="navigation">
+		<div class="container">
+			<!-- Brand and toggle get grouped for better mobile display -->
+			<div class="navbar-header">
+				<a href="/" class="navbar-brand"><img alt="Go语言学习园地" src="/static/img/text_logo.png"></a>
+				<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+			</div>
+			<div class="navbar-collapse collapse" id="navbar-main">
+				<ul class="nav navbar-nav">
+					<li>
+						<a href="/topics">社区</a>
+					</li>
+					<li class="dropdown {{.activeArticles}}">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="articles">精彩文章 <span class="caret"></span></a>
+						<ul class="dropdown-menu" aria-labelledby="articles">
+							<li><a href="/articles">网友博文</a></li>
+							<li><a href="http://blog.studygolang.com">本站博客</a></li>
+							<li><a href="http://blog.studygolang.com">官方博客</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="/resources">资源</a>
+					</li>
+					<li>
+						<a href="/sites">酷站</a>
+					</li>
+					<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="docs">官方文档 <span class="caret"></span></a>
+						<ul class="dropdown-menu" aria-labelledby="docs">
+							<li><a href="http://docs.studygolang.com">英文文档</a></li>
+							<li><a href="http://docscn.studygolang.com">中文文档</a></li>
+						</ul>
+					</li>
+				</ul>
+				<form class="navbar-form navbar-left" role="search" _lpchecked="1">
+					<input type="text" name="q" class="form-control search-query" placeholder="搜索">
+				</form>
+				<ul class="nav navbar-nav navbar-right" id="userbar">
+					{{if .me}}
+					<li>
+						<a href="/message/system" id="user_message_count"><span class="badge{{if .me.msgnum}} badge-warning{{end}}">{{.me.msgnum}}</span></a>
+					</li>
+					{{if .me.isadmin}}
+					<li>
+						<a href="/admin/" target="_blank">管理后台</a>
+					</li>
+					{{end}}
+					<li class="dropdown" id="user_menu">
+						<a href="#user_menu" class="dropdown-toggle" data-toggle="dropdown">{{.me.username}} <b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li class="first"><a href="/user/{{.me.username}}">我的主页</a></li>
+							<li><a href="/account/edit">个人资料设置</a></li>
+							<li><a href="/{{.me.username}}/favorites">我的收藏</a></li>
+							<li class="last"><a href="/account/logout">退出</a></li>
+						</ul>
+					</li>
+					{{else}}
+					<li class="first"><a href="/account/register">注册</a></li><li class="last"><a href="/account/login">登录</a></li>
+					{{end}}
+				</ul>
+			</div>
+		</div>
+	</header>
+	<div class="wrapper">
+		<div class="container" role="main">
+			{{template "content" .}}
+		</div>
+	</div>
+	<footer class="footer">
+		<div class="container">
+			<div>
+				<div class="pull-left" style="margin-right:10px;">
+					<img src="/static/img/logo.png" style="width:48px;" alt="golang logo">
+				</div>
+				<p class="links">
+					<a href="/wiki/about">关于</a> | <a href="/api">API</a> | <a href="/wiki/contributors">贡献者</a> | <a href="/wiki/">帮助推广</a> | <a href="/topics/node16">反馈</a> | <a href="http://github.com/studygolang" target="_blank" rel="nofollow">Github</a> | <a href="http://weibo.com/studygolang" target="_blank" rel="nofollow">新浪微博</a> | <a href="http://www.ucai.cn" target="_blank">优才网</a>
+				</p>
+				<p class="copyright">&copy;2014 studygolang.com 采用 <a href="http://golang.org" target="_blank">Go语言</a> + <a href="http://www.mysql.com/" target="_blank">MYSQL 构建</a>
+				&nbsp;&nbsp;当前在线：<span id="onlineusers"></span>人&nbsp;&nbsp;历史最高：<span id="maxonline"></span>人
+				<br/>中国 Golang 社区，Go语言学习园地，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。
+	京ICP备14030343号-1
+				</p>
+			</div> 
+		</div>
+	</footer>
+</body>
+<script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="/static/js/sidebar.js"></script>
+</html>

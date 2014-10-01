@@ -47,14 +47,14 @@ func FindObjComments(objid, objtype string, owner, lastCommentUid int /*, page, 
 	for _, comment := range commentList {
 		tmpMap := make(map[string]interface{})
 		util.Struct2Map(tmpMap, comment)
-		tmpMap["content"] = decodeCmtContent(comment)
+		tmpMap["content"] = template.HTML(decodeCmtContent(comment))
 		tmpMap["user"] = userMap[comment.Uid]
 		comments = append(comments, tmpMap)
 	}
 	return
 }
 
-func decodeCmtContent(comment *model.Comment) template.HTML {
+func decodeCmtContent(comment *model.Comment) string {
 	// 安全过滤
 	content := template.HTMLEscapeString(comment.Content)
 	// @别人
@@ -66,16 +66,42 @@ func decodeCmtContent(comment *model.Comment) template.HTML {
 	url := fmt.Sprintf("%s%d#comment", model.PathUrlMap[comment.Objtype], comment.Objid)
 	content = reg.ReplaceAllString(content, `<a href="`+url+`$1" title="$1">#$1<span>楼</span></a>`)
 
-	return template.HTML(content)
+	comment.Content = content
+
+	return content
 }
 
-// 获得某人在某种类型最近的评论
-func FindRecentComments(uid, objtype int) []*model.Comment {
-	comments, err := model.NewComment().Where("uid=" + strconv.Itoa(uid) + " AND objtype=" + strconv.Itoa(objtype)).Order("ctime DESC").Limit("0, 5").FindAll()
+// 获得最近的评论
+// 如果 uid!=0，表示获取某人的评论；
+// 如果 objtype!=-1，表示获取某类型的评论；
+func FindRecentComments(uid, objtype int, limit string) []*model.Comment {
+	cond := ""
+	if uid != 0 {
+		cond = "uid=" + strconv.Itoa(uid)
+	}
+	if objtype != -1 {
+		cond = "objtype=" + strconv.Itoa(objtype)
+	}
+
+	comments, err := model.NewComment().Where(cond).Order("cid DESC").Limit(limit).FindAll()
 	if err != nil {
 		logger.Errorln("comment service FindRecentComments error:", err)
 		return nil
 	}
+
+	cmtMap := make(map[int][]*model.Comment, len(model.PathUrlMap))
+	for _, comment := range comments {
+		decodeCmtContent(comment)
+
+		if _, ok := cmtMap[comment.Objtype]; !ok {
+			cmtMap[comment.Objtype] = make([]*model.Comment, 0, 10)
+		}
+
+		cmtMap[comment.Objtype] = append(cmtMap[comment.Objtype], comment)
+	}
+
+	FillCommentTopics(cmtMap[model.TYPE_TOPIC])
+
 	return comments
 }
 
@@ -186,7 +212,7 @@ func PostComment(uid, objid int, form url.Values) error {
 }
 
 func ModifyComment(cid, content string) (errMsg string, err error) {
-	err = model.NewComment().Set("content=" + content).Where("cid=" + cid).Update()
+	err = model.NewComment().Set("content=?", content).Where("cid=" + cid).Update()
 	if err != nil {
 		logger.Errorf("更新评论内容 【%s】 失败：%s\n", cid, err)
 		errMsg = "对不起，服务器内部错误，请稍后再试！"

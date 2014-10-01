@@ -82,8 +82,8 @@ func (this *Authority) Limit(limit string) *Authority {
 }
 
 // 为了支持连写
-func (this *Authority) Set(clause string) *Authority {
-	this.Dao.Set(clause)
+func (this *Authority) Set(clause string, args ...interface{}) *Authority {
+	this.Dao.Set(clause, args...)
 	return this
 }
 

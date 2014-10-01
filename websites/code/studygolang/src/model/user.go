@@ -76,8 +76,8 @@ func (this *UserLogin) Where(condition string) *UserLogin {
 }
 
 // 为了支持连写
-func (this *UserLogin) Set(clause string) *UserLogin {
-	this.Dao.Set(clause)
+func (this *UserLogin) Set(clause string, args ...interface{}) *UserLogin {
+	this.Dao.Set(clause, args...)
 	return this
 }
 
@@ -191,8 +191,8 @@ func (this *User) Where(condition string) *User {
 }
 
 // 为了支持连写
-func (this *User) Set(clause string) *User {
-	this.Dao.Set(clause)
+func (this *User) Set(clause string, args ...interface{}) *User {
+	this.Dao.Set(clause, args...)
 	return this
 }
 
@@ -298,9 +298,9 @@ func (this *UserActive) FindAll(selectCol ...string) ([]*UserActive, error) {
 	return userList, nil
 }
 
-// 设置更新字段
-func (this *UserActive) Set(clause string) *UserActive {
-	this.Dao.Set(clause)
+// 为了支持连写
+func (this *UserActive) Set(clause string, args ...interface{}) *UserActive {
+	this.Dao.Set(clause, args...)
 	return this
 }
 

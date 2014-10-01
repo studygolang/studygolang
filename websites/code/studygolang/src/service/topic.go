@@ -51,11 +51,11 @@ func ModifyTopic(user map[string]interface{}, form url.Values) (errMsg string, e
 	form.Set("editor_uid", strconv.Itoa(uid))
 
 	fields := []string{"title", "content", "nid", "editor_uid"}
-	setClause := GenSetClause(form, fields)
+	query, args := updateSetClause(form, fields)
 
 	tid := form.Get("tid")
 
-	err = model.NewTopic().Set(setClause).Where("tid=" + tid).Update()
+	err = model.NewTopic().Set(query, args...).Where("tid=" + tid).Update()
 	if err != nil {
 		logger.Errorf("更新帖子 【%s】 信息失败：%s\n", tid, err)
 		errMsg = "对不起，服务器内部错误，请稍后再试！"
@@ -262,9 +262,14 @@ func FindTopicsByWhere(where, order, limit string) (topics []map[string]interfac
 	return
 }
 
-// 获得某个用户最近的帖子
-func FindRecentTopics(uid int) []*model.Topic {
-	topics, err := model.NewTopic().Where("uid=" + strconv.Itoa(uid)).Order("ctime DESC").Limit("0, 5").FindAll()
+// 获得最近的帖子(如果uid!=0，则获取某个用户最近的帖子)
+func FindRecentTopics(uid int, limit string) []*model.Topic {
+	cond := ""
+	if uid != 0 {
+		cond = "uid=" + strconv.Itoa(uid)
+	}
+
+	topics, err := model.NewTopic().Where(cond).Order("ctime DESC").Limit(limit).FindAll()
 	if err != nil {
 		logger.Errorln("topic service FindRecentTopics error:", err)
 		return nil
@@ -310,33 +315,37 @@ func FindHotTopics() []map[string]interface{} {
 	return result
 }
 
-// 获得回复对应的主贴信息
-func FindRecentReplies(comments []*model.Comment) []map[string]interface{} {
+// 填充评论对应的主贴信息
+func FillCommentTopics(comments []*model.Comment) {
 	if len(comments) == 0 {
-		return nil
+		return
 	}
 	count := len(comments)
-	commentMap := make(map[int]*model.Comment, count)
+	commentMap := make(map[int][]*model.Comment, count)
 	tidMap := make(map[int]int, count)
 	for _, comment := range comments {
-		commentMap[comment.Objid] = comment
+		if _, ok := commentMap[comment.Objid]; !ok {
+			commentMap[comment.Objid] = make([]*model.Comment, 0, count)
+		}
+		commentMap[comment.Objid] = append(commentMap[comment.Objid], comment)
 		tidMap[comment.Objid] = comment.Objid
 	}
 	tids := util.MapIntKeys(tidMap)
 	topics := FindTopicsByTids(tids)
 	if len(topics) == 0 {
-		return nil
+		return
 	}
-	result := make([]map[string]interface{}, len(topics))
-	for i, topic := range topics {
-		oneReply := make(map[string]interface{})
-		oneReply["tid"] = topic.Tid
-		oneReply["title"] = topic.Title
-		oneReply["cmt_content"] = decodeCmtContent(commentMap[topic.Tid])
-		oneReply["replytime"] = commentMap[topic.Tid].Ctime
-		result[i] = oneReply
+
+	for _, topic := range topics {
+		objinfo := make(map[string]interface{})
+		objinfo["tid"] = topic.Tid
+		objinfo["title"] = topic.Title
+
+		for _, comment := range commentMap[topic.Tid] {
+			comment.Objinfo = objinfo
+		}
 	}
-	return result
+	return
 }
 
 // 获取多个帖子详细信息

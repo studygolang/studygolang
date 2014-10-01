@@ -55,6 +55,10 @@ func initRouter() *mux.Router {
 	router.HandleFunc("/users", UsersHandler)
 	router.HandleFunc("/user/{username:\\w+}", UserHomeHandler)
 
+	// 网友博文
+	router.HandleFunc("/articles", ArticlesHandler)
+	router.HandleFunc("/articles/{id:[0-9]+}", ArticleDetailHandler)
+
 	// wiki
 	router.HandleFunc("/wiki", WikisHandler)
 	router.HandleFunc("/wiki/new{json:(|.json)}", NewWikiPageHandler).AppendFilterChain(loginFilterChain)
@@ -85,6 +89,12 @@ func initRouter() *mux.Router {
 	router.HandleFunc("/topics/notice.json", NoticeHandler)
 	// 热门节点
 	router.HandleFunc("/nodes/hot.json", HotNodesHandler)
+	// 最新帖子
+	router.HandleFunc("/topics/recent.json", RecentTopicHandler)
+	// 最新博文
+	router.HandleFunc("/articles/recent.json", RecentArticleHandler)
+	// 最新评论
+	router.HandleFunc("/comments/recent.json", RecentCommentHandler)
 	/////////////////// 异步请求 结束 ///////////////////////
 
 	// 管理后台权限检查过滤器

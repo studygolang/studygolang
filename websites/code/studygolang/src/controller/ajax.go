@@ -55,6 +55,45 @@ func NoticeHandler(rw http.ResponseWriter, req *http.Request) {
 	fmt.Fprint(rw, `{"errno": 0, "notice":`+string(newNotice)+`}`)
 }
 
+// 最新帖子
+// uri: /topics/recent.json
+func RecentTopicHandler(rw http.ResponseWriter, req *http.Request) {
+	recentTopics := service.FindRecentTopics(0, "10")
+	buf, err := json.Marshal(recentTopics)
+	if err != nil {
+		logger.Errorln("[RecentTopicHandler] json.marshal error:", err)
+		fmt.Fprint(rw, `{"ok": 0, "error":"解析json出错"}`)
+		return
+	}
+	fmt.Fprint(rw, `{"ok": 1, "data":`+string(buf)+`}`)
+}
+
+// 最新博文
+// uri: /articles/recent.json
+func RecentArticleHandler(rw http.ResponseWriter, req *http.Request) {
+	recentArticles := service.FindArticles("0", "10")
+	buf, err := json.Marshal(recentArticles)
+	if err != nil {
+		logger.Errorln("[RecentArticleHandler] json.marshal error:", err)
+		fmt.Fprint(rw, `{"ok": 0, "error":"解析json出错"}`)
+		return
+	}
+	fmt.Fprint(rw, `{"ok": 1, "data":`+string(buf)+`}`)
+}
+
+// 最新评论
+// uri: /comments/recent.json
+func RecentCommentHandler(rw http.ResponseWriter, req *http.Request) {
+	recentComments := service.FindRecentComments(0, -1, "10")
+	buf, err := json.Marshal(recentComments)
+	if err != nil {
+		logger.Errorln("[RecentArticleHandler] json.marshal error:", err)
+		fmt.Fprint(rw, `{"ok": 0, "error":"解析json出错"}`)
+		return
+	}
+	fmt.Fprint(rw, `{"ok": 1, "data":`+string(buf)+`}`)
+}
+
 // 社区热门节点
 // uri: /nodes/hot.json
 func HotNodesHandler(rw http.ResponseWriter, req *http.Request) {

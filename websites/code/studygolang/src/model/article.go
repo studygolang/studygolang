@@ -86,8 +86,8 @@ func (this *Article) Where(condition string) *Article {
 }
 
 // 为了支持连写
-func (this *Article) Set(clause string) *Article {
-	this.Dao.Set(clause)
+func (this *Article) Set(clause string, args ...interface{}) *Article {
+	this.Dao.Set(clause, args...)
 	return this
 }
 
@@ -197,8 +197,8 @@ func (this *CrawlRule) Where(condition string) *CrawlRule {
 }
 
 // 为了支持连写
-func (this *CrawlRule) Set(clause string) *CrawlRule {
-	this.Dao.Set(clause)
+func (this *CrawlRule) Set(clause string, args ...interface{}) *CrawlRule {
+	this.Dao.Set(clause, args...)
 	return this
 }
 

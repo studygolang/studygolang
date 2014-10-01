@@ -348,20 +348,6 @@ func CountUsers() int {
 	return total
 }
 
-// 构造update语句中的set部分子句
-func GenSetClause(form url.Values, fields []string) string {
-	stringBuilder := util.NewBuffer()
-	for _, field := range fields {
-		if form.Get(field) != "" {
-			stringBuilder.Append(",").Append(field).Append("=").Append(form.Get(field))
-		}
-	}
-	if stringBuilder.Len() > 0 {
-		return stringBuilder.String()[1:]
-	}
-	return ""
-}
-
 // 增加或减少用户活跃度
 func IncUserWeight(where string, weight int) {
 	if err := model.NewUserActive().Where(where).Increment("weight", weight); err != nil {

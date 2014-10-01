@@ -126,6 +126,20 @@ func FindArticleByPage(conds map[string]string, curPage, limit int) ([]*model.Ar
 	return articleList, total
 }
 
+// 获取抓取的文章列表（分页）
+func FindArticles(lastId, limit string) []*model.Article {
+	article := model.NewArticle()
+
+	articleList, err := article.Where("id>" + lastId).Order("id DESC").Limit(limit).
+		FindAll()
+	if err != nil {
+		logger.Errorln("article service FindArticles Error:", err)
+		return nil
+	}
+
+	return articleList
+}
+
 func FindArticleById(id string) (*model.Article, error) {
 	article := model.NewArticle()
 	err := article.Where("id=" + id).Find()
@@ -147,11 +161,11 @@ func ModifyArticle(user map[string]interface{}, form url.Values) (errMsg string,
 		"lang", "pub_date", "content",
 		"tags", "status", "op_user",
 	}
-	setClause := GenSetClause(form, fields)
+	query, args := updateSetClause(form, fields)
 
 	id := form.Get("id")
 
-	err = model.NewArticle().Set(setClause).Where("id=" + id).Update()
+	err = model.NewArticle().Set(query, args...).Where("id=" + id).Update()
 	if err != nil {
 		logger.Errorf("更新文章 【%s】 信息失败：%s\n", id, err)
 		errMsg = "对不起，服务器内部错误，请稍后再试！"

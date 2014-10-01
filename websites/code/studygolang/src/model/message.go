@@ -89,8 +89,8 @@ func (this *Message) Where(condition string) *Message {
 }
 
 // 为了支持连写
-func (this *Message) Set(clause string) *Message {
-	this.Dao.Set(clause)
+func (this *Message) Set(clause string, args ...interface{}) *Message {
+	this.Dao.Set(clause, args...)
 	return this
 }
 
@@ -210,8 +210,8 @@ func (this *SystemMessage) SetExt(ext map[string]interface{}) {
 }
 
 // 为了支持连写
-func (this *SystemMessage) Set(clause string) *SystemMessage {
-	this.Dao.Set(clause)
+func (this *SystemMessage) Set(clause string, args ...interface{}) *SystemMessage {
+	this.Dao.Set(clause, args...)
 	return this
 }
 

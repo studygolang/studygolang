@@ -13,14 +13,14 @@ import (
 
 const (
 	TYPE_TOPIC    = iota // 帖子
-	TYPE_BLOG            // 博客
+	TYPE_ARTICLE         // 博文
 	TYPE_RESOURCE        // 资源
 	TYPE_WIKI            // WIKI
 )
 
 var PathUrlMap = map[int]string{
 	TYPE_TOPIC:    "/topics/",
-	TYPE_BLOG:     "/blog/",
+	TYPE_ARTICLE:  "/articles/",
 	TYPE_RESOURCE: "/resources/",
 	TYPE_WIKI:     "/wiki/",
 }
@@ -35,6 +35,8 @@ type Comment struct {
 	Floor   int    `json:"floor"`
 	Flag    int    `json:"flag"`
 	Ctime   string `json:"ctime"`
+
+	Objinfo map[string]interface{} `json:"objinfo"`
 
 	// 数据库访问对象
 	*Dao
@@ -91,8 +93,8 @@ func (this *Comment) Where(condition string) *Comment {
 }
 
 // 为了支持连写
-func (this *Comment) Set(clause string) *Comment {
-	this.Dao.Set(clause)
+func (this *Comment) Set(clause string, args ...interface{}) *Comment {
+	this.Dao.Set(clause, args...)
 	return this
 }
 

@@ -11,6 +11,16 @@
     overflow:hidden;
     float:left;
 }
+
+.stdform_q p label.error {
+	display: inline;
+    padding:0;
+    width:100px;
+    line-height:34px;
+    height:34px;
+    float:none;
+}
+
 .stdform_q p label{
     text-align:right;
     padding:0;
@@ -59,11 +69,6 @@ td .emtd {
   color:#fb9337;
   font-weight:bold;
 }
-
-.stdform_q textarea {
-    width: 430px;
-}
-
 
 #loaders {
 	position: fixed;

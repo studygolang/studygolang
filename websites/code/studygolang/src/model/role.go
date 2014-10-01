@@ -88,8 +88,8 @@ func (this *Role) Limit(limit string) *Role {
 }
 
 // 为了支持连写
-func (this *Role) Set(clause string) *Role {
-	this.Dao.Set(clause)
+func (this *Role) Set(clause string, args ...interface{}) *Role {
+	this.Dao.Set(clause, args...)
 	return this
 }
 

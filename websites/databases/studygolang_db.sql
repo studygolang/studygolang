@@ -362,7 +362,7 @@ CREATE TABLE `articles` (
   `url` varchar(127) NOT NULL DEFAULT '' COMMENT '文章原始链接',
   `content` text NOT NULL COMMENT '正文(带html)',
   `txt` text NOT NULL COMMENT '正文(纯文本)',
-  `tags` varchar(50) NOT NULL DEFAULT '' COMMENT '文章tag',
+  `tags` varchar(50) NOT NULL DEFAULT '' COMMENT '文章tag，逗号分隔',
   `status` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '状态：0-初始抓取；1-已上线；2-下线(审核拒绝)',
   `op_user` varchar(20) NOT NULL DEFAULT '' COMMENT '操作人',
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

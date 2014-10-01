@@ -1,0 +1,96 @@
+html, body { background: #F2F2F2; }
+
+/* nav */
+.navbar-default .navbar-nav>li>a { color: #bbbbbb; }
+.navbar-default .navbar-nav>.active>a { color: #ffffff; }
+
+.search-query {padding-left: 8px;padding-right: 8px;margin-bottom: 0;-webkit-border-radius: 8px;-moz-border-radius: 8px;border-radius: 8px; height: 30px; margin-top: 6px;}
+
+.navbar-header .navbar-brand { margin-top: -5px; }
+.navbar-header .navbar-brand img { width: 123px;height: 29px; }
+
+.wrapper {margin-top: 52px;}
+
+.box_white { background: #FFF; }
+
+.container .header_title { height: 60px; }
+
+.article { overflow: hidden; border-top: solid 2px #fff; margin-bottom: 31px; }
+.article:hover {border-top: solid 2px #DB6D4C;}
+.article:hover h2 a { color: #DB6D4C }
+.article .row { border-bottom: 1px solid #e5e5e5; padding: 10px 20px 10px 12px; margin-left:0px; margin-right:0px; }
+.article .row div { padding: 0px; }
+.article .row .text {font-family: "NSimSun";font-size: 12px;color: #aaa;line-height: 1.8;}
+.article h2 {font-size: 20px;font-size: 2rem;color: #474747;font-family: '\5FAE\8F6F\96C5\9ED1';margin: 15px 0 20px 0px;line-height: 1.5;}
+.article h2 a {color: #474747;text-decoration: none;overflow: hidden;}
+
+.article .metatag a {color: #333333;}
+.article .metatag .list-inline { display: inline-block; padding: 0 10px; margin-bottom: 0px; }
+.article .metatag .list-inline a { color: #737373; text-decoration: none;font-size: 12px;position: relative; font-size: 1.2rem;}
+.article .metatag .list-inline li:hover a { color: #DB6D4C;}
+.article .metatag .date {height: 20px;color: #b5b5b5;font-style: italic; margin-right: 20px;}
+.article .metatag .author {height: 20px; margin-right: 20px;}
+.article .metatag .cmt, .article .metatag .like { margin: 0 10px; }
+.article .metatag a:hover { text-decoration: none; color: #DB6D4C; }
+
+.sidebar {}
+.sidebar .top { height: 38px; line-height: 38px; border-bottom: solid 1px #EAEAEA; position: relative; margin-bottom: 15px; }
+.sidebar .top .list-inline { }
+.sidebar .top .list-inline li { color: #EAEAEA; }
+.sidebar .top .list-inline li a { color: #c1c1c1; font-family: "NSimSun"; font-size: 14px; font-size: 1.4rem; padding: 10px 10px; text-decoration: none;}
+.sidebar .top .list-inline li a.cur { color: #DD7657; }
+.sidebar .top .bar { position: absolute; width: 59px; height: 3px;background: #DB6D4C;left: 18px;bottom: -13px; }
+
+.sidebar .sb-content { margin-bottom: 20px }
+.sidebar .sb-content .article-list { margin: 15px 5px 10px 0px; }
+.sidebar .sb-content .article-list ul li {  }
+.sidebar .sb-content .article-list ul li a { text-decoration: none; line-height: 40px;height: 40px;padding-bottom: 18px;width: 180px;font-size: 12px;color: #666666; white-space: nowrap; }
+.sidebar .sb-content .article-list ul li a:hover { color: #d54f4b; }
+
+.sidebar .sb-content .cmt-list {}
+.sidebar .sb-content .cmt-list ul { margin: 2px 15px; }
+.sidebar .sb-content .cmt-list ul li { height: auto;padding: 5px 8px;border-bottom: solid 1px #EAEAEA; }
+.sidebar .sb-content .cmt-list ul li:after { display: block;visibility: hidden;height: 0; content: '\0020'; clear: both; }
+.sidebar .sb-content .cmt-list ul li .pic { float: left;width: 45px;height: 54px;margin-top: 6px; }
+.sidebar .sb-content .cmt-list ul li .word { float: left;margin-top: 2px;margin-left: 8px;width: 170px; }
+.sidebar .sb-content .cmt-list ul li .word { float: left;margin-top: 2px;margin-left: 8px;width: 170px; }
+.sidebar .sb-content .cmt-list ul li .word .w-name { color: #949494;font-size: 12px;font-size: 1.2rem;font-family: "simsun";height: 20px;line-height: 20px; }
+.sidebar .sb-content .cmt-list ul li .word .w-name a { color: #949494;font-weight: bold;float: left;max-width: 80px;/* margin-right: 10px; */overflow: hidden;height: 20px;width: 80px; }
+.sidebar .sb-content .cmt-list ul li .word .w-name a:hover { text-decoration: none; color: #DB6D4C; }
+.sidebar .sb-content .cmt-list ul li .word .w-page { padding-top: 2px;font-family: "simsun";font-size: 12px;font-size: 1.2rem;color: #c1c1c1; }
+.sidebar .sb-content .cmt-list ul li .word .w-page a { color: #5f5e5e;margin-left: 5px;margin-right: 5px; }
+.sidebar .sb-content .cmt-list ul li .word .w-page a:hover { text-decoration: none; color: #F2733C; }
+.sidebar .sb-content .cmt-list ul li .word .w-comment { line-height: 18px;max-height: 36px;_height: 36px;color: #db6d4c;font-family: "simsun";font-size: 12px;font-size: 1.2rem;overflow: hidden;padding-top: 2px; }
+
+/* blog ฯ๊ว้าณ */
+.page {}
+.page .title { padding-top: 21px }
+.page .meta {height: 28px;line-height: 28px;border-bottom: dotted 1px #D8D8D8; margin: 0 30px;}
+.page .meta .p-author {float: left;font-family: "NSimSun";font-size: 12px;color: #888888;}
+.page .meta .p-author a {color: #272727;}
+.page .meta .p-author a:hover {color: #DB6D4C; text-decoration: none; }
+.page .meta .p-comment {float: right;padding-left: 10px;border-left: solid 1px #E0E0E0;height: 18px;margin-top: 5px;line-height: 18px;}
+.page .meta .p-comment a {font-size: 12px;color: #ed5565;}
+.page .tags {padding: 20px 0; margin: 0 30px;}
+.page .tags .list-inline li {margin-right: 5px;margin-bottom: 6px;}
+.page .tags .list-inline li a {padding: 4px 12px;color: #fff;font-family: "NSimSun";font-size: 12px;background: #9F9F9F;border-radius: 3px;}
+.page .tags .list-inline li a:hover {background: #ED5565;text-decoration: none;}
+.page .content {margin: 0 30px;}
+.page .orig-info {margin: 20px 30px 0 30px; border: 1px dashed #D5D5D5; padding: 10px; font-size: 13px; font-style: italic;}
+.page .active {border-bottom: 1px dotted #d8d8d8;padding-bottom: 20px;padding-top: 20px;margin: 0 30px;}
+.page .active .mark-like-btn .share-btn {height: 32px;-webkit-transition: background-color 0s;-moz-transition: background-color 0s;transition: background-color 0s;line-height: 32px;background: none;border: 1px solid;position: relative;color: #333;padding: 0px 16px 0px 36px;border-radius: 16px;font-family: "microsoft yahei";float: left;}
+.page .active .mark-like-btn .share-btn i {width: 24px;height: 24px;position: absolute;left: 8px;top: 4px; color: #f35454; line-height: 24px;}
+.page .active .mark-like-btn a {margin-right: 20px;}
+.page .active .mark-like-btn a:hover {text-decoration: none; }
+.page .active .mark-like-btn .like-btn {border-color: #f35454;}
+.page .active .mark-like-btn .collect {border-color: #ff9933;}
+.page .active .mark-like-btn .love-yes {cursor: default;background: #f35454;color: #fff;}
+
+.page .page-comment { margin: 0 30px; }
+.page .page-comment .comment-title {height: 30px;line-height: 30px; margin-top: 21px;}
+.page .page-comment .comment-title:after { display: block;visibility: hidden;height: 0; content: '\0020'; clear: both; }
+.page .page-comment .comment-title h2 { font-size: 24px;color: #D55252;font-weight: normal;float: left; font-family: "microsoft yahei"; margin-top: 0px; }
+.page .page-comment .comment-title .h2-tip { font-size: 12px;margin-left: 8px;float: left;color: #505050;padding-top: 4px;font-family: "nsimsun"; margin-bottom: 10.5px;}
+.page .page-comment .submit textarea {resize: none;width: 100%;color: #999999;font-size: 14px;border: solid 1px #E5E5E5;padding: 15px;}
+.page .page-comment .submit textarea:focus{outline: solid 1px #FFB7B7;}
+.page .page-comment .submit .sub .btn {padding: 6px 22px;}

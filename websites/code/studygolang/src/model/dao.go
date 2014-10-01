@@ -468,8 +468,30 @@ func (this *Dao) Where(condition string) {
 }
 
 // 更新操作的SET部分
-func (this *Dao) Set(clause string) {
+func (this *Dao) Set(clause string, args ...interface{}) {
+	if len(args) == 0 {
+		this._set(clause)
+		return
+	}
+
+	this.columns = strings.Split(clause, ",")
+
+	if len(this.columns) != len(args) {
+		this.columns = nil
+		return
+	}
+
+	this.colValues = args
+}
+
+// 兼容之前的写法
+func (this *Dao) _set(clause string) {
 	clauses := strings.Split(clause, ",")
+	if len(clauses) >= len(strings.Split(clause, "=")) {
+		this.columns = nil
+		return
+	}
+
 	for _, clause := range clauses {
 		parts := strings.Split(clause, "=")
 		// 如果参数不合法，让执行的sql报错

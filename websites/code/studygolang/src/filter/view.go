@@ -59,6 +59,12 @@ var funcMap = template.FuncMap{
 		}
 		return total
 	},
+	"explode": func(s, sep string) []string {
+		return strings.Split(s, sep)
+	},
+	"noescape": func(s string) template.HTML {
+		return template.HTML(s)
+	},
 }
 
 // 保存模板路径的key
@@ -115,7 +121,7 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 
 	switch format {
 	case "json":
-		if data != nil {
+		if len(data) != 0 {
 			result, err := json.Marshal(data)
 			if err != nil {
 				logger.Errorf("json.Marshal error：[%q] %s\n", req.RequestURI, err)
@@ -160,8 +166,10 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 		// TODO: 新模版过度
 		if strings.Contains(req.RequestURI, "articles") {
 			this.commonHtmlFiles = []string{config.ROOT + "/template/common/layout.html"}
-		} else {
+			this.baseTplName = "layout.html"
+		} else if !this.isBackView {
 			this.commonHtmlFiles = []string{config.ROOT + "/template/common/base.html"}
+			this.baseTplName = "base.html"
 		}
 
 		// 为了使用自定义的模板函数，首先New一个以第一个模板文件名为模板名。
