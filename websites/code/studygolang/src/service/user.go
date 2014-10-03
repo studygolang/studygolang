@@ -320,15 +320,15 @@ func UpdatePasswd(username, passwd string) (string, error) {
 }
 
 // 获取用户信息
-func getUserInfos(uids map[int]int) map[int]*model.User {
+func GetUserInfos(uids []int) map[int]*model.User {
 	if len(uids) == 0 {
 		return nil
 	}
 	// 获取用户信息
-	inUids := util.Join(util.MapIntKeys(uids), ",")
+	inUids := util.Join(uids, ",")
 	users, err := model.NewUser().Where("uid in(" + inUids + ")").FindAll()
 	if err != nil {
-		logger.Errorln("user service getUserInfos Error:", err)
+		logger.Errorln("user service GetUserInfos Error:", err)
 		return map[int]*model.User{}
 	}
 	userMap := make(map[int]*model.User, len(users))

@@ -70,7 +70,7 @@
         {{range .replies}}
         <li>
           <div class="title">
-            <a href="/topics/{{.Objinfo.tid}}" title="{{.Objinfo.title}}">{{substring .Objinfo.title 60 "..."}}</a>
+            <a href="/topics/{{.Objid}}" title="{{.Objinfo.title}}">{{substring .Objinfo.title 60 "..."}}</a>
             <span class="info">at <abbr class="timeago" title="{{formatTime .Ctime}}"></abbr></span>
           </div>
           <div class="body">

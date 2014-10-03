@@ -28,22 +28,18 @@ func FindObjComments(objid, objtype string, owner, lastCommentUid int /*, page, 
 		return
 	}
 
-	commentNum := len(commentList)
-	uids := make(map[int]int, commentNum+1)
-	uids[owner] = owner
+	uids := util.Models2Intslice(commentList, "Uid")
+
 	// 避免某些情况下最后回复人没在回复列表中
-	uids[lastCommentUid] = lastCommentUid
-	for _, comment := range commentList {
-		uids[comment.Uid] = comment.Uid
-	}
+	uids = append(uids, owner, lastCommentUid)
 
 	// 获得用户信息
-	userMap := getUserInfos(uids)
+	userMap := GetUserInfos(uids)
 	ownerUser = userMap[owner]
 	if lastCommentUid != 0 {
 		lastReplyUser = userMap[lastCommentUid]
 	}
-	comments = make([]map[string]interface{}, 0, commentNum)
+	comments = make([]map[string]interface{}, 0, len(commentList))
 	for _, comment := range commentList {
 		tmpMap := make(map[string]interface{})
 		util.Struct2Map(tmpMap, comment)
@@ -100,14 +96,28 @@ func FindRecentComments(uid, objtype int, limit string) []*model.Comment {
 		cmtMap[comment.Objtype] = append(cmtMap[comment.Objtype], comment)
 	}
 
-	FillCommentTopics(cmtMap[model.TYPE_TOPIC])
+	for cmtType, cmts := range cmtMap {
+		switch cmtType {
+		case model.TYPE_TOPIC:
+			FillCommentObjs(cmts, TopicComment{})
+		case model.TYPE_ARTICLE:
+			FillCommentObjs(cmts, ArticleComment{})
+		case model.TYPE_RESOURCE:
+			FillCommentObjs(cmts, ResourceComment{})
+		}
+	}
 
 	return comments
 }
 
-// 某类型的评论总数
+// 评论总数(objtype != -1 时，取某一类型的评论总数)
 func CommentsTotal(objtype int) (total int) {
-	total, err := model.NewComment().Where("objtype=" + strconv.Itoa(objtype)).Count()
+	var cond string
+	if objtype != -1 {
+		cond = "objtype=" + strconv.Itoa(objtype)
+	}
+
+	total, err := model.NewComment().Where(cond).Count()
 	if err != nil {
 		logger.Errorln("comment service CommentsTotal error:", err)
 		return
@@ -127,6 +137,33 @@ func FindCommentsByIds(cids []int) []*model.Comment {
 		return nil
 	}
 	return comments
+}
+
+// 填充评论对应的主体信息
+func FillCommentObjs(comments []*model.Comment, cmtObj CommentObjecter) {
+	if len(comments) == 0 {
+		return
+	}
+	count := len(comments)
+	commentMap := make(map[int][]*model.Comment, count)
+	idMap := make(map[int]int, count)
+	for _, comment := range comments {
+		if _, ok := commentMap[comment.Objid]; !ok {
+			commentMap[comment.Objid] = make([]*model.Comment, 0, count)
+		}
+		commentMap[comment.Objid] = append(commentMap[comment.Objid], comment)
+		idMap[comment.Objid] = 1
+	}
+	ids := util.MapIntKeys(idMap)
+	cmtObj.SetObjinfo(ids, commentMap)
+}
+
+// 填充 Comment 对象的 Objinfo 成员接口
+// 评论属主应该实现该接口（以便填充 Objinfo 成员）
+type CommentObjecter interface {
+	// ids 是属主的主键 slice （comment 中的 objid）
+	// commentMap 中的 key 是属主 id
+	SetObjinfo(ids []int, commentMap map[int][]*model.Comment)
 }
 
 // 提供给其他service调用（包内）

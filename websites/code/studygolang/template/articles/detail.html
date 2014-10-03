@@ -1,3 +1,6 @@
+{{define "title"}}{{.article.Title}} {{end}}
+{{define "seo"}}<meta name="keywords" content="{{.article.Title}} Go语言博客文章, Go语言博文, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
+<meta name="description" content="{{substring .article.Txt 200 ""}}">{{end}}
 {{define "content"}}
 <div class="row header_title">
 	<div class="col-lg-12 col-md-12 col-sm-12">
@@ -98,98 +101,17 @@
 				<p class="bar"></p>
 			</div>
 			<div class="sb-content">
-				<div class="article-list first">
+				<div class="topic-list first">
 					<ul>
-						<li>
-							<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-						</li>
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
 					</ul>
 				</div>
 				<div class="article-list second hidden">
 					<ul>
-						<li>
-							<a href="http://www.leiphone.com/news/201409/QAMUTkKPawiRaJ8Z.html">在英国地区PS4销量突破100万台</a>
-						</li>
 					</ul>
 				</div>
 				<div class="cmt-list last hidden">
 					<ul class="list-unstyled">
-						<li>
-							<div class="pic">
-								<a href="http://home.leiphone.com/uprofile/1021" target="_blank">
-									<img src="http://www.leiphone.com/uploads/new/avatar/00/00/10/21_avatar_pic_40_40.jpg">
-								</a>
-							</div>
-							<div class="word">
-									<div class="w-name">
-											<a href="http://home.leiphone.com/uprofile/1021" target="_blank">蓝天</a>
-											<span>19分钟前</span>
-									</div>
-									<div class="w-page">
-											<span>在<a href="http://www.leiphone.com/news/201409/8xaRlXLv9fbwZ7pI.html">近几年，从微软离职的技术大牛们  </a>中评论</span>
-									</div>
-									<div class="w-comment">
-											<span title="一个微软拯救了中国的几大互联网巨头，国内哪个公司有这样的积淀呢？">一个微软拯救了中国的几大互联网巨头，国内哪个公司有这样的积淀呢？</span>
-									</div>
-							</div>
-						</li>
-						<li>
-							<div class="pic">
-								<a href="http://home.leiphone.com/uprofile/5882" target="_blank">
-									<img src="http://www.leiphone.com/uploads/new/avatar/defaultAvatar/pic_40_40.jpg">
-								</a>
-							</div>
-							<div class="word">
-								<div class="w-name">
-										<a href="http://home.leiphone.com/uprofile/5882" target="_blank">圆林</a>
-										<span>21分钟前</span>
-								</div>
-								<div class="w-page">
-										<span>在<a href="http://www.leiphone.com/news/201409/fVsVEP23uwfWYlU9.html">百加手机与一加手机到底谁抄袭谁  </a>中评论</span>
-								</div>
-								<div class="w-comment">
-										<span title="百加手机在渠道方面也更加广泛一些">百加手机在渠道方面也更加广泛一些</span>
-								</div>
-							</div>
-						</li>
-						<li class="clr">
-							<div class="pic">
-								<a href="http://home.leiphone.com/uprofile/5881" target="_blank">
-									<img src="http://www.leiphone.com/uploads/new/avatar/defaultAvatar/pic_40_40.jpg">
-								</a>
-							</div>
-							<div class="word">
-								<div class="w-name">
-										<a href="http://home.leiphone.com/uprofile/5881" target="_blank">风气派</a>
-										<span>21分钟前</span>
-								</div>
-								<div class="w-page">
-										<span>在<a href="http://www.leiphone.com/news/201409/fVsVEP23uwfWYlU9.html">百加手机与一加手机到底谁抄袭谁  </a>中评论</span>
-								</div>
-								<div class="w-comment">
-										<span title="百加手机真的可以有，我喜欢">百加手机真的可以有，我喜欢</span>
-								</div>
-							</div>
-						</li>
-						<li class="clr">
-							<div class="pic">
-								<a href="http://home.leiphone.com/uprofile/5880" target="_blank">
-										<img src="http://www.leiphone.com/uploads/new/avatar/defaultAvatar/pic_40_40.jpg">
-								</a>
-							</div>
-							<div class="word">
-								<div class="w-name">
-										<a href="http://home.leiphone.com/uprofile/5880" target="_blank">红白西</a>
-										<span>22分钟前</span>
-								</div>
-								<div class="w-page">
-										<span>在<a href="http://www.leiphone.com/news/201409/fVsVEP23uwfWYlU9.html">百加手机与一加手机到底谁抄袭谁  </a>中评论</span>
-								</div>
-								<div class="w-comment">
-										<span title="百加手机如此受大家推崇，亲们还记得它的独特魅力吗？">百加手机如此受大家推崇，亲们还记得它的独特魅力吗？</span>
-								</div>
-							</div>
-						</li>
 					</ul>
 				</div>
 			</div>
@@ -197,4 +119,13 @@
 	</div>
 </div>
 {{end}}
-{{define "title"}}{{.article.Title}} {{end}}
+{{define "js"}}
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/topics/recent.json",
+	"/articles/recent.json",
+	"/comments/recent.json",
+];
+</script>
+{{end}}

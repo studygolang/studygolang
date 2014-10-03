@@ -182,11 +182,11 @@ func FindTopicsByNid(nid, curTid string) (topics []*model.Topic) {
 	return
 }
 
-// 获得社区最新公告
+// 获得社区最新公告（废弃）
 func FindNoticeTopic() (topic *model.Topic) {
 	topics, err := model.NewTopic().Where("nid=15").Limit("0,1").Order("mtime DESC").FindAll()
 	if err != nil {
-		logger.Errorln("topic service FindTopicsByNid Error:", err)
+		logger.Errorln("topic service FindNoticeTopic Error:", err)
 		return
 	}
 	if len(topics) > 0 {
@@ -219,13 +219,13 @@ func FindTopicsByWhere(where, order, limit string) (topics []map[string]interfac
 	}
 	count := len(topicList)
 	tids := make([]int, count)
-	uids := make(map[int]int)
+	uids := make([]int, 0, count)
 	nids := make([]int, count)
 	for i, topic := range topicList {
 		tids[i] = topic.Tid
-		uids[topic.Uid] = topic.Uid
+		uids = append(uids, topic.Uid)
 		if topic.Lastreplyuid != 0 {
-			uids[topic.Lastreplyuid] = topic.Lastreplyuid
+			uids = append(uids, topic.Lastreplyuid)
 		}
 		nids[i] = topic.Nid
 	}
@@ -241,7 +241,7 @@ func FindTopicsByWhere(where, order, limit string) (topics []map[string]interfac
 		topicExMap[topicEx.Tid] = topicEx
 	}
 
-	userMap := getUserInfos(uids)
+	userMap := GetUserInfos(uids)
 
 	// 获取节点信息
 	nodes := GetNodesName(nids)
@@ -299,11 +299,9 @@ func FindHotTopics() []map[string]interface{} {
 		return nil
 	}
 
-	uidMap := make(map[int]int, len(topics))
-	for _, topic := range topics {
-		uidMap[topic.Uid] = topic.Uid
-	}
-	userMap := getUserInfos(uidMap)
+	uids := util.Models2Intslice(topics, "Uid")
+	userMap := GetUserInfos(uids)
+
 	result := make([]map[string]interface{}, len(topics))
 	for i, topic := range topics {
 		oneTopic := make(map[string]interface{})
@@ -313,39 +311,6 @@ func FindHotTopics() []map[string]interface{} {
 		result[i] = oneTopic
 	}
 	return result
-}
-
-// 填充评论对应的主贴信息
-func FillCommentTopics(comments []*model.Comment) {
-	if len(comments) == 0 {
-		return
-	}
-	count := len(comments)
-	commentMap := make(map[int][]*model.Comment, count)
-	tidMap := make(map[int]int, count)
-	for _, comment := range comments {
-		if _, ok := commentMap[comment.Objid]; !ok {
-			commentMap[comment.Objid] = make([]*model.Comment, 0, count)
-		}
-		commentMap[comment.Objid] = append(commentMap[comment.Objid], comment)
-		tidMap[comment.Objid] = comment.Objid
-	}
-	tids := util.MapIntKeys(tidMap)
-	topics := FindTopicsByTids(tids)
-	if len(topics) == 0 {
-		return
-	}
-
-	for _, topic := range topics {
-		objinfo := make(map[string]interface{})
-		objinfo["tid"] = topic.Tid
-		objinfo["title"] = topic.Title
-
-		for _, comment := range commentMap[topic.Tid] {
-			comment.Objinfo = objinfo
-		}
-	}
-	return
 }
 
 // 获取多个帖子详细信息
@@ -438,5 +403,22 @@ func (self TopicComment) UpdateComment(cid, objid, uid int, cmttime string) {
 	err = model.NewTopicEx().Where("tid="+tid).Increment("reply", 1)
 	if err != nil {
 		logger.Errorln("更新帖子回复数失败：", err)
+	}
+}
+
+// 实现 CommentObjecter 接口
+func (self TopicComment) SetObjinfo(ids []int, commentMap map[int][]*model.Comment) {
+	topics := FindTopicsByTids(ids)
+	if len(topics) == 0 {
+		return
+	}
+
+	for _, topic := range topics {
+		objinfo := make(map[string]interface{})
+		objinfo["title"] = topic.Title
+
+		for _, comment := range commentMap[topic.Tid] {
+			comment.Objinfo = objinfo
+		}
 	}
 }

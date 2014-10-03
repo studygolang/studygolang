@@ -52,16 +52,16 @@ func FindWiki(uri string) map[string]interface{} {
 		logger.Errorln("wiki service FindWiki error:", err)
 		return nil
 	}
-	uids := make(map[int]int)
-	uids[wiki.Uid] = wiki.Uid
+	uids := make([]int, 0, 5)
+	uids = append(uids, wiki.Uid)
 	if wiki.Cuid != "" {
 		cuids := strings.Split(wiki.Cuid, ",")
 		for _, cuid := range cuids {
 			tmpUid := util.MustInt(cuid)
-			uids[tmpUid] = tmpUid
+			uids = append(uids, tmpUid)
 		}
 	}
-	userMap := getUserInfos(uids)
+	userMap := GetUserInfos(uids)
 	result := make(map[string]interface{})
 	util.Struct2Map(result, wiki)
 	result["user"] = userMap[wiki.Uid]

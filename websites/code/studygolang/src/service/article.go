@@ -150,6 +150,20 @@ func FindArticleById(id string) (*model.Article, error) {
 	return article, err
 }
 
+// 获取多个文章详细信息
+func FindArticlesByIds(ids []int) []*model.Article {
+	if len(ids) == 0 {
+		return nil
+	}
+	inIds := util.Join(ids, ",")
+	articles, err := model.NewArticle().Where("id in(" + inIds + ")").FindAll()
+	if err != nil {
+		logger.Errorln("article service FindArticlesByIds error:", err)
+		return nil
+	}
+	return articles
+}
+
 // 修改文章信息
 func ModifyArticle(user map[string]interface{}, form url.Values) (errMsg string, err error) {
 
@@ -157,7 +171,7 @@ func ModifyArticle(user map[string]interface{}, form url.Values) (errMsg string,
 	form.Set("op_user", username)
 
 	fields := []string{
-		"title", "url", "author", "author_txt",
+		"title", "url", "cover", "author", "author_txt",
 		"lang", "pub_date", "content",
 		"tags", "status", "op_user",
 	}
@@ -177,6 +191,15 @@ func ModifyArticle(user map[string]interface{}, form url.Values) (errMsg string,
 
 func DelArticle(id string) error {
 	return model.NewArticle().Where("id=" + id).Delete()
+}
+
+// 博文总数
+func ArticlesTotal() (total int) {
+	total, err := model.NewArticle().Count()
+	if err != nil {
+		logger.Errorln("article service ArticlesTotal error:", err)
+	}
+	return
 }
 
 // 获取抓取规则列表（分页）
@@ -229,4 +252,43 @@ func SaveRule(form url.Values, opUser string) (errMsg string, err error) {
 	}
 
 	return
+}
+
+// 博文评论
+type ArticleComment struct{}
+
+// 更新该帖子的回复信息
+// cid：评论id；objid：被评论对象id；uid：评论者；cmttime：评论时间
+/*
+func (self ArticleComment) UpdateComment(cid, objid, uid int, cmttime string) {
+	tid := strconv.Itoa(objid)
+	// 更新最后回复信息
+	stringBuilder := util.NewBuffer().Append("lastreplyuid=").AppendInt(uid).Append(",lastreplytime=").Append(cmttime)
+	err := model.NewTopic().Set(stringBuilder.String()).Where("tid=" + tid).Update()
+	if err != nil {
+		logger.Errorln("更新帖子最后回复人信息失败：", err)
+	}
+	// 更新回复数（TODO：暂时每次都更新表）
+	err = model.NewTopicEx().Where("tid="+tid).Increment("reply", 1)
+	if err != nil {
+		logger.Errorln("更新帖子回复数失败：", err)
+	}
+}
+*/
+
+// 实现 CommentObjecter 接口
+func (self ArticleComment) SetObjinfo(ids []int, commentMap map[int][]*model.Comment) {
+	articles := FindArticlesByIds(ids)
+	if len(articles) == 0 {
+		return
+	}
+
+	for _, article := range articles {
+		objinfo := make(map[string]interface{})
+		objinfo["title"] = article.Title
+
+		for _, comment := range commentMap[article.Id] {
+			comment.Objinfo = objinfo
+		}
+	}
 }

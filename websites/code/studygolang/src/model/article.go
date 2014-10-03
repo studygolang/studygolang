@@ -20,6 +20,7 @@ type Article struct {
 	Domain    string `json:"domain"`
 	Name      string `json:"name"`
 	Title     string `json:"title"`
+	Cover     string `json:"cover"`
 	Author    string `json:"author"`
 	AuthorTxt string `json:"author_txt"`
 	Lang      string `json:"lang"`
@@ -104,7 +105,7 @@ func (this *Article) Order(order string) *Article {
 }
 
 func (this *Article) prepareInsertData() {
-	this.columns = []string{"domain", "name", "title", "author", "author_txt", "lang", "pub_date", "url", "content", "txt", "tags"}
+	this.columns = []string{"domain", "name", "title", "cover", "author", "author_txt", "lang", "pub_date", "url", "content", "txt", "tags"}
 	this.colValues = []interface{}{this.Domain, this.Name, this.Title, this.Author, this.AuthorTxt, this.Lang, this.PubDate, this.Url, this.Content, this.Txt, this.Tags}
 }
 
@@ -114,6 +115,7 @@ func (this *Article) colFieldMap() map[string]interface{} {
 		"domain":     &this.Domain,
 		"name":       &this.Name,
 		"title":      &this.Title,
+		"cover":      &this.Cover,
 		"author":     &this.Author,
 		"author_txt": &this.AuthorTxt,
 		"lang":       &this.Lang,

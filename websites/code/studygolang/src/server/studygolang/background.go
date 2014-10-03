@@ -18,6 +18,9 @@ import (
 // 后台运行的任务
 func ServeBackGround() {
 
+	// 初始化 七牛云存储
+	service.InitQiniu()
+
 	go loadData()
 
 	c := cron.New()

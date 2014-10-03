@@ -355,6 +355,7 @@ CREATE TABLE `articles` (
   `domain` varchar(50) NOT NULL DEFAULT '' COMMENT '来源域名（不一定是顶级域名）',
   `name` varchar(30) NOT NULL DEFAULT '' COMMENT '来源名称',
   `title` varchar(127) NOT NULL DEFAULT '' COMMENT '文章标题',
+  `cover` varchar(127) NOT NULL DEFAULT '' COMMENT '图片封面',
   `author` varchar(255) NOT NULL DEFAULT '' COMMENT '文章作者(可能带html)',
   `author_txt` varchar(30) NOT NULL DEFAULT '' COMMENT '文章作者(纯文本)',
   `lang` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '语言：0-中文；1-英文',
@@ -394,3 +395,19 @@ CREATE TABLE `crawl_rule` (
   UNIQUE KEY (`domain`,`subpath`),
   KEY (`ctime`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '网站抓取规则表';
+
+/*---------------------------------------------------------------------------*
+  NAME: 动态表（go动态；本站动态等）
+  用途：动态表
+*---------------------------------------------------------------------------*/
+DROP TABLE IF EXISTS `dynamic`;
+CREATE TABLE `dynamic` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `content` varchar(255) NOT NULL DEFAULT '' COMMENT '动态内容',
+  `dmtype` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '类型：0-Go动态；1-本站动态',
+  `url` varchar(255) NOT NULL DEFAULT '' COMMENT '链接',
+  `seq` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '顺序（越大越在前）',
+  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY (`seq`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '动态表';

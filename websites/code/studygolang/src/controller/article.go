@@ -11,6 +11,7 @@ import (
 	"github.com/studygolang/mux"
 	"net/http"
 	"service"
+	"strconv"
 )
 
 // 网友文章列表页
@@ -21,14 +22,41 @@ func ArticlesHandler(rw http.ResponseWriter, req *http.Request) {
 		lastId = "0"
 	}
 
-	articles := service.FindArticles(lastId, "21")
+	articles := service.FindArticles(lastId, "25")
 	if articles == nil {
 		// TODO:服务暂时不可用？
 	}
 
+	var (
+		hasPrev, hasNext bool
+		prevId, nextId   int
+	)
+
+	if lastId != "0" {
+		hasPrev = true
+		prevId, _ = strconv.Atoi(lastId)
+	}
+
+	num := len(articles)
+
+	if num > 20 {
+		hasNext = true
+		articles = articles[:20]
+		nextId = articles[19].Id
+	} else {
+		nextId = articles[num-1].Id
+	}
+
+	pageInfo := map[string]interface{}{
+		"has_prev": hasPrev,
+		"prev_id":  prevId,
+		"has_next": hasNext,
+		"next_id":  nextId,
+	}
+
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/articles/list.html")
 	// 设置模板数据
-	filter.SetData(req, map[string]interface{}{"articles": articles, "activeArticles": "active"})
+	filter.SetData(req, map[string]interface{}{"articles": articles, "activeArticles": "active", "page": pageInfo})
 }
 
 // 文章详细页

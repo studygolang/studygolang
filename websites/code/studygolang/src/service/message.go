@@ -110,7 +110,7 @@ func FindSysMsgsByUid(uid string) []map[string]interface{} {
 		logger.Errorln("message service FindSysMsgsByUid Error:", err)
 		return nil
 	}
-	uids := make(map[int]int)
+
 	tids := make(map[int]int)
 	resIds := make(map[int]int)
 	wikiIds := make(map[int]int)
@@ -118,11 +118,12 @@ func FindSysMsgsByUid(uid string) []map[string]interface{} {
 	cids := make(map[int]int)
 
 	ids := make([]int, 0, len(messages))
+	uids := make([]int, 0, len(messages))
 	for _, message := range messages {
 		ext := message.Ext()
 		if val, ok := ext["uid"]; ok {
 			uid := int(val.(float64))
-			uids[uid] = uid
+			uids = append(uids, uid)
 		}
 		var objid int
 		if val, ok := ext["objid"]; ok {
@@ -159,7 +160,7 @@ func FindSysMsgsByUid(uid string) []map[string]interface{} {
 	// 标记已读
 	go MarkHasRead(ids, true, util.MustInt(uid))
 
-	userMap := getUserInfos(uids)
+	userMap := GetUserInfos(uids)
 	commentMap := getComments(cids)
 	topicMap := getTopics(tids)
 	resourceMap := getResources(resIds)
@@ -234,17 +235,17 @@ func FindToMsgsByUid(uid string) []map[string]interface{} {
 		logger.Errorln("message service FindToMsgsByUid Error:", err)
 		return nil
 	}
-	uids := make(map[int]int)
+	uids := make([]int, 0, len(messages))
 	ids := make([]int, 0, len(messages))
 	for _, message := range messages {
-		uids[message.From] = message.From
+		uids = append(uids, message.From)
 		if message.Hasread == model.NotRead {
 			ids = append(ids, message.Id)
 		}
 	}
 	// 标记已读
 	go MarkHasRead(ids, false, util.MustInt(uid))
-	userMap := getUserInfos(uids)
+	userMap := GetUserInfos(uids)
 	result := make([]map[string]interface{}, len(messages))
 	for i, message := range messages {
 		tmpMap := make(map[string]interface{})
@@ -264,11 +265,9 @@ func FindFromMsgsByUid(uid string) []map[string]interface{} {
 		logger.Errorln("message service FindFromMsgsByUid Error:", err)
 		return nil
 	}
-	uids := make(map[int]int)
-	for _, message := range messages {
-		uids[message.To] = message.To
-	}
-	userMap := getUserInfos(uids)
+
+	uids := util.Models2Intslice(messages, "To")
+	userMap := GetUserInfos(uids)
 	result := make([]map[string]interface{}, len(messages))
 	for i, message := range messages {
 		tmpMap := make(map[string]interface{})

@@ -30,7 +30,7 @@
 			<p>
 				<label for="url">文章原始链接</label>
 				<span class="field">
-					<input id="url" type="text" name="url" class="mediuminput required" value="{{.article.Url}}" />&nbsp;<a href="{{.article.Url}}" target="_blank" style="color:blue;">查看</a>
+					<input id="url" type="text" name="url" class="mediuminput required {url:true}" value="{{.article.Url}}" />&nbsp;<a href="{{.article.Url}}" target="_blank" style="color:blue;">查看</a>
 				</span>
 			</p>
 		</div>
@@ -92,11 +92,19 @@
 				</span>
 			</p>
 		</div>
-		<div>
+		<div style="border:1px dashed;">
 			<p>
-				<label>最后操作人</label>
-				<span class="field txt">
-					<a class="normal" href="/admin/user/user/detail?username={{.article.OpUser}}" target="_blank">{{.article.OpUser}}</a>
+				<label>推荐封面</label>
+				<span class="upload_img_single"></span>
+			</p>
+			<p>
+				<span class="field">
+					<input type="text" name="cover" class="mediuminput img_url {url:true}" value="{{.article.Cover}}"/>
+				</span>
+			</p>
+			<p>
+				<span class="field">
+					<a class="show_img" href="{{.article.Cover}}" target="_blank"><img class="show_img" src="{{.article.Cover}}" width="100" height="100"/></a>
 				</span>
 			</p>
 		</div>
@@ -105,6 +113,12 @@
 				<label>最后修改时间</label>
 				<span class="field txt">
 					{{.article.Ctime}}
+				</span>
+			</p>
+			<p>
+				<label>最后操作人</label>
+				<span class="field txt">
+					<a class="normal" href="/admin/user/user/detail?username={{.article.OpUser}}" target="_blank">{{.article.OpUser}}</a>
 				</span>
 			</p>
 		</div>
@@ -127,11 +141,15 @@
 
 {{define "css"}}
 <link href="/static/css/jquery.cftoaster.1.0.1.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/Huploadify.css" media="screen" rel="stylesheet" type="text/css">
 {{end}}
 
 {{define "js"}}
 <script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
 <script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
 <script type="text/javascript" src="/static/js/libs/jquery.cftoaster.1.0.1.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.Huploadify.js"></script>
 <script	type="text/javascript" src="/static/js/admin/forms.js"></script>
+<script type="text/javascript" src="/static/js/upload.js"></script>
 {{end}}

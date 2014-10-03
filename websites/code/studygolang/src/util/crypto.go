@@ -20,6 +20,30 @@ func Md5(text string) string {
 	return fmt.Sprintf("%x", hashMd5.Sum(nil))
 }
 
+func Md5Buf(buf []byte) string {
+	hashMd5 := md5.New()
+	hashMd5.Write(buf)
+	return fmt.Sprintf("%x", hashMd5.Sum(nil))
+}
+
+func Md5File(reader io.Reader) string {
+	var buf = make([]byte, 4096)
+	hashMd5 := md5.New()
+	for {
+		n, err := reader.Read(buf)
+		if err == io.EOF && n == 0 {
+			break
+		}
+		if err != nil && err != io.EOF {
+			break
+		}
+
+		hashMd5.Write(buf[:n])
+	}
+
+	return fmt.Sprintf("%x", hashMd5.Sum(nil))
+}
+
 // 产生唯一的id
 func GenUUID() string {
 	buf := make([]byte, 16)

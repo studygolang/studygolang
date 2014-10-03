@@ -1,0 +1,26 @@
+jQuery(document).ready(function(){
+
+	var QINIU_DOAMIN = 'http://studygolang.qiniudn.com/';
+	
+	$('.upload_img_single').Huploadify({
+		auto: true,
+		fileTypeExts: '*.png;*.jpg;*.JPG;*.bmp;*.gif',// 不限制上传文件请修改成'*.*'
+		multi:false,
+		fileSizeLimit: 5*1024*1024, // 大小限制
+		uploader : '/upload/image.json', // 文件上传目标地址
+		buttonText : '上传',
+		fileObjName : 'img',
+		showUploadedPercent:true,
+		onUploadSuccess : function(file, data) {
+			data = $.parseJSON(data);
+			if (data.ok == 1) {
+				var url = QINIU_DOAMIN+data.uri;
+				$('.img_url').val(url);
+				$('img.show_img').attr('src', url);
+				$('a.show_img').attr('href', url);
+			} else {
+				jAlert(data.error, '错误');
+			}
+		}
+	});
+});

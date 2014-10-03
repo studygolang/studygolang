@@ -84,17 +84,24 @@ func initRouter() *mux.Router {
 	// 某节点下其他帖子
 	router.HandleFunc("/topics/others/{nid:[0-9]+}_{tid:[0-9]+}.json", OtherTopicsHandler)
 	// 统计信息
-	router.HandleFunc("/topics/stat.json", StatHandler)
-	// 最新公告
-	router.HandleFunc("/topics/notice.json", NoticeHandler)
+	router.HandleFunc("/websites/stat.json", StatHandler)
+	// 社区最新公告或go最新动态
+	router.HandleFunc("/dymanics/recent.json", RecentDymanicHandler)
 	// 热门节点
 	router.HandleFunc("/nodes/hot.json", HotNodesHandler)
 	// 最新帖子
 	router.HandleFunc("/topics/recent.json", RecentTopicHandler)
 	// 最新博文
 	router.HandleFunc("/articles/recent.json", RecentArticleHandler)
+	// 最新资源
+	router.HandleFunc("/resources/recent.json", RecentResourceHandler)
 	// 最新评论
 	router.HandleFunc("/comments/recent.json", RecentCommentHandler)
+	// 活跃会员
+	router.HandleFunc("/users/active.json", ActiveUserHandler)
+
+	// 文件上传（图片）
+	router.HandleFunc("/upload/image.json", UploadImageHandler)
 	/////////////////// 异步请求 结束 ///////////////////////
 
 	// 管理后台权限检查过滤器
