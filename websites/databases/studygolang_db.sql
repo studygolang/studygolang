@@ -229,7 +229,7 @@ DROP TABLE IF EXISTS `role_authority`;
 CREATE TABLE `role_authority` (
   `roleid` int unsigned NOT NULL,
   `aid` int unsigned NOT NULL,
-  `op_user` varchar(20) NOT NULL COMMENT '操作人',
+  `op_user` varchar(20) NOT NULL DEFAULT '' COMMENT '操作人',
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`roleid`, `aid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
