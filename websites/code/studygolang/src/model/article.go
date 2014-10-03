@@ -105,7 +105,7 @@ func (this *Article) Order(order string) *Article {
 }
 
 func (this *Article) prepareInsertData() {
-	this.columns = []string{"domain", "name", "title", "cover", "author", "author_txt", "lang", "pub_date", "url", "content", "txt", "tags"}
+	this.columns = []string{"domain", "name", "title", "author", "author_txt", "lang", "pub_date", "url", "content", "txt", "tags"}
 	this.colValues = []interface{}{this.Domain, this.Name, this.Title, this.Author, this.AuthorTxt, this.Lang, this.PubDate, this.Url, this.Content, this.Txt, this.Tags}
 }
 
