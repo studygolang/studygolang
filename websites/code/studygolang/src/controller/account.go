@@ -34,9 +34,14 @@ func RegisterHandler(rw http.ResponseWriter, req *http.Request) {
 	// 入库
 	errMsg, err := service.CreateUser(req.Form)
 	if err != nil {
+		// bugfix：http://studygolang.com/topics/255
+		if errMsg == "" {
+			errMsg = err.Error()
+		}
 		fmt.Fprint(rw, `{"errno": 1, "error":"`, errMsg, `"}`)
 		return
 	}
+
 	// 注册成功，自动为其登录
 	setCookie(rw, req, req.FormValue("username"))
 	// 发送欢迎邮件

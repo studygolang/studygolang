@@ -12,6 +12,7 @@ import (
 	"model"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 	"util"
 )
@@ -59,14 +60,7 @@ func CreateUser(form url.Values) (errMsg string, err error) {
 	// 存用户角色信息
 	userRole := model.NewUserRole()
 	// 默认为初级会员
-	roleId := model.AllRoleId[len(model.AllRoleId)-1]
-	if form.Get("roleid") != "" {
-		tmpId, err := strconv.Atoi(form.Get("roleid"))
-		if err == nil {
-			roleId = tmpId
-		}
-	}
-	userRole.Roleid = roleId
+	userRole.Roleid = Roles[len(Roles)-1].Roleid
 	userRole.Uid = uid
 	if _, err = userRole.Insert(); err != nil {
 		logger.Errorln("userRole insert Error:", err)
@@ -86,7 +80,7 @@ func CreateUser(form url.Values) (errMsg string, err error) {
 
 // 修改用户资料
 func UpdateUser(form url.Values) (errMsg string, err error) {
-	fields := []string{"name", "open", "city", "company", "github", "weibo", "website", "status", "introduce"}
+	fields := []string{"name", "open", "city", "company", "github", "weibo", "website", "monlog", "introduce"}
 	setClause := GenSetClause(form, fields)
 	username := form.Get("username")
 	err = model.NewUser().Set(setClause).Where("username=" + username).Update()
@@ -104,27 +98,27 @@ func UpdateUser(form url.Values) (errMsg string, err error) {
 
 // 获取当前登录用户信息（常用信息）
 func FindCurrentUser(username string) (user map[string]interface{}, err error) {
-	userLogin := model.NewUserLogin()
-	err = userLogin.Where("username=" + username).Find()
+	userInfo := model.NewUser()
+	err = userInfo.Where("username=" + username).Find()
 	if err != nil {
 		logger.Errorf("获取用户 %s 信息失败：%s", username, err)
 		return
 	}
-	if userLogin.Uid == 0 {
+	if userInfo.Uid == 0 {
 		logger.Infof("用户 %s 不存在！", username)
 		return
 	}
 	user = map[string]interface{}{
-		"uid":      userLogin.Uid,
-		"username": userLogin.Username,
-		"email":    userLogin.Email,
+		"uid":      userInfo.Uid,
+		"username": userInfo.Username,
+		"email":    userInfo.Email,
 	}
 
 	// 获取未读消息数
-	user["msgnum"] = FindNotReadMsgNum(userLogin.Uid)
+	user["msgnum"] = FindNotReadMsgNum(userInfo.Uid)
 
 	// 获取角色信息
-	userRoleList, err := model.NewUserRole().Where("uid=" + strconv.Itoa(userLogin.Uid)).FindAll()
+	userRoleList, err := model.NewUserRole().Where("uid=" + strconv.Itoa(userInfo.Uid)).FindAll()
 	if err != nil {
 		logger.Errorf("获取用户 %s 角色 信息失败：%s", username, err)
 		return
@@ -169,29 +163,59 @@ func EmailExists(email string) bool {
 
 // 获取单个用户信息
 func FindUserByUsername(username string) *model.User {
+	return findUserByUniq("username", username)
+}
+
+// 通过UID获取用户名
+func FindUsernameByUid(uid int) string {
 	user := model.NewUser()
-	err := user.Where("username=" + username).Find()
+	err := user.Where("uid=" + strconv.Itoa(uid)).Find()
 	if err != nil {
-		logger.Errorf("获取用户 %s 信息失败：%s", username, err)
+		logger.Errorf("获取用户 %s 信息失败：%s", uid, err)
+		return ""
+	}
+	if user.Uid == 0 {
+		return ""
+	}
+
+	return user.Username
+}
+
+// 获取单个用户信息
+func FindUserByUID(uid string) *model.User {
+	return findUserByUniq("uid", uid)
+}
+
+// 通过唯一键（uid或username）获取用户信息
+func findUserByUniq(field, val string) *model.User {
+	user := model.NewUser()
+	err := user.Where(field + "=" + val).Find()
+	if err != nil {
+		logger.Errorf("获取用户 %s 信息失败：%s", val, err)
 		return nil
 	}
 	if user.Uid == 0 {
 		return nil
 	}
 
-	// 获取角色信息
-	userRoleList, err := model.NewUserRole().Where("uid=" + strconv.Itoa(user.Uid)).FindAll()
+	// 获取用户角色信息
+	userRoleList, err := model.NewUserRole().
+		Order("roleid ASC").Where("uid="+strconv.Itoa(user.Uid)).FindAll("uid", "roleid")
 	if err != nil {
-		logger.Errorf("获取用户 %s 角色 信息失败：%s", username, err)
+		logger.Errorf("获取用户 %s 角色 信息失败：%s", val, err)
 		return nil
 	}
-	for _, userRole := range userRoleList {
-		if len(user.Roleids) == 0 {
-			user.Rolenames = []string{model.AllRole[userRole.Roleid].Name}
-		} else {
-			user.Rolenames = append(user.Rolenames, model.AllRole[userRole.Roleid].Name)
+
+	if roleNum := len(userRoleList); roleNum > 0 {
+		user.Roleids = make([]int, roleNum)
+		user.Rolenames = make([]string, roleNum)
+
+		for i, userRole := range userRoleList {
+			user.Roleids[i] = userRole.Roleid
+			user.Rolenames[i] = Roles[userRole.Roleid-1].Name
 		}
 	}
+
 	return user
 }
 
@@ -214,36 +238,29 @@ func FindNewUsers(start, num int) []*model.User {
 	return users
 }
 
-func FindUsers() (map[int]*model.User, error) {
-	userList, err := model.NewUser().FindAll()
+func FindUsersByPage(conds map[string]string, curPage, limit int) ([]*model.User, int) {
+	conditions := make([]string, 0, len(conds))
+	for k, v := range conds {
+		conditions = append(conditions, k+"="+v)
+	}
+
+	user := model.NewUser()
+
+	limitStr := strconv.Itoa((curPage-1)*limit) + "," + strconv.Itoa(limit)
+	userList, err := user.Where(strings.Join(conditions, " AND ")).Limit(limitStr).
+		FindAll()
 	if err != nil {
-		logger.Errorln("user service FindUsers Error:", err)
-		return nil, err
+		logger.Errorln("user service FindUsersByPage Error:", err)
+		return nil, 0
 	}
-	userCount := len(userList)
-	userMap := make(map[int]*model.User, userCount)
-	uids := make([]int, userCount)
-	for i, user := range userList {
-		userMap[user.Uid] = user
-		uids[i] = user.Uid
-	}
-	// 获得角色信息
-	userRoleList, err := model.NewUserRole().Where("uid in (" + util.Join(uids, ",") + ")").FindAll()
+
+	total, err := user.Count()
 	if err != nil {
-		logger.Errorln("user service FindUsers Error:", err)
-		return nil, err
+		logger.Errorln("user service FindUsersByPage COUNT Error:", err)
+		return nil, 0
 	}
-	for _, userRole := range userRoleList {
-		user := userMap[userRole.Uid]
-		if len(user.Roleids) == 0 {
-			user.Roleids = []int{userRole.Roleid}
-			user.Rolenames = []string{model.AllRole[userRole.Roleid].Name}
-		} else {
-			user.Roleids = append(user.Roleids, userRole.Roleid)
-			user.Rolenames = append(user.Rolenames, model.AllRole[userRole.Roleid].Name)
-		}
-	}
-	return userMap, nil
+
+	return userList, total
 }
 
 var (
@@ -303,15 +320,15 @@ func UpdatePasswd(username, passwd string) (string, error) {
 }
 
 // 获取用户信息
-func getUserInfos(uids map[int]int) map[int]*model.User {
+func GetUserInfos(uids []int) map[int]*model.User {
 	if len(uids) == 0 {
 		return nil
 	}
 	// 获取用户信息
-	inUids := util.Join(util.MapIntKeys(uids), ",")
+	inUids := util.Join(uids, ",")
 	users, err := model.NewUser().Where("uid in(" + inUids + ")").FindAll()
 	if err != nil {
-		logger.Errorln("user service getUserInfos Error:", err)
+		logger.Errorln("user service GetUserInfos Error:", err)
 		return map[int]*model.User{}
 	}
 	userMap := make(map[int]*model.User, len(users))
@@ -329,20 +346,6 @@ func CountUsers() int {
 		return 0
 	}
 	return total
-}
-
-// 构造update语句中的set部分子句
-func GenSetClause(form url.Values, fields []string) string {
-	stringBuilder := util.NewBuffer()
-	for _, field := range fields {
-		if form.Get(field) != "" {
-			stringBuilder.Append(",").Append(field).Append("=").Append(form.Get(field))
-		}
-	}
-	if stringBuilder.Len() > 0 {
-		return stringBuilder.String()[1:]
-	}
-	return ""
 }
 
 // 增加或减少用户活跃度

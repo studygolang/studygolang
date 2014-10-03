@@ -11,9 +11,9 @@ import (
 	"testing"
 )
 
-func TestFindUsers(t *testing.T) {
-	userList, err := FindUsers()
-	if err != nil && len(userList) == 0 {
+func TestFindUsersByPage(t *testing.T) {
+	userList, total := FindUsersByPage()
+	if total == nil && len(userList) == 0 {
 		t.Fatal(err)
 	}
 	t.Log(len(userList))

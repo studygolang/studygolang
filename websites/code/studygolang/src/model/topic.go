@@ -28,6 +28,7 @@ type Topic struct {
 	Flag          int    `json:"flag"`
 	Lastreplyuid  int    `json:"lastreplyuid"`
 	Lastreplytime string `json:"lastreplytime"`
+	EditorUid     int    `json:"editor_uid"`
 	Ctime         string `json:"ctime"`
 	Mtime         string `json:"mtime"`
 
@@ -82,8 +83,8 @@ func (this *Topic) FindAll(selectCol ...string) ([]*Topic, error) {
 }
 
 // 为了支持连写
-func (this *Topic) Set(clause string) *Topic {
-	this.Dao.Set(clause)
+func (this *Topic) Set(clause string, args ...interface{}) *Topic {
+	this.Dao.Set(clause, args...)
 	return this
 }
 
@@ -120,6 +121,7 @@ func (this *Topic) colFieldMap() map[string]interface{} {
 		"flag":          &this.Flag,
 		"lastreplyuid":  &this.Lastreplyuid,
 		"lastreplytime": &this.Lastreplytime,
+		"editor_uid":    &this.EditorUid,
 		"ctime":         &this.Ctime,
 		"mtime":         &this.Mtime,
 	}

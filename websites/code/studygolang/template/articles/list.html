@@ -1,0 +1,111 @@
+{{define "title"}}网友博文{{end}}
+{{define "seo"}}<meta name="keywords" content="Go语言博客文章, Go语言博文, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
+<meta name="description" content="文章来自国内知名网站知名，Go爱好者学习笔记，经验分享；也有爱好者自己的博客文章，已经一些国外精彩文章。">{{end}}
+{{define "content"}}
+<div class="row header_title">
+	<div class="col-lg-12 col-md-12 col-sm-12">
+		<h3>网友博文</h3>
+	</div>
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		{{range .articles}}
+		<article class="article box_white">
+			<div class="row">
+				{{if .Cover}}
+				<div class="pull-left">
+					<a href="/articles/{{.Id}}" target="_blank" title="{{.Title}}">
+						<img class="lazy" src="{{.Cover}}" width="240" alt="{{.Title}}" style="display: inline;">
+					</a>
+				</div>
+				<div style="margin-left:260px;">
+				{{else}}
+				<div>
+				{{end}}
+					<h2><a href="/articles/{{.Id}}" target="_blank" title="{{.Title}}">{{.Title}}</a></h2>
+					<p class="text">{{substring .Txt 250 "..."}}<a href="/articles/{{.Id}}" target="_blank" title="阅读全文">阅读全文</a></p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-8 metatag">
+					<i class="glyphicon glyphicon-calendar"></i>
+					<span class="date" title="发布日期">{{.PubDate}}</span>
+					<i class="glyphicon glyphicon-user"></i>
+					<span class="author" title="作者">{{.Author}}</span>
+					{{if .Tags}}
+					{{$tags := explode .Tags ","}}
+					<ul class="list-inline">
+						<i class="glyphicon glyphicon-tags"></i>
+						{{range $tag := $tags}}
+						<li>
+							<a href="/" title="{{$tag}}" target="_blank">
+								{{$tag}}
+							</a>
+						</li>
+						{{end}}
+					</ul>
+					{{end}}
+				</div>
+				<!--
+				<div class="col-md-4 metatag text-right">
+					<a href="/" class="cmt" target="_blank" title="评论">
+						<i class="glyphicon glyphicon-comment"></i>
+						<span>42</span>
+					</a>
+					<a href="#" class="like" title="赞">
+						<i class="glyphicon glyphicon-heart-empty"></i>
+						<span>24</span>
+					</a>
+				</div>
+				-->
+			</div>
+		</article>
+		{{end}}
+		<ul class="pager">
+			{{if .page.has_prev}}
+			<li class="previous"><a href="/articles?lastid={{.page.prev_id}}">&larr; 上一页</a></li>
+			{{end}}
+			{{if .page.has_next}}
+			<li class="next"><a href="/articles?lastid={{.page.next_id}}">下一页 &rarr;</a></li>
+			{{end}}
+		</ul>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			<div class="top">
+				<ul class="list-inline text-center">
+						<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新帖子</a>|</li>
+						<li class="second"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
+						<li class="last"><a href="javascript:;">最新评论</a></li>
+				</ul>
+				<p class="bar"></p>
+			</div>
+			<div class="sb-content">
+				<div class="topic-list first">
+					<ul>
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+				<div class="resource-list second hidden">
+					<ul>
+					</ul>
+				</div>
+				<div class="cmt-list last hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{{end}}
+{{define "js"}}
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/topics/recent.json",
+	"/resources/recent.json",
+	"/comments/recent.json",
+];
+</script>
+{{end}}

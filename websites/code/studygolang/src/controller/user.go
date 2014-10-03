@@ -23,11 +23,11 @@ func UserHomeHandler(rw http.ResponseWriter, req *http.Request) {
 	// 获取用户信息
 	user := service.FindUserByUsername(username)
 	if user != nil {
-		topics := service.FindRecentTopics(user.Uid)
-		comments := service.FindRecentComments(user.Uid, model.TYPE_TOPIC)
-		replies := service.FindRecentReplies(comments)
+		topics := service.FindRecentTopics(user.Uid, "5")
+		comments := service.FindRecentComments(user.Uid, model.TYPE_TOPIC, "5")
+		// replies := service.FindRecentReplies(comments)
 		// 设置模板数据
-		filter.SetData(req, map[string]interface{}{"activeUsers": "active", "topics": topics, "replies": replies, "user": user})
+		filter.SetData(req, map[string]interface{}{"activeUsers": "active", "topics": topics, "replies": comments, "user": user})
 	}
 }
 

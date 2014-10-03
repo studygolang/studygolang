@@ -17,7 +17,8 @@ fi
 
 gofmt -w src
 
-go install studygolang
+go install server/studygolang
+go install server/crawlarticle
 
 export GOPATH="$OLDGOPATH"
 export PATH="$OLDPATH"

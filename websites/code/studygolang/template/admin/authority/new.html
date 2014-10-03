@@ -1,0 +1,62 @@
+{{define "content"}}
+<div class="pageheader notab">
+	<h1 class="pagetitle">新建权限（路由）</h1>
+</div><!--pageheader-->
+
+<div id="contentwraapper" class="contentwrapper">
+	<div id="tooltip" class="red"></div>
+	<form method="POST" action="/admin/user/auth/new" class="stdform">
+		<div>
+			<p>
+				<label for="name">权限名称</label>
+				<span class="field">
+					<input id="name" type="text" name="name" class="smallinput required" value="" />
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label>一级菜单</label>
+				<span class="field">
+					<select id="menu1" name="menu1" class="uniformselect">
+						<option value="0">请选择</option>
+						{{range .allmenu1}}
+						<option value="{{.Aid}}">{{.Name}}</option>
+						{{end}}
+					</select><span class="red">（注：如果一级菜单为空，添加的是一级菜单！）</span>
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label>二级菜单</label>
+				<span class="field">
+					<select id="menu2" name="menu2" class="uniformselect">
+						<option value="0">请选择</option>
+					</select><span class="red">（注：如果选中了一级菜单，而二级菜单为空，添加的是一级菜单下的二级菜单！如果一、二级菜单都选中，那么添加的是普通路由）</span>
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label for="route">路由</label>
+				<span class="field">
+					<input id="route" type="text" name="route" class="smallinput" value="" />
+				</span>
+			</p>
+		</div>
+		<div style="margin: 0 auto; width: 500px;"><input class="submit_btn" type="submit" name="save" value="提交" /></a></div>
+	</form>
+	<img id="loaders" src="/static/img/loaders/loader7.gif" alt="" class="hide">
+</div><!--contentwrapper-->
+{{end}}
+
+{{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script	type="text/javascript" src="/static/js/admin/forms.js"></script>
+<script type="text/javascript">
+	var ALL_MENU2 = {{.allmenu2}};
+</script>
+<script type="text/javascript" src="/static/js/admin/authority/new.js"></script>
+{{end}}

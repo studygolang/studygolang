@@ -8,7 +8,7 @@ package util
 
 import (
 	"bytes"
-	"logger"
+	"log"
 	"strconv"
 )
 
@@ -24,7 +24,7 @@ func NewBuffer() *Buffer {
 func (this *Buffer) Append(s string) *Buffer {
 	defer func() {
 		if err := recover(); err != nil {
-			logger.Errorln("*****内存不够了！******")
+			log.Println("*****内存不够了！******")
 		}
 	}()
 	this.Buffer.WriteString(s)

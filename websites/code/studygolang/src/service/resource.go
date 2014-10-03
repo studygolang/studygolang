@@ -56,7 +56,7 @@ func FindResource(id string) (resourceMap map[string]interface{}, comments []map
 	}
 	resourceMap = make(map[string]interface{})
 	util.Struct2Map(resourceMap, resource)
-	resourceMap["catname"] = model.GetCategoryName(resource.Catid)
+	resourceMap["catname"] = GetCategoryName(resource.Catid)
 	// 链接的host
 	if resource.Form == model.LinkForm {
 		urlObj, err := url.Parse(resource.Url)
@@ -99,10 +99,10 @@ func FindResourcesByCatid(catid string) []map[string]interface{} {
 	}
 	count := len(resourceList)
 	ids := make([]int, count)
-	uids := make(map[int]int)
+	uids := make([]int, count)
 	for i, resource := range resourceList {
 		ids[i] = resource.Id
-		uids[resource.Uid] = resource.Uid
+		uids[i] = resource.Uid
 	}
 
 	// 获取扩展信息（计数）
@@ -116,7 +116,7 @@ func FindResourcesByCatid(catid string) []map[string]interface{} {
 		resourceExMap[resourceEx.Id] = resourceEx
 	}
 
-	userMap := getUserInfos(uids)
+	userMap := GetUserInfos(uids)
 
 	resources := make([]map[string]interface{}, count)
 	for i, resource := range resourceList {
@@ -145,12 +145,11 @@ func FindRecentResources() []map[string]interface{} {
 		logger.Errorln("resource service FindRecentResources error:", err)
 		return nil
 	}
+
+	uids := util.Models2Intslice(resourceList, "Uid")
+	userMap := GetUserInfos(uids)
+
 	count := len(resourceList)
-	uids := make(map[int]int)
-	for _, resource := range resourceList {
-		uids[resource.Uid] = resource.Uid
-	}
-	userMap := getUserInfos(uids)
 	resources := make([]map[string]interface{}, count)
 	for i, resource := range resourceList {
 		tmpMap := make(map[string]interface{})
@@ -159,6 +158,20 @@ func FindRecentResources() []map[string]interface{} {
 		resources[i] = tmpMap
 	}
 	return resources
+}
+
+// 获取抓取的文章列表（分页）
+func FindResources(lastId, limit string) []*model.Resource {
+	resource := model.NewResource()
+
+	resourceList, err := resource.Where("id>" + lastId).Order("id DESC").Limit(limit).
+		FindAll()
+	if err != nil {
+		logger.Errorln("resource service FindResources Error:", err)
+		return nil
+	}
+
+	return resourceList
 }
 
 // 获取多个资源详细信息
@@ -205,5 +218,22 @@ func (self ResourceComment) UpdateComment(cid, objid, uid int, cmttime string) {
 	err := model.NewResourceEx().Where("id="+id).Increment("cmtnum", 1)
 	if err != nil {
 		logger.Errorln("更新资源评论数失败：", err)
+	}
+}
+
+// 实现 CommentObjecter 接口
+func (self ResourceComment) SetObjinfo(ids []int, commentMap map[int][]*model.Comment) {
+	resources := FindResourcesByIds(ids)
+	if len(resources) == 0 {
+		return
+	}
+
+	for _, resource := range resources {
+		objinfo := make(map[string]interface{})
+		objinfo["title"] = resource.Title
+
+		for _, comment := range commentMap[resource.Id] {
+			comment.Objinfo = objinfo
+		}
 	}
 }

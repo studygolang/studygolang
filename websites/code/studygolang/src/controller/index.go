@@ -8,25 +8,33 @@ package controller
 
 import (
 	"filter"
+	"math/rand"
 	"net/http"
 	"service"
 )
 
 // 首页
 func IndexHandler(rw http.ResponseWriter, req *http.Request) {
-	nodes := genNodes()
+	// nodes := service.GenNodes()
+
 	// 获取最新帖子
 	newTopics, _ := service.FindTopics(1, 10, "", "ctime DESC")
 	// 获取热门帖子
 	//hotTopics := service.FindHotTopics()
 	// 获得最新博文
-	articles := service.FindNewBlogs()
-	// 获得最新资源
-	resources := service.FindRecentResources()
-	// 活跃会员
-	activeUsers := service.FindActiveUsers(0, 9)
+	// blogs := service.FindNewBlogs()
+	recentArticles := service.FindArticles("0", "10")
+	// TODO：开源项目（暂时使用 resource 表）
+	resources := service.FindResourcesByCatid("2")
+
+	start, end := 0, len(resources)
+	if n := end - 10; n > 0 {
+		start = rand.Intn(n)
+		end = start + 10
+	}
+
 	// 设置内容模板
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/index.html")
 	// 设置模板数据
-	filter.SetData(req, map[string]interface{}{"news": newTopics, "resources": resources, "articles": articles, "actives": activeUsers, "nodes": nodes})
+	filter.SetData(req, map[string]interface{}{"topics": newTopics, "articles": recentArticles, "resources": resources[start:end]})
 }

@@ -55,6 +55,16 @@ func ConvertAssign(dest interface{}, form url.Values) error {
 				// TODO:多个值如何处理？
 			}
 			fieldValue.SetString(val)
+		case reflect.Bool:
+			if len(form[tag]) > 1 {
+				// TODO:多个值如何处理？
+			}
+
+			var tmp bool
+			if val == "1" {
+				tmp = true
+			}
+			fieldValue.SetBool(tmp)
 		default:
 
 		}
@@ -85,4 +95,38 @@ func Struct2Map(dest map[string]interface{}, src interface{}) error {
 		dest[tag] = fieldValue.Interface()
 	}
 	return nil
+}
+
+// model中类型提取其中的 idField(int 类型) 属性组成 slice 返回
+func Models2Intslice(models interface{}, idField string) []int {
+	if models == nil {
+		return []int{}
+	}
+
+	// 类型检查
+	modelsValue := reflect.ValueOf(models)
+	if modelsValue.Kind() != reflect.Slice {
+		return []int{}
+	}
+
+	var modelValue reflect.Value
+
+	length := modelsValue.Len()
+	ids := make([]int, 0, length)
+
+	for i := 0; i < length; i++ {
+		modelValue = reflect.Indirect(modelsValue.Index(i))
+		if modelValue.Kind() != reflect.Struct {
+			continue
+		}
+
+		val := modelValue.FieldByName(idField)
+		if val.Kind() != reflect.Int {
+			continue
+		}
+
+		ids = append(ids, int(val.Int()))
+	}
+
+	return ids
 }

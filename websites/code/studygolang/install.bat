@@ -16,7 +16,8 @@ if not exist log mkdir log
 gofmt -w src
 
 :: -tags "debug" 表示测试
-go install -tags "debug" studygolang
+go install -tags "debug" server/studygolang
+go install -tags "debug" server/crawlarticle
 
 set GOPATH=%OLDGOPATH%
 

@@ -12,12 +12,12 @@ import (
 )
 
 func TestNewBlog(t *testing.T) {
-	articleList, err := NewArticle().FindAll()
+	blogList, err := NewBlog().FindAll()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if len(articleList) == 0 {
+	if len(blogList) == 0 {
 		t.Fatal("xxxx")
 	}
 }

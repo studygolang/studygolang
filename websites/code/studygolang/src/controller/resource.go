@@ -35,7 +35,7 @@ func CatResourcesHandler(rw http.ResponseWriter, req *http.Request) {
 	catid := vars["catid"]
 	resources := service.FindResourcesByCatid(catid)
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/resources/index.html")
-	filter.SetData(req, map[string]interface{}{"activeResources": "active", "resources": resources, "categories": model.AllCategory, "curCatid": catid})
+	filter.SetData(req, map[string]interface{}{"activeResources": "active", "resources": resources, "categories": service.AllCategory, "curCatid": catid})
 }
 
 // 某个资源详细页
@@ -54,7 +54,7 @@ func NewResourceHandler(rw http.ResponseWriter, req *http.Request) {
 	title := req.FormValue("title")
 	if title == "" || req.Method != "POST" || vars["json"] == "" {
 		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/resources/new.html")
-		filter.SetData(req, map[string]interface{}{"activeResources": "active", "categories": model.AllCategory})
+		filter.SetData(req, map[string]interface{}{"activeResources": "active", "categories": service.AllCategory})
 		return
 	}
 	errMsg := ""

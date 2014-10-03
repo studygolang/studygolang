@@ -29,6 +29,19 @@ func (this *FormValidateFilter) PreFilter(rw http.ResponseWriter, req *http.Requ
 	if uri == "/admin/adduser.json" {
 		uri = "/account/register.json"
 	}
+
+	// 所有表单数据加 trim
+	for field, vals := range req.Form {
+		for i, val := range vals {
+			vals[i] = strings.TrimSpace(val)
+		}
+		req.Form[field] = vals
+
+		if _, ok := req.PostForm[field]; ok {
+			req.PostForm[field] = vals
+		}
+	}
+
 	// 验证表单
 	errMsg := Validate(req.Form, Rule(uri))
 	logger.Debugln("validate:", errMsg)

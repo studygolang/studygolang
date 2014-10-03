@@ -7,10 +7,13 @@
 package service
 
 import (
+	"errors"
 	"html/template"
 	"logger"
 	"model"
+	"net/url"
 	"strconv"
+	"strings"
 	"time"
 	"util"
 )
@@ -41,6 +44,31 @@ func PublishTopic(topic *model.Topic) (errMsg string, err error) {
 	return
 }
 
+// 修改帖子
+// user 修改人的（有可能是作者或管理员）
+func ModifyTopic(user map[string]interface{}, form url.Values) (errMsg string, err error) {
+	uid := user["uid"].(int)
+	form.Set("editor_uid", strconv.Itoa(uid))
+
+	fields := []string{"title", "content", "nid", "editor_uid"}
+	query, args := updateSetClause(form, fields)
+
+	tid := form.Get("tid")
+
+	err = model.NewTopic().Set(query, args...).Where("tid=" + tid).Update()
+	if err != nil {
+		logger.Errorf("更新帖子 【%s】 信息失败：%s\n", tid, err)
+		errMsg = "对不起，服务器内部错误，请稍后再试！"
+		return
+	}
+
+	username := user["username"].(string)
+	// 修改帖子，活跃度+2
+	go IncUserWeight("username="+username, 2)
+
+	return
+}
+
 // 获得帖子详细信息（包括详细回复）
 // 为了避免转换，tid传string类型
 func FindTopicByTid(tid string) (topicMap map[string]interface{}, replies []map[string]interface{}, err error) {
@@ -54,6 +82,7 @@ func FindTopicByTid(tid string) (topicMap map[string]interface{}, replies []map[
 	}
 	// 帖子不存在
 	if topic.Tid == 0 {
+		err = errors.New("The topic of tid is not exists")
 		return
 	}
 	topicMap = make(map[string]interface{})
@@ -69,7 +98,7 @@ func FindTopicByTid(tid string) (topicMap map[string]interface{}, replies []map[
 	}
 	util.Struct2Map(topicMap, topicEx)
 	// 节点名字
-	topicMap["node"] = model.GetNodeName(topic.Nid)
+	topicMap["node"] = GetNodeName(topic.Nid)
 
 	// 回复信息（评论）
 	replies, owerUser, lastReplyUser := FindObjComments(tid, strconv.Itoa(model.TYPE_TOPIC), topic.Uid, topic.Lastreplyuid)
@@ -78,6 +107,11 @@ func FindTopicByTid(tid string) (topicMap map[string]interface{}, replies []map[
 	if topic.Lastreplyuid != 0 {
 		topicMap["lastreplyusername"] = lastReplyUser.Username
 	}
+
+	if topic.EditorUid != 0 {
+		topicMap["editor_username"] = FindUsernameByUid(topic.EditorUid)
+	}
+
 	return
 }
 
@@ -111,6 +145,32 @@ func FindTopics(page, pageNum int, where string, orderSlice ...string) (topics [
 	return FindTopicsByWhere(where, order, strconv.Itoa(offset)+","+strconv.Itoa(pageNum))
 }
 
+// 获取话题列表（分页），目前供后台使用
+func FindTopicsByPage(conds map[string]string, curPage, limit int) ([]*model.Topic, int) {
+	conditions := make([]string, 0, len(conds))
+	for k, v := range conds {
+		conditions = append(conditions, k+"="+v)
+	}
+
+	topic := model.NewTopic()
+
+	limitStr := strconv.Itoa((curPage-1)*limit) + "," + strconv.Itoa(limit)
+	topicList, err := topic.Where(strings.Join(conditions, " AND ")).Order("tid DESC").Limit(limitStr).
+		FindAll()
+	if err != nil {
+		logger.Errorln("topic service FindTopicsByPage Error:", err)
+		return nil, 0
+	}
+
+	total, err := topic.Count()
+	if err != nil {
+		logger.Errorln("topic service FindTopicsByPage COUNT Error:", err)
+		return nil, 0
+	}
+
+	return topicList, total
+}
+
 // 获得某个节点下的帖子列表（侧边栏推荐）
 func FindTopicsByNid(nid, curTid string) (topics []*model.Topic) {
 	var err error
@@ -122,11 +182,11 @@ func FindTopicsByNid(nid, curTid string) (topics []*model.Topic) {
 	return
 }
 
-// 获得社区最新公告
+// 获得社区最新公告（废弃）
 func FindNoticeTopic() (topic *model.Topic) {
 	topics, err := model.NewTopic().Where("nid=15").Limit("0,1").Order("mtime DESC").FindAll()
 	if err != nil {
-		logger.Errorln("topic service FindTopicsByNid Error:", err)
+		logger.Errorln("topic service FindNoticeTopic Error:", err)
 		return
 	}
 	if len(topics) > 0 {
@@ -159,13 +219,13 @@ func FindTopicsByWhere(where, order, limit string) (topics []map[string]interfac
 	}
 	count := len(topicList)
 	tids := make([]int, count)
-	uids := make(map[int]int)
+	uids := make([]int, 0, count)
 	nids := make([]int, count)
 	for i, topic := range topicList {
 		tids[i] = topic.Tid
-		uids[topic.Uid] = topic.Uid
+		uids = append(uids, topic.Uid)
 		if topic.Lastreplyuid != 0 {
-			uids[topic.Lastreplyuid] = topic.Lastreplyuid
+			uids = append(uids, topic.Lastreplyuid)
 		}
 		nids[i] = topic.Nid
 	}
@@ -181,10 +241,10 @@ func FindTopicsByWhere(where, order, limit string) (topics []map[string]interfac
 		topicExMap[topicEx.Tid] = topicEx
 	}
 
-	userMap := getUserInfos(uids)
+	userMap := GetUserInfos(uids)
 
 	// 获取节点信息
-	nodes := model.GetNodesName(nids)
+	nodes := GetNodesName(nids)
 
 	topics = make([]map[string]interface{}, count)
 	for i, topic := range topicList {
@@ -202,15 +262,20 @@ func FindTopicsByWhere(where, order, limit string) (topics []map[string]interfac
 	return
 }
 
-// 获得某个用户最近的帖子
-func FindRecentTopics(uid int) []*model.Topic {
-	topics, err := model.NewTopic().Where("uid=" + strconv.Itoa(uid)).Order("ctime DESC").Limit("0, 5").FindAll()
+// 获得最近的帖子(如果uid!=0，则获取某个用户最近的帖子)
+func FindRecentTopics(uid int, limit string) []*model.Topic {
+	cond := ""
+	if uid != 0 {
+		cond = "uid=" + strconv.Itoa(uid)
+	}
+
+	topics, err := model.NewTopic().Where(cond).Order("ctime DESC").Limit(limit).FindAll()
 	if err != nil {
 		logger.Errorln("topic service FindRecentTopics error:", err)
 		return nil
 	}
 	for _, topic := range topics {
-		topic.Node = model.GetNodeName(topic.Nid)
+		topic.Node = GetNodeName(topic.Nid)
 	}
 	return topics
 }
@@ -234,11 +299,9 @@ func FindHotTopics() []map[string]interface{} {
 		return nil
 	}
 
-	uidMap := make(map[int]int, len(topics))
-	for _, topic := range topics {
-		uidMap[topic.Uid] = topic.Uid
-	}
-	userMap := getUserInfos(uidMap)
+	uids := util.Models2Intslice(topics, "Uid")
+	userMap := GetUserInfos(uids)
+
 	result := make([]map[string]interface{}, len(topics))
 	for i, topic := range topics {
 		oneTopic := make(map[string]interface{})
@@ -246,35 +309,6 @@ func FindHotTopics() []map[string]interface{} {
 		util.Struct2Map(oneTopic, topicExMap[topic.Tid])
 		oneTopic["user"] = userMap[topic.Uid]
 		result[i] = oneTopic
-	}
-	return result
-}
-
-// 获得回复对应的主贴信息
-func FindRecentReplies(comments []*model.Comment) []map[string]interface{} {
-	if len(comments) == 0 {
-		return nil
-	}
-	count := len(comments)
-	commentMap := make(map[int]*model.Comment, count)
-	tidMap := make(map[int]int, count)
-	for _, comment := range comments {
-		commentMap[comment.Objid] = comment
-		tidMap[comment.Objid] = comment.Objid
-	}
-	tids := util.MapIntKeys(tidMap)
-	topics := FindTopicsByTids(tids)
-	if len(topics) == 0 {
-		return nil
-	}
-	result := make([]map[string]interface{}, len(topics))
-	for i, topic := range topics {
-		oneReply := make(map[string]interface{})
-		oneReply["tid"] = topic.Tid
-		oneReply["title"] = topic.Title
-		oneReply["cmt_content"] = decodeCmtContent(commentMap[topic.Tid])
-		oneReply["replytime"] = commentMap[topic.Tid].Ctime
-		result[i] = oneReply
 	}
 	return result
 }
@@ -319,7 +353,7 @@ func FindHotNodes() []map[string]interface{} {
 			logger.Errorln("rows.Scan error:", err)
 			continue
 		}
-		name := model.GetNodeName(nid)
+		name := GetNodeName(nid)
 		node := map[string]interface{}{
 			"name": name,
 			"nid":  nid,
@@ -369,5 +403,22 @@ func (self TopicComment) UpdateComment(cid, objid, uid int, cmttime string) {
 	err = model.NewTopicEx().Where("tid="+tid).Increment("reply", 1)
 	if err != nil {
 		logger.Errorln("更新帖子回复数失败：", err)
+	}
+}
+
+// 实现 CommentObjecter 接口
+func (self TopicComment) SetObjinfo(ids []int, commentMap map[int][]*model.Comment) {
+	topics := FindTopicsByTids(ids)
+	if len(topics) == 0 {
+		return
+	}
+
+	for _, topic := range topics {
+		objinfo := make(map[string]interface{})
+		objinfo["title"] = topic.Title
+
+		for _, comment := range commentMap[topic.Tid] {
+			comment.Objinfo = objinfo
+		}
 	}
 }

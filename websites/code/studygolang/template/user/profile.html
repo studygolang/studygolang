@@ -15,7 +15,7 @@
         <div class="pull-right center" style="width:120px;">
           <a href="/user/{{.user.Username}}" title="{{.user.Username}}"><img alt="{{.user.Username}}" class="uface" src="{{gravatar .user.Email 120}}" style="width:120px;height:120px;"></a>
           {{if .me.username}}
-          {{if noteq .user.Username .me.username}}
+          {{if ne .user.Username .me.username}}
           <a class="btn btn-info" href="/message/send?username={{.user.Username}}" style="margin:10px;">发送消息</a>
           {{end}}
           {{end}}
@@ -70,11 +70,11 @@
         {{range .replies}}
         <li>
           <div class="title">
-            <a href="/topics/{{.tid}}" title="{{.title}}">{{substring .title 60 "..."}}</a>
-            <span class="info">at <abbr class="timeago" title="{{formatTime .replytime}}"></abbr></span>
+            <a href="/topics/{{.Objid}}" title="{{.Objinfo.title}}">{{substring .Objinfo.title 60 "..."}}</a>
+            <span class="info">at <abbr class="timeago" title="{{formatTime .Ctime}}"></abbr></span>
           </div>
           <div class="body">
-            {{.cmt_content}}
+            {{noescape .Content}}
           </div>
         </li>
         {{else}}

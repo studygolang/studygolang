@@ -76,8 +76,8 @@ func (this *UserLogin) Where(condition string) *UserLogin {
 }
 
 // 为了支持连写
-func (this *UserLogin) Set(clause string) *UserLogin {
-	this.Dao.Set(clause)
+func (this *UserLogin) Set(clause string, args ...interface{}) *UserLogin {
+	this.Dao.Set(clause, args...)
 	return this
 }
 
@@ -119,6 +119,7 @@ type User struct {
 	Uid       int    `json:"uid"`
 	Username  string `json:"username"`
 	Email     string `json:"email"`
+	Open      int    `json:"open"`
 	Name      string `json:"name"`
 	Avatar    string `json:"avatar"`
 	City      string `json:"city"`
@@ -126,10 +127,11 @@ type User struct {
 	Github    string `json:"github"`
 	Weibo     string `json:"weibo"`
 	Website   string `json:"website"`
-	Status    string `json:"status"`
+	Monlog    string `json:"monlog"`
 	Introduce string `json:"introduce"`
+	Status    int    `json:"status"`
 	Ctime     string `json:"ctime"`
-	Open      int    `json:"open"`
+	Mtime     string `json:"mtime"`
 
 	// 非用户表中的信息，为了方便放在这里
 	Roleids   []int
@@ -189,8 +191,8 @@ func (this *User) Where(condition string) *User {
 }
 
 // 为了支持连写
-func (this *User) Set(clause string) *User {
-	this.Dao.Set(clause)
+func (this *User) Set(clause string, args ...interface{}) *User {
+	this.Dao.Set(clause, args...)
 	return this
 }
 
@@ -207,8 +209,8 @@ func (this *User) Order(order string) *User {
 }
 
 func (this *User) prepareInsertData() {
-	this.columns = []string{"username", "email", "name", "avatar", "city", "company", "github", "weibo", "website", "status", "introduce"}
-	this.colValues = []interface{}{this.Username, this.Email, this.Name, this.Avatar, this.City, this.Company, this.Github, this.Weibo, this.Website, this.Status, this.Introduce}
+	this.columns = []string{"username", "email", "name", "avatar", "city", "company", "github", "weibo", "website", "monlog", "introduce", "ctime"}
+	this.colValues = []interface{}{this.Username, this.Email, this.Name, this.Avatar, this.City, this.Company, this.Github, this.Weibo, this.Website, this.Monlog, this.Introduce, this.Ctime}
 }
 
 func (this *User) colFieldMap() map[string]interface{} {
@@ -223,10 +225,12 @@ func (this *User) colFieldMap() map[string]interface{} {
 		"github":    &this.Github,
 		"weibo":     &this.Weibo,
 		"website":   &this.Website,
+		"monlog":    &this.Monlog,
 		"status":    &this.Status,
 		"introduce": &this.Introduce,
 		"open":      &this.Open,
 		"ctime":     &this.Ctime,
+		"mtime":     &this.Mtime,
 	}
 }
 
@@ -294,9 +298,9 @@ func (this *UserActive) FindAll(selectCol ...string) ([]*UserActive, error) {
 	return userList, nil
 }
 
-// 设置更新字段
-func (this *UserActive) Set(clause string) *UserActive {
-	this.Dao.Set(clause)
+// 为了支持连写
+func (this *UserActive) Set(clause string, args ...interface{}) *UserActive {
+	this.Dao.Set(clause, args...)
 	return this
 }
 
@@ -387,8 +391,15 @@ func (this *UserRole) FindAll(selectCol ...string) ([]*UserRole, error) {
 	return userRoleList, nil
 }
 
+// 为了支持连写
 func (this *UserRole) Where(condition string) *UserRole {
 	this.Dao.Where(condition)
+	return this
+}
+
+// 为了支持连写
+func (this *UserRole) Order(order string) *UserRole {
+	this.Dao.Order(order)
 	return this
 }
 

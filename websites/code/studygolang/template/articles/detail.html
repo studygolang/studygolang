@@ -1,0 +1,131 @@
+{{define "title"}}{{.article.Title}} {{end}}
+{{define "seo"}}<meta name="keywords" content="{{.article.Title}} Go语言博客文章, Go语言博文, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
+<meta name="description" content="{{substring .article.Txt 200 ""}}">{{end}}
+{{define "content"}}
+<div class="row header_title">
+	<div class="col-lg-12 col-md-12 col-sm-12">
+	</div>
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<div class="page box_white">
+			<div class="title text-center">
+				<h1>{{.article.Title}}</h1>
+			</div>
+			<div class="meta">
+				<div class="p-author">
+					<i class="glyphicon glyphicon-calendar"></i>
+					<span title="发布日期">{{.article.PubDate}}</span>&nbsp;
+					<i class="glyphicon glyphicon-user"></i>
+					{{noescape .article.Author}}
+				</div>
+				<!-- p-author END -->
+				<!--
+				<div class="p-comment text-right">
+					<a href="javascript:void(0);"><span>0</span> <span>条评论</span></a>
+				</div>
+				-->
+				<!-- p-comment END -->
+			</div>
+			<div class="tags">
+				{{if .article.Tags}}
+				{{$tags := explode .article.Tags ","}}
+				<ul class="list-inline">
+					{{range $tag := $tags}}
+					<li><a href="/" title="{{$tag}}">{{$tag}}</a></li>
+					{{end}}
+				</ul>
+				{{end}}
+			</div>
+			<!-- tags -->
+			<div class="content">
+				{{noescape .article.Content}}
+			</div>
+			<!-- content END -->
+			<div class="row orig-info">
+				<p>本文来自：<a href="http://{{.article.Domain}}" target="_blank" title="{{.article.Name}}">{{.article.Name}}</a></p>
+				<p>查看原文：<a href="{{.article.Url}}" target="_blank" title="{{.article.Title}}">{{.article.Title}}</a></p>
+			</div>
+			<div class="active row">
+				<!--
+				<div class="mark-like-btn col-md-6">
+					<a class="share-btn like-btn" href="javascript:;">
+						<i class="glyphicon glyphicon-heart-empty"></i><span>5</span>个人喜欢
+					</a>
+					<a class="share-btn collect collect-no" href="javascript:;">
+						<i class="glyphicon glyphicon-star-empty"></i><span>0</span>人收藏
+					</a>
+				</div>
+				-->
+				<!-- share BEGIN -->
+				<!--
+				<div id="bdshare" class="col-md-6">
+					<a class="bds_tsina weibo-btn share-btn" href="#"><i></i>分享到微博</a>
+					<a class="bds_weixin weixin-btn share-btn" href="#"><i></i>分享到朋友圈</a>
+				</div>
+				-->
+			</div>
+			<!-- 评论 -->
+			<!--
+			<div class="page-comment">
+				<div class="comment-title">
+					<h2>文章点评：</h2><span class="h2-tip">
+					（您需要 <a class="c-log" href="javascript:openPop('#login-pop');">登录</a> 后才能评论 <a href="/register" class="c-reg"> 没有账号</a> ？）</span>
+				</div>
+				<div class="submit" id="commentForm">
+					<div class="text">
+						<textarea name="Comment[content]" placeholder="我有话要说……"></textarea>
+					</div>
+					<div class="sub text-right">
+						<button type="submit" title="提交" class="btn btn-danger">提交</button>
+					</div>
+				</div>
+				<div class="words" style="visibility: hidden;">
+					<h3><span>0</span>条评论<i></i></h3>
+					<ul class="comment-say">
+					</ul>
+				</div>
+			</div>
+			-->
+			<!-- 评论 -->
+		</div>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			<div class="top">
+				<ul class="list-inline text-center">
+					<li class="first"><a href="http://www.leiphone.com/category/t" target="_blank" class="cur" title="点击更多">最新帖子</a>|</li>
+					<li class="second"><a href="javascript:;">最新博文</a>|</li>
+					<li class="last"><a href="http://www.leiphone.com/specials" target="_blank" title="点击更多" class="">精彩评论</a></li>
+				</ul>
+				<p class="bar"></p>
+			</div>
+			<div class="sb-content">
+				<div class="topic-list first">
+					<ul>
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+				<div class="article-list second hidden">
+					<ul>
+					</ul>
+				</div>
+				<div class="cmt-list last hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{{end}}
+{{define "js"}}
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/topics/recent.json",
+	"/articles/recent.json",
+	"/comments/recent.json",
+];
+</script>
+{{end}}
