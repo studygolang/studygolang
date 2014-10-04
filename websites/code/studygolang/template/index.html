@@ -30,7 +30,7 @@
 				</div>
 				<ul class="clearfix list-unstyled">
 					{{range .resources}}
-					<li><i></i><a href="{{if .url}}{{.url}}{{else}}/resources/{{.id}}{{end}}" title="{{.title}}" target="_blank">{{substring .title 35 "..."}}</a><span class="pull-right timeago" title="{{.ctime}}"></span></li>
+					<li><i></i><a href="{{if .url}}{{.url}}{{else}}/resources/{{.id}}{{end}}" title="{{.title}}" target="_blank">{{substring .title 32 "..."}}</a><span class="pull-right timeago" title="{{.ctime}}"></span></li>
 					{{end}}
 				</ul>
 			</div>
@@ -94,7 +94,7 @@
 			{{end}}
 		</div>
 		<div class="row box_white learn-info">
-			<h3><a href="#">学习资料</a></h3>
+			<h3><a href="javascript:">学习资料</a></h3>
 			<div class="col-md-6 infolist">
 				<ul class="list-unstyled">
 					<li>
@@ -280,7 +280,7 @@
 			</div>
 			<div class="sb-content">
 				<div class="resource-list" data-limit="5">
-					<ul>
+					<ul class="list-unstyled">
 						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
 					</ul>
 				</div>

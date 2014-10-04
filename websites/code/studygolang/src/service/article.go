@@ -106,7 +106,7 @@ func ParseArticle(articleUrl string, auto bool) (*model.Article, error) {
 		return nil, err
 	}
 
-	replacer := strings.NewReplacer("[置顶]", "", "[原]", "")
+	replacer := strings.NewReplacer("[置顶]", "", "[原]", "", "[转]", "")
 	title = strings.TrimSpace(replacer.Replace(title))
 
 	contentSelection := doc.Find(rule.Content)
@@ -190,7 +190,12 @@ func FindArticleByPage(conds map[string]string, curPage, limit int) ([]*model.Ar
 func FindArticles(lastId, limit string) []*model.Article {
 	article := model.NewArticle()
 
-	articleList, err := article.Where("id>" + lastId).Order("id DESC").Limit(limit).
+	cond := ""
+	if lastId != "0" {
+		cond = "id<" + lastId
+	}
+
+	articleList, err := article.Where(cond).Order("id DESC").Limit(limit).
 		FindAll()
 	if err != nil {
 		logger.Errorln("article service FindArticles Error:", err)

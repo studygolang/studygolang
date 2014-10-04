@@ -33,11 +33,11 @@
 						<a href="/topics">社区</a>
 					</li>
 					<li class="dropdown {{.activeArticles}}">
-						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="articles">精彩文章 <span class="caret"></span></a>
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="articles">精彩文章 <i class="newfuture"></i><span class="caret"></span></a>
 						<ul class="dropdown-menu" aria-labelledby="articles">
 							<li><a href="/articles">网友博文</a></li>
-							<li><a href="http://blog.studygolang.com">本站博客</a></li>
-							<li><a href="http://blog.studygolang.com">官方博客</a></li>
+							<li><a href="http://blog.studygolang.com" target="_blank">本站博客</a></li>
+							<li><a href="http://blog.studygolang.com" target="_blank">官方博客</a></li>
 						</ul>
 					</li>
 					<li>
@@ -49,8 +49,8 @@
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="docs">官方文档 <span class="caret"></span></a>
 						<ul class="dropdown-menu" aria-labelledby="docs">
-							<li><a href="http://docs.studygolang.com">英文文档</a></li>
-							<li><a href="http://docscn.studygolang.com">中文文档</a></li>
+							<li><a href="http://docs.studygolang.com" target="_blank">英文文档</a></li>
+							<li><a href="http://docscn.studygolang.com" target="_blank">中文文档</a></li>
 						</ul>
 					</li>
 				</ul>
@@ -113,8 +113,11 @@
 <script src="/static/js/libs/jquery.timeago.js"></script>
 <script src="/static/js/libs/jquery.timeago.zh-CN.js"></script>
 <script src="/static/js/libs/md5.js"></script>
+<script type="text/javascript">
+	var wsUrl = 'ws://{{.wshost}}/ws?uid={{.me.uid}}';
+	// var wsUrl = 'ws://studygolang.com/ws?uid={{.me.uid}}';
+</script>
 <script src="/static/js/common.js"></script>
 {{template "js" .}}
 <script src="/static/js/sidebar.js"></script>
-<script src="http://cpro.baidustatic.com/cpro/ui/f.js" type="text/javascript"></script>
 </html>

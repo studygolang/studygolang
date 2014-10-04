@@ -11,6 +11,7 @@ pkg
 bin
 log
 pid
+data
 
 # Architecture specific extensions/prefixes
 *.[568vq]
