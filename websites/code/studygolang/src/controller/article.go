@@ -16,6 +16,8 @@ import (
 	"util"
 )
 
+const limit = 20
+
 // 网友文章列表页
 // uri: /articles
 func ArticlesHandler(rw http.ResponseWriter, req *http.Request) {
@@ -29,22 +31,36 @@ func ArticlesHandler(rw http.ResponseWriter, req *http.Request) {
 		// TODO:服务暂时不可用？
 	}
 
+	num := len(articles)
+
+	if num == 0 {
+		if lastId == "0" {
+			util.Redirect(rw, req, "/")
+		} else {
+			util.Redirect(rw, req, "/articles")
+		}
+	}
+
 	var (
 		hasPrev, hasNext bool
 		prevId, nextId   int
 	)
 
 	if lastId != "0" {
-		hasPrev = true
 		prevId, _ = strconv.Atoi(lastId)
+
+		if prevId-articles[0].Id > 1 {
+			hasPrev = false
+		} else {
+			prevId += limit
+			hasPrev = true
+		}
 	}
 
-	num := len(articles)
-
-	if num > 20 {
+	if num > limit {
 		hasNext = true
-		articles = articles[:20]
-		nextId = articles[19].Id
+		articles = articles[:limit]
+		nextId = articles[limit-1].Id
 	} else {
 		nextId = articles[num-1].Id
 	}

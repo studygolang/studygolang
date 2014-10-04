@@ -52,16 +52,15 @@ if (window.WebSocket) {
 	var websocket = new WebSocket(wsUrl);
 
 	websocket.onopen = function(){
-		console.log("open");
+		// console.log("open");
 	}
 
 	websocket.onclose = function(){
-		console.log("close");
+		// console.log("close");
 	}
 
 	websocket.onmessage = function(msgEvent){
 		data = JSON.parse(msgEvent.data);
-		console.log(data)
 		switch (data.type) {
 		case 0:
 			var $badge = $('#user_message_count .badge'),

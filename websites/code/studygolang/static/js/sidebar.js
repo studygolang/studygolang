@@ -35,8 +35,8 @@ $(function(){
 
 			var content = '';
 			for(var i in data) {
-				content += '<li>'+
-						'<a href="/topics/'+data[i].tid+'" title="'+data[i].title+'">'+data[i].title+'</a>'+
+				content += '<li class="truncate">'+
+						'<i></i><a href="/topics/'+data[i].tid+'" title="'+data[i].title+'">'+data[i].title+'</a>'+
 						'</li>'
 			}
 			$('.sb-content .topic-list ul').html(content);
@@ -50,8 +50,8 @@ $(function(){
 
 			var content = '';
 			for(var i in data) {
-				content += '<li>'+
-						'<a href="/articles/'+data[i].id+'" title="'+data[i].title+'">'+data[i].title+'</a>'+
+				content += '<li class="truncate">'+
+						'<i></i><a href="/articles/'+data[i].id+'" title="'+data[i].title+'">'+data[i].title+'</a>'+
 						'</li>'
 			}
 			$('.sb-content .article-list ul').html(content);
@@ -65,8 +65,8 @@ $(function(){
 
 			var content = '';
 			for(var i in data) {
-				content += '<li>'+
-						'<a href="/resources/'+data[i].id+'" title="'+data[i].title+'">'+data[i].title+'</a>'+
+				content += '<li class="truncate">'+
+						'<i></i><a href="/resources/'+data[i].id+'" title="'+data[i].title+'">'+data[i].title+'</a>'+
 						'</li>'
 			}
 			$('.sb-content .resource-list ul').html(content);
