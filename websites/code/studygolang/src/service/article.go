@@ -8,25 +8,47 @@ package service
 
 import (
 	"errors"
+	"net/url"
+	"regexp"
+	"strconv"
+	"strings"
+
 	"github.com/PuerkitoBio/goquery"
 	"logger"
 	"model"
-	"net/url"
-	"strconv"
-	"strings"
 	"util"
 )
 
+var domainPatch = map[string]string{
+	"iteye.com":      "iteye.com",
+	"blog.51cto.com": "blog.51cto.com",
+}
+
 // 获取url对应的文章并根据规则进行解析
-func ParseArticle(articleUrl string) (*model.Article, error) {
+func ParseArticle(articleUrl string, auto bool) (*model.Article, error) {
 	if !strings.HasPrefix(articleUrl, "http") {
 		articleUrl = "http://" + articleUrl
 	}
+
+	tmpArticle := model.NewArticle()
+	err := tmpArticle.Where("url=" + articleUrl).Find("id")
+	if err != nil || tmpArticle.Id != 0 {
+		logger.Errorln(articleUrl, "has exists:", err)
+		return nil, errors.New("has exists!")
+	}
+
 	urlPaths := strings.SplitN(articleUrl, "/", 5)
 	domain := urlPaths[2]
 
+	for k, v := range domainPatch {
+		if strings.Contains(domain, k) && !strings.Contains(domain, "www."+k) {
+			domain = v
+			break
+		}
+	}
+
 	rule := model.NewCrawlRule()
-	err := rule.Where("domain=" + domain).Find()
+	err = rule.Where("domain=" + domain).Find()
 	if err != nil {
 		logger.Errorln("find rule by domain error:", err)
 		return nil, err
@@ -64,7 +86,28 @@ func ParseArticle(articleUrl string) (*model.Article, error) {
 		authorTxt = strings.TrimSpace(authorSelection.Text())
 	}
 
-	title := strings.TrimSpace(doc.Find(rule.Title).Text())
+	title := ""
+	doc.Find(rule.Title).Each(func(i int, selection *goquery.Selection) {
+		if title != "" {
+			return
+		}
+
+		tmpTitle := strings.TrimSpace(strings.TrimPrefix(selection.Text(), "原"))
+		tmpTitle = strings.TrimSpace(strings.TrimPrefix(tmpTitle, "荐"))
+		tmpTitle = strings.TrimSpace(strings.TrimPrefix(tmpTitle, "转"))
+		tmpTitle = strings.TrimSpace(strings.TrimPrefix(tmpTitle, "顶"))
+		if tmpTitle != "" {
+			title = tmpTitle
+		}
+	})
+
+	if title == "" {
+		logger.Errorln("url:", articleUrl, "parse title error:", err)
+		return nil, err
+	}
+
+	replacer := strings.NewReplacer("[置顶]", "", "[原]", "")
+	title = strings.TrimSpace(replacer.Replace(title))
 
 	contentSelection := doc.Find(rule.Content)
 	content, err := contentSelection.Html()
@@ -75,9 +118,26 @@ func ParseArticle(articleUrl string) (*model.Article, error) {
 	content = strings.TrimSpace(content)
 	txt := strings.TrimSpace(contentSelection.Text())
 
+	// 自动抓取，内容长度不能少于 300 字
+	if auto && len(txt) < 300 {
+		logger.Infoln(articleUrl, "content is short")
+		return nil, errors.New("content is short")
+	}
+
 	pubDate := util.TimeNow()
 	if rule.PubDate != "" {
-		pubDate = strings.TrimSpace(doc.Find(rule.PubDate).Text())
+		pubDate = strings.TrimSpace(doc.Find(rule.PubDate).First().Text())
+
+		// sochina patch
+		re := regexp.MustCompile("[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}")
+		submatches := re.FindStringSubmatch(pubDate)
+		if len(submatches) > 0 {
+			pubDate = submatches[0]
+		}
+	}
+
+	if pubDate == "" {
+		pubDate = util.TimeNow()
 	}
 
 	article := model.NewArticle()

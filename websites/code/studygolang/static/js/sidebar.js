@@ -111,7 +111,7 @@ $(function(){
 				content += '<li>'+
 					'<div class="pic">'+
 						'<a href="/user/'+user.username+'" target="_blank">'+
-							'<img src="'+avatar+'" alt="'+user.username+'">'+
+							'<img src="'+avatar+'" alt="'+user.username+'" width="40px" height="40px">'+
 						'</a>'+
 					'</div>'+
 					'<div class="word">'+

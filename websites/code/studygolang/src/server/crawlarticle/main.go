@@ -7,16 +7,18 @@
 package main
 
 import (
-	"config"
-	"github.com/studygolang/mux"
+	"flag"
 	"log"
 	"math/rand"
 	"net/http"
-	//"path/filepath"
-	//"process"
-	"api"
 	"runtime"
 	"time"
+	//"path/filepath"
+
+	"config"
+	"github.com/studygolang/mux"
+	//"process"
+	"api"
 )
 
 func init() {
@@ -26,6 +28,12 @@ func init() {
 }
 
 func main() {
+	var needAll bool
+	flag.BoolVar(&needAll, "all", false, "是否需要全量抓取，默认否")
+	flag.Parse()
+
+	go autocrawl(needAll)
+
 	router := initRouter()
 	http.Handle("/", router)
 	log.Fatal(http.ListenAndServe(config.Config["crawl_host"], nil))
