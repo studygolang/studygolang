@@ -149,6 +149,7 @@ func initRouter() *mux.Router {
 	subrouter.HandleFunc("/crawl/article/list", admin.ArticleListHandler)
 	subrouter.HandleFunc("/crawl/article/query.html", admin.ArticleQueryHandler)
 	subrouter.HandleFunc("/crawl/article/modify", admin.ModifyArticleHandler)
+	subrouter.HandleFunc("/crawl/article/new", admin.CrawlArticleHandler)
 	subrouter.HandleFunc("/crawl/article/del", admin.DelArticleHandler)
 	// 规则管理
 	subrouter.HandleFunc("/crawl/rule/list", admin.RuleListHandler)

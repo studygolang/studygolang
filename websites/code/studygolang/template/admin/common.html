@@ -61,52 +61,24 @@
 		
 		<div class="vernav2	iconmenu">
 			<ul>
-					{{with $root := .}}
-						{{range $menu1 := $root.menu1}}
-						<li{{if eq $root.cur_menu1 $menu1.Aid }} class="current"{{end}}>
-							<a href="#formsub{{$menu1.Aid}}" class="elements">{{$menu1.Name}}</a>
-							<span	class="arrow"></span>
-							<ul	id="formsub{{$menu1.Aid}}">
-							{{range $menu2 := index $root.menu2 $menu1.Aid}}
-						 		<li{{with $uri := html $root.uri}}{{if eq $uri $menu2.Route }} class="current"{{end}}{{end}}><a href="{{$menu2.Route}}">{{$menu2.Name}}</a></li>
-							{{end}}
-							</ul>
-						</li>
-						{{end}}
+			{{with $root := .}}
+				{{range $menu1 := $root.menu1}}
+				<li{{if eq $root.cur_menu1 $menu1.Aid }} class="current"{{end}}>
+					<a href="#formsub{{$menu1.Aid}}" class="elements">{{$menu1.Name}}</a>
+					<span	class="arrow"></span>
+					<ul	id="formsub{{$menu1.Aid}}">
+					{{range $menu2 := index $root.menu2 $menu1.Aid}}
+				 		<li{{with $uri := html $root.uri}}{{if eq $uri $menu2.Route }} class="current"{{end}}{{end}}><a href="{{$menu2.Route}}">{{$menu2.Name}}</a></li>
 					{{end}}
-						<li><a href="filemanager.html" class="gallery">File	Manager</a></li>
-						<li><a href="elements.html"	class="elements">Elements</a></li>
-						<li><a href="widgets.html" class="widgets">Widgets</a></li>
-						<li><a href="calendar.html"	class="calendar">Calendar</a></li>
-						<li><a href="support.html" class="support">Customer	Support</a></li>
-						<li><a href="typography.html"	class="typo">Typography</a></li>
-						<li><a href="tables.html"	class="tables">Tables</a></li>
-			<li><a href="buttons.html" class="buttons">Buttons &amp; Icons</a></li>
-						<li><a href="#error" class="error">Error Pages</a>
-							<span	class="arrow"></span>
-							<ul	id="error">
-							 		<li><a href="notfound.html">Page Not Found</a></li>
-										<li><a href="forbidden.html">Forbidden Page</a></li>
-										<li><a href="internal.html">Internal Server	Error</a></li>
-										<li><a href="offline.html">Offline</a></li>
-								</ul>
-						</li>
-						<li><a href="#addons"	class="addons">Addons</a>
-							<span	class="arrow"></span>
-							<ul	id="addons">
-							 		<li><a href="newsfeed.html">News Feed</a></li>
-										<li><a href="profile.html">Profile Page</a></li>
-										<li><a href="productlist.html">Product List</a></li>
-										<li><a href="photo.html">Photo/Video Sharing</a></li>
-										<li><a href="gallery.html">Gallery</a></li>
-										<li><a href="invoice.html">Invoice</a></li>
-								</ul>
-						</li>
-				</ul>
-				<a class="togglemenu"></a>
-				<br	/><br	/>
+					</ul>
+				</li>
+				{{end}}
+			{{end}}
+			</ul>
+			<a class="togglemenu"></a>
+			<br	/><br	/>
 		</div><!--leftmenu-->
-				
+		
 		<div class="centercontent">
 		{{template "content" .}}
 	</div><!-- centercontent -->
