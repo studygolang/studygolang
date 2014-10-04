@@ -45,6 +45,9 @@ jQuery(document).ready(function($){
 	///// FORM VALIDATION /////
 	jQuery('.stdform, .stdform_q').validate({
 		submitHandler: function(form){
+			if ($(form).attr('id') == 'role_form') {
+				return;
+			}
 			formAjaxSubmit(form);
 		}
 	});

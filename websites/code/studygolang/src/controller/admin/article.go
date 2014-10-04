@@ -7,12 +7,14 @@
 package admin
 
 import (
+	"net/http"
+	"strconv"
+	"strings"
+
 	"filter"
 	"logger"
 	"model"
-	"net/http"
 	"service"
-	"strconv"
 )
 
 // 所有文章（分页）
@@ -65,6 +67,38 @@ func ArticleQueryHandler(rw http.ResponseWriter, req *http.Request) {
 
 	// 设置内容模板
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/admin/article/query.html")
+	filter.SetData(req, data)
+}
+
+// /admin/crawl/article/new
+func CrawlArticleHandler(rw http.ResponseWriter, req *http.Request) {
+	var data = make(map[string]interface{})
+
+	if req.PostFormValue("submit") == "1" {
+		urls := strings.Split(req.PostFormValue("urls"), "\n")
+
+		var errMsg string
+		for _, articleUrl := range urls {
+			_, err := service.ParseArticle(articleUrl, false)
+
+			if err != nil {
+				errMsg = err.Error()
+			}
+		}
+
+		if errMsg != "" {
+			data["ok"] = 0
+			data["error"] = errMsg
+		} else {
+			data["ok"] = 1
+			data["msg"] = "添加成功"
+		}
+	} else {
+
+		// 设置内容模板
+		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/admin/article/new.html")
+	}
+
 	filter.SetData(req, data)
 }
 
