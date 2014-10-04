@@ -113,8 +113,11 @@
 <script src="/static/js/libs/jquery.timeago.js"></script>
 <script src="/static/js/libs/jquery.timeago.zh-CN.js"></script>
 <script src="/static/js/libs/md5.js"></script>
+<script type="text/javascript">
+	var wsUrl = 'ws://{{.wshost}}/ws?uid={{.me.uid}}';
+	// var wsUrl = 'ws://studygolang.com/ws?uid={{.me.uid}}';
+</script>
 <script src="/static/js/common.js"></script>
 {{template "js" .}}
 <script src="/static/js/sidebar.js"></script>
-<script src="http://cpro.baidustatic.com/cpro/ui/f.js" type="text/javascript"></script>
 </html>

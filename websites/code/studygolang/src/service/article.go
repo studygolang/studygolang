@@ -106,7 +106,7 @@ func ParseArticle(articleUrl string, auto bool) (*model.Article, error) {
 		return nil, err
 	}
 
-	replacer := strings.NewReplacer("[置顶]", "", "[原]", "")
+	replacer := strings.NewReplacer("[置顶]", "", "[原]", "", "[转]", "")
 	title = strings.TrimSpace(replacer.Replace(title))
 
 	contentSelection := doc.Find(rule.Content)

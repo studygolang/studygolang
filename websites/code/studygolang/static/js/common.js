@@ -45,3 +45,42 @@ jQuery(document).ready(function($) {
 	
 	goTop();// 实现回到顶部元素的渐显与渐隐
 });
+
+// 在线人数统计
+window.WebSocket = window.WebSocket || window.MozWebSocket;
+if (window.WebSocket) {
+	var websocket = new WebSocket(wsUrl);
+
+	websocket.onopen = function(){
+		console.log("open");
+	}
+
+	websocket.onclose = function(){
+		console.log("close");
+	}
+
+	websocket.onmessage = function(msgEvent){
+		data = JSON.parse(msgEvent.data);
+		console.log(data)
+		switch (data.type) {
+		case 0:
+			var $badge = $('#user_message_count .badge'),
+				curVal = parseInt($badge.text(), 10);
+			totalVal = parseInt(data.body) + curVal;
+			if (totalVal > 0) {
+				$badge.addClass('badge-warning').text(totalVal);
+			} else {
+				$badge.removeClass('badge-warning').text(0);
+			}
+			break;
+		case 1:
+			$('#onlineusers').text(data.body.online);
+			if (data.body.maxonline) {
+				$('#maxonline').text(data.body.maxonline);
+			}
+			break;
+		}
+	}
+	
+	// websocket.onerror = onError;
+}
