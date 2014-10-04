@@ -11,5 +11,12 @@
 	"smtp_addr": "smtp.example.com:25",
 	"from_email": "example@example.com",
 	"data": "data/max_online_num",
-	"pid": "pid/studygolang.pid"
+	"pid": "pid/studygolang.pid",
+
+	"qiniu_access_key": "xxxxxxxxxxxxx",
+	"qiniu_secret_key": "xxxxxxxxxxxxxx",
+	"qiniu_bucket_name": "xxxxxxxxx",
+
+	"crawl_host": ":7070",
+	"crawl_spec": "0 0 */1 * * ?"
 }

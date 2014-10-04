@@ -30,7 +30,7 @@
 				</div>
 				<ul class="clearfix list-unstyled">
 					{{range .resources}}
-					<li><i></i><a href="{{if .url}}{{.url}}{{else}}/resources/{{.id}}{{end}}" title="{{.title}}" target="_blank">{{.title}}</a><span class="pull-right timeago" title="{{.ctime}}"></span></li>
+					<li><i></i><a href="{{if .url}}{{.url}}{{else}}/resources/{{.id}}{{end}}" title="{{.title}}" target="_blank">{{substring .title 35 "..."}}</a><span class="pull-right timeago" title="{{.ctime}}"></span></li>
 					{{end}}
 				</ul>
 			</div>

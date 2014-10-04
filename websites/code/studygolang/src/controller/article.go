@@ -7,11 +7,13 @@
 package controller
 
 import (
+	"net/http"
+	"strconv"
+
 	"filter"
 	"github.com/studygolang/mux"
-	"net/http"
 	"service"
-	"strconv"
+	"util"
 )
 
 // 网友文章列表页
@@ -68,6 +70,11 @@ func ArticleDetailHandler(rw http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		// TODO:
 	}
+
+	if article.Id == 0 {
+		util.Redirect(rw, req, "/articles")
+	}
+
 	// 设置内容模板
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/articles/detail.html")
 	// 设置模板数据

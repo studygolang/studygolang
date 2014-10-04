@@ -13,7 +13,7 @@ import (
 )
 
 func AddArticleHandler(rw http.ResponseWriter, req *http.Request) {
-	article, err := service.ParseArticle(req.FormValue("url"))
+	article, err := service.ParseArticle(req.FormValue("url"), false)
 	if err != nil {
 		fmt.Fprint(rw, err)
 		return
