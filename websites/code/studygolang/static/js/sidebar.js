@@ -85,10 +85,13 @@ $(function(){
 				switch(comments[i].objtype) {
 				case 0:
 					url = '/topics/';
+					break;
 				case 1:
 					url = '/articles/';
+					break;
 				case 2:
 					url = '/resources/';
+					break;
 				}
 				url += comments[i].objid;
 
