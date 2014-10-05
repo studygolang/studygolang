@@ -1,4 +1,4 @@
-html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif, 宋体;}
+html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
 
 /* nav */
 .navbar-default .navbar-nav>li>a { color: #bbbbbb; }
@@ -31,7 +31,8 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .article .metatag .source {height: 20px;color: #b5b5b5;font-style: italic; margin-right: 20px;}
 .article .metatag .date {height: 20px;color: #b5b5b5;font-style: italic; margin-right: 20px;}
 .article .metatag .author {height: 20px; margin-right: 20px;}
-.article .metatag .cmt, .article .metatag .like, .article .metatag. .view { margin: 0 10px; }
+.article .metatag .cmt, .article .metatag .like, .article .metatag .view { margin: 0 10px; }
+.article .metatag .view { color:#979797; }
 .article .metatag a:hover { text-decoration: none; color: #DB6D4C; }
 
 .sidebar {margin-bottom: 20px;}
