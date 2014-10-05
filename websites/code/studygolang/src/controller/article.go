@@ -12,6 +12,7 @@ import (
 
 	"filter"
 	"github.com/studygolang/mux"
+	"model"
 	"service"
 	"util"
 )
@@ -87,7 +88,7 @@ func ArticleDetailHandler(rw http.ResponseWriter, req *http.Request) {
 		// TODO:
 	}
 
-	if article.Id == 0 {
+	if article.Id == 0 || article.Status == model.StatusOffline {
 		util.Redirect(rw, req, "/articles")
 	}
 

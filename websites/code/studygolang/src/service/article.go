@@ -190,9 +190,9 @@ func FindArticleByPage(conds map[string]string, curPage, limit int) ([]*model.Ar
 func FindArticles(lastId, limit string) []*model.Article {
 	article := model.NewArticle()
 
-	cond := ""
+	cond := "status IN(0,1)"
 	if lastId != "0" {
-		cond = "id<" + lastId
+		cond += " AND id<" + lastId
 	}
 
 	articleList, err := article.Where(cond).Order("id DESC").Limit(limit).
