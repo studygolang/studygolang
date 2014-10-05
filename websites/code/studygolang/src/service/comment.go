@@ -76,7 +76,10 @@ func FindRecentComments(uid, objtype int, limit string) []*model.Comment {
 		cond = "uid=" + strconv.Itoa(uid)
 	}
 	if objtype != -1 {
-		cond = "objtype=" + strconv.Itoa(objtype)
+		if cond != "" {
+			cond += " AND "
+		}
+		cond += "objtype=" + strconv.Itoa(objtype)
 	}
 
 	comments, err := model.NewComment().Where(cond).Order("cid DESC").Limit(limit).FindAll()
