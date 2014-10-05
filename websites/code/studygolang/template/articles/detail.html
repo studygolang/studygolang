@@ -20,11 +20,14 @@
 					{{noescape .article.Author}}
 				</div>
 				<!-- p-author END -->
-				<!--
+				
 				<div class="p-comment text-right">
-					<a href="javascript:void(0);"><span>0</span> <span>条评论</span></a>
+					<span class="view" title="阅读数">
+						<i class="glyphicon glyphicon-eye-open"></i>
+						阅读 <span>{{.article.Viewnum}}</span> 次&nbsp;
+					</span>
+					<!--<a href="javascript:void(0);"><span>0</span> <span>条评论</span></a>-->
 				</div>
-				-->
 				<!-- p-comment END -->
 			</div>
 			<div class="tags">

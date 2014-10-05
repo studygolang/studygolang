@@ -7,11 +7,12 @@
 package main
 
 import (
+	"time"
+
 	"github.com/robfig/cron"
 	"global"
 	"logger"
 	"service"
-	"time"
 	"util"
 )
 
@@ -26,6 +27,9 @@ func ServeBackGround() {
 	c := cron.New()
 
 	c.AddFunc("@daily", decrUserActiveWeight)
+
+	// 两分钟刷一次浏览数（TODO：重启丢失问题？信号控制重启？）
+	c.AddFunc("@every 2m", service.Views.Flush)
 
 	c.Start()
 }

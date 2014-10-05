@@ -89,27 +89,6 @@ CREATE TABLE `likes` (
   KEY (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-
-/*---------------------------------------------------------------------------*
-  NAME: views
-  用途：帖子用户最后阅读表（帖子回复、博客文章评论等，统一处理）
-*---------------------------------------------------------------------------*/
-DROP TABLE IF EXISTS `views`;
-CREATE TABLE `views` (
-  `cid` int unsigned NOT NULL AUTO_INCREMENT,
-  `objid` int unsigned NOT NULL COMMENT '对象id，属主（评论给谁）',
-  `objtype` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '类型,0-帖子;1-博客;2-资源;3-酷站',
-  `content` text NOT NULL,
-  `uid` int unsigned NOT NULL COMMENT '回复者',
-  `floor` int unsigned NOT NULL COMMENT '第几楼',
-  `flag` tinyint NOT NULL DEFAULT 0 COMMENT '审核标识,0-未审核;1-已审核;2-审核删除;3-用户自己删除',
-  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`cid`),
-  UNIQUE KEY (`objid`,`objtype`,`floor`),
-  KEY (`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
 /*---------------------------------------------------------------------------*
   NAME: user_login
   用途：用户登录表
@@ -364,6 +343,9 @@ CREATE TABLE `articles` (
   `content` text NOT NULL COMMENT '正文(带html)',
   `txt` text NOT NULL COMMENT '正文(纯文本)',
   `tags` varchar(50) NOT NULL DEFAULT '' COMMENT '文章tag，逗号分隔',
+  `viewnum` int unsigned NOT NULL DEFAULT 0 COMMENT '浏览数',
+  `cmtnum` int unsigned NOT NULL DEFAULT 0 COMMENT '评论数',
+  `likenum` int unsigned NOT NULL DEFAULT 0 COMMENT '赞数',
   `status` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '状态：0-初始抓取；1-已上线；2-下线(审核拒绝)',
   `op_user` varchar(20) NOT NULL DEFAULT '' COMMENT '操作人',
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

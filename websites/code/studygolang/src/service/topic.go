@@ -363,11 +363,6 @@ func FindHotNodes() []map[string]interface{} {
 	return nodes
 }
 
-// 增加话题浏览数（TODO:刷屏暂时不处理）
-func IncrTopicView(tid string, uid int) {
-	model.NewTopicEx().Where("tid="+tid).Increment("view", 1)
-}
-
 // 话题总数
 func TopicsTotal() (total int) {
 	total, err := model.NewTopic().Count()

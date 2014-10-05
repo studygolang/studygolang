@@ -35,6 +35,9 @@ type Article struct {
 	Content   string `json:"content"`
 	Txt       string `json:"txt"`
 	Tags      string `json:"tags"`
+	Viewnum   int    `json:"viewnum"`
+	Cmtnum    int    `json:"cmtnum"`
+	Likenum   int    `json:"likenum"`
 	Status    int    `json:"status"`
 	OpUser    string `json:"op_user"`
 	Ctime     string `json:"ctime"`
@@ -130,6 +133,9 @@ func (this *Article) colFieldMap() map[string]interface{} {
 		"content":    &this.Content,
 		"txt":        &this.Txt,
 		"tags":       &this.Tags,
+		"viewnum":    &this.Viewnum,
+		"cmtnum":     &this.Cmtnum,
+		"likenum":    &this.Likenum,
 		"status":     &this.Status,
 		"op_user":    &this.OpUser,
 		"ctime":      &this.Ctime,
