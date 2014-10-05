@@ -11,6 +11,12 @@ import (
 	"util"
 )
 
+const (
+	StatusNew iota
+	StatusOnline
+	StatusOffline
+)
+
 var LangSlice = []string{"中文", "英文"}
 var StatusSlice = []string{"未上线", "已上线", "已下线"}
 
