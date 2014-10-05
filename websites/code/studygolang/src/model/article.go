@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	StatusNew iota
+	StatusNew = iota
 	StatusOnline
 	StatusOffline
 )
