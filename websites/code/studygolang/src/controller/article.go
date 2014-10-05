@@ -85,12 +85,14 @@ func ArticleDetailHandler(rw http.ResponseWriter, req *http.Request) {
 
 	article, err := service.FindArticleById(vars["id"])
 	if err != nil {
-		// TODO:
+		util.Redirect(rw, req, "/articles")
 	}
 
 	if article.Id == 0 || article.Status == model.StatusOffline {
 		util.Redirect(rw, req, "/articles")
 	}
+
+	service.Views.Incr(req, model.TYPE_ARTICLE, article.Id)
 
 	// 设置内容模板
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/articles/detail.html")

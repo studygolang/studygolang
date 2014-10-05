@@ -59,6 +59,8 @@
 				</div>
 				<div class="row">
 					<div class="col-md-8 metatag">
+						<i class="glyphicon glyphicon-th"></i>
+						<span class="source" title="来源">{{.Name}}</span>
 						<i class="glyphicon glyphicon-calendar"></i>
 						<span class="date" title="发布日期">{{.PubDate}}</span>
 						<i class="glyphicon glyphicon-user"></i>
@@ -77,8 +79,12 @@
 						</ul>
 						{{end}}
 					</div>
-					<!--
 					<div class="col-md-4 metatag text-right">
+						<span class="view" title="阅读数">
+							<i class="glyphicon glyphicon-eye-open"></i>
+							阅读:<span>{{.Viewnum}}</span>次
+						</span>
+						<!--
 						<a href="/" class="cmt" target="_blank" title="评论">
 							<i class="glyphicon glyphicon-comment"></i>
 							<span>42</span>
@@ -87,8 +93,8 @@
 							<i class="glyphicon glyphicon-heart-empty"></i>
 							<span>24</span>
 						</a>
+						-->
 					</div>
-					-->
 				</div>
 			</article>
 			{{end}}
