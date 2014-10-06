@@ -123,7 +123,7 @@ $(function(){
 							'<span>在<a href="'+url+'" title="'+comments[i].objinfo.title+'">'+comments[i].objinfo.title+'  </a>中评论</span>'+
 						'</div>'+
 						'<div class="w-comment">'+
-							'<span title="'+comments[i].content+'">'+comments[i].content+'</span>'+
+							'<span>'+comments[i].content+'</span>'+
 						'</div>'+
 					'</div>'+
 				'</li>';

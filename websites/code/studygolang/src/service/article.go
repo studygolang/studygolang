@@ -369,10 +369,10 @@ type ArticleComment struct{}
 func (self ArticleComment) UpdateComment(cid, objid, uid int, cmttime string) {
 	id := strconv.Itoa(objid)
 
-	// 更新回复数（TODO：暂时每次都更新表）
+	// 更新评论数（TODO：暂时每次都更新表）
 	err := model.NewArticle().Where("id="+id).Increment("cmtnum", 1)
 	if err != nil {
-		logger.Errorln("更新文章回复数失败：", err)
+		logger.Errorln("更新文章评论数失败：", err)
 	}
 }
 
@@ -395,4 +395,23 @@ func (self ArticleComment) SetObjinfo(ids []int, commentMap map[int][]*model.Com
 			comment.Objinfo = objinfo
 		}
 	}
+}
+
+// 博文喜欢
+type ArticleLike struct{}
+
+// 更新该文章的喜欢数
+// objid：被喜欢对象id；num: 喜欢数(负数表示取消喜欢)
+func (self ArticleLike) UpdateLike(objid, num int) {
+	id := strconv.Itoa(objid)
+
+	// 更新喜欢数（TODO：暂时每次都更新表）
+	err := model.NewArticle().Where("id="+id).Increment("likenum", num)
+	if err != nil {
+		logger.Errorln("更新文章喜欢数失败：", err)
+	}
+}
+
+func (self ArticleLike) String() string {
+	return "article"
 }

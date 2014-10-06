@@ -58,7 +58,7 @@
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-md-8 metatag">
+					<div class="col-md-6 metatag">
 						<i class="glyphicon glyphicon-th"></i>
 						<span class="source" title="来源">{{.Name}}</span>
 						<i class="glyphicon glyphicon-calendar"></i>
@@ -79,7 +79,7 @@
 						</ul>
 						{{end}}
 					</div>
-					<div class="col-md-4 metatag text-right">
+					<div class="col-md-6 metatag text-right">
 						<span class="view" title="阅读数">
 							<i class="glyphicon glyphicon-eye-open"></i>
 							阅读:<span>{{.Viewnum}}</span>次
@@ -88,12 +88,16 @@
 							<i class="glyphicon glyphicon-comment"></i>
 							评论:<span>{{.Cmtnum}}</span>条
 						</a>
-						<!--
-						<a href="#" class="like" title="赞">
+						{{if $.likeflags}}
+						{{$likeFlag := index $.likeflags .Id}}
+						<a href="#" class="like{{if $likeFlag}} hadlike{{end}}" title="{{if $likeFlag}}取消喜欢{{else}}我喜欢{{end}}" data-objid="{{.Id}}" data-objtype="1" data-flag="{{if $likeFlag}}{{$likeFlag}}{{else}}0{{end}}">
+							<i class="glyphicon glyphicon-heart{{if not $likeFlag}}-empty{{end}}"></i>
+						{{else}}
+						<a href="#" class="like" title="我喜欢" data-objid="{{.Id}}" data-objtype="1" data-flag="0">
 							<i class="glyphicon glyphicon-heart-empty"></i>
-							<span>24</span>
+						{{end}}
+							<span class="likenum">{{.Likenum}}</span>人喜欢
 						</a>
-						-->
 					</div>
 				</div>
 			</article>

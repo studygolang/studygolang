@@ -215,7 +215,7 @@ func RegisterCommentObject(objtype int, commenter Commenter) {
 }
 
 // 发表评论（或回复）。
-// objname 注册的评论对象名
+// objid 注册的评论对象
 // uid 评论人
 func PostComment(uid, objid int, form url.Values) (*model.Comment, error) {
 	comment := model.NewComment()

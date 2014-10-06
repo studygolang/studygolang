@@ -83,8 +83,8 @@ func (this *Message) FindAll(selectCol ...string) ([]*Message, error) {
 }
 
 // 为了支持连写
-func (this *Message) Where(condition string) *Message {
-	this.Dao.Where(condition)
+func (this *Message) Where(condition string, args ...interface{}) *Message {
+	this.Dao.Where(condition, args...)
 	return this
 }
 
@@ -216,8 +216,8 @@ func (this *SystemMessage) Set(clause string, args ...interface{}) *SystemMessag
 }
 
 // 为了支持连写
-func (this *SystemMessage) Where(condition string) *SystemMessage {
-	this.Dao.Where(condition)
+func (this *SystemMessage) Where(condition string, args ...interface{}) *SystemMessage {
+	this.Dao.Where(condition, args...)
 	return this
 }
 

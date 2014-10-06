@@ -70,8 +70,8 @@ func (this *UserLogin) FindAll(selectCol ...string) ([]*UserLogin, error) {
 }
 
 // 为了支持连写
-func (this *UserLogin) Where(condition string) *UserLogin {
-	this.Dao.Where(condition)
+func (this *UserLogin) Where(condition string, args ...interface{}) *UserLogin {
+	this.Dao.Where(condition, args...)
 	return this
 }
 
@@ -185,8 +185,9 @@ func (this *User) FindAll(selectCol ...string) ([]*User, error) {
 	return userList, nil
 }
 
-func (this *User) Where(condition string) *User {
-	this.Dao.Where(condition)
+// 为了支持连写
+func (this *User) Where(condition string, args ...interface{}) *User {
+	this.Dao.Where(condition, args...)
 	return this
 }
 
@@ -305,8 +306,8 @@ func (this *UserActive) Set(clause string, args ...interface{}) *UserActive {
 }
 
 // 为了支持连写
-func (this *UserActive) Where(condition string) *UserActive {
-	this.Dao.Where(condition)
+func (this *UserActive) Where(condition string, args ...interface{}) *UserActive {
+	this.Dao.Where(condition, args...)
 	return this
 }
 
@@ -392,8 +393,8 @@ func (this *UserRole) FindAll(selectCol ...string) ([]*UserRole, error) {
 }
 
 // 为了支持连写
-func (this *UserRole) Where(condition string) *UserRole {
-	this.Dao.Where(condition)
+func (this *UserRole) Where(condition string, args ...interface{}) *UserRole {
+	this.Dao.Where(condition, args...)
 	return this
 }
 

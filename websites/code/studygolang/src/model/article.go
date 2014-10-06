@@ -91,8 +91,8 @@ func (this *Article) FindAll(selectCol ...string) ([]*Article, error) {
 }
 
 // 为了支持连写
-func (this *Article) Where(condition string) *Article {
-	this.Dao.Where(condition)
+func (this *Article) Where(condition string, args ...interface{}) *Article {
+	this.Dao.Where(condition, args...)
 	return this
 }
 
@@ -207,8 +207,8 @@ func (this *CrawlRule) FindAll(selectCol ...string) ([]*CrawlRule, error) {
 }
 
 // 为了支持连写
-func (this *CrawlRule) Where(condition string) *CrawlRule {
-	this.Dao.Where(condition)
+func (this *CrawlRule) Where(condition string, args ...interface{}) *CrawlRule {
+	this.Dao.Where(condition, args...)
 	return this
 }
 

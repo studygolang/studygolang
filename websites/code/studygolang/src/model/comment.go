@@ -11,6 +11,7 @@ import (
 	"util"
 )
 
+// 不要修改常量的顺序
 const (
 	TYPE_TOPIC    = iota // 帖子
 	TYPE_ARTICLE         // 博文
@@ -87,8 +88,8 @@ func (this *Comment) FindAll(selectCol ...string) ([]*Comment, error) {
 }
 
 // 为了支持连写
-func (this *Comment) Where(condition string) *Comment {
-	this.Dao.Where(condition)
+func (this *Comment) Where(condition string, args ...interface{}) *Comment {
+	this.Dao.Where(condition, args...)
 	return this
 }
 

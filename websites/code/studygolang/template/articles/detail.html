@@ -26,7 +26,11 @@
 						<i class="glyphicon glyphicon-eye-open"></i>
 						阅读 <span>{{.article.Viewnum}}</span> 次&nbsp;
 					</span>
-					<a href="/articles/{{.article.Id}}#commentForm"><i class="glyphicon glyphicon-comment"></i> <span class="cmtnum">{{.article.Cmtnum}}</span> <span>条评论</span></a>
+					<span class="like" title="喜欢人数">
+						<i class="glyphicon glyphicon-heart"></i>
+						<span class="likenum">{{.article.Likenum}}</span> 人喜欢&nbsp;
+					</span>
+					<a href="/articles/{{.article.Id}}#commentForm" title="我要评论"><i class="glyphicon glyphicon-comment"></i> <span class="cmtnum">{{.article.Cmtnum}}</span> 条评论</a>
 				</div>
 				<!-- p-comment END -->
 			</div>
@@ -49,17 +53,17 @@
 				<p>本文来自：<a href="http://{{.article.Domain}}" target="_blank" title="{{.article.Name}}">{{.article.Name}}</a></p>
 				<p>查看原文：<a href="{{.article.Url}}" target="_blank" title="{{.article.Title}}">{{.article.Title}}</a></p>
 			</div>
-			<!--<div class="active row">-->
-				<!--
+			<div class="active row">
 				<div class="mark-like-btn col-md-6">
-					<a class="share-btn like-btn" href="javascript:;">
-						<i class="glyphicon glyphicon-heart-empty"></i><span>5</span>个人喜欢
+					<a class="share-btn like-btn {{if .likeflag}}hadlike{{end}}" href="javascript:;" title="{{if .likeflag}}取消喜欢{{else}}我喜欢{{end}}" data-objid="{{.article.Id}}" data-objtype="1" data-flag="{{.likeflag}}">
+						<i class="glyphicon glyphicon-heart-empty"></i><span class="likenum">{{.article.Likenum}}</span>人喜欢
 					</a>
+					<!--
 					<a class="share-btn collect collect-no" href="javascript:;">
 						<i class="glyphicon glyphicon-star-empty"></i><span>0</span>人收藏
 					</a>
+					-->
 				</div>
-				-->
 				<!-- share BEGIN -->
 				<!--
 				<div id="bdshare" class="col-md-6">
@@ -67,13 +71,13 @@
 					<a class="bds_weixin weixin-btn share-btn" href="#"><i></i>分享到朋友圈</a>
 				</div>
 				-->
-			<!--</div>-->
+			</div>
 			<div class="row prev-next">
 				{{if .prev}}<div><a href="/articles/{{.prev.Id}}" title="{{.prev.Title}}">« </a>上一篇: <a href="/articles/{{.prev.Id}}" title="{{.prev.Title}}">{{.prev.Title}}</a></div>{{end}}
 				{{if .next}}<div><a href="/articles/{{.next.Id}}" title="{{.next.Title}}">» </a>下一篇: <a href="/articles/{{.next.Id}}" title="{{.next.Title}}">{{.next.Title}}</a></div>{{end}}
 			</div>
 			<!-- 评论 -->
-			<div class="page-comment" data-objid="{{.article.Id}}" data-objtype="1" {{if .me}}data-username="{{.me.username}}" data-avatar="{{if .me.avatar}}{{.me.avatar}}{{else}}{{gravatar .me.email 48}}{{end}}"{{end}}>
+			<div class="page-comment" data-objid="{{.article.Id}}" data-objtype="1" {{if .me}}data-username="{{.me.username}}" data-uid="{{.me.uid}}" data-avatar="{{if .me.avatar}}{{.me.avatar}}{{else}}{{gravatar .me.email 48}}{{end}}"{{end}}>
 				<div class="comment-title">
 					<h2>文章点评：</h2>
 					{{if .me}}

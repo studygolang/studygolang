@@ -33,8 +33,8 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .article .metatag .source {height: 20px;color: #b5b5b5;font-style: italic; margin-right: 20px;}
 .article .metatag .date {height: 20px;color: #b5b5b5;font-style: italic; margin-right: 20px;}
 .article .metatag .author {height: 20px; margin-right: 20px;}
-.article .metatag .cmt, .article .metatag .like, .article .metatag .view { margin: 0 10px; }
-.article .metatag .view, .article .metatag .cmt { color:#979797; }
+.article .metatag .cmt, .article .metatag .like, .article .metatag .view { margin: 0 10px; color:#979797; }
+.article .metatag .hadlike i { color: #ff0000; }
 .article .metatag a:hover { text-decoration: none; color: #DB6D4C; }
 
 .sidebar {margin-bottom: 20px;}
@@ -93,7 +93,8 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .page .meta .p-author a {color: #272727;}
 .page .meta .p-author a:hover {color: #DB6D4C; text-decoration: none; }
 .page .meta .p-comment {float: right;padding-left: 10px;border-left: solid 1px #E0E0E0;height: 18px;margin-top: 5px;line-height: 18px;}
-.page .meta .p-comment .view {font-family: "NSimSun";font-size: 12px;color: #888888;}
+.page .meta .p-comment .view,.page .meta .p-comment .like {font-family: "NSimSun";font-size: 12px;color: #888888;}
+.page .meta .p-comment .like i { color: red; }
 .page .meta .p-comment a {font-size: 12px;color: #ed5565; text-decoration: none;}
 .page .tags {padding: 20px 0; margin: 0 30px;}
 .page .tags .list-inline li {margin-right: 5px;margin-bottom: 6px;}
@@ -108,7 +109,8 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .page .active .mark-like-btn a:hover {text-decoration: none; }
 .page .active .mark-like-btn .like-btn {border-color: #f35454;}
 .page .active .mark-like-btn .collect {border-color: #ff9933;}
-.page .active .mark-like-btn .love-yes {cursor: default;background: #f35454;color: #fff;}
+.page .active .mark-like-btn .hadlike {background: #f35454;color: #fff;}
+.page .active .mark-like-btn .hadlike i {color: #fff;}
 .page .prev-next {margin: 20px 30px 40px; padding-bottom: 5px; border-bottom: 1px dotted #d8d8d8;}
 .page .prev-next a {border-bottom: 1px dotted #333; color: #000; text-decoration: none;}
 
@@ -168,3 +170,5 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 /*淡入淡出提示框 comTip*/
 .comTip{display: none;padding: 15px 50px; font-size: 14px; color: #666666; background:#FAFAFA;  line-height: 1; border: solid 2px #EFEFEF; position: absolute; top: 0; border-radius: 2px; font-family: 'microsoft yahei';}
 .page-comment .light {background: #E0F2FC}
+
+.badge-warning {background-color: #db6d4c;}

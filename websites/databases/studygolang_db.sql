@@ -59,7 +59,7 @@ DROP TABLE IF EXISTS `comments`;
 CREATE TABLE `comments` (
   `cid` int unsigned NOT NULL AUTO_INCREMENT,
   `objid` int unsigned NOT NULL COMMENT '对象id，属主（评论给谁）',
-  `objtype` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '类型,0-帖子;1-博客;2-资源;3-酷站',
+  `objtype` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '类型,0-帖子;1-博文;2-资源;3-wiki',
   `content` text NOT NULL,
   `uid` int unsigned NOT NULL COMMENT '回复者',
   `floor` int unsigned NOT NULL COMMENT '第几楼',
@@ -72,21 +72,16 @@ CREATE TABLE `comments` (
 
 /*---------------------------------------------------------------------------*
   NAME: likes
-  用途：喜欢表（帖子回复、博客文章评论等，统一处理）
+  用途：喜欢表（帖子、博客文章等，统一处理）
 *---------------------------------------------------------------------------*/
 DROP TABLE IF EXISTS `likes`;
 CREATE TABLE `likes` (
-  `cid` int unsigned NOT NULL AUTO_INCREMENT,
-  `objid` int unsigned NOT NULL COMMENT '对象id，属主（评论给谁）',
-  `objtype` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '类型,0-帖子;1-博客;2-资源;3-酷站',
-  `content` text NOT NULL,
-  `uid` int unsigned NOT NULL COMMENT '回复者',
-  `floor` int unsigned NOT NULL COMMENT '第几楼',
-  `flag` tinyint NOT NULL DEFAULT 0 COMMENT '审核标识,0-未审核;1-已审核;2-审核删除;3-用户自己删除',
+  `uid` int unsigned NOT NULL DEFAULT 0 COMMENT '喜欢人的uid',
+  `objtype` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '类型,0-帖子;1-博文;2-资源;3-wiki',
+  `objid` int unsigned NOT NULL DEFAULT 0 COMMENT '对象id，属主',
+  `flag` tinyint unsigned NOT NULL DEFAULT 1 COMMENT '1-喜欢；2-不喜欢（暂时不支持）',
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`cid`),
-  UNIQUE KEY (`objid`,`objtype`,`floor`),
-  KEY (`uid`)
+  PRIMARY KEY (`uid`,`objtype`,`objid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*---------------------------------------------------------------------------*

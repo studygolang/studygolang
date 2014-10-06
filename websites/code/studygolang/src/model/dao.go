@@ -120,7 +120,7 @@ func (this *Dao) Increment(field string, num int) error {
 	if num > 0 {
 		setClause += fmt.Sprintf("+%d", num)
 	} else {
-		setClause += fmt.Sprintf("-%d", num)
+		setClause += fmt.Sprintf("-%d", -num)
 	}
 	strSql := fmt.Sprintf("UPDATE `%s` SET %s %s", this.tablename, setClause, where)
 	logger.Debugln("Increment sql:", strSql)
@@ -411,9 +411,20 @@ func (this *Dao) ColValues() []interface{} {
 	return this.colValues
 }
 
-// 查询条件处理（TODO:暂时没有处理between和in）
+func (this *Dao) Where(condition string, args ...interface{}) {
+	if len(args) == 0 {
+		this._where(condition)
+		return
+	}
+
+	this.where = condition
+	this.whereVal = args
+}
+
+// 查询条件处理（TODO:暂时没有处理between）
 // bug: aid='' 时，会自动去掉条件(FindAuthority)
-func (this *Dao) Where(condition string) {
+// 兼容之前的写法
+func (this *Dao) _where(condition string) {
 	this.whereVal = make([]interface{}, 0, 5)
 	stringBuilder := util.NewBuffer()
 	conditions := SplitIn(condition, []string{" and ", " AND ", " or ", " OR "}...)

@@ -151,7 +151,7 @@ jQuery(document).ready(function($) {
 						var cmtTimes = cmtTime.split(" ");
 						cmtTime = cmtTimes[0];
 					}
-					content += contructOneCmt(comment.floor, user.username, avatar, comment.content, comment.ctime, cmtTime);
+					content += contructOneCmt(comment.floor, user.uid, user.username, avatar, comment.content, comment.ctime, cmtTime);
 				}
 
 				if (content != "") {
@@ -164,7 +164,7 @@ jQuery(document).ready(function($) {
 		});
 	}
 
-	var contructOneCmt = function(floor, username, avatar, content, ctime, cmtTime, needLight) {
+	var contructOneCmt = function(floor, uid, username, avatar, content, ctime, cmtTime, needLight) {
 		var oneCmt = '<li id="comment'+floor+'">';
 		if (typeof needLight !== "undefined") {
 			oneCmt = '<li id="comment'+floor+'" class="light">';
@@ -175,7 +175,7 @@ jQuery(document).ready(function($) {
 			'</div>'+
 			'<div class="cmt-body">'+
 				'<div class="cmt-content">'+
-					'<a href="/user/'+username+'" class="name replyName" target="_blank" data-floor="'+floor+'楼">'+username+'</a>：'+
+					'<a href="/user/'+username+'" class="name replyName" target="_blank" data-floor="'+floor+'楼" data-uid="'+uid+'">'+username+'</a>：'+
 					'<span>'+content+'</span>'+
 					'<!--'+
 					'<span>'+
@@ -298,9 +298,10 @@ jQuery(document).ready(function($) {
 					var comment = data.data;
 					var $pageComment = $('.page-comment'),
 					username = $pageComment.data('username'),
+					uid = $pageComment.data('uid'),
 					avatar = $pageComment.data('avatar'),
 					cmtTime = SG.timeago(comment.ctime);
-					var oneCmt = contructOneCmt(comment.floor, username, avatar, comment.content, comment.ctime, cmtTime, true);
+					var oneCmt = contructOneCmt(comment.floor, uid, username, avatar, comment.content, comment.ctime, cmtTime, true);
 
 					$('.page-comment .words ul').append(oneCmt);
 					$('.page-comment .words').removeClass('hide');
@@ -327,6 +328,70 @@ jQuery(document).ready(function($) {
 			}
 		});
 	}
+
+	// 发送喜欢(取消喜欢)
+	var postLike = function(that, callback){
+		if ($('#is_login_status').val() != 1) {
+			openPop("#login-pop");
+			return;
+		}
+		
+		var objid = $(that).data('objid'),
+			objtype = $(that).data('objtype'),
+			likeFlag = parseInt($(that).data('flag'), 10);
+
+		if (likeFlag) {
+			likeFlag = 0;
+		} else {
+			likeFlag = 1;
+		}
+
+		$.post('/like/'+objid+'.json', {objtype:objtype, flag:likeFlag}, function(data){
+			if (data.ok) {
+				$(that).data('flag', likeFlag);
+				
+				var likeNum = parseInt($(that).children('.likenum').text(), 10);
+				// 已喜欢
+				if (likeFlag) {
+					$(that).addClass('hadlike').attr('title', '取消喜欢');
+					likeNum++;
+				} else {
+					$(that).removeClass('hadlike').attr('title', '我喜欢');
+					likeNum--;
+				}
+
+				$(that).children('.likenum').text(likeNum);
+
+				callback(likeNum, likeFlag);
+			} else {
+				alert(data.error);
+			}
+		});
+	}
+	
+	// 详情页喜欢(取消喜欢)
+	$('.page .like-btn').on('click', function(evt){
+		evt.preventDefault();
+
+		var that = this;
+		postLike(that, function(likeNum, likeFlag){
+			$('.page .meta .p-comment .like .likenum').text(likeNum);
+		});
+	});
+
+	// 列表页直接点喜欢(取消喜欢)
+	$('.article .metatag .like').on('click', function(evt){
+		evt.preventDefault();
+
+		var that = this;
+		postLike(that, function(likeNum, likeFlag){
+			if (likeFlag) {
+				$(that).children('i').removeClass('glyphicon-heart-empty').addClass('glyphicon-heart');
+			} else {
+				$(that).children('i').removeClass('glyphicon-heart').addClass('glyphicon-heart-empty');
+			}
+		});
+	});
 });
 
 // 在线人数统计

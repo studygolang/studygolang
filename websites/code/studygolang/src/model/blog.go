@@ -60,8 +60,9 @@ func (this *Blog) FindAll(selectCol ...string) ([]*Blog, error) {
 	return blogList, nil
 }
 
-func (this *Blog) Where(condition string) *Blog {
-	this.Dao.Where(condition)
+// 为了支持连写
+func (this *Blog) Where(condition string, args ...interface{}) *Blog {
+	this.Dao.Where(condition, args...)
 	return this
 }
 

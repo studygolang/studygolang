@@ -70,8 +70,8 @@ func (this *Role) FindAll(selectCol ...string) ([]*Role, error) {
 }
 
 // 为了支持连写
-func (this *Role) Where(condition string) *Role {
-	this.Dao.Where(condition)
+func (this *Role) Where(condition string, args ...interface{}) *Role {
+	this.Dao.Where(condition, args...)
 	return this
 }
 
@@ -163,8 +163,8 @@ func (this *RoleAuthority) FindAll(selectCol ...string) ([]*RoleAuthority, error
 }
 
 // 为了支持连写
-func (this *RoleAuthority) Where(condition string) *RoleAuthority {
-	this.Dao.Where(condition)
+func (this *RoleAuthority) Where(condition string, args ...interface{}) *RoleAuthority {
+	this.Dao.Where(condition, args...)
 	return this
 }
 

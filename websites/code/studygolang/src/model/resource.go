@@ -76,8 +76,8 @@ func (this *Resource) FindAll(selectCol ...string) ([]*Resource, error) {
 }
 
 // 为了支持连写
-func (this *Resource) Where(condition string) *Resource {
-	this.Dao.Where(condition)
+func (this *Resource) Where(condition string, args ...interface{}) *Resource {
+	this.Dao.Where(condition, args...)
 	return this
 }
 
@@ -167,8 +167,9 @@ func (this *ResourceEx) FindAll(selectCol ...string) ([]*ResourceEx, error) {
 	return resourceExList, nil
 }
 
-func (this *ResourceEx) Where(condition string) *ResourceEx {
-	this.Dao.Where(condition)
+// 为了支持连写
+func (this *ResourceEx) Where(condition string, args ...interface{}) *ResourceEx {
+	this.Dao.Where(condition, args...)
 	return this
 }
 

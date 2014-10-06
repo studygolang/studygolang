@@ -89,8 +89,8 @@ func (this *Topic) Set(clause string, args ...interface{}) *Topic {
 }
 
 // 为了支持连写
-func (this *Topic) Where(condition string) *Topic {
-	this.Dao.Where(condition)
+func (this *Topic) Where(condition string, args ...interface{}) *Topic {
+	this.Dao.Where(condition, args...)
 	return this
 }
 
@@ -183,8 +183,9 @@ func (this *TopicEx) FindAll(selectCol ...string) ([]*TopicEx, error) {
 	return topicExList, nil
 }
 
-func (this *TopicEx) Where(condition string) *TopicEx {
-	this.Dao.Where(condition)
+// 为了支持连写
+func (this *TopicEx) Where(condition string, args ...interface{}) *TopicEx {
+	this.Dao.Where(condition, args...)
 	return this
 }
 

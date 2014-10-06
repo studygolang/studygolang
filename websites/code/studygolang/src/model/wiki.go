@@ -72,8 +72,8 @@ func (this *Wiki) FindAll(selectCol ...string) ([]*Wiki, error) {
 }
 
 // 为了支持连写
-func (this *Wiki) Where(condition string) *Wiki {
-	this.Dao.Where(condition)
+func (this *Wiki) Where(condition string, args ...interface{}) *Wiki {
+	this.Dao.Where(condition, args...)
 	return this
 }
 

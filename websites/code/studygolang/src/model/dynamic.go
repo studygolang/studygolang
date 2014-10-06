@@ -68,8 +68,8 @@ func (this *Dynamic) FindAll(selectCol ...string) ([]*Dynamic, error) {
 }
 
 // 为了支持连写
-func (this *Dynamic) Where(condition string) *Dynamic {
-	this.Dao.Where(condition)
+func (this *Dynamic) Where(condition string, args ...interface{}) *Dynamic {
+	this.Dao.Where(condition, args...)
 	return this
 }
 

@@ -7,9 +7,11 @@
 package controller
 
 import (
-	"filter"
 	"math/rand"
 	"net/http"
+
+	"filter"
+	"model"
 	"service"
 )
 
@@ -24,6 +26,18 @@ func IndexHandler(rw http.ResponseWriter, req *http.Request) {
 	// 获得最新博文
 	// blogs := service.FindNewBlogs()
 	recentArticles := service.FindArticles("0", "10")
+	// 获取当前用户喜欢对象信息
+	var likeFlags map[int]int
+
+	if len(recentArticles) > 0 {
+		user, ok := filter.CurrentUser(req)
+		if ok {
+			uid := user["uid"].(int)
+
+			likeFlags, _ = service.FindUserLikeObjects(uid, model.TYPE_ARTICLE, recentArticles[0].Id, recentArticles[len(recentArticles)-1].Id)
+		}
+	}
+
 	// TODO：开源项目（暂时使用 resource 表）
 	resources := service.FindResourcesByCatid("2")
 
@@ -36,5 +50,5 @@ func IndexHandler(rw http.ResponseWriter, req *http.Request) {
 	// 设置内容模板
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/index.html")
 	// 设置模板数据
-	filter.SetData(req, map[string]interface{}{"topics": newTopics, "articles": recentArticles, "resources": resources[start:end]})
+	filter.SetData(req, map[string]interface{}{"topics": newTopics, "articles": recentArticles, "likeflags": likeFlags, "resources": resources[start:end]})
 }

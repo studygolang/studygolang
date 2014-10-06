@@ -70,8 +70,8 @@ func (this *Authority) FindAll(selectCol ...string) ([]*Authority, error) {
 }
 
 // 为了支持连写
-func (this *Authority) Where(condition string) *Authority {
-	this.Dao.Where(condition)
+func (this *Authority) Where(condition string, args ...interface{}) *Authority {
+	this.Dao.Where(condition, args...)
 	return this
 }
 
