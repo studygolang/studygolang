@@ -50,6 +50,21 @@ func FindObjComments(objid, objtype string, owner, lastCommentUid int /*, page, 
 	return
 }
 
+// 获得某个对象的所有评论（新版）
+// TODO:分页暂不做
+func FindObjectComments(objid, objtype string) (commentList []*model.Comment, err error) {
+	commentList, err = model.NewComment().Where("objid=" + objid + " and objtype=" + objtype).FindAll()
+	if err != nil {
+		logger.Errorln("comment service FindObjectComments Error:", err)
+	}
+
+	for _, comment := range commentList {
+		decodeCmtContent(comment)
+	}
+
+	return
+}
+
 func decodeCmtContent(comment *model.Comment) string {
 	// 安全过滤
 	content := template.HTMLEscapeString(comment.Content)
@@ -179,29 +194,30 @@ func getComments(cids map[int]int) map[int]*model.Comment {
 	return commentMap
 }
 
-var commenters = make(map[string]Commenter)
+var commenters = make(map[int]Commenter)
 
 // 评论接口
 type Commenter interface {
+	fmt.Stringer
 	// 评论回调接口，用于更新对象自身需要更新的数据
 	UpdateComment(int, int, int, string)
 }
 
-// 注册评论对象，使得某种类型（帖子、博客等）可以被评论
-func RegisterCommentObject(objname string, commenter Commenter) {
+// 注册评论对象，使得某种类型（帖子、博客等）被评论了可以回调
+func RegisterCommentObject(objtype int, commenter Commenter) {
 	if commenter == nil {
 		panic("service: Register commenter is nil")
 	}
-	if _, dup := commenters[objname]; dup {
-		panic("service: Register called twice for commenter " + objname)
+	if _, dup := commenters[objtype]; dup {
+		panic("service: Register called twice for commenter " + commenter.String())
 	}
-	commenters[objname] = commenter
+	commenters[objtype] = commenter
 }
 
 // 发表评论（或回复）。
 // objname 注册的评论对象名
 // uid 评论人
-func PostComment(uid, objid int, form url.Values) error {
+func PostComment(uid, objid int, form url.Values) (*model.Comment, error) {
 	comment := model.NewComment()
 	comment.Objid = objid
 	objtype := util.MustInt(form.Get("objtype"))
@@ -217,7 +233,7 @@ func PostComment(uid, objid int, form url.Values) error {
 	tmpCmt, err := model.NewComment().Where(stringBuilder.String()).Order("ctime DESC").Find()
 	if err != nil {
 		logger.Errorln("post comment service error:", err)
-		return err
+		return nil, err
 	} else {
 		comment.Floor = tmpCmt.Floor + 1
 	}
@@ -225,10 +241,14 @@ func PostComment(uid, objid int, form url.Values) error {
 	cid, err := comment.Insert()
 	if err != nil {
 		logger.Errorln("post comment service error:", err)
-		return err
+		return nil, err
 	}
+	comment.Cid = cid
+	comment.Ctime = util.TimeNow()
+	decodeCmtContent(comment)
+
 	// 回调，不关心处理结果（有些对象可能不需要回调）
-	if commenter, ok := commenters[form.Get("objname")]; ok {
+	if commenter, ok := commenters[objtype]; ok {
 		logger.Debugf("评论[objid:%d] [objtype:%d] [uid:%d] 成功，通知被评论者更新", objid, objtype, uid)
 		go commenter.UpdateComment(cid, objid, uid, time.Now().Format("2006-01-02 15:04:05"))
 	}
@@ -248,7 +268,7 @@ func PostComment(uid, objid int, form url.Values) error {
 	// @某人 发系统消息
 	go SendSysMsgAtUids(form.Get("uid"), ext)
 
-	return nil
+	return comment, nil
 }
 
 func ModifyComment(cid, content string) (errMsg string, err error) {

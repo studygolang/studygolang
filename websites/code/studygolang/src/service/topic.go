@@ -401,6 +401,10 @@ func (self TopicComment) UpdateComment(cid, objid, uid int, cmttime string) {
 	}
 }
 
+func (self TopicComment) String() string {
+	return "topic"
+}
+
 // 实现 CommentObjecter 接口
 func (self TopicComment) SetObjinfo(ids []int, commentMap map[int][]*model.Comment) {
 	topics := FindTopicsByTids(ids)

@@ -53,11 +53,11 @@
 						<i class="glyphicon glyphicon-eye-open"></i>
 						阅读:<span>{{.Viewnum}}</span>次
 					</span>
-					<!--
-					<a href="/" class="cmt" target="_blank" title="评论">
+					<a href="/articles/{{.Id}}#commentForm" class="cmt" target="_blank" title="评论数">
 						<i class="glyphicon glyphicon-comment"></i>
-						<span>42</span>
+						评论:<span>{{.Cmtnum}}</span>条
 					</a>
+					<!--
 					<a href="#" class="like" title="赞">
 						<i class="glyphicon glyphicon-heart-empty"></i>
 						<span>24</span>
@@ -80,9 +80,9 @@
 		<div class="row box_white sidebar">
 			<div class="top">
 				<ul class="list-inline text-center">
-						<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新帖子</a>|</li>
-						<li class="second"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
-						<li class="last"><a href="javascript:;">最新评论</a></li>
+					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新帖子</a>|</li>
+					<li class="second"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
+					<li class="last"><a href="javascript:;">最新评论</a></li>
 				</ul>
 				<p class="bar"></p>
 			</div>

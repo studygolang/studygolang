@@ -38,7 +38,7 @@
 			<p>
 				<label>内容</label>
 				<span class="field">
-					<textarea name="content" rows="25" cols="144">{{.article.Content}}</textarea>
+					<textarea name="content" rows="25" cols="144">{{noescape .article.Content}}</textarea>
 				</span>
 			</p>
 		</div>
@@ -110,9 +110,15 @@
 		</div>
 		<div>
 			<p>
-				<label>最后修改时间</label>
+				<label>抓取时间</label>
 				<span class="field txt">
 					{{.article.Ctime}}
+				</span>
+			</p>
+			<p>
+				<label>最后修改时间</label>
+				<span class="field txt">
+					{{.article.Mtime}}
 				</span>
 			</p>
 			<p>

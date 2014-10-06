@@ -47,7 +47,7 @@ func ArticleListHandler(rw http.ResponseWriter, req *http.Request) {
 func ArticleQueryHandler(rw http.ResponseWriter, req *http.Request) {
 	curPage, limit := parsePage(req)
 
-	conds := parseConds(req, []string{"domain", "title"})
+	conds := parseConds(req, []string{"id", "domain", "title"})
 
 	articles, total := service.FindArticleByPage(conds, curPage, limit)
 

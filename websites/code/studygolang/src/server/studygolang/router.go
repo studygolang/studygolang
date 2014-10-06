@@ -42,7 +42,7 @@ func initRouter() *mux.Router {
 	// 注册
 	router.HandleFunc("/account/register{json:(|.json)}", RegisterHandler)
 	// 登录
-	router.HandleFunc("/account/login", LoginHandler)
+	router.HandleFunc("/account/login{json:(|.json)}", LoginHandler)
 	router.HandleFunc("/account/logout", LogoutHandler)
 
 	router.HandleFunc("/account/edit{json:(|.json)}", AccountEditHandler).AppendFilterChain(loginFilterChain)
@@ -74,6 +74,7 @@ func initRouter() *mux.Router {
 
 	// 评论
 	router.HandleFunc("/comment/{objid:[0-9]+}.json", CommentHandler).AppendFilterChain(loginFilterChain)
+	router.HandleFunc("/object/comments.json", ObjectCommentsHandler)
 
 	// 消息相关
 	router.HandleFunc("/message/send{json:(|.json)}", SendMessageHandler).AppendFilterChain(loginFilterChain)

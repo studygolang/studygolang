@@ -41,6 +41,7 @@ type Article struct {
 	Status    int    `json:"status"`
 	OpUser    string `json:"op_user"`
 	Ctime     string `json:"ctime"`
+	Mtime     string `json:"mtime"`
 
 	// 数据库访问对象
 	*Dao
@@ -114,8 +115,8 @@ func (this *Article) Order(order string) *Article {
 }
 
 func (this *Article) prepareInsertData() {
-	this.columns = []string{"domain", "name", "title", "author", "author_txt", "lang", "pub_date", "url", "content", "txt", "tags"}
-	this.colValues = []interface{}{this.Domain, this.Name, this.Title, this.Author, this.AuthorTxt, this.Lang, this.PubDate, this.Url, this.Content, this.Txt, this.Tags}
+	this.columns = []string{"domain", "name", "title", "author", "author_txt", "lang", "pub_date", "url", "content", "txt", "tags", "ctime"}
+	this.colValues = []interface{}{this.Domain, this.Name, this.Title, this.Author, this.AuthorTxt, this.Lang, this.PubDate, this.Url, this.Content, this.Txt, this.Tags, this.Ctime}
 }
 
 func (this *Article) colFieldMap() map[string]interface{} {
@@ -139,6 +140,7 @@ func (this *Article) colFieldMap() map[string]interface{} {
 		"status":     &this.Status,
 		"op_user":    &this.OpUser,
 		"ctime":      &this.Ctime,
+		"mtime":      &this.Mtime,
 	}
 }
 

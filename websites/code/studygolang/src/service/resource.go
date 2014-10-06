@@ -221,6 +221,10 @@ func (self ResourceComment) UpdateComment(cid, objid, uid int, cmttime string) {
 	}
 }
 
+func (self ResourceComment) String() string {
+	return "resource"
+}
+
 // 实现 CommentObjecter 接口
 func (self ResourceComment) SetObjinfo(ids []int, commentMap map[int][]*model.Comment) {
 	resources := FindResourcesByIds(ids)

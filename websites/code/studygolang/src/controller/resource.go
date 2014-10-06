@@ -19,7 +19,7 @@ import (
 // 在需要评论且要回调的地方注册评论对象
 func init() {
 	// 注册评论对象
-	service.RegisterCommentObject("resource", service.ResourceComment{})
+	service.RegisterCommentObject(model.TYPE_RESOURCE, service.ResourceComment{})
 }
 
 // 资源索引页

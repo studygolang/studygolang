@@ -8,6 +8,10 @@
 	<form id="queryform" class="stdform_q" action="" method="get">
 		<div>
 			<p>
+				<label>文章ID</label>
+				<span class="field"><input type="text" id="q_id" name="id" class="smallinput" value=""/></span>
+			</p>
+			<p>
 				<label>来源域名</label>
 				<span class="field"><input type="text" id="q_domain" name="domain" class="smallinput" value=""/></span>
 			</p>
@@ -52,6 +56,7 @@
 var GLOBAL_CONF = {
 	"action_query" : "/admin/crawl/article/query.html",
 	"query_params" : {
+		'id' : '#q_id',
 		'domain' : '#q_domain',
 		'title' : '#q_title',
 		'create_time_min' : '#create_time_min',

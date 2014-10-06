@@ -24,7 +24,7 @@ import (
 // uri: /account/register{json:(|.json)}
 func RegisterHandler(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
-	username := req.FormValue("username")
+	username := req.PostFormValue("username")
 	// 请求注册页面
 	if username == "" || req.Method != "POST" || vars["json"] == "" {
 		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/register.html")
@@ -43,9 +43,9 @@ func RegisterHandler(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	// 注册成功，自动为其登录
-	setCookie(rw, req, req.FormValue("username"))
+	setCookie(rw, req, req.PostFormValue("username"))
 	// 发送欢迎邮件
-	go sendWelcomeMail([]string{req.FormValue("email")})
+	go sendWelcomeMail([]string{req.PostFormValue("email")})
 	fmt.Fprint(rw, `{"errno": 0, "error":""}`)
 }
 
@@ -58,17 +58,27 @@ Golang中文社区是一个Go语言技术社区，完全用Go语言开发。我�
 }
 
 // 登录
-// uri : /account/login
+// uri : /account/login{json:(|.json)}
 func LoginHandler(rw http.ResponseWriter, req *http.Request) {
-	username := req.FormValue("username")
+	username := req.PostFormValue("username")
 	if username == "" || req.Method != "POST" {
 		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/login.html")
 		return
 	}
+
+	vars := mux.Vars(req)
+
+	suffix := vars["json"]
+
 	// 处理用户登录
-	passwd := req.FormValue("passwd")
+	passwd := req.PostFormValue("passwd")
 	userLogin, err := service.Login(username, passwd)
 	if err != nil {
+		if suffix != "" {
+			fmt.Fprint(rw, `{"ok":0,"error":"`+err.Error()+`"}`)
+			return
+		}
+
 		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/login.html")
 		filter.SetData(req, map[string]interface{}{"username": username, "error": err.Error()})
 		return
@@ -76,6 +86,11 @@ func LoginHandler(rw http.ResponseWriter, req *http.Request) {
 	logger.Debugf("remember_me is %q\n", req.FormValue("remember_me"))
 	// 登录成功，种cookie
 	setCookie(rw, req, userLogin.Username)
+
+	if suffix != "" {
+		fmt.Fprint(rw, `{"ok":1,"msg":"success"}`)
+		return
+	}
 
 	// 支持跳转到源页面
 	uri := "/"

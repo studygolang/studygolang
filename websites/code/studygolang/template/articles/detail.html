@@ -26,7 +26,7 @@
 						<i class="glyphicon glyphicon-eye-open"></i>
 						阅读 <span>{{.article.Viewnum}}</span> 次&nbsp;
 					</span>
-					<!--<a href="javascript:void(0);"><span>0</span> <span>条评论</span></a>-->
+					<a href="/articles/{{.article.Id}}#commentForm"><i class="glyphicon glyphicon-comment"></i> <span class="cmtnum">{{.article.Cmtnum}}</span> <span>条评论</span></a>
 				</div>
 				<!-- p-comment END -->
 			</div>
@@ -49,7 +49,7 @@
 				<p>本文来自：<a href="http://{{.article.Domain}}" target="_blank" title="{{.article.Name}}">{{.article.Name}}</a></p>
 				<p>查看原文：<a href="{{.article.Url}}" target="_blank" title="{{.article.Title}}">{{.article.Title}}</a></p>
 			</div>
-			<div class="active row">
+			<!--<div class="active row">-->
 				<!--
 				<div class="mark-like-btn col-md-6">
 					<a class="share-btn like-btn" href="javascript:;">
@@ -67,29 +67,37 @@
 					<a class="bds_weixin weixin-btn share-btn" href="#"><i></i>分享到朋友圈</a>
 				</div>
 				-->
+			<!--</div>-->
+			<div class="row prev-next">
+				{{if .prev}}<div><a href="/articles/{{.prev.Id}}" title="{{.prev.Title}}">« </a>上一篇: <a href="/articles/{{.prev.Id}}" title="{{.prev.Title}}">{{.prev.Title}}</a></div>{{end}}
+				{{if .next}}<div><a href="/articles/{{.next.Id}}" title="{{.next.Title}}">» </a>下一篇: <a href="/articles/{{.next.Id}}" title="{{.next.Title}}">{{.next.Title}}</a></div>{{end}}
 			</div>
 			<!-- 评论 -->
-			<!--
-			<div class="page-comment">
+			<div class="page-comment" data-objid="{{.article.Id}}" data-objtype="1" {{if .me}}data-username="{{.me.username}}" data-avatar="{{if .me.avatar}}{{.me.avatar}}{{else}}{{gravatar .me.email 48}}{{end}}"{{end}}>
 				<div class="comment-title">
-					<h2>文章点评：</h2><span class="h2-tip">
-					（您需要 <a class="c-log" href="javascript:openPop('#login-pop');">登录</a> 后才能评论 <a href="/register" class="c-reg"> 没有账号</a> ？）</span>
+					<h2>文章点评：</h2>
+					{{if .me}}
+					<input type="hidden" id="is_login_status" value="1" />
+					{{else}}
+					<input type="hidden" id="is_login_status" value="0" />
+					<span class="h2-tip">
+					（您需要 <a class="c-log" href="javascript:openPop('#login-pop');">登录</a> 后才能评论 <a href="/user/register" class="c-reg"> 没有账号</a> ？）</span>
+					{{end}}
 				</div>
 				<div class="submit" id="commentForm">
 					<div class="text">
-						<textarea name="Comment[content]" placeholder="我有话要说……"></textarea>
+						<textarea name="content" placeholder="我有话要说……"></textarea>
 					</div>
 					<div class="sub text-right">
 						<button type="submit" title="提交" class="btn btn-danger">提交</button>
 					</div>
 				</div>
-				<div class="words" style="visibility: hidden;">
-					<h3><span>0</span>条评论<i></i></h3>
-					<ul class="comment-say">
+				<div class="words hide">
+					<h3><span class="cmtnum">{{.article.Cmtnum}}</span>条评论</h3>
+					<ul class="list-unstyled">
 					</ul>
 				</div>
 			</div>
-			-->
 			<!-- 评论 -->
 		</div>
 	</div>
@@ -97,9 +105,9 @@
 		<div class="row box_white sidebar">
 			<div class="top">
 				<ul class="list-inline text-center">
-					<li class="first"><a href="http://www.leiphone.com/category/t" target="_blank" class="cur" title="点击更多">最新帖子</a>|</li>
-					<li class="second"><a href="javascript:;">最新博文</a>|</li>
-					<li class="last"><a href="http://www.leiphone.com/specials" target="_blank" title="点击更多" class="">精彩评论</a></li>
+					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新帖子</a>|</li>
+					<li class="second"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
+					<li class="last"><a href="javascript:;">最新评论</a></li>
 				</ul>
 				<p class="bar"></p>
 			</div>
@@ -109,7 +117,7 @@
 						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
 					</ul>
 				</div>
-				<div class="article-list second hidden">
+				<div class="resource-list second hidden">
 					<ul class="list-unstyled">
 					</ul>
 				</div>
@@ -121,14 +129,72 @@
 		</div>
 	</div>
 </div>
+
+<div class="pop login-pop" id="login-pop">
+	<div class="thirdparty">
+		<h5>第三方账号登录</h5>
+		<div class="thirdparty-btns">
+			<a class="btn-qq btn" href="#">
+				<i></i>
+				<span>Q&nbsp;Q&nbsp;登&nbsp;录</span>
+			</a>
+			<a class="btn-weibo btn" href="#">
+				<i></i>
+				<span>微&nbsp;博&nbsp;登&nbsp;录</span>
+			</a>
+		</div>
+	</div>
+	<div class="login-form">
+		<div class="error text-center"></div>
+		<form action="#" method="post" class="form-horizontal" role="form">
+			<div class="form-group">
+				<label for="username" class="col-sm-3 control-label">用户名</label>
+				<div class="col-sm-9 form-input">
+					<input type="text" class="form-control" id="username" name="username" placeholder="请填写用户名或邮箱">
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="passwd" class="col-sm-3 control-label">密码</label>
+				<div class="col-sm-9 form-input">
+					<input type="password" class="form-control" id="passwd" name="passwd" placeholder="密码">
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-offset-2 col-sm-10">
+					<div class="checkbox">
+						<label>
+							<input id="user_remember_me" name="remember_me" type="checkbox" value="1" checked="checked" />	记住登录状态
+						</label>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-offset-2 col-sm-10">
+					<button type="submit" id="login-btn" class="btn btn-default pull-left">登录</button>
+					<div class="forget">
+						<a href="/account/forgetpwd" title="点击找回密码">忘记密码？</a>
+					</div>
+					<div class="register">
+						<span>还不是会员</span><a href="/account/register">现在注册</a>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<div id="sg-overlay"></div>
 {{end}}
 {{define "js"}}
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
 	"/topics/recent.json",
-	"/articles/recent.json",
+	"/resources/recent.json",
 	"/comments/recent.json",
 ];
+
+$(function(){
+	loadComments();
+});
 </script>
 {{end}}

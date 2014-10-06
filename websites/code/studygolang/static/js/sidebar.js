@@ -101,7 +101,7 @@ $(function(){
 				if (avatar == "") {
 					avatar = 'http://www.gravatar.com/avatar/'+md5(user.email)+"?s=40";
 				}
-
+				
 				var cmtTime = SG.timeago(comments[i].ctime);
 				if (cmtTime == comments[i].ctime) {
 					var cmtTimes = cmtTime.split(" ");
@@ -117,10 +117,10 @@ $(function(){
 					'<div class="word">'+
 						'<div class="w-name">'+
 							'<a href="/user/'+user.username+'" target="_blank" title="'+user.username+'">'+user.username+'</a>'+
-							'<span>'+cmtTime+'</span>'+
+							'<span title="'+comments[i].ctime+'">'+cmtTime+'</span>'+
 						'</div>'+
 						'<div class="w-page">'+
-							'<span>在<a href="'+url+'">'+comments[i].objinfo.title+'  </a>中评论</span>'+
+							'<span>在<a href="'+url+'" title="'+comments[i].objinfo.title+'">'+comments[i].objinfo.title+'  </a>中评论</span>'+
 						'</div>'+
 						'<div class="w-comment">'+
 							'<span title="'+comments[i].content+'">'+comments[i].content+'</span>'+

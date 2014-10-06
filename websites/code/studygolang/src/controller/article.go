@@ -19,6 +19,12 @@ import (
 
 const limit = 20
 
+// 在需要评论且要回调的地方注册评论对象
+func init() {
+	// 注册评论对象
+	service.RegisterCommentObject(model.TYPE_ARTICLE, service.ArticleComment{})
+}
+
 // 网友文章列表页
 // uri: /articles
 func ArticlesHandler(rw http.ResponseWriter, req *http.Request) {
@@ -50,7 +56,8 @@ func ArticlesHandler(rw http.ResponseWriter, req *http.Request) {
 	if lastId != "0" {
 		prevId, _ = strconv.Atoi(lastId)
 
-		if prevId-articles[0].Id > 1 {
+		// 避免因为文章下线，导致判断错误（所以 > 5）(TODO:翻页还是有点小问题)
+		if prevId-articles[0].Id > 5 {
 			hasPrev = false
 		} else {
 			prevId += limit
@@ -83,7 +90,7 @@ func ArticlesHandler(rw http.ResponseWriter, req *http.Request) {
 func ArticleDetailHandler(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	article, err := service.FindArticleById(vars["id"])
+	article, prevNext, err := service.FindArticlesById(vars["id"])
 	if err != nil {
 		util.Redirect(rw, req, "/articles")
 	}
@@ -97,5 +104,5 @@ func ArticleDetailHandler(rw http.ResponseWriter, req *http.Request) {
 	// 设置内容模板
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/articles/detail.html")
 	// 设置模板数据
-	filter.SetData(req, map[string]interface{}{"activeArticles": "active", "article": article})
+	filter.SetData(req, map[string]interface{}{"activeArticles": "active", "article": article, "prev": prevNext[0], "next": prevNext[1]})
 }

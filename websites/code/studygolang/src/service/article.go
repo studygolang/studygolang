@@ -150,6 +150,7 @@ func ParseArticle(articleUrl string, auto bool) (*model.Article, error) {
 	article.Txt = txt
 	article.PubDate = pubDate
 	article.Url = articleUrl
+	article.Ctime = util.TimeNow()
 
 	_, err = article.Insert()
 	if err != nil {
@@ -205,6 +206,7 @@ func FindArticles(lastId, limit string) []*model.Article {
 	return articleList
 }
 
+// 获取单条博文
 func FindArticleById(id string) (*model.Article, error) {
 	article := model.NewArticle()
 	err := article.Where("id=" + id).Find()
@@ -213,6 +215,46 @@ func FindArticleById(id string) (*model.Article, error) {
 	}
 
 	return article, err
+}
+
+// 获取当前(id)博文以及前后博文
+func FindArticlesById(idstr string) (curArticle *model.Article, prevNext []*model.Article, err error) {
+	id := util.MustInt(idstr)
+	littleId, maxId := id-5, id+5
+
+	cond := "id>" + strconv.Itoa(littleId) + " AND id<" + strconv.Itoa(maxId)
+
+	articles, err := model.NewArticle().Where(cond).FindAll()
+	if err != nil {
+		logger.Errorln("article service FindArticlesById Error:", err)
+		return
+	}
+
+	prevNext = make([]*model.Article, 2)
+	prevId, nextId := id, id
+	for _, article := range articles {
+		if prevId > article.Id {
+			prevId = article.Id
+			prevNext[0] = article
+		} else if nextId < article.Id {
+			nextId = article.Id
+			prevNext[1] = article
+		}
+
+		if id == article.Id {
+			curArticle = article
+		}
+	}
+
+	if prevId == id {
+		prevNext[0] = nil
+	}
+
+	if nextId == id {
+		prevNext[1] = nil
+	}
+
+	return
 }
 
 // 获取多个文章详细信息
@@ -322,24 +364,21 @@ func SaveRule(form url.Values, opUser string) (errMsg string, err error) {
 // 博文评论
 type ArticleComment struct{}
 
-// 更新该帖子的回复信息
+// 更新该文章的评论信息
 // cid：评论id；objid：被评论对象id；uid：评论者；cmttime：评论时间
-/*
 func (self ArticleComment) UpdateComment(cid, objid, uid int, cmttime string) {
-	tid := strconv.Itoa(objid)
-	// 更新最后回复信息
-	stringBuilder := util.NewBuffer().Append("lastreplyuid=").AppendInt(uid).Append(",lastreplytime=").Append(cmttime)
-	err := model.NewTopic().Set(stringBuilder.String()).Where("tid=" + tid).Update()
-	if err != nil {
-		logger.Errorln("更新帖子最后回复人信息失败：", err)
-	}
+	id := strconv.Itoa(objid)
+
 	// 更新回复数（TODO：暂时每次都更新表）
-	err = model.NewTopicEx().Where("tid="+tid).Increment("reply", 1)
+	err := model.NewArticle().Where("id="+id).Increment("cmtnum", 1)
 	if err != nil {
-		logger.Errorln("更新帖子回复数失败：", err)
+		logger.Errorln("更新文章回复数失败：", err)
 	}
 }
-*/
+
+func (self ArticleComment) String() string {
+	return "article"
+}
 
 // 实现 CommentObjecter 接口
 func (self ArticleComment) SetObjinfo(ids []int, commentMap map[int][]*model.Comment) {

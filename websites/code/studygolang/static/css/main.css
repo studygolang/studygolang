@@ -1,5 +1,7 @@
 html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
 
+.clr:after {clear: both;content: '\0020';display: block;visibility: hidden;height: 0;}
+
 /* nav */
 .navbar-default .navbar-nav>li>a { color: #bbbbbb; }
 .navbar-default .navbar-nav>.active>a { color: #ffffff; }
@@ -32,7 +34,7 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .article .metatag .date {height: 20px;color: #b5b5b5;font-style: italic; margin-right: 20px;}
 .article .metatag .author {height: 20px; margin-right: 20px;}
 .article .metatag .cmt, .article .metatag .like, .article .metatag .view { margin: 0 10px; }
-.article .metatag .view { color:#979797; }
+.article .metatag .view, .article .metatag .cmt { color:#979797; }
 .article .metatag a:hover { text-decoration: none; color: #DB6D4C; }
 
 .sidebar {margin-bottom: 20px;}
@@ -92,7 +94,7 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .page .meta .p-author a:hover {color: #DB6D4C; text-decoration: none; }
 .page .meta .p-comment {float: right;padding-left: 10px;border-left: solid 1px #E0E0E0;height: 18px;margin-top: 5px;line-height: 18px;}
 .page .meta .p-comment .view {font-family: "NSimSun";font-size: 12px;color: #888888;}
-.page .meta .p-comment a {font-size: 12px;color: #ed5565;}
+.page .meta .p-comment a {font-size: 12px;color: #ed5565; text-decoration: none;}
 .page .tags {padding: 20px 0; margin: 0 30px;}
 .page .tags .list-inline li {margin-right: 5px;margin-bottom: 6px;}
 .page .tags .list-inline li a {padding: 4px 12px;color: #fff;font-family: "NSimSun";font-size: 12px;background: #9F9F9F;border-radius: 3px;}
@@ -107,6 +109,8 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .page .active .mark-like-btn .like-btn {border-color: #f35454;}
 .page .active .mark-like-btn .collect {border-color: #ff9933;}
 .page .active .mark-like-btn .love-yes {cursor: default;background: #f35454;color: #fff;}
+.page .prev-next {margin: 20px 30px 40px; padding-bottom: 5px; border-bottom: 1px dotted #d8d8d8;}
+.page .prev-next a {border-bottom: 1px dotted #333; color: #000; text-decoration: none;}
 
 .page .page-comment { margin: 0 30px; }
 .page .page-comment .comment-title {height: 30px;line-height: 30px; margin-top: 21px;}
@@ -116,6 +120,29 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .page .page-comment .submit textarea {resize: none;width: 100%;color: #999999;font-size: 14px;border: solid 1px #E5E5E5;padding: 15px;}
 .page .page-comment .submit textarea:focus{outline: solid 1px #FFB7B7;}
 .page .page-comment .submit .sub .btn {padding: 6px 22px;}
+.page .page-comment .words {padding-bottom: 20px;}
+.page .page-comment .words h3 {font-size: 14px;color: #999999;height: 40px;line-height: 40px;border-bottom: solid 1px #ECECEC;position: relative;margin-top: 4px;font-weight: normal;margin-bottom: 0px;}
+.page .page-comment .words h3 span {color: #A2442F;padding: 0 3px;}
+.page .page-comment .words ul li {padding: 20px 0 8px;border-bottom: dashed 1px #ECECEC;}
+.page .page-comment .words ul li .face {padding-right: 8px;width: 48px;margin-left: 0;}
+.page .page-comment .words ul li .cmt-body {padding-left: 58px;}
+.page .page-comment .words ul li .cmt-body .cmt-content {color: #666666;font-size: 14px;padding-bottom: 10px;word-break: break-all;word-wrap: break-word;overflow: auto;}
+.page .page-comment .words ul li .cmt-body .cmt-content a.name {color: #B66257;text-decoration: none;}
+.page .page-comment .words ul li .cmt-body .cmt-content a.name:hover {text-decoration: underline;}
+.page .page-comment .words ul li .cmt-body .cmt-meta {font-size: 12px;color: #cccccc;height: 14px;line-height: 14px;}
+.page .page-comment .words ul li .cmt-body .cmt-meta a.small_reply {margin-left:15px; color:#78A395}
+.page .page-comment .words ul li .cmt-body .cmt-meta a.small_reply:hover {color:#409E80}
+.page .page-comment .words ul li .cmt-body .respond-submit{display: none; margin-top: 30px;}
+.page .page-comment .words ul li .cmt-body .text{position: relative;}
+.page .page-comment .words ul li .cmt-body .text input{border-radius: 2px; padding-right:10px; height: 37px; line-height: 14px;font-size: 14px;line-height: 37px\9; color: #5A5A5A;border:solid 1px #EEEEEE; background: #F7F7F7;}
+.page .page-comment .words ul li .cmt-body .text input:focus{outline: solid 1px #FFB7B7;}
+.page .page-comment .words ul li .cmt-body .text .tip{font-size: 14px; color: #999999;position: absolute; top: 10px; left: 10px; height: 14px; line-height: 14px;}
+.page .page-comment .words ul li .cmt-body .text .tip a{padding: 0 5px;}
+.page .page-comment .words ul li .cmt-body .sub button{cursor: pointer;width: 85px; height: 33px; color: #fff; font-size: 14px;background: #D55252;border: 0; outline: 0; float: right;-webkit-transition:all .3s ease-out;-moz-transition:all .3s ease-out;transition:all .3s ease-out;}
+.page .page-comment .words ul li .cmt-body .sub button:hover{background: #E05F5F;}
+.page .page-comment .words ul li .cmt-body .sub button.disabled{background: #FAADAD; cursor: default;}
+.page .page-comment .words ul li .cmt-body .sub{padding-top: 14px;}
+
 
 .footer {margin-top: 40px; margin-bottom: 20px;}
 
@@ -124,3 +151,20 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .newfuture {position: absolute;display: block;overflow: hidden;text-indent: -999px;width: 23px;height: 9px;top: 5px;right: 10px;background: url(../img/new.png) no-repeat 0 0;}
 
 .truncate {-o-text-overflow: ellipsis;-moz-text-overflow: ellipsis; -webkit-text-overflow: ellipsis;text-overflow: ellipsis; overflow: hidden; white-space: nowrap;}
+
+/* 弹窗登录框 */
+.login-pop {font-family: "microsoft yahei";display: none;top: 0;width: 455px;height: 380px;padding: 30px 40px 30px 15px;background: #fff;position: absolute;z-index: 1001;border-radius: 3px;}
+.login-pop .thirdparty {border-bottom: dashed 1px #D5D5D5;}
+.login-pop .thirdparty h5 {font-size: 15px;color: #333333;}
+.login-pop .login-form {padding-top: 32px;}
+.login-pop .login-form .error {color:red; display:none;}
+.login-pop .login-form .form-input {padding-left:0px;}
+.login-pop .login-form #login-btn {margin-right: 20px;}
+.login-pop .login-form .forget a, .login-pop .login-form .register a {font-size: 14px;color: #cc6666;letter-spacing: 1px;}
+.login-pop .login-form .register span {color: #333333;font-size: 14px;margin-right: 5px;}
+
+#sg-overlay {position: absolute;display: none;background: #000;filter: Alpha(opacity=70);opacity: 0.7;top: 0;left: 0;z-index: 1000;}
+
+/*淡入淡出提示框 comTip*/
+.comTip{display: none;padding: 15px 50px; font-size: 14px; color: #666666; background:#FAFAFA;  line-height: 1; border: solid 2px #EFEFEF; position: absolute; top: 0; border-radius: 2px; font-family: 'microsoft yahei';}
+.page-comment .light {background: #E0F2FC}
