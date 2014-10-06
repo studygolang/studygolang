@@ -256,6 +256,7 @@ jQuery(document).ready(function($) {
 			alert("其实你想说点什么...");
 		} else {
 			postComment($(this), content, function(comment){
+				comTip("评论成功！");
 				$('#commentForm textarea').val('');
 			});
 		}
@@ -272,6 +273,7 @@ jQuery(document).ready(function($) {
 			var that = $(this)
 			content = replyTo + content;
 			postComment(that, content, function(){
+				comTip("回复成功！");
 				that.parent(".sub").prev(".text").children("input").val("");
 				that.parents(".respond-submit").slideUp(200);
 			});
@@ -293,7 +295,6 @@ jQuery(document).ready(function($) {
 			dataType: 'json',
 			success: function(data){
 				if(data.errno == 0){
-					comTip("回复成功！");
 					var comment = data.data;
 					var $pageComment = $('.page-comment'),
 					username = $pageComment.data('username'),

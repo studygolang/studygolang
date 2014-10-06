@@ -48,6 +48,11 @@ func SendSystemMsgTo(to, msgtype int, ext map[string]interface{}) bool {
 			to = getWikiOwner(objid)
 		}
 	}
+
+	if to == 0 {
+		return true
+	}
+
 	if from, ok := ext["uid"]; ok {
 		// 自己的动作不发系统消息
 		if to == from.(int) {
