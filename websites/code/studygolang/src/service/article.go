@@ -219,12 +219,11 @@ func FindArticleById(id string) (*model.Article, error) {
 
 // 获取当前(id)博文以及前后博文
 func FindArticlesById(idstr string) (curArticle *model.Article, prevNext []*model.Article, err error) {
+
 	id := util.MustInt(idstr)
-	littleId, maxId := id-5, id+5
+	cond := "id BETWEEN ? AND ? AND status!=2"
 
-	cond := "id>" + strconv.Itoa(littleId) + " AND id<" + strconv.Itoa(maxId)
-
-	articles, err := model.NewArticle().Where(cond).FindAll()
+	articles, err := model.NewArticle().Where(cond, id-5, id+5).FindAll()
 	if err != nil {
 		logger.Errorln("article service FindArticlesById Error:", err)
 		return
