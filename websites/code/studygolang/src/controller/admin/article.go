@@ -79,7 +79,7 @@ func CrawlArticleHandler(rw http.ResponseWriter, req *http.Request) {
 
 		var errMsg string
 		for _, articleUrl := range urls {
-			_, err := service.ParseArticle(articleUrl, false)
+			_, err := service.ParseArticle(strings.TrimSpace(articleUrl), false)
 
 			if err != nil {
 				errMsg = err.Error()
