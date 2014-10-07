@@ -34,3 +34,15 @@ func (this *Buffer) Append(s string) *Buffer {
 func (this *Buffer) AppendInt(i int) *Buffer {
 	return this.Append(strconv.Itoa(i))
 }
+
+func (this *Buffer) AppendBytes(p []byte) *Buffer {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println("*****内存不够了！******")
+		}
+	}()
+
+	this.Buffer.Write(p)
+
+	return this
+}

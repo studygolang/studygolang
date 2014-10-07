@@ -7,24 +7,36 @@
 package service
 
 import (
+	"encoding/json"
+	"errors"
+	"net/http"
+	"strconv"
+
+	"config"
 	"logger"
 	"model"
+	"util"
 )
+
+const MaxRows = 100
 
 // 准备索引数据，post 给 solr
 // isAll: 是否全量
 func Indexing(isAll bool) {
-
+	IndexingArticle(isAll)
 }
 
 // 索引博文
 func IndexingArticle(isAll bool) {
-	article := model.NewArticle()
+	solrClient := NewSolrClient()
 
+	articleObj := model.NewArticle()
+
+	limit := strconv.Itoa(MaxRows)
 	if isAll {
 		id := 0
 		for {
-			articleList, err := article.Where("id>?", id).FindAll()
+			articleList, err := articleObj.Where("id>? AND status!=?", id, model.StatusOffline).Limit(limit).FindAll()
 			if err != nil {
 				logger.Errorln("IndexingArticle error:", err)
 				break
@@ -34,6 +46,80 @@ func IndexingArticle(isAll bool) {
 				break
 			}
 
+			for _, article := range articleList {
+				if id < article.Id {
+					id = article.Id
+				}
+
+				document := model.NewDocument(article, nil)
+				addCommand := model.NewDefaultArgsAddCommand(document)
+
+				solrClient.Push(addCommand)
+			}
+
+			solrClient.Post()
 		}
 	}
+}
+
+type SolrClient struct {
+	addCommands []*model.AddCommand
+}
+
+func NewSolrClient() *SolrClient {
+	return &SolrClient{
+		addCommands: make([]*model.AddCommand, 0, MaxRows),
+	}
+}
+
+func (this *SolrClient) Push(addCommand *model.AddCommand) {
+	this.addCommands = append(this.addCommands, addCommand)
+}
+
+func (this *SolrClient) Post() error {
+	stringBuilder := util.NewBuffer().Append("{")
+
+	needComma := false
+	for _, addCommand := range this.addCommands {
+		commandJson, err := json.Marshal(addCommand)
+		if err != nil {
+			continue
+		}
+
+		if stringBuilder.Len() == 1 {
+			needComma = false
+		} else {
+			needComma = true
+		}
+
+		if needComma {
+			stringBuilder.Append(",")
+		}
+
+		stringBuilder.Append(`"add":`).AppendBytes(commandJson)
+	}
+
+	if stringBuilder.Len() == 1 {
+		logger.Errorln("post docs:no right addcommand")
+		return errors.New("no right addcommand")
+	}
+
+	stringBuilder.Append("}")
+
+	resp, err := http.Post(config.Config["indexing_url"], "application/json", stringBuilder)
+	if err != nil {
+		logger.Errorln("post error:", err)
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	var result map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		logger.Errorln("parse response error:", err)
+		return err
+	}
+
+	return nil
 }

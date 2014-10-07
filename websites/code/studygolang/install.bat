@@ -18,6 +18,7 @@ gofmt -w src
 :: -tags "debug" 表示测试
 go install -tags "debug" server/studygolang
 go install -tags "debug" server/crawlarticle
+go install -tags "debug" server/indexer
 
 set GOPATH=%OLDGOPATH%
 

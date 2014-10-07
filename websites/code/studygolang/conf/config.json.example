@@ -17,6 +17,8 @@
 	"qiniu_secret_key": "xxxxxxxxxxxxxx",
 	"qiniu_bucket_name": "xxxxxxxxx",
 
+	"indexing_url": "",
+
 	"crawl_host": ":7070",
 	"crawl_spec": "0 0 */1 * * ?"
 }

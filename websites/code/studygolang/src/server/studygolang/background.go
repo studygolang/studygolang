@@ -33,12 +33,6 @@ func ServeBackGround() {
 	// 两分钟刷一次浏览数（TODO：重启丢失问题？信号控制重启？）
 	c.AddFunc("@every 2m", service.Views.Flush)
 
-	// 构建 solr 需要的索引数据
-	// 一天一次全量
-	c.AddFunc("0 20 0 * * *", func() {
-
-	})
-
 	c.Start()
 }
 

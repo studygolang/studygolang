@@ -26,6 +26,7 @@ var domainPatch = map[string]string{
 
 // 获取url对应的文章并根据规则进行解析
 func ParseArticle(articleUrl string, auto bool) (*model.Article, error) {
+	articleUrl = strings.TrimSpace(articleUrl)
 	if !strings.HasPrefix(articleUrl, "http") {
 		articleUrl = "http://" + articleUrl
 	}

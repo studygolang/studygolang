@@ -19,6 +19,7 @@ gofmt -w src
 
 go install server/studygolang
 go install server/crawlarticle
+go install server/indexer
 
 export GOPATH="$OLDGOPATH"
 export PATH="$OLDPATH"
