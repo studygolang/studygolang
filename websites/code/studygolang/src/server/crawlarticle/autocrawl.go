@@ -32,7 +32,7 @@ var websites = map[string]map[string]string{
 	"csdn": {
 		"all_url":        "http://so.csdn.net/so/search/s.do?t=blog&q=",
 		"incr_url":       "http://so.csdn.net/so/search/s.do?t=blog&q=",
-		"keywords":       "go,golang",
+		"keywords":       "go,golang,golang语言,go语言",
 		"listselector":   ".search-list",
 		"resultselector": "dt a",
 		"page_field":     "p",

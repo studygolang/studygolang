@@ -81,9 +81,7 @@
 				<div class="comment-title">
 					<h2>文章点评：</h2>
 					{{if .me}}
-					<input type="hidden" id="is_login_status" value="1" />
 					{{else}}
-					<input type="hidden" id="is_login_status" value="0" />
 					<span class="h2-tip">
 					（您需要 <a class="c-log" href="javascript:openPop('#login-pop');">登录</a> 后才能评论 <a href="/user/register" class="c-reg"> 没有账号</a> ？）</span>
 					{{end}}
@@ -133,62 +131,6 @@
 		</div>
 	</div>
 </div>
-
-<div class="pop login-pop" id="login-pop">
-	<!--
-	<div class="thirdparty">
-		<h5>第三方账号登录</h5>
-		<div class="thirdparty-btns">
-			<a class="btn-qq btn" href="#">
-				<i></i>
-				<span>Q&nbsp;Q&nbsp;登&nbsp;录</span>
-			</a>
-			<a class="btn-weibo btn" href="#">
-				<i></i>
-				<span>微&nbsp;博&nbsp;登&nbsp;录</span>
-			</a>
-		</div>
-	</div>
-	-->
-	<div class="login-form">
-		<div class="error text-center"></div>
-		<form action="#" method="post" class="form-horizontal" role="form">
-			<div class="form-group">
-				<label for="username" class="col-sm-3 control-label">用户名</label>
-				<div class="col-sm-9 form-input">
-					<input type="text" class="form-control" id="username" name="username" placeholder="请填写用户名或邮箱">
-				</div>
-			</div>
-			<div class="form-group">
-				<label for="passwd" class="col-sm-3 control-label">密码</label>
-				<div class="col-sm-9 form-input">
-					<input type="password" class="form-control" id="passwd" name="passwd" placeholder="密码">
-				</div>
-			</div>
-			<div class="form-group">
-				<div class="col-sm-offset-2 col-sm-10">
-					<div class="checkbox">
-						<label>
-							<input id="user_remember_me" name="remember_me" type="checkbox" value="1" checked="checked" />	记住登录状态
-						</label>
-					</div>
-				</div>
-			</div>
-			<div class="form-group">
-				<div class="col-sm-offset-2 col-sm-10">
-					<button type="submit" id="login-btn" class="btn btn-default pull-left">登录</button>
-					<div class="forget">
-						<a href="/account/forgetpwd" title="点击找回密码">忘记密码？</a>
-					</div>
-					<div class="register">
-						<span>还不是会员</span><a href="/account/register">现在注册</a>
-					</div>
-				</div>
-			</div>
-		</form>
-	</div>
-</div>
-<div id="sg-overlay"></div>
 {{end}}
 {{define "js"}}
 <script type="text/javascript">

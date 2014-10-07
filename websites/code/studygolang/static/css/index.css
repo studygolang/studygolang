@@ -18,6 +18,7 @@
 .recent-list ul li a:hover {text-decoration: underline; color: #d54f4b;}
 
 .article-list .title {margin-left: 15px; margin-right: 15px;}
+.article-list .article-bottom { margin-bottom: 15px; margin-right: 15px; margin-top: -12px; font-size: 10pt;}
 
 .learn-info {}
 .learn-info h3 {line-height: 24px;font-size: 14px; font-weight: bold; margin-bottom: 6px; margin-top: 10px; border-bottom: 1px solid #ccc; margin-left: 15px; margin-right: 15px;}

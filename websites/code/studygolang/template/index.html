@@ -40,6 +40,7 @@
 				<h3><a href="/articles">最新博文</a></h3>
 				<a class="pull-right more" href="/articles">更多&gt;&gt;</a>
 			</div>
+			{{$article := index .articles 0}}
 			{{range .articles}}
 			<article class="article box_white">
 				<div class="row">
@@ -102,6 +103,7 @@
 				</div>
 			</article>
 			{{end}}
+			<div class="pull-right article-bottom"><a href="/articles?lastid={{add $article.Id -10}}" title="查看更多">查看更多&gt;&gt;</a></div>
 		</div>
 		<div class="row box_white learn-info">
 			<h3><a href="javascript:">学习资料</a></h3>
