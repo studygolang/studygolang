@@ -33,7 +33,7 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .article .metatag .source {height: 20px;color: #b5b5b5;font-style: italic; margin-right: 20px;}
 .article .metatag .date {height: 20px;color: #b5b5b5;font-style: italic; margin-right: 20px;}
 .article .metatag .author {height: 20px; margin-right: 20px;}
-.article .metatag .cmt, .article .metatag .like, .article .metatag .view { margin: 0 10px; color:#979797; }
+.article .metatag .cmt, .article .metatag .like, .article .metatag .view { margin: 0 5px; color:#979797; }
 .article .metatag .hadlike i { color: #ff0000; }
 .article .metatag a:hover { text-decoration: none; color: #DB6D4C; }
 

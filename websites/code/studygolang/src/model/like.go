@@ -31,7 +31,7 @@ type Like struct {
 
 func NewLike() *Like {
 	return &Like{
-		Dao: &Dao{tablename: "Likes"},
+		Dao: &Dao{tablename: "likes"},
 	}
 }
 
