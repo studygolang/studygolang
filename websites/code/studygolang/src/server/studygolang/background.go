@@ -22,14 +22,22 @@ func ServeBackGround() {
 	// 初始化 七牛云存储
 	service.InitQiniu()
 
+	// 常驻内存的数据
 	go loadData()
 
 	c := cron.New()
 
+	// 每天对非活跃用户降频
 	c.AddFunc("@daily", decrUserActiveWeight)
 
 	// 两分钟刷一次浏览数（TODO：重启丢失问题？信号控制重启？）
 	c.AddFunc("@every 2m", service.Views.Flush)
+
+	// 构建 solr 需要的索引数据
+	// 一天一次全量
+	c.AddFunc("0 20 0 * * *", func() {
+
+	})
 
 	c.Start()
 }
