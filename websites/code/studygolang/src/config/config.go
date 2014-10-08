@@ -8,11 +8,14 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"path"
-	"process"
+	"reflect"
 	"strconv"
 	"strings"
+
+	"process"
 )
 
 // 项目根目录
@@ -44,14 +47,23 @@ const Gt = ">"
 
 type Conf map[string]interface{}
 
-func ParseConfig(filename string) (Conf, error) {
+func ParseConfig(filename string, store interface{}) (Conf, error) {
 	content, err := ioutil.ReadFile(ROOT + filename)
 	if err != nil {
 		return nil, err
 	}
 
 	var conf Conf
-	err = json.Unmarshal(content, &conf)
+	if store == nil {
+		store = &conf
+	} else {
+		storeType := reflect.TypeOf(store)
+		if storeType.Kind() != reflect.Ptr {
+			return nil, errors.New("store must be pointer or nil")
+		}
+	}
+
+	err = json.Unmarshal(content, store)
 	if err != nil {
 		return nil, err
 	}

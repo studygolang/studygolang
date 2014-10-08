@@ -28,11 +28,17 @@ func init() {
 }
 
 func main() {
-	var needAll bool
+	var (
+		needAll          bool
+		crawConfFilename string
+		whichSite        string
+	)
 	flag.BoolVar(&needAll, "all", false, "是否需要全量抓取，默认否")
+	flag.StringVar(&crawConfFilename, "config", "conf/auto_crawl_conf.json", "自动抓取配置文件")
+	flag.StringVar(&whichSite, "site", "", "抓取配置中哪个站点（空表示所有配置站点）")
 	flag.Parse()
 
-	go autocrawl(needAll)
+	go autocrawl(needAll, crawConfFilename, whichSite)
 
 	router := initRouter()
 	http.Handle("/", router)

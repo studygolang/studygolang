@@ -76,15 +76,21 @@ func ParseArticle(articleUrl string, auto bool) (*model.Article, error) {
 		author = urlPaths[index]
 		authorTxt = author
 	} else {
-		authorSelection := doc.Find(rule.Author)
-		author, err = authorSelection.Html()
-		if err != nil {
-			logger.Errorln("goquery parse author error:", err)
-			return nil, err
-		}
+		if strings.HasPrefix(rule.Author, ".") || strings.HasPrefix(rule.Author, "#") {
+			authorSelection := doc.Find(rule.Author)
+			author, err = authorSelection.Html()
+			if err != nil {
+				logger.Errorln("goquery parse author error:", err)
+				return nil, err
+			}
 
-		author = strings.TrimSpace(author)
-		authorTxt = strings.TrimSpace(authorSelection.Text())
+			author = strings.TrimSpace(author)
+			authorTxt = strings.TrimSpace(authorSelection.Text())
+		} else {
+			// 某些个人博客，页面中没有作者的信息，因此，规则中 author 即为 作者
+			author = rule.Author
+			authorTxt = rule.Author
+		}
 	}
 
 	title := ""
