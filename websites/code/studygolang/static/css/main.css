@@ -79,7 +79,7 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .sidebar .sb-content .cmt-list ul li .word .w-page { padding-top: 2px;font-family: "simsun";font-size: 12px;font-size: 1.2rem;color: #c1c1c1; }
 .sidebar .sb-content .cmt-list ul li .word .w-page a { color: #5f5e5e;margin-left: 5px;margin-right: 5px; }
 .sidebar .sb-content .cmt-list ul li .word .w-page a:hover { text-decoration: none; color: #F2733C; }
-.sidebar .sb-content .cmt-list ul li .word .w-comment { line-height: 18px;max-height: 36px;_height: 36px;color: #db6d4c;font-family: "simsun";font-size: 12px;font-size: 1.2rem;overflow: hidden;padding-top: 2px; }
+.sidebar .sb-content .cmt-list ul li .word .w-comment { line-height: 18px;max-height: 54px;_height: 54px;color: #db6d4c;font-family: "simsun";font-size: 12px;font-size: 1.2rem;overflow: hidden;padding-top: 2px; }
 .sidebar .sb-content .user-list ul li {width: 92px;text-align: center;margin-bottom: 8px;}
 .sidebar .sb-content .user-list ul li .name {text-overflow: clip;}
 

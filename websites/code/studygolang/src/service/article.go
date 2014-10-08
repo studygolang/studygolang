@@ -24,6 +24,9 @@ var domainPatch = map[string]string{
 	"blog.51cto.com": "blog.51cto.com",
 }
 
+var articleRe = regexp.MustCompile("[\r　\n  \t\v]+")
+var articleSpaceRe = regexp.MustCompile("[ ]+")
+
 // 获取url对应的文章并根据规则进行解析
 func ParseArticle(articleUrl string, auto bool) (*model.Article, error) {
 	articleUrl = strings.TrimSpace(articleUrl)
@@ -124,6 +127,8 @@ func ParseArticle(articleUrl string, auto bool) (*model.Article, error) {
 	}
 	content = strings.TrimSpace(content)
 	txt := strings.TrimSpace(contentSelection.Text())
+	txt = articleRe.ReplaceAllLiteralString(txt, " ")
+	txt = articleSpaceRe.ReplaceAllLiteralString(txt, " ")
 
 	// 自动抓取，内容长度不能少于 300 字
 	if auto && len(txt) < 300 {

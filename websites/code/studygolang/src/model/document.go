@@ -52,7 +52,8 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 	return document
 }
 
-var re = regexp.MustCompile("[\r\n\t\v ]+")
+var docRe = regexp.MustCompile("[\r　\n  \t\v]+")
+var docSpaceRe = regexp.MustCompile("[ ]+")
 
 // 文本过滤（预处理）
 func filterTxt(txt string) string {
@@ -61,7 +62,8 @@ func filterTxt(txt string) string {
 	txt = strings.TrimSpace(strings.TrimPrefix(txt, "顶"))
 	txt = strings.TrimSpace(strings.TrimPrefix(txt, "转"))
 
-	return re.ReplaceAllLiteralString(txt, " ")
+	txt = docRe.ReplaceAllLiteralString(txt, " ")
+	return docSpaceRe.ReplaceAllLiteralString(txt, " ")
 }
 
 type AddCommand struct {
