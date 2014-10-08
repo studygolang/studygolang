@@ -1,3 +1,6 @@
+CREATE DATABASE /*!32312 IF NOT EXISTS*/`studygolang` /*!40100 DEFAULT CHARACTER SET utf8 */;
+USE `studygolang`;
+
 /*---------------------------------------------------------------------------*
   NAME: topics
   用途：帖子内容表
@@ -19,8 +22,6 @@ CREATE TABLE `topics` (
   KEY `uid` (`uid`),
   KEY `nid` (`nid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-alter table `studygolang`.`topics` add column `editor_uid` int UNSIGNED DEFAULT '0' NOT NULL COMMENT '最后编辑人' after `lastreplytime`
 
 /*---------------------------------------------------------------------------*
   NAME: topics_ex
@@ -137,7 +138,7 @@ CREATE TABLE `user_info` (
   `website` varchar(50) NOT NULL DEFAULT '' COMMENT '个人主页，博客',
   `monlog` varchar(140) NOT NULL DEFAULT '' COMMENT '个人状态，签名，独白',
   `introduce` text NOT NULL COMMENT '个人简介',
-  `status` tinyint unsigned NOT NULL DEFAULT '' COMMENT '用户账号状态。0-默认；1-已审核；2-拒绝；3-冻结；4-停号',
+  `status` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '用户账号状态。0-默认；1-已审核；2-拒绝；3-冻结；4-停号',
   `ctime` timestamp NOT NULL DEFAULT 0,
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`uid`),
