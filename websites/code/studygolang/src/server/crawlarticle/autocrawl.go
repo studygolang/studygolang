@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"config"
@@ -22,7 +23,7 @@ import (
 
 var websites = make(map[string]map[string]string)
 
-const pattern = "go|golang|goroutine|channel/i"
+const pattern = "(?i)go|golang|goroutine|channel"
 
 func autocrawl(needAll bool, crawlConfFile string, whichSite string) {
 
@@ -64,7 +65,6 @@ func doCrawl(wbconf map[string]string, isAll bool) {
 		crawlUrl = wbconf["all_url"]
 	}
 
-	keywords := strings.Split(wbconf["keywords"], ",")
 	listselector := wbconf["listselector"]
 	resultselector := wbconf["resultselector"]
 	pageField := wbconf["page_field"]
@@ -74,39 +74,68 @@ func doCrawl(wbconf map[string]string, isAll bool) {
 		maxPage = util.MustInt(wbconf["max_page"])
 	}
 
-	var (
-		doc *goquery.Document
-		err error
-	)
+	// 个人博客，一般通过 tag 方式获取，这种处理方式和搜索不一样
+	if wbconf["keywords"] == "" {
+		for p := maxPage; p >= 1; p-- {
+			if pageField == "" {
+
+				// 标题不包含 go 等关键词的，也入库
+				if err := parseArticleList(crawlUrl+strconv.Itoa(p), listselector, resultselector, false); err != nil {
+					break
+				}
+			}
+		}
+
+		return
+	}
+
+	keywords := strings.Split(wbconf["keywords"], ",")
 
 	for _, keyword := range keywords {
 		for p := 1; p <= maxPage; p++ {
 
 			page := fmt.Sprintf("&%s=%d", pageField, p)
-			logger.Infoln("parse url:", crawlUrl+keyword+page)
-			if doc, err = goquery.NewDocument(crawlUrl + keyword + page); err != nil {
+			if err := parseArticleList(crawlUrl+keyword+page, listselector, resultselector, true); err != nil {
+				logger.Errorln("parse article url error:", err)
 				break
 			}
-
-			doc.Find(listselector).Each(func(i int, contentSelection *goquery.Selection) {
-
-				aSelection := contentSelection.Find(resultselector)
-				title := aSelection.Text()
-				matched, err := regexp.MatchString(pattern, title)
-				if err != nil {
-					logger.Errorln(err)
-					return
-				}
-
-				if !matched {
-					return
-				}
-
-				articleUrl, ok := aSelection.Attr("href")
-				if ok {
-					service.ParseArticle(articleUrl, true)
-				}
-			})
 		}
 	}
+}
+
+func parseArticleList(url, listselector, resultselector string, isAuto bool) (err error) {
+
+	logger.Infoln("parse url:", url)
+
+	var doc *goquery.Document
+
+	if doc, err = goquery.NewDocument(url); err != nil {
+		return
+	}
+
+	doc.Find(listselector).Each(func(i int, contentSelection *goquery.Selection) {
+
+		aSelection := contentSelection.Find(resultselector)
+
+		if isAuto {
+			title := aSelection.Text()
+
+			matched, err := regexp.MatchString(pattern, title)
+			if err != nil {
+				logger.Errorln(err)
+				return
+			}
+
+			if !matched {
+				return
+			}
+		}
+
+		articleUrl, ok := aSelection.Attr("href")
+		if ok {
+			service.ParseArticle(articleUrl, isAuto)
+		}
+	})
+
+	return
 }
