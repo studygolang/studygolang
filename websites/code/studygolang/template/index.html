@@ -65,7 +65,7 @@
 						<i class="glyphicon glyphicon-calendar"></i>
 						<span class="date" title="发布日期">{{.PubDate}}</span>
 						<i class="glyphicon glyphicon-user"></i>
-						<span class="author" title="作者">{{.Author}}</span>
+						<span class="author" title="作者">{{substring .AuthorTxt 15 " 等"}}</span>
 						{{if .Tags}}
 						{{$tags := explode .Tags ","}}
 						<ul class="list-inline">

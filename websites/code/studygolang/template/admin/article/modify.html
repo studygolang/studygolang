@@ -68,7 +68,7 @@
 				<span class="field">
 					<select name="lang" class="uniformselect">
 						{{range $i, $v := .langSlice}}
-						<option value="{{$i}}">{{$v}}</option>
+						<option value="{{$i}}"{{if eq $i $.article.Lang}} selected{{end}}>{{$v}}</option>
 						{{end}}
 					</select>
 				</span>
@@ -86,7 +86,7 @@
 				<span class="field">
 					<select name="status" class="uniformselect">
 						{{range $i, $v := .statusSlice}}
-						<option value="{{$i}}">{{$v}}</option>
+						<option value="{{$i}}"{{if eq $i $.article.Status}} selected{{end}}>{{$v}}</option>
 						{{end}}
 					</select>
 				</span>

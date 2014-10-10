@@ -29,7 +29,7 @@ type Article struct {
 	Cover     string `json:"cover"`
 	Author    string `json:"author"`
 	AuthorTxt string `json:"author_txt"`
-	Lang      string `json:"lang"`
+	Lang      int    `json:"lang"`
 	PubDate   string `json:"pub_date"`
 	Url       string `json:"url"`
 	Content   string `json:"content"`
