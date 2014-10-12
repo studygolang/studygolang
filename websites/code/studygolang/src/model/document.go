@@ -26,8 +26,8 @@ type Document struct {
 	Cmtnum  int    `json:"cmtnum"`
 	Likenum int    `json:"likenum"`
 
-	HlTitle   string // 高亮的标题
-	HlContent string // 高亮的内容
+	HlTitle   string `json:",omitempty"` // 高亮的标题
+	HlContent string `json:",omitempty"` // 高亮的内容
 }
 
 func NewDocument(object interface{}, objectExt interface{}) *Document {
