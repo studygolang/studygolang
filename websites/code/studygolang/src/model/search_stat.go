@@ -72,6 +72,12 @@ func (this *SearchStat) Where(condition string, args ...interface{}) *SearchStat
 }
 
 // 为了支持连写
+func (this *SearchStat) Increment(field string, num int) *SearchStat {
+	this.Dao.Increment(field, num)
+	return this
+}
+
+// 为了支持连写
 func (this *SearchStat) Set(clause string, args ...interface{}) *SearchStat {
 	this.Dao.Set(clause, args...)
 	return this
