@@ -39,6 +39,7 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 
 .sidebar {margin-bottom: 20px;}
 .sidebar .top { height: 38px; line-height: 38px; border-bottom: solid 1px #EAEAEA; position: relative; margin-bottom: 15px; }
+.sidebar .top .title { line-height: 24px;font-size: 14px;font-weight: bold;display: inline-block;margin-bottom: 4px;margin-top: 10px; margin-left: 10px;}
 .sidebar .top .title a {color: #666; font-family: "NSimSun"; font-size: 14px; font-size: 1.4rem; padding: 10px 10px; text-decoration: none;}
 .sidebar .top .title a:hover {color: #DD7657;}
 .sidebar .top .list-inline { }
@@ -176,3 +177,5 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .page-comment .light {background: #E0F2FC}
 
 .badge-warning {background-color: #db6d4c;}
+
+.clearfix { clear: both; }

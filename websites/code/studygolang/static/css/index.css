@@ -33,6 +33,5 @@
 .sidebar {margin-left: 0px;}
 .sidebar .box {padding: 10px;margin: 0 0 20px 0;-webkit-border-radius: 6px;-moz-border-radius: 6px;border-radius: 6px;-webkit-box-shadow: 0 0px 2px rgba(0,0,0,0.05);-moz-box-shadow: 0 0px 2px rgba(0,0,0,0.1);box-shadow: 0 0px 2px rgba(0,0,0,0.05); clear:both;}
 .sidebar .avatar-area, .sidebar .profile-show { margin-left: 20px; }
-.sidebar .top .title { line-height: 24px;font-size: 14px;font-weight: bold;display: inline-block;margin-bottom: 4px;margin-top: 10px; margin-left: 10px;}
 
 .sidebar .sb-content .login .col-sm-10 {margin-left:10px;}

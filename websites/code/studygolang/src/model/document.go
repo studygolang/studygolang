@@ -25,6 +25,9 @@ type Document struct {
 	Viewnum int    `json:"viewnum"`
 	Cmtnum  int    `json:"cmtnum"`
 	Likenum int    `json:"likenum"`
+
+	HlTitle   string // 高亮的标题
+	HlContent string // 高亮的内容
 }
 
 func NewDocument(object interface{}, objectExt interface{}) *Document {
@@ -84,4 +87,21 @@ func NewAddCommand(doc *Document, boost float64, overwrite bool, commitWithin in
 		Overwrite:    overwrite,
 		CommitWithin: commitWithin,
 	}
+}
+
+type ResponseBody struct {
+	NumFound int         `json:"numFound"`
+	Start    int         `json:"start"`
+	Docs     []*Document `json:"docs"`
+}
+
+type Highlighting struct {
+	Title   []string `json:"title"`
+	Content []string `json:"content"`
+}
+
+type SearchResponse struct {
+	RespHeader map[string]interface{}   `json:"responseHeader"`
+	RespBody   *ResponseBody            `json:"response"`
+	Highlight  map[string]*Highlighting `json:"highlighting"`
 }

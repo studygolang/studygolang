@@ -5,15 +5,15 @@
 <div class="row header_title">
 	<div class="col-lg-12 col-md-12 col-sm-12 search-box">
 		<div class="box_white">
-		<form action="" class="search-form">
+		<form action="/search" class="search-form">
 			<div>
 				<div class="col-xs-2">
 				</div>
 				<div class="col-xs-6">
-					<input type="text" class="form-control" name="q" placeholder="输入搜索词" />
+					<input type="text" class="form-control" name="q" placeholder="输入搜索词" value="{{.q}}" />
 				</div>
 				<div class="col-xs-1">
-					<button type="button" class="btn btn-default">搜索</button>
+					<button type="submit" class="btn btn-default">搜索</button>
 				</div>
 			</div>
 			<div class="clearfix">
@@ -22,13 +22,13 @@
 				<div class="col-xs-6">
 					<div class="radio">
 						<label>
-							<input type="radio" name="f" checked="checked" /> 全文
+							<input type="radio" name="f" {{if or (eq .f "text") (eq .f "")}}checked="checked"{{end}} value="text" /> 全文
 						</label>&nbsp;&nbsp;
 						<label>
-							<input type="radio" name="f" /> 标题
+							<input type="radio" name="f" {{if eq .f "title"}}checked="checked"{{end}} value="title" /> 标题
 						</label>&nbsp;&nbsp;
 						<label>
-							<input type="radio" name="f" /> 作者
+							<input type="radio" name="f" {{if eq .f "author"}}checked="checked"{{end}} value="author" /> 作者
 						</label>
 					</div>
 				</div>
@@ -38,13 +38,17 @@
 	</div>
 </div>
 <div class="row">
-	<div class="col-lg-9 col-md-8 col-sm-7">
-		{{range .docs}}
+	<div class="col-lg-9 col-md-8 col-sm-7 search-result">
+		<div class="box_white result-title">
+			<span class="website">Go语言学习园地</span> 为您找到相关结果 <strong class="num">{{.respBody.NumFound}}</strong> 个
+		</div>
+		{{range .respBody.Docs}}
 		<article class="article box_white">
 			<div class="row">
 				<div>
-					<h2><a href="/articles/{{.Objid}}" target="_blank" title="{{.Title}}">{{.Title}}</a></h2>
-					<p class="text">{{substring .Content 250 "..."}}<a href="/articles/{{.Objid}}" target="_blank" title="阅读全文">阅读全文</a></p>
+					<h2>
+						<a href="/articles/{{.Objid}}" target="_blank" title="{{.Title}}">{{noescape .HlTitle}}</a></h2>
+					<p class="text">{{noescape .HlContent}}<a href="/articles/{{.Objid}}" target="_blank" title="阅读全文">阅读全文</a></p>
 				</div>
 			</div>
 			<div class="row">
@@ -90,51 +94,57 @@
 			</div>
 		</article>
 		{{end}}
-		<ul class="pager">
-			{{if .page.has_prev}}
-			<li class="previous"><a href="/articles?lastid={{.page.prev_id}}">&larr; 上一页</a></li>
-			{{end}}
-			{{if .page.has_next}}
-			<li class="next"><a href="/articles?lastid={{.page.next_id}}">下一页 &rarr;</a></li>
-			{{end}}
+		<ul class="pagination pull-right">
+			{{noescape .pageHtml}}
 		</ul>
 	</div>
 	<div class="col-lg-3 col-md-4 col-sm-5">
+		<!--
 		<div class="row box_white sidebar">
 			<div class="top">
-				<ul class="list-inline text-center">
-					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新帖子</a>|</li>
-					<li class="second"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
-					<li class="last"><a href="javascript:;">最新评论</a></li>
-				</ul>
-				<p class="bar"></p>
+				<h3 class="title"><i class="glyphicon glyphicon-search"></i>&nbsp;热门搜索</h3>
 			</div>
 			<div class="sb-content">
-				<div class="topic-list first">
+				<div class="keyword-list" data-limit="5">
 					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-				<div class="resource-list second hidden">
-					<ul class="list-unstyled">
-					</ul>
-				</div>
-				<div class="cmt-list last hidden">
-					<ul class="list-unstyled">
+						<li><a href="/search?q=golang">golang</a></li>
+						<li><a href="/search?q=golang">golang</a></li>
+						<li><a href="/search?q=golang">golang</a></li>
 					</ul>
 				</div>
 			</div>
 		</div>
+		-->
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-comment"></i>&nbsp;最新评论</h3>
+			</div>
+			<div class="sb-content">
+				<div class="cmt-list" data-limit="5">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+			</div>
+		</div>
+		
 	</div>
 </div>
+{{end}}
+{{define "css"}}
+<link href="/static/css/search.css" rel="stylesheet"/>
 {{end}}
 {{define "js"}}
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
-	"/topics/recent.json",
-	"/resources/recent.json",
 	"/comments/recent.json",
 ];
+
+$(function(){
+	$('.search-form input:radio').on('click', function(){
+		$('.search-form').submit();
+	});
+});
 </script>
 {{end}}

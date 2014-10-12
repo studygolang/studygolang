@@ -59,6 +59,9 @@ func initRouter() *mux.Router {
 	router.HandleFunc("/articles", ArticlesHandler)
 	router.HandleFunc("/articles/{id:[0-9]+}", ArticleDetailHandler)
 
+	// 搜索
+	router.HandleFunc("/search", SearchHandler)
+
 	// wiki
 	router.HandleFunc("/wiki", WikisHandler)
 	router.HandleFunc("/wiki/new{json:(|.json)}", NewWikiPageHandler).AppendFilterChain(loginFilterChain)

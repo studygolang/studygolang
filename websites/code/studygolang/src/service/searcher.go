@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"config"
@@ -106,7 +107,7 @@ func (this *SolrClient) Post() error {
 
 	stringBuilder.Append("}")
 
-	resp, err := http.Post(config.Config["indexing_url"], "application/json", stringBuilder)
+	resp, err := http.Post(config.Config["engine_url"]+"/update?wt=json&commit=true", "application/json", stringBuilder)
 	if err != nil {
 		logger.Errorln("post error:", err)
 		return err
@@ -122,4 +123,91 @@ func (this *SolrClient) Post() error {
 	}
 
 	return nil
+}
+
+const ContentLen = 350
+
+func DoSearch(q, field string, start, rows int) (*model.ResponseBody, error) {
+	selectUrl := config.Config["engine_url"] + "/select?"
+
+	var values = url.Values{
+		"wt":             []string{"json"},
+		"hl":             []string{"true"},
+		"hl.fl":          []string{"title,content"},
+		"hl.simple.pre":  []string{"<em>"},
+		"hl.simple.post": []string{"</em>"},
+		"hl.fragsize":    []string{strconv.Itoa(ContentLen)},
+		"start":          []string{strconv.Itoa(start)},
+		"rows":           []string{strconv.Itoa(rows)},
+	}
+
+	if q == "" {
+		values.Add("q", "*:*")
+	} else {
+		searchStat := model.NewSearchStat()
+		searchStat.Keyword = q
+		searchStat.Insert()
+	}
+
+	if field == "text" {
+		field = ""
+	}
+
+	if field != "" {
+		values.Add("df", field)
+		if q != "" {
+			values.Add("q", q)
+		}
+	} else {
+		// 全文检索
+		if q != "" {
+			values.Add("q", "title:"+q+"^2"+" OR content:"+q+"^0.2")
+		}
+	}
+
+	resp, err := http.Get(selectUrl + values.Encode())
+	if err != nil {
+		logger.Errorln("search error:", err)
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	var searchResponse model.SearchResponse
+	err = json.NewDecoder(resp.Body).Decode(&searchResponse)
+	if err != nil {
+		logger.Errorln("parse response error:", err)
+		return nil, err
+	}
+
+	if len(searchResponse.Highlight) > 0 {
+		for _, doc := range searchResponse.RespBody.Docs {
+			highlighting, ok := searchResponse.Highlight[doc.Id]
+			if ok {
+				if len(highlighting.Title) > 0 {
+					doc.HlTitle = highlighting.Title[0]
+				}
+
+				if len(highlighting.Content) > 0 {
+					doc.HlContent = highlighting.Content[0]
+				}
+			}
+
+			if doc.HlTitle == "" {
+				doc.HlTitle = doc.Title
+			}
+
+			if doc.HlContent == "" {
+				maxLen := len(doc.Content) - 1
+				if maxLen > ContentLen {
+					maxLen = ContentLen
+				}
+				doc.HlContent = doc.Content[:maxLen]
+			}
+
+			doc.HlContent += "..."
+		}
+	}
+
+	return searchResponse.RespBody, nil
 }

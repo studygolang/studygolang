@@ -390,3 +390,18 @@ CREATE TABLE `dynamic` (
   PRIMARY KEY (`id`),
   KEY (`seq`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '动态表';
+
+/*---------------------------------------------------------------------------*
+  NAME: 搜索词统计
+  用途：统计搜索词
+*---------------------------------------------------------------------------*/
+DROP TABLE IF EXISTS `search_stat`;
+CREATE TABLE `search_stat` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `keyword` varchar(127) NOT NULL DEFAULT '' COMMENT '搜索词',
+  `times` int unsigned NOT NULL DEFAULT 0 COMMENT '次数',
+  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`keyword`),
+  KEY (`times`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '搜索词统计';
