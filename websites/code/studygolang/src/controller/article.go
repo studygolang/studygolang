@@ -104,7 +104,7 @@ func ArticleDetailHandler(rw http.ResponseWriter, req *http.Request) {
 		util.Redirect(rw, req, "/articles")
 	}
 
-	if article.Id == 0 || article.Status == model.StatusOffline {
+	if article == nil || article.Id == 0 || article.Status == model.StatusOffline {
 		util.Redirect(rw, req, "/articles")
 	}
 
