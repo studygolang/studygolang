@@ -145,15 +145,15 @@ func DoSearch(q, field string, start, rows int) (*model.ResponseBody, error) {
 		values.Add("q", "*:*")
 	} else {
 		searchStat := model.NewSearchStat()
-		searchStat.Find()
+		searchStat.Where("keyword=?", q).Find()
 		if searchStat.Id > 0 {
-			searchStat.Increment("times", 1)
+			searchStat.Where("keyword=?", q).Increment("times", 1)
 		} else {
 			searchStat.Keyword = q
 			searchStat.Times = 1
 			_, err := searchStat.Insert()
 			if err != nil {
-				searchStat.Increment("times", 1)
+				searchStat.Where("keyword=?", q).Increment("times", 1)
 			}
 		}
 	}
