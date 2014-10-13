@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"config"
 	"logger"
@@ -25,6 +26,8 @@ const MaxRows = 100
 // isAll: 是否全量
 func Indexing(isAll bool) {
 	IndexingArticle(isAll)
+	IndexingTopic(isAll)
+	IndexingResource(isAll)
 }
 
 // 索引博文
@@ -53,6 +56,124 @@ func IndexingArticle(isAll bool) {
 				}
 
 				document := model.NewDocument(article, nil)
+				addCommand := model.NewDefaultArgsAddCommand(document)
+
+				solrClient.Push(addCommand)
+			}
+
+			solrClient.Post()
+		}
+	}
+}
+
+// 索引帖子
+func IndexingTopic(isAll bool) {
+	solrClient := NewSolrClient()
+
+	topicObj := model.NewTopic()
+	topicExObj := model.NewTopicEx()
+
+	limit := strconv.Itoa(MaxRows)
+	if isAll {
+		id := 0
+		for {
+			topicList, err := topicObj.Where("tid>?", id).Limit(limit).FindAll()
+			if err != nil {
+				logger.Errorln("IndexingTopic error:", err)
+				break
+			}
+
+			if len(topicList) == 0 {
+				break
+			}
+
+			tids := util.Models2Intslice(topicList, "Tid")
+
+			tmpStr := strings.Repeat("?,", len(tids))
+			query := "tid in(" + tmpStr[:len(tmpStr)-1] + ")"
+			args := make([]interface{}, len(tids))
+			for i, tid := range tids {
+				args[i] = tid
+			}
+
+			topicExList, err := topicExObj.Where(query, args...).FindAll()
+			if err != nil {
+				logger.Errorln("IndexingTopic error:", err)
+				break
+			}
+
+			topicExMap := make(map[int]*model.TopicEx, len(topicExList))
+			for _, topicEx := range topicExList {
+				topicExMap[topicEx.Tid] = topicEx
+			}
+
+			for _, topic := range topicList {
+				if id < topic.Tid {
+					id = topic.Tid
+				}
+
+				topicEx, _ := topicExMap[topic.Tid]
+
+				document := model.NewDocument(topic, topicEx)
+				addCommand := model.NewDefaultArgsAddCommand(document)
+
+				solrClient.Push(addCommand)
+			}
+
+			solrClient.Post()
+		}
+	}
+}
+
+// 索引资源
+func IndexingResource(isAll bool) {
+	solrClient := NewSolrClient()
+
+	resourceObj := model.NewResource()
+	resourceExObj := model.NewResourceEx()
+
+	limit := strconv.Itoa(MaxRows)
+	if isAll {
+		id := 0
+		for {
+			resourceList, err := resourceObj.Where("id>?", id).Limit(limit).FindAll()
+			if err != nil {
+				logger.Errorln("IndexingResource error:", err)
+				break
+			}
+
+			if len(resourceList) == 0 {
+				break
+			}
+
+			ids := util.Models2Intslice(resourceList, "Id")
+
+			tmpStr := strings.Repeat("?,", len(ids))
+			query := "id in(" + tmpStr[:len(tmpStr)-1] + ")"
+			args := make([]interface{}, len(ids))
+			for i, rid := range ids {
+				args[i] = rid
+			}
+
+			resourceExList, err := resourceExObj.Where(query, args...).FindAll()
+			if err != nil {
+				logger.Errorln("IndexingResource error:", err)
+				break
+			}
+
+			resourceExMap := make(map[int]*model.ResourceEx, len(resourceExList))
+			for _, resourceEx := range resourceExList {
+				resourceExMap[resourceEx.Id] = resourceEx
+			}
+
+			for _, resource := range resourceList {
+				if id < resource.Id {
+					id = resource.Id
+				}
+
+				resourceEx, _ := resourceExMap[resource.Id]
+
+				document := model.NewDocument(resource, resourceEx)
 				addCommand := model.NewDefaultArgsAddCommand(document)
 
 				solrClient.Push(addCommand)
@@ -206,7 +327,7 @@ func DoSearch(q, field string, start, rows int) (*model.ResponseBody, error) {
 				doc.HlTitle = doc.Title
 			}
 
-			if doc.HlContent == "" {
+			if doc.HlContent == "" && doc.Content != "" {
 				maxLen := len(doc.Content) - 1
 				if maxLen > ContentLen {
 					maxLen = ContentLen

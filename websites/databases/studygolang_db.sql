@@ -335,7 +335,7 @@ CREATE TABLE `articles` (
   `author_txt` varchar(127) NOT NULL DEFAULT '' COMMENT '文章作者(纯文本)',
   `lang` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '语言：0-中文；1-英文',
   `pub_date` varchar(20) NOT NULL DEFAULT '' COMMENT '发布时间',
-  `url` varchar(127) NOT NULL DEFAULT '' COMMENT '文章原始链接',
+  `url` varchar(255) NOT NULL DEFAULT '' COMMENT '文章原始链接',
   `content` longtext NOT NULL COMMENT '正文(带html)',
   `txt` text NOT NULL COMMENT '正文(纯文本)',
   `tags` varchar(50) NOT NULL DEFAULT '' COMMENT '文章tag，逗号分隔',

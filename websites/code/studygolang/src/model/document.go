@@ -34,6 +34,32 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 	var document *Document
 	switch objdoc := object.(type) {
 	case *Topic:
+		viewnum, cmtnum, likenum := 0, 0, 0
+		if objectExt != nil {
+			// 传递过来的是一个 *TopicEx 对象，类型是有的，即时值是 nil，这里也和 nil 是不等
+			topicEx := objectExt.(*TopicEx)
+			if topicEx != nil {
+				viewnum = topicEx.View
+				cmtnum = topicEx.Reply
+				likenum = topicEx.Like
+			}
+		}
+
+		userLogin := NewUserLogin()
+		userLogin.Where("uid=?", objdoc.Uid).Find("username")
+		document = &Document{
+			Id:      fmt.Sprintf("%d%d", TYPE_TOPIC, objdoc.Tid),
+			Objid:   objdoc.Tid,
+			Objtype: TYPE_TOPIC,
+			Title:   objdoc.Title,
+			Author:  userLogin.Username,
+			PubTime: objdoc.Ctime,
+			Content: objdoc.Content,
+			Tags:    "",
+			Viewnum: viewnum,
+			Cmtnum:  cmtnum,
+			Likenum: likenum,
+		}
 	case *Article:
 		document = &Document{
 			Id:      fmt.Sprintf("%d%d", TYPE_ARTICLE, objdoc.Id),
@@ -49,6 +75,30 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 			Likenum: objdoc.Likenum,
 		}
 	case *Resource:
+		viewnum, cmtnum, likenum := 0, 0, 0
+		if objectExt != nil {
+			resourceEx := objectExt.(*ResourceEx)
+			if resourceEx != nil {
+				viewnum = resourceEx.Viewnum
+				cmtnum = resourceEx.Cmtnum
+			}
+		}
+
+		userLogin := NewUserLogin()
+		userLogin.Where("uid=?", objdoc.Uid).Find("username")
+		document = &Document{
+			Id:      fmt.Sprintf("%d%d", TYPE_RESOURCE, objdoc.Id),
+			Objid:   objdoc.Id,
+			Objtype: TYPE_RESOURCE,
+			Title:   objdoc.Title,
+			Author:  userLogin.Username,
+			PubTime: objdoc.Ctime,
+			Content: objdoc.Content,
+			Tags:    "",
+			Viewnum: viewnum,
+			Cmtnum:  cmtnum,
+			Likenum: likenum,
+		}
 	case *Wiki:
 	}
 

@@ -29,7 +29,7 @@ func main() {
 	c := cron.New()
 	// 构建 solr 需要的索引数据
 	// 一天一次全量
-	c.AddFunc("*/20 * * * * *", func() {
+	c.AddFunc("0 */1 * * * *", func() {
 		logger.Infoln("indexing start...")
 
 		start := time.Now()

@@ -47,23 +47,33 @@
 			<div class="row">
 				<div>
 					<h2>
-						<a href="/articles/{{.Objid}}" target="_blank" title="{{.Title}}">{{noescape .HlTitle}}</a></h2>
+						<a href="/{{if eq .Objtype 0}}topics{{else if eq .Objtype 1}}articles{{else}}resources{{end}}/{{.Objid}}" target="_blank" title="{{.Title}}">{{noescape .HlTitle}}</a></h2>
+					{{if .Content}}
 					<p class="text">{{noescape .HlContent}}<a href="/articles/{{.Objid}}" target="_blank" title="阅读全文">阅读全文</a></p>
+					{{end}}
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-md-8 metatag">
+					<i class="glyphicon glyphicon-tasks"></i>
+					<span class="source" title="类别">{{if eq .Objtype 0}}话题{{else if eq .Objtype 1}}博文{{else}}帖子{{end}}</span>
 					<i class="glyphicon glyphicon-calendar"></i>
 					<span class="date" title="发布日期">{{.PubTime}}</span>
 					<i class="glyphicon glyphicon-user"></i>
-					<span class="author" title="作者">{{.Author}}</span>
+					<span class="author" title="作者">
+					{{if eq .Objtype 1}}
+						{{.Author}}
+					{{else}}
+						<a href="/user/{{.Author}}" target="_blank">{{.Author}}</a>
+					{{end}}
+					</span>
 					{{if .Tags}}
 					{{$tags := explode .Tags ","}}
 					<ul class="list-inline">
 						<i class="glyphicon glyphicon-tags"></i>
 						{{range $tag := $tags}}
 						<li>
-							<a href="/" title="{{$tag}}" target="_blank">
+							<a href="/search?q={{$tag}}f=tag" title="{{$tag}}" target="_blank">
 								{{$tag}}
 							</a>
 						</li>
