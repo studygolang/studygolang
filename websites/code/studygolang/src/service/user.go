@@ -34,6 +34,7 @@ func CreateUser(form url.Values) (errMsg string, err error) {
 		errMsg = err.Error()
 		return
 	}
+	user.Ctime = util.TimeNow()
 	uid, err := user.Insert()
 	if err != nil {
 		errMsg = "内部服务器错误"
