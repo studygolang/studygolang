@@ -164,9 +164,14 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 		}
 
 		// TODO: 新模版过度
-		if strings.Contains(req.RequestURI, "articles") ||
-			req.RequestURI == "/" ||
-			strings.Contains(req.RequestURI, "search") {
+		/*
+			if strings.Contains(req.RequestURI, "articles") ||
+				req.RequestURI == "/" ||
+				strings.Contains(req.RequestURI, "search") {
+				this.commonHtmlFiles = []string{config.ROOT + "/template/common/layout.html"}
+				this.baseTplName = "layout.html"
+		*/
+		if true {
 			this.commonHtmlFiles = []string{config.ROOT + "/template/common/layout.html"}
 			this.baseTplName = "layout.html"
 		} else if !this.isBackView {
@@ -185,8 +190,13 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 		if jsTpl := tpl.Lookup("js"); jsTpl == nil {
 			tpl.Parse(`{{define "js"}}{{end}}`)
 		}
-		if jsTpl := tpl.Lookup("css"); jsTpl == nil {
+		if cssTpl := tpl.Lookup("css"); cssTpl == nil {
 			tpl.Parse(`{{define "css"}}{{end}}`)
+		}
+
+		// 如果没有定义topnav模板，则定义之
+		if topnavTpl := tpl.Lookup("topnav"); topnavTpl == nil {
+			tpl.Parse(`{{define "topnav"}}{{end}}`)
 		}
 
 		// 当前用户信息
