@@ -109,10 +109,12 @@ func ArticleDetailHandler(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	likeFlag := 0
+	hadCollect := 0
 	user, ok := filter.CurrentUser(req)
 	if ok {
 		uid := user["uid"].(int)
 		likeFlag = service.HadLike(uid, article.Id, model.TYPE_ARTICLE)
+		hadCollect = service.HadFavorite(uid, article.Id, model.TYPE_ARTICLE)
 	}
 
 	service.Views.Incr(req, model.TYPE_ARTICLE, article.Id)
@@ -120,5 +122,5 @@ func ArticleDetailHandler(rw http.ResponseWriter, req *http.Request) {
 	// 设置内容模板
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/articles/detail.html")
 	// 设置模板数据
-	filter.SetData(req, map[string]interface{}{"activeArticles": "active", "article": article, "prev": prevNext[0], "next": prevNext[1], "likeflag": likeFlag})
+	filter.SetData(req, map[string]interface{}{"activeArticles": "active", "article": article, "prev": prevNext[0], "next": prevNext[1], "likeflag": likeFlag, "hadcollect": hadCollect})
 }

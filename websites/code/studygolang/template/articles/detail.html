@@ -54,23 +54,28 @@
 				<p>查看原文：<a href="{{.article.Url}}" target="_blank" title="{{.article.Title}}">{{.article.Title}}</a></p>
 			</div>
 			<div class="active row">
-				<div class="mark-like-btn col-md-6">
+				<div class="mark-like-btn col-md-8">
 					<a class="share-btn like-btn {{if .likeflag}}hadlike{{end}}" href="javascript:;" title="{{if .likeflag}}取消喜欢{{else}}我喜欢{{end}}" data-objid="{{.article.Id}}" data-objtype="1" data-flag="{{.likeflag}}">
 						<i class="glyphicon glyphicon-heart-empty"></i><span class="likenum">{{.article.Likenum}}</span>人喜欢
 					</a>
-					<!--
-					<a class="share-btn collect collect-no" href="javascript:;">
-						<i class="glyphicon glyphicon-star-empty"></i><span>0</span>人收藏
+					<a class="share-btn collect {{if .hadcollect}}hadlike{{end}}" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}稍后再读{{end}}" data-objid="{{.article.Id}}" data-objtype="1" data-collect="{{.hadcollect}}">
+						<i class="glyphicon glyphicon-star-empty"></i>收藏
 					</a>
-					-->
 				</div>
-				<!-- share BEGIN -->
-				<!--
-				<div id="bdshare" class="col-md-6">
-					<a class="bds_tsina weibo-btn share-btn" href="#"><i></i>分享到微博</a>
-					<a class="bds_weixin weixin-btn share-btn" href="#"><i></i>分享到朋友圈</a>
+				<!-- JiaThis Button BEGIN -->
+				<div class="jiathis_style_32x32">
+					<a class="jiathis_button_qzone"></a>
+					<a class="jiathis_button_tsina"></a>
+					<a class="jiathis_button_tqq"></a>
+					<a class="jiathis_button_weixin"></a>
+					<a href="http://www.jiathis.com/share?uid=1895190" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+					<a class="jiathis_counter_style"></a>
 				</div>
-				-->
+				<script type="text/javascript">
+				var jiathis_config = {data_track_clickback:'true'};
+				</script>
+				<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1358871817652577" charset="utf-8"></script>
+				<!-- JiaThis Button END -->
 			</div>
 			<div class="row prev-next">
 				{{if .prev}}<div><a href="/articles/{{.prev.Id}}" title="{{.prev.Title}}">« </a>上一篇: <a href="/articles/{{.prev.Id}}" title="{{.prev.Title}}">{{.prev.Title}}</a></div>{{end}}

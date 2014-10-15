@@ -82,6 +82,10 @@ func initRouter() *mux.Router {
 	// 喜欢
 	router.HandleFunc("/like/{objid:[0-9]+}.json", LikeHandler).AppendFilterChain(loginFilterChain)
 
+	// 收藏
+	router.HandleFunc("/favorite/{objid:[0-9]+}.json", FavoriteHandler).AppendFilterChain(loginFilterChain)
+	router.HandleFunc("/favorites/mine", MyFavoritesHandler).AppendFilterChain(loginFilterChain)
+
 	// 消息相关
 	router.HandleFunc("/message/send{json:(|.json)}", SendMessageHandler).AppendFilterChain(loginFilterChain)
 	router.HandleFunc("/message/{msgtype:(system|inbox|outbox)}", MessageHandler).AppendFilterChain(loginFilterChain)

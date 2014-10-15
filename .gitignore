@@ -32,6 +32,8 @@ _testmain.go
 *.sublime-project
 *.sublime-workspace
 
+notes.md
+
 studygolang_data.sql
 
 welcome.png

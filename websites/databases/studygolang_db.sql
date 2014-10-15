@@ -83,7 +83,7 @@ CREATE TABLE `likes` (
   `flag` tinyint unsigned NOT NULL DEFAULT 1 COMMENT '1-喜欢；2-不喜欢（暂时不支持）',
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`uid`,`objtype`,`objid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '喜欢表';
 
 /*---------------------------------------------------------------------------*
   NAME: user_login
@@ -405,3 +405,16 @@ CREATE TABLE `search_stat` (
   UNIQUE KEY (`keyword`),
   KEY (`times`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '搜索词统计';
+
+/*---------------------------------------------------------------------------*
+  NAME: 用户收藏
+  用途：用户可以收藏文章、话题、资源等
+*---------------------------------------------------------------------------*/
+DROP TABLE IF EXISTS `favorites`;
+CREATE TABLE `favorites` (
+  `uid` int unsigned NOT NULL DEFAULT 0 COMMENT '用户uid',
+  `objtype` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '类型,0-帖子;1-博文;2-资源;3-wiki',
+  `objid` int unsigned NOT NULL DEFAULT 0 COMMENT '对象id，属主',
+  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`uid`,`objtype`,`objid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户收藏';

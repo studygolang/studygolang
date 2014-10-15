@@ -165,6 +165,7 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 
 		// TODO: 新模版过度
 		if strings.Contains(req.RequestURI, "articles") ||
+			strings.Contains(req.RequestURI, "favorites") ||
 			req.RequestURI == "/" ||
 			strings.Contains(req.RequestURI, "search") {
 			this.commonHtmlFiles = []string{config.ROOT + "/template/common/layout.html"}

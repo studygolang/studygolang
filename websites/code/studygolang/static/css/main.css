@@ -33,7 +33,7 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .article .metatag .source {height: 20px;color: #b5b5b5;font-style: italic; margin-right: 20px;}
 .article .metatag .date {height: 20px;color: #b5b5b5;font-style: italic; margin-right: 20px;}
 .article .metatag .author {height: 20px; margin-right: 20px;}
-.article .metatag .cmt, .article .metatag .like, .article .metatag .view { margin: 0 5px; color:#979797; }
+.article .metatag .cmt, .article .metatag .like, .article .metatag .view, .article .metatag .collect { margin: 0 5px; color:#979797; }
 .article .metatag .hadlike i { color: #ff0000; }
 .article .metatag a:hover { text-decoration: none; color: #DB6D4C; }
 
@@ -108,7 +108,7 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .page .content img, .page .content .container {max-width: 780px !important;}
 .page .orig-info {margin: 20px 30px 0 30px; border: 1px dashed #D5D5D5; padding: 10px; font-size: 13px; font-style: italic;}
 .page .active {border-bottom: 1px dotted #d8d8d8;padding-bottom: 20px;padding-top: 20px;margin: 0 30px;}
-.page .active .mark-like-btn .share-btn {height: 32px;-webkit-transition: background-color 0s;-moz-transition: background-color 0s;transition: background-color 0s;line-height: 32px;background: none;border: 1px solid;position: relative;color: #333;padding: 0px 16px 0px 36px;border-radius: 16px;font-family: "microsoft yahei";float: left;}
+.page .active .mark-like-btn .share-btn {height: 32px;-webkit-transition: background-color 0s;-moz-transition: background-color 0s;transition: background-color 0s;line-height: 32px;background: none;border: 1px solid;position: relative;color: #333;padding: 0px 16px 0px 30px;border-radius: 16px;font-family: "microsoft yahei";float: left;}
 .page .active .mark-like-btn .share-btn i {width: 24px;height: 24px;position: absolute;left: 8px;top: 4px; color: #f35454; line-height: 24px;}
 .page .active .mark-like-btn a {margin-right: 20px;}
 .page .active .mark-like-btn a:hover {text-decoration: none; }
@@ -169,6 +169,8 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .login-pop .login-form #login-btn {margin-right: 20px;}
 .login-pop .login-form .forget a, .login-pop .login-form .register a {font-size: 14px;color: #cc6666;letter-spacing: 1px;}
 .login-pop .login-form .register span {color: #333333;font-size: 14px;margin-right: 5px;}
+
+#listnav {margin-left: 14px;}
 
 #sg-overlay {position: absolute;display: none;background: #000;filter: Alpha(opacity=70);opacity: 0.7;top: 0;left: 0;z-index: 1000;}
 

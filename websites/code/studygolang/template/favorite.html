@@ -1,13 +1,18 @@
-{{define "title"}}网友博文{{end}}
-{{define "seo"}}<meta name="keywords" content="Go语言博客文章, Go语言博文, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
-<meta name="description" content="文章来自国内知名网站知名，Go爱好者学习笔记，经验分享；也有爱好者自己的博客文章，已经一些国外精彩文章。">{{end}}
+{{define "title"}}我的收藏{{end}}
+{{define "seo"}}<meta name="keywords" content="Go语言博客文章, Go语言博文, Go语言, Golang, Go中文社区, Golang中文社区, Go语言社区, Go语言中文网, Go语言学习园地">
+<meta name="description" content="我收藏的话题、文章和资源">{{end}}
 {{define "content"}}
 <div class="row header_title">
 	<div class="col-lg-12 col-md-12 col-sm-12">
-		<h3>网友博文</h3>
+		<h3>我的收藏</h3>
 	</div>
 </div>
 <div class="row">
+	<ul id="listnav" class="nav nav-tabs" role="tablist">
+		<li role="presentation" class="{{if eq .objtype 1}}active{{end}}"><a href="/favorites/mine">博文</a></li>
+		<li role="presentation" class="{{if eq .objtype 0}}active{{end}}"><a href="/favorites/mine?objtype=0">话题</a></li>
+		<li role="presentation" class="{{if eq .objtype 2}}active{{end}}"><a href="/favorites/mine?objtype=2">资源</a></li>
+	</ul>
 	<div class="col-lg-9 col-md-8 col-sm-7">
 		{{range .articles}}
 		<article class="article box_white">
@@ -27,9 +32,7 @@
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-md-8 metatag">
-					<i class="glyphicon glyphicon-th"></i>
-					<span class="source" title="来源">{{.Name}}</span>
+				<div class="col-md-6 metatag">
 					<i class="glyphicon glyphicon-calendar"></i>
 					<span class="date" title="发布日期">{{.PubDate}}</span>
 					<i class="glyphicon glyphicon-user"></i>
@@ -48,7 +51,7 @@
 					</ul>
 					{{end}}
 				</div>
-				<div class="col-md-4 metatag text-right">
+				<div class="col-md-6 metatag text-right">
 					<span class="view" title="阅读数">
 						<i class="glyphicon glyphicon-eye-open"></i>
 						阅读:<span>{{.Viewnum}}</span>次
@@ -67,55 +70,64 @@
 					{{end}}
 						<span class="likenum">{{.Likenum}}</span>人喜欢
 					</a>
+					<a href="#" class="collect" title="取消收藏" data-objid="{{.Id}}" data-objtype="1" data-collect="1">
+						<i class="glyphicon glyphicon-bookmark"></i>
+						取消收藏
+					</a>
 				</div>
 			</div>
 		</article>
+		{{else}}
+		<div class="box_white">
+			<p class="no-favorite text-center">您还未收藏该类别的资料</p>
+		</div>
 		{{end}}
-		<ul class="pager">
-			{{if .page.has_prev}}
-			<li class="previous"><a href="/articles?lastid={{.page.prev_id}}">&larr; 上一页</a></li>
-			{{end}}
-			{{if .page.has_next}}
-			<li class="next"><a href="/articles?lastid={{.page.next_id}}">下一页 &rarr;</a></li>
-			{{end}}
+		<ul class="pagination pull-right">
+			{{noescape .pageHtml}}
 		</ul>
 	</div>
 	<div class="col-lg-3 col-md-4 col-sm-5">
 		<div class="row box_white sidebar">
 			<div class="top">
 				<ul class="list-inline text-center">
-					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新话题</a>|</li>
-					<li class="second"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
-					<li class="last"><a href="javascript:;">最新评论</a></li>
+					<li class="first"><a href="/articles" target="_blank" class="cur" title="点击更多">最新博文</a>|</li>
+					<li class="second"><a href="/topics" target="_blank" title="点击更多">最新话题</a>|</li>
+					<li class="last"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
 				</ul>
 				<p class="bar"></p>
 			</div>
 			<div class="sb-content">
-				<div class="topic-list first">
+				<div class="article-list first">
 					<ul class="list-unstyled">
 						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
 					</ul>
 				</div>
-				<div class="resource-list second hidden">
+				<div class="topic-list second hidden">
 					<ul class="list-unstyled">
 					</ul>
 				</div>
-				<div class="cmt-list last hidden">
+				<div class="resource-list last hidden">
 					<ul class="list-unstyled">
 					</ul>
 				</div>
 			</div>
 		</div>
+		
 	</div>
 </div>
+{{end}}
+{{define "css"}}
+<style>
+	.no-favorite { margin-left: 20px; padding: 30px 0;}
+</style>
 {{end}}
 {{define "js"}}
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
+	"/articles/recent.json",
 	"/topics/recent.json",
 	"/resources/recent.json",
-	"/comments/recent.json",
 ];
 </script>
 {{end}}

@@ -348,14 +348,17 @@ jQuery(document).ready(function($) {
 
 		$.post('/like/'+objid+'.json', {objtype:objtype, flag:likeFlag}, function(data){
 			if (data.ok) {
+				
 				$(that).data('flag', likeFlag);
 				
 				var likeNum = parseInt($(that).children('.likenum').text(), 10);
 				// 已喜欢
 				if (likeFlag) {
+					comTip("感谢喜欢！");
 					$(that).addClass('hadlike').attr('title', '取消喜欢');
 					likeNum++;
 				} else {
+					comTip("已取消喜欢！");
 					$(that).removeClass('hadlike').attr('title', '我喜欢');
 					likeNum--;
 				}
@@ -392,6 +395,62 @@ jQuery(document).ready(function($) {
 			}
 		});
 	});
+	
+	// 收藏(取消收藏)
+	var postFavorite = function(that, callback) {
+
+		if ($('#is_login_status').val() != 1) {
+			openPop("#login-pop");
+			return;
+		}
+		
+		var objid = $(that).data('objid'),
+			objtype = $(that).data('objtype'),
+			hadCollect = parseInt($(that).data('collect'), 10);
+
+		if (hadCollect) {
+			hadCollect = 0;
+		} else {
+			hadCollect = 1;
+		}
+
+		$.post('/favorite/'+objid+'.json', {objtype:objtype, collect:hadCollect}, function(data){
+			if (data.ok) {
+				callback(hadCollect);
+			} else {
+				alert(data.error);
+			}
+		});
+	};
+
+	// 详情页收藏(取消收藏)
+	$('.page .collect').on('click', function(evt){
+		evt.preventDefault();
+
+		var that = this;
+		postFavorite(that, function(hadCollect){
+			$(that).data('collect', hadCollect);
+			
+			if (hadCollect) {
+				comTip("感谢收藏！");
+				$(that).addClass('hadlike').attr('title', '取消收藏');
+			} else {
+				$(that).removeClass('hadlike').attr('title', '稍后再读');
+				comTip("已取消收藏！");
+			}
+		});
+	});
+
+	// 收藏页 取消收藏
+	$('.article .metatag .collect').on('click', function(evt){
+		evt.preventDefault();
+
+		var that = this;
+		postFavorite(that, function(){
+			$(that).parents('article').fadeOut();
+		});
+	});
+	
 });
 
 // 在线人数统计
