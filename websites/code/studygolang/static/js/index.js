@@ -1,4 +1,4 @@
-var interval = 3000;	//两次滚动之间的时间间隔 
+var interval = 5000;	//两次滚动之间的时间间隔 
 var stepsize = 28;		//滚动一次的长度，必须是行高的倍数,这样滚动的时候才不会断行 
 var objInterval = null;
 
