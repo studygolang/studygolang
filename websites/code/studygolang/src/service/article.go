@@ -246,7 +246,7 @@ func FindArticlesById(idstr string) (curArticle *model.Article, prevNext []*mode
 	}
 
 	prevNext = make([]*model.Article, 2)
-	prevId, nextId := articles[0], id
+	prevId, nextId := articles[0].Id, id
 	for _, article := range articles {
 		if article.Id < id && article.Id > prevId {
 			prevId = article.Id
