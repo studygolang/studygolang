@@ -279,7 +279,12 @@ func DoSearch(q, field string, start, rows int) (*model.ResponseBody, error) {
 		}
 	}
 
-	if field == "text" {
+	isTag := false
+	// TODO: 目前大部分都没有tag，因此，对tag特殊处理
+	if field == "text" || field == "tag" {
+		if field == "tag" {
+			isTag = true
+		}
 		field = ""
 	}
 
@@ -291,7 +296,11 @@ func DoSearch(q, field string, start, rows int) (*model.ResponseBody, error) {
 	} else {
 		// 全文检索
 		if q != "" {
-			values.Add("q", "title:"+q+"^2"+" OR content:"+q+"^0.2")
+			if isTag {
+				values.Add("q", "title:"+q+"^2"+" OR tags:"+q+"^4 OR content:"+q+"^0.2")
+			} else {
+				values.Add("q", "title:"+q+"^2"+" OR content:"+q+"^0.2")
+			}
 		}
 	}
 
