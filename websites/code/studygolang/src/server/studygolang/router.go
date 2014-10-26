@@ -64,6 +64,7 @@ func initRouter() *mux.Router {
 
 	// 项目
 	router.HandleFunc("/project/new{json:(|.json)}", NewProjectHandler).AppendFilterChain(loginFilterChain)
+	router.HandleFunc("/project/modify{json:(|.json)}", ModifyProjectHandler).AppendFilterChain(loginFilterChain)
 	router.HandleFunc("/p/{uniq}", ProjectDetailHandler)
 	router.HandleFunc("/projects", ProjectsHandler)
 	router.HandleFunc("/project/uri.json", ProjectUriHandler)
@@ -118,6 +119,8 @@ func initRouter() *mux.Router {
 	router.HandleFunc("/comments/recent.json", RecentCommentHandler)
 	// 活跃会员
 	router.HandleFunc("/users/active.json", ActiveUserHandler)
+	// 新会员
+	router.HandleFunc("/users/newest.json", NewestUserHandler)
 
 	// 文件上传（图片）
 	router.HandleFunc("/upload/image.json", UploadImageHandler).AppendFilterChain(loginFilterChain)

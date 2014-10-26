@@ -13,7 +13,7 @@ import (
 
 // 开源项目信息
 type OpenProject struct {
-	Id       int    `json:"id"`
+	Id       int    `json:"id" pk:"1"`
 	Name     string `json:"name"`
 	Category string `json:"category"`
 	Uri      string `json:"uri"`
@@ -29,13 +29,13 @@ type OpenProject struct {
 	Lang     string `json:"lang"`
 	Os       string `json:"os"`
 	Tags     string `json:"tags"`
-	Username string `json:"username"`
-	Viewnum  int    `json:"viewnum"`
-	Cmtnum   int    `json:"cmtnum"`
-	Likenum  int    `json:"likenum"`
+	Username string `json:"username,omitempty"`
+	Viewnum  int    `json:"viewnum,omitempty"`
+	Cmtnum   int    `json:"cmtnum,omitempty"`
+	Likenum  int    `json:"likenum,omitempty"`
 	Status   int    `json:"status"`
-	Ctime    string `json:"ctime"`
-	Mtime    string `json:"mtime"`
+	Ctime    string `json:"ctime,omitempty"`
+	Mtime    string `json:"mtime,omitempty"`
 
 	// 数据库访问对象
 	*Dao

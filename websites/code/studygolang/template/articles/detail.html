@@ -2,12 +2,15 @@
 {{define "seo"}}<meta name="keywords" content="{{.article.Title}} Go语言博客文章, Go语言博文, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
 <meta name="description" content="{{substring .article.Txt 200 ""}}">{{end}}
 {{define "content"}}
-<div class="row header_title">
-	<div class="col-lg-12 col-md-12 col-sm-12">
-	</div>
+<div class="row banner">
 </div>
 <div class="row">
 	<div class="col-lg-9 col-md-8 col-sm-7">
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/articles">网友博文</a></li>
+			<li class="active">{{.article.Title}}</li>
+		</ol>
 		<div class="page box_white">
 			<div class="title text-center">
 				<h1>{{.article.Title}}</h1>

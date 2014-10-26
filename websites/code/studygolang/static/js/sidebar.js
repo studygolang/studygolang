@@ -167,8 +167,16 @@ $(function(){
 			$('.sb-content .cmt-list ul').html(content);
 		}
 	}
-	
+
 	var userActive = function(data) {
+		userList(data, '#active-list');
+	}
+
+	var userNewest = function(data) {
+		userList(data, '#newest-list');
+	}
+	
+	var userList = function(data, id) {
 		if (data.ok) {
 			data = data.data;
 
@@ -186,7 +194,7 @@ $(function(){
 		  			'<div class="name"><a href="/user/'+data[i].username+'" title="'+data[i].username+'">'+data[i].username+'</a></div>'+
 		  		'</li>';
 			}
-			$('.sb-content .user-list ul').html(content);
+			$('.sb-content '+id+' ul').html(content);
 		}
 	}
 
@@ -198,7 +206,8 @@ $(function(){
 				'<li>博文数: <span>'+data.article+'</span> 篇</li>'+
 				'<li>话题数: <span>'+data.topic+'</span> 个</li>'+
 				'<li>评论数: <span>'+data.comment+'</span> 条</li>'+
-				'<li>资源数: <span>'+data.resource+'</span> 个</li>';
+				'<li>资源数: <span>'+data.resource+'</span> 个</li>'+
+				'<li>项目数: <span>'+data.project+'</span> 个</li>';
 
 			$('.sb-content .stat-list ul').html(content);
 		}
@@ -210,7 +219,8 @@ $(function(){
 		"/projects/recent.json": {"func": projectRecent, "class": ".project-list"},
 		"/resources/recent.json": {"func": resourceRecent, "class": ".resource-list"},
 		"/comments/recent.json": {"func": commentRecent, "class": ".cmt-list"},
-		"/users/active.json": {"func": userActive, "class": ".user-list"},
+		"/users/active.json": {"func": userActive, "class": "#active-list"},
+		"/users/newest.json": {"func": userNewest, "class": "#newest-list"},
 		"/websites/stat.json": {"func": websiteStat, "class": ".stat-list"},
 	};
 	

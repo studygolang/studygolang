@@ -17,16 +17,22 @@ import (
 	"util"
 )
 
-func PublishProject(username string, form url.Values) error {
-	if ProjectUriExists(form.Get("uri")) {
-		return errors.New("uri存在")
+func PublishProject(username string, form url.Values) (err error) {
+	isModify := form.Get("id") != ""
+
+	if !isModify && ProjectUriExists(form.Get("uri")) {
+		err = errors.New("uri存在")
+		return
 	}
 
 	project := model.NewOpenProject()
 	util.ConvertAssign(project, form)
 
-	project.Username = username
-	project.Ctime = util.TimeNow()
+	if !isModify {
+		project.Username = username
+		project.Ctime = util.TimeNow()
+	}
+
 	project.Uri = strings.ToLower(project.Uri)
 
 	github := "github.com"
@@ -35,13 +41,17 @@ func PublishProject(username string, form url.Values) error {
 		project.Repo = project.Src[pos+len(github)+1:]
 	}
 
-	_, err := project.Insert()
+	if !isModify {
+		_, err = project.Insert()
+	} else {
+		err = project.Persist(project)
+	}
 
 	if err != nil {
 		logger.Errorln("Publish Project error:", err)
 	}
 
-	return err
+	return
 }
 
 func ProjectUriExists(uri string) bool {
@@ -62,7 +72,7 @@ func ProjectUriExists(uri string) bool {
 func FindProjects(lastId, limit string) []*model.OpenProject {
 	project := model.NewOpenProject()
 
-	cond := "status IN(0,1)"
+	cond := "status=" + strconv.Itoa(model.StatusOnline)
 	if lastId != "0" {
 		cond += " AND id<" + lastId
 	}
@@ -112,6 +122,15 @@ func FindProjectsByIds(ids []int) []*model.OpenProject {
 		return nil
 	}
 	return projects
+}
+
+// 开源项目总数
+func ProjectsTotal() (total int) {
+	total, err := model.NewOpenProject().Count()
+	if err != nil {
+		logger.Errorln("project service ProjectsTotal error:", err)
+	}
+	return
 }
 
 // 项目评论

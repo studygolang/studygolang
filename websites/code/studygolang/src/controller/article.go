@@ -17,8 +17,6 @@ import (
 	"util"
 )
 
-const limit = 20
-
 // 在需要评论（喜欢）且要回调的地方注册评论（喜欢）对象
 func init() {
 	// 注册评论（喜欢）对象
@@ -29,6 +27,8 @@ func init() {
 // 网友文章列表页
 // uri: /articles
 func ArticlesHandler(rw http.ResponseWriter, req *http.Request) {
+	limit := 20
+
 	lastId := req.FormValue("lastid")
 	if lastId == "" {
 		lastId = "0"
@@ -47,6 +47,8 @@ func ArticlesHandler(rw http.ResponseWriter, req *http.Request) {
 		} else {
 			util.Redirect(rw, req, "/articles")
 		}
+
+		return
 	}
 
 	var (
@@ -102,10 +104,12 @@ func ArticleDetailHandler(rw http.ResponseWriter, req *http.Request) {
 	article, prevNext, err := service.FindArticlesById(vars["id"])
 	if err != nil {
 		util.Redirect(rw, req, "/articles")
+		return
 	}
 
 	if article == nil || article.Id == 0 || article.Status == model.StatusOffline {
 		util.Redirect(rw, req, "/articles")
+		return
 	}
 
 	likeFlag := 0

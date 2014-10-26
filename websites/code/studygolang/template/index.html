@@ -299,13 +299,26 @@
 				</div>
 			</div>
 		</div>
+
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-user"></i>&nbsp;<a href="/users" target="_blank" title="点击更多">新会员</a></h3>
+			</div>
+			<div class="sb-content">
+				<div id="newest-list" class="user-list" data-limit="9">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+			</div>
+		</div>
 		
 		<div class="row box_white sidebar">
 			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-user"></i>&nbsp;<a href="/users" target="_blank" title="点击更多">活跃用户</a></h3>
+				<h3 class="title"><i class="glyphicon glyphicon-user"></i>&nbsp;<a href="/users" target="_blank" title="点击更多">活跃会员</a></h3>
 			</div>
 			<div class="sb-content">
-				<div class="user-list" data-limit="9">
+				<div id="active-list" class="user-list" data-limit="9">
 					<ul class="list-unstyled">
 						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
 					</ul>
@@ -363,6 +376,7 @@ SG.SIDE_BARS = [
 	"/projects/recent.json",
 	"/comments/recent.json",
 	"/users/active.json",
+	"/users/newest.json",
 	"/websites/stat.json",
 ];
 </script>

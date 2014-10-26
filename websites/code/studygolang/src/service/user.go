@@ -230,6 +230,7 @@ func FindActiveUsers(start, num int) []*model.UserActive {
 	return activeUsers
 }
 
+// 最新加入会员
 func FindNewUsers(start, num int) []*model.User {
 	users, err := model.NewUser().Order("ctime DESC").Limit(strconv.Itoa(start) + "," + strconv.Itoa(num)).FindAll([]string{"uid", "username", "email", "avatar", "ctime"}...)
 	if err != nil {

@@ -44,6 +44,7 @@ func OtherTopicsHandler(rw http.ResponseWriter, req *http.Request) {
 // uri: /websites/stat.json
 func StatHandler(rw http.ResponseWriter, req *http.Request) {
 	articleTotal := service.ArticlesTotal()
+	projectTotal := service.ProjectsTotal()
 	topicTotal := service.TopicsTotal()
 	cmtTotal := service.CommentsTotal(-1)
 	resourceTotal := service.ResourcesTotal()
@@ -51,6 +52,7 @@ func StatHandler(rw http.ResponseWriter, req *http.Request) {
 
 	data := map[string]int{
 		"article":  articleTotal,
+		"project":  projectTotal,
 		"topic":    topicTotal,
 		"resource": resourceTotal,
 		"comment":  cmtTotal,
@@ -210,12 +212,25 @@ func HotNodesHandler(rw http.ResponseWriter, req *http.Request) {
 }
 
 // 活跃会员
-// uri: /user/active.json
+// uri: /users/active.json
 func ActiveUserHandler(rw http.ResponseWriter, req *http.Request) {
 	activeUsers := service.FindActiveUsers(0, 9)
 	buf, err := json.Marshal(activeUsers)
 	if err != nil {
 		logger.Errorln("[ActiveUserHandler] json.marshal error:", err)
+		fmt.Fprint(rw, `{"ok": 0, "error":"解析json出错"}`)
+		return
+	}
+	fmt.Fprint(rw, `{"ok": 1, "data":`+string(buf)+`}`)
+}
+
+// 新加入会员
+// uri: /users/newest.json
+func NewestUserHandler(rw http.ResponseWriter, req *http.Request) {
+	newestUsers := service.FindNewUsers(0, 9)
+	buf, err := json.Marshal(newestUsers)
+	if err != nil {
+		logger.Errorln("[NewestUserHandler] json.marshal error:", err)
 		fmt.Fprint(rw, `{"ok": 0, "error":"解析json出错"}`)
 		return
 	}

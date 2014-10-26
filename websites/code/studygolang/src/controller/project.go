@@ -28,6 +28,8 @@ func init() {
 // 开源项目列表页
 // uri: /projects
 func ProjectsHandler(rw http.ResponseWriter, req *http.Request) {
+	limit := 20
+
 	lastId := req.FormValue("lastid")
 	if lastId == "" {
 		lastId = "0"
@@ -39,13 +41,14 @@ func ProjectsHandler(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	num := len(projects)
-
 	if num == 0 {
 		if lastId == "0" {
 			util.Redirect(rw, req, "/")
 		} else {
 			util.Redirect(rw, req, "/projects")
 		}
+
+		return
 	}
 
 	var (
@@ -97,10 +100,12 @@ func ProjectsHandler(rw http.ResponseWriter, req *http.Request) {
 // uri: /project/new{json:(|.json)}
 func NewProjectHandler(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
-	name := req.FormValue("name")
+	name := req.PostFormValue("name")
 	// 请求新建项目页面
 	if name == "" || req.Method != "POST" || vars["json"] == "" {
+		project := model.NewOpenProject()
 		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/projects/new.html")
+		filter.SetData(req, map[string]interface{}{"project": project, "activeProjects": "active"})
 		return
 	}
 
@@ -113,13 +118,40 @@ func NewProjectHandler(rw http.ResponseWriter, req *http.Request) {
 	fmt.Fprint(rw, `{"ok": 1, "data":""}`)
 }
 
+// 修改项目
+// uri: /project/modify{json:(|.json)}
+func ModifyProjectHandler(rw http.ResponseWriter, req *http.Request) {
+	id := req.FormValue("id")
+	if id == "" {
+		util.Redirect(rw, req, "/projects")
+		return
+	}
+
+	vars := mux.Vars(req)
+	// 请求编辑项目页面
+	if req.Method != "POST" || vars["json"] == "" {
+		project := service.FindProject(id)
+		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/projects/new.html")
+		filter.SetData(req, map[string]interface{}{"project": project, "activeProjects": "active"})
+		return
+	}
+
+	err := service.PublishProject("", req.PostForm)
+	if err != nil {
+		fmt.Fprint(rw, `{"ok": 0, "error":"内部服务错误！"}`)
+		return
+	}
+	fmt.Fprint(rw, `{"ok": 1, "data":""}`)
+}
+
 // 项目详情
 // uri: /p/{uniq}
 func ProjectDetailHandler(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	project := service.FindProject(vars["uniq"])
-	if project == nil {
+	if project == nil || project.Status != model.StatusOnline {
 		util.Redirect(rw, req, "/projects")
+		return
 	}
 
 	likeFlag := 0
