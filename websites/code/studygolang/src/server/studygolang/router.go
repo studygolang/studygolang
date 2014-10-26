@@ -62,6 +62,12 @@ func initRouter() *mux.Router {
 	// 搜索
 	router.HandleFunc("/search", SearchHandler)
 
+	// 项目
+	router.HandleFunc("/project/new{json:(|.json)}", NewProjectHandler).AppendFilterChain(loginFilterChain)
+	router.HandleFunc("/p/{uniq}", ProjectDetailHandler)
+	router.HandleFunc("/projects", ProjectsHandler)
+	router.HandleFunc("/project/uri.json", ProjectUriHandler)
+
 	// wiki
 	router.HandleFunc("/wiki", WikisHandler)
 	router.HandleFunc("/wiki/new{json:(|.json)}", NewWikiPageHandler).AppendFilterChain(loginFilterChain)
@@ -104,6 +110,8 @@ func initRouter() *mux.Router {
 	router.HandleFunc("/topics/recent.json", RecentTopicHandler)
 	// 最新博文
 	router.HandleFunc("/articles/recent.json", RecentArticleHandler)
+	// 最新项目
+	router.HandleFunc("/projects/recent.json", RecentProjectHandler)
 	// 最新资源
 	router.HandleFunc("/resources/recent.json", RecentResourceHandler)
 	// 最新评论
@@ -112,7 +120,7 @@ func initRouter() *mux.Router {
 	router.HandleFunc("/users/active.json", ActiveUserHandler)
 
 	// 文件上传（图片）
-	router.HandleFunc("/upload/image.json", UploadImageHandler)
+	router.HandleFunc("/upload/image.json", UploadImageHandler).AppendFilterChain(loginFilterChain)
 	/////////////////// 异步请求 结束 ///////////////////////
 
 	// 管理后台权限检查过滤器

@@ -7,18 +7,19 @@
 package filter
 
 import (
-	"config"
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/context"
-	"github.com/studygolang/mux"
 	"html/template"
-	"logger"
 	"net/http"
 	"path/filepath"
-	"service"
 	"strings"
 	"time"
+
+	"config"
+	"github.com/gorilla/context"
+	"github.com/studygolang/mux"
+	"logger"
+	"service"
 	"util"
 )
 
@@ -163,9 +164,11 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 			contentHtmls[i] = config.ROOT + strings.TrimSpace(contentHtml)
 		}
 
-		// TODO: 新模版过度
+		// TODO: 新模版过渡
 		if strings.Contains(req.RequestURI, "articles") ||
 			strings.Contains(req.RequestURI, "favorites") ||
+			strings.Contains(req.RequestURI, "project") ||
+			strings.HasPrefix(req.RequestURI, "/p/") ||
 			req.RequestURI == "/" ||
 			strings.Contains(req.RequestURI, "search") {
 			this.commonHtmlFiles = []string{config.ROOT + "/template/common/layout.html"}

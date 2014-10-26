@@ -11,9 +11,11 @@
 	<ul id="listnav" class="nav nav-tabs" role="tablist">
 		<li role="presentation" class="{{if eq .objtype 1}}active{{end}}"><a href="/favorites/mine">博文</a></li>
 		<li role="presentation" class="{{if eq .objtype 0}}active{{end}}"><a href="/favorites/mine?objtype=0">话题</a></li>
+		<li role="presentation" class="{{if eq .objtype 4}}active{{end}}"><a href="/favorites/mine?objtype=4">开源项目</a></li>
 		<li role="presentation" class="{{if eq .objtype 2}}active{{end}}"><a href="/favorites/mine?objtype=2">资源</a></li>
 	</ul>
 	<div class="col-lg-9 col-md-8 col-sm-7">
+		{{if eq .objtype 1}}
 		{{range .articles}}
 		<article class="article box_white">
 			<div class="row">
@@ -79,8 +81,56 @@
 		</article>
 		{{else}}
 		<div class="box_white">
-			<p class="no-favorite text-center">您还未收藏该类别的资料</p>
+			<p class="no-favorite text-center">您还未收藏任何文章</p>
 		</div>
+		{{end}}
+		{{end}}
+		{{if eq .objtype 4}}
+		{{range .projects}}
+		<article class="article box_white">
+			<div class="row">
+				<div>
+					<h2>
+						{{if .Logo}}<img src="{{.Logo}}" alt="{{.Name}}" width="36px" />{{end}}
+						<a href="/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}" target="_blank" title="{{.Name}}">{{.Category}}<em>{{.Name}}</em></a>
+					</h2>
+					<p class="text">{{substring .Desc 250 "..."}}<a href="/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}" target="_blank" title="阅读全文">阅读全文</a></p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-8 metatag">
+					<i class="glyphicon glyphicon-calendar"></i>
+					<span class="date" title="发布日期">{{.Ctime}}</span>
+					<i class="glyphicon glyphicon-user"></i>
+					<span class="author" title="作者">{{.Author}}</span>
+				</div>
+				<div class="col-md-4 metatag text-right">
+					<span class="view" title="阅读数">
+						<i class="glyphicon glyphicon-eye-open"></i>
+						阅读:<span>{{.Viewnum}}</span>次
+					</span>
+					<a href="/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}#commentForm" class="cmt" target="_blank" title="评论数">
+						<i class="glyphicon glyphicon-comment"></i>
+						评论:<span>{{.Cmtnum}}</span>条
+					</a>
+					{{if $.likeflags}}
+					{{$likeFlag := index $.likeflags .Id}}
+					<a href="#" class="like{{if $likeFlag}} hadlike{{end}}" title="{{if $likeFlag}}取消喜欢{{else}}我喜欢{{end}}" data-objid="{{.Id}}" data-objtype="1" data-flag="{{if $likeFlag}}{{$likeFlag}}{{else}}0{{end}}">
+						<i class="glyphicon glyphicon-heart{{if not $likeFlag}}-empty{{end}}"></i>
+					{{else}}
+					<a href="#" class="like" title="我喜欢" data-objid="{{.Id}}" data-objtype="1" data-flag="0">
+						<i class="glyphicon glyphicon-heart-empty"></i>
+					{{end}}
+						<span class="likenum">{{.Likenum}}</span>人喜欢
+					</a>
+				</div>
+			</div>
+		</article>
+		{{else}}
+		<div class="box_white">
+			<p class="no-favorite text-center">您还未收藏任何开源项目</p>
+		</div>
+		{{end}}
 		{{end}}
 		<ul class="pagination pull-right">
 			{{noescape .pageHtml}}

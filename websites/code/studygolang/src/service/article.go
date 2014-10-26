@@ -162,6 +162,7 @@ func ParseArticle(articleUrl string, auto bool) (*model.Article, error) {
 	article.Txt = txt
 	article.PubDate = pubDate
 	article.Url = articleUrl
+	article.Lang = rule.Lang
 	article.Ctime = util.TimeNow()
 
 	_, err = article.Insert()
@@ -246,12 +247,12 @@ func FindArticlesById(idstr string) (curArticle *model.Article, prevNext []*mode
 	}
 
 	prevNext = make([]*model.Article, 2)
-	prevId, nextId := articles[0].Id, id
+	prevId, nextId := articles[0].Id, articles[len(articles)-1].Id
 	for _, article := range articles {
 		if article.Id < id && article.Id > prevId {
 			prevId = article.Id
 			prevNext[0] = article
-		} else if article.Id > id {
+		} else if article.Id > id && article.Id < nextId {
 			nextId = article.Id
 			prevNext[1] = article
 		} else {

@@ -17,6 +17,7 @@ const (
 	TYPE_ARTICLE         // 博文
 	TYPE_RESOURCE        // 资源
 	TYPE_WIKI            // WIKI
+	TYPE_PROJECT         // 开源项目
 )
 
 var PathUrlMap = map[int]string{
@@ -24,6 +25,7 @@ var PathUrlMap = map[int]string{
 	TYPE_ARTICLE:  "/articles/",
 	TYPE_RESOURCE: "/resources/",
 	TYPE_WIKI:     "/wiki/",
+	TYPE_PROJECT:  "/p/",
 }
 
 // 评论信息（通用）

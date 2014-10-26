@@ -58,6 +58,39 @@ $(function(){
 		}
 	}
 
+	// 侧边栏——最新开源项目
+	var projectRecent = function(data){
+		if (data.ok) {
+			data = data.data;
+
+			var content = '';
+			for(var i in data) {
+				var uri = data[i].id;
+				if (data[i].uri != '') {
+					uri = data[i].uri;
+				}
+
+				var title = data[i].category + ' ' + data[i].name;
+
+				var logo = 'http://studygolang.qiniudn.com/141026/d0a668a4c0f13ea1a2cc7675a51cf4d3.gif';
+				if (data[i].logo != '') {
+					logo = data[i].logo;
+				}
+				content += '<li>'+
+					'<a href="/p/'+uri+'">'+
+						'<div class="logo"><img src="'+logo+'" alt="'+data[i].name+'" width="48px"/></div>'+
+					'</a>'+
+					'<div class="title">'+
+						'<h4>'+
+							'<a href="/p/'+uri+'" title="'+title+'">'+title+'</a>'+
+						'</h4>'+
+					'</div>'+
+				'</li>';
+			}
+			$('.sb-content .project-list ul').html(content);
+		}
+	}
+
 	// 侧边栏——最新资源
 	var resourceRecent = function(data){
 		if (data.ok) {
@@ -92,6 +125,9 @@ $(function(){
 				case 2:
 					url = '/resources/';
 					break;
+				case 4:
+					url = '/p/';
+					break;
 				}
 				url += comments[i].objid;
 
@@ -120,7 +156,7 @@ $(function(){
 							'<span title="'+comments[i].ctime+'">'+cmtTime+'</span>'+
 						'</div>'+
 						'<div class="w-page">'+
-							'<span>在<a href="'+url+'" title="'+comments[i].objinfo.title+'">'+comments[i].objinfo.title+'  </a>中评论</span>'+
+							'<span>在<a href="'+url+'#commentForm" title="'+comments[i].objinfo.title+'">'+comments[i].objinfo.title+'  </a>中评论</span>'+
 						'</div>'+
 						'<div class="w-comment">'+
 							'<span>'+comments[i].content+'</span>'+
@@ -171,6 +207,7 @@ $(function(){
 	var sidebar_callback = {
 		"/topics/recent.json": {"func": topicRecent, "class": ".topic-list"},
 		"/articles/recent.json": {"func": articleRecent, "class": ".article-list"},
+		"/projects/recent.json": {"func": projectRecent, "class": ".project-list"},
 		"/resources/recent.json": {"func": resourceRecent, "class": ".resource-list"},
 		"/comments/recent.json": {"func": commentRecent, "class": ".cmt-list"},
 		"/users/active.json": {"func": userActive, "class": ".user-list"},

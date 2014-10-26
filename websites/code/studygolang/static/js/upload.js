@@ -19,7 +19,11 @@ jQuery(document).ready(function(){
 				$('img.show_img').attr('src', url);
 				$('a.show_img').attr('href', url);
 			} else {
-				jAlert(data.error, '错误');
+				if (window.jAlert) {
+					jAlert(data.error, '错误');
+				} else {
+					alert(data.error);
+				}
 			}
 		}
 	});

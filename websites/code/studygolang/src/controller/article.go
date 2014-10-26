@@ -57,7 +57,7 @@ func ArticlesHandler(rw http.ResponseWriter, req *http.Request) {
 	if lastId != "0" {
 		prevId, _ = strconv.Atoi(lastId)
 
-		// 避免因为文章下线，导致判断错误（所以 > 5）(TODO:翻页还是有点小问题)
+		// 避免因为文章下线，导致判断错误（所以 > 5）
 		if prevId-articles[0].Id > 5 {
 			hasPrev = false
 		} else {

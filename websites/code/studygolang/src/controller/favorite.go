@@ -78,6 +78,8 @@ func MyFavoritesHandler(rw http.ResponseWriter, req *http.Request) {
 			data["resources"] = service.FindArticlesByIds(objids)
 		case model.TYPE_WIKI:
 			data["wikis"] = service.FindArticlesByIds(objids)
+		case model.TYPE_PROJECT:
+			data["projects"] = service.FindProjectsByIds(objids)
 		}
 
 	}

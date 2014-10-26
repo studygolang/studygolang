@@ -39,7 +39,7 @@
 				{{$tags := explode .article.Tags ","}}
 				<ul class="list-inline">
 					{{range $tag := $tags}}
-					<li><a href="/" title="{{$tag}}">{{$tag}}</a></li>
+					<li><a href="/search?q={{$tag}}&f=tag" title="{{$tag}}">{{$tag}}</a></li>
 					{{end}}
 				</ul>
 				{{end}}
@@ -93,9 +93,12 @@
 				</div>
 				<div class="submit" id="commentForm">
 					<div class="text">
-						<textarea name="content" placeholder="我有话要说……"></textarea>
+						<textarea name="content" placeholder="我有话要说……" class="need-autogrow"></textarea>
 					</div>
 					<div class="sub text-right">
+						<i class="help-block pull-left">
+							支持 markdown 语法
+						</i>
 						<button type="submit" title="提交" class="btn btn-danger">提交</button>
 					</div>
 				</div>
@@ -138,6 +141,10 @@
 </div>
 {{end}}
 {{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
+<script type="text/javascript" src="/static/js/comment.js"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
@@ -147,6 +154,9 @@ SG.SIDE_BARS = [
 ];
 
 $(function(){
+	// 文本框自动伸缩
+	$('.need-autogrow').autoGrow();
+	
 	loadComments();
 });
 </script>

@@ -114,15 +114,15 @@ func FindRecentComments(uid, objtype int, limit string) []*model.Comment {
 		cmtMap[comment.Objtype] = append(cmtMap[comment.Objtype], comment)
 	}
 
+	cmtObjs := []CommentObjecter{
+		model.TYPE_TOPIC:    TopicComment{},
+		model.TYPE_ARTICLE:  ArticleComment{},
+		model.TYPE_RESOURCE: ResourceComment{},
+		model.TYPE_WIKI:     nil,
+		model.TYPE_PROJECT:  ProjectComment{},
+	}
 	for cmtType, cmts := range cmtMap {
-		switch cmtType {
-		case model.TYPE_TOPIC:
-			FillCommentObjs(cmts, TopicComment{})
-		case model.TYPE_ARTICLE:
-			FillCommentObjs(cmts, ArticleComment{})
-		case model.TYPE_RESOURCE:
-			FillCommentObjs(cmts, ResourceComment{})
-		}
+		FillCommentObjs(cmts, cmtObjs[cmtType])
 	}
 
 	return comments

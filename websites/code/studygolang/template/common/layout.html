@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-	<title>{{template "title" .}} | Golang China | Golang中文社区(Go语言构建) | Go语言学习园地</title>
+	<title>{{template "title" .}} | Golang中文社区(Go语言构建) | Go语言中文网 | Go语言学习园地</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta charset="utf-8">
 	<link rel="shortcut icon" href="/static/img/go.ico">
@@ -33,18 +33,18 @@
 						<a href="/topics">社区</a>
 					</li>
 					<li class="dropdown {{.activeArticles}}">
-						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="articles">精彩文章 <i class="newfuture"></i><span class="caret"></span></a>
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="articles">精彩文章 <span class="caret"></span></a>
 						<ul class="dropdown-menu" aria-labelledby="articles">
 							<li><a href="/articles">网友博文</a></li>
 							<li><a href="http://blog.studygolang.com" target="_blank">本站博客</a></li>
 							<li><a href="http://blog.studygolang.com" target="_blank">官方博客</a></li>
 						</ul>
 					</li>
-					<li>
-						<a href="/resources">资源</a>
+					<li class="{{.activeProjects}}">
+						<a href="/projects">开源项目<i class="newfuture"></i></a>
 					</li>
 					<li>
-						<a href="/sites">酷站</a>
+						<a href="/resources">资源</a>
 					</li>
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="docs">官方文档 <span class="caret"></span></a>
@@ -57,8 +57,8 @@
 						<a href="/users">会员</a>
 					</li>
 				</ul>
-				<form class="navbar-form navbar-left" action="/search" role="search" _lpchecked="1">
-					<input type="text" name="q" class="form-control search-query" placeholder="搜索" value="{{if .q}}{{.q}}{{end}}" target="_blank">
+				<form class="navbar-form navbar-left" action="/search" role="search" _lpchecked="1" target="_blank">
+					<input type="text" name="q" class="form-control search-query" placeholder="搜索" value="{{if .q}}{{.q}}{{end}}">
 				</form>
 				<ul class="nav navbar-nav navbar-right" id="userbar">
 					{{if .me}}
@@ -67,7 +67,7 @@
 					</li>
 					{{if .me.isadmin}}
 					<li>
-						<a href="/admin/" target="_blank">管理后台</a>
+						<a href="/project/new">发布项目</a>
 					</li>
 					{{end}}
 					<li class="dropdown" id="user_menu">
@@ -76,6 +76,10 @@
 							<li class="first"><a href="/user/{{.me.username}}">我的主页</a></li>
 							<li><a href="/account/edit">个人资料设置</a></li>
 							<li><a href="/favorites/mine">我的收藏</a></li>
+							<li role="presentation" class="divider"></li>
+							{{if .me.isadmin}}
+							<li><a href="/admin/" target="_blank">管理后台</a></li>
+							{{end}}
 							<li class="last"><a href="/account/logout">退出</a></li>
 						</ul>
 					</li>

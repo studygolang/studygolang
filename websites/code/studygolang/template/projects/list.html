@@ -1,59 +1,39 @@
-{{define "title"}}网友博文{{end}}
-{{define "seo"}}<meta name="keywords" content="Go语言博客文章, Go语言博文, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
-<meta name="description" content="文章来自国内知名网站，Go爱好者学习笔记，经验分享；也有爱好者自己的博客文章，已经一些国外精彩文章。">{{end}}
+{{define "title"}}开源项目 {{end}}
+{{define "seo"}}<meta name="keywords" content="开源项目, Go语言开源项目, Go语言博文, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
+<meta name="description" content="Go语言中文网，收集了Go语言的大部分知名开源项目，有项目的介绍，甚至有网友对开源项目的解读">{{end}}
 {{define "content"}}
-<div class="row header_title">
-	<div class="col-lg-12 col-md-12 col-sm-12">
-		<h3>网友博文</h3>
-	</div>
+<div class="row banner">
 </div>
 <div class="row">
 	<div class="col-lg-9 col-md-8 col-sm-7">
-		{{range .articles}}
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li class="active">开源项目</li>
+		</ol>
+		{{range .projects}}
 		<article class="article box_white">
 			<div class="row">
-				{{if .Cover}}
-				<div class="pull-left">
-					<a href="/articles/{{.Id}}" target="_blank" title="{{.Title}}">
-						<img class="lazy" src="{{.Cover}}" width="240" alt="{{.Title}}" style="display: inline;">
-					</a>
-				</div>
-				<div style="margin-left:260px;">
-				{{else}}
 				<div>
-				{{end}}
-					<h2><a href="/articles/{{.Id}}" target="_blank" title="{{.Title}}">{{.Title}}</a></h2>
-					<p class="text">{{substring .Txt 250 "..."}}<a href="/articles/{{.Id}}" target="_blank" title="阅读全文">阅读全文</a></p>
+					<h2>
+						{{if .Logo}}<img src="{{.Logo}}" alt="{{.Name}}" width="36px" />{{end}}
+						<a href="/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}" target="_blank" title="{{.Name}}">{{.Category}} <em>{{.Name}}</em></a>
+					</h2>
+					<p class="text">{{substring .Desc 250 "..."}}<a href="/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}" target="_blank" title="阅读全文">阅读全文</a></p>
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-md-8 metatag">
-					<i class="glyphicon glyphicon-th"></i>
-					<span class="source" title="来源">{{.Name}}</span>
 					<i class="glyphicon glyphicon-calendar"></i>
-					<span class="date" title="发布日期">{{.PubDate}}</span>
+					<span class="date" title="发布日期">{{.Ctime}}</span>
 					<i class="glyphicon glyphicon-user"></i>
-					<span class="author" title="作者">{{substring .AuthorTxt 15 " 等"}}</span>
-					{{if .Tags}}
-					{{$tags := explode .Tags ","}}
-					<ul class="list-inline">
-						<i class="glyphicon glyphicon-tags"></i>
-						{{range $tag := $tags}}
-						<li>
-							<a href="/search?q={{$tag}}&f=tag" title="{{$tag}}" target="_blank">
-								{{$tag}}
-							</a>
-						</li>
-						{{end}}
-					</ul>
-					{{end}}
+					<span class="author" title="作者">{{.Author}}</span>
 				</div>
 				<div class="col-md-4 metatag text-right">
 					<span class="view" title="阅读数">
 						<i class="glyphicon glyphicon-eye-open"></i>
 						阅读:<span>{{.Viewnum}}</span>次
 					</span>
-					<a href="/articles/{{.Id}}#commentForm" class="cmt" target="_blank" title="评论数">
+					<a href="/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}#commentForm" class="cmt" target="_blank" title="评论数">
 						<i class="glyphicon glyphicon-comment"></i>
 						评论:<span>{{.Cmtnum}}</span>条
 					</a>
@@ -73,14 +53,26 @@
 		{{end}}
 		<ul class="pager">
 			{{if .page.has_prev}}
-			<li class="previous"><a href="/articles?lastid={{.page.prev_id}}">&larr; 上一页</a></li>
+			<li class="previous"><a href="/projects?lastid={{.page.prev_id}}">&larr; 上一页</a></li>
 			{{end}}
 			{{if .page.has_next}}
-			<li class="next"><a href="/articles?lastid={{.page.next_id}}">下一页 &rarr;</a></li>
+			<li class="next"><a href="/projects?lastid={{.page.next_id}}">下一页 &rarr;</a></li>
 			{{end}}
 		</ul>
 	</div>
 	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-list"></i>&nbsp;<a href="/articles" target="_blank" title="点击更多">最新博文</a></h3>
+			</div>
+			<div class="sb-content">
+				<div class="article-list" data-limit="10">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+			</div>
+		</div>
 		<div class="row box_white sidebar">
 			<div class="top">
 				<ul class="list-inline text-center">
@@ -116,6 +108,7 @@ SG.SIDE_BARS = [
 	"/topics/recent.json",
 	"/resources/recent.json",
 	"/comments/recent.json",
+	"/articles/recent.json"
 ];
 </script>
 {{end}}

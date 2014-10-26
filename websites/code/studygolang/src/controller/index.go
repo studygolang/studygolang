@@ -38,8 +38,8 @@ func IndexHandler(rw http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	// TODO：开源项目（暂时使用 resource 表）
-	resources := service.FindResourcesByCatid("2")
+	// Golang 资源
+	resources := service.FindResources("0", "100")
 
 	start, end := 0, len(resources)
 	if n := end - 10; n > 0 {

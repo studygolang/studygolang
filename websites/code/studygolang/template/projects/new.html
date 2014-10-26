@@ -1,0 +1,189 @@
+{{define "title"}}发布项目 {{end}}
+{{define "seo"}}<meta name="keywords" content="开源项目, Go语言开源项目, Go语言博文, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
+<meta name="description" content="Go语言中文网，收集了Go语言的大部分知名开源项目，有项目的介绍，甚至有网友对开源项目的解读">{{end}}
+{{define "content"}}
+<div class="row banner">
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/projects">开源项目</a></li>
+			<li class="active">添加项目</li>
+		</ol>
+		<div class="page box_white">
+			<form class="form-horizontal validate-form" role="form" action="/project/new.json">
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="name">项目名</label>
+					<div class="col-sm-6">
+						<input class="form-control required" type="text" id="name" name="name" placeholder="项目名">
+					</div>
+					<span class="help-block">如 Docker</span>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="category">项目类别</label>
+					<div class="col-sm-6">
+						<input class="form-control required" type="text" id="category" name="category" placeholder="项目标题">
+					</div>
+					<span class="help-block">如 Linux 容器引擎</span>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="uri">个性uri</label>
+					<div class="col-sm-6">
+						<div class="row">
+							<div class="col-sm-5 uri-prefix">http://studygolang.com/p/</div>
+							<div class="col-sm-7 uri"><input class="form-control {remote:'/project/uri.json'}" type="text" id="uri" name="uri" placeholder="个性uri"></div>
+						</div>
+					</div>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="home">项目首页</label>
+					<div class="col-sm-6">
+						<input class="form-control {required:true,url:true}" type="url" id="home" name="home" placeholder="项目首页">
+					</div>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="doc">项目文档地址</label>
+					<div class="col-sm-6">
+						<input class="form-control {required:true,url:true}" type="url" id="doc" name="doc" placeholder="项目文档地址">
+					</div>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="download">软件下载地址</label>
+					<div class="col-sm-6">
+						<input class="form-control {url:true}" type="url" id="download" name="download" placeholder="项目下载地址">
+					</div>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="src">源码地址</label>
+					<div class="col-sm-6">
+						<input class="form-control {required:true, url:true}" type="url" id="src" name="src" placeholder="源码地址">
+					</div>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="logo">项目logo</label>
+					<div class="col-sm-6">
+						<input class="form-control img_url {url:true}" type="url" id="logo" name="logo" placeholder="项目logo">
+					</div>
+					<span class="help-block upload_img_single"></span>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="author">作者</label>
+					<div class="col-sm-6">
+						<input class="form-control" type="text" id="author" name="author" placeholder="作者">
+					</div>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="lang">开发语言</label>
+					<div class="col-sm-6">
+						<input class="form-control required" type="text" id="lang" name="lang" placeholder="开发语言">
+					</div>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="os">支持的操作系统</label>
+					<div class="col-sm-6">
+						<input class="form-control" type="text" id="os" name="os" placeholder="支持的操作系统">
+					</div>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="lang">授权协议</label>
+					<div class="col-sm-6">
+						<select id="licence" name="licence" class="form-control">
+							<option value="GPL">GPL</option>
+							<option value="LGPL">LGPL</option>
+							<option value="AGPL">AGPL</option>
+							<option value="Apache">Apache</option>
+							<option value="MIT">MIT</option>
+							<option value="BSD">BSD</option>
+							<option value="EPL">EPL</option>
+							<option value="MPL">MPL</option>
+							<option value="">其他</option>
+						</select>
+					</div>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="tags">tags</label>
+					<div class="col-sm-6">
+						<input class="form-control" type="text" id="tags" name="tags" placeholder="标签">
+					</div>
+					<span class="help-block">如 多个逗号分隔</span>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="desc">项目描述</label>
+					<div class="col-sm-7" id="desc-div">
+						<textarea class="form-control need-autogrow required" id="desc" name="desc" rows="15"></textarea>
+						<div class="preview-div" style="display:none;"></div>
+					</div>
+					<i class="glyphicon glyphicon-eye-open preview" title="预览" style="cursor:pointer;"></i><span class="help-block">支持Markdowm</span>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-6 control-label">&nbsp;</label>
+					<div class="col-sm-6">
+						<button type="submit" class="btn btn-default btn-sm" id="submit">发布项目</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			<div class="top">
+				<ul class="list-inline text-center">
+					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新帖子</a>|</li>
+					<li class="second"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
+					<li class="last"><a href="javascript:;">最新评论</a></li>
+				</ul>
+				<p class="bar"></p>
+			</div>
+			<div class="sb-content">
+				<div class="topic-list first">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+				<div class="resource-list second hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+				<div class="cmt-list last hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{{end}}
+{{define "css"}}
+<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/Huploadify.css" media="screen" rel="stylesheet" type="text/css">
+<style type="text/css">
+	.uploadify-button {margin:0px;}
+	.uri-prefix {height: 31px;line-height: 1.5;padding-top: 5px;padding-right: 0px;}
+	.uri {padding-left:0px;}
+</style>
+{{end}}
+{{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.Huploadify.js"></script>
+<script type="text/javascript" src="/static/js/upload.js"></script>
+<script type="text/javascript" src="/static/js/projects.js"></script>
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/topics/recent.json",
+	"/resources/recent.json",
+	"/comments/recent.json",
+];
+
+$(function(){
+	// 文本框自动伸缩
+	$('.need-autogrow').autoGrow();
+});
+</script>
+{{end}}

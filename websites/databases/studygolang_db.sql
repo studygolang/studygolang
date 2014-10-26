@@ -418,3 +418,36 @@ CREATE TABLE `favorites` (
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`uid`,`objtype`,`objid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户收藏';
+
+/*---------------------------------------------------------------------------*
+  NAME: 开源项目
+  用途：开源项目
+*---------------------------------------------------------------------------*/
+DROP TABLE IF EXISTS `open_project`;
+CREATE TABLE `open_project` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '项目id',
+  `name` varchar(127) NOT NULL DEFAULT '' COMMENT '项目名(软件名)，如 Docker',
+  `category` varchar(127) NOT NULL DEFAULT '' COMMENT '项目类别，如 Linux 容器引擎',
+  `uri` varchar(127) NOT NULL DEFAULT '' COMMENT '项目uri，访问使用（如/p/docker 中的 docker)',
+  `home` varchar(127) NOT NULL DEFAULT '' COMMENT '项目首页',
+  `doc` varchar(127) NOT NULL DEFAULT '' COMMENT '项目文档地址',
+  `download` varchar(127) NOT NULL DEFAULT '' COMMENT '项目下载地址',
+  `src` varchar(127) NOT NULL DEFAULT '' COMMENT '源码地址',
+  `logo` varchar(127) NOT NULL DEFAULT '' COMMENT '项目logo',
+  `desc` text NOT NULL COMMENT '项目描述',
+  `repo` varchar(127) NOT NULL DEFAULT '' COMMENT '源码uri部分，方便repo widget插件使用',
+  `author` varchar(127) NOT NULL DEFAULT '' COMMENT '作者',
+  `licence` varchar(127) NOT NULL DEFAULT '' COMMENT '授权协议',
+  `lang` varchar(127) NOT NULL DEFAULT '' COMMENT '开发语言',
+  `os` varchar(127) NOT NULL DEFAULT '' COMMENT '操作系统（多个逗号分隔）',
+  `tags` varchar(127) NOT NULL DEFAULT '' COMMENT 'tag，逗号分隔',
+  `username` varchar(127) NOT NULL DEFAULT '' COMMENT '收录人',
+  `viewnum` int unsigned NOT NULL DEFAULT 0 COMMENT '浏览数',
+  `cmtnum` int unsigned NOT NULL DEFAULT 0 COMMENT '评论数',
+  `likenum` int unsigned NOT NULL DEFAULT 0 COMMENT '赞数',
+  `status` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '状态：0-新建；1-已上线；2-下线(审核拒绝)',
+  `ctime` timestamp NOT NULL DEFAULT 0 COMMENT '加入时间',
+  `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY (`uri`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '开源项目';
