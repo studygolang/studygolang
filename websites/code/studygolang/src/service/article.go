@@ -255,7 +255,7 @@ func FindArticlesById(idstr string) (curArticle *model.Article, prevNext []*mode
 		} else if article.Id > id && article.Id < nextId {
 			nextId = article.Id
 			prevNext[1] = article
-		} else {
+		} else if article.Id == id {
 			curArticle = article
 		}
 	}
