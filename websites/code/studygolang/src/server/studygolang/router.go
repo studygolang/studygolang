@@ -59,6 +59,10 @@ func initRouter() *mux.Router {
 	router.HandleFunc("/articles", ArticlesHandler)
 	router.HandleFunc("/articles/{id:[0-9]+}", ArticleDetailHandler)
 
+	// 技术晨读
+	router.HandleFunc("/readings", ReadingsHandler)
+	router.HandleFunc("/readings/{id:[0-9]+}", IReadingHandler)
+
 	// 搜索
 	router.HandleFunc("/search", SearchHandler)
 
@@ -121,6 +125,8 @@ func initRouter() *mux.Router {
 	router.HandleFunc("/users/active.json", ActiveUserHandler)
 	// 新会员
 	router.HandleFunc("/users/newest.json", NewestUserHandler)
+	// 最新晨读
+	router.HandleFunc("/readings/recent.json", RecentReadingHandler)
 
 	// 文件上传（图片）
 	router.HandleFunc("/upload/image.json", UploadImageHandler).AppendFilterChain(loginFilterChain)

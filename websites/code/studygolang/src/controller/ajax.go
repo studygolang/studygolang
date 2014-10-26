@@ -26,6 +26,24 @@ import (
 
 // 侧边栏的内容通过异步请求获取
 
+// 技术晨读
+// uri: /readings/recent.json
+func RecentReadingHandler(rw http.ResponseWriter, req *http.Request) {
+	limit := req.FormValue("limit")
+	if limit == "" {
+		limit = "7"
+	}
+
+	readings := service.FindReadings("0", limit)
+	buf, err := json.Marshal(readings)
+	if err != nil {
+		logger.Errorln("[RecentReadingHandler] json.marshal error:", err)
+		fmt.Fprint(rw, `{"ok": 0, "error":"解析json出错"}`)
+		return
+	}
+	fmt.Fprint(rw, `{"ok": 1, "data":`+string(buf)+`}`)
+}
+
 // 某节点下其他帖子
 func OtherTopicsHandler(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)

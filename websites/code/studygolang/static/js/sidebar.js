@@ -213,6 +213,33 @@ $(function(){
 		}
 	}
 
+	var readingRecent = function(data) {
+		if (data.ok) {
+			data = data.data;
+
+			var content = '';
+			if (data.length == 1) {
+				data = data[0];
+				content = '<li><a href="/readings/'+data.id+'" target="_blank">'+data.content+'</a></li>';
+			} else {
+				for(var i in data) {
+					content += '<li>'+
+						'<a href="/readings/'+data[i].id+'">'+
+							'<div class="time"><span>10-25</span></div>'+
+						'</a>'+
+						'<div class="title">'+
+							'<h4>'+
+								'<a href="/readings/'+data[i].id+'">'+data[i].content+'</a>'+
+							'</h4>'+
+						'</div>'+
+					'</li>';
+				}
+			}
+			
+			$('.sb-content .reading-list ul').html(content);
+		}
+	}
+
 	var sidebar_callback = {
 		"/topics/recent.json": {"func": topicRecent, "class": ".topic-list"},
 		"/articles/recent.json": {"func": articleRecent, "class": ".article-list"},
@@ -222,6 +249,7 @@ $(function(){
 		"/users/active.json": {"func": userActive, "class": "#active-list"},
 		"/users/newest.json": {"func": userNewest, "class": "#newest-list"},
 		"/websites/stat.json": {"func": websiteStat, "class": ".stat-list"},
+		"/readings/recent.json": {"func": readingRecent, "class": ".reading-list"},
 	};
 	
 	if (typeof SG.SIDE_BARS != "undefined") {

@@ -169,6 +169,7 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 			strings.Contains(req.RequestURI, "favorites") ||
 			strings.Contains(req.RequestURI, "project") ||
 			strings.HasPrefix(req.RequestURI, "/p/") ||
+			strings.Contains(req.RequestURI, "reading") ||
 			req.RequestURI == "/" ||
 			strings.Contains(req.RequestURI, "search") {
 			this.commonHtmlFiles = []string{config.ROOT + "/template/common/layout.html"}

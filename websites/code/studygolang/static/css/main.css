@@ -106,6 +106,10 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .sidebar .sb-content .image-list ul { margin: 2px 15px; }
 .sidebar .sb-content .image-list ul li { height: 95px; margin-top: 10px; }
 
+.sidebar .sb-content .reading-list ul {margin: 2px 15px;}
+.sidebar .sb-content .reading-list ul li a {text-decoration: none;color: #0F2ED1;}
+.sidebar .sb-content .reading-list ul li a:hover { color: #d54f4b; }
+
 /* blog 详情页 */
 .page {}
 .page .title { padding-top: 21px }

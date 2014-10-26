@@ -451,3 +451,18 @@ CREATE TABLE `open_project` (
   PRIMARY KEY (`id`),
   KEY (`uri`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '开源项目';
+
+/*---------------------------------------------------------------------------*
+  NAME: morning_reading
+  用途：技术晨读 表
+*---------------------------------------------------------------------------*/
+DROP TABLE IF EXISTS `morning_reading`;
+CREATE TABLE `morning_reading` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `content` varchar(255) NOT NULL DEFAULT '' COMMENT '晨读内容',
+  `url` varchar(255) NOT NULL DEFAULT '' COMMENT '文章链接',
+  `clicknum` int unsigned NOT NULL DEFAULT 0 COMMENT '点击数',
+  `username` varchar(20) NOT NULL DEFAULT '' COMMENT '发布人',
+  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '技术晨读表';
