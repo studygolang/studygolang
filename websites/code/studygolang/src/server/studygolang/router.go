@@ -32,6 +32,8 @@ func initRouter() *mux.Router {
 	router.FilterChain(fontFilterChan)
 
 	router.HandleFunc("/", IndexHandler)
+	router.HandleFunc("/wr", WRHandler)
+
 	router.HandleFunc("/topics{view:(|/popular|/no_reply|/last)}", TopicsHandler)
 	router.HandleFunc("/topics/{tid:[0-9]+}", TopicDetailHandler)
 	router.HandleFunc("/topics/new{json:(|.json)}", NewTopicHandler).AppendFilterChain(loginFilterChain)

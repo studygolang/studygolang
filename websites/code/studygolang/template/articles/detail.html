@@ -53,8 +53,8 @@
 			</div>
 			<!-- content END -->
 			<div class="row orig-info">
-				<p>本文来自：<a href="http://{{.article.Domain}}" target="_blank" title="{{.article.Name}}">{{.article.Name}}</a></p>
-				<p>查看原文：<a href="{{.article.Url}}" target="_blank" title="{{.article.Title}}">{{.article.Title}}</a></p>
+				<p>本文来自：<a href="/wr?u=http://{{.article.Domain}}" target="_blank" title="{{.article.Name}}">{{.article.Name}}</a></p>
+				<p>查看原文：<a href="/wr?u={{.article.Url}}" target="_blank" title="{{.article.Title}}">{{.article.Title}}</a></p>
 			</div>
 			<div class="active row">
 				<div class="mark-like-btn col-md-8">
@@ -161,6 +161,13 @@ $(function(){
 	$('.need-autogrow').autoGrow();
 	
 	loadComments();
+
+	// 文章链接，在本站的 iframe 中打开
+	$('#wrapper .content').on('mousedown', 'a', function(evt){
+			var url = $(this).attr('href');
+			$(this).attr('href', '/wr?u='+url);
+			$(this).attr('target', '_blank');
+	});
 });
 </script>
 {{end}}
