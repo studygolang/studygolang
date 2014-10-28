@@ -81,6 +81,12 @@ func (this *UserLogin) Set(clause string, args ...interface{}) *UserLogin {
 	return this
 }
 
+// 为了支持连写
+func (this *UserLogin) Limit(limit string) *UserLogin {
+	this.Dao.Limit(limit)
+	return this
+}
+
 func (this *UserLogin) prepareInsertData() {
 	this.columns = []string{"uid", "username", "passwd", "email", "login_time", "passcode"}
 	this.GenMd5Passwd("")

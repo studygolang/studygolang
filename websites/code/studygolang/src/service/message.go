@@ -46,6 +46,8 @@ func SendSystemMsgTo(to, msgtype int, ext map[string]interface{}) bool {
 			to = getResourceOwner(objid)
 		case model.TYPE_WIKI:
 			to = getWikiOwner(objid)
+		case model.TYPE_PROJECT:
+			to = getProjectOwner(objid)
 		}
 	}
 

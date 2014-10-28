@@ -60,7 +60,7 @@ DROP TABLE IF EXISTS `comments`;
 CREATE TABLE `comments` (
   `cid` int unsigned NOT NULL AUTO_INCREMENT,
   `objid` int unsigned NOT NULL COMMENT '对象id，属主（评论给谁）',
-  `objtype` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '类型,0-帖子;1-博文;2-资源;3-wiki',
+  `objtype` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '类型,0-帖子;1-博文;2-资源;3-wiki;4-project',
   `content` text NOT NULL,
   `uid` int unsigned NOT NULL COMMENT '回复者',
   `floor` int unsigned NOT NULL COMMENT '第几楼',

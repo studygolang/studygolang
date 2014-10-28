@@ -127,6 +127,8 @@ func initRouter() *mux.Router {
 	router.HandleFunc("/users/newest.json", NewestUserHandler)
 	// 最新晨读
 	router.HandleFunc("/readings/recent.json", RecentReadingHandler)
+	// @ 某人 suggest（登录用户才能@）
+	router.HandleFunc("/at/users.json", AtUsersHandler).AppendFilterChain(loginFilterChain)
 
 	// 文件上传（图片）
 	router.HandleFunc("/upload/image.json", UploadImageHandler).AppendFilterChain(loginFilterChain)

@@ -255,6 +255,21 @@ func NewestUserHandler(rw http.ResponseWriter, req *http.Request) {
 	fmt.Fprint(rw, `{"ok": 1, "data":`+string(buf)+`}`)
 }
 
+// 评论或回复 @ 某人 suggest
+// uri: /at/users.json
+func AtUsersHandler(rw http.ResponseWriter, req *http.Request) {
+	term := req.FormValue("term")
+	usernames := service.GetUserMentions(term, 10)
+	buf, err := json.Marshal(usernames)
+	if err != nil {
+		logger.Errorln("[AtUsersHandler] json.marshal error:", err)
+		fmt.Fprint(rw, `[]`)
+		return
+	}
+
+	fmt.Fprint(rw, string(buf))
+}
+
 const maxImageSize = 5 << 20 // 5M
 
 func UploadImageHandler(rw http.ResponseWriter, req *http.Request) {

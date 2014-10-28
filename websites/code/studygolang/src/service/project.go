@@ -133,6 +133,19 @@ func ProjectsTotal() (total int) {
 	return
 }
 
+// 通过objid获得 project 的所有者
+func getProjectOwner(id int) int {
+	project := model.NewOpenProject()
+	err := project.Where("id=" + strconv.Itoa(id)).Find()
+	if err != nil {
+		logger.Errorln("project service getProjectOwner Error:", err)
+		return 0
+	}
+
+	user := FindUserByUsername(project.Username)
+	return user.Uid
+}
+
 // 项目评论
 type ProjectComment struct{}
 

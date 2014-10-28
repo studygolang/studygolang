@@ -206,3 +206,6 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 
 /* validate css */
 label.error {color:red;}
+
+/*emoji*/
+.emoji {width:20px;height:20px;vertical-align: middle;}
