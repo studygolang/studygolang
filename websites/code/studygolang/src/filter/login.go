@@ -7,12 +7,14 @@
 package filter
 
 import (
+	"net/http"
+	"strings"
+
 	"config"
 	"github.com/gorilla/context"
 	"github.com/gorilla/sessions"
 	"github.com/studygolang/mux"
 	"logger"
-	"net/http"
 	"service"
 	"util"
 )
@@ -24,7 +26,13 @@ type LoginFilter struct {
 
 func (this *LoginFilter) PreFilter(rw http.ResponseWriter, req *http.Request) bool {
 	logger.Debugln("LoginFilter PreFilter...")
+
 	if _, ok := CurrentUser(req); !ok {
+		// 异步请求，却又需要登录，则返回403
+		if strings.HasSuffix(req.URL.Path, ".json") {
+			rw.WriteHeader(http.StatusForbidden)
+			return false
+		}
 		logger.Debugln("需要登录")
 		// 支持跳转回原来访问的页面
 		NewFlash(rw, req).AddFlash(req.RequestURI, "uri")

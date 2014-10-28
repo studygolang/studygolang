@@ -267,6 +267,7 @@ func PostComment(uid, objid int, form url.Values) (*model.Comment, error) {
 
 	// @某人 发系统消息
 	go SendSysMsgAtUids(form.Get("uid"), ext)
+	go SendSysMsgAtUsernames(form.Get("usernames"), ext)
 
 	return comment, nil
 }

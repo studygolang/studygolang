@@ -375,6 +375,16 @@ func SaveRule(form url.Values, opUser string) (errMsg string, err error) {
 	return
 }
 
+// 提供给其他service调用（包内）
+func getArticles(ids map[int]int) map[int]*model.Article {
+	articles := FindArticlesByIds(util.MapIntKeys(ids))
+	articleMap := make(map[int]*model.Article, len(articles))
+	for _, article := range articles {
+		articleMap[article.Id] = article
+	}
+	return articleMap
+}
+
 // 博文评论
 type ArticleComment struct{}
 

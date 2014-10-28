@@ -146,6 +146,16 @@ func getProjectOwner(id int) int {
 	return user.Uid
 }
 
+// 提供给其他service调用（包内）
+func getProjects(ids map[int]int) map[int]*model.OpenProject {
+	projects := FindProjectsByIds(util.MapIntKeys(ids))
+	projectMap := make(map[int]*model.OpenProject, len(projects))
+	for _, project := range projects {
+		projectMap[project.Id] = project
+	}
+	return projectMap
+}
+
 // 项目评论
 type ProjectComment struct{}
 
