@@ -9,7 +9,12 @@
 		<ol class="breadcrumb">
 			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
 			<li class="active">技术晨读</li>
+			<li class="active">{{if eq .rtype 0}}Go晨读{{else}}综合晨读{{end}}</li>
 		</ol>
+		<ul class="nav nav-tabs" role="tablist" style="background: #fff; margin-top: 10px;">
+			<li role="presentation"{{if eq .rtype 0}} class="active"{{end}}><a href="/readings">Go晨读</a></li>
+			<li role="presentation"{{if eq .rtype 1}} class="active"{{end}}><a href="/readings?rtype=1">综合晨读</a></li>
+		</ul>
 		{{range .readings}}
 		<article class="article box_white reading">
 			<div class="row">
@@ -21,7 +26,7 @@
 					</a>
 				</div>
 				<div class="reading-content">
-					<p>{{.Content}} <a class="btn btn-success btn-xs" href="/readings/{{.Id}}" target="_blank" title="阅读全文">我要晨读</a></p>
+					<p>{{.Content}} <a class="btn btn-success btn-xs" href="/readings/{{.Id}}" target="_blank" title="阅读全文">我要晨读</a>{{if .Urls}}&nbsp;&nbsp;相关阅读：{{range .Urls}}<a class="btn btn-info btn-xs" href="/wr?u={{.}}" target="_blank">网页链接</a>&nbsp;{{end}}{{end}}</p>
 				</div>
 			</div>
 			<div class="row">
@@ -42,10 +47,10 @@
 		{{end}}
 		<ul class="pager">
 			{{if .page.has_prev}}
-			<li class="previous"><a href="/readings?lastid={{.page.prev_id}}">&larr; 上一页</a></li>
+			<li class="previous"><a href="/readings?rtype={{.rtype}}&lastid={{.page.prev_id}}">&larr; 上一页</a></li>
 			{{end}}
 			{{if .page.has_next}}
-			<li class="next"><a href="/readings?lastid={{.page.next_id}}">下一页 &rarr;</a></li>
+			<li class="next"><a href="/readings?rtype={{.rtype}}&lastid={{.page.next_id}}">下一页 &rarr;</a></li>
 			{{end}}
 		</ul>
 	</div>

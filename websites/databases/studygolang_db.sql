@@ -460,9 +460,17 @@ DROP TABLE IF EXISTS `morning_reading`;
 CREATE TABLE `morning_reading` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `content` varchar(255) NOT NULL DEFAULT '' COMMENT '晨读内容',
-  `url` varchar(255) NOT NULL DEFAULT '' COMMENT '文章链接',
+  `rtype` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '晨读类别：0-Go技术晨读;1-综合技术晨读',
+  `inner` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '本站文章id，如果外站文章，则为0',
+  `url` varchar(255) NOT NULL DEFAULT '' COMMENT '文章链接，本站文章时为空',
+  `moreurls` varchar(1024) NOT NULL DEFAULT '' COMMENT '可能顺带推荐多篇文章；url逗号分隔',
   `clicknum` int unsigned NOT NULL DEFAULT 0 COMMENT '点击数',
   `username` varchar(20) NOT NULL DEFAULT '' COMMENT '发布人',
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '技术晨读表';
+
+alter table `studygolang`.`morning_reading` 
+   add column `rtype` tinyint UNSIGNED DEFAULT '0' NOT NULL COMMENT '晨读类别：0-Go技术晨读;1-综合技术晨读' after `content`, 
+   add column `inner` tinyint UNSIGNED DEFAULT '0' NOT NULL COMMENT '本站文章id，如果外站文章，则为0' after `rtype`, 
+   add column `moreurls` varchar(1024) DEFAULT '' NOT NULL COMMENT '可能顺带推荐多篇文章；url逗号分隔' after `url`

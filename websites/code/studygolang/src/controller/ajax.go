@@ -20,6 +20,7 @@ import (
 
 	"github.com/studygolang/mux"
 	"logger"
+	"model"
 	"service"
 	"util"
 )
@@ -34,7 +35,7 @@ func RecentReadingHandler(rw http.ResponseWriter, req *http.Request) {
 		limit = "7"
 	}
 
-	readings := service.FindReadings("0", limit)
+	readings := service.FindReadings("0", limit, model.RtypeGo)
 	buf, err := json.Marshal(readings)
 	if err != nil {
 		logger.Errorln("[RecentReadingHandler] json.marshal error:", err)

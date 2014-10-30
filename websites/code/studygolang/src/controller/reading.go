@@ -12,6 +12,7 @@ import (
 
 	"filter"
 	"github.com/studygolang/mux"
+	"model"
 	"service"
 	"util"
 )
@@ -26,7 +27,12 @@ func ReadingsHandler(rw http.ResponseWriter, req *http.Request) {
 		lastId = "0"
 	}
 
-	readings := service.FindReadings(lastId, "25")
+	rtype, err := strconv.Atoi(req.FormValue("rtype"))
+	if err != nil {
+		rtype = model.RtypeGo
+	}
+
+	readings := service.FindReadings(lastId, "25", rtype)
 	if readings == nil {
 		// TODO:服务暂时不可用？
 	}
@@ -76,7 +82,7 @@ func ReadingsHandler(rw http.ResponseWriter, req *http.Request) {
 
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/readings/list.html")
 	// 设置模板数据
-	filter.SetData(req, map[string]interface{}{"readings": readings, "page": pageInfo})
+	filter.SetData(req, map[string]interface{}{"activeReadings": "active", "readings": readings, "page": pageInfo, "rtype": rtype})
 }
 
 // 点击 【我要晨读】，记录点击数，跳转

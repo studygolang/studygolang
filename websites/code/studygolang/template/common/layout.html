@@ -46,15 +46,19 @@
 					<li>
 						<a href="/resources">资源</a>
 					</li>
+					<li class="dropdown {{.activeReadings}}">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="readings">技术晨读 <span class="caret"></span></a>
+						<ul class="dropdown-menu" aria-labelledby="readings">
+							<li><a href="/readings">Go晨读</a></li>
+							<li><a href="/readings?rtype=1">综合晨读</a></li>
+						</ul>
+					</li>
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="docs">官方文档 <span class="caret"></span></a>
 						<ul class="dropdown-menu" aria-labelledby="docs">
 							<li><a href="http://docs.studygolang.com" target="_blank">英文文档</a></li>
 							<li><a href="http://docscn.studygolang.com" target="_blank">中文文档</a></li>
 						</ul>
-					</li>
-					<li class="{{.activeUsers}}">
-						<a href="/users">会员</a>
 					</li>
 				</ul>
 				<form class="navbar-form navbar-left" action="/search" role="search" _lpchecked="1" target="_blank">

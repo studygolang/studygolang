@@ -164,20 +164,22 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 			contentHtmls[i] = config.ROOT + strings.TrimSpace(contentHtml)
 		}
 
-		// TODO: 新模版过渡
-		if strings.Contains(req.RequestURI, "articles") ||
-			strings.Contains(req.RequestURI, "favorites") ||
-			strings.Contains(req.RequestURI, "project") ||
-			strings.HasPrefix(req.RequestURI, "/p/") ||
-			strings.Contains(req.RequestURI, "reading") ||
-			strings.HasPrefix(req.RequestURI, "/wr") ||
-			req.RequestURI == "/" ||
-			strings.Contains(req.RequestURI, "search") {
-			this.commonHtmlFiles = []string{config.ROOT + "/template/common/layout.html"}
-			this.baseTplName = "layout.html"
-		} else if !this.isBackView {
-			this.commonHtmlFiles = []string{config.ROOT + "/template/common/base.html"}
-			this.baseTplName = "base.html"
+		if !this.isBackView {
+			// TODO: 新模版过渡
+			if strings.Contains(req.RequestURI, "articles") ||
+				strings.Contains(req.RequestURI, "favorites") ||
+				strings.Contains(req.RequestURI, "project") ||
+				strings.HasPrefix(req.RequestURI, "/p/") ||
+				strings.Contains(req.RequestURI, "reading") ||
+				strings.HasPrefix(req.RequestURI, "/wr") ||
+				req.RequestURI == "/" ||
+				strings.Contains(req.RequestURI, "search") {
+				this.commonHtmlFiles = []string{config.ROOT + "/template/common/layout.html"}
+				this.baseTplName = "layout.html"
+			} else {
+				this.commonHtmlFiles = []string{config.ROOT + "/template/common/base.html"}
+				this.baseTplName = "base.html"
+			}
 		}
 
 		// 为了使用自定义的模板函数，首先New一个以第一个模板文件名为模板名。

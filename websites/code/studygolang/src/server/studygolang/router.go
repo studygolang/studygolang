@@ -190,6 +190,11 @@ func initRouter() *mux.Router {
 	subrouter.HandleFunc("/crawl/rule/modify", admin.ModifyRuleHandler)
 	subrouter.HandleFunc("/crawl/rule/del", admin.DelRuleHandler)
 
+	// 晨读管理
+	subrouter.HandleFunc("/reading/list", admin.ReadingListHandler)
+	subrouter.HandleFunc("/reading/query.html", admin.ReadingQueryHandler)
+	subrouter.HandleFunc("/admin/reading/publish", admin.PublishReadingHandler)
+
 	apirouter := router.PathPrefix("/api").Subrouter()
 	apirouter.HandleFunc("/user/login", api.LoginHandler)
 	apirouter.HandleFunc("/blog/category/all", api.BlogCategoryHandler)

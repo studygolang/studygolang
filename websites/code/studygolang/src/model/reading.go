@@ -7,21 +7,33 @@
 package model
 
 import (
+	"strings"
+
 	"logger"
 	"util"
+)
+
+const (
+	RtypeGo   = iota // Go技术晨读
+	RtypeComp        // 综合技术晨读
 )
 
 // Go技术晨读
 type MorningReading struct {
 	Id       int    `json:"id" pk:"1"`
 	Content  string `json:"content"`
+	Rtype    int    `json:"rtype"`
+	Inner    int    `json:"inner"`
 	Url      string `json:"url"`
+	Moreurls string `json:"moreurls"`
 	Username string `json:"username"`
 	Clicknum int    `json:"clicknum,omitempty"`
 	Ctime    string `json:"ctime,omitempty"`
 
 	// 晨读日期，从 ctime 中提取
 	Rdate string `json:"rdate"`
+
+	Urls []string `json:"urls"`
 
 	// 数据库访问对象
 	*Dao
@@ -66,6 +78,9 @@ func (this *MorningReading) FindAll(selectCol ...string) ([]*MorningReading, err
 			continue
 		}
 		reading.Rdate = reading.Ctime[:10]
+		if reading.Moreurls != "" {
+			reading.Urls = strings.Split(reading.Moreurls, ",")
+		}
 		readingList = append(readingList, reading)
 	}
 	return readingList, nil
@@ -96,15 +111,18 @@ func (this *MorningReading) Order(order string) *MorningReading {
 }
 
 func (this *MorningReading) prepareInsertData() {
-	this.columns = []string{"content", "url", "username"}
-	this.colValues = []interface{}{this.Content, this.Url, this.Username}
+	this.columns = []string{"content", "rtype", "inner", "url", "moreurls", "username"}
+	this.colValues = []interface{}{this.Content, this.Rtype, this.Inner, this.Url, this.Moreurls, this.Username}
 }
 
 func (this *MorningReading) colFieldMap() map[string]interface{} {
 	return map[string]interface{}{
 		"id":       &this.Id,
 		"content":  &this.Content,
+		"rtype":    &this.Rtype,
+		"inner":    &this.Inner,
 		"url":      &this.Url,
+		"moreurls": &this.Moreurls,
 		"clicknum": &this.Clicknum,
 		"username": &this.Username,
 		"ctime":    &this.Ctime,
