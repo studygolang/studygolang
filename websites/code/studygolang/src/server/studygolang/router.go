@@ -165,6 +165,7 @@ func initRouter() *mux.Router {
 	subrouter.HandleFunc("/user/user/list", admin.UserListHandler)
 	subrouter.HandleFunc("/user/user/query.html", admin.UserQueryHandler)
 	subrouter.HandleFunc("/user/user/detail", admin.UserDetailHandler)
+	subrouter.HandleFunc("/user/user/modify", admin.UserModifyHandler)
 
 	///////////////// 社区管理 //////////////////////////
 	// 帖子管理
@@ -193,7 +194,7 @@ func initRouter() *mux.Router {
 	// 晨读管理
 	subrouter.HandleFunc("/reading/list", admin.ReadingListHandler)
 	subrouter.HandleFunc("/reading/query.html", admin.ReadingQueryHandler)
-	subrouter.HandleFunc("/admin/reading/publish", admin.PublishReadingHandler)
+	subrouter.HandleFunc("/reading/publish", admin.PublishReadingHandler)
 
 	apirouter := router.PathPrefix("/api").Subrouter()
 	apirouter.HandleFunc("/user/login", api.LoginHandler)

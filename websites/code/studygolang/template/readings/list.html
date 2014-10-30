@@ -26,7 +26,7 @@
 					</a>
 				</div>
 				<div class="reading-content">
-					<p>{{.Content}} <a class="btn btn-success btn-xs" href="/readings/{{.Id}}" target="_blank" title="阅读全文">我要晨读</a>{{if .Urls}}&nbsp;&nbsp;相关阅读：{{range .Urls}}<a class="btn btn-info btn-xs" href="/wr?u={{.}}" target="_blank">网页链接</a>&nbsp;{{end}}{{end}}</p>
+					<p>{{.Content}} <a class="btn btn-success btn-xs" href="/readings/{{.Id}}" target="_blank" title="阅读全文">我要晨读</a>{{if .Urls}}&nbsp;&nbsp;相关阅读：{{range .Urls}}<a class="btn btn-info btn-xs" href="/wr?u={{.}}" target="_blank"><i class="glyphicon glyphicon-link"></i> 网页链接</a>&nbsp;{{end}}{{end}}</p>
 				</div>
 			</div>
 			<div class="row">

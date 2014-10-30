@@ -15,6 +15,7 @@
 				<label>晨读类型</label>
 				<span class="field">
 						<select id="q_rtype" name="rtype" class="uniformselect">
+								<option value="">全部</option>
 								<option value="0">Go晨读</option>
 								<option value="1">综合晨读</option>
 						</select>
@@ -25,7 +26,7 @@
 			<p> 
 				<label>&nbsp;</label>
 				<span class="field"><button id="queryform_sub" class="submit radius2">查询</button></span>
-				<span class="field"><a href="/admin/readings/publish" class="submit radius2 abtn" target="_blank">发布</a></span>
+				<span class="field"><a href="/admin/reading/publish" class="submit radius2 abtn" target="_blank">发布</a></span>
 			</p>
 		</div>
 	</form>
@@ -46,7 +47,7 @@
 <script type="text/javascript">
 // 需要传入下面js的变量定义
 var GLOBAL_CONF = {
-	"action_query" : "/admin/readings/query.html",
+	"action_query" : "/admin/reading/query.html",
 	"query_params" : {
 		'id' : '#q_id',
 		'rtype' : '#q_rtype'

@@ -23,7 +23,7 @@ type MorningReading struct {
 	Id       int    `json:"id" pk:"1"`
 	Content  string `json:"content"`
 	Rtype    int    `json:"rtype"`
-	Inner    int    `json:"inner"`
+	Inner    int    `json:"inner,omitempty"`
 	Url      string `json:"url"`
 	Moreurls string `json:"moreurls"`
 	Username string `json:"username"`
@@ -31,7 +31,7 @@ type MorningReading struct {
 	Ctime    string `json:"ctime,omitempty"`
 
 	// 晨读日期，从 ctime 中提取
-	Rdate string `json:"rdate"`
+	Rdate string `json:"rdate,omitempty"`
 
 	Urls []string `json:"urls"`
 

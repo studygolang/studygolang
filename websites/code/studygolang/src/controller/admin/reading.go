@@ -8,11 +8,10 @@ package admin
 
 import (
 	"net/http"
-	"strings"
+	"strconv"
 
 	"filter"
 	"logger"
-	"model"
 	"service"
 )
 
@@ -74,60 +73,29 @@ func PublishReadingHandler(rw http.ResponseWriter, req *http.Request) {
 	var data = make(map[string]interface{})
 
 	if req.PostFormValue("submit") == "1" {
-		urls := strings.Split(req.PostFormValue("urls"), "\n")
+		user, _ := filter.CurrentUser(req)
 
-		var errMsg string
-		for _, articleUrl := range urls {
-			_, err := service.ParseArticle(strings.TrimSpace(articleUrl), false)
+		errMsg, err := service.SaveReading(req.PostForm, user["username"].(string))
+		if err != nil {
+			data["ok"] = 0
+			data["error"] = errMsg
+		} else {
+			data["ok"] = 1
+			data["msg"] = "操作成功"
+		}
+	} else {
+		id, err := strconv.Atoi(req.FormValue("id"))
+		if err == nil && id != 0 {
+			data["reading"], err = service.FindReadingById(id)
 
 			if err != nil {
-				errMsg = err.Error()
+				rw.WriteHeader(http.StatusInternalServerError)
+				return
 			}
 		}
 
-		if errMsg != "" {
-			data["ok"] = 0
-			data["error"] = errMsg
-		} else {
-			data["ok"] = 1
-			data["msg"] = "添加成功"
-		}
-	} else {
-
 		// 设置内容模板
-		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/admin/article/new.html")
-	}
-
-	filter.SetData(req, data)
-}
-
-func ModifyReadingHandler(rw http.ResponseWriter, req *http.Request) {
-	var data = make(map[string]interface{})
-
-	if req.PostFormValue("submit") == "1" {
-		user, _ := filter.CurrentUser(req)
-
-		errMsg, err := service.ModifyArticle(user, req.PostForm)
-		if err != nil {
-			data["ok"] = 0
-			data["error"] = errMsg
-		} else {
-			data["ok"] = 1
-			data["msg"] = "修改成功"
-		}
-	} else {
-		article, err := service.FindArticleById(req.FormValue("id"))
-
-		if err != nil {
-			rw.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		// 设置内容模板
-		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/admin/article/modify.html")
-		data["article"] = article
-		data["statusSlice"] = model.StatusSlice
-		data["langSlice"] = model.LangSlice
+		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/admin/reading/modify.html")
 	}
 
 	filter.SetData(req, data)

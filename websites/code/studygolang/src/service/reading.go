@@ -7,11 +7,13 @@
 package service
 
 import (
+	"net/url"
 	"strconv"
 	"strings"
 
 	"logger"
 	"model"
+	"util"
 )
 
 // 获取晨读列表（分页）
@@ -88,4 +90,43 @@ func FindReadingByPage(conds map[string]string, curPage, limit int) ([]*model.Mo
 	}
 
 	return readingList, total
+}
+
+// 保存晨读
+func SaveReading(form url.Values, username string) (errMsg string, err error) {
+	reading := model.NewMorningReading()
+	err = util.ConvertAssign(reading, form)
+	if err != nil {
+		logger.Errorln("reading SaveReading error", err)
+		errMsg = err.Error()
+		return
+	}
+
+	reading.Username = username
+
+	logger.Infoln(reading.Rtype, "id=", reading.Id)
+	if reading.Id != 0 {
+		err = reading.Persist(reading)
+	} else {
+		_, err = reading.Insert()
+	}
+
+	if err != nil {
+		errMsg = "内部服务器错误"
+		logger.Errorln("reading save:", errMsg, ":", err)
+		return
+	}
+
+	return
+}
+
+// 获取单条晨读
+func FindReadingById(id int) (*model.MorningReading, error) {
+	reading := model.NewMorningReading()
+	err := reading.Where("id=?", id).Find()
+	if err != nil {
+		logger.Errorln("reading service FindReadingById Error:", err)
+	}
+
+	return reading, err
 }

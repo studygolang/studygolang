@@ -330,7 +330,8 @@ func genPersistParams(entity interface{}) (string, []interface{}, error) {
 				setArgs = append(setArgs, val)
 			}
 		default:
-
+			// TODO：其他类型不处理
+			continue
 		}
 
 		if pk == "1" {

@@ -394,3 +394,19 @@ func FindNotLoginUsers(loginTime string) (userList []*model.UserLogin, err error
 	userList, err = userLogin.Where("login_time<" + loginTime).FindAll()
 	return
 }
+
+func AllocUserRoles(uid int, roleids []string) error {
+	userRole := model.NewUserRole()
+	userRole.Uid = uid
+
+	for _, roleId := range roleids {
+		userRole.Roleid, _ = strconv.Atoi(roleId)
+		if userRole.Roleid == 0 {
+			continue
+		}
+
+		userRole.Insert()
+	}
+
+	return nil
+}
