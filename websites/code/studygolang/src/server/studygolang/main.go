@@ -32,6 +32,9 @@ func main() {
 	// 服务静态文件
 	http.Handle("/static/", http.FileServer(http.Dir(ROOT)))
 
+	// 服务 sitemap 文件
+	http.Handle("/sitemap/", http.FileServer(http.Dir(ROOT)))
+
 	// 验证码
 	http.Handle("/captcha/", captcha.Server(100, 40))
 

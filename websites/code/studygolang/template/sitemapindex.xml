@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sitemapindex>{{range .sitemapFiles}}
+    <sitemap>
+        <loc>{{$.home.loc}}/sitemap/{{.}}</loc>
+    </sitemap>{{end}}
+</sitemapindex>

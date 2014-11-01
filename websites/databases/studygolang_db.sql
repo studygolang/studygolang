@@ -130,7 +130,7 @@ CREATE TABLE `user_info` (
   `open` tinyint NOT NULL DEFAULT 1 COMMENT '邮箱是否公开，默认公开',
   `username` varchar(20) NOT NULL COMMENT '用户名',
   `name` varchar(20) NOT NULL DEFAULT '' COMMENT '姓名',
-  `avatar` varchar(128) NOT NULL DEFAULT '' COMMENT '头像(暂时使用http://www.gravatar.com)',
+  `avatar` varchar(128) NOT NULL DEFAULT '' COMMENT '头像',
   `city` varchar(10) NOT NULL DEFAULT '居住地',
   `company` varchar(64) NOT NULL DEFAULT '',
   `github` varchar(20) NOT NULL DEFAULT '',

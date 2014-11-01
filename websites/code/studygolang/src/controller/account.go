@@ -62,7 +62,7 @@ func sendWelcomeMail(email []string) {
 	content := `Welcome to Study Golang.<br><br>
 欢迎您，成功注册成为 Golang中文社区 | Go语言学习园地 会员<br><br>
 Golang中文社区是一个Go语言技术社区，完全用Go语言开发。我们为gopher们提供一个好的学习交流场所。加入到社区中来，参与分享，学习，不断提高吧。前往 <a href="http://studygolang.com">Golang中文社区 | Go语言学习园地</a><br>
-<div style="text-align:right;">&copy;2013 studygolang.com Golang中文社区 | Go语言学习园地</div>`
+<div style="text-align:right;">&copy;2012-2014 studygolang.com Golang中文社区 | Go语言学习园地</div>`
 	service.SendMail("Golang中文社区 | Go语言学习园地 注册成功通知", content, email)
 }
 
@@ -84,6 +84,7 @@ func LoginHandler(rw http.ResponseWriter, req *http.Request) {
 	userLogin, err := service.Login(username, passwd)
 	if err != nil {
 		if suffix != "" {
+			logger.Errorln("login error:", err)
 			fmt.Fprint(rw, `{"ok":0,"error":"`+err.Error()+`"}`)
 			return
 		}

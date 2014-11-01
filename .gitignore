@@ -12,6 +12,8 @@ bin
 log
 pid
 data
+sitemap
+assets
 
 # Architecture specific extensions/prefixes
 *.[568vq]

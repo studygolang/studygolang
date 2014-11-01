@@ -33,6 +33,9 @@ func ServeBackGround() {
 	// 两分钟刷一次浏览数（TODO：重启丢失问题？信号控制重启？）
 	c.AddFunc("@every 2m", service.Views.Flush)
 
+	// 每天生成 sitemap 文件
+	c.AddFunc("@daily", service.GenSitemap)
+
 	c.Start()
 }
 
