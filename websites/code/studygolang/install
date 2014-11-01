@@ -15,13 +15,12 @@ if [ ! -d log ]; then
     mkdir log
 fi
 
-VERSIONCMD = "`git symbolic-ref HEAD | cut -b 12-`-`git rev-parse HEAD`"
-VERSION = $(shell echo $(VERSIONCMD))
-DATE = $(shell echo `date +%F\ %T%z`)
+VERSION="`git symbolic-ref HEAD | cut -b 12-`-`git rev-parse HEAD`"
+DATE=`date +%FT%T%z`
 
 gofmt -w src
 
-go install -ldflags "-X util.version 1.0.0 -X util.date %date%" ./...
+go install -ldflags "-X util.version "$VERSION" -X util.date "$DATE ./...
 
 export GOPATH="$OLDGOPATH"
 export PATH="$OLDPATH"

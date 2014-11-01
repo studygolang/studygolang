@@ -7,7 +7,7 @@
 /*
 Package version sets version information for the binary where it is imported.
 The version can be retrieved either from the -version command line argument,
-or from the /debug/version/ http endpoint.
+or from the /version/ http endpoint.
 
 To include in a project simply import the package and call version.Init().
 

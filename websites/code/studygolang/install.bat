@@ -13,13 +13,17 @@ set GOPATH=%~dp0;%~dp0..\thirdparty
 
 if not exist log mkdir log
 
-set VERSION=git symbolic-ref HEAD | cut -b 12-
-set VERSION=%VERSION%-git rev-parse HEAD
+for /f "delims=" %%t in ('git symbolic-ref HEAD') do set VERNAME=%%t
+set VERNAME=%VERNAME:~11%
+
+for /f "delims=" %%t in ('git rev-parse HEAD') do set VERCODE=%%t
+
+set VERSION=%VERNAME%-%VERCODE%
 
 gofmt -w src
 
 :: -tags "debug" 表示测试
-go install -tags "debug" -ldflags "-X util.version 1.0.0 -X util.date %date%" ./...
+go install -tags "debug" -ldflags "-X util.version "%VERSION%" -X util.date "%date:~3,10%T%time%"" ./...
 
 set GOPATH=%OLDGOPATH%
 
