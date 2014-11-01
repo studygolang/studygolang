@@ -13,12 +13,13 @@ set GOPATH=%~dp0;%~dp0..\thirdparty
 
 if not exist log mkdir log
 
+set VERSION=git symbolic-ref HEAD | cut -b 12-
+set VERSION=%VERSION%-git rev-parse HEAD
+
 gofmt -w src
 
 :: -tags "debug" 表示测试
-go install -tags "debug" server/studygolang
-go install -tags "debug" server/crawlarticle
-go install -tags "debug" server/indexer
+go install -tags "debug" -ldflags "-X util.version 1.0.0 -X util.date %date%" ./...
 
 set GOPATH=%OLDGOPATH%
 
