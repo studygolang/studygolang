@@ -212,6 +212,11 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 
 		// websocket主机
 		data["wshost"] = config.Config["wshost"]
+		data["build"] = map[string]string{
+			"version": util.Version,
+			"date":    util.Date,
+		}
+
 		err = tpl.Execute(rw, data)
 		if err != nil {
 			logger.Errorf("执行模板出错（Execute）：[%q] %s\n", req.RequestURI, err)
