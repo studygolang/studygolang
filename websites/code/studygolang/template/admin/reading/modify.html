@@ -22,8 +22,8 @@
 				<label for="rtype">晨读类型</label>
 				<span class="field">
 					<select id="rtype" name="rtype" class="uniformselect">
-							<option value="0"{{if and .reading (eq .reading.Rtype 0)}} selected{{end}}>Go晨读</option>
-							<option value="1"{{if and .reading (eq .reading.Rtype 1)}} selected{{end}}>综合晨读</option>
+							<option value="0"{{if .reading }}{{if eq .reading.Rtype 0}} selected{{end}}{{end}}>Go晨读</option>
+							<option value="1"{{if .reading}}{{if eq .reading.Rtype 1}} selected{{end}}{{end}}>综合晨读</option>
 					</select>
 				</span>
 			</p>

@@ -7,16 +7,18 @@
 package controller
 
 import (
+	"fmt"
+	"html/template"
+	"net/http"
+	"strings"
+
 	"config"
 	"filter"
-	"fmt"
+	"github.com/dchest/captcha"
 	"github.com/gorilla/sessions"
 	"github.com/studygolang/mux"
-	"html/template"
 	"logger"
-	"net/http"
 	"service"
-	"strings"
 	"util"
 )
 
@@ -27,7 +29,14 @@ func RegisterHandler(rw http.ResponseWriter, req *http.Request) {
 	username := req.PostFormValue("username")
 	// 请求注册页面
 	if username == "" || req.Method != "POST" || vars["json"] == "" {
+		filter.SetData(req, map[string]interface{}{"captchaId": captcha.NewLen(4)})
 		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/register.html")
+		return
+	}
+
+	// 校验验证码
+	if !captcha.VerifyString(req.PostFormValue("captchaid"), req.PostFormValue("captchaSolution")) {
+		fmt.Fprint(rw, `{"errno": 1, "error":"验证码错误"}`)
 		return
 	}
 
@@ -38,14 +47,14 @@ func RegisterHandler(rw http.ResponseWriter, req *http.Request) {
 		if errMsg == "" {
 			errMsg = err.Error()
 		}
-		fmt.Fprint(rw, `{"errno": 1, "error":"`, errMsg, `"}`)
+		fmt.Fprint(rw, `{"errno": 2, "error":"`, errMsg, `"}`)
 		return
 	}
 
 	// 注册成功，自动为其登录
 	setCookie(rw, req, req.PostFormValue("username"))
 	// 发送欢迎邮件
-	go sendWelcomeMail([]string{req.PostFormValue("email")})
+	// go sendWelcomeMail([]string{req.PostFormValue("email")})
 	fmt.Fprint(rw, `{"errno": 0, "error":""}`)
 }
 

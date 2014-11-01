@@ -16,6 +16,7 @@
           <div class="control-group email required"><label class="email required control-label" for="email"><abbr title="required">*</abbr> Email</label><div class="controls"><input class="string email required span5" id="email" name="email" placeholder="foo@bar.com" size="50" type="email" value=""><p class="help-block">保存以后就不可以改了哦！</p></div></div>
           <div class="control-group password optional"><label class="password optional control-label" for="passwd">密码</label><div class="controls"><input class="password optional" id="passwd" name="passwd" size="50" placeholder="请填写密码" type="password"></div></div>
           <div class="control-group password optional"><label class="password optional control-label" for="pass2">确认密码</label><div class="controls"><input class="password optional" id="pass2" name="pass2" size="50" type="password" placeholder="请再次输入密码" ></div></div>
+          <div class="control-group optional"><label class="optional control-label">验证码</label><div class="controls"><input type="text" id="captchaSolution" name="captchaSolution" /><img id="captcha_img" src="/captcha/{{.captchaId}}.png" alt="验证码" title="看不清，点击" /><input type="hidden" name="captchaid" value="{{.captchaId}}"></div></div>
           <div class="form-actions">
             <input class="btn btn-primary" data-disable-with="正在提交" name="commit" type="submit" value="提交注册信息">
           </div>
@@ -50,7 +51,13 @@ $(function(){
         });
         return false;
     });
-    
+
+    $('#captcha_img').on('click', function(evt){
+	    	evt.preventDefault();
+
+				var origSrc = $(this).attr("src");
+	    	$(this).attr("src", origSrc+"?reload=" + (new Date()).getTime());
+    });
 })
 </script>
 {{end}}
