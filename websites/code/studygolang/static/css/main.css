@@ -110,6 +110,11 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .sidebar .sb-content .reading-list ul li a {text-decoration: none;color: #0F2ED1;}
 .sidebar .sb-content .reading-list ul li a:hover { color: #d54f4b; }
 
+.sidebar .sb-content .node-list ul {margin: 2px 15px;}
+.sidebar .sb-content .node-list ul li {display: inline;}
+.sidebar .sb-content .node-list ul li a {display: inline-block;margin-right: 3px;margin-bottom: 6px;padding: 2px 10px;color: #778087;text-decoration: none;background-color: #f5f5f5;-moz-border-radius: 3px;-webkit-border-radius: 3px;border-radius: 3px;}
+.sidebar .sb-content .node-list ul li a:hover {background-color: #7A7A7A; color:#FFF;}
+
 /* blog 详情页 */
 .page {}
 .page .title { padding-top: 21px }
@@ -209,3 +214,5 @@ label.error {color:red;}
 
 /*emoji*/
 .emoji {width:20px;height:20px;vertical-align: middle;}
+
+.img-rounded {-webkit-border-radius: 5px;-moz-border-radius: 5px;border-radius: 5px;}

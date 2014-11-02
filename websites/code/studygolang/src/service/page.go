@@ -30,7 +30,7 @@ func GetPageHtml(curPage, total int, uri string) string {
 	stringBuilder.Append(`<li class="prev previous_page">`)
 	// 当前是第一页
 	if curPage != 1 {
-		stringBuilder.Append(`<a href="`).Append(uri).Append("?p=").AppendInt(curPage - 1).Append(`">← 上一页</a>`)
+		stringBuilder.Append(`<a href="`).Append(uri).Append("?p=").AppendInt(curPage - 1).Append(`">&laquo;</a>`)
 	}
 	stringBuilder.Append(`</li>`)
 	before := 5
@@ -61,7 +61,7 @@ func GetPageHtml(curPage, total int, uri string) string {
 	stringBuilder.Append(`<li class="next next_page ">`)
 	// 最后一页
 	if curPage < pageCount {
-		stringBuilder.Append(`<a href="`).Append(uri).Append("?p=").AppendInt(curPage + 1).Append(`">下一页 →</a>`)
+		stringBuilder.Append(`<a href="`).Append(uri).Append("?p=").AppendInt(curPage + 1).Append(`">&raquo;</a>`)
 	}
 	stringBuilder.Append(`</li>`)
 	return stringBuilder.String()

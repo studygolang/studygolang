@@ -224,10 +224,10 @@ func HotNodesHandler(rw http.ResponseWriter, req *http.Request) {
 	hotNodes, err := json.Marshal(nodes)
 	if err != nil {
 		logger.Errorln("[HotNodesHandler] json.marshal error:", err)
-		fmt.Fprint(rw, `{"errno": 1, "error":"解析json出错"}`)
+		fmt.Fprint(rw, `{"ok": 0, "error":"解析json出错"}`)
 		return
 	}
-	fmt.Fprint(rw, `{"errno": 0, "nodes":`+string(hotNodes)+`}`)
+	fmt.Fprint(rw, `{"ok": 1, "data":`+string(hotNodes)+`}`)
 }
 
 // 活跃会员

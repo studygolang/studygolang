@@ -240,6 +240,22 @@ $(function(){
 		}
 	}
 
+	var hotNodes = function(data) {
+		if (data.ok) {
+			data = data.data;
+			if (data == null) {
+				return;
+			}
+
+			var content = '';
+			for(var i in data) {
+				content += '<li><a href="/topics/node'+data[i].nid+'" title="'+data[i].name+'">'+data[i].name+'</a></li>';
+			}
+			
+			$('.sb-content .node-list ul').html(content);
+		}
+	}
+
 	var sidebar_callback = {
 		"/topics/recent.json": {"func": topicRecent, "class": ".topic-list"},
 		"/articles/recent.json": {"func": articleRecent, "class": ".article-list"},
@@ -250,6 +266,7 @@ $(function(){
 		"/users/newest.json": {"func": userNewest, "class": "#newest-list"},
 		"/websites/stat.json": {"func": websiteStat, "class": ".stat-list"},
 		"/readings/recent.json": {"func": readingRecent, "class": ".reading-list"},
+		"/nodes/hot.json": {"func": hotNodes, "class": ".node-list"},
 	};
 	
 	if (typeof SG.SIDE_BARS != "undefined") {

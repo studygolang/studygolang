@@ -1,226 +1,185 @@
-{{define "topnav"}}
-<li class="first"><a href="/">首页</a><span class="divider">/</span></li>
-<li class=""><a href="/topics" itemprop="url"><span itemprop="title">社区</span></a><span class="divider">/</span></li>
-<li class=""><a href="/topics/node{{.topic.nid}}" itemprop="url"><span itemprop="title">{{.topic.node}}</span></a><span class="divider">/</span></li>
-<li class="last active"><a href="/topics/{{.topic.tid}}" itemprop="url"><span itemprop="title">浏览帖子</span></a></li>
-{{end}}
+{{define "title"}}{{.topic.title}} {{end}}
+{{define "seo"}}<meta name="keywords" content="{{.topic.title}} Golang中国社区, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
+<meta name="description" content="{{substring .topic.content 200 ""}}">{{end}}
 {{define "content"}}
-<div id="main" class="container-fluid">
-  <div class="content">
-    <div id="topic_show" class="topics box hfeed">
-      <div class="topic hentry">
-        <div class="infos">
-          <div class="pull-right avatar_large">
-            <a href="/user/{{.topic.user.Username}}"><img alt="{{.topic.user.Username}}" class="uface" src="{{gravatar .topic.user.Email 48}}" style="width:48px;height:48px;"></a>
-          </div>
-          <h1 class="entry-title w630">{{.topic.title}}</h1>
-          <div class="info leader">
-            <a href="/topics/node{{.topic.nid}}" class="node">{{.topic.node}}</a>
-            •
-            <a href="/user/{{.topic.user.Username}}" data-author="true" data-name="{{.topic.user.Name}}" data-uid="{{.topic.user.Uid}}" title="{{.topic.user.Name}}">{{.topic.user.Username}}</a>
-            •
-            于<abbr class="timeago" title="{{formatTime .topic.ctime}}"></abbr>发布
-              {{if .topic.lastreplyuid}}
-              •
-              最后由 <a href="/user/{{.topic.lastreplyusername}}" data-name="{{.topic.lastreplyusername}}">{{.topic.lastreplyusername}}</a> 于<abbr class="timeago" title="{{formatTime .topic.lastreplytime}}"></abbr>回复
-              {{end}}
-            •
-            {{.topic.view}}次阅读
-          </div>
-        </div>
-        <div class="body entry-content">{{.topic.content}}</div>
-
-        <div class="tools pull-right">
-          <!--<a href="#" data-followed="false" data-id="{{.topic.tid}}" onclick="return Topics.follow(this);" rel="twipsy" data-original-title=""><i class="icon small_follow"></i> 关注</a>
-          <a href="#" class="likeable" data-count="1" data-id="{{.topic.tid}}" data-state="" data-type="Topic" onclick="return App.likeable(this);" rel="twipsy" data-original-title="喜欢"><i class="icon small_like"></i> <span>1人喜欢</span></a>
-          <a href="#" class="icon small_bookmark" data-id="{{.topic.tid}}" onclick="return Topics.favorite(this);" rel="twipsy" data-original-title="收藏"></a>-->
-          <a href="/topics/9274/edit" class="icon small_edit" title="修改本帖"></a>
-        </div>
-        <div class="social-share-button" data-title="{{.topic.title}} | Golang China | Golang中文社区 | Go语言学习园地 via: @studygolang " data-img="" data-url="">
-          <a href="#" class="social-share-button-weibo" data-site="weibo" onclick="return SocialShareButton.share(this);" rel="nofollow " title="分享到新浪微博"></a>
-          <a href="#" class="social-share-button-tqq" data-site="tqq" onclick="return SocialShareButton.share(this);" rel="nofollow " title="分享到腾讯微博"></a>
-          <a href="#" class="social-share-button-douban" data-site="douban" onclick="return SocialShareButton.share(this);" rel="nofollow " title="分享到豆瓣"></a>
-          <a href="#" class="social-share-button-renren" data-site="renren" onclick="return SocialShareButton.share(this);" rel="nofollow " title="分享到人人"></a>
-          <a href="#" class="social-share-button-baidu" data-site="baidu" onclick="return SocialShareButton.share(this);" rel="nofollow " title="分享到百度空间"></a>
-        </div>
-      </div>
-    </div>
-    {{if not .replies}}
-    <div class="no_result">
-      暂无回复。
-    </div>
-    {{else}}
-    <div id="replies" class="box box_gray">
-      <div class="total">
-        共收到 <b>{{len .replies}}</b> 条回复
-      </div>
-      <div class="items">
-        {{range .replies}}
-        <div class="reply" id="comment{{.floor}}">
-          <div class="pull-left face"><a href="/user/{{.user.Username}}"><img alt="{{.user.Username}}" class="uface" src="{{gravatar .user.Email 48}}" style="width:48px;height:48px;"></a></div>
-          <div class="infos">
-            <div class="info">
-              <span class="name">
-                <a href="/user/{{.user.Username}}" data-name="{{.user.Name}}" data-uid="{{.user.Uid}}" title="{{.user.Name}}">{{.user.Username}}</a>
-                {{.floor}}楼, <abbr class="timeago" title="{{formatTime .ctime}}"></abbr>
-              </span>
-              <span class="opts">
-                <!--<a href="/topics/9173/replies/86742/edit" class="edit icon small_edit" data-uid="744" title="修改回帖"></a>-->
-                <a href="#" class="icon small_reply" data-floor="{{.floor}}" data-login="{{.user.Username}}" title="回复此楼"></a>
-              </span>
-            </div>
-            <div class="body reply-content">{{.content}}</div>
-          </div>
-        </div>
-        {{end}}
-      </div>
-    </div>
-    {{end}}
-    {{if .me}}
-    <div class="alert alert-block alert-error" id="alert_info" style="display:none;"></div>
-    <div id="reply" class="form box">
-      <form accept-charset="UTF-8" action="/comment/{{.topic.tid}}.json" class="new_reply" data-remote="true" id="new_reply" method="post">
-        <div style="margin:0;padding:0;display:inline">
-          <input name="utf8" type="hidden" value="✓"><input name="authenticity_token" type="hidden" value="akaN6qrCyNOili4mgo2qBZrdEWqX6DzoDABRpFoQWC4=">
-          <input name="objtype" type="hidden" value="0">
-          <input name="objname" type="hidden" value="topic">
-          <input id="uid" name="uid" type="hidden">
-        </div>
-        <div id="reply_content" class="control-group wmd-panel cell_comments_new">
-          <div id="wmd-button-bar"></div>
-          <textarea class="wmd-input" id="wmd-input" name="content" style="height:82px;"></textarea>
-        </div>
-        <div>预览</div>
-        <div id="wmd-preview" class="wmd-panel wmd-preview"></div>
-        <div class="submit_buttons">
-          <button type="submit" id="btn_reply" class="btn btn-primary" tabindex="2" data-loading-text="提交中...">提交回复</button><br>
-          <span class="help-inline">Ctrl+Enter</span>
-        </div>
-        <span class="body helpblock">
-          <ul>
-            <li>支持 Markdown 格式, <strong>**粗体**</strong>、~~删除线~~、<code>`单行代码`</code></li>
-            <!--<li>支持表情，见 <a href="http://www.emoji-cheat-sheet.com/" target="_blank" rel="nofollow">Emoji cheat sheet</a></li>-->
-            <li>按“M”键查看更多 <a href="#markdown_help_tip_modal" data-toggle="modal" data-keyboard="true" data-backdrop="true">帮助</a>。</li>
-          </ul>
-          <div id="markdown_help_tip_modal" class="modal hide fade">
-            <div class="modal-header">
-              <a href="#" class="close" data-dismiss="modal">×</a>
-              <h4>格式说明</h4>
-            </div>
-            <div class="modal-body">
-              <ul>
-                <li>支持 Markdown 格式</li>
-                <li><strong>**粗体**</strong>、~~删除线~~、<code>`单行代码`</code></li>
-                <li>http://example.org 自动加链接</li>
-                <li>@name  会链接到用户页面，并会通知他</li>
-                <li>![Alt text here](http://foo.com/bar.jpg) 显示图片</li>
-              </ul>
-            </div>
-          </div>
-        </span>
-      </form>
-    </div>
-    {{else}}
-    <div id="reply" class="form box">
-        <div style="padding:20px;">
-        需要 <a href="/account/login" class="btn btn-primary">登录</a> 后方可回复, 如果你还没有账号你可以 <a href="/account/register" class="btn btn-danger">注册</a> 一个帐号。
-        </div>
-    </div>
-    {{end}}
-  </div>
-
-  <div class="sidebar">
-    <div class="box" style="text-align:center;">
-      <h2><a href="/topics/node{{.topic.nid}}">{{.topic.node}}</a></h2>
-      <div class="content">
-        <a href="/topics/new?nid={{.topic.nid}}" class="btn btn-success">发布新帖</a>
-      </div>
-    </div>
-    <div class="box">
-      <h2 class="title">小贴士</h2>
-      <div class="content">
-        Go中空接口有点类似于Java的Object，不同之处在于，int、float和string也符合空接口，Go并不需要一个实际的类，因为Go里没有类的概念，所有东西都是统一的，这有点像void*，只不过void*是针对指针而不是值。
-      </div>
-    </div>
-    <div class="box clearfix">
-      <h2>节点下其他话题</h2>
-      <ul id="other_topics" data-tid="{{.topic.tid}}" data-nid="{{.topic.nid}}">
-      </ul>
-    </div>
-  </div>
-  
-  </div>
+<div class="row banner">
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/topics">社区</a></li>
+			<li><a href="/topics/node{{.topic.nid}}">{{.topic.node}}</a></li>
+			<li class="active">{{.topic.title}}</li>
+		</ol>
+		<div class="page box_white">
+			<div class="title text-center">
+				<h1>{{.topic.title}}</h1>
+			</div>
+			<div class="meta">
+				<div class="p-author">
+					<i class="glyphicon glyphicon-calendar"></i>
+					<span title="{{.topic.ctime}}" class="timeago"></span>&nbsp;
+					<i class="glyphicon glyphicon-user"></i>
+					<a href="/user/{{.topic.user.Name}}" title="{{.topic.user.Name}}">{{.topic.user.Name}}</a>
+				</div>
+				<!-- p-author END -->
+				
+				<div class="p-comment text-right">
+					<span class="view" title="阅读数">
+						<i class="glyphicon glyphicon-eye-open"></i>
+						阅读 <span>{{.topic.view}}</span> 次&nbsp;
+					</span>
+					<span class="like" title="喜欢人数">
+						<i class="glyphicon glyphicon-heart"></i>
+						<span class="likenum">{{.topic.like}}</span> 人喜欢&nbsp;
+					</span>
+					<a href="/topics/{{.topic.tid}}#commentForm" title="我要评论"><i class="glyphicon glyphicon-comment"></i> <span class="cmtnum">{{.topic.reply}}</span> 条评论</a>
+				</div>
+				<!-- p-comment END -->
+			</div>
+			<div class="tags">
+				<ul class="list-inline">
+					<li><a href="/topics/node{{.topic.nid}}" title="{{.topic.node}}">{{.topic.node}}</a></li>
+				</ul>
+			</div>
+			<!-- tags -->
+			<div class="content">
+				{{.topic.content}}
+			</div>
+			<!-- content END -->
+			<div class="active row">
+				<div class="mark-like-btn col-md-8">
+					<a class="share-btn like-btn {{if .likeflag}}hadlike{{end}}" href="javascript:;" title="{{if .likeflag}}取消喜欢{{else}}我喜欢{{end}}" data-objid="{{.topic.tid}}" data-objtype="1" data-flag="{{.likeflag}}">
+						<i class="glyphicon glyphicon-heart-empty"></i><span class="likenum">{{.topic.like}}</span>人喜欢
+					</a>
+					<a class="share-btn collect {{if .hadcollect}}hadlike{{end}}" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}稍后再读{{end}}" data-objid="{{.topic.tid}}" data-objtype="1" data-collect="{{.hadcollect}}">
+						<i class="glyphicon glyphicon-star-empty"></i>收藏
+					</a>
+				</div>
+				<!-- JiaThis Button BEGIN -->
+				<div class="jiathis_style_32x32">
+					<a class="jiathis_button_qzone"></a>
+					<a class="jiathis_button_tsina"></a>
+					<a class="jiathis_button_tqq"></a>
+					<a class="jiathis_button_weixin"></a>
+					<a href="http://www.jiathis.com/share?uid=1895190" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+					<a class="jiathis_counter_style"></a>
+				</div>
+				<script type="text/javascript">
+				var jiathis_config = {data_track_clickback:'true'};
+				</script>
+				<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1358871817652577" charset="utf-8"></script>
+				<!-- JiaThis Button END -->
+			</div>
+			<!-- 评论 -->
+			<div class="page-comment" data-objid="{{.topic.tid}}" data-objtype="1" {{if .me}}data-username="{{.me.username}}" data-uid="{{.me.uid}}" data-avatar="{{if .me.avatar}}{{.me.avatar}}{{else}}{{gravatar .me.email 48}}{{end}}"{{end}}>
+				<div class="comment-title">
+					<h2>文章点评：</h2>
+					{{if .me}}
+					{{else}}
+					<span class="h2-tip">
+					（您需要 <a class="c-log" href="javascript:openPop('#login-pop');">登录</a> 后才能评论 <a href="/user/register" class="c-reg"> 没有账号</a> ？）</span>
+					{{end}}
+				</div>
+				<div class="submit" id="commentForm">
+					<div class="text">
+						<textarea name="content" placeholder="我有话要说……" class="need-autogrow"></textarea>
+					</div>
+					<div class="sub text-right">
+						<i class="help-block pull-left">
+							支持 markdown 语法
+						</i>
+						<button type="submit" title="提交" class="btn btn-danger">提交</button>
+					</div>
+				</div>
+				<div class="words hide">
+					<h3><span class="cmtnum">{{.topic.reply}}</span>条评论</h3>
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+			</div>
+			<!-- 评论 -->
+		</div>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar author">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-user"></i>&nbsp;作者</h3>
+			</div>
+			<div class="sb-content">
+				<a href="/user/{{.topic.user.Username}}" class="pull-left" title="{{.topic.user.Username}}">
+					<img src="{{gravatar .topic.user.Email 48}}" alt="{{.topic.user.Username}}" width="48px" height="48px">
+				</a>
+				<h4>
+					<a href="/user/{{.topic.user.Username}}" title="{{.topic.user.Username}}">{{.topic.user.Username}}</a>
+					<p>{{.topic.user.Monlog}}</p>
+				</h4>
+			</div>
+		</div>
+		
+		<div class="row box_white sidebar">
+			<div class="top">
+				<ul class="list-inline text-center">
+					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新主题</a>|</li>
+					<li class="second"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
+					<li class="last"><a href="javascript:;">最新评论</a></li>
+				</ul>
+				<p class="bar"></p>
+			</div>
+			<div class="sb-content">
+				<div class="topic-list first">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+				<div class="resource-list second hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+				<div class="cmt-list last hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 {{end}}
-{{define "title"}}{{.topic.title}} {{end}}
 {{define "css"}}
-<link href="/static/css/markdown.css" media="screen" rel="stylesheet" type="text/css">
-<link href="/static/css/topics.css" media="screen" rel="stylesheet" type="text/css">
-<link href="/static/css/prettify.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/jquery.atwho.min.css" rel="stylesheet">
+<style type="text/css">
+</style>
 {{end}}
 {{define "js"}}
-<script type="text/javascript" src="/static/js/topics.js"></script>
-<script type="text/javascript" src="/static/js/prettify.js"></script>
-<script type="text/javascript" src="/static/js/Markdown.Converter.js"></script>
-<script type="text/javascript" src="/static/js/Markdown.Sanitizer.js"></script>
-<script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
-<script type="text/javascript" src="/static/js/social-share-button.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.caret.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.atwho.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/emojis.js"></script>
+<script type="text/javascript" src="/static/js/comment.js"></script>
 <script type="text/javascript">
-{{if .me}}
-var MeUsername = {{.me.username}};
-{{else}}
-var MeUsername = 0;
-{{end}}
-(function () {
-    {{if .me}}
-    // 评论框
-    var topicConverter = Markdown.getSanitizingConverter();
-    
-    topicConverter.hooks.chain("preBlockGamut", function (text, rbg) {
-        return text.replace(/^ {0,3}""" *\n((?:.*?\n)+?) {0,3}""" *$/gm, function (whole, inner) {
-            return "<blockquote>" + rbg(inner) + "</blockquote>\n";
-        });
-    });
-    
-    var topicEditor = new Markdown.Editor(topicConverter);
-    
-    topicEditor.run();
-    {{end}}
-    // 转换主帖
-    var converter = new Markdown.Converter();
-    $('.entry-content').html($(converter.makeHtml($('.entry-content').html())).addClass('prettyprint'));
-    
-    // 转换回复
-    $('.reply-content').each(function(i){
-        if ($(this).html() != "") {
-            $(this).html($(converter.makeHtml($(this).html())).addClass('prettyprint'));
-        }
-    });
-    // 语法高亮
-    prettyPrint();
-})();
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/topics/recent.json",
+	"/resources/recent.json",
+	"/comments/recent.json",
+];
 
 $(function(){
-    // 加载节点下其他话题
-    var otherTopics = $('#other_topics'),
-        tid = otherTopics.data('tid'),
-        nid = otherTopics.data('nid'),
-        uri = '/topics/others/' + nid+'_'+tid+'.json';
-    $.getJSON(uri, function(data){
-        if (!data.errno) {
-            var topics = '';
-            for (var i in data.topics) {
-                var topic = data.topics[i];
-                topics += '<li class="cutoff"><a href="/topics/'+topic.tid+'" title="'+topic.title+'">'+topic.title+'</a></li>';
-            }
-            if (topics == "") {
-                otherTopics.parent('div.box').hide();
-            } else {
-                otherTopics.html(topics);
-            }
-        }
-    });
-    
-})
+	// 文本框自动伸缩
+	$('.need-autogrow').autoGrow();
+	
+	loadComments();
+
+	// 文章链接，在本站的 iframe 中打开
+	$('#wrapper .content').on('mousedown', 'a', function(evt){
+			var url = $(this).attr('href');
+			$(this).attr('href', '/wr?u='+url);
+			$(this).attr('target', '_blank');
+	});
+});
 </script>
 {{end}}

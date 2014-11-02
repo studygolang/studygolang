@@ -36,17 +36,20 @@ func TopicsHandler(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	order := ""
 	where := ""
+	view := ""
 	switch vars["view"] {
 	case "/no_reply":
+		view = "no_reply"
 		where = "lastreplyuid=0"
 	case "/last":
+		view = "last"
 		order = "ctime DESC"
 	}
 	topics, total := service.FindTopics(page, 0, where, order)
 	pageHtml := service.GetPageHtml(page, total, "/topics")
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/topics/list.html")
 	// 设置模板数据
-	filter.SetData(req, map[string]interface{}{"activeTopics": "active", "topics": topics, "page": template.HTML(pageHtml), "nodes": nodes, "view": vars["view"]})
+	filter.SetData(req, map[string]interface{}{"activeTopics": "active", "topics": topics, "page": template.HTML(pageHtml), "nodes": nodes, "view": view})
 }
 
 // 某节点下的帖子列表

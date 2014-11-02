@@ -85,8 +85,8 @@ func NewViewFilter(isBackView bool, files ...string) *ViewFilter {
 	viewFilter := new(ViewFilter)
 	if len(files) == 0 {
 		// 默认使用前端通用模板
-		viewFilter.commonHtmlFiles = []string{config.ROOT + "/template/common/base.html"}
-		viewFilter.baseTplName = "base.html"
+		viewFilter.commonHtmlFiles = []string{config.ROOT + "/template/common/layout.html"}
+		viewFilter.baseTplName = "layout.html"
 	} else {
 		viewFilter.commonHtmlFiles = files
 		viewFilter.baseTplName = filepath.Base(files[0])
@@ -162,24 +162,6 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 		contentHtmls := strings.Split(contentHtml, ",")
 		for i, contentHtml := range contentHtmls {
 			contentHtmls[i] = config.ROOT + strings.TrimSpace(contentHtml)
-		}
-
-		if !this.isBackView {
-			// TODO: 新模版过渡
-			if strings.Contains(req.RequestURI, "articles") ||
-				strings.Contains(req.RequestURI, "favorites") ||
-				strings.Contains(req.RequestURI, "project") ||
-				strings.HasPrefix(req.RequestURI, "/p/") ||
-				strings.Contains(req.RequestURI, "reading") ||
-				strings.HasPrefix(req.RequestURI, "/wr") ||
-				req.RequestURI == "/" ||
-				strings.Contains(req.RequestURI, "search") {
-				this.commonHtmlFiles = []string{config.ROOT + "/template/common/layout.html"}
-				this.baseTplName = "layout.html"
-			} else {
-				this.commonHtmlFiles = []string{config.ROOT + "/template/common/base.html"}
-				this.baseTplName = "base.html"
-			}
 		}
 
 		// 为了使用自定义的模板函数，首先New一个以第一个模板文件名为模板名。
