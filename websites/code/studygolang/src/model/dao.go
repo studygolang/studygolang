@@ -240,7 +240,7 @@ func (this *Dao) Persist(entity interface{}) error {
 		return err
 	}
 
-	logger.Debugln("Persist sql:", strSql)
+	logger.Debugln("Persist sql:", strSql, ";args:", args)
 
 	err = this.Open()
 	if err != nil {
@@ -330,13 +330,14 @@ func genPersistParams(entity interface{}) (string, []interface{}, error) {
 				setArgs = append(setArgs, val)
 			}
 		default:
-
+			// TODO：其他类型不处理
+			continue
 		}
 
 		if pk == "1" {
-			where = append(where, tag+"=?")
+			where = append(where, "`"+tag+"`"+"=?")
 		} else {
-			set = append(set, tag+"=?")
+			set = append(set, "`"+tag+"`"+"=?")
 		}
 	}
 

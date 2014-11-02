@@ -32,6 +32,8 @@ func initRouter() *mux.Router {
 	router.FilterChain(fontFilterChan)
 
 	router.HandleFunc("/", IndexHandler)
+	router.HandleFunc("/wr", WRHandler)
+
 	router.HandleFunc("/topics{view:(|/popular|/no_reply|/last)}", TopicsHandler)
 	router.HandleFunc("/topics/{tid:[0-9]+}", TopicDetailHandler)
 	router.HandleFunc("/topics/new{json:(|.json)}", NewTopicHandler).AppendFilterChain(loginFilterChain)
@@ -59,8 +61,19 @@ func initRouter() *mux.Router {
 	router.HandleFunc("/articles", ArticlesHandler)
 	router.HandleFunc("/articles/{id:[0-9]+}", ArticleDetailHandler)
 
+	// 技术晨读
+	router.HandleFunc("/readings", ReadingsHandler)
+	router.HandleFunc("/readings/{id:[0-9]+}", IReadingHandler)
+
 	// 搜索
 	router.HandleFunc("/search", SearchHandler)
+
+	// 项目
+	router.HandleFunc("/project/new{json:(|.json)}", NewProjectHandler).AppendFilterChain(loginFilterChain)
+	router.HandleFunc("/project/modify{json:(|.json)}", ModifyProjectHandler).AppendFilterChain(loginFilterChain)
+	router.HandleFunc("/p/{uniq}", ProjectDetailHandler)
+	router.HandleFunc("/projects", ProjectsHandler)
+	router.HandleFunc("/project/uri.json", ProjectUriHandler)
 
 	// wiki
 	router.HandleFunc("/wiki", WikisHandler)
@@ -82,6 +95,10 @@ func initRouter() *mux.Router {
 	// 喜欢
 	router.HandleFunc("/like/{objid:[0-9]+}.json", LikeHandler).AppendFilterChain(loginFilterChain)
 
+	// 收藏
+	router.HandleFunc("/favorite/{objid:[0-9]+}.json", FavoriteHandler).AppendFilterChain(loginFilterChain)
+	router.HandleFunc("/favorites/mine", MyFavoritesHandler).AppendFilterChain(loginFilterChain)
+
 	// 消息相关
 	router.HandleFunc("/message/send{json:(|.json)}", SendMessageHandler).AppendFilterChain(loginFilterChain)
 	router.HandleFunc("/message/{msgtype:(system|inbox|outbox)}", MessageHandler).AppendFilterChain(loginFilterChain)
@@ -100,15 +117,23 @@ func initRouter() *mux.Router {
 	router.HandleFunc("/topics/recent.json", RecentTopicHandler)
 	// 最新博文
 	router.HandleFunc("/articles/recent.json", RecentArticleHandler)
+	// 最新项目
+	router.HandleFunc("/projects/recent.json", RecentProjectHandler)
 	// 最新资源
 	router.HandleFunc("/resources/recent.json", RecentResourceHandler)
 	// 最新评论
 	router.HandleFunc("/comments/recent.json", RecentCommentHandler)
 	// 活跃会员
 	router.HandleFunc("/users/active.json", ActiveUserHandler)
+	// 新会员
+	router.HandleFunc("/users/newest.json", NewestUserHandler)
+	// 最新晨读
+	router.HandleFunc("/readings/recent.json", RecentReadingHandler)
+	// @ 某人 suggest（登录用户才能@）
+	router.HandleFunc("/at/users.json", AtUsersHandler).AppendFilterChain(loginFilterChain)
 
 	// 文件上传（图片）
-	router.HandleFunc("/upload/image.json", UploadImageHandler)
+	router.HandleFunc("/upload/image.json", UploadImageHandler).AppendFilterChain(loginFilterChain)
 	/////////////////// 异步请求 结束 ///////////////////////
 
 	// 管理后台权限检查过滤器
@@ -140,6 +165,7 @@ func initRouter() *mux.Router {
 	subrouter.HandleFunc("/user/user/list", admin.UserListHandler)
 	subrouter.HandleFunc("/user/user/query.html", admin.UserQueryHandler)
 	subrouter.HandleFunc("/user/user/detail", admin.UserDetailHandler)
+	subrouter.HandleFunc("/user/user/modify", admin.UserModifyHandler)
 
 	///////////////// 社区管理 //////////////////////////
 	// 帖子管理
@@ -164,6 +190,14 @@ func initRouter() *mux.Router {
 	subrouter.HandleFunc("/crawl/rule/new", admin.NewRuleHandler)
 	subrouter.HandleFunc("/crawl/rule/modify", admin.ModifyRuleHandler)
 	subrouter.HandleFunc("/crawl/rule/del", admin.DelRuleHandler)
+
+	// 晨读管理
+	subrouter.HandleFunc("/reading/list", admin.ReadingListHandler)
+	subrouter.HandleFunc("/reading/query.html", admin.ReadingQueryHandler)
+	subrouter.HandleFunc("/reading/publish", admin.PublishReadingHandler)
+
+	// 工具类
+	subrouter.HandleFunc("/tool/sitemap", admin.GenSitemapHandler)
 
 	apirouter := router.PathPrefix("/api").Subrouter()
 	apirouter.HandleFunc("/user/login", api.LoginHandler)

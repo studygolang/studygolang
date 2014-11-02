@@ -5,7 +5,8 @@
 
 <div id="contentwraapper" class="contentwrapper">
 	<div id="tooltip" class="red"></div>
-	<form method="POST" action="/admin/user/user/modify" class="stdform_q" action-type="ajax-submit">
+	<form method="POST" action="/admin/user/user/modify" class="stdform">
+		<input type="hidden" id="uid" name="uid" value="{{.user.Uid}}" />
 		<div class="contenttitle2">
 			<h3>基本信息</h3>
 		</div>
@@ -142,6 +143,18 @@
 			</p>
 		</div>
 		{{end}}
+		<div>
+			<p>
+				<label for="name">分配角色</label>
+				<span class="field">
+					<select multiple="multiple" name="roleids" size="10">
+						{{range .roles}}
+						<option value="{{.Roleid}}">{{.Name}}</option>
+						{{end}}
+					</select>
+				</span>
+			</p>
+		</div>
 		<div style="margin: 0 auto; width: 500px;"><input class="submit_btn" type="submit" name="save" value="提交" /></a></div>
 	</form>
 	<img id="loaders" src="/static/img/loaders/loader7.gif" alt="" class="hide"><blockquote></blockquote>
@@ -152,10 +165,4 @@
 <script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
 <script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
 <script	type="text/javascript" src="/static/js/admin/forms.js"></script>
-<script type="text/javascript">
-	var ALL_MENU2 = {{.allmenu2}};
-	var menu2 = {{.authority.Menu2}};
-</script>
-<script type="text/javascript" src="/static/js/admin/authority/new.js"></script>
-<script type="text/javascript" src="/static/js/admin/authority/modify.js"></script>
 {{end}}

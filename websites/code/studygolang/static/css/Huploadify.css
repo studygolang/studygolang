@@ -16,15 +16,17 @@
 	text-decoration:none;
 }
 .uploadify-button:hover{
+	color:#FFF;
 	background-color: #888;
+	text-decoration:none;
 }
 .uploadfile{
 	width:0;
-	}
+}
 .uploadify-queue .uploadify-queue-item{
 	list-style-type:none;
 	margin-top:10px;
-	}
+}
 .uploadbtn,.delfilebtn{
 	display:inline-block;
 	border:1px solid #999;

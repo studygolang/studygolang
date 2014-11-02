@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-	<title>{{template "title" .}} | Golang China | Golang中文社区(Go语言构建) | Go语言学习园地</title>
+	<title>{{template "title" .}} | Golang中文社区(Go语言构建) | Go语言中文网 | Go语言学习园地</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta charset="utf-8">
 	<link rel="shortcut icon" href="/static/img/go.ico">
@@ -33,18 +33,25 @@
 						<a href="/topics">社区</a>
 					</li>
 					<li class="dropdown {{.activeArticles}}">
-						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="articles">精彩文章 <i class="newfuture"></i><span class="caret"></span></a>
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="articles">精彩文章 <span class="caret"></span></a>
 						<ul class="dropdown-menu" aria-labelledby="articles">
 							<li><a href="/articles">网友博文</a></li>
 							<li><a href="http://blog.studygolang.com" target="_blank">本站博客</a></li>
 							<li><a href="http://blog.studygolang.com" target="_blank">官方博客</a></li>
 						</ul>
 					</li>
+					<li class="{{.activeProjects}}">
+						<a href="/projects">开源项目<i class="newfuture"></i></a>
+					</li>
 					<li>
 						<a href="/resources">资源</a>
 					</li>
-					<li>
-						<a href="/sites">酷站</a>
+					<li class="dropdown {{.activeReadings}}">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="readings">技术晨读 <span class="caret"></span></a>
+						<ul class="dropdown-menu" aria-labelledby="readings">
+							<li><a href="/readings">Go晨读</a></li>
+							<li><a href="/readings?rtype=1">综合晨读</a></li>
+						</ul>
 					</li>
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="docs">官方文档 <span class="caret"></span></a>
@@ -54,7 +61,7 @@
 						</ul>
 					</li>
 				</ul>
-				<form class="navbar-form navbar-left" action="/search" role="search" _lpchecked="1">
+				<form class="navbar-form navbar-left" action="/search" role="search" _lpchecked="1" target="_blank">
 					<input type="text" name="q" class="form-control search-query" placeholder="搜索" value="{{if .q}}{{.q}}{{end}}">
 				</form>
 				<ul class="nav navbar-nav navbar-right" id="userbar">
@@ -64,7 +71,7 @@
 					</li>
 					{{if .me.isadmin}}
 					<li>
-						<a href="/admin/" target="_blank">管理后台</a>
+						<a href="/project/new">发布项目</a>
 					</li>
 					{{end}}
 					<li class="dropdown" id="user_menu">
@@ -72,7 +79,11 @@
 						<ul class="dropdown-menu">
 							<li class="first"><a href="/user/{{.me.username}}">我的主页</a></li>
 							<li><a href="/account/edit">个人资料设置</a></li>
-							<li><a href="/{{.me.username}}/favorites">我的收藏</a></li>
+							<li><a href="/favorites/mine">我的收藏</a></li>
+							<li role="presentation" class="divider"></li>
+							{{if .me.isadmin}}
+							<li><a href="/admin/" target="_blank">管理后台</a></li>
+							{{end}}
 							<li class="last"><a href="/account/logout">退出</a></li>
 						</ul>
 					</li>
@@ -83,12 +94,7 @@
 			</div>
 		</div>
 	</header>
-	<div class="wrapper">
-		<div class="hidden-phone">
-			<ul class="breadcrumb menu clearfix">
-				{{template "topnav" .}}
-			</ul>
-		</div>
+	<div class="wrapper" id="wrapper">
 		<div class="container" role="main">
 			{{template "content" .}}
 		</div>
@@ -104,6 +110,8 @@
 				</p>
 				<p class="copyright">&copy;2013-2015 studygolang.com 采用 <a href="http://golang.org" target="_blank">Go语言</a> + <a href="http://www.mysql.com/" target="_blank">MYSQL 构建</a>
 				&nbsp;&nbsp;当前在线：<span id="onlineusers">30</span>人&nbsp;&nbsp;历史最高：<span id="maxonline">300</span>人
+				<br/>
+				<b>网站编译信息</b>&nbsp;{{if .build.version}}版本：{{.build.version}}，{{end}}时间：<attr class="timeago">{{.build.date}}</attr>
 				<br/>中国 Golang 社区，Go语言学习园地，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。
 	京ICP备14030343号-1
 				</p>

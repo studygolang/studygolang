@@ -7,9 +7,12 @@
 package controller
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -17,11 +20,30 @@ import (
 
 	"github.com/studygolang/mux"
 	"logger"
+	"model"
 	"service"
 	"util"
 )
 
 // 侧边栏的内容通过异步请求获取
+
+// 技术晨读
+// uri: /readings/recent.json
+func RecentReadingHandler(rw http.ResponseWriter, req *http.Request) {
+	limit := req.FormValue("limit")
+	if limit == "" {
+		limit = "7"
+	}
+
+	readings := service.FindReadings("0", limit, model.RtypeGo)
+	buf, err := json.Marshal(readings)
+	if err != nil {
+		logger.Errorln("[RecentReadingHandler] json.marshal error:", err)
+		fmt.Fprint(rw, `{"ok": 0, "error":"解析json出错"}`)
+		return
+	}
+	fmt.Fprint(rw, `{"ok": 1, "data":`+string(buf)+`}`)
+}
 
 // 某节点下其他帖子
 func OtherTopicsHandler(rw http.ResponseWriter, req *http.Request) {
@@ -41,6 +63,7 @@ func OtherTopicsHandler(rw http.ResponseWriter, req *http.Request) {
 // uri: /websites/stat.json
 func StatHandler(rw http.ResponseWriter, req *http.Request) {
 	articleTotal := service.ArticlesTotal()
+	projectTotal := service.ProjectsTotal()
 	topicTotal := service.TopicsTotal()
 	cmtTotal := service.CommentsTotal(-1)
 	resourceTotal := service.ResourcesTotal()
@@ -48,6 +71,7 @@ func StatHandler(rw http.ResponseWriter, req *http.Request) {
 
 	data := map[string]int{
 		"article":  articleTotal,
+		"project":  projectTotal,
 		"topic":    topicTotal,
 		"resource": resourceTotal,
 		"comment":  cmtTotal,
@@ -79,7 +103,12 @@ func RecentDymanicHandler(rw http.ResponseWriter, req *http.Request) {
 // 最新帖子
 // uri: /topics/recent.json
 func RecentTopicHandler(rw http.ResponseWriter, req *http.Request) {
-	recentTopics := service.FindRecentTopics(0, "10")
+	limit := req.FormValue("limit")
+	if limit == "" {
+		limit = "10"
+	}
+
+	recentTopics := service.FindRecentTopics(0, limit)
 	buf, err := json.Marshal(recentTopics)
 	if err != nil {
 		logger.Errorln("[RecentTopicHandler] json.marshal error:", err)
@@ -92,7 +121,12 @@ func RecentTopicHandler(rw http.ResponseWriter, req *http.Request) {
 // 最新博文
 // uri: /articles/recent.json
 func RecentArticleHandler(rw http.ResponseWriter, req *http.Request) {
-	recentArticles := service.FindArticles("0", "10")
+	limit := req.FormValue("limit")
+	if limit == "" {
+		limit = "10"
+	}
+
+	recentArticles := service.FindArticles("0", limit)
 	buf, err := json.Marshal(recentArticles)
 	if err != nil {
 		logger.Errorln("[RecentArticleHandler] json.marshal error:", err)
@@ -102,10 +136,47 @@ func RecentArticleHandler(rw http.ResponseWriter, req *http.Request) {
 	fmt.Fprint(rw, `{"ok": 1, "data":`+string(buf)+`}`)
 }
 
+// 最新开源项目（TODO：暂时打乱，避免每次一样）
+// uri: /projects/recent.json
+func RecentProjectHandler(rw http.ResponseWriter, req *http.Request) {
+	var (
+		limit = 10
+		err   error
+	)
+	limitStr := req.FormValue("limit")
+	if limitStr != "" {
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil {
+			fmt.Fprint(rw, `{"ok": 0, "error":"limit is not number"}`)
+			return
+		}
+	}
+
+	recentProjects := service.FindProjects("0", "100")
+	start, end := 0, len(recentProjects)
+	if n := end - limit; n > 0 {
+		start = rand.Intn(n)
+		end = start + limit
+	}
+
+	buf, err := json.Marshal(recentProjects[start:end])
+	if err != nil {
+		logger.Errorln("[RecentProjectHandler] json.marshal error:", err)
+		fmt.Fprint(rw, `{"ok": 0, "error":"解析json出错"}`)
+		return
+	}
+	fmt.Fprint(rw, `{"ok": 1, "data":`+string(buf)+`}`)
+}
+
 // 最新资源
 // uri: /resources/recent.json
 func RecentResourceHandler(rw http.ResponseWriter, req *http.Request) {
-	recentResources := service.FindResources("0", "10")
+	limit := req.FormValue("limit")
+	if limit == "" {
+		limit = "10"
+	}
+
+	recentResources := service.FindResources("0", limit)
 	buf, err := json.Marshal(recentResources)
 	if err != nil {
 		logger.Errorln("[RecentResourceHandler] json.marshal error:", err)
@@ -139,7 +210,7 @@ func RecentCommentHandler(rw http.ResponseWriter, req *http.Request) {
 	buf, err := json.Marshal(result)
 
 	if err != nil {
-		logger.Errorln("[RecentArticleHandler] json.marshal error:", err)
+		logger.Errorln("[RecentCommentHandler] json.marshal error:", err)
 		fmt.Fprint(rw, `{"ok": 0, "error":"解析json出错"}`)
 		return
 	}
@@ -160,7 +231,7 @@ func HotNodesHandler(rw http.ResponseWriter, req *http.Request) {
 }
 
 // 活跃会员
-// uri: /user/active.json
+// uri: /users/active.json
 func ActiveUserHandler(rw http.ResponseWriter, req *http.Request) {
 	activeUsers := service.FindActiveUsers(0, 9)
 	buf, err := json.Marshal(activeUsers)
@@ -172,22 +243,80 @@ func ActiveUserHandler(rw http.ResponseWriter, req *http.Request) {
 	fmt.Fprint(rw, `{"ok": 1, "data":`+string(buf)+`}`)
 }
 
+// 新加入会员
+// uri: /users/newest.json
+func NewestUserHandler(rw http.ResponseWriter, req *http.Request) {
+	newestUsers := service.FindNewUsers(0, 9)
+	buf, err := json.Marshal(newestUsers)
+	if err != nil {
+		logger.Errorln("[NewestUserHandler] json.marshal error:", err)
+		fmt.Fprint(rw, `{"ok": 0, "error":"解析json出错"}`)
+		return
+	}
+	fmt.Fprint(rw, `{"ok": 1, "data":`+string(buf)+`}`)
+}
+
+// 评论或回复 @ 某人 suggest
+// uri: /at/users.json
+func AtUsersHandler(rw http.ResponseWriter, req *http.Request) {
+	term := req.FormValue("term")
+	usernames := service.GetUserMentions(term, 10)
+	buf, err := json.Marshal(usernames)
+	if err != nil {
+		logger.Errorln("[AtUsersHandler] json.marshal error:", err)
+		fmt.Fprint(rw, `[]`)
+		return
+	}
+
+	fmt.Fprint(rw, string(buf))
+}
+
 const maxImageSize = 5 << 20 // 5M
 
 func UploadImageHandler(rw http.ResponseWriter, req *http.Request) {
-	file, fileHeader, err := req.FormFile("img")
-	if err != nil {
-		fmt.Fprint(rw, `{"ok": 0, "error":"非法文件上传！"}`)
-		return
+	var (
+		uri    string
+		buf    []byte
+		err    error
+		reader io.Reader
+	)
+
+	origUrl := req.FormValue("url")
+	if origUrl != "" {
+		resp, err := http.Get(origUrl)
+		if err != nil {
+			fmt.Fprint(rw, `{"ok": 0, "error":"获取图片失败"}`)
+			return
+		}
+		defer resp.Body.Close()
+
+		buf, err := ioutil.ReadAll(resp.Body)
+
+		uri = util.DateNow() + "/" + util.Md5Buf(buf) + filepath.Ext(origUrl)
+
+		reader = bytes.NewReader(buf)
+	} else {
+
+		file, fileHeader, err := req.FormFile("img")
+		if err != nil {
+			fmt.Fprint(rw, `{"ok": 0, "error":"非法文件上传！"}`)
+			return
+		}
+
+		defer file.Close()
+
+		// 如果是临时文件，存在硬盘中，则是 *os.File（大于32M），直接报错
+		if _, ok := file.(*os.File); ok {
+			fmt.Fprint(rw, `{"ok": 0, "error":"文件太大！"}`)
+			return
+		}
+
+		reader = file
+
+		buf, err := ioutil.ReadAll(file)
+		uri = util.DateNow() + "/" + util.Md5Buf(buf) + filepath.Ext(fileHeader.Filename)
 	}
 
-	// 如果是临时文件，存在硬盘中，则是 *os.File（大于32M），直接报错
-	if _, ok := file.(*os.File); ok {
-		fmt.Fprint(rw, `{"ok": 0, "error":"文件太大！"}`)
-		return
-	}
-
-	buf, err := ioutil.ReadAll(file)
 	if err != nil {
 		fmt.Fprint(rw, `{"ok": 0, "error":"文件读取失败！"}`)
 		return
@@ -198,9 +327,7 @@ func UploadImageHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	uri := util.DateNow() + "/" + util.Md5Buf(buf) + filepath.Ext(fileHeader.Filename)
-
-	err = service.UploadMemoryFile(file, uri)
+	err = service.UploadMemoryFile(reader, uri)
 	if err != nil {
 		fmt.Fprint(rw, `{"ok": 0, "error":"文件上传失败！"}`)
 		return

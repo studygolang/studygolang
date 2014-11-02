@@ -13,8 +13,10 @@
 // jQuery.noConflict();
 
 jQuery(document).ready(function(){
-								
-								
+
+	///// FORM TRANSFORMATION /////
+	jQuery('input:checkbox, input:radio, select.uniformselect').uniform();
+	
 	///// SHOW/HIDE USERDATA WHEN USERINFO IS CLICKED ///// 
 	
 	jQuery('.userinfo').click(function(){

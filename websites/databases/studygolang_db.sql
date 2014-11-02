@@ -60,7 +60,7 @@ DROP TABLE IF EXISTS `comments`;
 CREATE TABLE `comments` (
   `cid` int unsigned NOT NULL AUTO_INCREMENT,
   `objid` int unsigned NOT NULL COMMENT '对象id，属主（评论给谁）',
-  `objtype` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '类型,0-帖子;1-博文;2-资源;3-wiki',
+  `objtype` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '类型,0-帖子;1-博文;2-资源;3-wiki;4-project',
   `content` text NOT NULL,
   `uid` int unsigned NOT NULL COMMENT '回复者',
   `floor` int unsigned NOT NULL COMMENT '第几楼',
@@ -83,7 +83,7 @@ CREATE TABLE `likes` (
   `flag` tinyint unsigned NOT NULL DEFAULT 1 COMMENT '1-喜欢；2-不喜欢（暂时不支持）',
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`uid`,`objtype`,`objid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '喜欢表';
 
 /*---------------------------------------------------------------------------*
   NAME: user_login
@@ -130,7 +130,7 @@ CREATE TABLE `user_info` (
   `open` tinyint NOT NULL DEFAULT 1 COMMENT '邮箱是否公开，默认公开',
   `username` varchar(20) NOT NULL COMMENT '用户名',
   `name` varchar(20) NOT NULL DEFAULT '' COMMENT '姓名',
-  `avatar` varchar(128) NOT NULL DEFAULT '' COMMENT '头像(暂时使用http://www.gravatar.com)',
+  `avatar` varchar(128) NOT NULL DEFAULT '' COMMENT '头像',
   `city` varchar(10) NOT NULL DEFAULT '居住地',
   `company` varchar(64) NOT NULL DEFAULT '',
   `github` varchar(20) NOT NULL DEFAULT '',
@@ -405,3 +405,72 @@ CREATE TABLE `search_stat` (
   UNIQUE KEY (`keyword`),
   KEY (`times`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '搜索词统计';
+
+/*---------------------------------------------------------------------------*
+  NAME: 用户收藏
+  用途：用户可以收藏文章、话题、资源等
+*---------------------------------------------------------------------------*/
+DROP TABLE IF EXISTS `favorites`;
+CREATE TABLE `favorites` (
+  `uid` int unsigned NOT NULL DEFAULT 0 COMMENT '用户uid',
+  `objtype` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '类型,0-帖子;1-博文;2-资源;3-wiki',
+  `objid` int unsigned NOT NULL DEFAULT 0 COMMENT '对象id，属主',
+  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`uid`,`objtype`,`objid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户收藏';
+
+/*---------------------------------------------------------------------------*
+  NAME: 开源项目
+  用途：开源项目
+*---------------------------------------------------------------------------*/
+DROP TABLE IF EXISTS `open_project`;
+CREATE TABLE `open_project` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '项目id',
+  `name` varchar(127) NOT NULL DEFAULT '' COMMENT '项目名(软件名)，如 Docker',
+  `category` varchar(127) NOT NULL DEFAULT '' COMMENT '项目类别，如 Linux 容器引擎',
+  `uri` varchar(127) NOT NULL DEFAULT '' COMMENT '项目uri，访问使用（如/p/docker 中的 docker)',
+  `home` varchar(127) NOT NULL DEFAULT '' COMMENT '项目首页',
+  `doc` varchar(127) NOT NULL DEFAULT '' COMMENT '项目文档地址',
+  `download` varchar(127) NOT NULL DEFAULT '' COMMENT '项目下载地址',
+  `src` varchar(127) NOT NULL DEFAULT '' COMMENT '源码地址',
+  `logo` varchar(127) NOT NULL DEFAULT '' COMMENT '项目logo',
+  `desc` text NOT NULL COMMENT '项目描述',
+  `repo` varchar(127) NOT NULL DEFAULT '' COMMENT '源码uri部分，方便repo widget插件使用',
+  `author` varchar(127) NOT NULL DEFAULT '' COMMENT '作者',
+  `licence` varchar(127) NOT NULL DEFAULT '' COMMENT '授权协议',
+  `lang` varchar(127) NOT NULL DEFAULT '' COMMENT '开发语言',
+  `os` varchar(127) NOT NULL DEFAULT '' COMMENT '操作系统（多个逗号分隔）',
+  `tags` varchar(127) NOT NULL DEFAULT '' COMMENT 'tag，逗号分隔',
+  `username` varchar(127) NOT NULL DEFAULT '' COMMENT '收录人',
+  `viewnum` int unsigned NOT NULL DEFAULT 0 COMMENT '浏览数',
+  `cmtnum` int unsigned NOT NULL DEFAULT 0 COMMENT '评论数',
+  `likenum` int unsigned NOT NULL DEFAULT 0 COMMENT '赞数',
+  `status` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '状态：0-新建；1-已上线；2-下线(审核拒绝)',
+  `ctime` timestamp NOT NULL DEFAULT 0 COMMENT '加入时间',
+  `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY (`uri`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '开源项目';
+
+/*---------------------------------------------------------------------------*
+  NAME: morning_reading
+  用途：技术晨读 表
+*---------------------------------------------------------------------------*/
+DROP TABLE IF EXISTS `morning_reading`;
+CREATE TABLE `morning_reading` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `content` varchar(255) NOT NULL DEFAULT '' COMMENT '晨读内容',
+  `rtype` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '晨读类别：0-Go技术晨读;1-综合技术晨读',
+  `inner` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '本站文章id，如果外站文章，则为0',
+  `url` varchar(255) NOT NULL DEFAULT '' COMMENT '文章链接，本站文章时为空',
+  `moreurls` varchar(1024) NOT NULL DEFAULT '' COMMENT '可能顺带推荐多篇文章；url逗号分隔',
+  `clicknum` int unsigned NOT NULL DEFAULT 0 COMMENT '点击数',
+  `username` varchar(20) NOT NULL DEFAULT '' COMMENT '发布人',
+  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '技术晨读表';
+
+alter table `studygolang`.`morning_reading` 
+   add column `rtype` tinyint UNSIGNED DEFAULT '0' NOT NULL COMMENT '晨读类别：0-Go技术晨读;1-综合技术晨读' after `content`, 
+   add column `inner` tinyint UNSIGNED DEFAULT '0' NOT NULL COMMENT '本站文章id，如果外站文章，则为0' after `rtype`, 
+   add column `moreurls` varchar(1024) DEFAULT '' NOT NULL COMMENT '可能顺带推荐多篇文章；url逗号分隔' after `url`

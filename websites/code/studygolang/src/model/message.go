@@ -127,10 +127,12 @@ func (this *Message) colFieldMap() map[string]interface{} {
 const (
 	// 和comment中objtype保持一致（除了@）
 	MsgtypeTopicReply      = iota // 回复我的主题
-	MsgtypeBlogComment            // 评论我的博客
+	MsgtypeARTICLEComment         // 评论我的博文
 	MsgtypeResourceComment        // 评论我的资源
 	MsgtypeWikiComment            // 评论我的Wiki页
-	MsgtypeAtMe                   // @提到我
+	MsgtypeProjectComment         // 评论我的项目
+
+	MsgtypeAtMe = 10 // @提到我
 )
 
 // 短消息

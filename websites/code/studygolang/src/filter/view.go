@@ -7,18 +7,19 @@
 package filter
 
 import (
-	"config"
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/context"
-	"github.com/studygolang/mux"
 	"html/template"
-	"logger"
 	"net/http"
 	"path/filepath"
-	"service"
 	"strings"
 	"time"
+
+	"config"
+	"github.com/gorilla/context"
+	"github.com/studygolang/mux"
+	"logger"
+	"service"
 	"util"
 )
 
@@ -163,20 +164,22 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 			contentHtmls[i] = config.ROOT + strings.TrimSpace(contentHtml)
 		}
 
-		// TODO: 新模版过度
-		/*
+		if !this.isBackView {
+			// TODO: 新模版过渡
 			if strings.Contains(req.RequestURI, "articles") ||
+				strings.Contains(req.RequestURI, "favorites") ||
+				strings.Contains(req.RequestURI, "project") ||
+				strings.HasPrefix(req.RequestURI, "/p/") ||
+				strings.Contains(req.RequestURI, "reading") ||
+				strings.HasPrefix(req.RequestURI, "/wr") ||
 				req.RequestURI == "/" ||
 				strings.Contains(req.RequestURI, "search") {
 				this.commonHtmlFiles = []string{config.ROOT + "/template/common/layout.html"}
 				this.baseTplName = "layout.html"
-		*/
-		if true {
-			this.commonHtmlFiles = []string{config.ROOT + "/template/common/layout.html"}
-			this.baseTplName = "layout.html"
-		} else if !this.isBackView {
-			this.commonHtmlFiles = []string{config.ROOT + "/template/common/base.html"}
-			this.baseTplName = "base.html"
+			} else {
+				this.commonHtmlFiles = []string{config.ROOT + "/template/common/base.html"}
+				this.baseTplName = "base.html"
+			}
 		}
 
 		// 为了使用自定义的模板函数，首先New一个以第一个模板文件名为模板名。
@@ -190,13 +193,8 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 		if jsTpl := tpl.Lookup("js"); jsTpl == nil {
 			tpl.Parse(`{{define "js"}}{{end}}`)
 		}
-		if cssTpl := tpl.Lookup("css"); cssTpl == nil {
+		if jsTpl := tpl.Lookup("css"); jsTpl == nil {
 			tpl.Parse(`{{define "css"}}{{end}}`)
-		}
-
-		// 如果没有定义topnav模板，则定义之
-		if topnavTpl := tpl.Lookup("topnav"); topnavTpl == nil {
-			tpl.Parse(`{{define "topnav"}}{{end}}`)
 		}
 
 		// 当前用户信息
@@ -214,6 +212,11 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 
 		// websocket主机
 		data["wshost"] = config.Config["wshost"]
+		data["build"] = map[string]string{
+			"version": util.Version,
+			"date":    util.Date,
+		}
+
 		err = tpl.Execute(rw, data)
 		if err != nil {
 			logger.Errorf("执行模板出错（Execute）：[%q] %s\n", req.RequestURI, err)

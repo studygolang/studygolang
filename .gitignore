@@ -12,6 +12,8 @@ bin
 log
 pid
 data
+sitemap
+assets
 
 # Architecture specific extensions/prefixes
 *.[568vq]
@@ -31,6 +33,8 @@ _testmain.go
 
 *.sublime-project
 *.sublime-workspace
+
+notes.md
 
 studygolang_data.sql
 

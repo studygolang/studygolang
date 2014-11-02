@@ -58,6 +58,39 @@ $(function(){
 		}
 	}
 
+	// 侧边栏——最新开源项目
+	var projectRecent = function(data){
+		if (data.ok) {
+			data = data.data;
+
+			var content = '';
+			for(var i in data) {
+				var uri = data[i].id;
+				if (data[i].uri != '') {
+					uri = data[i].uri;
+				}
+
+				var title = data[i].category + ' ' + data[i].name;
+
+				var logo = 'http://studygolang.qiniudn.com/gopher/default_project.jpg?imageView2/2/w/48';
+				if (data[i].logo != '') {
+					logo = data[i].logo;
+				}
+				content += '<li>'+
+					'<a href="/p/'+uri+'">'+
+						'<div class="logo"><img src="'+logo+'" alt="'+data[i].name+'" width="48px"/></div>'+
+					'</a>'+
+					'<div class="title">'+
+						'<h4>'+
+							'<a href="/p/'+uri+'" title="'+title+'">'+title+'</a>'+
+						'</h4>'+
+					'</div>'+
+				'</li>';
+			}
+			$('.sb-content .project-list ul').html(content);
+		}
+	}
+
 	// 侧边栏——最新资源
 	var resourceRecent = function(data){
 		if (data.ok) {
@@ -92,6 +125,9 @@ $(function(){
 				case 2:
 					url = '/resources/';
 					break;
+				case 4:
+					url = '/p/';
+					break;
 				}
 				url += comments[i].objid;
 
@@ -120,7 +156,7 @@ $(function(){
 							'<span title="'+comments[i].ctime+'">'+cmtTime+'</span>'+
 						'</div>'+
 						'<div class="w-page">'+
-							'<span>在<a href="'+url+'" title="'+comments[i].objinfo.title+'">'+comments[i].objinfo.title+'  </a>中评论</span>'+
+							'<span>在<a href="'+url+'#commentForm" title="'+comments[i].objinfo.title+'">'+comments[i].objinfo.title+'  </a>中评论</span>'+
 						'</div>'+
 						'<div class="w-comment">'+
 							'<span>'+comments[i].content+'</span>'+
@@ -131,8 +167,16 @@ $(function(){
 			$('.sb-content .cmt-list ul').html(content);
 		}
 	}
-	
+
 	var userActive = function(data) {
+		userList(data, '#active-list');
+	}
+
+	var userNewest = function(data) {
+		userList(data, '#newest-list');
+	}
+	
+	var userList = function(data, id) {
 		if (data.ok) {
 			data = data.data;
 
@@ -150,7 +194,7 @@ $(function(){
 		  			'<div class="name"><a href="/user/'+data[i].username+'" title="'+data[i].username+'">'+data[i].username+'</a></div>'+
 		  		'</li>';
 			}
-			$('.sb-content .user-list ul').html(content);
+			$('.sb-content '+id+' ul').html(content);
 		}
 	}
 
@@ -162,19 +206,50 @@ $(function(){
 				'<li>博文数: <span>'+data.article+'</span> 篇</li>'+
 				'<li>话题数: <span>'+data.topic+'</span> 个</li>'+
 				'<li>评论数: <span>'+data.comment+'</span> 条</li>'+
-				'<li>资源数: <span>'+data.resource+'</span> 个</li>';
+				'<li>资源数: <span>'+data.resource+'</span> 个</li>'+
+				'<li>项目数: <span>'+data.project+'</span> 个</li>';
 
 			$('.sb-content .stat-list ul').html(content);
+		}
+	}
+
+	var readingRecent = function(data) {
+		if (data.ok) {
+			data = data.data;
+
+			var content = '';
+			if (data.length == 1) {
+				data = data[0];
+				content = '<li><a href="/readings/'+data.id+'" target="_blank">'+data.content+'</a></li>';
+			} else {
+				for(var i in data) {
+					content += '<li>'+
+						'<a href="/readings/'+data[i].id+'">'+
+							'<div class="time"><span>10-25</span></div>'+
+						'</a>'+
+						'<div class="title">'+
+							'<h4>'+
+								'<a href="/readings/'+data[i].id+'">'+data[i].content+'</a>'+
+							'</h4>'+
+						'</div>'+
+					'</li>';
+				}
+			}
+			
+			$('.sb-content .reading-list ul').html(content);
 		}
 	}
 
 	var sidebar_callback = {
 		"/topics/recent.json": {"func": topicRecent, "class": ".topic-list"},
 		"/articles/recent.json": {"func": articleRecent, "class": ".article-list"},
+		"/projects/recent.json": {"func": projectRecent, "class": ".project-list"},
 		"/resources/recent.json": {"func": resourceRecent, "class": ".resource-list"},
 		"/comments/recent.json": {"func": commentRecent, "class": ".cmt-list"},
-		"/users/active.json": {"func": userActive, "class": ".user-list"},
+		"/users/active.json": {"func": userActive, "class": "#active-list"},
+		"/users/newest.json": {"func": userNewest, "class": "#newest-list"},
 		"/websites/stat.json": {"func": websiteStat, "class": ".stat-list"},
+		"/readings/recent.json": {"func": readingRecent, "class": ".reading-list"},
 	};
 	
 	if (typeof SG.SIDE_BARS != "undefined") {

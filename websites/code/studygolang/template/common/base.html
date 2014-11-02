@@ -33,7 +33,7 @@
           <ul class="nav">
             <li class="first {{.activeTopics}}"><a href="/topics">社区</a></li><li><a href="/articles">博客</a></li><li class="{{.activeResources}}"><a href="/resources">资源</a></li><li class="{{.activeWiki}}"><a href="/wiki">Wiki</a></li><li class="{{.activeSites}}"><a href="/sites">酷站</a></li><li><a href="http://docs.studygolang.com">官方文档</a><li class="new"><a href="http://docscn.studygolang.com">中文文档</a><sup></sup></li><li class="last {{.activeUsers}}"><a href="/users">会员</a></li>
           </ul>
-          <form action="/search" class="navbar-search pull-left" method="get">
+          <form action="/search" class="navbar-search pull-left" method="get" target="_blank">
             <input type="text" name="q" class="search-query span2" value="" placeholder="搜索">
           </form>
           <ul class="nav pull-right" id="userbar">
@@ -51,7 +51,7 @@
               <ul class="dropdown-menu">
                 <li class="first"><a href="/user/{{.me.username}}">我的主页</a></li>
                 <li><a href="/account/edit">个人资料设置</a></li>
-                <li><a href="/{{.me.username}}/favorites">我的收藏</a></li>
+                <li><a href="/favorites/mine">我的收藏</a></li>
                 <li class="last"><a href="/account/logout">退出</a></li>
               </ul>
             </li>
@@ -86,10 +86,9 @@
           <p class="links">
             <a href="/wiki/about">关于</a> | <a href="/api">API</a> | <a href="/wiki/contributors">贡献者</a> | <a href="/wiki/">帮助推广</a> | <a href="/topics/node16">反馈</a> | <a href="http://github.com/studygolang" target="_blank" rel="nofollow">Github</a> | <a href="http://weibo.com/studygolang" target="_blank" rel="nofollow">新浪微博</a> | <a href="http://www.ucai.cn" target="_blank">优才网</a>
           </p>
-          <p class="copyright">&copy;2013 studygolang.com 采用 <a href="http://golang.org" target="_blank">Go语言</a> + <a href="http://www.mysql.com/" target="_blank">MYSQL 构建</a>
+          <p class="copyright">&copy;2014 studygolang.com 采用 <a href="http://golang.org" target="_blank">Go语言</a> + <a href="http://www.mysql.com/" target="_blank">MYSQL 构建</a>
           &nbsp;&nbsp;当前在线：<span id="onlineusers"></span>人&nbsp;&nbsp;历史最高：<span id="maxonline"></span>人
-          <br/>中国 Golang 社区，Go语言学习园地，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。
-          京ICP备14030343号-1
+          <br/>中国 Golang 社区，Go语言学习园地，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。京ICP备14030343号-1
           </p>
         </div> 
       </div>
@@ -121,8 +120,8 @@
     <script type="text/javascript">
     window.WebSocket = window.WebSocket || window.MozWebSocket;
     if (window.WebSocket) {
-        //var wsUrl = 'ws://{{.wshost}}/ws?uid={{.me.uid}}';
-        var wsUrl = 'ws://studygolang.com/ws?uid={{.me.uid}}';
+        var wsUrl = 'ws://{{.wshost}}/ws?uid={{.me.uid}}';
+        // var wsUrl = 'ws://studygolang.com/ws?uid={{.me.uid}}';
         var websocket = new WebSocket(wsUrl);
 
         websocket.onopen = function(){
@@ -164,6 +163,5 @@
     </script>
     <script type="text/javascript" src="http://v3.jiathis.com/code_mini/jiathis_r.js?uid=1358871817652577" charset="utf-8"></script>
     <!-- JiaThis Button END -->
-    <script src="http://cpro.baidustatic.com/cpro/ui/f.js" type="text/javascript"></script>
   </body>
 </html>

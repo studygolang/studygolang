@@ -17,8 +17,6 @@ import (
 	"util"
 )
 
-const limit = 20
-
 // 在需要评论（喜欢）且要回调的地方注册评论（喜欢）对象
 func init() {
 	// 注册评论（喜欢）对象
@@ -29,6 +27,8 @@ func init() {
 // 网友文章列表页
 // uri: /articles
 func ArticlesHandler(rw http.ResponseWriter, req *http.Request) {
+	limit := 20
+
 	lastId := req.FormValue("lastid")
 	if lastId == "" {
 		lastId = "0"
@@ -47,6 +47,8 @@ func ArticlesHandler(rw http.ResponseWriter, req *http.Request) {
 		} else {
 			util.Redirect(rw, req, "/articles")
 		}
+
+		return
 	}
 
 	var (
@@ -57,7 +59,7 @@ func ArticlesHandler(rw http.ResponseWriter, req *http.Request) {
 	if lastId != "0" {
 		prevId, _ = strconv.Atoi(lastId)
 
-		// 避免因为文章下线，导致判断错误（所以 > 5）(TODO:翻页还是有点小问题)
+		// 避免因为文章下线，导致判断错误（所以 > 5）
 		if prevId-articles[0].Id > 5 {
 			hasPrev = false
 		} else {
@@ -102,17 +104,21 @@ func ArticleDetailHandler(rw http.ResponseWriter, req *http.Request) {
 	article, prevNext, err := service.FindArticlesById(vars["id"])
 	if err != nil {
 		util.Redirect(rw, req, "/articles")
+		return
 	}
 
 	if article == nil || article.Id == 0 || article.Status == model.StatusOffline {
 		util.Redirect(rw, req, "/articles")
+		return
 	}
 
 	likeFlag := 0
+	hadCollect := 0
 	user, ok := filter.CurrentUser(req)
 	if ok {
 		uid := user["uid"].(int)
 		likeFlag = service.HadLike(uid, article.Id, model.TYPE_ARTICLE)
+		hadCollect = service.HadFavorite(uid, article.Id, model.TYPE_ARTICLE)
 	}
 
 	service.Views.Incr(req, model.TYPE_ARTICLE, article.Id)
@@ -120,5 +126,5 @@ func ArticleDetailHandler(rw http.ResponseWriter, req *http.Request) {
 	// 设置内容模板
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/articles/detail.html")
 	// 设置模板数据
-	filter.SetData(req, map[string]interface{}{"activeArticles": "active", "article": article, "prev": prevNext[0], "next": prevNext[1], "likeflag": likeFlag})
+	filter.SetData(req, map[string]interface{}{"activeArticles": "active", "article": article, "prev": prevNext[0], "next": prevNext[1], "likeflag": likeFlag, "hadcollect": hadCollect})
 }

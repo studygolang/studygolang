@@ -74,6 +74,7 @@ func TopicDetailHandler(rw http.ResponseWriter, req *http.Request) {
 	topic, replies, err := service.FindTopicByTid(vars["tid"])
 	if err != nil {
 		util.Redirect(rw, req, "/topics")
+		return
 	}
 
 	service.Views.Incr(req, model.TYPE_TOPIC, util.MustInt(vars["tid"]))

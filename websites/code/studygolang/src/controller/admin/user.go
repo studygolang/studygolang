@@ -66,6 +66,7 @@ func UserQueryHandler(rw http.ResponseWriter, req *http.Request) {
 	filter.SetData(req, data)
 }
 
+// uri: /admin/user/user/detail
 func UserDetailHandler(rw http.ResponseWriter, req *http.Request) {
 	uid := req.FormValue("uid")
 
@@ -76,7 +77,40 @@ func UserDetailHandler(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	user := service.FindUserByUID(uid)
+
 	// 设置内容模板
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/admin/user/detail.html")
-	filter.SetData(req, map[string]interface{}{"user": user})
+	filter.SetData(req, map[string]interface{}{"user": user, "roles": service.Roles})
+}
+
+// uri: /admin/user/user/modify
+func UserModifyHandler(rw http.ResponseWriter, req *http.Request) {
+	uidStr := req.PostFormValue("uid")
+
+	var (
+		uid int
+		err error
+	)
+	if uid, err = strconv.Atoi(uidStr); err != nil {
+		logger.Errorln("[UserModifyHandler] invalid uid")
+		rw.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	var data = make(map[string]interface{})
+
+	user, _ := filter.CurrentUser(req)
+	if user["uid"].(int) == uid {
+		data["ok"] = 0
+		data["error"] = "不能改自己的角色！"
+
+		filter.SetData(req, data)
+		return
+	}
+
+	service.AllocUserRoles(uid, req.PostForm["roleids"])
+
+	data["ok"] = 1
+	data["msg"] = "success"
+	filter.SetData(req, data)
 }

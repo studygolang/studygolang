@@ -11,10 +11,6 @@
 
 jQuery(document).ready(function($){
 	
-	///// FORM TRANSFORMATION /////
-	jQuery('input:checkbox, input:radio, select.uniformselect').uniform();
-
-
 	///// DUAL BOX /////
 	var db = jQuery('#dualselect').find('.ds_arrow .arrow');	//get arrows of dual select
 	var sel1 = jQuery('#dualselect select:first-child');		//get first select element
@@ -104,7 +100,11 @@ jQuery(document).ready(function($){
 			},
 			"success" : function (data) {
 				$('#loaders').hide();
-				jAlert("操作成功", "信息");
+				if (data.ok) {
+					jAlert("操作成功", "信息");
+				} else {
+					jAlert(data.error, "出错");
+				}
 				// $('#tooltip').text("操作成功！");
 				if (typeof formSuccCallback !== "undefined") {
 					formSuccCallback(data);

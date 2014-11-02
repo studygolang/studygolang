@@ -51,6 +51,8 @@ func (this *view) flush() {
 		model.NewArticle().Where("id="+objid).Increment("viewnum", this.num)
 	case model.TYPE_RESOURCE:
 		model.NewResourceEx().Where("id="+objid).Increment("viewnum", this.num)
+	case model.TYPE_PROJECT:
+		model.NewOpenProject().Where("id="+objid).Increment("viewnum", this.num)
 	}
 
 	this.num = 0

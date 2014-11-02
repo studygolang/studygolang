@@ -1,6 +1,6 @@
 {{define "title"}}首页{{end}}
 {{define "seo"}}<meta name="keywords" content="Go语言,Golang,Go社区,Go中文社区,Golang中文社区,Go语言社区,Go语言学习,学习Go语言,Go语言学习园地,Golang 中国,Golang中国,Golang China, Go语言论坛">
-<meta name="description" content="中国 Golang 社区，Go语言学习园地，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。分享 Go 语言知识，交流使用经验">{{end}}
+<meta name="description" content="Go语言中文网，中国 Golang 社区，Go语言学习园地，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。分享 Go 语言知识，交流使用经验">{{end}}
 {{define "content"}}
 <div class="row">
 	<div id="content" class="tip box_white">
@@ -14,7 +14,7 @@
 		<div class="row box_white">
 			<div class="col-md-6 recent-list">
 				<div class="title">
-					<h3><a href="/topics">最新话题</a></h3>
+					<h3><a href="/topics">最新主题</a></h3>
 					<a class="pull-right more" href="/topics">更多&gt;&gt;</a>
 				</div>
 				<ul class="clearfix list-unstyled">
@@ -25,12 +25,12 @@
 			</div>
 			<div class="col-md-6 recent-list">
 				<div class="title">
-					<h3><a href="/resources/cat/2">Go开源项目</a></h3>
-					<a class="pull-right more" href="/resources/cat/2">更多&gt;&gt;</a>
+					<h3><a href="/resources">Golang 资源</a></h3>
+					<a class="pull-right more" href="/resources">更多&gt;&gt;</a>
 				</div>
 				<ul class="clearfix list-unstyled">
 					{{range .resources}}
-					<li><i></i><a href="{{if .url}}{{.url}}{{else}}/resources/{{.id}}{{end}}" title="{{.title}}" target="_blank">{{substring .title 30 "..."}}</a><span class="pull-right timeago" title="{{.ctime}}"></span></li>
+					<li><i></i><a href="{{if .Url}}{{.Url}}{{else}}/resources/{{.Id}}{{end}}" title="{{.Title}}" target="_blank">{{substring .Title 30 "..."}}</a><span class="pull-right timeago" title="{{.Ctime}}"></span></li>
 					{{end}}
 				</ul>
 			</div>
@@ -72,7 +72,7 @@
 							<i class="glyphicon glyphicon-tags"></i>
 							{{range $tag := $tags}}
 							<li>
-								<a href="/" title="{{$tag}}" target="_blank">
+								<a href="/search?q={{$tag}}&f=tag" title="{{$tag}}" target="_blank">
 									{{$tag}}
 								</a>
 							</li>
@@ -241,14 +241,9 @@
 				</div>
 			</div>
 			<div class="box" style="margin: 0 20px;">
-				<a class="btn btn-primary btn-sm" href="/topics/new">发布话题</a>&nbsp;&nbsp;
-				<a class="btn btn-primary btn-sm" href="/resources/new">分享资源</a>
+				<a class="btn btn-default btn-sm" href="/topics/new">发布主题</a>&nbsp;&nbsp;
+				<a class="btn btn-default btn-sm" href="/resources/new">分享资源</a>
 			</div>
-			<!--
-			<div class="box">
-				<h2 class="title"><i class="icon-inbox"></i> 我的收藏</h2>
-			</div>
-			-->
 			{{else}}
 			<div class="top">
 				<h3 class="title"><i class="glyphicon glyphicon-user"></i> 用户登录</h3>
@@ -281,6 +276,32 @@
 		</div>
 		<div class="row box_white sidebar">
 			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-book"></i>&nbsp;<a href="/readings" target="_blank" title="点击更多">今日晨读</a></h3>
+			</div>
+			<div class="sb-content">
+				<div class="reading-list" data-limit="1">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-fire"></i>&nbsp;<a href="/projects" target="_blank" title="点击更多">开源项目</a></h3>
+			</div>
+			<div class="sb-content">
+				<div class="project-list" data-limit="10">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+		<div class="row box_white sidebar">
+			<div class="top">
 				<h3 class="title"><i class="glyphicon glyphicon-comment"></i>&nbsp;最新评论</h3>
 			</div>
 			<div class="sb-content">
@@ -291,24 +312,26 @@
 				</div>
 			</div>
 		</div>
+
 		<div class="row box_white sidebar">
 			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-folder-open"></i>&nbsp;<a href="/resources" target="_blank" title="点击更多">最新资源</a></h3>
+				<h3 class="title"><i class="glyphicon glyphicon-user"></i>&nbsp;<a href="/users" target="_blank" title="点击更多">新会员</a></h3>
 			</div>
 			<div class="sb-content">
-				<div class="resource-list" data-limit="5">
+				<div id="newest-list" class="user-list" data-limit="9">
 					<ul class="list-unstyled">
 						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
 					</ul>
 				</div>
 			</div>
 		</div>
+		
 		<div class="row box_white sidebar">
 			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-user"></i>&nbsp;<a href="/users" target="_blank" title="点击更多">活跃用户</a></h3>
+				<h3 class="title"><i class="glyphicon glyphicon-user"></i>&nbsp;<a href="/users" target="_blank" title="点击更多">活跃会员</a></h3>
 			</div>
 			<div class="sb-content">
-				<div class="user-list" data-limit="9">
+				<div id="active-list" class="user-list" data-limit="9">
 					<ul class="list-unstyled">
 						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
 					</ul>
@@ -363,10 +386,12 @@
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
-	"/resources/recent.json",
+	"/projects/recent.json",
 	"/comments/recent.json",
 	"/users/active.json",
+	"/users/newest.json",
 	"/websites/stat.json",
+	"/readings/recent.json"
 ];
 </script>
 {{end}}

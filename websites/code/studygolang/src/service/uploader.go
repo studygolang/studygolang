@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	gio "io"
 
 	"config"
@@ -31,6 +32,7 @@ func InitQiniu() {
 }
 
 func uploadLocalFile(localFile, key string) (err error) {
+	InitQiniu()
 	var ret io.PutRet
 	var extra = &io.PutExtra{
 	// Params:   params,
@@ -59,6 +61,7 @@ func uploadLocalFile(localFile, key string) (err error) {
 }
 
 func UploadMemoryFile(r gio.Reader, key string) (err error) {
+	InitQiniu()
 	var ret io.PutRet
 	var extra = &io.PutExtra{
 	// Params:   params,
@@ -74,13 +77,26 @@ func UploadMemoryFile(r gio.Reader, key string) (err error) {
 	// extra     为上传文件的额外信息,可为空， 详情见 io.PutExtra, 可选
 	err = io.Put(nil, &ret, uptoken, key, r, extra)
 
+	// 上传产生错误
 	if err != nil {
-		//上传产生错误
 		logger.Errorln("io.Put failed:", err)
+
+		errInfo := make(map[string]interface{})
+		err = json.Unmarshal([]byte(err.Error()), &errInfo)
+		if err != nil {
+			logger.Errorln("io.Put Unmarshal failed:", err)
+			return
+		}
+
+		code, ok := errInfo["code"]
+		if ok && code == 614 {
+			err = nil
+		}
+
 		return
 	}
 
-	//上传成功，处理返回值
+	// 上传成功，处理返回值
 	logger.Debugln(ret.Hash, ret.Key)
 
 	return

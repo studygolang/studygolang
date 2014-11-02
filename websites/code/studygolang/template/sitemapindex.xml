@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{{range .sitemapFiles}}
+    <sitemap>
+        <loc>{{$.home.loc}}/sitemap/{{.}}</loc>
+    </sitemap>{{end}}
+</sitemapindex>

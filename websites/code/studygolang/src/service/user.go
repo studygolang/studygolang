@@ -34,6 +34,7 @@ func CreateUser(form url.Values) (errMsg string, err error) {
 		errMsg = err.Error()
 		return
 	}
+	user.Ctime = util.TimeNow()
 	uid, err := user.Insert()
 	if err != nil {
 		errMsg = "内部服务器错误"
@@ -229,6 +230,7 @@ func FindActiveUsers(start, num int) []*model.UserActive {
 	return activeUsers
 }
 
+// 最新加入会员
 func FindNewUsers(start, num int) []*model.User {
 	users, err := model.NewUser().Order("ctime DESC").Limit(strconv.Itoa(start) + "," + strconv.Itoa(num)).FindAll([]string{"uid", "username", "email", "avatar", "ctime"}...)
 	if err != nil {
@@ -261,6 +263,23 @@ func FindUsersByPage(conds map[string]string, curPage, limit int) ([]*model.User
 	}
 
 	return userList, total
+}
+
+// 获取 @ 的 suggest 列表
+func GetUserMentions(term string, limit int) []string {
+	term = "%" + term + "%"
+	userLogins, err := model.NewUserLogin().Where("username like ?", term).Limit(strconv.Itoa(limit)).FindAll("username")
+	if err != nil {
+		logger.Errorln("user service GetUserMentions Error:", err)
+		return []string{}
+	}
+
+	usernames := make([]string, len(userLogins))
+	for i, userLogin := range userLogins {
+		usernames[i] = userLogin.Username
+	}
+
+	return usernames
 }
 
 var (
@@ -374,4 +393,20 @@ func FindNotLoginUsers(loginTime string) (userList []*model.UserLogin, err error
 	userLogin := model.NewUserLogin()
 	userList, err = userLogin.Where("login_time<" + loginTime).FindAll()
 	return
+}
+
+func AllocUserRoles(uid int, roleids []string) error {
+	userRole := model.NewUserRole()
+	userRole.Uid = uid
+
+	for _, roleId := range roleids {
+		userRole.Roleid, _ = strconv.Atoi(roleId)
+		if userRole.Roleid == 0 {
+			continue
+		}
+
+		userRole.Insert()
+	}
+
+	return nil
 }

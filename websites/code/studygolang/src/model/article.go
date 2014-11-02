@@ -149,7 +149,7 @@ type CrawlRule struct {
 	Id      int    `json:"id"`
 	Domain  string `json:"domain"`
 	Subpath string `json:"subpath"`
-	Lang    string `json:"lang"`
+	Lang    int    `json:"lang"`
 	Name    string `json:"name"`
 	Title   string `json:"title"`
 	Author  string `json:"author"`

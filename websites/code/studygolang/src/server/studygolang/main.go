@@ -9,12 +9,14 @@ package main
 import (
 	. "config"
 	"controller"
+	"github.com/dchest/captcha"
 	"go.net/websocket"
+	"process"
+
 	"log"
 	"math/rand"
 	"net/http"
 	"path/filepath"
-	"process"
 	"runtime"
 	"time"
 )
@@ -29,6 +31,12 @@ func main() {
 	SavePid()
 	// 服务静态文件
 	http.Handle("/static/", http.FileServer(http.Dir(ROOT)))
+
+	// 服务 sitemap 文件
+	http.Handle("/sitemap/", http.FileServer(http.Dir(ROOT)))
+
+	// 验证码
+	http.Handle("/captcha/", captcha.Server(100, 40))
 
 	go ServeWebSocket()
 

@@ -162,6 +162,7 @@ func ParseArticle(articleUrl string, auto bool) (*model.Article, error) {
 	article.Txt = txt
 	article.PubDate = pubDate
 	article.Url = articleUrl
+	article.Lang = rule.Lang
 	article.Ctime = util.TimeNow()
 
 	_, err = article.Insert()
@@ -241,16 +242,20 @@ func FindArticlesById(idstr string) (curArticle *model.Article, prevNext []*mode
 		return
 	}
 
+	if len(articles) == 0 {
+		return
+	}
+
 	prevNext = make([]*model.Article, 2)
-	prevId, nextId := id, id
+	prevId, nextId := articles[0].Id, articles[len(articles)-1].Id
 	for _, article := range articles {
-		if article.Id < id {
+		if article.Id < id && article.Id > prevId {
 			prevId = article.Id
 			prevNext[0] = article
-		} else if article.Id > id {
+		} else if article.Id > id && article.Id < nextId {
 			nextId = article.Id
 			prevNext[1] = article
-		} else {
+		} else if article.Id == id {
 			curArticle = article
 		}
 	}
@@ -368,6 +373,16 @@ func SaveRule(form url.Values, opUser string) (errMsg string, err error) {
 	}
 
 	return
+}
+
+// 提供给其他service调用（包内）
+func getArticles(ids map[int]int) map[int]*model.Article {
+	articles := FindArticlesByIds(util.MapIntKeys(ids))
+	articleMap := make(map[int]*model.Article, len(articles))
+	for _, article := range articles {
+		articleMap[article.Id] = article
+	}
+	return articleMap
 }
 
 // 博文评论

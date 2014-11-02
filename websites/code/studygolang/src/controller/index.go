@@ -9,10 +9,15 @@ package controller
 import (
 	"math/rand"
 	"net/http"
+	"net/url"
+	"strings"
 
+	"config"
 	"filter"
+	"logger"
 	"model"
 	"service"
+	"util"
 )
 
 // 首页
@@ -38,8 +43,8 @@ func IndexHandler(rw http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	// TODO：开源项目（暂时使用 resource 表）
-	resources := service.FindResourcesByCatid("2")
+	// Golang 资源
+	resources := service.FindResources("0", "100")
 
 	start, end := 0, len(resources)
 	if n := end - 10; n > 0 {
@@ -51,4 +56,57 @@ func IndexHandler(rw http.ResponseWriter, req *http.Request) {
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/index.html")
 	// 设置模板数据
 	filter.SetData(req, map[string]interface{}{"topics": newTopics, "articles": recentArticles, "likeflags": likeFlags, "resources": resources[start:end]})
+}
+
+// 包装链接
+func WRHandler(rw http.ResponseWriter, req *http.Request) {
+	tUrl := req.FormValue("u")
+	if tUrl == "" {
+		util.Redirect(rw, req, "/")
+		return
+	}
+
+	if pUrl, err := url.Parse(tUrl); err != nil {
+		util.Redirect(rw, req, tUrl)
+		return
+	} else {
+		if !pUrl.IsAbs() {
+			util.Redirect(rw, req, tUrl)
+			return
+		}
+
+		// 本站
+		if strings.Contains(pUrl.Host, config.Config["domain"]) {
+			util.Redirect(rw, req, tUrl)
+			return
+		}
+
+		// 检测是否禁止了 iframe 加载
+		// 看是否在黑名单中
+		for _, denyHost := range strings.Split(config.Config["iframe_deny"], ",") {
+			if strings.Contains(pUrl.Host, denyHost) {
+				util.Redirect(rw, req, tUrl)
+				return
+			}
+		}
+
+		// 检测会比较慢，进行异步检测，记录下来，以后分析再加黑名单
+		go func() {
+			resp, err := http.Head(tUrl)
+			if err != nil {
+				logger.Errorln("[iframe] head url:", tUrl, "error:", err)
+				return
+			}
+			defer resp.Body.Close()
+			if resp.Header.Get("X-Frame-Options") != "" {
+				logger.Errorln("[iframe] deny:", tUrl)
+				return
+			}
+		}()
+	}
+
+	// 设置内容模板
+	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/wr.html")
+	// 设置模板数据
+	filter.SetData(req, map[string]interface{}{"url": tUrl})
 }

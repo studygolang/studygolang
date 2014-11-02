@@ -160,7 +160,7 @@ func FindRecentResources() []map[string]interface{} {
 	return resources
 }
 
-// 获取抓取的文章列表（分页）
+// 获取抓取的资源列表（分页）
 func FindResources(lastId, limit string) []*model.Resource {
 	resource := model.NewResource()
 
