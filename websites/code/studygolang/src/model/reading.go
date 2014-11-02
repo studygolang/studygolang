@@ -23,7 +23,7 @@ type MorningReading struct {
 	Id       int    `json:"id" pk:"1"`
 	Content  string `json:"content"`
 	Rtype    int    `json:"rtype"`
-	Inner    int    `json:"inner,omitempty"`
+	Inner    int    `json:"inner"`
 	Url      string `json:"url"`
 	Moreurls string `json:"moreurls"`
 	Username string `json:"username"`

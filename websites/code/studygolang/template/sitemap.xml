@@ -9,31 +9,31 @@
     </url>{{range .articles}}
     <url>
         <loc>{{$.home.loc}}/articles/{{.Id}}</loc>
-        <lastmod>{{.Mtime}}</lastmod>
+        <lastmod>{{time_format .Mtime}}</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>{{end}}{{range .topics}}
     <url>
         <loc>{{$.home.loc}}/topics/{{.Tid}}</loc>
-        <lastmod>{{.Mtime}}</lastmod>
+        <lastmod>{{time_format .Mtime}}</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>{{end}}{{range .resources}}
     <url>
         <loc>{{$.home.loc}}/resources/{{.Id}}</loc>
-        <lastmod>{{.Mtime}}</lastmod>
+        <lastmod>{{time_format .Mtime}}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
     </url>{{end}}{{range .projects}}
     <url>
         <loc>{{$.home.loc}}/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}</loc>
-        <lastmod>{{.Mtime}}</lastmod>
+        <lastmod>{{time_format .Mtime}}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
     </url>{{end}}{{range .wiki}}
     <url>
         <loc>{{$.home.loc}}/wiki/{{.Uri}}</loc>
-        <lastmod>{{.Mtime}}</lastmod>
+        <lastmod>{{time_format .Mtime}}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.4</priority>
     </url>{{end}}

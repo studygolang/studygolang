@@ -102,6 +102,11 @@ func SaveReading(form url.Values, username string) (errMsg string, err error) {
 		return
 	}
 
+	reading.Moreurls = strings.TrimSpace(reading.Moreurls)
+	if strings.Contains(reading.Moreurls, "\n") {
+		reading.Moreurls = strings.Join(strings.Split(reading.Moreurls, "\n"), ",")
+	}
+
 	reading.Username = username
 
 	logger.Infoln(reading.Rtype, "id=", reading.Id)

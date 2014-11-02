@@ -7,7 +7,6 @@
 package service
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"text/template"
@@ -19,7 +18,19 @@ import (
 	"util"
 )
 
-var sitemapTpl = template.Must(template.ParseFiles(config.ROOT + "/template/sitemap.xml"))
+// 自定义模板函数
+var funcMap = template.FuncMap{
+	"time_format": func(s string) string {
+		t, err := time.ParseInLocation("2006-01-02 15:04:05", s, time.Local)
+		if err != nil {
+			return s
+		}
+
+		return t.Format(time.RFC3339)
+	},
+}
+
+var sitemapTpl = template.Must(template.New("sitemap.xml").Funcs(funcMap).ParseFiles(config.ROOT + "/template/sitemap.xml"))
 var sitemapIndexTpl = template.Must(template.ParseFiles(config.ROOT + "/template/sitemapindex.xml"))
 
 var sitemapPath = config.ROOT + "/sitemap/"
@@ -205,8 +216,6 @@ func GenSitemap() {
 	if err != nil {
 		logger.Errorln("execute sitemap index template error:", err)
 	}
-
-	fmt.Println("finish")
 }
 
 func output(filename string, data map[string]interface{}) (err error) {
