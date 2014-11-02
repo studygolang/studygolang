@@ -72,7 +72,7 @@ $(function(){
 
 				var title = data[i].category + ' ' + data[i].name;
 
-				var logo = 'http://studygolang.qiniudn.com/141026/d0a668a4c0f13ea1a2cc7675a51cf4d3.gif';
+				var logo = 'http://studygolang.qiniudn.com/gopher/default_project.jpg?imageView2/2/w/48';
 				if (data[i].logo != '') {
 					logo = data[i].logo;
 				}
