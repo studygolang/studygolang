@@ -46,7 +46,7 @@ func TopicsHandler(rw http.ResponseWriter, req *http.Request) {
 	pageHtml := service.GetPageHtml(page, total, "/topics")
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/topics/list.html")
 	// 设置模板数据
-	filter.SetData(req, map[string]interface{}{"activeTopics": "active", "topics": topics, "page": template.HTML(pageHtml), "nodes": nodes})
+	filter.SetData(req, map[string]interface{}{"activeTopics": "active", "topics": topics, "page": template.HTML(pageHtml), "nodes": nodes, "view": vars["view"]})
 }
 
 // 某节点下的帖子列表

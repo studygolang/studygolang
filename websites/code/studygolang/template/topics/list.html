@@ -1,161 +1,99 @@
 {{define "title"}}社区 {{end}}
-{{define "seo"}}<meta name="keywords" content="Go语言博客文章, Go语言博文, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
-<meta name="description" content="文章来自国内知名网站知名，Go爱好者学习笔记，经验分享；也有爱好者自己的博客文章，已经一些国外精彩文章。">{{end}}
-{{define "topnav"}}
-<li class="first"><a href="/">首页</a><span class="divider">/</span></li>
-<li class=""><a href="/topics" itemprop="url"><span itemprop="title">社区</span></a><span class="divider">/</span></li>
-<li class="last active"><a href="/topics" itemprop="url"><span itemprop="title">活跃帖子</span></a></li>
-{{end}}
+{{define "seo"}}<meta name="keywords" content="Golang,Go社区,Golang中文社区,Go语言学习,Go语言,学习Go语言,Golang 中国,Golang中国,Golang China, Go语言论坛, Go中文社区, Go语言社区, Go语言中文网, Go语言学习园地">
+<meta name="description" content="Go中文社区，Golang中国，Go语言学习园地，提供一个Go爱好者交流的中文平台">{{end}}
 {{define "content"}}
-<div id="main" class="container-fluid">
-  <div class="content">
-    <div class="box box_gray">
-      <div id="node_info">
-        <div class="sorts">
-          <span class="lb">查看:</span>
-          <ul>
-            <li class="active"><a href="/topics">默认</a></li> /
-            <li>
-              <a href="/topics/popular" class="popular"><i class="icon small_liked"></i> 优质帖子</a>
-            </li> /
-            <li><a href="/topics/no_reply" rel="nofollow">无人问津</a></li> /
-            <li><a href="/topics/last" rel="nofollow">最新创建</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="topics">
-        {{range .topics}}
-        <div class="topic topic_line">
-          <div class="pull-left avatar">
-            <a href="/user/{{.user.Username}}"><img alt="{{.user.Username}}" class="uface" src="{{gravatar .user.Email 48}}" style="width:48px;height:48px;"></a>
-          </div>
-          <div class="right_info">
-            <div class="pull-right replies">
-              {{if .reply}}
-              <a href="/topics/{{.tid}}#reply{{.reply}}" class="count state_false">{{.reply}}</a>
-              {{end}}
-            </div>
-            <div class="infos">
-              <div class="title">
-                <a href="/topics/{{.tid}}" title="{{.title}}">{{substring .title 60 "..."}}</a>
-              </div>
-              <div class="info">
-                <a href="/topics/node{{.nid}}" class="node">{{.node}}</a>
-                •
-                <a href="/user/{{.user.Username}}" data-name="{{.user.Username}}">{{.user.Username}}</a>
-                {{if .lastreplyuid}}
-                <em>
-                •
-                  最后由 <a href="/user/{{.lastreplyusername}}" data-name="{{.lastreplyusername}}">{{.lastreplyusername}}</a> 于<abbr class="timeago" title="{{formatTime .lastreplytime}}"></abbr>回复
-                </em>
-                {{else}}
-                <em>
-                •
-                  于<abbr class="timeago" title="{{formatTime .ctime}}"></abbr>发布
-                </em>
-                {{end}}
-              </div>
-            </div>
-          </div>
-        </div>
-        {{else}}
-        <p style="text-align:center;">暂时没有任何帖子</p>
-        {{end}}
-      </div>
-      {{if .page}}
-      <div class="pagination"><ul>{{.page}}</ul></div>
-      {{end}}
-    </div>
-
-    <div id="sections" class="box">
-      <h2>讨论节点分类导航</h2>
-      <ul>
-      {{range .nodes}}
-        <li>
-          {{range $parent, $children := .}}
-          <label>{{$parent}}</label>
-          <span class="nodes">
-            {{range $children}}
-            <a href="/topics/node{{.nid}}" title="{{.name}}">{{.name}}</a>
-            {{end}}
-          </span>
-          {{end}}
-        </li>
-      {{end}}
-      </ul>
-    </div>
-  </div>
-
-  <div class="sidebar">
-    <div class="box">
-      <div class="btn-group">
-        <a href="/topics/new" class="btn btn-success">发布新帖</a>
-        <button class="btn btn-success dropdown-toggle" data-toggle="dropdown">
-          <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu">
-          <li><a href="/topics/new?node=2">基础</a></li>
-          <li><a href="/topics/new?node=6">新手问题</a></li>
-          <li><a href="/topics/new?node=10">Web框架</a></li>
-          <li><a href="/topics/new?node=8">开发工具</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="box">
-      <h2 class="title">小贴士</h2>
-      <div class="content">
-        Go语言学习园地，Golang 中文社区，完全采用Go语言构建，将在近期开源，欢迎爱好者一起完善
-      </div>
-    </div>
-    <div class="hot_nodes nodes box clearfix">
-      <h2>热门节点</h2>
-      <ul id="hotnodes">
-      </ul>
-    </div>
-
-    <div class="totals box">
-      <h2>统计信息</h2>
-      <ul id="stat">
-        <li>社区会员: <span id="_user"></span> 人</li>
-        <li>帖子数: <span id="_topic"></span> 个</li>
-        <li>回帖数: <span id="_reply"></span> 条</li>
-        <li>资源数: <span id="_resource"></span> 个</li>
-      </ul>
-    </div>
-  </div>
+<div class="row banner">
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/topics">社区</a></li>
+			<li class="active">主题</li>
+		</ol>
+		<ul class="nav nav-tabs pull-right" role="tablist" style="background: #fff; margin-top: 10px;">
+			<li role="presentation"{{if eq .view ''}} class="active"{{end}}><a href="/topics">最近回复</a></li>
+			<li role="presentation"{{if eq .view 'last'}} class="active"{{end}}><a href="/topics/last">最近发布</a></li>
+			<li role="presentation"{{if eq .view 'no_reply'}} class="active"{{end}}><a href="/topics/no_reply">尚无回复</a></li>
+		</ul>
+		<div class="box_white topics">
+			{{range .topics}}
+			<div class="topic">
+				<div class="pull-left avatar">
+					<a href="/user/{{.user.Username}}"><img alt="{{.user.Username}}" class="uface" src="{{gravatar .user.Email 48}}" width="48px" height="48px"></a>
+				</div>
+			<div>
+			{{else}}
+			<p class="text-center">暂时没有任何帖子</p>
+			{{end}}
+		</div>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-qrcode"></i>&nbsp;&nbsp;关注我们(微信/微博)</h3>
+			</div>
+			<div class="sb-content">
+				<div>
+					<ul class="list-unstyled">
+						<li><img src="http://studygolang.qiniudn.com/wx_studygolang.jpg?imageView2/2/w/286" alt="关注微信"></li>
+						<li><iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=1&isFans=0&uid=3169236923&verifier=d1997605&dpc=1"></iframe></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-list"></i>&nbsp;<a href="/articles" target="_blank" title="点击更多">最新博文</a></h3>
+			</div>
+			<div class="sb-content">
+				<div class="article-list" data-limit="10">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+		<div class="row box_white sidebar">
+			<div class="top">
+				<ul class="list-inline text-center">
+					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新主题</a>|</li>
+					<li class="second"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
+					<li class="last"><a href="javascript:;">最新评论</a></li>
+				</ul>
+				<p class="bar"></p>
+			</div>
+			<div class="sb-content">
+				<div class="topic-list first">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+				<div class="resource-list second hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+				<div class="cmt-list last hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 {{end}}
 {{define "css"}}
-<link href="/static/css/topics.css" media="screen" rel="stylesheet" type="text/css">
 {{end}}
 {{define "js"}}
-<script type="text/javascript" src="/static/js/topics.js"></script>
 <script type="text/javascript">
-$(function(){
-    var uri = '/topics/stat.json';
-    $.get(uri, function(data){
-        if (!data.errno) {
-            $('#_user').html(data.user);
-            $('#_topic').html(data.topic);
-            $('#_reply').html(data.reply);
-            $('#_resource').html(data.resource);
-        }
-    });
-
-    $.getJSON('/nodes/hot.json', function(data){
-        if (!data.errno) {
-            if (data.nodes == null) {
-                return
-            }
-            var count = data.nodes.length
-              nodeHtml = '';
-            for (var i=0; i<count; i++) {
-                var node = data.nodes[i];
-                nodeHtml += '<li> <a href="/topics/node'+node.nid+'" title="'+node.name+'">'+node.name+'</a></li>';
-            }
-            $('#hotnodes').html(nodeHtml);
-        }
-    });
-});
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/topics/recent.json",
+	"/resources/recent.json",
+	"/comments/recent.json",
+	"/articles/recent.json"
+];
 </script>
 {{end}}
