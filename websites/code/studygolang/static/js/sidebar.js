@@ -178,7 +178,7 @@ $(function(){
 				'</li>';
 			}
 			$('.sb-content .cmt-list ul').html(content);
-			emojify.run($('.sb-content .cmt-list ul li .w-comment').get(0));
+			emojify.run($('.sb-content .cmt-list ul').get(0));
 		}
 	}
 
