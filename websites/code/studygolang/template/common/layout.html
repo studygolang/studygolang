@@ -69,11 +69,9 @@
 					<li>
 						<a href="/message/system" id="user_message_count"><span class="badge{{if .me.msgnum}} badge-warning{{end}}">{{.me.msgnum}}</span></a>
 					</li>
-					{{if .me.isadmin}}
 					<li>
 						<a href="/project/new">发布项目</a>
 					</li>
-					{{end}}
 					<li class="dropdown" id="user_menu">
 						<a href="#user_menu" class="dropdown-toggle" data-toggle="dropdown">{{.me.username}} <b class="caret"></b></a>
 						<ul class="dropdown-menu">

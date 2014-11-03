@@ -15,6 +15,8 @@
 				dataType: 'json',
 				success: function(data){
 					if(data.ok){
+						$form.get(0).reset();
+						
 						comTip("发布成功！");
 						
 						setTimeout(function(){

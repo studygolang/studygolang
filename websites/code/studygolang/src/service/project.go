@@ -17,7 +17,7 @@ import (
 	"util"
 )
 
-func PublishProject(username string, form url.Values) (err error) {
+func PublishProject(user map[string]interface{}, form url.Values) (err error) {
 	isModify := form.Get("id") != ""
 
 	if !isModify && ProjectUriExists(form.Get("uri")) {
@@ -25,10 +25,18 @@ func PublishProject(username string, form url.Values) (err error) {
 		return
 	}
 
+	username := user["username"].(string)
+
 	project := model.NewOpenProject()
 	util.ConvertAssign(project, form)
 
-	if !isModify {
+	if isModify {
+		isAdmin := user["isadmin"].(bool)
+		if project.Username != username && !isAdmin {
+			err = errors.New("没有修改权限")
+			return
+		}
+	} else {
 		project.Username = username
 		project.Ctime = util.TimeNow()
 	}
@@ -52,6 +60,16 @@ func PublishProject(username string, form url.Values) (err error) {
 	}
 
 	return
+}
+
+func UpdateProjectStatus(id, status int, username string) error {
+	if status < model.StatusNew || status > model.StatusOffline {
+		return errors.New("status is illegal")
+	}
+
+	logger.Infoln("UpdateProjectStatus by username:", username)
+
+	return model.NewOpenProject().Set("status=?", status).Where("id=?", id).Update()
 }
 
 func ProjectUriExists(uri string) bool {
@@ -108,6 +126,32 @@ func FindProject(uniq string) *model.OpenProject {
 	}
 
 	return project
+}
+
+// 获取开源项目列表（分页，后台用）
+func FindProjectByPage(conds map[string]string, curPage, limit int) ([]*model.OpenProject, int) {
+	conditions := make([]string, 0, len(conds))
+	for k, v := range conds {
+		conditions = append(conditions, k+"="+v)
+	}
+
+	project := model.NewOpenProject()
+
+	limitStr := strconv.Itoa((curPage-1)*limit) + "," + strconv.Itoa(limit)
+	projectList, err := project.Where(strings.Join(conditions, " AND ")).Order("id DESC").Limit(limitStr).
+		FindAll()
+	if err != nil {
+		logger.Errorln("project service FindProjectByPage Error:", err)
+		return nil, 0
+	}
+
+	total, err := project.Count()
+	if err != nil {
+		logger.Errorln("project service FindProjectByPage COUNT Error:", err)
+		return nil, 0
+	}
+
+	return projectList, total
 }
 
 // 获取多个项目详细信息

@@ -177,6 +177,11 @@ func initRouter() *mux.Router {
 	subrouter.HandleFunc("/community/comment/modify", admin.ModifyCommentHandler)
 	subrouter.HandleFunc("/community/comment/del", admin.DelCommentHandler)
 
+	// 开源项目管理
+	subrouter.HandleFunc("/community/project/list", admin.ProjectListHandler)
+	subrouter.HandleFunc("/community/project/query.html", admin.ProjectQueryHandler)
+	subrouter.HandleFunc("/community/project/update_status", admin.UpdateProjectStatusHandler)
+
 	///////////////// 抓取管理 //////////////////////////
 	// 文章管理
 	subrouter.HandleFunc("/crawl/article/list", admin.ArticleListHandler)

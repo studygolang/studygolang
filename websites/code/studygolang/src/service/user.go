@@ -113,6 +113,7 @@ func FindCurrentUser(username string) (user map[string]interface{}, err error) {
 		"uid":      userInfo.Uid,
 		"username": userInfo.Username,
 		"email":    userInfo.Email,
+		"avatar":   userInfo.Avatar,
 	}
 
 	// 获取未读消息数
