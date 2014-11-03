@@ -110,7 +110,7 @@ func NewProjectHandler(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	user, _ := filter.CurrentUser(req)
-	err := service.PublishProject(user["username"].(string), req.PostForm)
+	err := service.PublishProject(user, req.PostForm)
 	if err != nil {
 		fmt.Fprint(rw, `{"ok": 0, "error":"内部服务错误！"}`)
 		return
@@ -136,7 +136,8 @@ func ModifyProjectHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err := service.PublishProject("", req.PostForm)
+	user, _ := filter.CurrentUser(req)
+	err := service.PublishProject(user, req.PostForm)
 	if err != nil {
 		fmt.Fprint(rw, `{"ok": 0, "error":"内部服务错误！"}`)
 		return

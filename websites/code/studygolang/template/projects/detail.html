@@ -16,6 +16,11 @@
 				<h1>
 					{{if .project.Logo}}<img src="{{.project.Logo}}" alt="{{.project.Name}}" width="48px" />{{end}}
 					{{.project.Category}} <u>{{.project.Name}}</u>
+					{{if .me}}
+						{{if or (eq .me.username .project.Username) .me.isadmin}}
+						<a class="edit" href="/project/modify?id={{.project.Id}}" title="修改"><i class="glyphicon glyphicon-pencil"></i></a>
+						{{end}}
+					{{end}}
 				</h1>
 			</div>
 			<div class="meta">

@@ -118,6 +118,8 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 /* blog 详情页 */
 .page {}
 .page .title { padding-top: 21px }
+.page .title h1 { position: relative; }
+.page .title h1 .edit { font-size: 15px; position: absolute; top: -10px;}
 .page .meta {height: 28px;line-height: 28px;border-bottom: dotted 1px #D8D8D8; margin: 0 30px;}
 .page .meta .p-author {float: left;font-family: "NSimSun";font-size: 12px;color: #888888;}
 .page .meta .p-author a {color: #272727;}

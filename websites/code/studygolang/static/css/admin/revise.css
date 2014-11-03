@@ -92,3 +92,5 @@ td .emtd {
 .newline {word-wrap: break-word; word-break: break-all;}
 
 .blue {color: blue;}
+
+.actions a {color: blue;}

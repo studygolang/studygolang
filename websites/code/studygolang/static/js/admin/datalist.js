@@ -10,11 +10,17 @@ jQuery(document).ready(function($) {
 			if (!answer) {
 				return false;
 			}
-			var action = $(target).attr("ajax-action");
+			var action = $(target).attr("ajax-action"),
+				data = 'format=json',
+				id = $(target).data('id');
+			if (id != "") {
+				data += "&id="+id;
+			}
+			
 			$.ajax({
 				url : action,
-				type : 'get',
-				data : 'format=json',
+				type : 'post',
+				data : data,
 				dataType : 'json',
 				success : function(data) {
 					if (data.ok == 1) {
