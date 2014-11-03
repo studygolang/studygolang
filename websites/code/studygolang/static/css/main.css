@@ -120,8 +120,9 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .page .meta .p-author a {color: #272727;}
 .page .meta .p-author a:hover {color: #DB6D4C; text-decoration: none; }
 .page .meta .p-comment {float: right;padding-left: 10px;border-left: solid 1px #E0E0E0;height: 18px;margin-top: 5px;line-height: 18px;}
-.page .meta .p-comment .view,.page .meta .p-comment .like {font-family: "NSimSun";font-size: 12px;color: #888888;}
+.page .meta .p-comment .view,.page .meta .p-comment .like, .page .meta .p-comment .favorite {font-family: "NSimSun";font-size: 12px;color: #888888;}
 .page .meta .p-comment .like i { color: red; }
+.page .meta .p-comment .hadlike {color: red;}
 .page .meta .p-comment a {font-size: 12px;color: #ed5565; text-decoration: none;}
 .page .tags {padding: 20px 0; margin: 0 30px;}
 .page .tags .list-inline li {margin-right: 5px;margin-bottom: 6px;}

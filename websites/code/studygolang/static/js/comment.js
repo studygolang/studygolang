@@ -13,6 +13,19 @@
 			}
 		})
 
+		emojify.setConfig({
+			// emojify_tag_type : 'span',
+			only_crawl_id    : null,
+			img_dir          : 'http://www.emoji-cheat-sheet.com/graphics/emojis',
+			ignored_tags     : { //忽略以下几种标签内的emoji识别
+				'SCRIPT'  : 1,
+				'TEXTAREA': 1,
+				'A'       : 1,
+				'PRE'     : 1,
+				'CODE'    : 1
+			}
+		});
+
 		// 异步加载 评论
 		window.loadComments = function() {
 			var objid = $('.page-comment').data('objid'),
@@ -50,19 +63,9 @@
 						$('.page-comment .words').removeClass('hide');
 					}
 
-					emojify.setConfig({
-						// emojify_tag_type : 'span',
-						only_crawl_id    : null,
-						img_dir          : 'http://www.emoji-cheat-sheet.com/graphics/emojis',
-						ignored_tags     : { //忽略以下几种标签内的emoji识别
-							'SCRIPT'  : 1,
-							'TEXTAREA': 1,
-							'A'       : 1,
-							'PRE'     : 1,
-							'CODE'    : 1
-						}
-					});
 					emojify.run($('.page-comment .words ul').get(0));
+
+					registerAtEvent();
 				} else {
 					comTip("评论加载失败");
 				}
@@ -227,20 +230,11 @@
 
 						$('.page-comment .words ul').append(oneCmt);
 						$('.page-comment .words').removeClass('hide');
-						
-						emojify.setConfig({
-							// emojify_tag_type : 'span',
-							only_crawl_id    : null,
-							img_dir          : 'http://www.emoji-cheat-sheet.com/graphics/emojis',
-							ignored_tags     : { //忽略以下几种标签内的emoji识别
-								'SCRIPT'  : 1,
-								'TEXTAREA': 1,
-								'A'       : 1,
-								'PRE'     : 1,
-								'CODE'    : 1
-							}
-						});
+
+						// 解析表情
 						emojify.run($('.page-comment .words ul li:last').get(0));
+						// 注册@
+						registerAtEvent();
 
 						var $cmtNumObj = $('.page-comment .words h3 .cmtnum'),
 							cmtNum = parseInt($cmtNumObj.text(), 10) + 1;
@@ -265,16 +259,19 @@
 			});
 		}
 
-		if ($("#is_login_status").val() == 1) {
-			// @ 本站其他人
-			$('.page-comment #commentForm textarea').atwho({
-				at: "@",
-				data: "/at/users.json"
-			}).atwho({
-				at: ":",
-				data: window.emojis,
-				tpl:"<li data-value='${key}'><img src='http://www.emoji-cheat-sheet.com/graphics/emojis/${name}.png' height='20' width='20' /> ${name}</li>"
-			});
+		// 注册 @ 和 表情
+		var registerAtEvent = function() {
+			if ($("#is_login_status").val() == 1) {
+				// @ 本站其他人
+				$('.page-comment textarea').atwho({
+					at: "@",
+					data: "/at/users.json"
+				}).atwho({
+					at: ":",
+					data: window.emojis,
+					tpl:"<li data-value='${key}'><img src='http://www.emoji-cheat-sheet.com/graphics/emojis/${name}.png' height='20' width='20' /> ${name}</li>"
+				});
+			}
 		}
 
 		// 分析 @ 的用户
