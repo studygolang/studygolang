@@ -1,5 +1,5 @@
 {{define "title"}}{{.article.Title}} {{end}}
-{{define "seo"}}<meta name="keywords" content="{{.article.Title}} Go语言博客文章, Go语言博文, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
+{{define "seo"}}<meta name="keywords" content="{{.article.Title}}, Go语言博客文章, Go语言博文, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
 <meta name="description" content="{{substring .article.Txt 200 ""}}">{{end}}
 {{define "content"}}
 <div class="row banner">
@@ -33,7 +33,10 @@
 						<i class="glyphicon glyphicon-heart"></i>
 						<span class="likenum">{{.article.Likenum}}</span> 人喜欢&nbsp;
 					</span>
-					<a href="/articles/{{.article.Id}}#commentForm" title="我要评论"><i class="glyphicon glyphicon-comment"></i> <span class="cmtnum">{{.article.Cmtnum}}</span> 条评论</a>
+					<a href="/articles/{{.article.Id}}#commentForm" title="我要评论"><i class="glyphicon glyphicon-comment"></i> <span class="cmtnum">{{.article.Cmtnum}}</span> 条评论</a>&nbsp;
+					<a class="favorite collect {{if .hadcollect}}hadlike{{end}}" href="#" title="{{if .hadcollect}}取消收藏{{else}}稍后再读{{end}}" data-objid="{{.article.Id}}" data-objtype="1" data-collect="{{.hadcollect}}">
+						<i class="glyphicon glyphicon-star{{if eq .hadcollect 0}}-empty{{end}}"></i> 收藏
+					</a>
 				</div>
 				<!-- p-comment END -->
 			</div>
@@ -54,6 +57,7 @@
 			<!-- content END -->
 			<div class="row orig-info">
 				<p>本文来自：<a href="/wr?u=http://{{.article.Domain}}" target="_blank" title="{{.article.Name}}">{{.article.Name}}</a></p>
+				<p>感谢作者：{{noescape .article.Author}}</p>
 				<p>查看原文：<a href="/wr?u={{.article.Url}}" target="_blank" title="{{.article.Title}}">{{.article.Title}}</a></p>
 			</div>
 			<div class="active row">

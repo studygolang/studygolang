@@ -214,13 +214,13 @@ jQuery(document).ready(function($) {
 
 		var that = this;
 		postFavorite(that, function(hadCollect){
-			$(that).data('collect', hadCollect);
+			$('.page .collect').data('collect', hadCollect);
 			
 			if (hadCollect) {
 				comTip("感谢收藏！");
-				$(that).addClass('hadlike').attr('title', '取消收藏');
+				$('.page .collect').addClass('hadlike').attr('title', '取消收藏');
 			} else {
-				$(that).removeClass('hadlike').attr('title', '稍后再读');
+				$('.page .collect').removeClass('hadlike').attr('title', '稍后再读');
 				comTip("已取消收藏！");
 			}
 		});

@@ -106,6 +106,19 @@ $(function(){
 		}
 	}
 
+	emojify.setConfig({
+		// emojify_tag_type : 'span',
+		only_crawl_id    : null,
+		img_dir          : 'http://www.emoji-cheat-sheet.com/graphics/emojis',
+		ignored_tags     : { //忽略以下几种标签内的emoji识别
+			'SCRIPT'  : 1,
+			'TEXTAREA': 1,
+			'A'       : 1,
+			'PRE'     : 1,
+			'CODE'    : 1
+		}
+	});
+	
 	// 侧边栏——最新评论
 	var commentRecent = function(data){
 		if (data.ok) {
@@ -165,6 +178,7 @@ $(function(){
 				'</li>';
 			}
 			$('.sb-content .cmt-list ul').html(content);
+			emojify.run($('.sb-content .cmt-list ul').get(0));
 		}
 	}
 
