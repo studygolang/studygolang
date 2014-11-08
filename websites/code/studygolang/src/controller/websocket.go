@@ -62,7 +62,7 @@ func WsHandler(wsConn *websocket.Conn) {
 	}
 	// 用户退出时需要变更其他用户看到的在线用户数
 	if !service.Book.UserIsOnline(user) {
-		message := service.NewMessage(service.WsMsgOnline, map[string]int{"online": service.Book.Len()})
+		message := service.NewMessage(service.WsMsgOnline, map[string]int{"online": service.Book.Len() + 50})
 		go service.Book.BroadcastAllUsersMessage(message)
 	}
 }
