@@ -1,5 +1,5 @@
 // emoji表情 http://www.emoji-cheat-sheet.com/
-emojis = [
+var emojis = [
     "plus1","ok_hand", "sleepy", "smile", "clap", "heart",
     "octopus", "six_pointed_star", "oden", "office", "ok", "ok_woman", "older_man","skull",
     "smiley", "smirk", "smoking", "snake", "snowman", "sob", "soccer",

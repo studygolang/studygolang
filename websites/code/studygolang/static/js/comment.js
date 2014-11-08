@@ -44,8 +44,6 @@
 			$('.page-comment .content-preview').show();
 		});
 
-		$('.markdown_tip').html(marked($('.markdown_tip').text()));
-
 		emojify.setConfig({
 			// emojify_tag_type : 'span',
 			only_crawl_id    : null,
@@ -96,8 +94,18 @@
 						$('.page-comment .words').removeClass('hide');
 					}
 
+					// emoji 表情解析
 					emojify.run($('.page-comment .words ul').get(0));
-
+					// twitter emoji 表情解析
+					/*
+					var result = twemoji.parse($('.page-comment .words ul').get(0), {
+						callback: function(icon, options, variant) {
+							return ''.concat(options.base, options.size, '/', icon, options.ext);
+						},
+						size: 16
+					});
+					*/
+					
 					registerAtEvent();
 				} else {
 					comTip("评论加载失败");
@@ -240,7 +248,7 @@
 			var objid = $('.page-comment').data('objid'),
 				objtype = $('.page-comment').data('objtype');
 
-			var usernames = analyzeAt(content);
+			var usernames = SG.analyzeAt(content);
 			
 			$.ajax({
 				type:"post",
@@ -264,8 +272,14 @@
 						$('.page-comment .words ul').append(oneCmt);
 						$('.page-comment .words').removeClass('hide');
 
-						// 解析表情
+						// emoji 表情解析
 						emojify.run($('.page-comment .words ul li:last').get(0));
+
+						// twitter emoji 表情解析
+						/*
+						twemoji.parse($('.page-comment .words ul li:last').get(0));
+						*/
+						
 						// 注册@
 						registerAtEvent();
 
@@ -303,20 +317,12 @@
 					at: ":",
 					data: window.emojis,
 					tpl:"<li data-value='${key}'><img src='http://www.emoji-cheat-sheet.com/graphics/emojis/${name}.png' height='20' width='20' /> ${name}</li>"
-				});
+				})/*.atwho({
+					at: "\\",
+					data: window.twemojis,
+					tpl:"<li data-value='${name}'><img src='https://twemoji.maxcdn.com/16x16/${key}.png' height='16' width='16' /> ${name}</li>"
+				})*/;
 			}
 		}
-
-		// 分析 @ 的用户
-		var analyzeAt = function(text) {
-			var usernames = [];
-			
-			String(text).replace(/[^@]*@([^\s@]{4,20})\s*/g, function (match, username) {
-				usernames.push(username);
-			});
-			
-			return usernames;
-		}
-		
 	});
 }).call(this)

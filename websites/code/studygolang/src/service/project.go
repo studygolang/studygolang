@@ -33,7 +33,7 @@ func PublishProject(user map[string]interface{}, form url.Values) (err error) {
 	if isModify {
 		isAdmin := user["isadmin"].(bool)
 		if project.Username != username && !isAdmin {
-			err = errors.New("没有修改权限")
+			err = NotModifyAuthorityErr
 			return
 		}
 	} else {
@@ -57,6 +57,15 @@ func PublishProject(user map[string]interface{}, form url.Values) (err error) {
 
 	if err != nil {
 		logger.Errorln("Publish Project error:", err)
+	}
+
+	// 发布項目，活跃度+10
+	if uid, ok := user["uid"].(int); ok {
+		weight := 10
+		if isModify {
+			weight = 2
+		}
+		go IncUserWeight("uid="+strconv.Itoa(uid), weight)
 	}
 
 	return

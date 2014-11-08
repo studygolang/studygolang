@@ -139,6 +139,10 @@ func ModifyProjectHandler(rw http.ResponseWriter, req *http.Request) {
 	user, _ := filter.CurrentUser(req)
 	err := service.PublishProject(user, req.PostForm)
 	if err != nil {
+		if err == service.NotModifyAuthorityErr {
+			rw.WriteHeader(http.StatusForbidden)
+			return
+		}
 		fmt.Fprint(rw, `{"ok": 0, "error":"内部服务错误！"}`)
 		return
 	}
@@ -165,6 +169,9 @@ func ProjectDetailHandler(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	service.Views.Incr(req, model.TYPE_PROJECT, project.Id)
+
+	// 为了阅读数即时看到
+	project.Cmtnum++
 
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/projects/detail.html")
 	filter.SetData(req, map[string]interface{}{"activeProjects": "active", "project": project, "likeflag": likeFlag, "hadcollect": hadCollect})

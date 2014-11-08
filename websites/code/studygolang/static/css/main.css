@@ -227,3 +227,6 @@ label.error {color:red;}
 .emoji {width:20px;height:20px;vertical-align: middle;}
 
 .img-rounded {-webkit-border-radius: 5px;-moz-border-radius: 5px;border-radius: 5px;}
+
+/*form required flag*/
+.control-label abbr {color: #c00;}

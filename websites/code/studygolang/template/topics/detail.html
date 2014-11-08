@@ -21,14 +21,14 @@
 					<i class="glyphicon glyphicon-calendar"></i>
 					<span title="{{.topic.ctime}}" class="timeago"></span>&nbsp;
 					<i class="glyphicon glyphicon-user"></i>
-					<a href="/user/{{.topic.user.Username}}" title="{{.topic.user.Name}}">{{.topic.user.Name}}</a>
+					<a href="/user/{{.topic.user.Username}}" title="{{if .topic.user.Name}}{{.topic.user.Name}}{{else}}{{.topic.user.Username}}{{end}}">{{if .topic.user.Name}}{{.topic.user.Name}}({{.topic.user.Username}}){{else}}{{.topic.user.Username}}{{end}}</a>
 				</div>
 				<!-- p-author END -->
 				
 				<div class="p-comment text-right">
 					<span class="view" title="阅读数">
 						<i class="glyphicon glyphicon-eye-open"></i>
-						阅读 <span>{{.topic.view}}</span> 次&nbsp;
+						阅读 <span>{{add .topic.view 1}}</span> 次&nbsp;
 					</span>
 					<span class="like" title="喜欢人数">
 						<i class="glyphicon glyphicon-heart"></i>
@@ -95,8 +95,8 @@
 					</div>
 					<div class="sub row">
 						<ul class="help-block col-md-10">
-							<li class="markdown_tip">支持 Markdown 格式, **粗体**、~~删除线~~、`单行代码`</li>
-							<li>支持 @ 本站用户；支持表情，见 <a href="http://www.emoji-cheat-sheet.com/" target="_blank">Emoji cheat sheet</a></li>
+							<li class="markdown_tip">支持 Markdown 格式, <strong>**粗体**</strong>、~~删除线~~、<code>`单行代码`</code></li>
+							<li>支持 @ 本站用户；支持表情（输入 : 提示），见 <a href="http://www.emoji-cheat-sheet.com/" target="_blank">Emoji cheat sheet</a></li>
 						</ul>
 						<div class="col-md-2 text-right"><button type="submit" title="提交" class="btn btn-danger">提交</button></div>
 					</div>
@@ -112,18 +112,24 @@
 		</div>
 	</div>
 	<div class="col-lg-3 col-md-4 col-sm-5">
-		<div class="row box_white sidebar author">
+		<div class="row box_white sidebar sb-author">
 			<div class="top">
 				<h3 class="title"><i class="glyphicon glyphicon-user"></i>&nbsp;作者</h3>
 			</div>
 			<div class="sb-content">
-				<a href="/user/{{.topic.user.Username}}" class="pull-left" title="{{.topic.user.Username}}">
-					<img src="{{gravatar .topic.user.Email 48}}" alt="{{.topic.user.Username}}" width="48px" height="48px">
+				<a href="/user/{{.topic.user.Username}}" class="pull-left avatar" title="{{.topic.user.Username}}">
+					<img src="{{gravatar .topic.user.Email 48}}" alt="{{if .topic.user.Name}}{{.topic.user.Name}}{{else}}{{.topic.user.Username}}{{end}}" width="48px" height="48px">
 				</a>
 				<h4>
-					<a href="/user/{{.topic.user.Username}}" title="{{.topic.user.Username}}">{{.topic.user.Username}}</a>
+					<a href="/user/{{.topic.user.Username}}" title="{{if .topic.user.Name}}{{.topic.user.Name}}{{else}}{{.topic.user.Username}}{{end}}">{{if .topic.user.Name}}{{.topic.user.Name}}{{else}}{{.topic.user.Username}}{{end}}</a>
 					<p>{{.topic.user.Monlog}}</p>
 				</h4>
+			</div>
+		</div>
+
+		<div class="row box_white sidebar">
+			<div class="sb-content text-center" style="margin-top: 15px;">
+				<a href="/topics/new" class="btn btn-default">发布主题</a>
 			</div>
 		</div>
 		
@@ -132,7 +138,7 @@
 				<ul class="list-inline text-center">
 					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新主题</a>|</li>
 					<li class="second"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
-					<li class="last"><a href="javascript:;">最新评论</a></li>
+					<li class="last"><a href="/articles">最新博文</a></li>
 				</ul>
 				<p class="bar"></p>
 			</div>
@@ -156,8 +162,10 @@
 </div>
 {{end}}
 {{define "css"}}
-<link href="/static/css/jquery.atwho.min.css" rel="stylesheet">
+<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/jquery.atwho.min.css" media="screen" rel="stylesheet" type="text/css">
 <style type="text/css">
+.sb-author .sb-content .avatar {margin: 0 10px 10px;}
 </style>
 {{end}}
 {{define "js"}}
@@ -176,12 +184,12 @@
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
 	"/topics/recent.json",
-	"/resources/recent.json",
-	"/comments/recent.json",
+	"/articles/recent.json",
+	"/resources/recent.json"
 ];
 
 $(function(){
-	Topics.parseContent($('.page .content'));
+	new SG.Topics().parseContent($('.page .content'));
 
 	// 文本框自动伸缩
 	$('.need-autogrow').autoGrow();

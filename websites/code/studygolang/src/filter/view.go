@@ -53,10 +53,12 @@ var funcMap = template.FuncMap{
 		}
 		return utf8Str.Slice(0, length) + suffix
 	},
-	"add": func(nums ...int) int {
+	"add": func(nums ...interface{}) int {
 		total := 0
 		for _, num := range nums {
-			total += num
+			if n, ok := num.(int); ok {
+				total += n
+			}
 		}
 		return total
 	},

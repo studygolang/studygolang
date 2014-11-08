@@ -1,4 +1,4 @@
-{{define "title"}}发布项目 {{end}}
+{{define "title"}}{{if .project.Id}}修改{{else}}发布{{end}}项目 {{end}}
 {{define "seo"}}<meta name="keywords" content="开源项目, Go语言开源项目, Go语言博文, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
 <meta name="description" content="Go语言中文网，收集了Go语言的大部分知名开源项目，有项目的介绍，甚至有网友对开源项目的解读">{{end}}
 {{define "content"}}
@@ -12,19 +12,19 @@
 			<li class="active">{{if .project.Id}}修改{{else}}添加{{end}}项目</li>
 		</ol>
 		<div class="page box_white">
-			<form class="form-horizontal validate-form" role="form" action="{{if .project.Id}}/project/modify.json{{else}}/project/new.json{{end}}">
+			<form class="form-horizontal validate-form" role="form" action="{{if .project.Id}}/project/modify.json{{else}}/project/new.json{{end}}" data-redirect="/projects">
 				{{if .project.Id}}
 				<input type="hidden" name="id" value="{{.project.Id}}" />
 				{{end}}
 				<div class="form-group form-group-sm">
-					<label class="col-sm-3 control-label" for="name">项目名</label>
+					<label class="col-sm-3 control-label" for="name"><abbr>*</abbr>项目名</label>
 					<div class="col-sm-6">
 						<input class="form-control required" type="text" id="name" name="name" placeholder="项目名" value="{{.project.Name}}">
 					</div>
 					<span class="help-block">如 Docker</span>
 				</div>
 				<div class="form-group form-group-sm">
-					<label class="col-sm-3 control-label" for="category">项目类别</label>
+					<label class="col-sm-3 control-label" for="category"><abbr>*</abbr>项目类别</label>
 					<div class="col-sm-6">
 						<input class="form-control required" type="text" id="category" name="category" placeholder="项目标题" value="{{.project.Category}}">
 					</div>
@@ -40,13 +40,13 @@
 					</div>
 				</div>
 				<div class="form-group form-group-sm">
-					<label class="col-sm-3 control-label" for="home">项目首页</label>
+					<label class="col-sm-3 control-label" for="home"><abbr>*</abbr>项目首页</label>
 					<div class="col-sm-6">
 						<input class="form-control {required:true,url:true}" type="url" id="home" name="home" placeholder="项目首页" value="{{.project.Home}}">
 					</div>
 				</div>
 				<div class="form-group form-group-sm">
-					<label class="col-sm-3 control-label" for="doc">项目文档地址</label>
+					<label class="col-sm-3 control-label" for="doc"><abbr>*</abbr>项目文档地址</label>
 					<div class="col-sm-6">
 						<input class="form-control {required:true,url:true}" type="url" id="doc" name="doc" placeholder="项目文档地址" value="{{.project.Doc}}">
 					</div>
@@ -58,7 +58,7 @@
 					</div>
 				</div>
 				<div class="form-group form-group-sm">
-					<label class="col-sm-3 control-label" for="src">源码地址</label>
+					<label class="col-sm-3 control-label" for="src"><abbr>*</abbr>源码地址</label>
 					<div class="col-sm-6">
 						<input class="form-control {required:true, url:true}" type="url" id="src" name="src" placeholder="源码地址" value="{{.project.Src}}">
 					</div>
@@ -77,7 +77,7 @@
 					</div>
 				</div>
 				<div class="form-group form-group-sm">
-					<label class="col-sm-3 control-label" for="lang">开发语言</label>
+					<label class="col-sm-3 control-label" for="lang"><abbr>*</abbr>开发语言</label>
 					<div class="col-sm-6">
 						<input class="form-control required" type="text" id="lang" name="lang" placeholder="开发语言" value="{{.project.Lang}}">
 					</div>
@@ -112,7 +112,7 @@
 					<span class="help-block">如 多个逗号分隔</span>
 				</div>
 				<div class="form-group form-group-sm desc">
-					<label class="col-sm-3 control-label" for="desc">项目描述</label>
+					<label class="col-sm-3 control-label" for="desc"><abbr>*</abbr>项目描述</label>
 					<div class="col-sm-7" id="desc-div">
 						<textarea class="form-control need-autogrow required" id="desc" name="desc" rows="15">{{.project.Desc}}</textarea>
 						<div class="preview-div" style="display:none;"></div>
@@ -161,9 +161,9 @@
 <link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
 <link href="/static/css/Huploadify.css" media="screen" rel="stylesheet" type="text/css">
 <style type="text/css">
-	.uploadify-button {margin:0px;}
-	.uri-prefix {height: 31px;line-height: 1.5;padding-top: 5px;padding-right: 0px;}
-	.uri {padding-left:0px;}
+.uploadify-button {margin:0px;}
+.uri-prefix {height: 31px;line-height: 1.5;padding-top: 5px;padding-right: 0px;}
+.uri {padding-left:0px;}
 </style>
 {{end}}
 {{define "js"}}

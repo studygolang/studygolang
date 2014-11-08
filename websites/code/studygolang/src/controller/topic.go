@@ -94,25 +94,52 @@ func TopicDetailHandler(rw http.ResponseWriter, req *http.Request) {
 func NewTopicHandler(rw http.ResponseWriter, req *http.Request) {
 	nodes := service.GenNodes()
 	vars := mux.Vars(req)
-	title := req.FormValue("title")
-	// 请求新建帖子页面
+	title := req.PostFormValue("title")
+	// 请求新建主题页面
 	if title == "" || req.Method != "POST" || vars["json"] == "" {
 		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/topics/new.html")
-		filter.SetData(req, map[string]interface{}{"nodes": nodes})
+		filter.SetData(req, map[string]interface{}{"nodes": nodes, "activeTopics": "active"})
 		return
 	}
 
 	user, _ := filter.CurrentUser(req)
-	// 入库
-	topic := model.NewTopic()
-	topic.Uid = user["uid"].(int)
-	topic.Nid = util.MustInt(req.FormValue("nid"))
-	topic.Title = req.FormValue("title")
-	topic.Content = req.FormValue("content")
-	errMsg, err := service.PublishTopic(topic)
+	err := service.PublishTopic(user, req.PostForm)
 	if err != nil {
-		fmt.Fprint(rw, `{"errno": 1, "error":"`, errMsg, `"}`)
+		fmt.Fprint(rw, `{"ok": 0, "error":"内部服务错误！"}`)
 		return
 	}
-	fmt.Fprint(rw, `{"errno": 0, "error":""}`)
+	fmt.Fprint(rw, `{"ok": 1, "data":""}`)
+}
+
+// 修改主题
+// uri: /topics/modify{json:(|.json)}
+func ModifyTopicHandler(rw http.ResponseWriter, req *http.Request) {
+	tid := req.FormValue("tid")
+	if tid == "" {
+		util.Redirect(rw, req, "/topics")
+		return
+	}
+
+	nodes := service.GenNodes()
+
+	vars := mux.Vars(req)
+	// 请求编辑主题页面
+	if req.Method != "POST" || vars["json"] == "" {
+		topic := service.FindTopic(tid)
+		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/topics/new.html")
+		filter.SetData(req, map[string]interface{}{"nodes": nodes, "topic": topic, "activeTopics": "active"})
+		return
+	}
+
+	user, _ := filter.CurrentUser(req)
+	err := service.PublishTopic(user, req.PostForm)
+	if err != nil {
+		if err == service.NotModifyAuthorityErr {
+			rw.WriteHeader(http.StatusForbidden)
+			return
+		}
+		fmt.Fprint(rw, `{"ok": 0, "error":"内部服务错误！"}`)
+		return
+	}
+	fmt.Fprint(rw, `{"ok": 1, "data":""}`)
 }

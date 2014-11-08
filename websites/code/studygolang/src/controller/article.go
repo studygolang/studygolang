@@ -123,6 +123,9 @@ func ArticleDetailHandler(rw http.ResponseWriter, req *http.Request) {
 
 	service.Views.Incr(req, model.TYPE_ARTICLE, article.Id)
 
+	// 为了阅读数即时看到
+	article.Viewnum++
+
 	// 设置内容模板
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/articles/detail.html")
 	// 设置模板数据

@@ -1,56 +1,21 @@
 (function(){
-	window.Projects = {
-		publish: function(that){
-			var btnTxt = $(that).text();
-			$(that).text("稍等").addClass("disabled").attr({"title":'稍等',"disabled":"disabled"});
+	SG.Projects = function() {}
+	SG.Projects.prototype = new SG.Publisher();
+	SG.Projects.prototype.parseDesc = function(){
+		var markdownString = $('.project .desc').text();
+		// 配置 marked 语法高亮
+		marked.setOptions({
+			highlight: function (code) {
+				code = code.replace(/&#34;/g, '"');
+				code = code.replace(/&lt;/g, '<');
+				code = code.replace(/&gt;/g, '>');
+				return hljs.highlightAuto(code).value;
+			}
+		});
 
-			var $form = $(that).parents('form'),
-				data = $form.serialize(),
-				url = $form.attr('action');
+		$('.project .desc').html(marked(markdownString));
+	}
 
-			$.ajax({
-				type:"post",
-				url: url,
-				data: data,
-				dataType: 'json',
-				success: function(data){
-					if(data.ok){
-						$form.get(0).reset();
-						
-						comTip("发布成功！");
-						
-						setTimeout(function(){
-							window.location.href = "/projects";
-						}, 3000);
-					}else{
-						alert(data.error);
-					}
-				},
-				complete:function(){
-					$(that).text(btnTxt).removeClass("disabled").removeAttr("disabled").attr({"title":btnTxt});
-				},
-				error:function(){
-					$(that).text(btnTxt).removeClass("disabled").removeAttr("disabled").attr({"title":btnTxt});
-				}
-			});
-		},
-
-		parseDesc: function(){
-			var markdownString = $('.project .desc').text();
-			// 配置 marked 语法高亮
-			marked.setOptions({
-				highlight: function (code) {
-					code = code.replace(/&#34;/g, '"');
-					code = code.replace(/&lt;/g, '<');
-					code = code.replace(/&gt;/g, '>');
-					return hljs.highlightAuto(code).value;
-				}
-			});
-
-			$('.project .desc').html(marked(markdownString));
-		}
-	};
-	
 	jQuery(document).ready(function($) {
 		var IS_PREVIEW = false;
 		$('.desc .preview').on('click', function(){
@@ -84,7 +49,15 @@
 			if (!validator.form()) {
 				return false;
 			}
-			Projects.publish(this);
+
+			var projects = new SG.Projects()
+			projects.publish(this);
+		});
+
+		$(document).keypress(function(evt){
+			if (evt.ctrlKey && (evt.which == 10 || evt.which == 13)) {
+				$('#submit').click();
+			}
 		});
 	});
 }).call(this)

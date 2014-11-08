@@ -129,8 +129,8 @@
 					</div>
 					<div class="sub row">
 						<ul class="help-block col-md-10">
-							<li class="markdown_tip">支持 Markdown 格式, **粗体**、~~删除线~~、`单行代码`</li>
-							<li>支持 @ 本站用户；支持表情，见 <a href="http://www.emoji-cheat-sheet.com/" target="_blank">Emoji cheat sheet</a></li>
+							<li class="markdown_tip">支持 Markdown 格式, <strong>**粗体**</strong>、~~删除线~~、<code>`单行代码`</code></li>
+							<li>支持 @ 本站用户；支持表情（输入 : 提示），见 <a href="http://www.emoji-cheat-sheet.com/" target="_blank">Emoji cheat sheet</a></li>
 						</ul>
 						<div class="col-md-2 text-right"><button type="submit" title="提交" class="btn btn-danger">提交</button></div>
 					</div>
@@ -206,7 +206,7 @@ SG.SIDE_BARS = [
 
 $(function(){
 	// 解析 desc
-	Projects.parseDesc();
+	new SG.Projects().parseDesc();
 
 	// 文本框自动伸缩
 	$('.need-autogrow').autoGrow();

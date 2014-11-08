@@ -12,6 +12,59 @@ function goTop()
 	});
 };
 
+// 通用的发布功能
+SG.Publisher = function(){}
+SG.Publisher.prototype = {
+	publish: function(that) {
+		var btnTxt = $(that).text();
+		$(that).text("稍等").addClass("disabled").attr({"title":'稍等',"disabled":"disabled"});
+
+		var $form = $(that).parents('form'),
+			data = $form.serialize(),
+			url = $form.attr('action');
+
+		$.ajax({
+			type:"post",
+			url: url,
+			data: data,
+			dataType: 'json',
+			success: function(data){
+				if(data.ok){
+					$form.get(0).reset();
+					
+					comTip("发布成功！");
+					
+					setTimeout(function(){
+						var redirect = $form.data('redirect');
+						if (redirect) {
+							window.location.href = redirect;
+						}
+					}, 3000);
+				}else{
+					alert(data.error);
+				}
+			},
+			complete:function(){
+				$(that).text(btnTxt).removeClass("disabled").removeAttr("disabled").attr({"title":btnTxt});
+			},
+			error:function(){
+				$(that).text(btnTxt).removeClass("disabled").removeAttr("disabled").attr({"title":btnTxt});
+			}
+		});
+	}
+}
+
+// 分析 @ 的用户
+SG.analyzeAt = function(text) {
+	var usernames = [];
+	
+	String(text).replace(/[^@]*@([^\s@]{4,20})\s*/g, function (match, username) {
+		usernames.push(username);
+	});
+	
+	return usernames;
+}
+
 jQuery(document).ready(function($) {
 	// timeago：3 天之内才显示 timeago
 

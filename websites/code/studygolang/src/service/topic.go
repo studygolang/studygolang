@@ -9,42 +9,66 @@ package service
 import (
 	"errors"
 	"html/template"
-	"logger"
-	"model"
 	"net/url"
 	"strconv"
 	"strings"
-	"time"
+
+	"logger"
+	"model"
 	"util"
 )
 
+var NotModifyAuthorityErr = errors.New("没有修改权限")
+
 // 发布帖子。入topics和topics_ex库
-func PublishTopic(topic *model.Topic) (errMsg string, err error) {
-	topic.Ctime = time.Now().Format("2006-01-02 15:04:05")
-	tid, err := topic.Insert()
-	if err != nil {
-		errMsg = "内部服务器错误"
-		logger.Errorln(errMsg, "：", err)
-		return
-	}
+func PublishTopic(user map[string]interface{}, form url.Values) (err error) {
+	uid := user["uid"].(int)
 
-	// 存扩展信息
-	topicEx := model.NewTopicEx()
-	topicEx.Tid = tid
-	_, err = topicEx.Insert()
-	if err != nil {
-		errMsg = "内部服务器错误"
-		logger.Errorln(errMsg, "：", err)
-		return
-	}
+	if form.Get("tid") != "" {
+		isAdmin := user["isadmin"].(bool)
+		if topic.Uid != uid && !isAdmin {
+			err = NotModifyAuthorityErr
+			return
+		}
 
-	// 发布帖子，活跃度+10
-	go IncUserWeight("uid="+strconv.Itoa(topic.Uid), 10)
+		_, err = ModifyTopic(user, form)
+		if err != nil {
+			logger.Errorln("Publish Topic error:", err)
+			return
+		}
+	} else {
+
+		topic := model.NewTopic()
+		util.ConvertAssign(topic, form)
+
+		topic.Uid = uid
+		topic.Ctime = util.TimeNow()
+
+		var tid int
+		tid, err = topic.Insert()
+
+		if err != nil {
+			logger.Errorln("Publish Topic error:", err)
+			return
+		}
+
+		// 存扩展信息
+		topicEx := model.NewTopicEx()
+		topicEx.Tid = tid
+		_, err = topicEx.Insert()
+		if err != nil {
+			logger.Errorln("Insert TopicEx error:", err)
+			return
+		}
+
+		// 发布主题，活跃度+10
+		go IncUserWeight("uid="+strconv.Itoa(uid), 10)
+	}
 
 	return
 }
 
-// 修改帖子
+// 修改主题
 // user 修改人的（有可能是作者或管理员）
 func ModifyTopic(user map[string]interface{}, form url.Values) (errMsg string, err error) {
 	uid := user["uid"].(int)
@@ -63,7 +87,7 @@ func ModifyTopic(user map[string]interface{}, form url.Values) (errMsg string, e
 	}
 
 	username := user["username"].(string)
-	// 修改帖子，活跃度+2
+	// 修改主题，活跃度+2
 	go IncUserWeight("username="+username, 2)
 
 	return
@@ -113,6 +137,17 @@ func FindTopicByTid(tid string) (topicMap map[string]interface{}, replies []map[
 	}
 
 	return
+}
+
+// 获取单个 Topic 信息（用于编辑）
+func FindTopic(tid string) *model.Topic {
+	topic := model.NewTopic()
+	err := topic.Where("tid=?", tid).Find()
+	if err != nil {
+		logger.Errorf("FindTopic [%s] error：%s\n", tid, err)
+	}
+
+	return topic
 }
 
 // 通过tid获得话题的所有者
