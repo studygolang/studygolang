@@ -7,13 +7,13 @@
 package controller
 
 import (
+	"strconv"
+	"sync"
+	"time"
+
 	"go.net/websocket"
 	"logger"
 	"service"
-	"strconv"
-	"strings"
-	"sync"
-	"time"
 	"util"
 )
 
@@ -30,12 +30,7 @@ func WsHandler(wsConn *websocket.Conn) {
 	req := wsConn.Request()
 	user, err := strconv.Atoi(req.FormValue("uid"))
 	if err != nil || user == 0 {
-		remoteAddr := req.Header.Get("Remote_addr")
-		if remoteAddr == "" {
-			remoteAddr = req.RemoteAddr
-		}
-		pos := strings.LastIndex(remoteAddr, ":")
-		ip := remoteAddr[:pos]
+		ip := util.Ip(req)
 		logger.Debugln("user ip:", ip)
 		user = int(util.Ip2long(ip))
 	}

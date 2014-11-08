@@ -7,8 +7,6 @@
 package util
 
 import (
-	"encoding/binary"
-	"net"
 	"strconv"
 	"strings"
 )
@@ -29,13 +27,4 @@ func Join(ins []int, sep string) string {
 		strSlice[i] = strconv.Itoa(one)
 	}
 	return strings.Join(strSlice, sep)
-}
-
-func Ip2long(ipstr string) uint32 {
-	ip := net.ParseIP(ipstr)
-	if ip == nil {
-		return 0
-	}
-	ip = ip.To4()
-	return binary.BigEndian.Uint32(ip)
 }
