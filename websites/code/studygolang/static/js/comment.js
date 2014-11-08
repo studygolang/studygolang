@@ -6,12 +6,45 @@
 
 	$(document).ready(function(){
 		// 文本框事件
-		$(".page-comment #commentForm textarea").click(function(){
+		$(".page-comment #commentForm textarea").on('click', function(){
 			// 没有登录
 			if($("#is_login_status").val() != 1){
 				openPop("#login-pop");
 			}
-		})
+		});
+
+		$('.page-comment .md-toolbar .edit').on('click', function(evt){
+			evt.preventDefault();
+			
+			$(this).addClass('cur');
+			$('.page-comment .md-toolbar .preview').removeClass('cur');
+
+			$('.page-comment .content-preview').hide();
+			$('.page-comment #commentForm').show();
+		});
+		$('.page-comment .md-toolbar .preview').on('click', function(evt){
+			evt.preventDefault();
+
+			// 配置 marked 语法高亮
+			marked.setOptions({
+				highlight: function (code) {
+					code = code.replace(/&#34;/g, '"');
+					code = code.replace(/&lt;/g, '<');
+					code = code.replace(/&gt;/g, '>');
+					return hljs.highlightAuto(code).value;
+				}
+			});
+
+			$(this).addClass('cur');
+			$('.page-comment .md-toolbar .edit').removeClass('cur');
+
+			$('.page-comment #commentForm').hide();
+			var content = $('.page-comment #commentForm textarea').val();
+			$('.page-comment .content-preview').html(marked(content));
+			$('.page-comment .content-preview').show();
+		});
+
+		$('.markdown_tip').html(marked($('.markdown_tip').text()));
 
 		emojify.setConfig({
 			// emojify_tag_type : 'span',

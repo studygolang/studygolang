@@ -36,9 +36,13 @@
 		},
 
 		parseDesc: function(){
-			var markdownString = $('.project .desc').html();
+			var markdownString = $('.project .desc').text();
+			// 配置 marked 语法高亮
 			marked.setOptions({
 				highlight: function (code) {
+					code = code.replace(/&#34;/g, '"');
+					code = code.replace(/&lt;/g, '<');
+					code = code.replace(/&gt;/g, '>');
 					return hljs.highlightAuto(code).value;
 				}
 			});
@@ -49,7 +53,7 @@
 	
 	jQuery(document).ready(function($) {
 		var IS_PREVIEW = false;
-		$('.preview').on('click', function(){
+		$('.desc .preview').on('click', function(){
 			// console.log(hljs.listLanguages());
 			if (IS_PREVIEW) {
 				$('.preview-div').hide();
@@ -57,8 +61,12 @@
 				IS_PREVIEW = false;
 			} else {
 				var markdownString = $('#desc').val();
+				// 配置 marked 语法高亮
 				marked.setOptions({
 					highlight: function (code) {
+						code = code.replace(/&#34;/g, '"');
+						code = code.replace(/&lt;/g, '<');
+						code = code.replace(/&gt;/g, '>');
 						return hljs.highlightAuto(code).value;
 					}
 				});

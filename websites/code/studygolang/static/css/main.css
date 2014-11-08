@@ -153,9 +153,17 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .page .page-comment .comment-title:after { display: block;visibility: hidden;height: 0; content: '\0020'; clear: both; }
 .page .page-comment .comment-title h2 { font-size: 24px;color: #D55252;font-weight: normal;float: left; font-family: "microsoft yahei"; margin-top: 0px; }
 .page .page-comment .comment-title .h2-tip { font-size: 12px;margin-left: 8px;float: left;color: #505050;padding-top: 4px;font-family: "nsimsun"; margin-bottom: 10.5px;}
+.page .page-comment .md-toolbar ul { margin-bottom:2px;}
+.page .page-comment .md-toolbar ul a { -moz-border-radius: 8px;-webkit-border-radius: 8px;border-radius: 8px;padding: 0 5px;line-height: 18px;font-size: 12px;margin-right: 6px;text-shadow: 0;color: #444;border: 1px solid #fff;}
+.page .page-comment .md-toolbar ul a:hover { text-decoration: none;}
+.page .page-comment .md-toolbar ul .cur a { background: #fff;border: 1px solid #ddd;color: #666;}
+.page .page-comment .md-toolbar .upload-img { cursor: pointer;}
+.page .page-comment .submit {border-bottom: solid 1px #ECECEC;}
 .page .page-comment .submit textarea {resize: none;width: 100%;color: #999999;font-size: 14px;border: solid 1px #E5E5E5;padding: 15px;}
 .page .page-comment .submit textarea:focus{outline: solid 1px #FFB7B7;color: #000;}
+.page .page-comment .submit .sub ul { padding-left: 30px; font-size:13px; line-height: 13px;}
 .page .page-comment .submit .sub .btn {padding: 6px 22px;}
+.page .page-comment .content-preview { margin-bottom: 5px; width: 100%;height: 200px;border: 1px solid #CCCCCC;border-radius: 3px 3px 3px 3px;-moz-border-radius: 3px 3px 3px 3px;display: none;padding: 4px;overflow: scroll; display: none; }
 .page .page-comment .words {padding-bottom: 20px;}
 .page .page-comment .words h3 {font-size: 14px;color: #999999;height: 40px;line-height: 40px;border-bottom: solid 1px #ECECEC;position: relative;margin-top: 4px;font-weight: normal;margin-bottom: 0px;}
 .page .page-comment .words h3 span {color: #A2442F;padding: 0 3px;}

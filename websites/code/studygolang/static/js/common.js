@@ -29,6 +29,9 @@ jQuery(document).ready(function($) {
 
 	$('.timeago').timeago();
 
+	// tooltip
+	$('.tool-tip').tooltip();
+
 	// 点击回到顶部的元素
 	$("#gotop").click(function(e) {
 		// 以1秒的间隔返回顶部

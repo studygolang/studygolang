@@ -37,4 +37,22 @@
         <changefreq>monthly</changefreq>
         <priority>0.4</priority>
     </url>{{end}}
+    <url>
+        <loc>http://docs.studygolang.com</loc>
+        <lastmod>{{.home.lastmode}}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.2</priority>
+    </url>
+    <url>
+        <loc>http://docscn.studygolang.com</loc>
+        <lastmod>{{.home.lastmode}}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.2</priority>
+    </url>
+    <url>
+        <loc>http://tour.studygolang.com</loc>
+        <lastmod>{{.home.lastmode}}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.2</priority>
+    </url>
 </urlset>

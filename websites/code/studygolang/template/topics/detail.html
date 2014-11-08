@@ -1,5 +1,5 @@
 {{define "title"}}{{.topic.title}} {{end}}
-{{define "seo"}}<meta name="keywords" content="{{.topic.title}} Golang中国社区, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
+{{define "seo"}}<meta name="keywords" content="{{.topic.title}}, Golang中国社区, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
 <meta name="description" content="{{substring .topic.content 200 ""}}">{{end}}
 {{define "content"}}
 <div class="row banner">
@@ -21,7 +21,7 @@
 					<i class="glyphicon glyphicon-calendar"></i>
 					<span title="{{.topic.ctime}}" class="timeago"></span>&nbsp;
 					<i class="glyphicon glyphicon-user"></i>
-					<a href="/user/{{.topic.user.Name}}" title="{{.topic.user.Name}}">{{.topic.user.Name}}</a>
+					<a href="/user/{{.topic.user.Username}}" title="{{.topic.user.Name}}">{{.topic.user.Name}}</a>
 				</div>
 				<!-- p-author END -->
 				
@@ -44,9 +44,7 @@
 				</ul>
 			</div>
 			<!-- tags -->
-			<div class="content">
-				{{.topic.content}}
-			</div>
+			<div class="content">{{.topic.content}}</div>
 			<!-- content END -->
 			<div class="active row">
 				<div class="mark-like-btn col-md-8">
@@ -75,26 +73,37 @@
 			<!-- 评论 -->
 			<div class="page-comment" data-objid="{{.topic.tid}}" data-objtype="1" {{if .me}}data-username="{{.me.username}}" data-uid="{{.me.uid}}" data-avatar="{{if .me.avatar}}{{.me.avatar}}{{else}}{{gravatar .me.email 48}}{{end}}"{{end}}>
 				<div class="comment-title">
-					<h2>文章点评：</h2>
+					<h2>主题回复：</h2>
 					{{if .me}}
 					{{else}}
 					<span class="h2-tip">
-					（您需要 <a class="c-log" href="javascript:openPop('#login-pop');">登录</a> 后才能评论 <a href="/user/register" class="c-reg"> 没有账号</a> ？）</span>
+					（您需要 <a class="c-log" href="javascript:openPop('#login-pop');">登录</a> 后才能回复 <a href="/user/register" class="c-reg"> 没有账号</a> ？）</span>
 					{{end}}
+				</div>
+				<div class="row clearfix md-toolbar">
+					<ul class="col-md-10 list-inline">
+						<li class="edit cur"><a href="#">编辑</a></li>
+						<li class="preview"><a href="#">预览</a></li>
+					</ul>
+					<div class="col-md-2 text-right">
+						<i id="upload-img" class="glyphicon glyphicon-picture upload-img tool-tip" data-toggle="tooltip" data-placement="top" title="上传图片"></i>
+					</div>
 				</div>
 				<div class="submit" id="commentForm">
 					<div class="text">
-						<textarea name="content" placeholder="我有话要说……" class="need-autogrow"></textarea>
+						<textarea name="content" placeholder="我有话要说……" class="main-textarea need-autogrow"></textarea>
 					</div>
-					<div class="sub text-right">
-						<i class="help-block pull-left">
-							支持 markdown 语法
-						</i>
-						<button type="submit" title="提交" class="btn btn-danger">提交</button>
+					<div class="sub row">
+						<ul class="help-block col-md-10">
+							<li class="markdown_tip">支持 Markdown 格式, **粗体**、~~删除线~~、`单行代码`</li>
+							<li>支持 @ 本站用户；支持表情，见 <a href="http://www.emoji-cheat-sheet.com/" target="_blank">Emoji cheat sheet</a></li>
+						</ul>
+						<div class="col-md-2 text-right"><button type="submit" title="提交" class="btn btn-danger">提交</button></div>
 					</div>
 				</div>
+				<div class="content-preview"></div>
 				<div class="words hide">
-					<h3><span class="cmtnum">{{.topic.reply}}</span>条评论</h3>
+					<h3><span class="cmtnum">{{.topic.reply}}</span>条回复</h3>
 					<ul class="list-unstyled">
 					</ul>
 				</div>
@@ -159,7 +168,10 @@
 <script type="text/javascript" src="/static/js/libs/jquery.atwho.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/emojis.js"></script>
+<script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
+<script type="text/javascript" src="/static/js/topics.js"></script>
 <script type="text/javascript" src="/static/js/comment.js"></script>
+<script type="text/javascript" src="/static/js/puploader.js"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
@@ -169,16 +181,17 @@ SG.SIDE_BARS = [
 ];
 
 $(function(){
+	Topics.parseContent($('.page .content'));
+
 	// 文本框自动伸缩
 	$('.need-autogrow').autoGrow();
 	
 	loadComments();
 
-	// 文章链接，在本站的 iframe 中打开
+	// 链接，add target=_blank
 	$('#wrapper .content').on('mousedown', 'a', function(evt){
-			var url = $(this).attr('href');
-			$(this).attr('href', '/wr?u='+url);
-			$(this).attr('target', '_blank');
+		var url = $(this).attr('href');
+		$(this).attr('target', '_blank');
 	});
 });
 </script>
