@@ -30,8 +30,13 @@ func WsHandler(wsConn *websocket.Conn) {
 	req := wsConn.Request()
 	user, err := strconv.Atoi(req.FormValue("uid"))
 	if err != nil || user == 0 {
-		pos := strings.LastIndex(req.RemoteAddr, ":")
-		ip := req.RemoteAddr[:pos]
+		remoteAddr := req.Header.Get("Remote_addr")
+		if remoteAddr == "" {
+			remoteAddr = req.RemoteAddr
+		}
+		pos := strings.LastIndex(remoteAddr, ":")
+		ip := remoteAddr[:pos]
+		logger.Debugln("user ip:", ip)
 		user = int(util.Ip2long(ip))
 	}
 	userData := service.Book.AddUser(user, serverId)
