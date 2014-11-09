@@ -12,7 +12,7 @@
 			<li class="active">{{if .topic.Tid}}修改{{else}}发布{{end}}主题</li>
 		</ol>
 		<div class="page box_white">
-			<form class="form-horizontal validate-form" role="form" action="{{if .topic.Tid}}/topics/modify.json{{else}}/topics/new.json{{end}}" data-redirect="/topics">
+			<form class="form-horizontal validate-form" role="form" action="{{if .topic.Tid}}/topics/modify.json{{else}}/topics/new.json{{end}}" data-redirect="/topics{{if .topic.Tid}}/{{.topic.Tid}}{{end}}">
 				{{if .topic.Tid}}
 				<input type="hidden" name="tid" value="{{.topic.Tid}}" />
 				{{else}}
@@ -93,9 +93,6 @@
 <link href="/static/css/jquery.atwho.min.css" rel="stylesheet">
 <link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
 <link href="/static/css/md_toolbar.css" media="screen" rel="stylesheet" type="text/css">
-<style type="text/css">
-.sidebar .help-block ul {padding-left: 25px;font-size: 13px;line-height: 25px;margin-right: 10px;}
-</style>
 {{end}}
 {{define "js"}}
 <script type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>

@@ -199,5 +199,17 @@ func (s *String) At(i int) rune {
 	return r
 }
 
+// 求子串
+func Substring(str string, length int, suffix string) string {
+	if length >= len(str) {
+		return str
+	}
+	utf8Str := NewString(str)
+	if length > utf8Str.RuneCount() {
+		return str
+	}
+	return utf8Str.Slice(0, length) + suffix
+}
+
 var outOfRange = errors.New("utf8string: index out of range")
 var sliceOutOfRange = errors.New("utf8string: slice index out of range")

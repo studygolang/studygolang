@@ -43,16 +43,7 @@ var funcMap = template.FuncMap{
 		t, _ := time.Parse("2006-01-02 15:04:05", ctime)
 		return t.Format(time.RFC3339) + "+08:00"
 	},
-	"substring": func(str string, length int, suffix string) string {
-		if length >= len(str) {
-			return str
-		}
-		utf8Str := util.NewString(str)
-		if length > utf8Str.RuneCount() {
-			return str
-		}
-		return utf8Str.Slice(0, length) + suffix
-	},
+	"substring": util.Substring,
 	"add": func(nums ...interface{}) int {
 		total := 0
 		for _, num := range nums {
@@ -164,6 +155,19 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 		contentHtmls := strings.Split(contentHtml, ",")
 		for i, contentHtml := range contentHtmls {
 			contentHtmls[i] = config.ROOT + strings.TrimSpace(contentHtml)
+		}
+
+		if !this.isBackView {
+			// TODO: 旧模板还未完成的页面
+			if strings.HasPrefix(req.RequestURI, "/wiki") ||
+				strings.HasPrefix(req.RequestURI, "/user") ||
+				strings.HasPrefix(req.RequestURI, "/account") {
+				this.commonHtmlFiles = []string{config.ROOT + "/template/common/base.html"}
+				this.baseTplName = "base.html"
+			} else {
+				this.commonHtmlFiles = []string{config.ROOT + "/template/common/layout.html"}
+				this.baseTplName = "layout.html"
+			}
 		}
 
 		// 为了使用自定义的模板函数，首先New一个以第一个模板文件名为模板名。

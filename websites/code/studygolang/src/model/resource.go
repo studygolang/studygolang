@@ -76,6 +76,12 @@ func (this *Resource) FindAll(selectCol ...string) ([]*Resource, error) {
 }
 
 // 为了支持连写
+func (this *Resource) Set(clause string, args ...interface{}) *Resource {
+	this.Dao.Set(clause, args...)
+	return this
+}
+
+// 为了支持连写
 func (this *Resource) Where(condition string, args ...interface{}) *Resource {
 	this.Dao.Where(condition, args...)
 	return this
@@ -117,6 +123,7 @@ type ResourceEx struct {
 	Id      int    `json:"id"`
 	Viewnum int    `json:"viewnum"`
 	Cmtnum  int    `json:"cmtnum"`
+	Likenum int    `json:"likenum"`
 	Mtime   string `json:"mtime"`
 
 	// 数据库访问对象
@@ -186,8 +193,8 @@ func (this *ResourceEx) Order(order string) *ResourceEx {
 }
 
 func (this *ResourceEx) prepareInsertData() {
-	this.columns = []string{"id", "viewnum", "cmtnum"}
-	this.colValues = []interface{}{this.Id, this.Viewnum, this.Cmtnum}
+	this.columns = []string{"id", "viewnum", "cmtnum", "likenum"}
+	this.colValues = []interface{}{this.Id, this.Viewnum, this.Cmtnum, this.Likenum}
 }
 
 func (this *ResourceEx) colFieldMap() map[string]interface{} {
@@ -195,6 +202,7 @@ func (this *ResourceEx) colFieldMap() map[string]interface{} {
 		"id":      &this.Id,
 		"viewnum": &this.Viewnum,
 		"cmtnum":  &this.Cmtnum,
+		"likenum": &this.Likenum,
 		"mtime":   &this.Mtime,
 	}
 }

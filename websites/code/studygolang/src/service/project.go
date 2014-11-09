@@ -18,7 +18,8 @@ import (
 )
 
 func PublishProject(user map[string]interface{}, form url.Values) (err error) {
-	isModify := form.Get("id") != ""
+	id := form.Get("id")
+	isModify := id != ""
 
 	if !isModify && ProjectUriExists(form.Get("uri")) {
 		err = errors.New("uri存在")
@@ -28,18 +29,28 @@ func PublishProject(user map[string]interface{}, form url.Values) (err error) {
 	username := user["username"].(string)
 
 	project := model.NewOpenProject()
-	util.ConvertAssign(project, form)
 
 	if isModify {
-		isAdmin := user["isadmin"].(bool)
+		err = project.Where("id=?", id).Find()
+		if err != nil {
+			logger.Errorln("Publish Project find error:", err)
+			return
+		}
+		isAdmin := false
+		if _, ok := user["isadmin"]; ok {
+			isAdmin = user["isadmin"].(bool)
+		}
 		if project.Username != username && !isAdmin {
 			err = NotModifyAuthorityErr
 			return
 		}
+
 	} else {
 		project.Username = username
 		project.Ctime = util.TimeNow()
 	}
+
+	util.ConvertAssign(project, form)
 
 	project.Uri = strings.ToLower(project.Uri)
 

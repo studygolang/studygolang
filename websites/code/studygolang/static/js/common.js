@@ -39,16 +39,19 @@ SG.Publisher.prototype = {
 						if (redirect) {
 							window.location.href = redirect;
 						}
-					}, 3000);
+					}, 1000);
 				}else{
-					alert(data.error);
+					comTip(data.error);
 				}
 			},
-			complete:function(){
+			complete:function(xmlReq, textStatus){
 				$(that).text(btnTxt).removeClass("disabled").removeAttr("disabled").attr({"title":btnTxt});
 			},
-			error:function(){
+			error:function(xmlReq, textStatus, errorThrown){
 				$(that).text(btnTxt).removeClass("disabled").removeAttr("disabled").attr({"title":btnTxt});
+				if (xmlReq.status == 403) {
+					comTip("没有修改权限");
+				}
 			}
 		});
 	}

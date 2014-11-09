@@ -10,6 +10,7 @@ import (
 	"errors"
 	"html/template"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -24,8 +25,19 @@ var NotModifyAuthorityErr = errors.New("没有修改权限")
 func PublishTopic(user map[string]interface{}, form url.Values) (err error) {
 	uid := user["uid"].(int)
 
+	topic := model.NewTopic()
+
 	if form.Get("tid") != "" {
-		isAdmin := user["isadmin"].(bool)
+		err = topic.Where("tid=?", form.Get("tid")).Find()
+		if err != nil {
+			logger.Errorln("Publish Topic find error:", err)
+			return
+		}
+
+		isAdmin := false
+		if _, ok := user["isadmin"]; ok {
+			isAdmin = user["isadmin"].(bool)
+		}
 		if topic.Uid != uid && !isAdmin {
 			err = NotModifyAuthorityErr
 			return
@@ -38,7 +50,6 @@ func PublishTopic(user map[string]interface{}, form url.Values) (err error) {
 		}
 	} else {
 
-		topic := model.NewTopic()
 		util.ConvertAssign(topic, form)
 
 		topic.Uid = uid
@@ -60,6 +71,15 @@ func PublishTopic(user map[string]interface{}, form url.Values) (err error) {
 			logger.Errorln("Insert TopicEx error:", err)
 			return
 		}
+
+		// 给 被@用户 发系统消息
+		ext := map[string]interface{}{
+			"objid":   tid,
+			"objtype": model.TYPE_TOPIC,
+			"uid":     user["uid"],
+			"msgtype": model.MsgtypePublishAtMe,
+		}
+		go SendSysMsgAtUsernames(form.Get("usernames"), ext)
 
 		// 发布主题，活跃度+10
 		go IncUserWeight("uid="+strconv.Itoa(uid), 10)
@@ -104,13 +124,18 @@ func FindTopicByTid(tid string) (topicMap map[string]interface{}, replies []map[
 		logger.Errorln("topic service FindTopicByTid Error:", err)
 		return
 	}
-	// 帖子不存在
+	// 主题不存在
 	if topic.Tid == 0 {
 		err = errors.New("The topic of tid is not exists")
 		return
 	}
+
 	topicMap = make(map[string]interface{})
 	util.Struct2Map(topicMap, topic)
+
+	// 解析内容中的 @
+	topicMap["content"] = decodeTopicContent(topic)
+
 	topicEx := model.NewTopicEx()
 	err = topicEx.Where(condition).Find()
 	if err != nil {
@@ -160,6 +185,14 @@ func getTopicOwner(tid int) int {
 		return 0
 	}
 	return topic.Uid
+}
+
+func decodeTopicContent(topic *model.Topic) string {
+	// 安全过滤
+	content := template.HTMLEscapeString(topic.Content)
+	// @别人
+	reg := regexp.MustCompile(`@([^\s@]{4,20})`)
+	return reg.ReplaceAllString(content, `<a href="/user/$1" title="@$1">@$1</a>`)
 }
 
 // 获得帖子列表页需要的数据

@@ -132,7 +132,8 @@ const (
 	MsgtypeWikiComment            // 评论我的Wiki页
 	MsgtypeProjectComment         // 评论我的项目
 
-	MsgtypeAtMe = 10 // @提到我
+	MsgtypeAtMe        = 10 // 评论 @提到我
+	MsgtypePublishAtMe = 11 // 发布时提到我
 )
 
 // 短消息

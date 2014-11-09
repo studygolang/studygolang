@@ -108,6 +108,7 @@ func NewTopicHandler(rw http.ResponseWriter, req *http.Request) {
 		fmt.Fprint(rw, `{"ok": 0, "error":"内部服务错误！"}`)
 		return
 	}
+
 	fmt.Fprint(rw, `{"ok": 1, "data":""}`)
 }
 

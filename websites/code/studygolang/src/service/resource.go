@@ -7,42 +7,92 @@
 package service
 
 import (
-	"logger"
-	"model"
 	"net/url"
 	"strconv"
-	"time"
+
+	"logger"
+	"model"
 	"util"
 )
 
-// 增加资源
-func PublishResource(uid int, form url.Values) bool {
+// 增加（修改）资源
+func PublishResource(user map[string]interface{}, form url.Values) (err error) {
+	uid := user["uid"].(int)
+
 	resource := model.NewResource()
-	err := util.ConvertAssign(resource, form)
-	if err != nil {
-		logger.Errorln("user ConvertAssign error", err)
-		return false
-	}
-	resource.Ctime = time.Now().Format("2006-01-02 15:04:05")
-	resource.Uid = uid
-	id, err := resource.Insert()
-	if err != nil {
-		logger.Errorln("PublishResource error:", err)
-		return false
+
+	if form.Get("id") != "" {
+		err = resource.Where("id=?", form.Get("id")).Find()
+		if err != nil {
+			logger.Errorln("Publish Resource find error:", err)
+			return
+		}
+
+		isAdmin := false
+		if _, ok := user["isadmin"]; ok {
+			isAdmin = user["isadmin"].(bool)
+		}
+		if resource.Uid != uid && !isAdmin {
+			err = NotModifyAuthorityErr
+			return
+		}
+
+		fields := []string{"title", "catid", "form", "url", "content"}
+		if form.Get("form") == model.LinkForm {
+			form.Set("content", "")
+		} else {
+			form.Set("url", "")
+		}
+
+		id := form.Get("id")
+		query, args := updateSetClause(form, fields)
+		err = resource.Set(query, args...).Where("id=?", id).Update()
+		if err != nil {
+			logger.Errorf("更新資源 【%s】 信息失败：%s\n", id, err)
+			return
+		}
+
+		// 修改資源，活跃度+2
+		go IncUserWeight("uid="+strconv.Itoa(uid), 2)
+	} else {
+
+		util.ConvertAssign(resource, form)
+
+		resource.Uid = uid
+		resource.Ctime = util.TimeNow()
+
+		var id int64
+		id, err = resource.Insert()
+
+		if err != nil {
+			logger.Errorln("Publish Resource error:", err)
+			return
+		}
+
+		// 存扩展信息
+		resourceEx := model.NewResourceEx()
+		resourceEx.Id = int(id)
+		if _, err = resourceEx.Insert(); err != nil {
+			logger.Errorln("PublishResource Ex error:", err)
+			return
+		}
+
+		// 给 被@用户 发系统消息
+		/*
+			ext := map[string]interface{}{
+				"objid":   id,
+				"objtype": model.TYPE_RESOURCE,
+				"uid":     user["uid"],
+				"msgtype": model.MsgtypePublishAtMe,
+			}
+			go SendSysMsgAtUsernames(form.Get("usernames"), ext)
+		*/
+
+		// 发布主题，活跃度+10
+		go IncUserWeight("uid="+strconv.Itoa(uid), 10)
 	}
 
-	// 发布资源，活跃度+10
-	go IncUserWeight("uid="+strconv.Itoa(uid), 10)
-
-	// 入扩展表
-	resourceEx := model.NewResourceEx()
-	resourceEx.Id = int(id)
-	if _, err := resourceEx.Insert(); err != nil {
-		logger.Errorln("PublishResource Ex error:", err)
-		return false
-	}
-
-	return true
+	return
 }
 
 // 获得资源详细信息
@@ -79,6 +129,17 @@ func FindResource(id string) (resourceMap map[string]interface{}, comments []map
 	return
 }
 
+// 获取单个 Resource 信息（用于编辑）
+func FindResourceById(id string) *model.Resource {
+	resource := model.NewResource()
+	err := resource.Where("id=?", id).Find()
+	if err != nil {
+		logger.Errorf("FindResourceById [%s] error：%s\n", id, err)
+	}
+
+	return resource
+}
+
 // 通过id获得资源的所有者
 func getResourceOwner(id int) int {
 	resource := model.NewResource()
@@ -91,12 +152,28 @@ func getResourceOwner(id int) int {
 }
 
 // 获得某个分类的资源列表
-func FindResourcesByCatid(catid string) []map[string]interface{} {
-	resourceList, err := model.NewResource().Where("catid=" + catid).Order("mtime DESC").FindAll()
+// page 当前第几页
+func FindResourcesByCatid(catid string, page int) (resources []map[string]interface{}, total int) {
+	var offset = 0
+	if page > 1 {
+		offset = (page - 1) * PAGE_NUM
+	}
+
+	resourceObj := model.NewResource()
+	limit := strconv.Itoa(offset) + "," + strconv.Itoa(PAGE_NUM)
+	resourceList, err := resourceObj.Where("catid=?", catid).Order("mtime DESC").Limit(limit).FindAll()
 	if err != nil {
 		logger.Errorln("resource service FindResourcesByCatid error:", err)
-		return nil
+		return
 	}
+
+	// 获得该类别总资源数
+	total, err = resourceObj.Count()
+	if err != nil {
+		logger.Errorln("resource service resourceObj.Count Error:", err)
+		return
+	}
+
 	count := len(resourceList)
 	ids := make([]int, count)
 	uids := make([]int, count)
@@ -109,7 +186,7 @@ func FindResourcesByCatid(catid string) []map[string]interface{} {
 	resourceExList, err := model.NewResourceEx().Where("id in(" + util.Join(ids, ",") + ")").FindAll()
 	if err != nil {
 		logger.Errorln("resource service FindResourcesByCatid Error:", err)
-		return nil
+		return
 	}
 	resourceExMap := make(map[int]*model.ResourceEx, len(resourceExList))
 	for _, resourceEx := range resourceExList {
@@ -118,7 +195,7 @@ func FindResourcesByCatid(catid string) []map[string]interface{} {
 
 	userMap := GetUserInfos(uids)
 
-	resources := make([]map[string]interface{}, count)
+	resources = make([]map[string]interface{}, count)
 	for i, resource := range resourceList {
 		tmpMap := make(map[string]interface{})
 		util.Struct2Map(tmpMap, resource)
@@ -135,7 +212,7 @@ func FindResourcesByCatid(catid string) []map[string]interface{} {
 		}
 		resources[i] = tmpMap
 	}
-	return resources
+	return
 }
 
 // 获得最新资源
@@ -160,7 +237,7 @@ func FindRecentResources() []map[string]interface{} {
 	return resources
 }
 
-// 获取抓取的资源列表（分页）
+// 获取资源列表（分页）
 func FindResources(lastId, limit string) []*model.Resource {
 	resource := model.NewResource()
 

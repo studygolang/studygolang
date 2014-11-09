@@ -1,4 +1,4 @@
-// 话题（帖子）相关js功能
+// 资源相关js功能
 (function(){
 	emojify.setConfig({
 		// emojify_tag_type : 'span',
@@ -13,9 +13,9 @@
 		}
 	});
 	
-	SG.Topics = function(){}
-	SG.Topics.prototype = new SG.Publisher();
-	SG.Topics.prototype.parseContent = function(selector) {
+	SG.Resources = function(){}
+	SG.Resources.prototype = new SG.Publisher();
+	SG.Resources.prototype.parseContent = function(selector) {
 		var markdownString = selector.text();
 		// 配置 marked 语法高亮
 		marked.setOptions({
@@ -34,7 +34,27 @@
 	}
 
 	jQuery(document).ready(function($) {
-		// 发布主题
+		// 资源形式选择
+		$('.res-form input:radio').on('click', function(){
+			var $form = $(this).parents('form');
+
+			var $resUrl = $form.find('.res-url'),
+				$resContent = $form.find('.res-content');
+			
+			if ($(this).val() == '只是链接') {
+				$resUrl.show();
+				$resContent.hide();
+				$('#url').addClass('{required:true,url:true}');
+				$('textarea#content').removeClass('required');
+			} else {
+				$resUrl.hide();
+				$resContent.show();
+				$('textarea#content').addClass('required');
+				$('#url').removeClass('{required:true,url:true}');
+			}
+		});
+		
+		// 分享资源
 		$('#submit').on('click', function(evt){
 			evt.preventDefault();
 			var validator = $('.validate-form').validate();
@@ -42,13 +62,15 @@
 				return false;
 			}
 
+			/* 资源暂时不支持 @
 			if ($('.usernames').length != 0) {
 				var usernames = SG.analyzeAt($('#content').val());
 				$('.usernames').val(usernames);
 			}
+			*/
 
-			var topics = new SG.Topics();
-			topics.publish(this);
+			var resources = new SG.Resources();
+			resources.publish(this);
 		});
 
 		$(document).keypress(function(evt){
@@ -60,10 +82,10 @@
 		// 注册 @ 和 表情
 		var registerAtEvent = function() {
 			// @ 本站其他人
-			$('form textarea').atwho({
+			$('form textarea')/*.atwho({
 				at: "@",
 				data: "/at/users.json"
-			}).atwho({
+			})*/.atwho({
 				at: ":",
 				data: window.emojis,
 				tpl:"<li data-value='${key}'><img src='http://www.emoji-cheat-sheet.com/graphics/emojis/${name}.png' height='20' width='20' /> ${name}</li>"

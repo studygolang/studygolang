@@ -107,12 +107,18 @@ func SendSysMsgAtUids(uids string, ext map[string]interface{}) bool {
 }
 
 // 给被@的用户发系统消息
+// ext 中可以指定 msgtype，没有指定，默认为 MsgtypeAtMe
 func SendSysMsgAtUsernames(usernames string, ext map[string]interface{}) bool {
 	if usernames == "" {
 		return true
 	}
 	message := model.NewSystemMessage()
-	message.Msgtype = model.MsgtypeAtMe
+	if msgtype, ok := ext["msgtype"]; ok {
+		message.Msgtype = msgtype.(int)
+		delete(ext, "msgtype")
+	} else {
+		message.Msgtype = model.MsgtypeAtMe
+	}
 	message.SetExt(ext)
 
 	msg := NewMessage(WsMsgNotify, 1)
@@ -149,6 +155,7 @@ func SendSysMsgAtUsernames(usernames string, ext map[string]interface{}) bool {
 //   model.MsgtypeTopicReply/MsgtypeResourceComment/MsgtypeWikiComment存放都为：
 //		{"uid":xxx,"objid":xxx}
 //   model.MsgtypeAtMe 为：{"uid":xxx,"cid":xxx,"objid":xxx,"objtype":xxx}
+//   model.MsgtypePulishAtMe 为：{"uid":xxx,"objid":xxx,"objtype":xxx}
 func FindSysMsgsByUid(uid string) []map[string]interface{} {
 	messages, err := model.NewSystemMessage().Where("to=" + uid).Order("ctime DESC").FindAll()
 	if err != nil {
@@ -183,7 +190,7 @@ func FindSysMsgsByUid(uid string) []map[string]interface{} {
 			resIds[objid] = objid
 		case model.MsgtypeWikiComment:
 			wikiIds[objid] = objid
-		case model.MsgtypeAtMe:
+		case model.MsgtypeAtMe, model.MsgtypePublishAtMe:
 			objTypeFloat := ext["objtype"].(float64)
 			switch int(objTypeFloat) {
 			case model.TYPE_TOPIC:
@@ -275,6 +282,43 @@ func FindSysMsgsByUid(uid string) []map[string]interface{} {
 					objUrl += "#commentForm"
 					title += "项目："
 				}
+
+			case model.MsgtypePublishAtMe:
+				title = "发布"
+				switch int(ext["objtype"].(float64)) {
+				case model.TYPE_TOPIC:
+					topic := topicMap[objid]
+					objTitle = topic.Title
+					objUrl = "/topics/" + strconv.Itoa(topic.Tid)
+					title += "主题"
+				case model.TYPE_ARTICLE:
+					article := articleMap[objid]
+					objTitle = article.Title
+					objUrl = "/articles/" + strconv.Itoa(article.Id)
+					title += "博文"
+				case model.TYPE_RESOURCE:
+					resource := resourceMap[objid]
+					objTitle = resource.Title
+					objUrl = "/resources/" + strconv.Itoa(resource.Id)
+					title += "资源"
+				case model.TYPE_WIKI:
+					wiki := wikiMap[objid]
+					objTitle = wiki.Title
+					objUrl = "/wiki/" + strconv.Itoa(wiki.Id)
+					title += "wiki"
+				case model.TYPE_PROJECT:
+					project := projectMap[objid]
+					objTitle = project.Category + project.Name
+					objUrl = "/p/"
+					if project.Uri != "" {
+						objUrl += project.Uri
+					} else {
+						objUrl += strconv.Itoa(project.Id)
+					}
+					title += "项目"
+				}
+
+				title += "时提到了你："
 			}
 			tmpMap["objtitle"] = objTitle
 			tmpMap["objurl"] = objUrl

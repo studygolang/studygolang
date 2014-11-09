@@ -87,6 +87,7 @@ func initRouter() *mux.Router {
 	router.HandleFunc("/resources/cat/{catid:[0-9]+}", CatResourcesHandler)
 	router.HandleFunc("/resources/{id:[0-9]+}", ResourceDetailHandler)
 	router.HandleFunc("/resources/new{json:(|.json)}", NewResourceHandler).AppendFilterChain(loginFilterChain)
+	router.HandleFunc("/resources/modify{json:(|.json)}", ModifyResourceHandler).AppendFilterChain(loginFilterChain)
 
 	// 评论
 	router.HandleFunc("/comment/{objid:[0-9]+}.json", CommentHandler).AppendFilterChain(loginFilterChain)

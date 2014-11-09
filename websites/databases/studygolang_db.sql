@@ -303,9 +303,12 @@ CREATE TABLE `resource_ex` (
   `id` int unsigned NOT NULL,
   `viewnum` int unsigned NOT NULL DEFAULT 0 COMMENT '浏览数',
   `cmtnum` int unsigned NOT NULL DEFAULT 0 COMMENT '回复数',
+  `likenum` int unsigned NOT NULL DEFAULT 0 COMMENT '喜欢数',
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) COMMENT '资源扩展表' ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+alter table `studygolang`.`resource_ex` add column `likenum` int UNSIGNED DEFAULT '0' NOT NULL COMMENT '喜欢数' after `cmtnum`;
 
 /*---------------------------------------------------------------------------*
   NAME: resource_category
