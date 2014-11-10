@@ -19,10 +19,11 @@ import (
 	"util"
 )
 
-// 在需要评论且要回调的地方注册评论对象
+// 在需要评论（喜欢）且要回调的地方注册评论（喜欢）对象
 func init() {
-	// 注册评论对象
+	// 注册评论（喜欢）对象
 	service.RegisterCommentObject(model.TYPE_RESOURCE, service.ResourceComment{})
+	service.RegisterLikeObject(model.TYPE_RESOURCE, service.ResourceLike{})
 }
 
 // 资源索引页
@@ -54,8 +55,26 @@ func CatResourcesHandler(rw http.ResponseWriter, req *http.Request) {
 func ResourceDetailHandler(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	resource, comments := service.FindResource(vars["id"])
+
+	if len(resource) == 0 {
+		util.Redirect(rw, req, "/resources")
+		return
+	}
+
+	likeFlag := 0
+	hadCollect := 0
+	user, ok := filter.CurrentUser(req)
+	if ok {
+		uid := user["uid"].(int)
+		id := resource["id"].(int)
+		likeFlag = service.HadLike(uid, id, model.TYPE_RESOURCE)
+		hadCollect = service.HadFavorite(uid, id, model.TYPE_RESOURCE)
+	}
+
+	service.Views.Incr(req, model.TYPE_RESOURCE, util.MustInt(vars["id"]))
+
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/resources/detail.html")
-	filter.SetData(req, map[string]interface{}{"activeResources": "active", "resource": resource, "comments": comments})
+	filter.SetData(req, map[string]interface{}{"activeResources": "active", "resource": resource, "comments": comments, "likeflag": likeFlag, "hadcollect": hadCollect})
 }
 
 // 发布新资源

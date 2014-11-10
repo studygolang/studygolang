@@ -7,21 +7,23 @@
 package controller
 
 import (
-	"filter"
 	"fmt"
-	"github.com/studygolang/mux"
 	"html/template"
-	"model"
 	"net/http"
-	"service"
 	"strconv"
+
+	"filter"
+	"github.com/studygolang/mux"
+	"model"
+	"service"
 	"util"
 )
 
-// 在需要评论且要回调的地方注册评论对象
+// 在需要评论（喜欢）且要回调的地方注册评论（喜欢）对象
 func init() {
-	// 注册评论对象
+	// 注册评论（喜欢）对象
 	service.RegisterCommentObject(model.TYPE_TOPIC, service.TopicComment{})
+	service.RegisterLikeObject(model.TYPE_TOPIC, service.TopicLike{})
 }
 
 // 社区帖子列表页
@@ -81,12 +83,22 @@ func TopicDetailHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	likeFlag := 0
+	hadCollect := 0
+	user, ok := filter.CurrentUser(req)
+	if ok {
+		uid := user["uid"].(int)
+		tid := topic["tid"].(int)
+		likeFlag = service.HadLike(uid, tid, model.TYPE_TOPIC)
+		hadCollect = service.HadFavorite(uid, tid, model.TYPE_TOPIC)
+	}
+
 	service.Views.Incr(req, model.TYPE_TOPIC, util.MustInt(vars["tid"]))
 
 	// 设置内容模板
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/topics/detail.html")
 	// 设置模板数据
-	filter.SetData(req, map[string]interface{}{"activeTopics": "active", "topic": topic, "replies": replies})
+	filter.SetData(req, map[string]interface{}{"activeTopics": "active", "topic": topic, "replies": replies, "likeflag": likeFlag, "hadcollect": hadCollect})
 }
 
 // 新建帖子

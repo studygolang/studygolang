@@ -134,7 +134,7 @@ func FindProject(uniq string) *model.OpenProject {
 	}
 
 	project := model.NewOpenProject()
-	err = project.Where(field+"=?", uniq).Find()
+	err = project.Where(field+"=? AND status IN(?,?)", uniq, model.StatusNew, model.StatusOnline).Find()
 
 	if err != nil {
 		logger.Errorln("project service FindProject error:", err)
@@ -262,10 +262,8 @@ type ProjectLike struct{}
 // 更新该项目的喜欢数
 // objid：被喜欢对象id；num: 喜欢数(负数表示取消喜欢)
 func (self ProjectLike) UpdateLike(objid, num int) {
-	id := strconv.Itoa(objid)
-
 	// 更新喜欢数（TODO：暂时每次都更新表）
-	err := model.NewOpenProject().Where("id="+id).Increment("likenum", num)
+	err := model.NewOpenProject().Where("id=?", objid).Increment("likenum", num)
 	if err != nil {
 		logger.Errorln("更新项目喜欢数失败：", err)
 	}

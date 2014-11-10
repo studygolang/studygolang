@@ -9,7 +9,6 @@ package service
 import (
 	"net/http"
 	"strconv"
-	"strings"
 	"sync"
 
 	"logger"
@@ -72,8 +71,7 @@ func newViews() *views {
 }
 
 func (this *views) Incr(req *http.Request, objtype uint8, objid int) {
-	pos := strings.LastIndex(req.RemoteAddr, ":")
-	ip := req.RemoteAddr[:pos]
+	ip := util.Ip(req)
 	user := int(util.Ip2long(ip))
 
 	key := strconv.Itoa(int(objtype)) + strconv.Itoa(objid)

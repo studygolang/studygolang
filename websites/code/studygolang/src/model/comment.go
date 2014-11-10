@@ -13,7 +13,7 @@ import (
 
 // 不要修改常量的顺序
 const (
-	TYPE_TOPIC    = iota // 帖子
+	TYPE_TOPIC    = iota // 主题
 	TYPE_ARTICLE         // 博文
 	TYPE_RESOURCE        // 资源
 	TYPE_WIKI            // WIKI

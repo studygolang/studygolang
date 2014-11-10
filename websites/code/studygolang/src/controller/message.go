@@ -1,4 +1,4 @@
-// Copyright 2013 The StudyGolang Authors. All rights reserved.
+// Copyright 2013-2014 The StudyGolang Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
@@ -7,12 +7,13 @@
 package controller
 
 import (
-	"filter"
 	"fmt"
-	"github.com/studygolang/mux"
 	"net/http"
-	"service"
 	"strconv"
+
+	"filter"
+	"github.com/studygolang/mux"
+	"service"
 	"util"
 )
 
@@ -20,8 +21,8 @@ import (
 // uri: /message/send{json:(|.json)}
 func SendMessageHandler(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
-	content := req.FormValue("content")
-	// 请求新建帖子页面
+	content := req.PostFormValue("content")
+	// 请求发送消息页面
 	if content == "" || req.Method != "POST" || vars["json"] == "" {
 		user := service.FindUserByUsername(req.FormValue("username"))
 		filter.SetData(req, map[string]interface{}{"user": user})
@@ -30,13 +31,13 @@ func SendMessageHandler(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	user, _ := filter.CurrentUser(req)
-	to := util.MustInt(req.FormValue("to"))
+	to := util.MustInt(req.PostFormValue("to"))
 	success := service.SendMessageTo(user["uid"].(int), to, content)
 	if !success {
-		fmt.Fprint(rw, `{"errno": 1, "error":"对不起，发送失败，请稍候再试！"}`)
+		fmt.Fprint(rw, `{"ok": 0, "error":"对不起，发送失败，请稍候再试！"}`)
 		return
 	}
-	fmt.Fprint(rw, `{"errno": 0, "error":""}`)
+	fmt.Fprint(rw, `{"ok": 1, "error":""}`)
 }
 
 // 消息列表
@@ -63,14 +64,14 @@ func MessageHandler(rw http.ResponseWriter, req *http.Request) {
 // uri: /message/delete.json
 func DeleteMessageHandler(rw http.ResponseWriter, req *http.Request) {
 	if req.Method != "POST" {
-		fmt.Fprint(rw, `{"errno": 1, "error":"非法请求！"}`)
+		fmt.Fprint(rw, `{"ok": 0, "error":"非法请求！"}`)
 		return
 	}
-	id := req.FormValue("id")
-	msgtype := req.FormValue("msgtype")
+	id := req.PostFormValue("id")
+	msgtype := req.PostFormValue("msgtype")
 	if !service.DeleteMessage(id, msgtype) {
-		fmt.Fprint(rw, `{"errno": 1, "error":"对不起，删除失败，请稍候再试！"}`)
+		fmt.Fprint(rw, `{"ok": 0, "error":"对不起，删除失败，请稍候再试！"}`)
 		return
 	}
-	fmt.Fprint(rw, `{"errno": 0, "error":""}`)
+	fmt.Fprint(rw, `{"ok": 1, "error":""}`)
 }

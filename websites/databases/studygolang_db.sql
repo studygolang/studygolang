@@ -308,8 +308,6 @@ CREATE TABLE `resource_ex` (
   PRIMARY KEY (`id`)
 ) COMMENT '资源扩展表' ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-alter table `studygolang`.`resource_ex` add column `likenum` int UNSIGNED DEFAULT '0' NOT NULL COMMENT '喜欢数' after `cmtnum`;
-
 /*---------------------------------------------------------------------------*
   NAME: resource_category
   用途：资源分类表

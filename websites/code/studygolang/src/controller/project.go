@@ -154,7 +154,7 @@ func ModifyProjectHandler(rw http.ResponseWriter, req *http.Request) {
 func ProjectDetailHandler(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	project := service.FindProject(vars["uniq"])
-	if project == nil || project.Status != model.StatusOnline {
+	if project == nil {
 		util.Redirect(rw, req, "/projects")
 		return
 	}

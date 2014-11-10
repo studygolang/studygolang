@@ -7,14 +7,16 @@
 package service
 
 import (
-	"config"
 	"io/ioutil"
-	"logger"
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
+
+	"config"
+	"logger"
 	"util"
 )
 
@@ -171,7 +173,7 @@ func initMaxOnlineNum() {
 			logger.Errorln("read data file error:", err)
 			return
 		}
-		maxOnlineNum = util.MustInt(string(data))
+		maxOnlineNum = util.MustInt(strings.TrimSpace(string(data)))
 	}
 }
 
