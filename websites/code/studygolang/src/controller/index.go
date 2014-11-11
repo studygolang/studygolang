@@ -7,7 +7,6 @@
 package controller
 
 import (
-	"math/rand"
 	"net/http"
 	"net/url"
 	"strings"

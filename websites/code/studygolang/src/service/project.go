@@ -110,12 +110,14 @@ func ProjectUriExists(uri string) bool {
 func FindProjects(lastId, limit string) []*model.OpenProject {
 	project := model.NewOpenProject()
 
-	cond := "status=" + strconv.Itoa(model.StatusOnline)
+	query := "status IN(?,?)"
+	args := []interface{}{model.StatusNew, model.StatusOnline}
 	if lastId != "0" {
-		cond += " AND id<" + lastId
+		query += " AND id<?"
+		args = append(args, lastId)
 	}
 
-	projectList, err := project.Where(cond).Order("id DESC").Limit(limit).
+	projectList, err := project.Where(query, args...).Order("id DESC").Limit(limit).
 		FindAll()
 	if err != nil {
 		logger.Errorln("project service FindProjects Error:", err)
