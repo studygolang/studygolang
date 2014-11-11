@@ -171,7 +171,7 @@ func ProjectDetailHandler(rw http.ResponseWriter, req *http.Request) {
 	service.Views.Incr(req, model.TYPE_PROJECT, project.Id)
 
 	// 为了阅读数即时看到
-	project.Cmtnum++
+	project.Viewnum++
 
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/projects/detail.html")
 	filter.SetData(req, map[string]interface{}{"activeProjects": "active", "project": project, "likeflag": likeFlag, "hadcollect": hadCollect})
