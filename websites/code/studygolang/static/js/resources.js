@@ -78,24 +78,7 @@
 				$('#submit').click();
 			}
 		});
-
-		// 注册 @ 和 表情
-		var registerAtEvent = function() {
-			// @ 本站其他人
-			$('form textarea')/*.atwho({
-				at: "@",
-				data: "/at/users.json"
-			})*/.atwho({
-				at: ":",
-				data: window.emojis,
-				tpl:"<li data-value='${key}'><img src='http://www.emoji-cheat-sheet.com/graphics/emojis/${name}.png' height='20' width='20' /> ${name}</li>"
-			})/*.atwho({
-				at: "\\",
-				data: window.twemojis,
-				tpl:"<li data-value='${name}'><img src='https://twemoji.maxcdn.com/16x16/${key}.png' height='16' width='16' /> ${name}</li>"
-			})*/;
-		}
-
-		registerAtEvent();
+		
+		SG.registerAtEvent(false, true);
 	});
 }).call(this)

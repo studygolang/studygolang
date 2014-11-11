@@ -68,6 +68,68 @@ SG.analyzeAt = function(text) {
 	return usernames;
 }
 
+// registerAtEvent
+// 注册 @ 和 表情
+SG.registerAtEvent = function(isAt, isEmoji, selector) {
+	if (typeof isAt == "undefined") {
+		isAt = true;
+	}
+
+	if (typeof isEmoji == "undefined") {
+		isEmoji = true;
+	}
+
+	if (typeof selector == "undefined") {
+		selector = $('form textarea');
+	}
+	
+	if (isAt) {
+		var cachequeryMentions = {}, itemsMentions;
+		// @ 本站其他人
+		selector.atwho({
+			at: "@",
+			tpl: "<li data-value='${atwho-at}${username}'><img src='${avatar}' height='20' width='20' /> ${username}</li>",
+			search_key: "username",
+			callbacks: {
+				remote_filter: function (query, render_view) {
+					var thisVal = query,
+					self = $(this);
+					if( !self.data('active') ){
+						self.data('active', true);
+						itemsMentions = cachequeryMentions[thisVal]
+						if(typeof itemsMentions == "object"){
+							render_view(itemsMentions);
+						} else {
+							if (self.xhr) {
+								self.xhr.abort();
+							}
+							self.xhr = $.getJSON("/at/users.json",{
+								term: thisVal
+							}, function(data) {
+								cachequeryMentions[thisVal] = data
+								render_view(data);
+							});
+						}
+						self.data('active', false);
+					}
+				}
+			}
+		});
+	}
+
+	if (isEmoji) {
+		selector.atwho({
+			at: ":",
+			data: window.emojis,
+			tpl:"<li data-value='${key}'><img src='http://www.emoji-cheat-sheet.com/graphics/emojis/${name}.png' height='20' width='20' /> ${name}</li>"
+		})/*.atwho({
+			at: "\\",
+			data: window.twemojis,
+			tpl:"<li data-value='${name}'><img src='https://twemoji.maxcdn.com/16x16/${key}.png' height='16' width='16' /> ${name}</li>"
+		})*/;
+	}
+}
+
 jQuery(document).ready(function($) {
 	// timeago：3 天之内才显示 timeago
 

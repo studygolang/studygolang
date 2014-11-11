@@ -7,6 +7,7 @@
 package util
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -27,4 +28,14 @@ func Join(ins []int, sep string) string {
 		strSlice[i] = strconv.Itoa(one)
 	}
 	return strings.Join(strSlice, sep)
+}
+
+// 获取头像
+func Gravatar(emailI interface{}, size uint16) string {
+	email, ok := emailI.(string)
+	if !ok {
+		// TODO:给一个默认的？
+		return ""
+	}
+	return fmt.Sprintf("http://www.gravatar.com/avatar/%s?s=%d", Md5(email), size)
 }

@@ -105,8 +105,10 @@
 						size: 16
 					});
 					*/
-					
-					registerAtEvent();
+
+					if ($("#is_login_status").val() == 1) {
+						SG.registerAtEvent(true, true, $('.page-comment textarea'));
+					}
 				} else {
 					comTip("评论加载失败");
 				}
@@ -281,7 +283,7 @@
 						*/
 						
 						// 注册@
-						registerAtEvent();
+						SG.registerAtEvent(true, true, $('.page-comment textarea'));
 
 						var $cmtNumObj = $('.page-comment .words h3 .cmtnum'),
 							cmtNum = parseInt($cmtNumObj.text(), 10) + 1;
@@ -304,25 +306,6 @@
 					thiss.text("提交").removeClass("disabled").removeAttr("disabled").attr({"title":'提交'});
 				}
 			});
-		}
-
-		// 注册 @ 和 表情
-		var registerAtEvent = function() {
-			if ($("#is_login_status").val() == 1) {
-				// @ 本站其他人
-				$('.page-comment textarea').atwho({
-					at: "@",
-					data: "/at/users.json"
-				}).atwho({
-					at: ":",
-					data: window.emojis,
-					tpl:"<li data-value='${key}'><img src='http://www.emoji-cheat-sheet.com/graphics/emojis/${name}.png' height='20' width='20' /> ${name}</li>"
-				})/*.atwho({
-					at: "\\",
-					data: window.twemojis,
-					tpl:"<li data-value='${name}'><img src='https://twemoji.maxcdn.com/16x16/${key}.png' height='16' width='16' /> ${name}</li>"
-				})*/;
-			}
 		}
 	});
 }).call(this)

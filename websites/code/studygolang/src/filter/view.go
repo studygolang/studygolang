@@ -26,14 +26,7 @@ import (
 // 自定义模板函数
 var funcMap = template.FuncMap{
 	// 获取gravatar头像
-	"gravatar": func(emailI interface{}, size uint16) string {
-		email, ok := emailI.(string)
-		if !ok {
-			// TODO:给一个默认的？
-			return ""
-		}
-		return fmt.Sprintf("http://www.gravatar.com/avatar/%s?s=%d", util.Md5(email), size)
-	},
+	"gravatar": util.Gravatar,
 	// 转为前端显示需要的时间格式
 	"formatTime": func(i interface{}) string {
 		ctime, ok := i.(string)

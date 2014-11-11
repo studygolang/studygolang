@@ -26,12 +26,11 @@ func SearchHandler(rw http.ResponseWriter, req *http.Request) {
 
 	rows := 20
 
+	pageHtml := ""
 	respBody, err := service.DoSearch(q, field, (p-1)*rows, rows)
-	if err != nil {
-		// TODO:当作无结果处理？
+	if err == nil {
+		pageHtml = service.GenPageHtml(p, rows, respBody.NumFound, "/search?q="+q+"&f="+field)
 	}
-
-	pageHtml := service.GenPageHtml(p, rows, respBody.NumFound, "/search?q="+q+"&f="+field)
 
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/search.html")
 	// 设置模板数据

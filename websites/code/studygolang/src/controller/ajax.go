@@ -260,8 +260,8 @@ func NewestUserHandler(rw http.ResponseWriter, req *http.Request) {
 // uri: /at/users.json
 func AtUsersHandler(rw http.ResponseWriter, req *http.Request) {
 	term := req.FormValue("term")
-	usernames := service.GetUserMentions(term, 10)
-	buf, err := json.Marshal(usernames)
+	users := service.GetUserMentions(term, 10)
+	buf, err := json.Marshal(users)
 	if err != nil {
 		logger.Errorln("[AtUsersHandler] json.marshal error:", err)
 		fmt.Fprint(rw, `[]`)

@@ -267,20 +267,25 @@ func FindUsersByPage(conds map[string]string, curPage, limit int) ([]*model.User
 }
 
 // 获取 @ 的 suggest 列表
-func GetUserMentions(term string, limit int) []string {
+func GetUserMentions(term string, limit int) []map[string]string {
 	term = "%" + term + "%"
-	users, err := model.NewUser().Where("username like ?", term).Limit(strconv.Itoa(limit)).FindAll("username")
+	userActives, err := model.NewUserActive().Where("username like ?", term).Limit(strconv.Itoa(limit)).Order("mtime DESC").FindAll("email", "username", "avatar")
 	if err != nil {
 		logger.Errorln("user service GetUserMentions Error:", err)
-		return []string{}
+		return nil
 	}
 
-	usernames := make([]string, len(users))
-	for i, user := range users {
-		usernames[i] = user.Username
+	users := make([]map[string]string, len(userActives))
+	for i, userActive := range userActives {
+		user := make(map[string]string, 2)
+		user["username"] = userActive.Username
+		if userActive.Avatar == "" {
+			user["avatar"] = util.Gravatar(userActive.Email, 20)
+		}
+		users[i] = user
 	}
 
-	return usernames
+	return users
 }
 
 var (
