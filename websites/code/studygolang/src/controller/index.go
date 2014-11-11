@@ -44,18 +44,20 @@ func IndexHandler(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	// Golang 资源
-	resources := service.FindResources("0", "100")
+	resources := service.FindResources("0", "10")
 
-	start, end := 0, len(resources)
-	if n := end - 10; n > 0 {
-		start = rand.Intn(n)
-		end = start + 10
-	}
+	/*
+		start, end := 0, len(resources)
+		if n := end - 10; n > 0 {
+			start = rand.Intn(n)
+			end = start + 10
+		}
+	*/
 
 	// 设置内容模板
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/index.html")
 	// 设置模板数据
-	filter.SetData(req, map[string]interface{}{"topics": newTopics, "articles": recentArticles, "likeflags": likeFlags, "resources": resources[start:end]})
+	filter.SetData(req, map[string]interface{}{"topics": newTopics, "articles": recentArticles, "likeflags": likeFlags, "resources": resources})
 }
 
 // 包装链接
