@@ -269,15 +269,15 @@ func FindUsersByPage(conds map[string]string, curPage, limit int) ([]*model.User
 // 获取 @ 的 suggest 列表
 func GetUserMentions(term string, limit int) []string {
 	term = "%" + term + "%"
-	userLogins, err := model.NewUserLogin().Where("username like ?", term).Limit(strconv.Itoa(limit)).FindAll("username")
+	users, err := model.NewUser().Where("username like ?", term).Limit(strconv.Itoa(limit)).FindAll("username")
 	if err != nil {
 		logger.Errorln("user service GetUserMentions Error:", err)
 		return []string{}
 	}
 
-	usernames := make([]string, len(userLogins))
-	for i, userLogin := range userLogins {
-		usernames[i] = userLogin.Username
+	usernames := make([]string, len(users))
+	for i, user := range users {
+		usernames[i] = user.Username
 	}
 
 	return usernames
