@@ -78,7 +78,7 @@
 
 						var avatar = user.avatar;
 						if (avatar == "") {
-							avatar = 'http://www.gravatar.com/avatar/'+md5(user.email)+"?s=48";
+							avatar = 'http://gravatar.duoshuo.com/avatar/'+md5(user.email)+"?s=48";
 						}
 						
 						var cmtTime = SG.timeago(comments[i].ctime);
