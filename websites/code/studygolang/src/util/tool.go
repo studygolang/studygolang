@@ -37,5 +37,5 @@ func Gravatar(emailI interface{}, size uint16) string {
 		// TODO:给一个默认的？
 		return ""
 	}
-	return fmt.Sprintf("http://www.gravatar.com/avatar/%s?s=%d", Md5(email), size)
+	return fmt.Sprintf("http://gravatar.duoshuo.com/avatar/%s?s=%d", Md5(email), size)
 }
