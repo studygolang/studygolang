@@ -333,5 +333,9 @@ func UploadImageHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if origUrl != "" {
+		uri = "http://studygolang.qiniudn.com/" + uri
+	}
+
 	fmt.Fprint(rw, `{"ok": 1, "uri":"`+uri+`"}`)
 }
