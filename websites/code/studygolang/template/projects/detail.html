@@ -105,7 +105,7 @@
 				<!-- JiaThis Button END -->
 			</div>
 			<!-- 评论 -->
-			<div class="page-comment" data-objid="{{.project.Id}}" data-objtype="4" {{if .me}}data-username="{{.me.username}}" data-uid="{{.me.uid}}" data-avatar="{{if .me.avatar}}{{.me.avatar}}{{else}}{{gravatar .me.email 48}}{{end}}"{{end}}>
+			<div class="page-comment" data-objid="{{.project.Id}}" data-objtype="4" {{if .me}}data-username="{{.me.username}}" data-uid="{{.me.uid}}" data-avatar="{{gravatar .me.avatar .me.email 48}}"{{end}}>
 				<div class="comment-title">
 					<h2>项目点评：</h2>
 					{{if .me}}

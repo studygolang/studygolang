@@ -45,6 +45,17 @@ var rules = map[string]map[string]map[string]map[string]string{
 			"compare": {"field": "passwd", "rule": "=", "error": "两次密码不一致"},
 		},
 	},
+	// 修改密码
+	"/account/changepwd.json": {
+		"passwd": {
+			"require": {"error": "密码不能为空！"},
+			"length":  {"range": "6,32", "error": "密码长度必须在%d个字符和%d个字符之间"},
+		},
+		"pass2": {
+			"require": {"error": "确认密码不能为空！"},
+			"compare": {"field": "passwd", "rule": "=", "error": "两次密码不一致"},
+		},
+	},
 	// 发新帖
 	"/topics/new.json": {
 		"nid": {

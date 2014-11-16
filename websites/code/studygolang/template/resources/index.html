@@ -23,7 +23,7 @@
 				{{range .resources}}
 				<div class="resource">
 					<div class="rinfo">
-						<a class="avatar pull-right" href="/user/{{.user.Username}}"><img src="{{gravatar .user.Email 48}}" alt="{{.user.Username}}"></a>
+						<a class="avatar pull-right" href="/user/{{.user.Username}}"><img src="{{gravatar .user.Avatar .user.Email 48}}" alt="{{.user.Username}}"></a>
 						<a class="link-url" href="{{.url}}" target="_blank" data-id="{{.id}}">{{.title}}</a>
 						{{if .host}}
 						<span class="host">({{.host}})</span>

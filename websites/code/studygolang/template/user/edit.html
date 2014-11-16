@@ -1,121 +1,244 @@
-{{define "topnav"}}
-<li class="first"><a href="/">首页</a><span class="divider">/</span></li>
-<li class=""><a href="/users" itemprop="url"><span itemprop="title">会员</span></a><span class="divider">/</span></li>
-<li class="last active"><a href="/account/edit" itemprop="url"><span itemprop="title">编辑个人信息</span></a></li>
-{{end}}
+{{define "title"}}{{.user.Username}} 编辑个人信息 {{end}}
+{{define "seo"}}<meta name="keywords" content="会员, 个人信息, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
+<meta name="description" content="中国 Golang 社区，Go语言学习园地，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。完全Go语言实现。">{{end}}
 {{define "content"}}
-<div id="main" class="container-fluid">
-  <div class="content">
-    <div class="box">
-      <form accept-charset="UTF-8" action="/account/edit.json" class="simple_form form-horizontal edit_user" enctype="multipart/form-data" id="edit_user" method="post" novalidate="novalidate">
-        <div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="✓"><input name="authenticity_token" type="hidden" value="XXYa9tVpt4ZDT+ZtHvkc7YDkacaQ0xfNa+ceIScNy4U="><input name="username" type="hidden" value="{{.user.Username}}"></div>
-        
-        <fieldset>
-          <legend>个人资料设置</legend>
-          <div class="control-group string optional"><label class="string optional control-label" for="name">名字</label><div class="controls"><input class="string optional" id="name" name="name" size="50" type="text" value="{{.user.Name}}"></div></div>
-          <!--<div class="control-group file optional"><label class="file optional control-label" for="user_avatar">头像</label><div class="controls"><input class="file optional" id="user_avatar" name="user[avatar]" type="file"></div></div>-->
-          <div class="control-group email required"><label class="email required control-label" for="user_email"><abbr title="required">*</abbr> Email</label><div class="controls"><input class="string email required span4" disabled="disabled" id="user_email" name="email" size="50" type="email" value="{{.user.Email}}"></div></div>
-          <div class="control-group">
-            <div class="controls">
-              <label for="user_email_public" class="checkbox"><input {{if .user.Open}}checked="checked"{{end}} id="user_email_public" name="open" type="checkbox"> 公开 Email</label>
-            </div>
-          </div>
-          <div class="control-group string optional"><label class="string optional control-label" for="user_city">城市</label><div class="controls"><input class="string optional span3" id="user_city" name="city" size="50" type="text" value="{{.user.City}}"/><p class="help-block">请用中文填写所在城市</p></div></div>
-          <div class="control-group string optional"><label class="string optional control-label" for="user_company">公司</label><div class="controls"><input class="string optional span3" id="user_company" name="company" size="50" type="text" value="{{.user.Company}}"/></div></div>
-          <div class="control-group">
-            <label class="string optional control-label" for="user_github">Github</label>
-            <div class="controls">
-              <div class="input-prepend">
-                <span class="add-on">https://github.com/</span>
-                <input class="small" id="user_github" name="github" placeholder="yourname" size="30" type="text" value="{{.user.Github}}"/>
-              </div>
-            </div>
-          </div>
-          <div class="control-group">
-            <label class="string optional control-label" for="user_weibo">微博</label>
-            <div class="controls">
-              <div class="input-prepend">
-                <span class="add-on">http://weibo.com/</span>
-                <input class="small" id="user_weibo" name="weibo" placeholder="yourname" size="30" type="text" value="{{.user.Weibo}}"/>
-              </div>
-            </div>
-          </div>
-          <div class="control-group string optional"><label class="string optional control-label" for="user_website">个人主页</label><div class="controls"><input class="string optional xxlarge" id="user_website" name="website" placeholder="http://" size="50" type="text" value="{{.user.Website}}"></div></div>
-          <div class="control-group string optional"><label class="string optional control-label" for="user_tagline">签名</label><div class="controls"><input class="string optional xxlarge" id="user_tagline" name="status" size="50" type="text" value="{{.user.Monlog}}"/></div></div>
-          <div class="control-group text optional"><label class="text optional control-label" for="user_bio">个人介绍</label><div class="controls"><textarea class="text optional xxlarge" cols="40" id="user_bio" name="introduce" rows="6">{{.user.Introduce}}</textarea></div></div>
-          <div class="form-actions">
-              <input class="btn btn-primary" data-disable-with="正在保存" name="commit" type="submit" value="更新资料"/>
-          </div>
-        </fieldset>
-      </form>
-    </div>
-  <div class="box">
-    <form accept-charset="UTF-8" action="/account/changepwd.json" class="simple_form form-horizontal edit_user" id="change_passwd" method="post" novalidate="novalidate"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="✓"><input name="username" type="hidden" value="{{.user.Username}}"><input name="authenticity_token" type="hidden" value="XXYa9tVpt4ZDT+ZtHvkc7YDkacaQ0xfNa+ceIScNy4U="></div>
-      
-      <fieldset>
-        <legend>修改密码</legend>
-        <div class="control-group password optional"><label class="password optional control-label" for="user_current_password">旧密码</label><div class="controls"><input class="password optional" id="user_current_password" name="cur_passwd" size="50" type="password"></div></div>
-        <div class="control-group password optional"><label class="password optional control-label" for="user_password">新密码</label><div class="controls"><input class="password optional" id="user_password" name="passwd" size="50" type="password"></div></div>
-        <div class="control-group password optional"><label class="password optional control-label" for="user_password_confirmation">确认密码</label><div class="controls"><input class="password optional" id="user_password_confirmation" name="pass2" size="50" type="password"></div></div>
-        <div class="form-actions">
-          <input class="btn btn-success" data-disable-with="正在保存" name="commit" type="submit" value="修改密码">
-        </div>
-      </fieldset>
-    </form>
-  </div>
+<div class="row banner">
 </div>
-
-  <div class="sidebar">
-    <div class="box" style="text-align:center;">
-       <a href="/user/{{.user.Username}}"><img alt="{{.user.Username}}" class="uface" src="{{gravatar .user.Email 120}}" style="width:120px;height:120px;"></a> <br>如需修改头像，请进入 <a href="http://www.gravatar.com/" target="_blank">gravatar.com</a>
-    </div>
-    <!--
-    <div class="box">
-      <h2>绑定其他帐号用于登陆</h2>
-      <ul>
-        <li>
-            <a href="/account/auth/github" rel="twitsy" title="点击解除绑定">Github</a>
-        </li>
-      </ul>
-    </div>
-    -->
-  </div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/user/{{.user.Username}}">个人信息</a></li>
+			<li class="active">编辑</li>
+		</ol>
+		<div class="box_white">
+			<form class="form-horizontal validate-form" role="form" action="/account/edit.json">
+				<fieldset>
+					<legend>个人资料设置</legend>
+					<div class="form-group">
+						<label class="col-sm-3 control-label" for="username">用户名</label>
+						<div class="col-sm-6">
+							<p class="form-control-static">{{.user.Username}}</p>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label" for="email">Email</label>
+						<div class="col-sm-6">
+							<p class="form-control-static">{{.user.Email}}</p>
+							<label>
+								<input type="checkbox" name="open" value="1" {{if .user.Open}}checked{{end}}> 公开Email
+							</label>
+						</div>
+					</div>
+					<div class="form-group form-group-sm">
+						<label class="col-sm-3 control-label" for="name">名字</label>
+						<div class="col-sm-6">
+							<input class="form-control" type="text" id="name" name="name" placeholder="名字" value="{{.user.Name}}">
+						</div>
+					</div>
+					<div class="form-group form-group-sm">
+						<label class="col-sm-3 control-label" for="city">城市</label>
+						<div class="col-sm-6">
+							<input class="form-control" type="text" id="city" name="city" placeholder="城市" value="{{.user.City}}">
+						</div>
+						<span class="help-block">请用中文填写所在城市</span>
+					</div>
+					<div class="form-group form-group-sm">
+						<label class="col-sm-3 control-label" for="company">公司</label>
+						<div class="col-sm-6">
+							<input class="form-control" type="text" id="company" name="company" placeholder="公司" value="{{.user.Company}}">
+						</div>
+					</div>
+					<div class="form-group form-group-sm">
+						<label class="col-sm-3 control-label" for="github">Github</label>
+						<div class="col-sm-6">
+							<div class="input-group input-group-sm">
+								<span class="input-group-addon">https://github.com/</span>
+								<input type="text" id="github" class="form-control" placeholder="yourname" value="{{.user.Github}}">
+							</div>
+						</div>
+					</div>
+					<div class="form-group form-group-sm">
+						<label class="col-sm-3 control-label" for="weibo">微博</label>
+						<div class="col-sm-6">
+							<div class="input-group input-group-sm">
+								<span class="input-group-addon">http://weibo.com/</span>
+								<input type="text" id="weibo" class="form-control" placeholder="yourname" value="{{.user.Weibo}}">
+							</div>
+						</div>
+					</div>
+					<div class="form-group form-group-sm">
+						<label class="col-sm-3 control-label" for="website">个人主页</label>
+						<div class="col-sm-6">
+							<input class="form-control {url:true}" type="url" id="website" name="website" placeholder="http://" value="{{.user.Website}}">
+						</div>
+					</div>
+					<div class="form-group form-group-sm">
+						<label class="col-sm-3 control-label" for="monlog">签名</label>
+						<div class="col-sm-6">
+							<input class="form-control" type="text" id="monlog" name="monlog" placeholder="个性签名" value="{{.user.Monlog}}">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label" for="introduce">个人介绍</label>
+						<div class="col-sm-6">
+							<textarea class="form-control need-autogrow" rows="3" name="introduce">{{.user.Introduce}}</textarea>
+						</div>
+					</div>
+				</fieldset>
+				<div class="form-group form-group-sm">
+					<div class="col-sm-offset-5 col-sm-6">
+						<button type="submit" class="btn btn-default btn-sm submit">更新资料</button>
+					</div>
+				</div>
+			</form>
+		</div>
+		<br>
+		<div class="box_white" id="change-avatar">
+			<div class="select-avatar">
+				<h4 class="title">头像</h4>
+				<p>本站使用<a href="http://www.qiniu.com/" target="_blank">七牛云存储</a>来提供头像服务.</p>
+				<p>
+					当前头像<img class="img-rounded" src="{{gravatar .user.Avatar .user.Email 120}}">
+				</p>
+				<p><a href="/account/change_avatar.json" class="btn btn-default btn-gravatar">使用Gravatar头像</a></p>
+				<ul class="nav nav-tabs" id="avatar-tab" role="tablist" style="margin-bottom: 15px;">
+					<li role="presentation" class="active"><a href="#default" role="tab" data-toggle="tab">选择默认头像</a></li>
+					<li role="presentation"><a href="#upload" role="tab" data-toggle="tab">上传头像</a></li>
+				</ul>
+				<div class="tab-content">
+					<div id="default" class="tab-pane fade row-fluid active in" role="tabpanel">
+						<form action="/account/change_avatar.json" method="post" class="validate-form" role="form" >
+							<div class="form-group">
+								<ul class="list-inline">
+									{{range .default_avatars}}
+									<li>
+										<label>
+											<input type="radio" name="avatar" value="{{.}}" class="required">
+											<img class="img-rounded" src="http://studygolang.qiniudn.com/avatar/{{.}}?imageView2/2/w/80" alt="{{.}}">
+										</label>
+									</li>
+									{{end}}
+								</ul>
+							<div class="control-group">
+								<div class="controls text-center">
+									<button type="submit" class="btn btn-success btn-sm submit">保存</button>
+								</div>
+							</div>
+							</div>
+						</form>
+					</div>
+					<div id="upload" class="tab-pane fade">
+					<form action="/account/change_avatar.json" method="post" enctype="multipart/form-data" class="form-horizontal validate-form">
+						<input type="hidden" name="avatar" id="upload-avatar">
+						<div class="form-group">
+							<label class="control-label col-md-2" for="upload-img">选择图片文件</label>
+							<div class="col-md-2">
+								<button id="upload-img" class="btn btn-primary btn-sm">选择文件</button>
+							</div>
+							<span class="help-block">支持500K以内的jpg/png文件</span>
+						</div>
+						<div id="img-preview" class="form-group dn">
+							<div class="col-md-offset-2 col-md-10">
+								<img src="" alt="" width="72px" height="72px">
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-md-offset-2 col-md-10">
+								<button type="submit" id="upload-btn" class="btn btn-success btn-sm submit" disabled>保存新头像</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			</div>
+		</div>
+		<br>
+		<div class="box_white">
+			<form class="form-horizontal validate-form" role="form" action="/account/changepwd.json">
+				<fieldset>
+					<legend>修改密码</legend>
+					<div class="form-group form-group-sm">
+						<label class="col-sm-3 control-label" for="cur_password">旧密码</label>
+						<div class="col-sm-6">
+							<input class="form-control required" type="password" id="cur_password" name="cur_passwd" placeholder="旧密码">
+						</div>
+					</div>
+					<div class="form-group form-group-sm">
+						<label class="col-sm-3 control-label" for="passwd">新密码</label>
+						<div class="col-sm-6">
+							<input class="form-control {required:true,rangelength:[6,32]}" type="password" id="passwd" name="passwd" placeholder="新密码">
+						</div>
+					</div>
+					<div class="form-group form-group-sm">
+						<label class="col-sm-3 control-label" for="pass2">确认密码</label>
+						<div class="col-sm-6">
+							<input class="form-control {required:true,equalTo:'#passwd'}" type="password" id="pass2" name="pass2" placeholder="确认密码">
+						</div>
+					</div>
+				</fieldset>
+				<div class="form-group form-group-sm">
+					<div class="col-sm-offset-5 col-sm-6">
+						<button type="submit" class="btn btn-default btn-sm submit">修改密码</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		
+		<div class="row box_white sidebar">
+			<div class="top">
+				<ul class="list-inline text-center">
+					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新主题</a>|</li>
+					<li class="second"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
+					<li class="last"><a href="javascript:;">最新评论</a></li>
+				</ul>
+				<p class="bar"></p>
+			</div>
+			<div class="sb-content">
+				<div class="topic-list first">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+				<div class="resource-list second hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+				<div class="cmt-list last hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 {{end}}
-{{define "title"}}{{.user.Username}}的个人首页 {{end}}
-{{define "css"}}<link href="/static/css/users.css" media="screen" rel="stylesheet" type="text/css">{{end}}
+{{define "css"}}
+<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/user.css" media="screen" rel="stylesheet" type="text/css">
+{{end}}
 {{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
+<script type="text/javascript" src="/static/js/user.js"></script>
 <script type="text/javascript">
-$(function(){
-    // 表单提交
-    $('#edit_user').submit(function(){
-        var self = $(this);
-        $.post(self.attr('action'), self.serialize(), function(data){
-            if (data.errno) {
-                //$('#alert_info').html(data.error).show()
-                alert(data.error);
-            } else {
-                alert(data.msg);
-                location.reload();
-            }
-        });
-        return false;
-    });
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/topics/recent.json",
+	"/resources/recent.json",
+	"/comments/recent.json",
+];
 
-    // 表单提交
-    $('#change_passwd').submit(function(){
-        var self = $(this);
-        $.post(self.attr('action'), self.serialize(), function(data){
-            if (data.errno) {
-                //$('#alert_info').html(data.error).show()
-                alert(data.error);
-            } else {
-                alert(data.msg);
-                location.reload();
-            }
-        });
-        return false;
-    });
-})
+$(function(){
+	// 文本框自动伸缩
+	$('.need-autogrow').autoGrow();
+});
 </script>
 {{end}}

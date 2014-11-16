@@ -14,7 +14,7 @@
 		<div class="box_white">
 			<div class="userinfo">
 				<div class="pull-right">
-					<a href="/user/{{.user.Username}}" title="{{.user.Username}}"><img alt="{{.user.Username}}" src="{{gravatar .user.Email 80}}" width="80px" height="80px" class="img-rounded"></a>
+					<a href="/user/{{.user.Username}}" title="{{.user.Username}}"><img alt="{{.user.Username}}" src="{{gravatar .user.Avatar .user.Email 80}}" width="80px" height="80px" class="img-rounded"></a>
 					{{if .me.username}}
 					{{if ne .user.Username .me.username}}
 					<a class="btn btn-success btn-sm" href="/favorites/{{.user.Username}}">TA的收藏</a>

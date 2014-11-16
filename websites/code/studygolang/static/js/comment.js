@@ -79,6 +79,8 @@
 						var avatar = user.avatar;
 						if (avatar == "") {
 							avatar = 'http://gravatar.duoshuo.com/avatar/'+md5(user.email)+"?s=48";
+						} else {
+							avatar = 'http://studygolang.qiniudn.com/avatar/'+avatar+'?imageView2/2/w/40';
 						}
 						
 						var cmtTime = SG.timeago(comments[i].ctime);

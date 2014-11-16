@@ -24,3 +24,13 @@
 .recent-comments ul li {margin-top: 8px;border-bottom: 1px dashed #ddd;}
 .recent-comments ul li .info {font-size: 12px;color: #bbb;}
 .recent-comments ul li .content {margin-top: 6px;color: #666;}
+
+.users .info {padding-top: 10px;}
+.users .user-list {padding-bottom: 20px;}
+.users .user-list h4 {margin-left: 10px;}
+.users .user-list .item {margin-top: 10px;}
+
+.form-horizontal fieldset legend {font-size: 16px;font-weight: bold;margin-left:10px;}
+
+.select-avatar {padding: 15px 10px 10px 10px;}
+.select-avatar .title {font-size: 16px;font-weight: bold;width: 100%;padding: 0;margin-bottom: 21px;line-height: inherit;color: #333333;border: 0;border-bottom: 1px solid #e5e5e5;margin-top: 0px;}

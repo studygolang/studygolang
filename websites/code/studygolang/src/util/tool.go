@@ -31,11 +31,14 @@ func Join(ins []int, sep string) string {
 }
 
 // 获取头像
-func Gravatar(emailI interface{}, size uint16) string {
+func Gravatar(avatar string, emailI interface{}, size uint16) string {
+	if avatar != "" {
+		return fmt.Sprintf("http://studygolang.qiniudn.com/avatar/%s?imageView2/2/w/%d", avatar, size)
+	}
+
 	email, ok := emailI.(string)
 	if !ok {
-		// TODO:给一个默认的？
-		return ""
+		return fmt.Sprintf("http://studygolang.qiniudn.com/avatar/gopher28.png?imageView2/2/w/%d", size)
 	}
 	return fmt.Sprintf("http://gravatar.duoshuo.com/avatar/%s?s=%d", Md5(email), size)
 }

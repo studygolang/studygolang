@@ -20,7 +20,7 @@
 		{{range .messages}}
 			<li>
 				<h3>
-					<a href="/user/{{.user.Username}}" title="{{.user.Username}}"><img src="{{gravatar .user.Email 48}}" width="48" height="48" alt="{{.user.Username}}"></a>
+					<a href="/user/{{.user.Username}}" title="{{.user.Username}}"><img src="{{gravatar .user.Avatar .user.Email 48}}" width="48" height="48" alt="{{.user.Username}}"></a>
 					<span class="user">{{if eq $.msgtype "outbox"}}你对 {{end}}<a href="/user/{{.user.Username}}" title="{{.user.Username}}">{{.user.Username}}</a> {{if eq $.msgtype "outbox"}}说:{{else}}{{.title}}{{end}}</span>
 					{{if .objtitle}}<a href="{{.objurl}}" title="{{.objtitle}}">{{.objtitle}}</a>{{end}}
 					{{if eq .hasread "未读"}}

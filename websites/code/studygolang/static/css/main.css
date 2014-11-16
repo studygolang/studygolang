@@ -211,7 +211,7 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 #sg-overlay {position: absolute;display: none;background: #000;filter: Alpha(opacity=70);opacity: 0.7;top: 0;left: 0;z-index: 1000;}
 
 /*淡入淡出提示框 comTip*/
-.comTip{display: none;padding: 15px 50px; font-size: 14px; color: #FFF; background:#343434;  line-height: 1; border: solid 2px #010101; position: absolute; top: 0; border-radius: 2px; font-family: 'microsoft yahei';}
+.comTip{display: none;padding: 15px 50px; font-size: 14px; color: #FFF; background:#343434;  line-height: 1; border: solid 2px #010101; position: absolute; top: 0; border-radius: 2px; font-family: 'microsoft yahei';z-index:99999;}
 .page-comment .light {background: #E0F2FC}
 
 .badge-warning {background-color: #db6d4c;}

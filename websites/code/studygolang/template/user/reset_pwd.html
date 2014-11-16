@@ -1,45 +1,76 @@
-{{define "topnav"}}
-<li class="first"><a href="/">首页</a><span class="divider">/</span></li>
-<li class=""><a href="/users" itemprop="url"><span itemprop="title">会员</span></a><span class="divider">/</span></li>
-<li class="last active"><a href="/account/resetpwd" itemprop="url"><span itemprop="title">忘记密码</span></a></li>
-{{end}}
+{{define "title"}}重置密码 {{end}}
+{{define "seo"}}<meta name="keywords" content="会员，重置密码, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
+<meta name="description" content="中国 Golang 社区，Go语言学习园地，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。完全Go语言实现。">{{end}}
 {{define "content"}}
-<div id="main" class="container-fluid">
-  <div class="sidebar">
-    <div class="box">
-      <a href="/account/login">登录</a><br>
-      <a href="/account/register">注册</a><br>
-    </div>
-  </div>
-  <div class="content">
-    <div class="box">
-    {{if .valid}}
-      {{if .success}}
-        {{.success}}
-      {{else}}
-      <div class="alert alert-block alert-error" id="alert_info" {{if not .error}}style="display:none;"{{end}}>
-        {{if .error}}{{.error}}{{end}}
-      </div>
-      <form accept-charset="UTF-8" action="/account/resetpwd" class="simple_form form-horizontal new_user" id="new_user" method="post" novalidate="novalidate"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="✓"><input name="code" type="hidden" value="{{.code}}"></div>
-        <fieldset>
-          <legend>重置密码</legend>
-          <div class="control-group password optional"><label class="password optional control-label" for="user_password">新密码</label><div class="controls"><input class="password optional" id="user_password" name="passwd" size="50" type="password"></div></div>
-          <div class="control-group password optional"><label class="password optional control-label" for="user_password_confirmation">确认密码</label><div class="controls"><input class="password optional" id="user_password_confirmation" name="pass2" size="50" type="password"></div></div>
-          <div class="form-actions">
-            <input class="btn btn-success" data-disable-with="正在保存" name="commit" type="submit" value="重置密码">
-          </div>
-        </fieldset>
-      </form>
-      {{end}}
+<div class="row banner">
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/users">会员</a></li>
+			<li class="active">重置密码</li>
+		</ol>
+		<div class="box_white">
+			{{if .valid}}
+				{{if .success}}{{.success}}{{else}}
+			<form class="form-horizontal validate-form" role="form" action="/account/resetpwd" method="POST">
+				<input name="code" type="hidden" value="{{.code}}">
+				<fieldset>
+					<legend>重置密码</legend>
+					{{if .error}}
+					<div class="alert alert-block alert-error" id="alert_info">
+						{{.error}}
+					</div>
+					{{end}}
+					<div class="form-group form-group-sm">
+						<label class="col-sm-3 control-label" for="passwd">新密码</label>
+						<div class="col-sm-6">
+							<input class="form-control {required:true,rangelength:[6,32]}" type="password" id="passwd" name="passwd" placeholder="新密码">
+						</div>
+					</div>
+					<div class="form-group form-group-sm">
+						<label class="col-sm-3 control-label" for="pass2">确认密码</label>
+						<div class="col-sm-6">
+							<input class="form-control {required:true,equalTo:'#passwd'}" type="password" id="pass2" name="pass2" placeholder="确认密码">
+						</div>
+					</div>
+				</fieldset>
+				<div class="form-group form-group-sm">
+					<div class="col-sm-offset-5 col-sm-6">
+						<button type="submit" class="btn btn-default btn-sm submit">重置密码</button>
+					</div>
+				</div>
+			</form>
+			{{end}}
     {{else}}
       {{.error}}
     {{end}}
-    </div>
-  </div>
+		</div>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-list-alt"></i>&nbsp;其他操作</h3>
+			</div>
+			<div class="sb-content">
+				<ul>
+					<li><a href="/account/login">登录</a></li>
+					<li><a href="/account/register">注册</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
 </div>
 {{end}}
-{{define "title"}}重置密码 {{end}}
+{{define "css"}}
+<link href="/static/css/user.css" media="screen" rel="stylesheet" type="text/css">
+{{end}}
 {{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script type="text/javascript" src="/static/js/account.js"></script>
 {{if or .error .success}}
 <script type="text/javascript">
 function countDown(secs, surl){     

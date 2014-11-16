@@ -237,7 +237,7 @@
 			{{if .me}}
 			<div class="box">
 				<div class="avatar-area pull-left">
-						<span class="avatar"><a href="/user/{{.me.username}}" title="{{.me.username}}"><img alt="个人首页" width="80" height="80" src="{{gravatar .me.email 80}}" class="img-circle"></a></span>
+					<span class="avatar"><a href="/account/edit#change-avatar"><img alt="个人首页" width="80" height="80" src="{{gravatar .me.avatar .me.email 80}}" class="img-circle tool-tip" data-toggle="tooltip" data-placement="left" title="更换头像"></a></span>
 				</div>
 				<div class="profile-show pull-left">
 					<p></p>

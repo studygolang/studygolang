@@ -31,8 +31,12 @@ SG.Publisher.prototype = {
 			success: function(data){
 				if(data.ok){
 					$form.get(0).reset();
-					
-					comTip("发布成功！");
+
+					if (typeof data.msg != "undefined") {
+						comTip(data.msg);
+					} else {
+						comTip("发布成功！");
+					}
 					
 					setTimeout(function(){
 						var redirect = $form.data('redirect');

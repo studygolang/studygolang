@@ -314,7 +314,11 @@ func UploadImageHandler(rw http.ResponseWriter, req *http.Request) {
 		reader = file
 
 		buf, err := ioutil.ReadAll(file)
-		uri = util.DateNow() + "/" + util.Md5Buf(buf) + filepath.Ext(fileHeader.Filename)
+		imgDir := util.DateNow()
+		if req.FormValue("avatar") != "" {
+			imgDir = "avatar"
+		}
+		uri = imgDir + "/" + util.Md5Buf(buf) + filepath.Ext(fileHeader.Filename)
 	}
 
 	if err != nil {

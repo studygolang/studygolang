@@ -33,9 +33,9 @@
 				<div class="form-group form-group-sm">
 					<label class="col-sm-3 control-label" for="uri">个性uri</label>
 					<div class="col-sm-6">
-						<div class="row">
-							<div class="col-sm-5 uri-prefix">http://studygolang.com/p/</div>
-							<div class="col-sm-7 uri"><input class="form-control{{if eq .project.Id 0}} {remote:'/project/uri.json'}{{end}}" type="text" id="uri" name="uri" placeholder="个性uri" value="{{.project.Uri}}"></div>
+						<div class="input-group input-group-sm">
+							<span class="input-group-addon">http://studygolang.com/p/</span>
+							<input class="form-control{{if eq .project.Id 0}} {remote:'/project/uri.json'}{{end}}" type="text" id="uri" name="uri" placeholder="个性uri" value="{{.project.Uri}}">
 						</div>
 					</div>
 				</div>
@@ -162,8 +162,6 @@
 <link href="/static/css/Huploadify.css" media="screen" rel="stylesheet" type="text/css">
 <style type="text/css">
 .uploadify-button {margin:0px;}
-.uri-prefix {height: 31px;line-height: 1.5;padding-top: 5px;padding-right: 0px;}
-.uri {padding-left:0px;}
 </style>
 {{end}}
 {{define "js"}}

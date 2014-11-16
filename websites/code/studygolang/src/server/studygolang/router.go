@@ -49,6 +49,7 @@ func initRouter() *mux.Router {
 
 	router.HandleFunc("/account/edit{json:(|.json)}", AccountEditHandler).AppendFilterChain(loginFilterChain)
 	router.HandleFunc("/account/changepwd.json", ChangePwdHandler).AppendFilterChain(loginFilterChain)
+	router.HandleFunc("/account/change_avatar.json", ChangeAvatarHandler).AppendFilterChain(loginFilterChain)
 
 	router.HandleFunc("/account/forgetpwd", ForgetPasswdHandler)
 	router.HandleFunc("/account/resetpwd", ResetPasswdHandler)

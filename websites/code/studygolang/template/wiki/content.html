@@ -26,9 +26,9 @@
       </div>-->
       <h3>本页贡献者:</h3>
       <div>
-        <a href="/user/{{.wiki.user.Username}}" title="{{.wiki.user.Username}}"><img alt="{{.wiki.user.Username}}" class="uface" src="{{gravatar .wiki.user.Email 16}}" style="width:16px;height:16px;"></a>
+        <a href="/user/{{.wiki.user.Username}}" title="{{.wiki.user.Username}}"><img alt="{{.wiki.user.Username}}" class="uface" src="{{gravatar .wiki.user.Avatar .wiki.user.Email 16}}" with="16" height="16"></a>
         {{range .wiki.cuser}}
-        <a href="/user/{{.Username}}" title="{{.Username}}"><img alt="{{.Username}}" class="uface" src="{{gravatar .Email 16}}" style="width:16px;height:16px;"></a>
+        <a href="/user/{{.Username}}" title="{{.Username}}"><img alt="{{.Username}}" class="uface" src="{{gravatar .Avatar .Email 16}}" with="16" height="16"></a>
         {{end}}
       </div>
     </div>

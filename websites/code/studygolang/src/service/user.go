@@ -8,14 +8,28 @@ package service
 
 import (
 	"errors"
-	"logger"
-	"model"
+	"math/rand"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
+
+	"logger"
+	"model"
 	"util"
 )
+
+var DefaultAvatars = []string{
+	"gopher_aqua.jpg", "gopher_boy.jpg", "gopher_brown.jpg", "gopher_gentlemen.jpg",
+	"gopher_strawberry.jpg", "gopher_strawberry_bg.jpg", "gopher_teal.jpg",
+	"gopher01.png", "gopher02.png", "gopher03.png", "gopher04.png",
+	"gopher05.png", "gopher06.png", "gopher07.png", "gopher08.png",
+	"gopher09.png", "gopher10.png", "gopher11.png", "gopher12.png",
+	"gopher13.png", "gopher14.png", "gopher15.png", "gopher16.png",
+	"gopher17.png", "gopher18.png", "gopher19.png", "gopher20.png",
+	"gopher21.png", "gopher22.png", "gopher23.png", "gopher24.png",
+	"gopher25.png", "gopher26.png", "gopher27.png", "gopher28.png",
+}
 
 func CreateUser(form url.Values) (errMsg string, err error) {
 	if EmailExists(form.Get("email")) {
@@ -35,6 +49,9 @@ func CreateUser(form url.Values) (errMsg string, err error) {
 		return
 	}
 	user.Ctime = util.TimeNow()
+
+	// 随机给一个默认头像
+	user.Avatar = DefaultAvatars[rand.Intn(len(DefaultAvatars))]
 	uid, err := user.Insert()
 	if err != nil {
 		errMsg = "内部服务器错误"
@@ -71,6 +88,7 @@ func CreateUser(form url.Values) (errMsg string, err error) {
 	userActive := model.NewUserActive()
 	userActive.Uid = uid
 	userActive.Username = user.Username
+	userActive.Avatar = user.Avatar
 	userActive.Email = user.Email
 	userActive.Weight = 2
 	if _, err = userActive.Insert(); err != nil {
@@ -93,6 +111,16 @@ func UpdateUser(form url.Values) (errMsg string, err error) {
 
 	// 修改用户资料，活跃度+1
 	go IncUserWeight("username="+username, 1)
+
+	return
+}
+
+// 更换头像
+func ChangeAvatar(uid int, avatar string) (err error) {
+	err = model.NewUser().Set("avatar=?", avatar).Where("uid=?", uid).Update()
+	if err == nil {
+		err = model.NewUserActive().Set("avatar=?", avatar).Where("uid=?", uid).Update()
+	}
 
 	return
 }
@@ -279,9 +307,7 @@ func GetUserMentions(term string, limit int) []map[string]string {
 	for i, userActive := range userActives {
 		user := make(map[string]string, 2)
 		user["username"] = userActive.Username
-		if userActive.Avatar == "" {
-			user["avatar"] = util.Gravatar(userActive.Email, 20)
-		}
+		user["avatar"] = util.Gravatar(userActive.Avatar, userActive.Email, 20)
 		users[i] = user
 	}
 

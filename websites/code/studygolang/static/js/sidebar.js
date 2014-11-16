@@ -149,6 +149,8 @@ $(function(){
 				var avatar = user.avatar;
 				if (avatar == "") {
 					avatar = 'http://gravatar.duoshuo.com/avatar/'+md5(user.email)+"?s=40";
+				} else {
+					avatar = 'http://studygolang.qiniudn.com/avatar/'+avatar+'?imageView2/2/w/40';
 				}
 				
 				var cmtTime = SG.timeago(comments[i].ctime);
@@ -199,6 +201,8 @@ $(function(){
 				var avatar = data[i].avatar;
 				if (avatar == "") {
 					avatar = 'http://gravatar.duoshuo.com/avatar/'+md5(data[i].email)+"?s=40";
+				} else {
+					avatar = 'http://studygolang.qiniudn.com/avatar/'+avatar+'?imageView2/2/w/40';
 				}
 				
 				content	+= '<li	class="pull-left">'+

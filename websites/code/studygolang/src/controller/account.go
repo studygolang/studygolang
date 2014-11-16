@@ -25,6 +25,11 @@ import (
 // 用户注册
 // uri: /account/register{json:(|.json)}
 func RegisterHandler(rw http.ResponseWriter, req *http.Request) {
+	if _, ok := filter.CurrentUser(req); ok {
+		util.Redirect(rw, req, "/")
+		return
+	}
+
 	vars := mux.Vars(req)
 	username := req.PostFormValue("username")
 	// 请求注册页面
@@ -36,26 +41,26 @@ func RegisterHandler(rw http.ResponseWriter, req *http.Request) {
 
 	// 校验验证码
 	if !captcha.VerifyString(req.PostFormValue("captchaid"), req.PostFormValue("captchaSolution")) {
-		fmt.Fprint(rw, `{"errno": 1, "error":"验证码错误"}`)
+		fmt.Fprint(rw, `{"ok": 0, "error":"验证码错误"}`)
 		return
 	}
 
 	// 入库
-	errMsg, err := service.CreateUser(req.Form)
+	errMsg, err := service.CreateUser(req.PostForm)
 	if err != nil {
 		// bugfix：http://studygolang.com/topics/255
 		if errMsg == "" {
 			errMsg = err.Error()
 		}
-		fmt.Fprint(rw, `{"errno": 2, "error":"`, errMsg, `"}`)
+		fmt.Fprint(rw, `{"ok": 0, "error":"`, errMsg, `"}`)
 		return
 	}
 
 	// 注册成功，自动为其登录
 	setCookie(rw, req, req.PostFormValue("username"))
 	// 发送欢迎邮件
-	// go sendWelcomeMail([]string{req.PostFormValue("email")})
-	fmt.Fprint(rw, `{"errno": 0, "error":""}`)
+	go sendWelcomeMail([]string{req.PostFormValue("email")})
+	fmt.Fprint(rw, `{"ok": 1, "msg":"注册成功"}`)
 }
 
 func sendWelcomeMail(email []string) {
@@ -71,6 +76,7 @@ Golang中文社区是一个Go语言技术社区，完全用Go语言开发。我�
 func LoginHandler(rw http.ResponseWriter, req *http.Request) {
 	username := req.PostFormValue("username")
 	if username == "" || req.Method != "POST" {
+		filter.SetData(req, map[string]interface{}{"error": "非法请求"})
 		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/login.html")
 		return
 	}
@@ -115,62 +121,69 @@ func LoginHandler(rw http.ResponseWriter, req *http.Request) {
 // 用户编辑个人信息
 func AccountEditHandler(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
-	username := req.FormValue("username")
 	curUser, _ := filter.CurrentUser(req)
-	if username == "" || req.Method != "POST" || vars["json"] == "" {
+	if req.Method != "POST" || vars["json"] == "" {
 		// 获取用户信息
 		user := service.FindUserByUsername(curUser["username"].(string))
 		// 设置模板数据
-		filter.SetData(req, map[string]interface{}{"activeUsers": "active", "user": user})
+		filter.SetData(req, map[string]interface{}{"user": user, "default_avatars": service.DefaultAvatars})
 		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/user/edit.html")
 		return
 	}
 
-	// 只能编辑自己的信息
-	if username != curUser["username"].(string) {
-		fmt.Fprint(rw, `{"errno": 1, "error": "非法请求"}`)
+	req.PostForm.Set("username", curUser["username"].(string))
+
+	if req.PostFormValue("open") != "1" {
+		req.PostForm.Set("open", "0")
+	}
+
+	// 更新个人信息
+	errMsg, err := service.UpdateUser(req.PostForm)
+	if err != nil {
+		fmt.Fprint(rw, `{"ok": 0, "error":"`, errMsg, `"}`)
+		return
+	}
+	fmt.Fprint(rw, `{"ok": 1, "msg":"个人资料更新成功!"}`)
+}
+
+// 更换头像
+// uri: /account/change_avatar.json
+func ChangeAvatarHandler(rw http.ResponseWriter, req *http.Request) {
+	curUser, _ := filter.CurrentUser(req)
+	avatar, ok := req.PostForm["avatar"]
+	if !ok {
+		fmt.Fprint(rw, `{"ok": 0, "error":"非法请求！"}`)
+		return
+	}
+	err := service.ChangeAvatar(curUser["uid"].(int), avatar[0])
+	if err != nil {
+		fmt.Fprint(rw, `{"ok": 0, "error":"更换头像失败"}`)
 		return
 	}
 
-	// open传递过来的是“on”或没传递
-	if req.FormValue("open") == "on" {
-		req.Form.Set("open", "1")
-	} else {
-		req.Form.Set("open", "0")
-	}
-	// 更新个人信息
-	errMsg, err := service.UpdateUser(req.Form)
-	if err != nil {
-		fmt.Fprint(rw, `{"errno": 1, "error":"`, errMsg, `"}`)
-		return
-	}
-	fmt.Fprint(rw, `{"errno": 0, "msg":"个人资料更新成功!"}`)
+	fmt.Fprint(rw, `{"ok": 1, "msg":"更换头像成功!"}`)
 }
 
 // 修改密码
 // uri: /account/changepwd.json
 func ChangePwdHandler(rw http.ResponseWriter, req *http.Request) {
-	username := req.FormValue("username")
 	curUser, _ := filter.CurrentUser(req)
-	// 只能修改自己的密码
-	if username != curUser["username"].(string) {
-		fmt.Fprint(rw, `{"errno": 1, "error": "非法请求"}`)
-		return
-	}
-	curPasswd := req.FormValue("cur_passwd")
+	username := curUser["username"].(string)
+
+	curPasswd := req.PostFormValue("cur_passwd")
 	_, err := service.Login(username, curPasswd)
 	if err != nil {
 		// 原密码错误
-		fmt.Fprint(rw, `{"errno": 1, "error": "原密码填写错误!"}`)
+		fmt.Fprint(rw, `{"ok": 0, "error": "原密码填写错误!"}`)
 		return
 	}
 	// 更新密码
-	errMsg, err := service.UpdatePasswd(username, req.FormValue("passwd"))
+	errMsg, err := service.UpdatePasswd(username, req.PostFormValue("passwd"))
 	if err != nil {
-		fmt.Fprint(rw, `{"errno": 1, "error":"`, errMsg, `"}`)
+		fmt.Fprint(rw, `{"ok": 0, "error":"`, errMsg, `"}`)
 		return
 	}
-	fmt.Fprint(rw, `{"errno": 0, "msg":"密码修改成功!"}`)
+	fmt.Fprint(rw, `{"ok": 1, "msg":"密码修改成功!"}`)
 }
 
 // 保存uuid和email的对应关系（TODO:重启如何处理，有效期问题）

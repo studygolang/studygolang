@@ -77,7 +77,7 @@
         <!-- JiaThis Button END -->
       </div>
       <!-- 评论 -->
-      <div class="page-comment" data-objid="{{.resource.id}}" data-objtype="2" {{if .me}}data-username="{{.me.username}}" data-uid="{{.me.uid}}" data-avatar="{{if .me.avatar}}{{.me.avatar}}{{else}}{{gravatar .me.email 48}}{{end}}"{{end}}>
+      <div class="page-comment" data-objid="{{.resource.id}}" data-objtype="2" {{if .me}}data-username="{{.me.username}}" data-uid="{{.me.uid}}" data-avatar="{{gravatar .me.avatar .me.email 48}}"{{end}}>
         <div class="comment-title">
           <h2>主题回复：</h2>
           {{if .me}}
@@ -124,7 +124,7 @@
       </div>
       <div class="sb-content">
         <a href="/user/{{.resource.user.Username}}" class="pull-left avatar" title="{{.resource.user.Username}}">
-          <img src="{{gravatar .resource.user.Email 48}}" alt="{{if .resource.user.Name}}{{.resource.user.Name}}{{else}}{{.resource.user.Username}}{{end}}" width="48px" height="48px">
+          <img src="{{gravatar .resource.user.Avatar .resource.user.Email 48}}" alt="{{if .resource.user.Name}}{{.resource.user.Name}}{{else}}{{.resource.user.Username}}{{end}}" width="48px" height="48px">
         </a>
         <h4>
           <a href="/user/{{.resource.user.Username}}" title="{{if .resource.user.Name}}{{.resource.user.Name}}{{else}}{{.resource.user.Username}}{{end}}">{{if .resource.user.Name}}{{.resource.user.Name}}({{.resource.user.Username}}){{else}}{{.resource.user.Username}}{{end}}</a>

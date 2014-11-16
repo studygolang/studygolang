@@ -17,8 +17,10 @@
 	"qiniu_secret_key": "xxxxxxxxxxxxxx",
 	"qiniu_bucket_name": "xxxxxxxxx",
 
-	"indexing_url": "",
+	"engine_url": "xxxx",
 
 	"crawl_host": ":7070",
-	"crawl_spec": "0 0 */1 * * ?"
+	"crawl_spec": "0 0 */1 * * ?",
+
+	"iframe_deny": "github.com,robbinfan.com,www.zhihu.com,google.com,golang.org,evernote.com,blogspot.com"
 }

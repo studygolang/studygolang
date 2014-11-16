@@ -1,59 +1,76 @@
-{{define "topnav"}}
-<li class="first"><a href="/">首页</a><span class="divider">/</span></li>
-<li class=""><a href="/users" itemprop="url"><span itemprop="title">会员</span></a><span class="divider">/</span></li>
-<li class="last active"><a href="/account/login" itemprop="url"><span itemprop="title">登录</span></a></li>
-{{end}}
+{{define "title"}}登录 {{end}}
+{{define "seo"}}<meta name="keywords" content="会员登录, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
+<meta name="description" content="中国 Golang 社区，Go语言学习园地，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。完全Go语言实现。">{{end}}
 {{define "content"}}
-<div id="main" class="container-fluid">
-  <div class="content">
-    <div class="box">
-    {{if .error}}
-      <div class="alert alert-block alert-error" id="alert_info">
-        {{.error}}
-      </div>
-    {{end}}
-      <form accept-charset="UTF-8" action="/account/login" class="simple_form form-horizontal new_user" id="new_user" method="post" novalidate="novalidate">
-        <div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /><input name="authenticity_token" type="hidden" value="JQx9FvyaKkblCTZpxMbF/IHDwgwA3RgzLWxYtN+aU6U=" /></div>
-        <fieldset>
-          <legend>登录</legend>
-          <div class="control-group string required">
-            <label class="string required control-label" for="username">用户名</label>
-            <div class="controls">
-              <input class="string required" id="username" name="username" size="50" style="width:180px;" type="text" value="{{.username}}" placeholder="请填写用户名或邮箱"/>
-            </div>
-          </div>
-          <div class="control-group password optional">
-            <label class="password optional control-label" for="passwd">密码</label>
-            <div class="controls">
-              <input class="password optional" id="passwd" name="passwd" size="50" style="width:180px;" type="password" placeholder="请填写密码"/>
-            </div>
-          </div>
-          <div class="control-group checkbox optional">
-            <label class="checkbox optional control-label"></label>
-            <div class="controls">
-              <div class="inputs-list"><label for="user_remember_me"><input id="user_remember_me" name="remember_me" style="width:auto;" type="checkbox" value="1" checked="checked" /> 记住登录状态</label></div>
-            </div>
-          </div>
-          <div class="form-actions">
-            <input class="btn btn-primary" data-disable-with="正在登录" name="commit" type="submit" value="登录" />
-          </div>
-        </fieldset>
-      </form>
-    </div>
-  </div>
-  <div class="sidebar">
-    <div class="box">
-      <h2>还没有帐号？</h2>
-      <a href="/account/register">注册</a><br />
-      <a href="/account/forgetpwd">忘记了密码？</a><br />
-    </div>
-    <div class="box">
-      <h2>用其他平台的帐号登录</h2>
-      <ul>
-        <li><a href="/account/auth/github">Github</a> </li>
-      </ul>
-    </div>
-  </div>
+<div class="row banner">
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/users">会员</a></li>
+			<li class="active">登录</li>
+		</ol>
+		<div class="box_white">
+			<form class="form-horizontal validate-form" role="form" action="/account/login" method="POST">
+				<fieldset>
+					<legend>登录</legend>
+					{{if .error}}
+					<div class="alert alert-block alert-error" id="alert_info">
+						{{.error}}
+					</div>
+					{{end}}
+					<div class="form-group form-group-sm">
+						<label class="col-sm-3 control-label" for="username">用户名</label>
+						<div class="col-sm-6">
+							<input class="form-control required" type="text" id="username" name="username" placeholder="请输入用户名或邮箱" value="{{.username}}">
+						</div>
+					</div>
+					<div class="form-group form-group-sm">
+						<label class="col-sm-3 control-label" for="passwd">密码</label>
+						<div class="col-sm-6">
+							<input class="form-control required" type="password" id="passwd" name="passwd" placeholder="请输入密码">
+						</div>
+					</div>
+					<div class="form-group form-group-sm">
+						<div class="col-sm-offset-3 col-col-sm-6">
+							<div class="checkbox">
+								<label>
+									<input id="user_remember_me" name="remember_me" type="checkbox" value="1" checked="checked" />	记住登录状态
+								</label>
+							</div>
+						</div>
+					</div>
+				</fieldset>
+				<div class="form-group form-group-sm">
+					<div class="col-sm-offset-5 col-sm-6">
+						<button type="submit" class="btn btn-default btn-sm submit">登录</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-list-alt"></i>&nbsp;还没有帐号？</h3>
+			</div>
+			<div class="sb-content">
+				<ul>
+					<li><a href="/account/register">注册</a></li>
+					<li><a href="/account/forgetpwd">忘记了密码？</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
 </div>
 {{end}}
-{{define "title"}}登录 {{end}}
+{{define "css"}}
+<link href="/static/css/user.css" media="screen" rel="stylesheet" type="text/css">
+{{end}}
+{{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script type="text/javascript" src="/static/js/account.js"></script>
+{{end}}
