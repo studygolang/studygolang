@@ -47,9 +47,16 @@ func FavoriteHandler(rw http.ResponseWriter, req *http.Request) {
 	fmt.Fprint(rw, `{"ok": 1, "message":"success"}`)
 }
 
-// 我的收藏
-// uri: /favorites/mine
-func MyFavoritesHandler(rw http.ResponseWriter, req *http.Request) {
+// 我的(某人的)收藏
+// uri: /favorites/{username}
+func SomeoneFavoritesHandler(rw http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	username := vars["username"]
+	user := service.FindUserByUsername(username)
+	if user == nil {
+		util.Redirect(rw, req, "/")
+		return
+	}
 
 	objtype, err := strconv.Atoi(req.FormValue("objtype"))
 	if err != nil {
@@ -61,33 +68,32 @@ func MyFavoritesHandler(rw http.ResponseWriter, req *http.Request) {
 		p = 1
 	}
 
-	data := map[string]interface{}{"objtype": objtype}
+	data := map[string]interface{}{"objtype": objtype, "user": user}
 
 	rows := 20
-	user, _ := filter.CurrentUser(req)
-	favorites, total := service.FindUserFavorites(user["uid"].(int), objtype, (p-1)*rows, rows)
+	favorites, total := service.FindUserFavorites(user.Uid, objtype, (p-1)*rows, rows)
 	if total > 0 {
 		objids := util.Models2Intslice(favorites, "Objid")
 
 		switch objtype {
 		case model.TYPE_TOPIC:
-			data["topics"] = service.FindArticlesByIds(objids)
+			data["topics"] = service.FindTopicsByIds(objids)
 		case model.TYPE_ARTICLE:
 			data["articles"] = service.FindArticlesByIds(objids)
 		case model.TYPE_RESOURCE:
-			data["resources"] = service.FindArticlesByIds(objids)
+			data["resources"] = service.FindResourcesByIds(objids)
 		case model.TYPE_WIKI:
-			data["wikis"] = service.FindArticlesByIds(objids)
+			// data["wikis"] = service.FindArticlesByIds(objids)
 		case model.TYPE_PROJECT:
 			data["projects"] = service.FindProjectsByIds(objids)
 		}
 
 	}
 
-	uri := fmt.Sprintf("/favorites/mine?objtype=%d&p=%d", objtype, p)
+	uri := fmt.Sprintf("/favorites/%s?objtype=%d&p=%d", user.Username, objtype, p)
 	data["pageHtml"] = service.GenPageHtml(p, rows, total, uri)
 
-	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/favorite.html")
 	// 设置模板数据
 	filter.SetData(req, data)
+	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/favorite.html")
 }

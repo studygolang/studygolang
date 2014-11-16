@@ -21,7 +21,7 @@ import (
 
 var NotModifyAuthorityErr = errors.New("没有修改权限")
 
-// 发布帖子。入topics和topics_ex库
+// 发布主题。入topics和topics_ex库
 func PublishTopic(user map[string]interface{}, form url.Values) (err error) {
 	uid := user["uid"].(int)
 
@@ -101,7 +101,7 @@ func ModifyTopic(user map[string]interface{}, form url.Values) (errMsg string, e
 
 	err = model.NewTopic().Set(query, args...).Where("tid=" + tid).Update()
 	if err != nil {
-		logger.Errorf("更新帖子 【%s】 信息失败：%s\n", tid, err)
+		logger.Errorf("更新主题 【%s】 信息失败：%s\n", tid, err)
 		errMsg = "对不起，服务器内部错误，请稍后再试！"
 		return
 	}
@@ -113,11 +113,11 @@ func ModifyTopic(user map[string]interface{}, form url.Values) (errMsg string, e
 	return
 }
 
-// 获得帖子详细信息（包括详细回复）
+// 获得主题详细信息（包括详细回复）
 // 为了避免转换，tid传string类型
 func FindTopicByTid(tid string) (topicMap map[string]interface{}, replies []map[string]interface{}, err error) {
 	condition := "tid=" + tid
-	// 帖子信息
+	// 主题信息
 	topic := model.NewTopic()
 	err = topic.Where(condition).Find()
 	if err != nil {
@@ -177,7 +177,7 @@ func FindTopic(tid string) *model.Topic {
 
 // 通过tid获得话题的所有者
 func getTopicOwner(tid int) int {
-	// 帖子信息
+	// 主题信息
 	topic := model.NewTopic()
 	err := topic.Where("tid=" + strconv.Itoa(tid)).Find()
 	if err != nil {
@@ -195,7 +195,7 @@ func decodeTopicContent(topic *model.Topic) string {
 	return reg.ReplaceAllString(content, `<a href="/user/$1" title="@$1">@$1</a>`)
 }
 
-// 获得帖子列表页需要的数据
+// 获得主题列表页需要的数据
 // 如果order为空，则默认排序方式（之所以用不定参数，是为了可以不传）
 func FindTopics(page, pageNum int, where string, orderSlice ...string) (topics []map[string]interface{}, total int) {
 	if pageNum == 0 {
@@ -239,7 +239,7 @@ func FindTopicsByPage(conds map[string]string, curPage, limit int) ([]*model.Top
 	return topicList, total
 }
 
-// 获得某个节点下的帖子列表（侧边栏推荐）
+// 获得某个节点下的主题列表（侧边栏推荐）
 func FindTopicsByNid(nid, curTid string) (topics []*model.Topic) {
 	var err error
 	topics, err = model.NewTopic().Where("nid=" + nid + " and tid!=" + curTid).Limit("0,10").FindAll()
@@ -279,7 +279,7 @@ func FindTopicsByWhere(where, order, limit string) (topics []map[string]interfac
 		logger.Errorln("topic service topicObj.FindAll Error:", err)
 		return
 	}
-	// 获得总帖子数
+	// 获得总主题数
 	total, err = topicObj.Count()
 	if err != nil {
 		logger.Errorln("topic service topicObj.Count Error:", err)
@@ -330,7 +330,7 @@ func FindTopicsByWhere(where, order, limit string) (topics []map[string]interfac
 	return
 }
 
-// 获得最近的帖子(如果uid!=0，则获取某个用户最近的帖子)
+// 获得最近的主题(如果uid!=0，则获取某个用户最近的主题)
 func FindRecentTopics(uid int, limit string) []*model.Topic {
 	cond := ""
 	if uid != 0 {
@@ -348,7 +348,7 @@ func FindRecentTopics(uid int, limit string) []*model.Topic {
 	return topics
 }
 
-// 获得回复最多的10条帖子(TODO:避免一直显示相同的)
+// 获得回复最多的10条主题(TODO:避免一直显示相同的)
 func FindHotTopics() []map[string]interface{} {
 	topicExList, err := model.NewTopicEx().Order("reply DESC").Limit("0,10").FindAll()
 	if err != nil {
@@ -381,7 +381,7 @@ func FindHotTopics() []map[string]interface{} {
 	return result
 }
 
-// 获取多个帖子详细信息
+// 获取多个主题详细信息
 func FindTopicsByTids(tids []int) []*model.Topic {
 	if len(tids) == 0 {
 		return nil
@@ -390,6 +390,20 @@ func FindTopicsByTids(tids []int) []*model.Topic {
 	topics, err := model.NewTopic().Where("tid in(" + inTids + ")").FindAll()
 	if err != nil {
 		logger.Errorln("topic service FindTopicsByTids error:", err)
+		return nil
+	}
+	return topics
+}
+
+// 获取多个主题详细信息
+func FindTopicsByIds(ids []int) []*model.Topic {
+	if len(ids) == 0 {
+		return nil
+	}
+	inIds := util.Join(ids, ",")
+	topics, err := model.NewTopic().Where("tid in(" + inIds + ")").FindAll()
+	if err != nil {
+		logger.Errorln("topic service FindTopicsByIds error:", err)
 		return nil
 	}
 	return topics
@@ -452,7 +466,7 @@ func JSEscape(topics []*model.Topic) []*model.Topic {
 // 话题回复（评论）
 type TopicComment struct{}
 
-// 更新该帖子的回复信息
+// 更新该主题的回复信息
 // cid：评论id；objid：被评论对象id；uid：评论者；cmttime：评论时间
 func (self TopicComment) UpdateComment(cid, objid, uid int, cmttime string) {
 	tid := strconv.Itoa(objid)
@@ -460,12 +474,12 @@ func (self TopicComment) UpdateComment(cid, objid, uid int, cmttime string) {
 	stringBuilder := util.NewBuffer().Append("lastreplyuid=").AppendInt(uid).Append(",lastreplytime=").Append(cmttime)
 	err := model.NewTopic().Set(stringBuilder.String()).Where("tid=" + tid).Update()
 	if err != nil {
-		logger.Errorln("更新帖子最后回复人信息失败：", err)
+		logger.Errorln("更新主题最后回复人信息失败：", err)
 	}
 	// 更新回复数（TODO：暂时每次都更新表）
 	err = model.NewTopicEx().Where("tid="+tid).Increment("reply", 1)
 	if err != nil {
-		logger.Errorln("更新帖子回复数失败：", err)
+		logger.Errorln("更新主题回复数失败：", err)
 	}
 }
 
@@ -483,6 +497,8 @@ func (self TopicComment) SetObjinfo(ids []int, commentMap map[int][]*model.Comme
 	for _, topic := range topics {
 		objinfo := make(map[string]interface{})
 		objinfo["title"] = topic.Title
+		objinfo["uri"] = model.PathUrlMap[model.TYPE_TOPIC]
+		objinfo["type_name"] = model.TypeNameMap[model.TYPE_TOPIC]
 
 		for _, comment := range commentMap[topic.Tid] {
 			comment.Objinfo = objinfo

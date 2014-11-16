@@ -11,7 +11,7 @@
 			<li class="active">技术晨读</li>
 			<li class="active">{{if eq .rtype 0}}Go晨读{{else}}综合晨读{{end}}</li>
 		</ol>
-		<ul class="nav nav-tabs" role="tablist" style="background: #fff; margin-top: 10px;">
+		<ul class="nav nav-tabs" role="tablist">
 			<li role="presentation"{{if eq .rtype 0}} class="active"{{end}}><a href="/readings">Go晨读</a></li>
 			<li role="presentation"{{if eq .rtype 1}} class="active"{{end}}><a href="/readings?rtype=1">综合晨读</a></li>
 		</ul>

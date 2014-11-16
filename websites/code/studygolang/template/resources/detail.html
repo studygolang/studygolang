@@ -50,7 +50,7 @@
       </div>
       <!-- tags -->
 
-      <div class="content">{{.resource.content}}</div>
+      <div class="content">{{if eq .resource.form "只是链接"}}资源链接 {{.resource.url}}{{else}}{{.resource.content}}{{end}}</div>
       <!-- content END -->
       <div class="active row">
         <div class="mark-like-btn col-md-8">
@@ -184,7 +184,7 @@
 <script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/emojis.js"></script>
 <script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
-<script type="text/javascript" src="/static/js/topics.js"></script>
+<script type="text/javascript" src="/static/js/resources.js"></script>
 <script type="text/javascript" src="/static/js/comment.js"></script>
 <script type="text/javascript" src="/static/js/puploader.js"></script>
 <script type="text/javascript">
@@ -196,7 +196,7 @@ SG.SIDE_BARS = [
 ];
 
 $(function(){
-  new SG.Topics().parseContent($('.page .content'));
+  new SG.Resources().parseContent($('.page .content'));
 
   // 文本框自动伸缩
   $('.need-autogrow').autoGrow();

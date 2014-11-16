@@ -11,7 +11,7 @@
 			<li><a href="/topics">社区</a></li>
 			<li class="active">主题</li>
 		</ol>
-		<ul class="nav nav-tabs pull-right" role="tablist" style="background: #fff; margin-top: 10px;">
+		<ul class="nav nav-tabs" role="tablist">
 			<li role="presentation"{{if eq .view ""}} class="active"{{end}}><a href="/topics">最近回复</a></li>
 			<li role="presentation"{{if eq .view "last"}} class="active"{{end}}><a href="/topics/last">最近发布</a></li>
 			<li role="presentation"{{if eq .view "no_reply"}} class="active"{{end}}><a href="/topics/no_reply">尚无回复</a></li>

@@ -208,8 +208,6 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .login-pop .login-form .forget a, .login-pop .login-form .register a {font-size: 14px;color: #cc6666;letter-spacing: 1px;}
 .login-pop .login-form .register span {color: #333333;font-size: 14px;margin-right: 5px;}
 
-#listnav {margin-left: 14px;}
-
 #sg-overlay {position: absolute;display: none;background: #000;filter: Alpha(opacity=70);opacity: 0.7;top: 0;left: 0;z-index: 1000;}
 
 /*淡入淡出提示框 comTip*/
@@ -233,3 +231,7 @@ label.error {color:red;}
 .control-label abbr {color: #c00;}
 
 .dn {display: none;}
+
+.nav-tabs {background: #fff; margin-top: 10px;}
+
+.no-record {padding: 10px 0; background: #D9EDF7;}

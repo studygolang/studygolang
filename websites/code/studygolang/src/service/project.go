@@ -45,12 +45,13 @@ func PublishProject(user map[string]interface{}, form url.Values) (err error) {
 			return
 		}
 
+		util.ConvertAssign(project, form)
 	} else {
+		util.ConvertAssign(project, form)
+
 		project.Username = username
 		project.Ctime = util.TimeNow()
 	}
-
-	util.ConvertAssign(project, form)
 
 	project.Uri = strings.ToLower(project.Uri)
 
@@ -148,6 +149,17 @@ func FindProject(uniq string) *model.OpenProject {
 	}
 
 	return project
+}
+
+// 获得某个用户最近发布的开源项目
+func FindUserRecentProjects(username string) []*model.OpenProject {
+	projectList, err := model.NewOpenProject().Where("username=?", username).Limit("0,5").Order("ctime DESC").FindAll()
+	if err != nil {
+		logger.Errorln("project service FindUserRecentProjects error:", err)
+		return nil
+	}
+
+	return projectList
 }
 
 // 获取开源项目列表（分页，后台用）
@@ -251,6 +263,8 @@ func (self ProjectComment) SetObjinfo(ids []int, commentMap map[int][]*model.Com
 	for _, project := range projects {
 		objinfo := make(map[string]interface{})
 		objinfo["title"] = project.Category + project.Name
+		objinfo["uri"] = model.PathUrlMap[model.TYPE_PROJECT]
+		objinfo["type_name"] = model.TypeNameMap[model.TYPE_PROJECT]
 
 		for _, comment := range commentMap[project.Id] {
 			comment.Objinfo = objinfo

@@ -414,6 +414,8 @@ func (self ArticleComment) SetObjinfo(ids []int, commentMap map[int][]*model.Com
 	for _, article := range articles {
 		objinfo := make(map[string]interface{})
 		objinfo["title"] = article.Title
+		objinfo["uri"] = model.PathUrlMap[model.TYPE_ARTICLE]
+		objinfo["type_name"] = model.TypeNameMap[model.TYPE_ARTICLE]
 
 		for _, comment := range commentMap[article.Id] {
 			comment.Objinfo = objinfo

@@ -237,6 +237,17 @@ func FindRecentResources() []map[string]interface{} {
 	return resources
 }
 
+// 获得某个用户最近的资源
+func FindUserRecentResources(uid int) []*model.Resource {
+	resourceList, err := model.NewResource().Where("uid=?", uid).Limit("0,5").Order("mtime DESC").FindAll()
+	if err != nil {
+		logger.Errorln("resource service FindUserRecentResources error:", err)
+		return nil
+	}
+
+	return resourceList
+}
+
 // 获取资源列表（分页）
 func FindResources(lastId, limit string) []*model.Resource {
 	resource := model.NewResource()
@@ -312,6 +323,8 @@ func (self ResourceComment) SetObjinfo(ids []int, commentMap map[int][]*model.Co
 	for _, resource := range resources {
 		objinfo := make(map[string]interface{})
 		objinfo["title"] = resource.Title
+		objinfo["uri"] = model.PathUrlMap[model.TYPE_RESOURCE]
+		objinfo["type_name"] = model.TypeNameMap[model.TYPE_RESOURCE]
 
 		for _, comment := range commentMap[resource.Id] {
 			comment.Objinfo = objinfo

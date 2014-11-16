@@ -28,6 +28,14 @@ var PathUrlMap = map[int]string{
 	TYPE_PROJECT:  "/p/",
 }
 
+var TypeNameMap = map[int]string{
+	TYPE_TOPIC:    "主题",
+	TYPE_ARTICLE:  "博文",
+	TYPE_RESOURCE: "资源",
+	TYPE_WIKI:     "Wiki",
+	TYPE_PROJECT:  "项目",
+}
+
 // 评论信息（通用）
 type Comment struct {
 	Cid     int    `json:"cid"`

@@ -153,7 +153,6 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 		if !this.isBackView {
 			// TODO: 旧模板还未完成的页面
 			if strings.HasPrefix(req.RequestURI, "/wiki") ||
-				strings.HasPrefix(req.RequestURI, "/user") ||
 				strings.HasPrefix(req.RequestURI, "/account") {
 				this.commonHtmlFiles = []string{config.ROOT + "/template/common/base.html"}
 				this.baseTplName = "base.html"

@@ -7,28 +7,41 @@
 package controller
 
 import (
+	"net/http"
+
 	"filter"
 	"github.com/studygolang/mux"
-	"model"
-	"net/http"
 	"service"
+	"util"
 )
 
 // 用户个人首页
 // URI: /user/{username}
 func UserHomeHandler(rw http.ResponseWriter, req *http.Request) {
-	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/user/profile.html")
+
 	vars := mux.Vars(req)
 	username := vars["username"]
 	// 获取用户信息
 	user := service.FindUserByUsername(username)
-	if user != nil {
-		topics := service.FindRecentTopics(user.Uid, "5")
-		comments := service.FindRecentComments(user.Uid, model.TYPE_TOPIC, "5")
-		// replies := service.FindRecentReplies(comments)
-		// 设置模板数据
-		filter.SetData(req, map[string]interface{}{"activeUsers": "active", "topics": topics, "replies": comments, "user": user})
+
+	if user == nil {
+		util.Redirect(rw, req, "/users")
+		return
 	}
+
+	topics := service.FindRecentTopics(user.Uid, "5")
+
+	resources := service.FindUserRecentResources(user.Uid)
+	resourceCats := make(map[int]string)
+	for _, resource := range resources {
+		resourceCats[resource.Catid] = service.GetCategoryName(resource.Catid)
+	}
+
+	projects := service.FindUserRecentProjects(user.Username)
+	comments := service.FindRecentComments(user.Uid, -1, "5")
+	// 设置模板数据
+	filter.SetData(req, map[string]interface{}{"activeUsers": "active", "topics": topics, "resources": resources, "resource_cats": resourceCats, "projects": projects, "comments": comments, "user": user})
+	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/user/profile.html")
 }
 
 // 会员列表
