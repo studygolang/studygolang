@@ -192,7 +192,8 @@ $(function(){
 	// 文章链接，在本站的 iframe 中打开
 	$('#wrapper .content').on('mousedown', 'a', function(evt){
 		var url = $(this).attr('href');
-		$(this).attr('href', '/wr?u='+url);
+		// $(this).attr('href', '/wr?u='+url);
+		$(this).attr('href', url);
 		$(this).attr('target', '_blank');
 	});
 });
