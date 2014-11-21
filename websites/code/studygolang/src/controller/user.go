@@ -48,9 +48,9 @@ func UserHomeHandler(rw http.ResponseWriter, req *http.Request) {
 // URI: /users
 func UsersHandler(rw http.ResponseWriter, req *http.Request) {
 	// 获取活跃会员
-	activeUsers := service.FindActiveUsers(0, 30)
+	activeUsers := service.FindActiveUsers(0, 36)
 	// 获取最新加入会员
-	newUsers := service.FindNewUsers(0, 30)
+	newUsers := service.FindNewUsers(0, 36)
 	// 获取会员总数
 	total := service.CountUsers()
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/user/users.html")
