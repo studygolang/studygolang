@@ -88,9 +88,9 @@ func (this *UserLogin) Limit(limit string) *UserLogin {
 }
 
 func (this *UserLogin) prepareInsertData() {
-	this.columns = []string{"uid", "username", "passwd", "email", "login_time", "passcode"}
+	this.columns = []string{"uid", "username", "passwd", "email", "passcode"}
 	this.GenMd5Passwd("")
-	this.colValues = []interface{}{this.Uid, this.Username, this.Passwd, this.Email, this.LoginTime, this.passcode}
+	this.colValues = []interface{}{this.Uid, this.Username, this.Passwd, this.Email, this.passcode}
 }
 
 // 生成加密密码

@@ -8,6 +8,7 @@ package util
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -41,4 +42,14 @@ func Gravatar(avatar string, emailI interface{}, size uint16) string {
 		return fmt.Sprintf("http://studygolang.qiniudn.com/avatar/gopher28.png?imageView2/2/w/%d", size)
 	}
 	return fmt.Sprintf("http://gravatar.duoshuo.com/avatar/%s?s=%d", Md5(email), size)
+}
+
+// 内嵌 Wide iframe 版
+func EmbedWide(content string) string {
+	if !strings.Contains(content, "&lt;iframe") {
+		return content
+	}
+
+	reg := regexp.MustCompile(`&lt;iframe .* src=.*(https://wide\.b3log\.org/playground.*\.go).*/iframe&gt;`)
+	return reg.ReplaceAllString(content, `<iframe src="$1?embed=true" width="100%" height="600"></iframe>`)
 }

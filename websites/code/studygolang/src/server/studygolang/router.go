@@ -81,6 +81,9 @@ func initRouter() *mux.Router {
 	router.HandleFunc("/wiki/new{json:(|.json)}", NewWikiPageHandler).AppendFilterChain(loginFilterChain)
 	router.HandleFunc("/wiki/{uri}", WikiContentHandler)
 
+	// WIDE 内嵌 iframe
+	router.HandleFunc("/wide/playground", PlaygroundHandler)
+
 	// 酷站
 	router.HandleFunc("/sites", SitesHandler)
 	// 资源

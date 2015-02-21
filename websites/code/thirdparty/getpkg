@@ -10,16 +10,30 @@ fi
 OLDGOPATH="$GOPATH"
 export GOPATH=`pwd`
 
-go get -u github.com/go-sql-driver/mysql
-go get -u github.com/studygolang/mux
-go get -u github.com/gorilla/sessions
-go get -u github.com/robfig/cron
-go get -u github.com/PuerkitoBio/goquery
-go get -u github.com/qiniu/api
-go get -u github.com/dchest/captcha
+go get -u -v github.com/go-sql-driver/mysql
+go get -u -v github.com/studygolang/mux
+go get -u -v github.com/gorilla/sessions
+go get -u -v github.com/robfig/cron
+go get -u -v github.com/qiniu/api
+go get -u -v github.com/dchest/captcha
 
-hg clone https://code.google.com/p/go.net src/go.net
-go install go.net/websocket
+if [ ! -d "src/golang.org/x/text" ]; then
+	git clone https://github.com/golang/text src/golang.org/x/text
+fi
+go install golang.org/x/text/...
+
+if [ ! -d "src/golang.org/x/net" ]; then
+	git clone https://github.com/golang/net src/golang.org/x/net
+fi
+go install golang.org/x/net/...
+#go get -u -v golang.org/x/net
+
+if [ ! -d "src/code.google.com/p/cascadia" ]; then
+	git clone https://github.com/studygolang/cascadia src/code.google.com/p/cascadia
+fi
+go install code.google.com/p/cascadia
+
+go get -u -v github.com/PuerkitoBio/goquery
 
 export GOPATH="$OLDGOPATH"
 export PATH="$OLDPATH"
