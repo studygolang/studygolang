@@ -50,6 +50,6 @@ func EmbedWide(content string) string {
 		return content
 	}
 
-	reg := regexp.MustCompile(`&lt;iframe .* src=.*(https://wide\.b3log\.org/playground.*\.go).*/iframe&gt;`)
+	reg := regexp.MustCompile(`&lt;iframe.*src=.*(https://wide\.b3log\.org/playground.*\.go).*/iframe&gt;`)
 	return reg.ReplaceAllString(content, `<iframe src="$1?embed=true" width="100%" height="600"></iframe>`)
 }
