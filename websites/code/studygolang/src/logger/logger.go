@@ -11,6 +11,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"time"
 )
 
 var (
@@ -29,7 +30,7 @@ type logger struct {
 }
 
 func Infof(format string, args ...interface{}) {
-	file, err := os.OpenFile(info_file, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
+	file, err := openFile(info_file)
 	if err != nil {
 		return
 	}
@@ -38,7 +39,7 @@ func Infof(format string, args ...interface{}) {
 }
 
 func Infoln(args ...interface{}) {
-	file, err := os.OpenFile(info_file, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
+	file, err := openFile(info_file)
 	if err != nil {
 		return
 	}
@@ -47,7 +48,7 @@ func Infoln(args ...interface{}) {
 }
 
 func Errorf(format string, args ...interface{}) {
-	file, err := os.OpenFile(error_file, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
+	file, err := openFile(error_file)
 	if err != nil {
 		return
 	}
@@ -56,7 +57,7 @@ func Errorf(format string, args ...interface{}) {
 }
 
 func Errorln(args ...interface{}) {
-	file, err := os.OpenFile(error_file, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
+	file, err := openFile(error_file)
 	if err != nil {
 		return
 	}
@@ -66,6 +67,12 @@ func Errorln(args ...interface{}) {
 
 func New(out io.Writer) *logger {
 	return &logger{
-		Logger: log.New(out, "", log.LstdFlags),
+		Logger: log.New(out, "", log.Ltime),
 	}
+}
+
+func openFile(filename string) (*os.File, error) {
+	filename += "-" + time.Now().Format("060102")
+
+	return os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
 }
