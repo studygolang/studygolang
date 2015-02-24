@@ -36,6 +36,9 @@ func ServeBackGround() {
 	// 每天生成 sitemap 文件
 	c.AddFunc("@daily", service.GenSitemap)
 
+	// 给用户发邮件，如通知网站最近的动态，每周的晨读汇总等
+	c.AddFunc("0 0 10 * * 0", service.EmailNotice)
+
 	c.Start()
 }
 

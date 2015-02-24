@@ -7,7 +7,9 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
 
 	"filter"
 	"github.com/studygolang/mux"
@@ -56,4 +58,44 @@ func UsersHandler(rw http.ResponseWriter, req *http.Request) {
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/user/users.html")
 	// 设置模板数据
 	filter.SetData(req, map[string]interface{}{"activeUsers": "active", "actives": activeUsers, "news": newUsers, "total": total})
+}
+
+// 邮件订阅/退订页面
+// URI: /user/email/unsubscribe{json:(|.json)}
+func EmailUnsubHandler(rw http.ResponseWriter, req *http.Request) {
+	token := req.FormValue("u")
+	if token == "" {
+		util.Redirect(rw, req, "/")
+		return
+	}
+
+	// 校验 token 的合法性
+	email := req.FormValue("email")
+	user := service.FindUserByEmail(email)
+	if user.Email == "" {
+		util.Redirect(rw, req, "/")
+		return
+	}
+
+	realToken := service.GenUnsubscribeToken(user.Username, user.Email)
+	if token != realToken {
+		util.Redirect(rw, req, "/")
+		return
+	}
+
+	vars := mux.Vars(req)
+	if req.Method != "POST" || vars["json"] == "" {
+		filter.SetData(req, map[string]interface{}{
+			"email":       email,
+			"token":       token,
+			"unsubscribe": user.Unsubscribe,
+		})
+		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/user/email_unsub.html")
+		return
+	}
+
+	unsubscribe, _ := strconv.Atoi(req.PostFormValue("unsubscribe"))
+
+	service.EmailSubscribe(user.Uid, unsubscribe)
+	fmt.Fprint(rw, `{"ok": 1, "msg":"保存成功"}`)
 }

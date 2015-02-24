@@ -57,6 +57,8 @@ func initRouter() *mux.Router {
 	// 用户相关
 	router.HandleFunc("/users", UsersHandler)
 	router.HandleFunc("/user/{username:\\w+}", UserHomeHandler)
+	// 邮件退订页面
+	router.HandleFunc("/user/email/unsubscribe{json:(|.json)}", EmailUnsubHandler)
 
 	// 网友博文
 	router.HandleFunc("/articles", ArticlesHandler)
