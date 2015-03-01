@@ -56,7 +56,10 @@ var emailTpl = template.Must(template.New("email.html").Funcs(emailFuncMap).Pars
 // 订阅邮件通知
 func EmailNotice() {
 
-	beginTime := time.Now().Add(-7*24*time.Hour).Format("2006-01-02") + " 00:00:00"
+	beginDate := time.Now().Add(-7 * 24 * time.Hour).Format("2006-01-02")
+	endDate := time.Now().Add(-24 * time.Hour).Format("2006-01-02")
+
+	beginTime := beginDate + " 00:00:00"
 
 	// 本周晨读（过去 7 天）
 	readings, err := model.NewMorningReading().Where("ctime>? AND rtype=0", beginTime).Order("id DESC").FindAll()
@@ -77,9 +80,11 @@ func EmailNotice() {
 	}
 
 	data := map[string]interface{}{
-		"readings": readings,
-		"articles": articles,
-		"topics":   topics,
+		"readings":  readings,
+		"articles":  articles,
+		"topics":    topics,
+		"beginDate": beginDate,
+		"endDate":   endDate,
 	}
 
 	// 给所有用户发送邮件
@@ -108,7 +113,7 @@ func EmailNotice() {
 			}
 
 			data["email"] = user.Email
-			data["token"] = GenUnsubscribeToken(user.Username, user.Email)
+			data["token"] = GenUnsubscribeToken(user)
 
 			content, err := genEmailContent(data)
 			if err != nil {
@@ -117,18 +122,16 @@ func EmailNotice() {
 			}
 
 			go func(content, email string) {
-				SendMail("每周精选", content, []string{"274768166@qq.com"})
+				SendMail("每周精选", content, []string{email})
 			}(content, user.Email)
-			break
 		}
-		break
 	}
 
 }
 
 // 生成 退订 邮件的 token
-func GenUnsubscribeToken(username, email string) string {
-	return util.Md5(username + email + model.UNSUBSCRIBE_TOKEN_KEY)
+func GenUnsubscribeToken(user *model.User) string {
+	return util.Md5(user.String() + Config["unsubscribe_token_key"])
 }
 
 func genEmailContent(data map[string]interface{}) (string, error) {

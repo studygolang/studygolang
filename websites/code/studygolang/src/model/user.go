@@ -8,8 +8,9 @@ package model
 
 import (
 	"fmt"
-	"logger"
 	"math/rand"
+
+	"logger"
 	"util"
 )
 
@@ -119,9 +120,6 @@ func (this *UserLogin) colFieldMap() map[string]interface{} {
 func (this *UserLogin) GetPasscode() string {
 	return this.passcode
 }
-
-// 产生退订邮件的 token key
-const UNSUBSCRIBE_TOKEN_KEY = "sg_#fuol$ew"
 
 // 用户基本信息
 type User struct {
@@ -244,6 +242,13 @@ func (this *User) colFieldMap() map[string]interface{} {
 		"ctime":       &this.Ctime,
 		"mtime":       &this.Mtime,
 	}
+}
+
+func (this *User) String() string {
+	buffer := util.NewBuffer()
+	buffer.Append(this.Username).Append(this.Email).AppendInt(this.Uid).Append(this.Mtime)
+
+	return buffer.String()
 }
 
 // 活跃用户信息

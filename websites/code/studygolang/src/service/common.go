@@ -1,7 +1,11 @@
 package service
 
 import (
+	"fmt"
 	"net/url"
+	"regexp"
+
+	"model"
 	"util"
 )
 
@@ -35,4 +39,25 @@ func GenSetClause(form url.Values, fields []string) string {
 		return stringBuilder.String()[1:]
 	}
 	return ""
+}
+
+// @某人
+func parseAtUser(content string) string {
+	user := model.NewUser()
+
+	reg := regexp.MustCompile(`@([^\s@]{4,20})`)
+	return reg.ReplaceAllStringFunc(content, func(matched string) string {
+		username := matched[1:]
+
+		// 校验 username 是否存在
+		err := user.Where("username=?", username).Find()
+		if err != nil {
+			return matched
+		}
+
+		if user.Username != username {
+			return matched
+		}
+		return fmt.Sprintf(`<a href="/user/%s" title="%s">%s</a>`, username, matched, matched)
+	})
 }

@@ -77,7 +77,7 @@ func EmailUnsubHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	realToken := service.GenUnsubscribeToken(user.Username, user.Email)
+	realToken := service.GenUnsubscribeToken(user)
 	if token != realToken {
 		util.Redirect(rw, req, "/")
 		return

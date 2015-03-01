@@ -69,11 +69,10 @@ func decodeCmtContent(comment *model.Comment) string {
 	// 安全过滤
 	content := template.HTMLEscapeString(comment.Content)
 	// @别人
-	reg := regexp.MustCompile(`@([^\s@]{4,20})`)
-	content = reg.ReplaceAllString(content, `<a href="/user/$1" title="@$1">@$1</a>`)
+	content = parseAtUser(content)
 
 	// 回复某一楼层
-	reg = regexp.MustCompile(`#(\d+)楼`)
+	reg := regexp.MustCompile(`#(\d+)楼`)
 	url := fmt.Sprintf("%s%d#comment", model.PathUrlMap[comment.Objtype], comment.Objid)
 	content = reg.ReplaceAllString(content, `<a href="`+url+`$1" title="$1">#$1<span>楼</span></a>`)
 
