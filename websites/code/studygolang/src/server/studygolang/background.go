@@ -37,7 +37,7 @@ func ServeBackGround() {
 	c.AddFunc("@daily", service.GenSitemap)
 
 	// 给用户发邮件，如通知网站最近的动态，每周的晨读汇总等
-	c.AddFunc("0 0 9 * * 1", service.EmailNotice)
+	c.AddFunc("0 0 4 * * 1", service.EmailNotice)
 
 	c.Start()
 }

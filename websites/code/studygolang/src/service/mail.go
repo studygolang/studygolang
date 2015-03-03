@@ -7,12 +7,12 @@
 package service
 
 import (
+	"bytes"
 	"html/template"
 	"net/smtp"
 	"strings"
 	"time"
 
-	"bytes"
 	. "config"
 	"logger"
 	"model"
@@ -92,11 +92,12 @@ func EmailNotice() {
 
 	var (
 		lastUid = 0
+		limit   = "500"
 		users   []*model.User
 	)
 
 	for {
-		users, err = userModel.Where("uid>?", lastUid).Order("uid ASC").FindAll()
+		users, err = userModel.Where("uid>?", lastUid).Order("uid ASC").Limit(limit).FindAll()
 		if err != nil {
 			logger.Errorln("find user error:", err)
 			continue
@@ -121,9 +122,11 @@ func EmailNotice() {
 				continue
 			}
 
-			go func(content, email string) {
-				SendMail("每周精选", content, []string{email})
-			}(content, user.Email)
+			SendMail("每周精选", content, []string{user.Email})
+
+			if lastUid < user.Uid {
+				lastUid = user.Uid
+			}
 		}
 	}
 
