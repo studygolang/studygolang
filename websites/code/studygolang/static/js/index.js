@@ -11,7 +11,7 @@ $(document).ready( function(){
 			var content = '';
 			for (var i in data) {
 				content += '<li>'+
-					'<a href="'+data[i].url+'" title="'+data[i].content+'">'+data[i].content+'</a>'+
+					'<a href="'+data[i].url+'" title="'+data[i].content+'" target="_blank">'+data[i].content+'</a>'+
 					'</li>';
 			}
 
