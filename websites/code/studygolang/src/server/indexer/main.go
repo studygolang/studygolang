@@ -23,9 +23,7 @@ func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	// 设置随机数种子
 	rand.Seed(time.Now().Unix())
-}
 
-func main() {
 	var manualIndex bool
 	flag.BoolVar(&manualIndex, "manual", false, "do manual index once or not")
 	flag.Parse()
@@ -33,6 +31,9 @@ func main() {
 	if manualIndex {
 		indexing(true)
 	}
+}
+
+func main() {
 
 	c := cron.New()
 	// 构建 solr 需要的索引数据
