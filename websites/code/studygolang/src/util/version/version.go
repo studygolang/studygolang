@@ -21,7 +21,7 @@ To set these manually use -ldflags together with -X, like in this example:
 
 */
 
-package util
+package version
 
 import (
 	"flag"
