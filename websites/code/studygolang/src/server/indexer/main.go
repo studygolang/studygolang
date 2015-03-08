@@ -7,10 +7,10 @@
 package main
 
 import (
+	"flag"
 	"math/rand"
 	"runtime"
 	"time"
-	"flag"
 	//"path/filepath"
 
 	"github.com/robfig/cron"
