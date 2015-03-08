@@ -109,7 +109,7 @@ func EmailNotice() {
 
 		for _, user := range users {
 			if user.Unsubscribe == 1 {
-				logger.Infoln(user)
+				logger.Infoln("user unsubscribe", user)
 				continue
 			}
 
