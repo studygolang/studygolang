@@ -17,7 +17,7 @@ install(bash/bat). Or date is binary modify time.
 
 To set these manually use -ldflags together with -X, like in this example:
 
-	go install -ldflags "-X util.version v1.0"
+	go install -ldflags "-X util/version.Version v1.0"
 
 */
 
