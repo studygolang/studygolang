@@ -127,6 +127,9 @@ func EmailNotice() {
 			if lastUid < user.Uid {
 				lastUid = user.Uid
 			}
+
+			// 控制发信速度
+			time.Sleep(10 * time.Second)
 		}
 	}
 
