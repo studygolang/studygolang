@@ -36,7 +36,7 @@ func WsHandler(wsConn *websocket.Conn) {
 	}
 	userData := service.Book.AddUser(user, serverId)
 	// 给自己发送消息，告诉当前在线用户数、历史最高在线人数
-	onlineInfo := map[string]int{"online": service.Book.Len() + 50, "maxonline": service.MaxOnlineNum()}
+	onlineInfo := map[string]int{"online": service.Book.Len(), "maxonline": service.MaxOnlineNum()}
 	message := service.NewMessage(service.WsMsgOnline, onlineInfo)
 	err = websocket.JSON.Send(wsConn, message)
 	if err != nil {
@@ -62,7 +62,7 @@ func WsHandler(wsConn *websocket.Conn) {
 	}
 	// 用户退出时需要变更其他用户看到的在线用户数
 	if !service.Book.UserIsOnline(user) {
-		message := service.NewMessage(service.WsMsgOnline, map[string]int{"online": service.Book.Len() + 50})
+		message := service.NewMessage(service.WsMsgOnline, map[string]int{"online": service.Book.Len()})
 		go service.Book.BroadcastAllUsersMessage(message)
 	}
 }
