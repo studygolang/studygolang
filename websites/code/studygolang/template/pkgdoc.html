@@ -36,6 +36,14 @@ function autoHeight(){
 
 		iframe.height = iframe.contentDocument.body.offsetHeight + addHeight;
 	}
+
+	// 源码链接，新窗口打开
+	$('#pkgdoc').contents().find('a').on('mousedown', function(evt){
+		var url = $(this).attr('href');
+		if (url.indexOf('github.com') > 0) {
+			$(this).attr('target', '_blank');
+		}
+	});
 }
 </script>
 {{end}}
