@@ -129,7 +129,7 @@ func EmailNotice() {
 			}
 
 			// 控制发信速度
-			time.Sleep(10 * time.Second)
+			time.Sleep(30 * time.Second)
 		}
 	}
 
