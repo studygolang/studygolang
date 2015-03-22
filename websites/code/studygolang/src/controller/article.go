@@ -127,7 +127,7 @@ func ArticleDetailHandler(rw http.ResponseWriter, req *http.Request) {
 	article.Viewnum++
 
 	// 设置内容模板
-	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/articles/detail.html")
+	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/articles/detail.html,/template/common/comment.html")
 	// 设置模板数据
 	filter.SetData(req, map[string]interface{}{"activeArticles": "active", "article": article, "prev": prevNext[0], "next": prevNext[1], "likeflag": likeFlag, "hadcollect": hadCollect})
 }

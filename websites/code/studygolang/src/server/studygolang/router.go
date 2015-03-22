@@ -33,6 +33,7 @@ func initRouter() *mux.Router {
 
 	router.HandleFunc("/", IndexHandler)
 	router.HandleFunc("/wr", WRHandler)
+	router.HandleFunc("/pkgdoc", PkgdocHandler)
 
 	router.HandleFunc("/topics{view:(|/popular|/no_reply|/last)}", TopicsHandler)
 	router.HandleFunc("/topics/{tid:[0-9]+}", TopicDetailHandler)

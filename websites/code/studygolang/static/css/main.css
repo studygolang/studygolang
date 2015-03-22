@@ -165,7 +165,7 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .page .page-comment .submit .sub ul { padding-left: 30px; font-size:13px; line-height: 13px;}
 .page .page-comment .submit .sub .btn {padding: 6px 22px;}
 .page .page-comment .content-preview { margin-bottom: 5px; width: 100%;height: 200px;border: 1px solid #CCCCCC;border-radius: 3px 3px 3px 3px;-moz-border-radius: 3px 3px 3px 3px;display: none;padding: 4px;overflow: scroll; display: none; }
-.page .page-comment .words {padding-bottom: 20px;}
+.page .page-comment .words {/*padding-bottom: 20px;*/}
 .page .page-comment .words h3 {font-size: 14px;color: #999999;height: 40px;line-height: 40px;border-bottom: solid 1px #ECECEC;position: relative;margin-top: 4px;font-weight: normal;margin-bottom: 0px;}
 .page .page-comment .words h3 span {color: #A2442F;padding: 0 3px;}
 .page .page-comment .words ul li {padding: 20px 0 8px;border-bottom: dashed 1px #ECECEC;}

@@ -73,7 +73,7 @@ func ResourceDetailHandler(rw http.ResponseWriter, req *http.Request) {
 
 	service.Views.Incr(req, model.TYPE_RESOURCE, util.MustInt(vars["id"]))
 
-	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/resources/detail.html")
+	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/resources/detail.html,/template/common/comment.html")
 	filter.SetData(req, map[string]interface{}{"activeResources": "active", "resource": resource, "comments": comments, "likeflag": likeFlag, "hadcollect": hadCollect})
 }
 

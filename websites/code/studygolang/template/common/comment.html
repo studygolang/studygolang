@@ -1,0 +1,24 @@
+{{define "comment"}}
+<div class="row clearfix md-toolbar">
+	<ul class="col-md-10 list-inline">
+		<li class="edit cur"><a href="#">编辑</a></li>
+		<li class="preview"><a href="#">预览</a></li>
+	</ul>
+	<div class="col-md-2 text-right">
+		<i id="upload-img" class="glyphicon glyphicon-picture upload-img tool-tip" data-toggle="tooltip" data-placement="top" title="上传图片"></i>
+	</div>
+</div>
+<div class="submit" id="commentForm">
+	<div class="text">
+		<textarea name="content" placeholder="我有话要说……" class="main-textarea need-autogrow"></textarea>
+	</div>
+	<div class="sub row">
+		<ul class="help-block col-md-10">
+			<li class="markdown_tip">支持 Markdown 格式, <strong>**粗体**</strong>、~~删除线~~、<code>`单行代码`</code></li>
+			<li>支持 @ 本站用户；支持表情（输入 : 提示），见 <a href="http://www.emoji-cheat-sheet.com/" target="_blank">Emoji cheat sheet</a></li>
+		</ul>
+		<div class="col-md-2 text-right"><button type="submit" title="提交" class="btn btn-danger">提交</button></div>
+	</div>
+</div>
+<div class="content-preview"></div>
+{{end}}

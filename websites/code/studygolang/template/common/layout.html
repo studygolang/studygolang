@@ -12,7 +12,7 @@
 	<!--<link href="http://maxcdn.bootstrapcdn.com/bootswatch/3.2.0/cosmo/bootstrap.min.css" rel="stylesheet">-->
 	<link href="http://studygolang.qiniudn.com/cosmo_bootstrap.min.css" rel="stylesheet">
 	<!--<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">-->
-	<link href="/static/css/main.css?v=1.0" rel="stylesheet"/>
+	<link href="/static/css/main.css?v=1.1" rel="stylesheet"/>
 	{{template "css"}}
 </head>
 <body>
@@ -40,7 +40,7 @@
 						</ul>
 					</li>
 					<li class="{{.activeProjects}}">
-						<a href="/projects">开源项目<i class="newfuture"></i></a>
+						<a href="/projects">开源项目</a>
 					</li>
 					<li class="{{.activeResources}}">
 						<a href="/resources">资源</a>
@@ -52,15 +52,21 @@
 							<li><a href="/readings?rtype=1">综合晨读</a></li>
 						</ul>
 					</li>
-					<li class="dropdown">
-						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="docs">官方文档 <span class="caret"></span></a>
+					<li class="dropdown {{.activeDoc}}">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="docs">官方文档<i class="newfuture"></i> <span class="caret"></span></a>
 						<ul class="dropdown-menu" aria-labelledby="docs">
 							<li><a href="http://docs.studygolang.com" target="_blank">英文文档</a></li>
 							<li><a href="http://docscn.studygolang.com" target="_blank">中文文档</a></li>
+							<li><a href="/pkgdoc">标准库中文版</a></li>
 							<li role="presentation" class="divider"></li>
 							<li><a href="http://tour.studygolang.com" target="_blank">Go指南</a></li>
 						</ul>
 					</li>
+					<!--
+					<li class="{{.activeWide}}">
+						<a href="/wide/playground">游乐场</a>
+					</li>
+					-->
 				</ul>
 				<form class="navbar-form navbar-left" action="/search" role="search" target="_blank">
 					<input type="text" name="q" class="form-control search-query" placeholder="搜索" value="{{if .q}}{{.q}}{{end}}">
@@ -69,9 +75,6 @@
 					{{if .me}}
 					<li>
 						<a href="/message/system" id="user_message_count"><span class="badge{{if .me.msgnum}} badge-warning{{end}}">{{.me.msgnum}}</span></a>
-					</li>
-					<li>
-						<a href="/project/new">发布项目</a>
 					</li>
 					<li class="dropdown" id="user_menu">
 						<a href="#user_menu" class="dropdown-toggle" data-toggle="dropdown">{{.me.username}} <b class="caret"></b></a>
