@@ -47,6 +47,9 @@ func autocrawl(needAll bool, crawlConfFile string, whichSite string) {
 	// 定时增量
 	c := cron.New()
 	c.AddFunc(config.Config["crawl_spec"], func() {
+		// 抓取 reddit
+		go service.ParseReddit("")
+
 		for website, wbconf := range websites {
 			if whichSite != "" && whichSite != website {
 				continue
