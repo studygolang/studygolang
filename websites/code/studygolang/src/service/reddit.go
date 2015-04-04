@@ -11,6 +11,7 @@ import (
 	"errors"
 	"math/rand"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -22,7 +23,7 @@ import (
 
 const (
 	Reddit       = "http://www.reddit.com"
-	RedditGolang = "/r/golang"
+	RedditGolang = "/r/golang/new/"
 )
 
 // 获取url对应的文章并根据规则进行解析
@@ -44,14 +45,27 @@ func ParseReddit(redditUrl string) error {
 		return err
 	}
 
-	doc.Find("#siteTable .link").Each(func(i int, contentSelection *goquery.Selection) {
+	/*
+		doc.Find("#siteTable .link").Each(func(i int, contentSelection *goquery.Selection) {
 
-		err = dealRedditOneResource(contentSelection)
+			err = dealRedditOneResource(contentSelection)
+
+			if err != nil {
+				logger.Errorln(err)
+			}
+		})
+	*/
+
+	// 最后面的先入库处理
+	resourcesSelection := doc.Find("#siteTable .link")
+
+	for i := resourcesSelection.Length() - 1; i >= 0; i-- {
+		err = dealRedditOneResource(goquery.NewDocumentFromNode(resourcesSelection.Get(i)).Selection)
 
 		if err != nil {
 			logger.Errorln(err)
 		}
-	})
+	}
 
 	return err
 }
@@ -74,19 +88,25 @@ func dealRedditOneResource(contentSelection *goquery.Selection) error {
 		return errors.New("resource url is empty")
 	}
 
+	isReddit := false
+
 	resource := model.NewResource()
 	// Reddit 自身的内容
 	if contentSelection.HasClass("self") {
+		isReddit = true
 		resourceUrl = Reddit + resourceUrl
 	}
 
 	err := resource.Where("url=?", resourceUrl).Find("id")
 	// 已经存在
 	if resource.Id != 0 {
-		return errors.New("url" + resourceUrl + "has exists!")
+		// 如果是 reddit 本身的，可以更新评论信息
+		if !isReddit {
+			return errors.New("url" + resourceUrl + "has exists!")
+		}
 	}
 
-	if contentSelection.HasClass("self") {
+	if isReddit {
 
 		resource.Form = model.ContentForm
 
@@ -149,18 +169,24 @@ func dealRedditOneResource(contentSelection *goquery.Selection) error {
 	}
 	resource.Ctime = ctime
 
-	var id int64
-	id, err = resource.Insert()
+	if resource.Id == 0 {
+		var id int64
+		id, err = resource.Insert()
 
-	if err != nil {
-		return errors.New("insert into Resource error:" + err.Error())
-	}
+		if err != nil {
+			return errors.New("insert into Resource error:" + err.Error())
+		}
 
-	// 存扩展信息
-	resourceEx := model.NewResourceEx()
-	resourceEx.Id = int(id)
-	if _, err = resourceEx.Insert(); err != nil {
-		return errors.New("insert into ResourceEx error:" + err.Error())
+		// 存扩展信息
+		resourceEx := model.NewResourceEx()
+		resourceEx.Id = int(id)
+		if _, err = resourceEx.Insert(); err != nil {
+			return errors.New("insert into ResourceEx error:" + err.Error())
+		}
+	} else {
+		if err = resource.Persist(resource); err != nil {
+			return errors.New("persist resource:" + strconv.Itoa(resource.Id) + " error:" + err.Error())
+		}
 	}
 
 	return nil
