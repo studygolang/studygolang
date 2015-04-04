@@ -292,7 +292,8 @@ CREATE TABLE `resource` (
   `catid` int unsigned NOT NULL COMMENT '所属类别',
   `ctime` timestamp NOT NULL DEFAULT 0,
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY (`url`)
 ) COMMENT '资源' ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*---------------------------------------------------------------------------*
@@ -471,3 +472,33 @@ CREATE TABLE `morning_reading` (
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '技术晨读表';
+
+
+/*---------------------------------------------------------------------------*
+  NAME: advertisement
+  用途: 广告表
+*---------------------------------------------------------------------------*/
+DROP TABLE IF EXISTS `advertisement`;
+CREATE TABLE `advertisement` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(20) NOT NULL DEFAULT '' COMMENT '广告名称',
+  `code` varchar(255) NOT NULL DEFAULT '' COMMENT '广告内容代码(html、js等)',
+  `source` varchar(20) NOT NULL DEFAULT '' COMMENT '广告来源，如 baidu_union，shiyanlou',
+  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '广告表';
+
+/*---------------------------------------------------------------------------*
+  NAME: page_ad
+  用途: 页面广告管理表
+*---------------------------------------------------------------------------*/
+DROP TABLE IF EXISTS `page_ad`;
+CREATE TABLE `page_ad` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `ad_id` varchar(20) NOT NULL DEFAULT '' COMMENT '广告名称',
+  `ad_id` varchar(20) NOT NULL DEFAULT '' COMMENT '广告名称',
+  `code` varchar(255) NOT NULL DEFAULT '' COMMENT '广告内容代码(html、js等)',
+  `source` varchar(20) NOT NULL DEFAULT '' COMMENT '广告来源，如 baidu_union，shiyanlou',
+  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '页面广告管理表';
