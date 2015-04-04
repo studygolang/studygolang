@@ -160,11 +160,11 @@ func dealRedditOneResource(contentSelection *goquery.Selection) error {
 	ctime := util.TimeNow()
 	datetime, ok := contentSelection.Find(".tagline time").Attr("datetime")
 	if ok {
-		dtime, err := time.Parse(time.RFC3339, datetime)
+		dtime, err := time.ParseInLocation(time.RFC3339, datetime, time.UTC)
 		if err != nil {
 			logger.Errorln("parse ctime error:", err)
 		} else {
-			ctime = dtime.Format("2006-01-02 15:04:05")
+			ctime = dtime.Local().Format("2006-01-02 15:04:05")
 		}
 	}
 	resource.Ctime = ctime
