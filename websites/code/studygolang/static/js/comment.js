@@ -1,8 +1,6 @@
 // 评论相关js
 (function(){
-	window.Comment = {
-		
-	};
+	window.Comment = {};
 
 	$(document).ready(function(){
 		// 文本框事件
@@ -28,9 +26,6 @@
 			// 配置 marked 语法高亮
 			marked.setOptions({
 				highlight: function (code) {
-					code = code.replace(/&#34;/g, '"');
-					code = code.replace(/&lt;/g, '<');
-					code = code.replace(/&gt;/g, '>');
 					return hljs.highlightAuto(code).value;
 				}
 			});
@@ -129,10 +124,12 @@
 					code = code.replace(/&#34;/g, '"');
 					code = code.replace(/&lt;/g, '<');
 					code = code.replace(/&gt;/g, '>');
+					code = code.replace(/&amp;/g, '&');
 					return hljs.highlightAuto(code).value;
 				}
 			});
 			content = marked(content);
+			content = SG.replaceCodeChar(content);
 			return oneCmt+
 				'<div class="pull-left face">'+
 					'<a href="/user/'+username+'" target="_blank"><img src="'+avatar+'" width="48px" height="48px" alt="'+username+'"></a>'+
