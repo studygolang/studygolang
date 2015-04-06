@@ -337,7 +337,7 @@ func genPersistParams(entity interface{}) (string, []interface{}, error) {
 		if pk == "1" {
 			where = append(where, "`"+tag+"`"+"=?")
 		} else {
-			set = append(set, "`"+tag+"`"+"=?")
+			set = append(set, "`"+tags[0]+"`"+"=?")
 		}
 	}
 

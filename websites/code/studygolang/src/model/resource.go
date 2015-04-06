@@ -18,15 +18,15 @@ const (
 
 // 资源信息
 type Resource struct {
-	Id      int    `json:"id"`
+	Id      int    `json:"id" pk:"1"`
 	Title   string `json:"title"`
 	Form    string `json:"form"`
 	Content string `json:"content"`
 	Url     string `json:"url"`
 	Uid     int    `json:"uid"`
 	Catid   int    `json:"catid"`
-	Ctime   string `json:"ctime"`
-	Mtime   string `json:"mtime"`
+	Ctime   string `json:"ctime,omitempty"`
+	Mtime   string `json:"mtime,omitempty"`
 
 	// 数据库访问对象
 	*Dao
