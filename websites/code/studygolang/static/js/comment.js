@@ -122,6 +122,7 @@
 			marked.setOptions({
 				highlight: function (code) {
 					code = code.replace(/&#34;/g, '"');
+					code = code.replace(/&#39;/g, "'");
 					code = code.replace(/&lt;/g, '<');
 					code = code.replace(/&gt;/g, '>');
 					code = code.replace(/&amp;/g, '&');

@@ -63,6 +63,7 @@ SG.Publisher.prototype = {
 
 SG.replaceSpecialChar = function(str) {
 	str = str.replace(/&#34;/g, '"');
+	str = str.replace(/&#39;/g, "'");
 	str = str.replace(/&lt;/g, '<');
 	str = str.replace(/&gt;/g, '>');
 	str = str.replace(/&amp;/g, '&');
