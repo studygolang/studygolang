@@ -28,11 +28,6 @@ if not exist "src/golang.org/x/net" (
 )
 go install golang.org/x/net/...
 
-if not exist "src/code.google.com/p/cascadia" (
-	git clone https://github.com/studygolang/cascadia src/code.google.com/p/cascadia
-)
-go install code.google.com/p/cascadia
-
 if not exist "github.com/PuerkitoBio/goquery" (
 	git clone https://github.com/PuerkitoBio/goquery src/github.com/PuerkitoBio/goquery
 )
