@@ -56,7 +56,9 @@
 					{{else}}
 					<div>
 					{{end}}
-						<h2><a href="/articles/{{.Id}}" target="_blank" title="{{.Title}}">{{.Title}}</a></h2>
+						<h2><a href="/articles/{{.Id}}" target="_blank" title="{{.Title}}">
+							{{if .Top}}<font color="red">[置顶]</font>{{end}}{{.Title}}
+						</a></h2>
 						<p class="text">{{substring .Txt 220 "..."}}<a href="/articles/{{.Id}}" target="_blank" title="阅读全文">阅读全文</a></p>
 					</div>
 				</div>

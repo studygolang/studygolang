@@ -345,12 +345,14 @@ CREATE TABLE `articles` (
   `viewnum` int unsigned NOT NULL DEFAULT 0 COMMENT '浏览数',
   `cmtnum` int unsigned NOT NULL DEFAULT 0 COMMENT '评论数',
   `likenum` int unsigned NOT NULL DEFAULT 0 COMMENT '赞数',
+  `top` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '置顶，0否，1置顶',
   `status` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '状态：0-初始抓取；1-已上线；2-下线(审核拒绝)',
   `op_user` varchar(20) NOT NULL DEFAULT '' COMMENT '操作人',
   `ctime` timestamp NOT NULL DEFAULT 0,
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY (`url`),
+  KEY (`top`),
   KEY (`domain`),
   KEY (`ctime`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '网络文章聚合表';

@@ -216,6 +216,15 @@ func FindArticles(lastId, limit string) []*model.Article {
 		return nil
 	}
 
+	topArticles, err := article.Where("top=?", 1).Order("id DESC").FindAll()
+	if err != nil {
+		logger.Errorln("article service Find Top Articles Error:", err)
+		return nil
+	}
+	if len(topArticles) > 0 {
+		articleList = append(topArticles, articleList...)
+	}
+
 	return articleList
 }
 
