@@ -23,7 +23,7 @@ set VERSION=%VERNAME%-%VERCODE%
 gofmt -w src
 
 :: -tags "debug" 表示测试
-go install -tags "debug" -ldflags "-X util/version.Version "%VERSION% ./...
+go install -tags "debug" -ldflags "-X util.version.Version "%VERSION% ./...
 
 set GOPATH=%OLDGOPATH%
 
