@@ -6,7 +6,10 @@
 		// 配置 marked 语法高亮
 		marked = SG.markSetting();
 
-		$('.project .desc').html(marked(markdownString));
+		var contentHtml = marked(markdownString);
+		contentHtml = SG.replaceCodeChar(contentHtml);
+
+		$('.project .desc').html(contentHtml);
 	}
 
 	jQuery(document).ready(function($) {

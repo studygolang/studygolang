@@ -30,17 +30,19 @@
 				</div>
 				<ul class="clearfix list-unstyled">
 					{{range .resources}}
-					<li><i></i><a href="/resources/{{.Id}}" title="{{.Title}}" target="_blank">{{substring .Title 30 "..."}}</a><span class="pull-right timeago" title="{{.Ctime}}"></span></li>
+					<li><i></i><a href="/resources/{{.Id}}" title="{{.Title}}" target="_blank">{{substring .Title 45 "..."}}</a><span class="pull-right timeago" title="{{.Ctime}}"></span></li>
 					{{end}}
 				</ul>
 			</div>
+		</div>
+		<div class="row box_white" style="margin-top:20px;">
+			<a href="http://studygolang.com/wr?u=http%3A%2F%2Fwww.shiyanlou.com%2Fcourses%2F11" target="_blank" title="实验楼"><img src="http://studygolang.qiniudn.com/ad/shiyanlou_banner.jpg" alt="实验楼 IT人专属的在线实训室 学Golang最好的地方"></a>
 		</div>
 		<div class="row box_white article-list">
 			<div class="title">
 				<h3><a href="/articles">最新博文</a></h3>
 				<a class="pull-right more" href="/articles">更多&gt;&gt;</a>
 			</div>
-			{{$article := index .articles 0}}
 			{{range .articles}}
 			<article class="article box_white">
 				<div class="row">
@@ -54,7 +56,9 @@
 					{{else}}
 					<div>
 					{{end}}
-						<h2><a href="/articles/{{.Id}}" target="_blank" title="{{.Title}}">{{.Title}}</a></h2>
+						<h2><a href="/articles/{{.Id}}" target="_blank" title="{{.Title}}">
+							{{if .Top}}<font color="red">[置顶]</font>{{end}}{{.Title}}
+						</a></h2>
 						<p class="text">{{substring .Txt 220 "..."}}<a href="/articles/{{.Id}}" target="_blank" title="阅读全文">阅读全文</a></p>
 					</div>
 				</div>
@@ -103,7 +107,10 @@
 				</div>
 			</article>
 			{{end}}
+			{{if (len .articles) gt 0}}
+			{{$article := index .articles 0}}
 			<div class="pull-right article-bottom"><a href="/articles?lastid={{add $article.Id -10}}" title="查看更多">查看更多&gt;&gt;</a></div>
+			{{end}}
 		</div>
 		<div class="row box_white learn-info">
 			<h3><a href="javascript:">学习资料</a></h3>
@@ -245,9 +252,10 @@
 					<p><a href="/account/edit">个人资料设置</a></p>
 				</div>
 			</div>
-			<div class="box" style="margin: 0 20px;">
+			<div class="box" style="margin: 0 5px;">
 				<a class="btn btn-default btn-sm" href="/topics/new">发布主题</a>&nbsp;&nbsp;
-				<a class="btn btn-default btn-sm" href="/resources/new">分享资源</a>
+				<a class="btn btn-default btn-sm" href="/resources/new">分享资源</a>&nbsp;&nbsp;
+				<a class="btn btn-default btn-sm" href="/project/new">发布项目</a>
 			</div>
 			{{else}}
 			<div class="top">
@@ -364,7 +372,7 @@
 				<div class="image-list">
 					<ul class="list-unstyled">
 						<li>
-							<a href="http://gopm.io/" target="_blank" title="Go 语言包管理">
+							<a href="http://gopm.io?fr=studygolang" target="_blank" title="Go 语言包管理">
 								Go 语言包管理 — 不用翻墙就能下载 Go 语言包
 							</a>
 						</li>
@@ -387,7 +395,7 @@
 <link href="/static/css/index.css" rel="stylesheet"/>
 {{end}}
 {{define "js"}}
-<script type="text/javascript" src="/static/js/index.js"></script>
+<script type="text/javascript" src="/static/js/index.js?v=0.1"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [

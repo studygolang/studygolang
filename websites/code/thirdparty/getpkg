@@ -10,16 +10,24 @@ fi
 OLDGOPATH="$GOPATH"
 export GOPATH=`pwd`
 
-go get -u github.com/go-sql-driver/mysql
-go get -u github.com/studygolang/mux
-go get -u github.com/gorilla/sessions
-go get -u github.com/robfig/cron
-go get -u github.com/PuerkitoBio/goquery
-go get -u github.com/qiniu/api
-go get -u github.com/dchest/captcha
+go get -u -v github.com/go-sql-driver/mysql
+go get -u -v github.com/studygolang/mux
+go get -u -v github.com/gorilla/sessions
+go get -u -v github.com/robfig/cron
+go get -u -v github.com/qiniu/api
+go get -u -v github.com/dchest/captcha
 
-hg clone https://code.google.com/p/go.net src/go.net
-go install go.net/websocket
+cp /etc/hosts ~/hosts
+echo "golang.org	101.251.196.90" > /etc/hosts
+#echo "127.0.0.1	golang.org" > /etc/hosts
+
+trap "mv ~/hosts /etc/hosts" HUP INT QUIT TSTP
+
+go get -u -v github.com/PuerkitoBio/goquery
+
+if [ -f ~/hosts ]; then
+	mv ~/hosts /etc/hosts
+fi
 
 export GOPATH="$OLDGOPATH"
 export PATH="$OLDPATH"

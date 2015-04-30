@@ -41,3 +41,5 @@ studygolang_data.sql
 welcome.png
 
 *.json
+
+.DS_Store

@@ -21,6 +21,7 @@ import (
 	"logger"
 	"service"
 	"util"
+	"util/version"
 )
 
 // 自定义模板函数
@@ -192,8 +193,8 @@ func (this *ViewFilter) PostFilter(rw http.ResponseWriter, req *http.Request) bo
 		// websocket主机
 		data["wshost"] = config.Config["wshost"]
 		data["build"] = map[string]string{
-			"version": util.Version,
-			"date":    util.Date,
+			"version": version.Version,
+			"date":    version.Date,
 		}
 
 		err = tpl.Execute(rw, data)

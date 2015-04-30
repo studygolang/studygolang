@@ -13,6 +13,8 @@
 	"data": "data/max_online_num",
 	"pid": "pid/studygolang.pid",
 
+	"unsubscribe_token_key": "xxxxx",
+
 	"qiniu_access_key": "xxxxxxxxxxxxx",
 	"qiniu_secret_key": "xxxxxxxxxxxxxx",
 	"qiniu_bucket_name": "xxxxxxxxx",

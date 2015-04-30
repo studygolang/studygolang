@@ -61,19 +61,32 @@ SG.Publisher.prototype = {
 	}
 }
 
+SG.replaceSpecialChar = function(str) {
+	str = str.replace(/&#34;/g, '"');
+	str = str.replace(/&#39;/g, "'");
+	str = str.replace(/&lt;/g, '<');
+	str = str.replace(/&gt;/g, '>');
+	str = str.replace(/&amp;/g, '&');
+	return str;
+}
+
 SG.markSetting = function() {
 	// 配置 marked 语法高亮
 	marked.setOptions({
 		highlight: function (code) {
-			code = code.replace(/&#34;/g, '"');
-			code = code.replace(/&lt;/g, '<');
-			code = code.replace(/&gt;/g, '>');
-			code = code.replace(/&amp;/g, '&');
+			code = SG.replaceSpecialChar(code);
 			return hljs.highlightAuto(code).value;
 		}
 	});
 
 	return marked;
+}
+
+// 替换 `` 代码块中的 "<>& 等字符
+SG.replaceCodeChar = function(code) {
+	return code.replace(/<code>.*<\/code>/g, function(matched, index, origin) {
+		return SG.replaceSpecialChar(matched);
+	});
 }
 
 // 分析 @ 的用户

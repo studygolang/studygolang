@@ -7,6 +7,7 @@
 package main
 
 import (
+	"flag"
 	"math/rand"
 	"runtime"
 	"time"
@@ -22,6 +23,14 @@ func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	// 设置随机数种子
 	rand.Seed(time.Now().Unix())
+
+	var manualIndex bool
+	flag.BoolVar(&manualIndex, "manual", false, "do manual index once or not")
+	flag.Parse()
+
+	if manualIndex {
+		indexing(true)
+	}
 }
 
 func main() {
@@ -29,20 +38,24 @@ func main() {
 	c := cron.New()
 	// 构建 solr 需要的索引数据
 	// 一天一次全量
-	c.AddFunc("0 */1 * * * *", func() {
-		logger.Infoln("indexing start...")
-
-		start := time.Now()
-		defer func() {
-			logger.Infoln("indexing spend time:", time.Now().Sub(start))
-		}()
-
-		service.Indexing(true)
+	c.AddFunc("@daily", func() {
+		indexing(true)
 	})
 
 	c.Start()
 
 	select {}
+}
+
+func indexing(isAll bool) {
+	logger.Infoln("indexing start...")
+
+	start := time.Now()
+	defer func() {
+		logger.Infoln("indexing spend time:", time.Now().Sub(start))
+	}()
+
+	service.Indexing(isAll)
 }
 
 // 保存PID

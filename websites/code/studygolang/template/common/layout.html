@@ -6,13 +6,13 @@
 	<meta charset="utf-8">
 	<link rel="shortcut icon" href="/static/img/go.ico">
 	{{template "seo" .}}
-	<meta name="author" content="polaris <studygolang@gmail.com>">
+	<meta name="author" content="polaris <polaris@studygolang.com>">
 	<link href="http://studygolang.qiniudn.com/fonts_googleapi.css" rel="stylesheet">
 	<!--<link href="http://apps.bdimg.com/libs/bootswatch/3/cosmo/bootstrap.min.css" rel="stylesheet">-->
 	<!--<link href="http://maxcdn.bootstrapcdn.com/bootswatch/3.2.0/cosmo/bootstrap.min.css" rel="stylesheet">-->
 	<link href="http://studygolang.qiniudn.com/cosmo_bootstrap.min.css" rel="stylesheet">
 	<!--<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">-->
-	<link href="/static/css/main.css?v=1.0" rel="stylesheet"/>
+	<link href="/static/css/main.css?v=1.1" rel="stylesheet"/>
 	{{template "css"}}
 </head>
 <body>
@@ -20,7 +20,7 @@
 		<div class="container">
 			<!-- Brand and toggle get grouped for better mobile display -->
 			<div class="navbar-header">
-				<a href="/" class="navbar-brand"><img alt="Go语言学习园地" src="/static/img/text_logo.png"></a>
+				<a href="/" class="navbar-brand"><img alt="Go语言中文网" src="/static/img/text_logo.png"></a>
 				<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
@@ -40,7 +40,7 @@
 						</ul>
 					</li>
 					<li class="{{.activeProjects}}">
-						<a href="/projects">开源项目<i class="newfuture"></i></a>
+						<a href="/projects">开源项目</a>
 					</li>
 					<li class="{{.activeResources}}">
 						<a href="/resources">资源</a>
@@ -52,15 +52,21 @@
 							<li><a href="/readings?rtype=1">综合晨读</a></li>
 						</ul>
 					</li>
-					<li class="dropdown">
-						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="docs">官方文档 <span class="caret"></span></a>
+					<li class="dropdown {{.activeDoc}}">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="docs">官方文档<i class="newfuture"></i> <span class="caret"></span></a>
 						<ul class="dropdown-menu" aria-labelledby="docs">
 							<li><a href="http://docs.studygolang.com" target="_blank">英文文档</a></li>
 							<li><a href="http://docscn.studygolang.com" target="_blank">中文文档</a></li>
+							<li><a href="/pkgdoc">标准库中文版</a></li>
 							<li role="presentation" class="divider"></li>
 							<li><a href="http://tour.studygolang.com" target="_blank">Go指南</a></li>
 						</ul>
 					</li>
+					<!--
+					<li class="{{.activeWide}}">
+						<a href="/wide/playground">游乐场</a>
+					</li>
+					-->
 				</ul>
 				<form class="navbar-form navbar-left" action="/search" role="search" target="_blank">
 					<input type="text" name="q" class="form-control search-query" placeholder="搜索" value="{{if .q}}{{.q}}{{end}}">
@@ -69,9 +75,6 @@
 					{{if .me}}
 					<li>
 						<a href="/message/system" id="user_message_count"><span class="badge{{if .me.msgnum}} badge-warning{{end}}">{{.me.msgnum}}</span></a>
-					</li>
-					<li>
-						<a href="/project/new">发布项目</a>
 					</li>
 					<li class="dropdown" id="user_menu">
 						<a href="#user_menu" class="dropdown-toggle" data-toggle="dropdown">{{.me.username}} <b class="caret"></b></a>
@@ -105,7 +108,7 @@
 					<img src="/static/img/logo.png" widht="48px" height="48px" alt="golang logo">
 				</div>
 				<p class="links">
-					<a href="/wiki/about">关于</a> | <a href="/api">API</a> | <a href="/wiki/contributors">贡献者</a> | <a href="/wiki/">帮助推广</a> | <a href="/topics/node16">反馈</a> | <a href="http://github.com/studygolang" target="_blank" rel="nofollow">Github</a> | <a href="http://weibo.com/studygolang" target="_blank" rel="nofollow">新浪微博</a> | <a href="/wiki/duty">免责声明</a>
+					<a href="/wiki/about">关于</a> | <a href="/api">API</a> | <a href="/wiki/contributors">贡献者</a> | <a href="/wiki/">帮助推广</a> | <a href="/topics/node16">反馈</a> | <a href="http://github.com/studygolang" target="_blank" rel="nofollow">Github</a> | <a href="http://weibo.com/studygolang" target="_blank" rel="nofollow">新浪微博</a> | <a href="/wide/playground">内嵌Wide</a> | <a href="/wiki/duty">免责声明</a>
 				</p>
 				<p class="copyright">&copy;2013-2015 studygolang.com 采用 <a href="http://golang.org" target="_blank">Go语言</a> + <a href="http://www.mysql.com/" target="_blank">MYSQL 构建</a>
 				&nbsp;&nbsp;当前在线：<span id="onlineusers">30</span>人&nbsp;&nbsp;历史最高：<span id="maxonline">300</span>人
@@ -114,7 +117,11 @@
 				<br/>中国 Golang 社区，Go语言学习园地，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。
 	京ICP备14030343号-1
 				</p>
-				<p class="text-center"><a href="http://www.ucai.cn" title="优才网" target="_blank"><img src="http://p3.ucai.cn/static/i3/mission/moblie_ucai_logo.png" alt="优才网" width="175px" height="45px" /><a href="https://portal.qiniu.com/signup?code=3lfz4at7pxfma" title="七牛云存储" target="_blank"><img src="http://qiniutek.com/images/logo-2.png" alt="七牛云存储" width="290px" height="45px" /></a></p>
+				<p class="text-center">
+					<a href="http://www.ucai.cn?fr=studygolang" title="优才网" target="_blank"><img src="http://p3.ucai.cn/static/i3/mission/moblie_ucai_logo.png" alt="优才网" width="175px" height="45px" /></a>
+					<a href="https://www.shiyanlou.com?fr=studygolang" title="实验楼" target="_blank"><img src="http://studygolang.qiniudn.com/ad/shiyanlou_logo.png" alt="实验楼" width="310px" height="45px" /></a>
+					<a href="https://portal.qiniu.com/signup?code=3lfz4at7pxfma" title="七牛云存储" target="_blank"><img src="http://qiniutek.com/images/logo-2.png" alt="七牛云存储" width="290px" height="45px" /></a>
+				</p>
 			</div>
 		</div>
 	</footer>
@@ -190,7 +197,7 @@
 	var wsUrl = 'ws://{{.wshost}}/ws?uid={{.me.uid}}';
 	// var wsUrl = 'ws://studygolang.com/ws?uid={{.me.uid}}';
 </script>
-<script src="/static/js/common.js?v=1.0"></script>
+<script src="/static/js/common.js?v=1.1"></script>
 {{template "js" .}}
 <script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
 <script src="/static/js/sidebar.js?v=1.0"></script>

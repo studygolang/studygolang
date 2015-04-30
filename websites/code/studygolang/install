@@ -20,7 +20,7 @@ DATE=`date +%FT%T%z`
 
 gofmt -w src
 
-go install -ldflags "-X util.Version "$VERSION" -X util.Date "$DATE ./...
+go install -ldflags "-X util/version.Version "$VERSION" -X util/version.Date "$DATE ./...
 
 export GOPATH="$OLDGOPATH"
 export PATH="$OLDPATH"

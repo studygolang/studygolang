@@ -10,7 +10,7 @@ import (
 	. "config"
 	"controller"
 	"github.com/dchest/captcha"
-	"go.net/websocket"
+	"golang.org/x/net/websocket"
 	"process"
 
 	"log"

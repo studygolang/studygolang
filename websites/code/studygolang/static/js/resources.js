@@ -19,8 +19,9 @@
 		var markdownString = selector.text();
 		// 配置 marked 语法高亮
 		marked = SG.markSetting();
-
-		selector.html(marked(markdownString));
+		var contentHtml = marked(markdownString);
+		contentHtml = SG.replaceCodeChar(contentHtml);
+		selector.html(contentHtml);
 
 		// emoji 表情解析
 		emojify.run(selector.get(0));

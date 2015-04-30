@@ -96,7 +96,7 @@ func TopicDetailHandler(rw http.ResponseWriter, req *http.Request) {
 	service.Views.Incr(req, model.TYPE_TOPIC, util.MustInt(vars["tid"]))
 
 	// 设置内容模板
-	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/topics/detail.html")
+	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/topics/detail.html,/template/common/comment.html")
 	// 设置模板数据
 	filter.SetData(req, map[string]interface{}{"activeTopics": "active", "topic": topic, "replies": replies, "likeflag": likeFlag, "hadcollect": hadCollect})
 }

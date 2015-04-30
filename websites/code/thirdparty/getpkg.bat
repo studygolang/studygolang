@@ -11,15 +11,29 @@ goto end
 set OLDGOPATH=%GOPATH%
 set GOPATH=%~dp0
 
-go get -u github.com/go-sql-driver/mysql
-go get -u github.com/studygolang/mux
-go get -u github.com/gorilla/sessions
-go get -u github.com/robfig/cron
-go get -u github.com/PuerkitoBio/goquery
-go get -u github.com/qiniu/api
-go get -u github.com/dchest/captcha
-hg clone https://code.google.com/p/go.net src/go.net
-go install go.net/websocket
+go get -u -v github.com/go-sql-driver/mysql
+go get -u -v github.com/studygolang/mux
+go get -u -v github.com/gorilla/sessions
+go get -u -v github.com/robfig/cron
+go get -u -v github.com/qiniu/api
+go get -u -v github.com/dchest/captcha
+
+if not exist "src/golang.org/x/text" (
+	git clone https://github.com/golang/text src/golang.org/x/text
+)
+go install golang.org/x/text/...
+
+if not exist "src/golang.org/x/net" (
+	git clone https://github.com/golang/net src/golang.org/x/net
+)
+go install golang.org/x/net/...
+
+go get -u -v github.com/andybalholm/cascadia
+
+if not exist "github.com/PuerkitoBio/goquery" (
+	git clone https://github.com/PuerkitoBio/goquery src/github.com/PuerkitoBio/goquery
+)
+::go get -u -v github.com/PuerkitoBio/goquery
 
 set GOPATH=%OLDGOPATH%
 

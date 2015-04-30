@@ -81,7 +81,7 @@ func (this *book) AddUser(user, serverId int) *UserData {
 		}
 		this.users[user] = userData
 
-		onlineInfo := map[string]int{"online": len(this.users) + 50}
+		onlineInfo := map[string]int{"online": len(this.users)}
 		// 在线人数超过历史最高
 		if len(this.users) > MaxOnlineNum() {
 			maxRwMu.Lock()

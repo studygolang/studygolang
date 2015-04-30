@@ -10,7 +10,6 @@ import (
 	"errors"
 	"html/template"
 	"net/url"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -190,9 +189,12 @@ func getTopicOwner(tid int) int {
 func decodeTopicContent(topic *model.Topic) string {
 	// 安全过滤
 	content := template.HTMLEscapeString(topic.Content)
+
+	// 允许内嵌 Wide iframe
+	content = util.EmbedWide(content)
+
 	// @别人
-	reg := regexp.MustCompile(`@([^\s@]{4,20})`)
-	return reg.ReplaceAllString(content, `<a href="/user/$1" title="@$1">@$1</a>`)
+	return parseAtUser(content)
 }
 
 // 获得主题列表页需要的数据

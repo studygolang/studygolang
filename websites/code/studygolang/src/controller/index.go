@@ -111,3 +111,11 @@ func WRHandler(rw http.ResponseWriter, req *http.Request) {
 	// 设置模板数据
 	filter.SetData(req, map[string]interface{}{"url": tUrl})
 }
+
+// PkgdocHandler Go 语言文档中文版
+func PkgdocHandler(rw http.ResponseWriter, req *http.Request) {
+	// 设置内容模板
+	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/pkgdoc.html")
+	// 设置模板数据
+	filter.SetData(req, map[string]interface{}{"activeDoc": "active"})
+}

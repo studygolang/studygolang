@@ -131,13 +131,14 @@ CREATE TABLE `user_info` (
   `username` varchar(20) NOT NULL COMMENT '用户名',
   `name` varchar(20) NOT NULL DEFAULT '' COMMENT '姓名',
   `avatar` varchar(128) NOT NULL DEFAULT '' COMMENT '头像(如果为空，则使用http://www.gravatar.com)',
-  `city` varchar(10) NOT NULL DEFAULT '居住地',
+  `city` varchar(10) NOT NULL DEFAULT '' COMMENT '居住地',
   `company` varchar(64) NOT NULL DEFAULT '',
   `github` varchar(20) NOT NULL DEFAULT '',
   `weibo` varchar(20) NOT NULL DEFAULT '',
   `website` varchar(50) NOT NULL DEFAULT '' COMMENT '个人主页，博客',
   `monlog` varchar(140) NOT NULL DEFAULT '' COMMENT '个人状态，签名，独白',
   `introduce` text NOT NULL COMMENT '个人简介',
+  `unsubscribe` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否退订本站邮件，0-否；1-是',
   `status` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '用户账号状态。0-默认；1-已审核；2-拒绝；3-冻结；4-停号',
   `ctime` timestamp NOT NULL DEFAULT 0,
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -291,7 +292,8 @@ CREATE TABLE `resource` (
   `catid` int unsigned NOT NULL COMMENT '所属类别',
   `ctime` timestamp NOT NULL DEFAULT 0,
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY (`url`)
 ) COMMENT '资源' ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*---------------------------------------------------------------------------*
@@ -343,12 +345,14 @@ CREATE TABLE `articles` (
   `viewnum` int unsigned NOT NULL DEFAULT 0 COMMENT '浏览数',
   `cmtnum` int unsigned NOT NULL DEFAULT 0 COMMENT '评论数',
   `likenum` int unsigned NOT NULL DEFAULT 0 COMMENT '赞数',
+  `top` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '置顶，0否，1置顶',
   `status` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '状态：0-初始抓取；1-已上线；2-下线(审核拒绝)',
   `op_user` varchar(20) NOT NULL DEFAULT '' COMMENT '操作人',
   `ctime` timestamp NOT NULL DEFAULT 0,
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY (`url`),
+  KEY (`top`),
   KEY (`domain`),
   KEY (`ctime`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '网络文章聚合表';
@@ -470,3 +474,33 @@ CREATE TABLE `morning_reading` (
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '技术晨读表';
+
+
+/*---------------------------------------------------------------------------*
+  NAME: advertisement
+  用途: 广告表
+*---------------------------------------------------------------------------*/
+DROP TABLE IF EXISTS `advertisement`;
+CREATE TABLE `advertisement` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(20) NOT NULL DEFAULT '' COMMENT '广告名称',
+  `code` varchar(255) NOT NULL DEFAULT '' COMMENT '广告内容代码(html、js等)',
+  `source` varchar(20) NOT NULL DEFAULT '' COMMENT '广告来源，如 baidu_union，shiyanlou',
+  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '广告表';
+
+/*---------------------------------------------------------------------------*
+  NAME: page_ad
+  用途: 页面广告管理表
+*---------------------------------------------------------------------------*/
+DROP TABLE IF EXISTS `page_ad`;
+CREATE TABLE `page_ad` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `ad_id` varchar(20) NOT NULL DEFAULT '' COMMENT '广告名称',
+  `ad_id` varchar(20) NOT NULL DEFAULT '' COMMENT '广告名称',
+  `code` varchar(255) NOT NULL DEFAULT '' COMMENT '广告内容代码(html、js等)',
+  `source` varchar(20) NOT NULL DEFAULT '' COMMENT '广告来源，如 baidu_union，shiyanlou',
+  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '页面广告管理表';

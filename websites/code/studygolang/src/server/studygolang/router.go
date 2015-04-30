@@ -33,6 +33,7 @@ func initRouter() *mux.Router {
 
 	router.HandleFunc("/", IndexHandler)
 	router.HandleFunc("/wr", WRHandler)
+	router.HandleFunc("/pkgdoc", PkgdocHandler)
 
 	router.HandleFunc("/topics{view:(|/popular|/no_reply|/last)}", TopicsHandler)
 	router.HandleFunc("/topics/{tid:[0-9]+}", TopicDetailHandler)
@@ -57,6 +58,8 @@ func initRouter() *mux.Router {
 	// 用户相关
 	router.HandleFunc("/users", UsersHandler)
 	router.HandleFunc("/user/{username:\\w+}", UserHomeHandler)
+	// 邮件退订页面
+	router.HandleFunc("/user/email/unsubscribe{json:(|.json)}", EmailUnsubHandler)
 
 	// 网友博文
 	router.HandleFunc("/articles", ArticlesHandler)
@@ -80,6 +83,9 @@ func initRouter() *mux.Router {
 	router.HandleFunc("/wiki", WikisHandler)
 	router.HandleFunc("/wiki/new{json:(|.json)}", NewWikiPageHandler).AppendFilterChain(loginFilterChain)
 	router.HandleFunc("/wiki/{uri}", WikiContentHandler)
+
+	// WIDE 内嵌 iframe
+	router.HandleFunc("/wide/playground", PlaygroundHandler)
 
 	// 酷站
 	router.HandleFunc("/sites", SitesHandler)

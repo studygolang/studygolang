@@ -61,5 +61,6 @@ func initRouter() *mux.Router {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/", api.AddArticleHandler)
+	router.HandleFunc("/reddit", api.AddRedditResourceHandler)
 	return router
 }

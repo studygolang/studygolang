@@ -28,7 +28,7 @@ func SearchHandler(rw http.ResponseWriter, req *http.Request) {
 
 	pageHtml := ""
 	respBody, err := service.DoSearch(q, field, (p-1)*rows, rows)
-	if err == nil {
+	if err == nil && respBody != nil {
 		pageHtml = service.GenPageHtml(p, rows, respBody.NumFound, "/search?q="+q+"&f="+field)
 	}
 

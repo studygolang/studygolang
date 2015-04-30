@@ -8,8 +8,9 @@ package model
 
 import (
 	"fmt"
-	"logger"
 	"math/rand"
+
+	"logger"
 	"util"
 )
 
@@ -88,9 +89,9 @@ func (this *UserLogin) Limit(limit string) *UserLogin {
 }
 
 func (this *UserLogin) prepareInsertData() {
-	this.columns = []string{"uid", "username", "passwd", "email", "login_time", "passcode"}
+	this.columns = []string{"uid", "username", "passwd", "email", "passcode"}
 	this.GenMd5Passwd("")
-	this.colValues = []interface{}{this.Uid, this.Username, this.Passwd, this.Email, this.LoginTime, this.passcode}
+	this.colValues = []interface{}{this.Uid, this.Username, this.Passwd, this.Email, this.passcode}
 }
 
 // 生成加密密码
@@ -122,22 +123,23 @@ func (this *UserLogin) GetPasscode() string {
 
 // 用户基本信息
 type User struct {
-	Uid       int    `json:"uid"`
-	Username  string `json:"username"`
-	Email     string `json:"email"`
-	Open      int    `json:"open"`
-	Name      string `json:"name"`
-	Avatar    string `json:"avatar"`
-	City      string `json:"city"`
-	Company   string `json:"company"`
-	Github    string `json:"github"`
-	Weibo     string `json:"weibo"`
-	Website   string `json:"website"`
-	Monlog    string `json:"monlog"`
-	Introduce string `json:"introduce"`
-	Status    int    `json:"status"`
-	Ctime     string `json:"ctime"`
-	Mtime     string `json:"mtime"`
+	Uid         int    `json:"uid"`
+	Username    string `json:"username"`
+	Email       string `json:"email"`
+	Open        int    `json:"open"`
+	Name        string `json:"name"`
+	Avatar      string `json:"avatar"`
+	City        string `json:"city"`
+	Company     string `json:"company"`
+	Github      string `json:"github"`
+	Weibo       string `json:"weibo"`
+	Website     string `json:"website"`
+	Monlog      string `json:"monlog"`
+	Introduce   string `json:"introduce"`
+	Unsubscribe int    `json:"unsubscribe"`
+	Status      int    `json:"status"`
+	Ctime       string `json:"ctime"`
+	Mtime       string `json:"mtime"`
 
 	// 非用户表中的信息，为了方便放在这里
 	Roleids   []int
@@ -216,29 +218,37 @@ func (this *User) Order(order string) *User {
 }
 
 func (this *User) prepareInsertData() {
-	this.columns = []string{"username", "email", "name", "avatar", "city", "company", "github", "weibo", "website", "monlog", "introduce", "ctime"}
-	this.colValues = []interface{}{this.Username, this.Email, this.Name, this.Avatar, this.City, this.Company, this.Github, this.Weibo, this.Website, this.Monlog, this.Introduce, this.Ctime}
+	this.columns = []string{"username", "email", "name", "avatar", "city", "company", "github", "weibo", "website", "monlog", "introduce", "unsubscribe", "ctime"}
+	this.colValues = []interface{}{this.Username, this.Email, this.Name, this.Avatar, this.City, this.Company, this.Github, this.Weibo, this.Website, this.Monlog, this.Introduce, this.Unsubscribe, this.Ctime}
 }
 
 func (this *User) colFieldMap() map[string]interface{} {
 	return map[string]interface{}{
-		"uid":       &this.Uid,
-		"username":  &this.Username,
-		"email":     &this.Email,
-		"name":      &this.Name,
-		"avatar":    &this.Avatar,
-		"city":      &this.City,
-		"company":   &this.Company,
-		"github":    &this.Github,
-		"weibo":     &this.Weibo,
-		"website":   &this.Website,
-		"monlog":    &this.Monlog,
-		"status":    &this.Status,
-		"introduce": &this.Introduce,
-		"open":      &this.Open,
-		"ctime":     &this.Ctime,
-		"mtime":     &this.Mtime,
+		"uid":         &this.Uid,
+		"username":    &this.Username,
+		"email":       &this.Email,
+		"name":        &this.Name,
+		"avatar":      &this.Avatar,
+		"city":        &this.City,
+		"company":     &this.Company,
+		"github":      &this.Github,
+		"weibo":       &this.Weibo,
+		"website":     &this.Website,
+		"monlog":      &this.Monlog,
+		"status":      &this.Status,
+		"introduce":   &this.Introduce,
+		"open":        &this.Open,
+		"unsubscribe": &this.Unsubscribe,
+		"ctime":       &this.Ctime,
+		"mtime":       &this.Mtime,
 	}
+}
+
+func (this *User) String() string {
+	buffer := util.NewBuffer()
+	buffer.Append(this.Username).Append(this.Email).AppendInt(this.Uid).Append(this.Mtime)
+
+	return buffer.String()
 }
 
 // 活跃用户信息

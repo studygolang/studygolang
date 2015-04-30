@@ -115,6 +115,14 @@ func UpdateUser(form url.Values) (errMsg string, err error) {
 	return
 }
 
+// 邮件订阅或取消订阅
+func EmailSubscribe(uid, unsubscribe int) {
+	err := model.NewUser().Set("unsubscribe=?", unsubscribe).Where("uid=?", uid).Update()
+	if err != nil {
+		logger.Errorln("Email Subscribe Error:", err)
+	}
+}
+
 // 更换头像
 func ChangeAvatar(uid int, avatar string) (err error) {
 	err = model.NewUser().Set("avatar=?", avatar).Where("uid=?", uid).Update()
@@ -123,6 +131,17 @@ func ChangeAvatar(uid int, avatar string) (err error) {
 	}
 
 	return
+}
+
+// 通过邮箱获取用户信息
+func FindUserByEmail(email string) *model.User {
+	user := model.NewUser()
+	err := user.Where("email=?", email).Find()
+	if err != nil {
+		logger.Errorln("FindUserByEmail error:", err)
+	}
+
+	return user
 }
 
 // 获取当前登录用户信息（常用信息）
