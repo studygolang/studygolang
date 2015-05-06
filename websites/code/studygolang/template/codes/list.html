@@ -1,6 +1,6 @@
-{{define "title"}}资源索引 {{end}}
-{{define "seo"}}<meta name="keywords" content="Golang,Go社区,Golang中文社区,Go语言学习,Go语言,学习Go语言,Golang 中国,Golang中国,Golang China, Go语言论坛, Go中文社区, Go语言社区, Go语言中文网, Go语言学习园地">
-<meta name="description" content="Go中文社区，Golang中国，Go语言学习园地，提供一个Go爱好者交流的中文平台">{{end}}
+{{define "title"}}代码分享 {{end}}
+{{define "seo"}}<meta name="keywords" content="代码分享,Golang,Go社区,Golang中文社区,Go语言学习,Go语言,学习Go语言,Golang 中国,Golang中国,Golang China, Go语言论坛, Go中文社区, Go语言社区, Go语言中文网, Go语言学习园地">
+<meta name="description" content="Go语言中文网，Go中文社区，Golang中国，Go语言学习园地，提供一个Go爱好者交流的中文平台">{{end}}
 {{define "content"}}
 <div class="row banner">
 </div>
@@ -8,41 +8,31 @@
 	<div class="col-lg-9 col-md-8 col-sm-7">
 		<ol class="breadcrumb">
 			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
-			<li class="active">资源索引</li>
+			<li class="active">代码分享</li>
 		</ol>
-		<ul class="nav nav-tabs" role="tablist">
-			{{range .categories}}
-			<li role="presentation" id="tb-{{.Catid}}" data-intro="{{.Intro}}"{{if eq $.curCatid .Catid}} class="active"{{end}}><a href="/resources/cat/{{.Catid}}">{{.Name}}</a></li>
-			{{end}}
-		</ul>
 		<div class="box_white">
-			<div class="desc">
-				<i class="glyphicon glyphicon-star"></i> <span id="cat_intro"></span>
-			</div>
 			<div class="resources">
-				{{range .resources}}
+				{{range .codes}}
 				<div class="resource">
 					<div class="rinfo">
-						<a class="avatar pull-right" href="/user/{{.user.Username}}"><img src="{{gravatar .user.Avatar .user.Email 48}}" alt="{{.user.Username}}"></a>
-						<a class="link-url" href="{{.url}}" target="_blank" data-id="{{.id}}">{{.title}}</a>
-						{{if .host}}
-						<span class="host">({{.host}})</span>
-						{{end}}
+						{{$user := index $.userMap .op_user}}
+						<a class="avatar pull-right" href="/user/{{$user.Username}}"><img src="{{gravatar $user.Avatar $user.Email 48}}" alt="{{$user.Username}}"></a>
+						<a class="link-url" href="/codes/{{.Id}}" target="_blank" data-id="{{.Id}}">{{.Title}}</a>
 						<p class="ino">
-							<i class="glyphicon glyphicon-user"></i> <a class="a-pop-info" href="/user/{{.user.Username}}" title="{{.user.Username}}">{{.user.Username}}</a> 于
-							<em><abbr class="timeago" title="{{formatTime .ctime}}"></abbr></em> 发布
+							<i class="glyphicon glyphicon-user"></i> <a class="a-pop-info" href="/user/{{$user.Username}}" title="{{$user.Username}}">{{.user.Username}}</a> 于
+							<em><abbr class="timeago" title="{{formatTime .Ctime}}"></abbr></em> 发布
 						</p>
 						<p class="edi">
-							<a href="/resources/{{.id}}#commentForm">
-								<i class="glyphicon glyphicon-comment"></i> {{if .cmtnum}} <b>{{.cmtnum}}</b> {{end}}评论
+							<a href="/codes/{{.Id}}#commentForm">
+								<i class="glyphicon glyphicon-comment"></i> {{if .Cmtnum}} <b>{{.Cmtnum}}</b> {{end}}评论
 							</a>
-							<span><i class="glyphicon glyphicon-heart"></i> <b>{{.likenum}}</b> 喜欢</span>
-							<span><i class="glyphicon glyphicon-eye-open"></i> <b>{{.viewnum}}</b> 阅读</span>
+							<span><i class="glyphicon glyphicon-heart"></i> <b>{{.Likenum}}</b> 喜欢</span>
+							<span><i class="glyphicon glyphicon-eye-open"></i> <b>{{.Viewnum}}</b> 阅读</span>
 						</p>
 					</div>
 				</div>
 				{{else}}
-				<p class="text-center">该分类暂时没有任何资源</p>
+				<p class="text-center">暂时没有分享的代码</p>
 				{{end}}
 			</div>
 			{{if .page}}
@@ -53,7 +43,7 @@
 	<div class="col-lg-3 col-md-4 col-sm-5">
 		<div class="row box_white sidebar">
 			<div class="sb-content text-center" style="margin-top: 15px;">
-				<a href="/resources/new" class="btn btn-default">分享资源</a>
+				<a href="/codes/new" class="btn btn-default">分享代码</a>
 			</div>
 		</div>
 
@@ -119,10 +109,5 @@ SG.SIDE_BARS = [
 	"/topics/recent.json",
 	"/websites/stat.json"
 ];
-
-$(function(){
-		var intro = $('#tb-'+{{.curCatid}}).data('intro');
-		$('#cat_intro').html(intro);
-});
 </script>
 {{end}}

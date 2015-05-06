@@ -337,7 +337,7 @@ CREATE TABLE `articles` (
   `author` varchar(1024) NOT NULL DEFAULT '' COMMENT '文章作者(可能带html)',
   `author_txt` varchar(127) NOT NULL DEFAULT '' COMMENT '文章作者(纯文本)',
   `lang` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '语言：0-中文；1-英文',
-  `pub_date` varchar(20) NOT NULL DEFAULT '' COMMENT '发布时间',
+  `pub_date` varchar(63) NOT NULL DEFAULT '' COMMENT '发布时间',
   `url` varchar(255) NOT NULL DEFAULT '' COMMENT '文章原始链接',
   `content` longtext NOT NULL COMMENT '正文(带html)',
   `txt` text NOT NULL COMMENT '正文(纯文本)',
@@ -474,6 +474,24 @@ CREATE TABLE `morning_reading` (
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '技术晨读表';
+
+/*---------------------------------------------------------------------------*
+  NAME: code_share
+  用途：代码片段分享 表
+*---------------------------------------------------------------------------*/
+DROP TABLE IF EXISTS `code_share`;
+CREATE TABLE `code_share` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(127) NOT NULL DEFAULT '' COMMENT '文章标题',
+  `remark` varchar(1024) NOT NULL DEFAULT '' COMMENT '代码的文字说明',
+  `code` text NOT NULL COMMENT '代码',
+  `viewnum` int unsigned NOT NULL DEFAULT 0 COMMENT '浏览数',
+  `cmtnum` int unsigned NOT NULL DEFAULT 0 COMMENT '评论数',
+  `likenum` int unsigned NOT NULL DEFAULT 0 COMMENT '赞数',
+  `op_user` varchar(20) NOT NULL DEFAULT '' COMMENT '发布人',
+  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '代码片段分享表';
 
 
 /*---------------------------------------------------------------------------*

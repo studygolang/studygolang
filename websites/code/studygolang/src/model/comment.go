@@ -18,6 +18,7 @@ const (
 	TYPE_RESOURCE        // 资源
 	TYPE_WIKI            // WIKI
 	TYPE_PROJECT         // 开源项目
+	TYPE_CODE            // 代码片段
 )
 
 var PathUrlMap = map[int]string{
@@ -26,6 +27,7 @@ var PathUrlMap = map[int]string{
 	TYPE_RESOURCE: "/resources/",
 	TYPE_WIKI:     "/wiki/",
 	TYPE_PROJECT:  "/p/",
+	TYPE_CODE:     "/codes/",
 }
 
 var TypeNameMap = map[int]string{
@@ -34,6 +36,7 @@ var TypeNameMap = map[int]string{
 	TYPE_RESOURCE: "资源",
 	TYPE_WIKI:     "Wiki",
 	TYPE_PROJECT:  "项目",
+	TYPE_CODE:     "代码",
 }
 
 // 评论信息（通用）

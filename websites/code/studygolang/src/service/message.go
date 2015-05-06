@@ -247,6 +247,11 @@ func FindSysMsgsByUid(uid string) []map[string]interface{} {
 				objTitle = wikiMap[objid].Title
 				objUrl = "/wiki/" + strconv.Itoa(wikiMap[objid].Id)
 				title = "评论了你的Wiki页："
+			case model.MsgtypeProjectComment:
+				project := projectMap[objid]
+				objTitle = project.Category + project.Name
+				objUrl = "/p/" + strconv.Itoa(projectMap[objid].Id)
+				title = "评论了你的项目："
 			case model.MsgtypeAtMe:
 				title = "评论时提到了你，在"
 				switch int(ext["objtype"].(float64)) {

@@ -12,7 +12,7 @@
 			<li class="active">{{if .project.Id}}修改{{else}}添加{{end}}项目</li>
 		</ol>
 		<div class="page box_white">
-			<form class="form-horizontal validate-form" role="form" action="{{if .project.Id}}/project/modify.json{{else}}/project/new.json{{end}}" data-redirect="/projects">
+			<form class="form-horizontal validate-form" role="form" action="{{if .project.Id}}/project/modify.json{{else}}/project/new.json{{end}}" data-redirect="{{if .project.Id}}/p/{{.project.Uri}}{{else}}/projects{{end}}">
 				{{if .project.Id}}
 				<input type="hidden" name="id" value="{{.project.Id}}" />
 				{{end}}

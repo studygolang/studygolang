@@ -408,6 +408,26 @@ func GetUserInfos(uids []int) map[int]*model.User {
 	return userMap
 }
 
+// 获取用户信息通过 用户名
+func GetUserByUsernames(usernames []string) map[string]*model.User {
+	if len(usernames) == 0 {
+		return nil
+	}
+
+	// 获取用户信息
+	inUsernames := strings.Join(usernames, "','")
+	users, err := model.NewUser().Where("usernames in(" + inUsernames + ")").FindAll()
+	if err != nil {
+		logger.Errorln("user service GetUserByUsernames Error:", err)
+		return map[string]*model.User{}
+	}
+	userMap := make(map[string]*model.User, len(users))
+	for _, user := range users {
+		userMap[user.Username] = user
+	}
+	return userMap
+}
+
 // 会员总数
 func CountUsers() int {
 	total, err := model.NewUserLogin().Count()
