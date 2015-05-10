@@ -342,6 +342,7 @@ CREATE TABLE `articles` (
   `content` longtext NOT NULL COMMENT '正文(带html)',
   `txt` text NOT NULL COMMENT '正文(纯文本)',
   `tags` varchar(50) NOT NULL DEFAULT '' COMMENT '文章tag，逗号分隔',
+  `css` varchar(255) NOT NULL DEFAULT '' COMMENT '需要额外引入的css样式',
   `viewnum` int unsigned NOT NULL DEFAULT 0 COMMENT '浏览数',
   `cmtnum` int unsigned NOT NULL DEFAULT 0 COMMENT '评论数',
   `likenum` int unsigned NOT NULL DEFAULT 0 COMMENT '赞数',

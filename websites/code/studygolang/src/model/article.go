@@ -35,6 +35,7 @@ type Article struct {
 	Content   string `json:"content"`
 	Txt       string `json:"txt"`
 	Tags      string `json:"tags"`
+	Css       string `json:"css"`
 	Viewnum   int    `json:"viewnum"`
 	Cmtnum    int    `json:"cmtnum"`
 	Likenum   int    `json:"likenum"`
@@ -116,8 +117,8 @@ func (this *Article) Order(order string) *Article {
 }
 
 func (this *Article) prepareInsertData() {
-	this.columns = []string{"domain", "name", "title", "author", "author_txt", "lang", "pub_date", "url", "content", "txt", "tags", "ctime"}
-	this.colValues = []interface{}{this.Domain, this.Name, this.Title, this.Author, this.AuthorTxt, this.Lang, this.PubDate, this.Url, this.Content, this.Txt, this.Tags, this.Ctime}
+	this.columns = []string{"domain", "name", "title", "author", "author_txt", "lang", "pub_date", "url", "content", "txt", "tags", "css", "ctime"}
+	this.colValues = []interface{}{this.Domain, this.Name, this.Title, this.Author, this.AuthorTxt, this.Lang, this.PubDate, this.Url, this.Content, this.Txt, this.Tags, this.Css, this.Ctime}
 }
 
 func (this *Article) colFieldMap() map[string]interface{} {
@@ -135,6 +136,7 @@ func (this *Article) colFieldMap() map[string]interface{} {
 		"content":    &this.Content,
 		"txt":        &this.Txt,
 		"tags":       &this.Tags,
+		"css":        &this.Css,
 		"viewnum":    &this.Viewnum,
 		"cmtnum":     &this.Cmtnum,
 		"likenum":    &this.Likenum,
