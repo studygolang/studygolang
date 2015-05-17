@@ -224,7 +224,10 @@ func initRouter() *mux.Router {
 
 	// 错误处理handler
 	router.FilterChain(fontFilterChan).HandleFunc("/noauthorize", NoAuthorizeHandler) // 无权限handler
-	// 404页面
+	// 404（寻找遗失儿童页面）
+	router.FilterChain(fontFilterChan).HandleFunc("/404", LossChildrenHandler)
+
+	// 找不到页面
 	router.FilterChain(fontFilterChan).HandleFunc("/{*}", NotFoundHandler)
 
 	return router
