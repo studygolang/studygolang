@@ -14,7 +14,7 @@ go get -u -v github.com/go-sql-driver/mysql
 go get -u -v github.com/studygolang/mux
 go get -u -v github.com/gorilla/sessions
 go get -u -v github.com/robfig/cron
-go get -u -v github.com/qiniu/api
+go get -u -v github.com/qiniu/api.v6
 go get -u -v github.com/dchest/captcha
 
 cp /etc/hosts ~/hosts

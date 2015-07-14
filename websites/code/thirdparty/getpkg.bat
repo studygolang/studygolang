@@ -15,8 +15,9 @@ go get -u -v github.com/go-sql-driver/mysql
 go get -u -v github.com/studygolang/mux
 go get -u -v github.com/gorilla/sessions
 go get -u -v github.com/robfig/cron
-go get -u -v github.com/qiniu/api
 go get -u -v github.com/dchest/captcha
+go get -u -v github.com/andybalholm/cascadia
+go get -u -v github.com/qiniu/api.v6
 
 if not exist "src/golang.org/x/text" (
 	git clone https://github.com/golang/text src/golang.org/x/text
@@ -28,12 +29,12 @@ if not exist "src/golang.org/x/net" (
 )
 go install golang.org/x/net/...
 
-go get -u -v github.com/andybalholm/cascadia
 
-if not exist "github.com/PuerkitoBio/goquery" (
+if not exist "src/github.com/PuerkitoBio/goquery" (
 	git clone https://github.com/PuerkitoBio/goquery src/github.com/PuerkitoBio/goquery
 )
 ::go get -u -v github.com/PuerkitoBio/goquery
+
 
 set GOPATH=%OLDGOPATH%
 
