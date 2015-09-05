@@ -11,12 +11,13 @@ import (
 	"strings"
 
 	"config"
-	"github.com/gorilla/context"
-	"github.com/gorilla/sessions"
-	"github.com/studygolang/mux"
 	"logger"
 	"service"
 	"util"
+
+	"github.com/gorilla/context"
+	"github.com/gorilla/sessions"
+	"github.com/studygolang/mux"
 )
 
 // 没登陆且没有cookie，则跳转到登录页
@@ -79,6 +80,7 @@ func (this *CookieFilter) PreFilter(rw http.ResponseWriter, req *http.Request) b
 	if user != nil && req.RequestURI == "/account/login" {
 		util.Redirect(rw, req, "/")
 	}
+
 	return true
 }
 
@@ -107,20 +109,35 @@ func setUser(req *http.Request, user map[string]interface{}) {
 var Store = sessions.NewCookieStore([]byte(config.Config["cookie_secret"]))
 
 // 获得当前登录用户
-func CurrentUser(req *http.Request) (map[string]interface{}, bool) {
-	user := getUser(req)
+func CurrentUser(req *http.Request) (user map[string]interface{}, succ bool) {
+
+	defer func() {
+		// 判断用户是否能登陆
+		if !service.IsNormalUser(user["status"]) {
+			user, succ = nil, false
+		}
+	}()
+
+	succ = true
+
+	user = getUser(req)
 	if len(user) != 0 {
-		return user, true
+		return
 	}
 	session, _ := Store.Get(req, "user")
 	username, ok := session.Values["username"]
 	if !ok {
-		return nil, false
+		succ = false
+		return
 	}
-	user, err := service.FindCurrentUser(username.(string))
+
+	var err error
+	user, err = service.FindCurrentUser(username.(string))
 	if err != nil {
-		return nil, false
+		succ = false
+		return
 	}
+
 	setUser(req, user)
-	return user, true
+	return
 }

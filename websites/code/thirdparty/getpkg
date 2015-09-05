@@ -18,8 +18,8 @@ go get -u -v github.com/qiniu/api.v6
 go get -u -v github.com/dchest/captcha
 
 cp /etc/hosts ~/hosts
-echo "golang.org	101.251.196.90" > /etc/hosts
-#echo "127.0.0.1	golang.org" > /etc/hosts
+#echo "golang.org	101.251.196.90" > /etc/hosts
+echo "127.0.0.1	golang.org" > /etc/hosts
 
 trap "mv ~/hosts /etc/hosts" HUP INT QUIT TSTP
 

@@ -29,6 +29,7 @@ type Topic struct {
 	Lastreplyuid  int    `json:"lastreplyuid"`
 	Lastreplytime string `json:"lastreplytime"`
 	EditorUid     int    `json:"editor_uid"`
+	Top           uint8  `json:"top"`
 	Ctime         string `json:"ctime"`
 	Mtime         string `json:"mtime"`
 
@@ -122,6 +123,7 @@ func (this *Topic) colFieldMap() map[string]interface{} {
 		"lastreplyuid":  &this.Lastreplyuid,
 		"lastreplytime": &this.Lastreplytime,
 		"editor_uid":    &this.EditorUid,
+		"top":           &this.Top,
 		"ctime":         &this.Ctime,
 		"mtime":         &this.Mtime,
 	}

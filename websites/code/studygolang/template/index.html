@@ -19,7 +19,7 @@
 				</div>
 				<ul class="clearfix list-unstyled">
 					{{range .topics}}
-					<li><i></i><a href="/topics/{{.tid}}" title="{{.title}}">{{substring .title 35 "..."}}</a><span class="pull-right timeago" title="{{.ctime}}"></span></li>
+					<li><i></i>{{if .top}}<font color="red"><span class="glyphicon glyphicon-pushpin"></span></font> {{end}}<a href="/topics/{{.tid}}" title="{{.title}}">{{substring .title 35 "..."}}</a><span class="pull-right timeago" title="{{.ctime}}"></span></li>
 					{{end}}
 				</ul>
 			</div>
@@ -34,9 +34,6 @@
 					{{end}}
 				</ul>
 			</div>
-		</div>
-		<div class="row box_white" style="margin-top:20px;">
-			<a href="http://studygolang.com/wr?u=http%3A%2F%2Fwww.shiyanlou.com%2Fcourses%2F11" target="_blank" title="实验楼"><img src="http://studygolang.qiniudn.com/ad/shiyanlou_banner.jpg" alt="实验楼 IT人专属的在线实训室 学Golang最好的地方"></a>
 		</div>
 		<div class="row box_white article-list">
 			<div class="title">
@@ -262,7 +259,7 @@
 				<h3 class="title"><i class="glyphicon glyphicon-user"></i> 用户登录</h3>
 			</div>
 			<div class="sb-content">
-				<form action="/account/login" method="post" class="form-horizontal login" role="form">
+				<form action="/account/login.json" method="post" class="form-horizontal login" role="form">
 					<div class="form-group">
 						<div class="col-sm-10">
 							<input type="text" class="form-control input-sm" id="username" name="username" placeholder="请填写用户名或邮箱">
