@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"reflect"
 	"strconv"
+	"strings"
 )
 
 // 将url.Values（表单数据）转换为Model（struct）
@@ -92,6 +93,9 @@ func Struct2Map(dest map[string]interface{}, src interface{}) error {
 		}
 		tag := fieldType.Tag.Get("json")
 		fieldValue := srcValue.Field(i)
+
+		// json 有 key,omitempty 的情况
+		tag = strings.Split(tag, ",")[0]
 		dest[tag] = fieldValue.Interface()
 	}
 	return nil
