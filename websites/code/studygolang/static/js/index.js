@@ -28,6 +28,18 @@ $(document).ready( function(){
 			StartScroll();
 		}
 	});
+
+	// 登录
+	$('.login').submit(function(evt) {
+		evt.preventDefault();
+		$.post('/account/login.json', $(this).serialize(), function(data) {
+			if (data.ok) {
+				location.reload();
+			} else {
+				comTip(data.error);
+			}
+		});
+	});
 	
 }); 
 

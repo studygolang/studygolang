@@ -161,6 +161,7 @@ func FindCurrentUser(username string) (user map[string]interface{}, err error) {
 		"username": userInfo.Username,
 		"email":    userInfo.Email,
 		"avatar":   userInfo.Avatar,
+		"status":   userInfo.Status,
 	}
 
 	// 获取未读消息数
@@ -182,6 +183,19 @@ func FindCurrentUser(username string) (user map[string]interface{}, err error) {
 	RecordLoginTime(username)
 
 	return
+}
+
+// IsNormalUser 判断是否是正常的用户
+func IsNormalUser(userStatus interface{}) bool {
+	if userStatus == nil {
+		return true
+	}
+
+	if userStatus.(int) > model.StatusRefuse {
+		return false
+	}
+
+	return true
 }
 
 // 判断指定的用户名是否存在

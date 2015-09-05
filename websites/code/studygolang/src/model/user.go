@@ -121,6 +121,14 @@ func (this *UserLogin) GetPasscode() string {
 	return this.passcode
 }
 
+const (
+	StatusNoAudit = iota
+	StatusAudit
+	StatusRefuse
+	StatusFreeze // 冻结
+	StatusOutage // 停用
+)
+
 // 用户基本信息
 type User struct {
 	Uid         int    `json:"uid"`

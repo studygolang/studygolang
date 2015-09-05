@@ -23,8 +23,18 @@ import (
 func IndexHandler(rw http.ResponseWriter, req *http.Request) {
 	// nodes := service.GenNodes()
 
-	// 获取最新帖子
-	newTopics, _ := service.FindTopics(1, 10, "", "ctime DESC")
+	num := 10
+
+	topicsList := make([]map[string]interface{}, num)
+	// 置顶的topic
+	topTopics, _ := service.FindTopics(1, num, "top=1", "ctime DESC")
+	if len(topTopics) < num {
+		// 获取最新帖子
+		newTopics, _ := service.FindTopics(1, num-len(topTopics), "top=0", "ctime DESC")
+
+		topicsList = append(topTopics, newTopics...)
+	}
+
 	// 获取热门帖子
 	//hotTopics := service.FindHotTopics()
 	// 获得最新博文
@@ -56,7 +66,7 @@ func IndexHandler(rw http.ResponseWriter, req *http.Request) {
 	// 设置内容模板
 	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/index.html")
 	// 设置模板数据
-	filter.SetData(req, map[string]interface{}{"topics": newTopics, "articles": recentArticles, "likeflags": likeFlags, "resources": resources})
+	filter.SetData(req, map[string]interface{}{"topics": topicsList, "articles": recentArticles, "likeflags": likeFlags, "resources": resources})
 }
 
 // 包装链接
