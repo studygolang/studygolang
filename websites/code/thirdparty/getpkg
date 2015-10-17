@@ -18,17 +18,18 @@ go get -u -v github.com/qiniu/api.v6
 go get -u -v github.com/dchest/captcha
 go get -u -v github.com/lunny/html2md
 
-cp /etc/hosts ~/hosts
-#echo "golang.org	101.251.196.90" > /etc/hosts
-echo "127.0.0.1	golang.org" > /etc/hosts
+if [ ! -d "src/golang.org/x/text" ]; then
+	git clone https://github.com/golang/text src/golang.org/x/text
+fi
+go install golang.org/x/text/...
 
-trap "mv ~/hosts /etc/hosts" HUP INT QUIT TSTP
+if [ ! -d "src/golang.org/x/net" ]; then
+	git clone https://github.com/golang/net src/golang.org/x/net
+fi
+go install golang.org/x/net/...
 
 go get -u -v github.com/PuerkitoBio/goquery
 
-if [ -f ~/hosts ]; then
-	mv ~/hosts /etc/hosts
-fi
 
 export GOPATH="$OLDGOPATH"
 export PATH="$OLDPATH"
