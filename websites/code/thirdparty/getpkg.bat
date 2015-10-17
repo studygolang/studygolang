@@ -24,17 +24,17 @@ if not exist "src/golang.org/x/text" (
 )
 go install golang.org/x/text/...
 
-if not exist "src/golang.org/x/net" (
-	git clone https://github.com/golang/net src/golang.org/x/net
+if not exist "src/golang.org/x/crypto" (
+	git clone https://github.com/golang/crypto src/golang.org/x/crypto
 )
-go install golang.org/x/net/...
+go install golang.org/x/crypto/...
 
-
-if not exist "src/github.com/PuerkitoBio/goquery" (
-	git clone https://github.com/PuerkitoBio/goquery src/github.com/PuerkitoBio/goquery
+if not exist "src/golang.org/x/crypto" (
+	git clone https://github.com/golang/crypto src/golang.org/x/crypto
 )
-::go get -u -v github.com/PuerkitoBio/goquery
+go install golang.org/x/crypto/...
 
+go get -u -v github.com/PuerkitoBio/goquery
 
 set GOPATH=%OLDGOPATH%
 

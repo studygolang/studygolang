@@ -23,10 +23,16 @@ if [ ! -d "src/golang.org/x/text" ]; then
 fi
 go install golang.org/x/text/...
 
+if [ ! -d "src/golang.org/x/crypto" ]; then
+	git clone https://github.com/golang/crypto src/golang.org/x/crypto
+fi
+go install golang.org/x/crypto/...
+
 if [ ! -d "src/golang.org/x/net" ]; then
 	git clone https://github.com/golang/net src/golang.org/x/net
 fi
 go install golang.org/x/net/...
+
 
 go get -u -v github.com/PuerkitoBio/goquery
 
