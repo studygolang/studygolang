@@ -12,9 +12,9 @@ import (
 )
 
 func TestFindUsersByPage(t *testing.T) {
-	userList, total := FindUsersByPage()
-	if total == nil && len(userList) == 0 {
-		t.Fatal(err)
+	userList, total := FindUsersByPage(make(map[string]string), 0, 10)
+	if total == 0 && len(userList) == 0 {
+		t.Fatal("")
 	}
 	t.Log(len(userList))
 	for k, tmpUser := range userList {

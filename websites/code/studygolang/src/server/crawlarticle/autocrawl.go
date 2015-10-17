@@ -14,11 +14,12 @@ import (
 	"strings"
 
 	"config"
-	"github.com/PuerkitoBio/goquery"
-	"github.com/robfig/cron"
 	"logger"
 	"service"
 	"util"
+
+	"github.com/PuerkitoBio/goquery"
+	"github.com/robfig/cron"
 )
 
 var websites = make(map[string]map[string]string)
@@ -49,6 +50,9 @@ func autocrawl(needAll bool, crawlConfFile string, whichSite string) {
 	c.AddFunc(config.Config["crawl_spec"], func() {
 		// 抓取 reddit
 		go service.ParseReddit("")
+
+		// 抓取 www.oschina.net/project
+		go service.ParseProjectList("http://www.oschina.net/project/lang/358/go?tag=0&os=0&sort=time")
 
 		for website, wbconf := range websites {
 			if whichSite != "" && whichSite != website {

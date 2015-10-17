@@ -11,6 +11,10 @@ import (
 	"util"
 )
 
+const (
+	ProjectStatusOnline = 1
+)
+
 // 开源项目信息
 type OpenProject struct {
 	Id       int    `json:"id" pk:"1"`
