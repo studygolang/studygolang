@@ -335,7 +335,15 @@ func ParseOneProject(projectUrl string) error {
 	project.Uri = uri
 	project.Repo = strings.TrimSpace(doc.Find("#Body .github-widget").AttrOr("data-repo", ""))
 	project.Src = "https://github.com/" + project.Repo
-	project.Author = project.Repo[:strings.Index(project.Repo, "/")]
+
+	pos := strings.Index(project.Repo, "/")
+	if pos > -1 {
+		project.Author = project.Repo[:pos]
+	} else {
+		project.Author = "网友"
+	}
+
+	// TODO: logo
 
 	if project.Doc == "" {
 		// TODO：暂时认为一定是 Go 语言
