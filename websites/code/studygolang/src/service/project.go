@@ -347,7 +347,7 @@ func ParseOneProject(projectUrl string) error {
 
 	if project.Doc == "" {
 		// TODO：暂时认为一定是 Go 语言
-		project.Doc = "https://godoc.org/" + project.Src
+		project.Doc = "https://godoc.org/" + project.Src[8:]
 	}
 
 	desc := ""
