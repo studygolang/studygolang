@@ -292,6 +292,11 @@ func ParseOneProject(projectUrl string) error {
 		return errors.New("url" + projectUrl + "has exists!")
 	}
 
+	logoSelection := doc.Find(".Project .PN img")
+	if logoSelection.AttrOr("title", "") != "" {
+		project.Logo = logoSelection.AttrOr("src", "")
+	}
+
 	// 获取项目相关链接
 	doc.Find("#Body .urls li").Each(func(i int, liSelection *goquery.Selection) {
 		aSelection := liSelection.Find("a")
@@ -342,8 +347,6 @@ func ParseOneProject(projectUrl string) error {
 	} else {
 		project.Author = "网友"
 	}
-
-	// TODO: logo
 
 	if project.Doc == "" {
 		// TODO：暂时认为一定是 Go 语言
