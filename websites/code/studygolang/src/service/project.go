@@ -8,13 +8,18 @@ package service
 
 import (
 	"errors"
+	"math/rand"
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"logger"
 	"model"
 	"util"
+
+	"github.com/PuerkitoBio/goquery"
+	"github.com/lunny/html2md"
 )
 
 func PublishProject(user map[string]interface{}, form url.Values) (err error) {
@@ -209,6 +214,156 @@ func ProjectsTotal() (total int) {
 		logger.Errorln("project service ProjectsTotal error:", err)
 	}
 	return
+}
+
+// ParseProjectList 解析其他网站的开源项目
+func ParseProjectList(pUrl string) error {
+	pUrl = strings.TrimSpace(pUrl)
+	if !strings.HasPrefix(pUrl, "http") {
+		pUrl = "http://" + pUrl
+	}
+
+	var (
+		doc *goquery.Document
+		err error
+	)
+
+	if doc, err = goquery.NewDocument(pUrl); err != nil {
+		logger.Errorln("goquery opensource project newdocument error:", err)
+		return err
+	}
+
+	// 最后面的先入库处理
+	projectsSelection := doc.Find(".ProjectList .List li")
+
+	for i := projectsSelection.Length() - 1; i >= 0; i-- {
+
+		contentSelection := goquery.NewDocumentFromNode(projectsSelection.Get(i)).Selection
+		projectUrl, ok := contentSelection.Find("h3 a").Attr("href")
+
+		if !ok || projectUrl == "" {
+			continue
+		}
+		err = ParseOneProject(projectUrl)
+
+		if err != nil {
+			logger.Errorln(err)
+		}
+	}
+
+	return err
+}
+
+const OsChinaDomain = "http://www.oschina.net"
+
+var PresetUsernames = []string{"polaris", "blov", "agolangf", "xuanbao"}
+
+// ParseOneProject 处理单个 project
+func ParseOneProject(projectUrl string) error {
+	if !strings.HasPrefix(projectUrl, "http") {
+		projectUrl = OsChinaDomain + projectUrl
+	}
+
+	var (
+		doc *goquery.Document
+		err error
+	)
+
+	if doc, err = goquery.NewDocument(projectUrl); err != nil {
+		return errors.New("goquery fetch " + projectUrl + " error:" + err.Error())
+	}
+
+	// 标题
+	category := strings.TrimSpace(doc.Find(".Project .name").Text())
+	name := strings.TrimSpace(doc.Find(".Project .name u").Text())
+	tmpIndex := strings.LastIndex(category, name)
+	if tmpIndex != -1 {
+		category = category[:tmpIndex]
+	}
+
+	// uri
+	uri := projectUrl[strings.LastIndex(projectUrl, "/")+1:]
+
+	project := model.NewOpenProject()
+
+	err = project.Where("uri=?", uri).Find("id")
+	// 已经存在
+	if project.Id != 0 {
+		return errors.New("url" + projectUrl + "has exists!")
+	}
+
+	// 获取项目相关链接
+	doc.Find("#Body .urls li").Each(func(i int, liSelection *goquery.Selection) {
+		aSelection := liSelection.Find("a")
+		uri := util.FetchRealUrl(OsChinaDomain + aSelection.AttrOr("href", ""))
+		switch aSelection.Text() {
+		case "软件首页":
+			project.Home = uri
+		case "软件文档":
+			project.Doc = uri
+		case "软件下载":
+			project.Download = uri
+		}
+	})
+
+	ctime := util.TimeNow()
+
+	doc.Find("#Body .attrs li").Each(func(i int, liSelection *goquery.Selection) {
+		aSelection := liSelection.Find("a")
+		txt := aSelection.Text()
+		if i == 0 {
+			project.Licence = txt
+			if txt == "未知" {
+				project.Licence = "其他"
+			}
+		} else if i == 1 {
+			project.Lang = txt
+		} else if i == 2 {
+			project.Os = txt
+		} else if i == 3 {
+			dtime, err := time.ParseInLocation("2006年01月02日", aSelection.Last().Text(), time.Local)
+			if err != nil {
+				logger.Errorln("parse ctime error:", err)
+			} else {
+				ctime = dtime.Local().Format("2006-01-02 15:04:05")
+			}
+		}
+	})
+
+	project.Name = name
+	project.Category = category
+	project.Uri = uri
+	project.Repo = strings.TrimSpace(doc.Find("#Body .github-widget").AttrOr("data-repo", ""))
+	project.Src = "https://github.com/" + project.Repo
+	project.Author = project.Repo[:strings.Index(project.Repo, "/")]
+
+	if project.Doc == "" {
+		// TODO：暂时认为一定是 Go 语言
+		project.Doc = "https://godoc.org/" + project.Src
+	}
+
+	desc := ""
+	doc.Find("#Body .detail").Find("p").NextAll().Each(func(i int, domSelection *goquery.Selection) {
+		doc.FindSelection(domSelection).WrapHtml(`<div id="tmp` + strconv.Itoa(i) + `"></div>`)
+		domHtml, _ := doc.Find("#tmp" + strconv.Itoa(i)).Html()
+		if domSelection.Is("pre") {
+			desc += domHtml + "\n\n"
+		} else {
+			desc += html2md.Convert(domHtml) + "\n\n"
+		}
+	})
+
+	project.Desc = strings.TrimSpace(desc)
+	project.Username = PresetUsernames[rand.Intn(4)]
+	project.Status = model.ProjectStatusOnline
+	project.Ctime = ctime
+
+	_, err = project.Insert()
+	if err != nil {
+		return errors.New("insert into open project error:" + err.Error())
+	}
+
+	return nil
 }
 
 // 通过objid获得 project 的所有者

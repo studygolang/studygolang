@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"os"
 	"path"
 	"reflect"
 	"strconv"
@@ -29,6 +30,11 @@ func init() {
 		panic(err)
 	}
 	ROOT = path.Dir(binDir) + "/"
+
+	if !strings.Contains(ROOT, "studygolang") {
+		ROOT, _ = os.Getwd()
+		ROOT = ROOT[:strings.Index(ROOT, "src")]
+	}
 
 	// Load配置文件
 	configFile := ROOT + "conf/config.json"

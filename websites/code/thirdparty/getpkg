@@ -16,6 +16,7 @@ go get -u -v github.com/gorilla/sessions
 go get -u -v github.com/robfig/cron
 go get -u -v github.com/qiniu/api.v6
 go get -u -v github.com/dchest/captcha
+go get -u -v github.com/lunny/html2md
 
 cp /etc/hosts ~/hosts
 #echo "golang.org	101.251.196.90" > /etc/hosts

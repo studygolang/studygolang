@@ -15,10 +15,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/PuerkitoBio/goquery"
 	"logger"
 	"model"
 	"util"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 const (
@@ -26,7 +27,7 @@ const (
 	RedditGolang = "/r/golang/new/"
 )
 
-// 获取url对应的文章并根据规则进行解析
+// 获取url对应的资源并根据规则进行解析
 func ParseReddit(redditUrl string) error {
 	redditUrl = strings.TrimSpace(redditUrl)
 	if redditUrl == "" {
