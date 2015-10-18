@@ -256,6 +256,9 @@ func ParseProjectList(pUrl string) error {
 
 const OsChinaDomain = "http://www.oschina.net"
 
+// ProjectLogoPrefix 开源项目 logo 前缀
+const ProjectLogoPrefix = "plogo"
+
 var PresetUsernames = []string{"polaris", "blov", "agolangf", "xuanbao"}
 
 // ParseOneProject 处理单个 project
@@ -295,6 +298,15 @@ func ParseOneProject(projectUrl string) error {
 	logoSelection := doc.Find(".Project .PN img")
 	if logoSelection.AttrOr("title", "") != "" {
 		project.Logo = logoSelection.AttrOr("src", "")
+
+		if !strings.HasPrefix(project.Logo, "http") {
+			project.Logo = OsChinaDomain + project.Logo
+		}
+
+		project.Logo, err = UploadUrlFile(project.Logo, ProjectLogoPrefix)
+		if err != nil {
+			logger.Errorln("project logo upload error:", err)
+		}
 	}
 
 	// 获取项目相关链接

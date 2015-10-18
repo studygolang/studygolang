@@ -2,13 +2,18 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
 	gio "io"
+	"net/http"
+	"net/url"
+	"strings"
 
 	"config"
+	"logger"
+
 	"github.com/qiniu/api.v6/conf"
 	"github.com/qiniu/api.v6/io"
 	"github.com/qiniu/api.v6/rs"
-	"logger"
 )
 
 var uptoken string
@@ -100,4 +105,32 @@ func UploadMemoryFile(r gio.Reader, key string) (err error) {
 	logger.Debugln(ret.Hash, ret.Key)
 
 	return
+}
+
+// UploadUrlFile 将外站图片URL转为本站，如果失败，返回原图
+func UploadUrlFile(origUrl, prefix string) (string, error) {
+	if origUrl == "" || strings.Contains(origUrl, "studygolang") {
+		return origUrl, errors.New("origin image is empty or is studygolang.com")
+	}
+
+	resp, err := http.Get(origUrl)
+	if err != nil {
+		return origUrl, err
+	}
+	defer resp.Body.Close()
+
+	objUrl, err := url.Parse(origUrl)
+	if err != nil {
+		return origUrl, err
+	}
+
+	filename := objUrl.Path[strings.LastIndex(objUrl.Path, "/"):]
+	uri := prefix + filename
+
+	err = UploadMemoryFile(resp.Body, uri)
+	if err != nil {
+		return origUrl, err
+	}
+
+	return "http://studygolang.qiniudn.com/" + uri, nil
 }
