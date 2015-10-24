@@ -13,16 +13,18 @@ import (
 	"io"
 	"io/ioutil"
 	"math/rand"
+	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
 
-	"github.com/studygolang/mux"
 	"logger"
 	"model"
 	"service"
 	"util"
+
+	"github.com/studygolang/mux"
 )
 
 // 侧边栏的内容通过异步请求获取
@@ -292,7 +294,16 @@ func UploadImageHandler(rw http.ResponseWriter, req *http.Request) {
 
 		buf, err := ioutil.ReadAll(resp.Body)
 
-		uri = util.DateNow() + "/" + util.Md5Buf(buf) + filepath.Ext(origUrl)
+		ext := filepath.Ext(origUrl)
+		if ext == "" {
+			contentType := http.DetectContentType(buf)
+			exts, _ := mime.ExtensionsByType(contentType)
+			if len(exts) > 0 {
+				ext = exts[0]
+			}
+		}
+
+		uri = util.DateNow() + "/" + util.Md5Buf(buf) + ext
 
 		reader = bytes.NewReader(buf)
 	} else {
