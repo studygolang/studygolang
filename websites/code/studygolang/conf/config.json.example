@@ -24,5 +24,7 @@
 	"crawl_host": ":7070",
 	"crawl_spec": "0 0 */1 * * ?",
 
-	"iframe_deny": "github.com,robbinfan.com,www.zhihu.com,google.com,golang.org,evernote.com,blogspot.com"
+	"iframe_deny": "github.com,robbinfan.com,www.zhihu.com,google.com,golang.org,evernote.com,blogspot.com",
+	
+	"sensitive": "发票,共产党"
 }
