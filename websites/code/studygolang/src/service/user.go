@@ -115,6 +115,18 @@ func UpdateUser(form url.Values) (errMsg string, err error) {
 	return
 }
 
+// UpdateUserStatus 更新用户状态
+func UpdateUserStatus(uid, status int) {
+	setClause := "status=" + strconv.Itoa(status)
+	err := model.NewUser().Set(setClause).Where("uid=?", uid).Update()
+	if err != nil {
+		logger.Errorf("更新用户 【%s】 状态失败：%s", uid, err)
+		return
+	}
+
+	return
+}
+
 // 邮件订阅或取消订阅
 func EmailSubscribe(uid, unsubscribe int) {
 	err := model.NewUser().Set("unsubscribe=?", unsubscribe).Where("uid=?", uid).Update()

@@ -12,6 +12,7 @@ import (
 	. "controller"
 	"controller/admin"
 	"filter"
+
 	"github.com/studygolang/mux"
 )
 
@@ -19,6 +20,10 @@ func initRouter() *mux.Router {
 	// 登录校验过滤器
 	loginFilter := new(filter.LoginFilter)
 	loginFilterChain := mux.NewFilterChain(loginFilter)
+
+	// 敏感词过滤器
+	sensitiveFilter := new(filter.SensitiveFilter)
+	sensitiveFilterChain := mux.NewFilterChain(sensitiveFilter)
 
 	router := mux.NewRouter()
 	// 所有的页面都需要先检查用户cookie是否存在，以便在没登录时自动登录
@@ -37,8 +42,8 @@ func initRouter() *mux.Router {
 
 	router.HandleFunc("/topics{view:(|/popular|/no_reply|/last)}", TopicsHandler)
 	router.HandleFunc("/topics/{tid:[0-9]+}", TopicDetailHandler)
-	router.HandleFunc("/topics/new{json:(|.json)}", NewTopicHandler).AppendFilterChain(loginFilterChain)
-	router.HandleFunc("/topics/modify{json:(|.json)}", ModifyTopicHandler).AppendFilterChain(loginFilterChain)
+	router.HandleFunc("/topics/new{json:(|.json)}", NewTopicHandler).AppendFilterChain(loginFilterChain).AppendFilterChain(sensitiveFilterChain)
+	router.HandleFunc("/topics/modify{json:(|.json)}", ModifyTopicHandler).AppendFilterChain(loginFilterChain).AppendFilterChain(sensitiveFilterChain)
 	// 某个节点下的话题
 	router.HandleFunc("/topics/node{nid:[0-9]+}", NodesHandler)
 
@@ -93,8 +98,8 @@ func initRouter() *mux.Router {
 	router.HandleFunc("/resources", ResIndexHandler)
 	router.HandleFunc("/resources/cat/{catid:[0-9]+}", CatResourcesHandler)
 	router.HandleFunc("/resources/{id:[0-9]+}", ResourceDetailHandler)
-	router.HandleFunc("/resources/new{json:(|.json)}", NewResourceHandler).AppendFilterChain(loginFilterChain)
-	router.HandleFunc("/resources/modify{json:(|.json)}", ModifyResourceHandler).AppendFilterChain(loginFilterChain)
+	router.HandleFunc("/resources/new{json:(|.json)}", NewResourceHandler).AppendFilterChain(loginFilterChain).AppendFilterChain(sensitiveFilterChain)
+	router.HandleFunc("/resources/modify{json:(|.json)}", ModifyResourceHandler).AppendFilterChain(loginFilterChain).AppendFilterChain(sensitiveFilterChain)
 
 	// 评论
 	router.HandleFunc("/comment/{objid:[0-9]+}.json", CommentHandler).AppendFilterChain(loginFilterChain)
