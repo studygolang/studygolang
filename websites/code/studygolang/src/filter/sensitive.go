@@ -23,6 +23,8 @@ type SensitiveFilter struct {
 	*mux.EmptyFilter
 }
 
+var titleSensitives = []string{"发票"}
+
 // PreFilter 执行 handler 之前的过滤方法
 func (this *SensitiveFilter) PreFilter(rw http.ResponseWriter, req *http.Request) bool {
 	logger.Debugln("SensitiveFilter PreFilter...")
@@ -33,10 +35,22 @@ func (this *SensitiveFilter) PreFilter(rw http.ResponseWriter, req *http.Request
 		return true
 	}
 
+	curUser, _ := CurrentUser(req)
+
+	// 标题特殊处理
+	for _, s := range titleSensitives {
+		if util.HasSensitiveChar(title, s) {
+			// 把账号冻结
+			service.UpdateUserStatus(curUser["uid"].(int), model.StatusFreeze)
+
+			logger.Infoln("user=", curUser["uid"], "publish ad, title=", title, ";content=", content, ". freeze")
+			return false
+		}
+	}
+
 	sensitive := config.Config["sensitive"]
 	if util.HasSensitive(title, sensitive) || util.HasSensitive(content, sensitive) {
 		// 把账号冻结
-		curUser, _ := CurrentUser(req)
 		service.UpdateUserStatus(curUser["uid"].(int), model.StatusFreeze)
 
 		logger.Infoln("user=", curUser["uid"], "publish ad, title=", title, ";content=", content, ". freeze")

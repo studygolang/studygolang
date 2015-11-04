@@ -11,7 +11,11 @@ import (
 )
 
 // HasSensitive 是否有敏感词
-func HasSensitive(content string, sensitive string) bool {
+func HasSensitive(content, sensitive string) bool {
+	if content == "" {
+		return false
+	}
+
 	sensitives := strings.Split(sensitive, ",")
 
 	for _, s := range sensitives {
@@ -21,4 +25,21 @@ func HasSensitive(content string, sensitive string) bool {
 	}
 
 	return false
+}
+
+// HasSensitiveChar 是否包含敏感字（多个词都包含）
+func HasSensitiveChar(title, sensitive string) bool {
+	if title == "" || sensitive == "" {
+		return false
+	}
+
+	sensitives := strings.Split(sensitive, "")
+
+	for _, s := range sensitives {
+		if !strings.Contains(title, s) {
+			return false
+		}
+	}
+
+	return true
 }
