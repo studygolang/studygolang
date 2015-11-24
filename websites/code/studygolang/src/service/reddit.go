@@ -139,6 +139,10 @@ func dealRedditOneResource(contentSelection *goquery.Selection) error {
 			content += author + ": <pre>" + comment + "</pre>"
 		})
 
+		if strings.TrimSpace(content) == "" {
+			return errors.New("goquery reddit.com/r/golang self newdocument(" + resourceUrl + ") error: content is empty")
+		}
+
 		resource.Content = content
 
 		// reddit 本身的，当做其他资源

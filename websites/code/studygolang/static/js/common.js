@@ -428,3 +428,14 @@ if (window.WebSocket) {
 	
 	// websocket.onerror = onError;
 }
+
+$(function(){
+	if (Math.random()*50 <= 1) {
+		$('.ad').each(function(){
+			var url = $(this).attr('href');
+
+			var adImg = new Image();
+			adImg.src = url;
+		});
+	}
+});
