@@ -272,13 +272,18 @@ func ParseOneProject(projectUrl string) error {
 		err error
 	)
 
-	if doc, err = goquery.NewDocument(projectUrl); err != nil {
+	// 加上 ?fromerr=xfwefs，否则页面有 js 重定向
+	if doc, err = goquery.NewDocument(projectUrl + "?fromerr=xfwefs"); err != nil {
 		return errors.New("goquery fetch " + projectUrl + " error:" + err.Error())
 	}
 
 	// 标题
 	category := strings.TrimSpace(doc.Find(".Project .name").Text())
 	name := strings.TrimSpace(doc.Find(".Project .name u").Text())
+	if category == "" && name == "" {
+		return errors.New("projectUrl:" + projectUrl + " category and name are empty")
+	}
+
 	tmpIndex := strings.LastIndex(category, name)
 	if tmpIndex != -1 {
 		category = category[:tmpIndex]
