@@ -16,12 +16,12 @@ import (
 
 // 用户登录信息
 type UserLogin struct {
-	Uid       int    `json:"uid" gorm:"primary_key"`
+	Uid       int    `json:"uid" xorm:"pk"`
 	Username  string `json:"username"`
 	Passwd    string `json:"passwd"`
 	Email     string `json:"email"`
 	LoginTime string `json:"login_time"`
-	passcode  string // 加密随机串
+	passcode  string `xorm:"-"` // 加密随机串
 }
 
 func (this *UserLogin) TableName() string {
@@ -53,7 +53,7 @@ const (
 
 // 用户基本信息
 type User struct {
-	Uid         int       `json:"uid" gorm:"primary_key"`
+	Uid         int       `json:"uid" xorm:"pk autoincr"`
 	Username    string    `json:"username"`
 	Email       string    `json:"email"`
 	Open        int       `json:"open"`
@@ -69,7 +69,7 @@ type User struct {
 	Unsubscribe int       `json:"unsubscribe"`
 	Status      int       `json:"status"`
 	Ctime       time.Time `json:"ctime"`
-	Mtime       time.Time `json:"mtime"`
+	Mtime       time.Time `json:"mtime" xorm:"<-"`
 
 	// 非用户表中的信息，为了方便放在这里
 	//Roleids   []int
@@ -89,12 +89,12 @@ func (this *User) TableName() string {
 //	5、评论 +5
 //	6、创建Wiki页 +10
 type UserActive struct {
-	Uid      int       `json:"uid" gorm:"primary_key"`
+	Uid      int       `json:"uid" xorm:"pk autoincr"`
 	Username string    `json:"username"`
 	Email    string    `json:"email"`
 	Avatar   string    `json:"avatar"`
 	Weight   int       `json:"weight"`
-	Mtime    time.Time `json:"mtime"`
+	Mtime    time.Time `json:"mtime" xorm:"<-"`
 }
 
 func (this *UserActive) TableName() string {
@@ -103,9 +103,9 @@ func (this *UserActive) TableName() string {
 
 // 用户角色信息
 type UserRole struct {
-	Uid    int `json:"uid"`
-	Roleid int `json:"roleid"`
-	ctime  string
+	Uid    int    `json:"uid"`
+	Roleid int    `json:"roleid"`
+	ctime  string `xorm:"-"`
 }
 
 func (this *UserRole) TableName() string {

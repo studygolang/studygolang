@@ -17,7 +17,7 @@ const (
 
 // 社区主题信息
 type Topic struct {
-	Tid           int       `gorm:"primary_key" json:"tid"`
+	Tid           int       `xorm:"pk autoincr" json:"tid"`
 	Title         string    `json:"title"`
 	Content       string    `json:"content"`
 	Nid           int       `json:"nid"`
@@ -28,7 +28,7 @@ type Topic struct {
 	EditorUid     int       `json:"editor_uid"`
 	Top           bool      `json:"istop"`
 	Ctime         time.Time `json:"ctime"`
-	Mtime         time.Time `json:"mtime"`
+	Mtime         time.Time `json:"mtime" xorm:"<-"`
 }
 
 func (*Topic) TableName() string {
@@ -37,11 +37,11 @@ func (*Topic) TableName() string {
 
 // 社区主题扩展（计数）信息
 type TopicEx struct {
-	Tid   int       `gorm:"primary_key" json:"tid"`
+	Tid   int       `xorm:"pk autoincr" json:"tid"`
 	View  int       `json:"view"`
 	Reply int       `json:"reply"`
 	Like  int       `json:"like"`
-	Mtime time.Time `json:"mtime"`
+	Mtime time.Time `json:"mtime" xorm:"<-"`
 }
 
 func (*TopicEx) TableName() string {
@@ -50,11 +50,11 @@ func (*TopicEx) TableName() string {
 
 // 社区主题节点信息
 type TopicNode struct {
-	Nid    int       `json:"nid" gorm:"primary_key"`
+	Nid    int       `json:"nid" xorm:"pk autoincr"`
 	Parent int       `json:"parent"`
 	Name   string    `json:"name"`
 	Intro  string    `json:"intro"`
-	Ctime  time.Time `json:"ctime"`
+	Ctime  time.Time `json:"ctime" xorm:"<-"`
 }
 
 func (*TopicNode) TableName() string {

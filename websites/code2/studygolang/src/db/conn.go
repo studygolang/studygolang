@@ -1,9 +1,3 @@
-// Copyright 2016 The StudyGolang Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-// http://studygolang.com
-// Author：polaris	polaris@studygolang.com
-
 package db
 
 import (
@@ -12,10 +6,11 @@ import (
 	. "config"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
+	"github.com/go-xorm/core"
+	"github.com/go-xorm/xorm"
 )
 
-var DB gorm.DB
+var MasterDB *xorm.Engine
 
 var dns string
 
@@ -34,27 +29,34 @@ func init() {
 		mysqlConfig["charset"])
 
 	// 启动时就打开数据库连接
-	open()
+	if err = open(); err != nil {
+		panic(err)
+	}
 }
 
 func open() error {
-	maxIdle := ConfigFile.MustInt("mysql", "max_idle", 2)
-	maxConn := ConfigFile.MustInt("mysql", "max_conn", 10)
-
 	var err error
 
-	DB, err = gorm.Open("mysql", dns)
+	MasterDB, err = xorm.NewEngine("mysql", dns)
 	if err != nil {
 		return err
 	}
 
-	DB.DB().SetMaxIdleConns(maxIdle)
-	DB.DB().SetMaxOpenConns(maxConn)
+	maxIdle := ConfigFile.MustInt("mysql", "max_idle", 2)
+	maxConn := ConfigFile.MustInt("mysql", "max_conn", 10)
 
-	// Disable table name's pluralization
-	DB.SingularTable(true)
+	MasterDB.SetMaxIdleConns(maxIdle)
+	MasterDB.SetMaxOpenConns(maxConn)
 
-	DB.LogMode(ConfigFile.MustBool("mysql", "gorm_log", false))
+	showSQL := ConfigFile.MustBool("xorm", "show_sql", false)
+	logLevel := ConfigFile.MustInt("xorm", "log_level", 0)
+
+	MasterDB.ShowSQL(showSQL)
+	MasterDB.Logger().SetLevel(core.LogLevel(logLevel))
+
+	// 启用缓存
+	// cacher := xorm.NewLRUCacher(xorm.NewMemoryStore(), 1000)
+	// MasterDB.SetDefaultCacher(cacher)
 
 	return nil
 }

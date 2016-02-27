@@ -25,7 +25,7 @@ func (*TopicLogic) FindAll(ctx context.Context) []map[string]interface{} {
 		topics   = make([]*model.Topic, count)
 		topicExs = make([]*model.TopicEx, count)
 	)
-	if DB.Limit(count).Find(&topics).Related(&topicExs, "Tid").RecordNotFound() {
+	if MasterDB.Limit(count).Find(&topics).Related(&topicExs, "Tid").RecordNotFound() {
 		return nil
 	}
 
