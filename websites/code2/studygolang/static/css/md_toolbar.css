@@ -1,0 +1,10 @@
+form .md-toolbar ul { margin-bottom:2px;}
+form .md-toolbar ul a { -moz-border-radius: 8px;-webkit-border-radius: 8px;border-radius: 8px;padding: 0 5px;line-height: 18px;font-size: 12px;margin-right: 6px;text-shadow: 0;color: #444;border: 1px solid #fff;}
+form .md-toolbar ul a:hover { text-decoration: none;}
+form .md-toolbar ul .cur a { background: #fff;border: 1px solid #ddd;color: #666;}
+form .md-toolbar .upload-img { cursor: pointer;}
+form .content-preview { margin-bottom: 5px; width: 100%;height: 200px;border: 1px solid #CCCCCC;border-radius: 3px 3px 3px 3px;-moz-border-radius: 3px 3px 3px 3px;display: none;padding: 4px;overflow: scroll; display: none; }
+
+.sidebar .help-block ul {padding-left: 25px;font-size: 13px;line-height: 25px;margin-right: 10px;}
+
+.tooltip {white-space: nowrap;}

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<title>{{template "title" .}} | Go语言中文网 | Golang中文社区 | Golang中国</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta charset="utf-8">
+	<link rel="shortcut icon" href="/static/img/go.ico">
+	{{template "seo" .}}
+	<meta name="author" content="polaris <polaris@studygolang.com>">
+	<!--<link href="http://studygolang.qiniudn.com/fonts_googleapi.css" rel="stylesheet">-->
+	<link href="/static/css/fonts_googleapi.css" rel="stylesheet">
+	<!--<link href="http://apps.bdimg.com/libs/bootswatch/3/cosmo/bootstrap.min.css" rel="stylesheet">-->
+	<link href="/static/css/cosmo_bootstrap.min.css" rel="stylesheet">
+	<!--<link href="http://studygolang.qiniudn.com/cosmo_bootstrap.min.css" rel="stylesheet">-->
+	<!--<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">-->
+	<link href="/static/css/main.css?v=1.1" rel="stylesheet"/>
+	{{template "css" .}}
+</head>
+<body>
+	<header class="navbar navbar-default navbar-fixed-top" role="navigation">
+		<div class="container">
+			<!-- Brand and toggle get grouped for better mobile display -->
+			<div class="navbar-header">
+				<a href="/" class="navbar-brand" title="Go语言中文网"><img alt="Go语言中文网" src="/static/img/logo1.png" style="margin-top: -7px; height: 45px;"></a>
+				<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+			</div>
+			<div class="navbar-collapse collapse" id="navbar-main">
+				<ul class="nav navbar-nav">
+					<li class="{{.activeTopics}}">
+						<a href="/topics">社区</a>
+					</li>
+					<li class="dropdown {{.activeArticles}}">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="articles">精彩文章 <span class="caret"></span></a>
+						<ul class="dropdown-menu" aria-labelledby="articles">
+							<li><a href="/articles">网友博文</a></li>
+							<li><a href="http://blog.studygolang.com" target="_blank">本站博客</a></li>
+						</ul>
+					</li>
+					<li class="{{.activeProjects}}">
+						<a href="/projects">开源项目</a>
+					</li>
+					<li class="{{.activeResources}}">
+						<a href="/resources">资源</a>
+					</li>
+					<li class="dropdown {{.activeReadings}}">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="readings">技术晨读 <span class="caret"></span></a>
+						<ul class="dropdown-menu" aria-labelledby="readings">
+							<li><a href="/readings">Go晨读</a></li>
+							<li><a href="/readings?rtype=1">综合晨读</a></li>
+						</ul>
+					</li>
+					<li class="dropdown {{.activeDoc}}">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="docs">官方文档<i class="newfuture"></i> <span class="caret"></span></a>
+						<ul class="dropdown-menu" aria-labelledby="docs">
+							<li><a href="http://docs.studygolang.com" target="_blank">英文文档</a></li>
+							<li><a href="http://docscn.studygolang.com" target="_blank">中文文档</a></li>
+							<li><a href="/pkgdoc">标准库中文版</a></li>
+							<li role="presentation" class="divider"></li>
+							<li><a href="http://tour.studygolang.com" target="_blank">Go指南</a></li>
+						</ul>
+					</li>
+					<!--
+					<li class="{{.activeWide}}">
+						<a href="/wide/playground">游乐场</a>
+					</li>
+					-->
+				</ul>
+				<form class="navbar-form navbar-left" action="/search" role="search" target="_blank">
+					<input type="text" name="q" class="form-control search-query" placeholder="搜索" value="{{if .q}}{{.q}}{{end}}">
+				</form>
+				<ul class="nav navbar-nav navbar-right" id="userbar">
+					{{if .me}}
+					<li>
+						<a href="/message/system" id="user_message_count"><span class="badge{{if .me.msgnum}} badge-warning{{end}}">{{.me.msgnum}}</span></a>
+					</li>
+					<li class="dropdown" id="user_menu">
+						<a href="#user_menu" class="dropdown-toggle" data-toggle="dropdown">{{.me.username}} <b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li class="first"><a href="/user/{{.me.username}}">我的主页</a></li>
+							<li><a href="/account/edit">个人资料设置</a></li>
+							<li><a href="/favorites/{{.me.username}}">我的收藏</a></li>
+							<li role="presentation" class="divider"></li>
+							{{if .me.isadmin}}
+							<li><a href="/admin/" target="_blank">管理后台</a></li>
+							{{end}}
+							<li class="last"><a href="/account/logout">退出</a></li>
+						</ul>
+					</li>
+					{{else}}
+					<li class="first"><a href="/account/register">注册</a></li><li class="last"><a href="/account/login">登录</a></li>
+					{{end}}
+				</ul>
+			</div>
+		</div>
+	</header>
+	<div class="wrapper" id="wrapper">
+		<div class="container" role="main">
+			{{template "content" .}}
+		</div>
+	</div>
+	<footer class="footer">
+		<div class="container">
+			<div>
+				<div class="pull-left" style="margin-right:10px;">
+					<img src="/static/img/logo2.png" widht="48px" height="48px" alt="golang logo">
+				</div>
+				<p class="links">
+					<a href="/wiki/about">关于</a> | <a href="/api">API</a> | <a href="/wiki/contributors">贡献者</a> | <a href="/wiki/">帮助推广</a> | <a href="/topics/node16">反馈</a> | <a href="http://github.com/studygolang" target="_blank" rel="nofollow">Github</a> | <a href="http://weibo.com/studygolang" target="_blank" rel="nofollow">新浪微博</a> | <a href="/wide/playground">内嵌Wide</a> | <a href="/wiki/duty">免责声明</a>
+				</p>
+				<p class="copyright">&copy;2013-2016 studygolang.com 采用 <a href="http://golang.org" target="_blank">Go语言</a> + <a href="http://www.mysql.com/" target="_blank">MYSQL 构建</a>
+				&nbsp;&nbsp;当前在线：<span id="onlineusers">30</span>人&nbsp;&nbsp;历史最高：<span id="maxonline">300</span>人
+				<br/>
+				<b>网站编译信息</b>&nbsp;{{if .build.version}}版本：{{.build.version}}，{{end}}时间：<attr class="timeago">{{.build.date}}</attr>
+				<br/>Go语言中文网，中国 Golang 社区，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。
+	京ICP备14030343号-1
+				</p>
+				<p class="text-center">
+					<a href="http://www.ucai.cn?fr=studygolang" title="优才网" target="_blank"><img src="http://p3.ucai.cn/static/i3/mission/moblie_ucai_logo.png" alt="优才网" width="175px" height="45px" /></a>
+					<a href="https://portal.qiniu.com/signup?code=3lfz4at7pxfma" title="七牛云存储" target="_blank"><img src="http://qiniutek.com/images/logo-2.png" alt="七牛云存储" width="290px" height="45px" /></a>
+				</p>
+			</div>
+		</div>
+	</footer>
+	<div id="gotop"></div>
+
+	{{if .me}}
+	<input type="hidden" id="is_login_status" value="1" />
+	{{else}}
+	<input type="hidden" id="is_login_status" value="0" />
+	<div class="pop login-pop" id="login-pop">
+		<!--
+		<div class="thirdparty">
+			<h5>第三方账号登录</h5>
+			<div class="thirdparty-btns">
+				<a class="btn-qq btn" href="#">
+					<i></i>
+					<span>Q&nbsp;Q&nbsp;登&nbsp;录</span>
+				</a>
+				<a class="btn-weibo btn" href="#">
+					<i></i>
+					<span>微&nbsp;博&nbsp;登&nbsp;录</span>
+				</a>
+			</div>
+		</div>
+		-->
+		<div class="login-form">
+			<div class="error text-center"></div>
+			<form action="#" method="post" class="form-horizontal" role="form">
+				<div class="form-group">
+					<label for="username" class="col-sm-3 control-label">用户名</label>
+					<div class="col-sm-9 form-input">
+						<input type="text" class="form-control" id="username" name="username" placeholder="请填写用户名或邮箱">
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="passwd" class="col-sm-3 control-label">密码</label>
+					<div class="col-sm-9 form-input">
+						<input type="password" class="form-control" id="passwd" name="passwd" placeholder="密码">
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-offset-2 col-sm-10">
+						<div class="checkbox">
+							<label>
+								<input id="user_remember_me" name="remember_me" type="checkbox" value="1" checked="checked" />	记住登录状态
+							</label>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-offset-2 col-sm-10">
+						<button type="submit" id="login-btn" class="btn btn-default pull-left">登录</button>
+						<div class="forget">
+							<a href="/account/forgetpwd" title="点击找回密码">忘记密码？</a>
+						</div>
+						<div class="register">
+							<span>还不是会员</span><a href="/account/register">现在注册</a>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	<div id="sg-overlay"></div>
+	{{end}}
+</body>
+<!--<script type="text/javascript"  src="http://apps.bdimg.com/libs/jquery/1.11.1/jquery.min.js"></script>-->
+<script type="text/javascript" src="/static/js/libs/jquery-1.11.1.min.js"></script>
+<!--<script src="http://apps.bdimg.com/libs/bootstrap/3.2.0/js/bootstrap.min.js"></script>-->
+<script type="text/javascript" src="/static/js/libs/bootstrap-3.2.0.min.js"></script>
+<script src="/static/js/libs/jquery.timeago.js"></script>
+<script src="/static/js/libs/jquery.timeago.zh-CN.js"></script>
+<script src="/static/js/libs/md5.js"></script>
+<script type="text/javascript">
+	var wsUrl = 'ws://{{.wshost}}/ws?uid={{.me.uid}}';
+	// var wsUrl = 'ws://studygolang.com/ws?uid={{.me.uid}}';
+</script>
+<script src="/static/js/common.js?v=1.2"></script>
+{{template "js" .}}
+<script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
+<script type="text/javascript" src="/static/js/sidebar.js?v=1.0"></script>
+</html>

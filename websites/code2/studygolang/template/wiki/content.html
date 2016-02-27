@@ -1,0 +1,58 @@
+{{define "topnav"}}
+<li class="first"><a href="/">首页</a><span class="divider">/</span></li>
+<li class=""><a href="/wiki" itemprop="url"><span itemprop="title">Wiki</span></a><span class="divider">/</span></li>
+<li class="last active"><a href="/wiki/{{.wiki.uri}}" itemprop="url"><span itemprop="title">查看 {{.wiki.title}}</span></a></li>
+{{end}}
+{{define "content"}}
+<div id="main" class="container-fluid">
+  <div id="page_show" class="box">
+    <div style="text-align:right;">
+      <div class="social-share-button" data-title="{{.wiki.title}} | Golang China | Golang中文社区 | Go语言学习园地 via: @studygolang " data-img="" data-url="">
+        <a href="#" class="social-share-button-weibo" data-site="weibo" onclick="return SocialShareButton.share(this);" rel="nofollow " title="分享到新浪微博"></a>
+        <a href="#" class="social-share-button-tqq" data-site="tqq" onclick="return SocialShareButton.share(this);" rel="nofollow " title="分享到腾讯微博"></a>
+        <a href="#" class="social-share-button-douban" data-site="douban" onclick="return SocialShareButton.share(this);" rel="nofollow " title="分享到豆瓣"></a>
+        <a href="#" class="social-share-button-renren" data-site="renren" onclick="return SocialShareButton.share(this);" rel="nofollow " title="分享到人人"></a>
+        <a href="#" class="social-share-button-baidu" data-site="baidu" onclick="return SocialShareButton.share(this);" rel="nofollow " title="分享到百度空间"></a>
+      </div>
+    </div>
+    <div class="wikistyle">
+      <h1>{{.wiki.title}}</h1>
+      <div id="content">{{.wiki.content}}</div>
+    </div>
+    <div class="editors">
+      <!--
+      <div class="pull-right">
+        <a href="/wiki/about/comments#new_comment" class="btn btn-success">发表评论</a>
+      </div>-->
+      <h3>本页贡献者:</h3>
+      <div>
+        <a href="/user/{{.wiki.user.Username}}" title="{{.wiki.user.Username}}"><img alt="{{.wiki.user.Username}}" class="uface" src="{{gravatar .wiki.user.Avatar .wiki.user.Email 16}}" with="16" height="16"></a>
+        {{range .wiki.cuser}}
+        <a href="/user/{{.Username}}" title="{{.Username}}"><img alt="{{.Username}}" class="uface" src="{{gravatar .Avatar .Email 16}}" with="16" height="16"></a>
+        {{end}}
+      </div>
+    </div>
+  </div>
+</div>
+{{end}}
+{{define "title"}}{{.wiki.title}}{{end}}
+{{define "css"}}
+<link href="/static/css/pages.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/markdown.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/prettify.css" media="screen" rel="stylesheet" type="text/css">
+{{end}}
+{{define "js"}}
+<script type="text/javascript" src="/static/js/pages.js"></script>
+<script type="text/javascript" src="/static/js/prettify.js"></script>
+<script type="text/javascript" src="/static/js/Markdown.Converter.js"></script>
+<script type="text/javascript" src="/static/js/Markdown.Sanitizer.js"></script>
+<script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
+<script type="text/javascript" src="/static/js/social-share-button.js"></script>
+<script type="text/javascript">
+(function () {
+    // 转换wiki
+    var converter = new Markdown.Converter();
+    $('#content').html($(converter.makeHtml($('#content').html())).addClass('prettyprint'));
+})();
+</script>
+{{end}}

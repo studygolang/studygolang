@@ -1,0 +1,149 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/Unknwon/goconfig",
+			"repository": "https://github.com/Unknwon/goconfig",
+			"revision": "5f601ca6ef4d5cea8d52be2f8b3a420ee4b574a5",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/facebookgo/clock",
+			"repository": "https://github.com/facebookgo/clock",
+			"revision": "600d898af40aa09a7a93ecb9265d87b0504b6f03",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/facebookgo/grace/gracehttp",
+			"repository": "https://github.com/facebookgo/grace",
+			"revision": "053ab5d25436faedf3fe76fbf3da797c8c27c659",
+			"branch": "master",
+			"path": "/gracehttp"
+		},
+		{
+			"importpath": "github.com/facebookgo/grace/gracenet",
+			"repository": "https://github.com/facebookgo/grace",
+			"revision": "053ab5d25436faedf3fe76fbf3da797c8c27c659",
+			"branch": "master",
+			"path": "/gracenet"
+		},
+		{
+			"importpath": "github.com/facebookgo/httpdown",
+			"repository": "https://github.com/facebookgo/httpdown",
+			"revision": "1fa03998d20119dfe4ef73f56a638d83048052e2",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/facebookgo/stats",
+			"repository": "https://github.com/facebookgo/stats",
+			"revision": "1b76add642e42c6ffba7211ad7b3939ce654526e",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/go-sql-driver/mysql",
+			"repository": "https://github.com/go-sql-driver/mysql",
+			"revision": "71f003c6e927d2550713e7637affb769977ece78",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/go-xorm/core",
+			"repository": "https://github.com/go-xorm/core",
+			"revision": "9ddf4ee12e7a370dacf0092d9896979ae6e3fb16",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/go-xorm/xorm",
+			"repository": "https://github.com/go-xorm/xorm",
+			"revision": "e72082c2fd996f6e01915b3f829216ee05b16880",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/labstack/echo",
+			"repository": "https://github.com/labstack/echo",
+			"revision": "30ee5fbb95aa1fc1c09f101fc7f9a1022a78da38",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/labstack/gommon/color",
+			"repository": "https://github.com/labstack/gommon",
+			"revision": "bfff5bf04688a4048a5cb4dd3b3f0697caaad19c",
+			"branch": "master",
+			"path": "/color"
+		},
+		{
+			"importpath": "github.com/labstack/gommon/log",
+			"repository": "https://github.com/labstack/gommon",
+			"revision": "bfff5bf04688a4048a5cb4dd3b3f0697caaad19c",
+			"branch": "master",
+			"path": "/log"
+		},
+		{
+			"importpath": "github.com/lib/pq",
+			"repository": "https://github.com/lib/pq",
+			"revision": "69552e54d2a9d4c6a2438926a774930f7bc398ec",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mattn/go-colorable",
+			"repository": "https://github.com/mattn/go-colorable",
+			"revision": "9cbef7c35391cca05f15f8181dc0b18bc9736dbb",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mattn/go-isatty",
+			"repository": "https://github.com/mattn/go-isatty",
+			"revision": "56b76bdf51f7708750eac80fa38b952bb9f32639",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mattn/go-sqlite3",
+			"repository": "https://github.com/mattn/go-sqlite3",
+			"revision": "09d5c451710ef887470709463f4f04ff83e1e039",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/polaris1119/goutils",
+			"repository": "https://github.com/polaris1119/goutils",
+			"revision": "1b59e576b7a5d91f87ac6ea3baa20abe5e9499c2",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/polaris1119/logger",
+			"repository": "https://github.com/polaris1119/logger",
+			"revision": "bff96ac4f718e79b762ffeefe280df9378fe377c",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/polaris1119/middleware",
+			"repository": "https://github.com/polaris1119/middleware",
+			"revision": "bd2b455f0f2d5cdc6ae7768aed43e3e6e03ea465",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/robfig/cron",
+			"repository": "https://github.com/robfig/cron",
+			"revision": "32d9c273155a0506d27cf73dd1246e86a470997e",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/twinj/uuid",
+			"repository": "https://github.com/twinj/uuid",
+			"revision": "89173bcdda19db0eb88aef1e1cb1cb2505561d31",
+			"branch": "master"
+		},
+		{
+			"importpath": "golang.org/x/net/context",
+			"repository": "https://github.com/golang/net",
+			"revision": "6acef71eb69611914f7a30939ea9f6e194c78172",
+			"branch": "master",
+			"path": "/context"
+		},
+		{
+			"importpath": "golang.org/x/net/websocket",
+			"repository": "https://github.com/golang/net",
+			"revision": "6acef71eb69611914f7a30939ea9f6e194c78172",
+			"branch": "master",
+			"path": "/websocket"
+		}
+	]
+}

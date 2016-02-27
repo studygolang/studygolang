@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Go语言中文网 —— 每周精选</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; font-size: 16px;">
+	<table border="0" cellpadding="0" cellspacing="0" bgcolor="#F7F9FA" width="100%" style="border-collapse: collapse;">	
+		<tr>
+			<td style="padding:30px 0 5px 0;">
+				<table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: white; padding: 10px;">
+					<tr>
+						<td style="font-size: 20px;"><a href="http://studygolang.com?fr=email" target="_blank" style="text-decoration: none;">Go语言中文网</a>&nbsp;每周精选</td>
+						<td align="right">{{.beginDate}}至{{.endDate}}</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+
+		{{if .readings}}
+		<tr>
+			<td style="padding-bottom: 5px;">
+				<table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: white; padding: 10px;">
+					<tr>
+						<td style="padding: 10px 0 20px 0;font-size: 20px;" width="85%">本周每日晨读</td>
+						<td align="right" style="padding: 10px 0 20px 0;"><a href="http://studygolang.com/readings?fr=email" target="_blank">历史晨读>></a></td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<table border="0" cellpadding="0" cellspacing="0" width="100%">
+								{{range .readings}}
+								<tr>
+									<td width="10%" align="center" style="background-color: #DB6D4C; color: white;">{{time_format .Ctime}}</td>
+									<td style="padding-left: 10px;">{{.Content}}<a href="http://studygolang.com/readings/{{.Id}}?fr=email" target="_blank">我要阅读>></a>{{if .Urls}}&nbsp;&nbsp;相关阅读：{{range .Urls}}<a href="http://studygolang.com/wr?u={{.}}&fr=email" target="_blank">{{end}}{{end}}</td>
+								</tr>
+								<tr><td>&nbsp;</td><td></td></tr>
+								{{end}}
+							</table>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		{{end}}
+
+		{{if .articles}}
+		<tr>
+			<td style="padding-bottom: 5px;">
+				<table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: white; padding: 10px;">
+					<tr>
+						<td style="padding: 10px 0 20px 0;font-size: 20px;" width="85%">本周精彩文章</td>
+						<td align="right" style="padding: 10px 0 20px 0;"><a href="http://studygolang.com/articles?fr=email" target="_blank">更多文章>></a></td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<table border="0" cellpadding="0" cellspacing="0" width="100%">
+								{{range .articles}}
+								<tr>
+									<td>
+										<table>
+											<tr>
+												<td style="padding-bottom: 5px;"><a href="http://studygolang.com/articles/{{.Id}}?fr=email" target="_blank" title="{{.Title}}">{{.Title}}</a></td>
+											</tr>
+											<tr>
+												<td style="font-size: 13px; color: #aaa;">
+													{{substring .Txt 250 "..."}}<a href="http://studygolang.com/articles/{{.Id}}?fr=email" target="_blank">阅读全文</a>
+												</td>
+											</tr>
+										</table>
+									</td>
+								</tr>
+								<tr><td>&nbsp;</td><td></td></tr>
+								{{end}}
+							</table>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		{{end}}
+
+		{{if .topics}}
+		<tr>
+			<td style="padding-bottom: 5px;">
+				<table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: white; padding: 10px;">
+					<tr>
+						<td style="padding: 10px 0 20px 0;font-size: 20px;" width="85%">本周热门主题</td>
+						<td align="right" style="padding: 10px 0 20px 0;"><a href="http://studygolang.com/topics?fr=email" target="_blank">更多主题>></a></td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<table border="0" cellpadding="0" cellspacing="0" width="100%">
+								{{range .topics}}
+								<tr>
+									<td>
+										<table>
+											<tr>
+												<td style="padding-bottom: 5px;"><a href="http://studygolang.com/topics/{{.Tid}}?fr=email" target="_blank" title="{{.Title}}">
+												{{.Title}}
+												</a></td>
+											</tr>
+											<tr>
+												<td style="font-size: 13px; color: #aaa;">
+												{{substring .Content 250 "..."}} 
+												<a href="http://studygolang.com/topics/{{.Tid}}?fr=email">阅读全文</a></td>
+											</tr>
+										</table>
+									</td>
+								</tr>
+								<tr><td>&nbsp;</td><td></td></tr>
+								{{end}}
+							</table>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		{{end}}
+
+		<tr>
+			<td>
+				<table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="padding: 10px;">
+					<tr>
+						<td align="center" style="font-family: Arial, sans-serif; font-size: 13px;">这封邮件的收件地址是 {{.email}}；点击 <a href="http://studygolang.com/user/email/unsubscribe?u={{.token}}&email={{.email}}" target="_blank">退订</a></td>
+					</tr>
+					<tr>
+						<td align="center" style="font-family: Arial, sans-serif; font-size: 13px; padding: 5px 0 10px 0;">© 2012-2015 Go语言中文网 studygolang.com</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+<a href="http://www.51.la/?17656270" target="_blank" style="display: none;"><img alt="&#x6211;&#x8981;&#x5566;&#x514D;&#x8D39;&#x7EDF;&#x8BA1;" src="http://img.users.51.la/17656270.asp" style="border:none" /></a>
+</body>
+</html>

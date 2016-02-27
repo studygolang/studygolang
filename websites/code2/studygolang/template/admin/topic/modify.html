@@ -1,0 +1,165 @@
+{{define "content"}}
+<div class="pageheader notab">
+	<h1 class="pagetitle">修改帖子</h1>
+</div><!--pageheader-->
+
+<div id="contentwraapper" class="contentwrapper">
+	<div id="tooltip" class="red"></div>
+	<form method="POST" action="/admin/community/topic/modify" class="stdform_q">
+		<input type="hidden" id="tid" name="tid" value="{{.topic.tid}}" />
+		<div class="contenttitle2">
+			<h3>基本信息</h3>
+		</div>
+		<div>
+			<p>
+				<label>帖子TID</label>
+				<span class="field txt">
+					{{.topic.tid}}
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label for="title">标题</label>
+				<span class="field">
+					<input id="title" type="text" name="title" class="smallinput required" value="{{.topic.title}}" />
+				</span>
+			</p>
+			<p>
+				<label for="node">所属节点</label>
+				<span class="field">
+					<select name="nid" class="uniformselect required">
+					{{range .nodes}}
+						{{range $parent, $children := .}}
+						<optgroup label="{{$parent}}">
+						{{range $children}}
+						<option value="{{.nid}}"{{if eq .nid $.topic.nid}} selected{{end}}>{{.name}}</option>
+						{{end}}
+						</optgroup>
+						{{end}}
+					{{end}}
+					</select>
+				</span>
+			</p>
+		</div>
+		<div class="controls">
+			<div class="wmd-panel">
+				<div id="wmd-button-bar"></div>
+				<textarea class="wmd-input required" style="width:100%;" id="wmd-input" name="content">{{.topic.content}}</textarea>
+			</div>
+			<div>预览</div>
+			<div id="wmd-preview" class="wmd-panel wmd-preview"></div>
+		</div>
+		<div>
+			<p>
+				<label>作者</label>
+				<span class="field txt">
+					<a class="normal" href="/admin/user/user/detail?uid={{.topic.user.Uid}}" target="_blank">{{.topic.user.Username}}</a>
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label>创建时间</label>
+				<span class="field txt">
+					{{.topic.ctime}}
+				</span>
+			</p>
+		</div>
+		{{if .topic.editor_uid}}
+		<div>
+			<p>
+				<label>最后编辑人</label>
+				<span class="field txt">
+					<a href="/admin/user/user/detail?uid={{.topic.editor_uid}}" target="_blank">{{.topic.editor_username}}</a>
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label>最后编辑时间</label>
+				<span class="field txt">
+					{{.topic.mtime}}
+				</span>
+			</p>
+		</div>
+		{{end}}
+		<div>
+			<p>
+				<label>用户状态</label>
+				<span class="field txt">
+					{{.topic.flag}}
+				</span>
+			</p>
+		</div>
+		<div class="contenttitle2">
+			<h3>操作</h3>
+		</div>
+		<div>
+			<p> 
+				<label>&nbsp;</label>
+				<input type="submit" class="submit radius2" value="提交" />
+			</p>
+		</div>
+		<div class="contenttitle2">
+			<h3>帖子回复</h3>
+		</div>
+		<table id="logo_table" cellpadding="0" cellspacing="0" border="0" class="stdtable">
+			<thead class="center">
+				<tr>
+					<td width="3%">回复ID</td>
+					<td width="5%">回复人</td>
+					<td width="15%">回复内容</td>
+					<td width="5%">回复时间</td>
+					<td width="5%">楼层</td>
+					<td width="5%">操作</td>
+				</tr>
+			</thead>
+			<tbody class="center">
+				{{range .replies}}
+					<tr>
+						<td>{{ .cid }}</td>
+						<td><a class="normal" href="/admin/user/user/detail?uid={{.user.Uid}}" target="_blank">{{ .user.Username }}</a></td>
+						<td><textarea class="comment_content" data-cid="{{.cid}}" rows="3" style="width:98%;">{{ .content }}</textarea></td>
+						<td>{{ .ctime }}</td>
+						<td>{{ .floor }}</td>
+						<td class="actions">
+							<a data-type="ajax-submit" href="#"
+								ajax-action="/admin/community/comment/del?cid={{ .cid }}" 
+								ajax-hint="是否确定要删除?"
+								success-hint="删除成功"
+								callback="delCallback">删除</a>
+						</td>
+					</tr>
+				{{else}}
+				<tr><td colspan="6">暂无回复</td></tr>
+				{{end}}
+			</tbody>
+		</table>
+	</form>
+	<img id="loaders" src="/static/img/loaders/loader7.gif" alt="" class="hide">
+	<div id="toast"></div>
+	<br/>
+	<br/>
+</div><!--contentwrapper-->
+{{end}}
+
+{{define "css"}}
+<link href="/static/css/markdown.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/jquery.cftoaster.1.0.1.css" media="screen" rel="stylesheet" type="text/css">
+<style>
+.wmd-preview p { margin: 0px; float: none; }
+.wmd-preview a { color:blue; }
+</style>
+{{end}}
+
+{{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.cftoaster.1.0.1.js"></script>
+<script	type="text/javascript" src="/static/js/admin/forms.js"></script>
+<script type="text/javascript" src="/static/js/Markdown.Converter.js"></script>
+<script type="text/javascript" src="/static/js/Markdown.Sanitizer.js"></script>
+<script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
+<script type="text/javascript" src="/static/js/admin/topic/modify.js"></script>
+{{end}}

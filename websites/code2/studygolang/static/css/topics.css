@@ -1,0 +1,29 @@
+.topics {padding: 0 8px;}
+.topics .topic {margin-left: 0;padding-top: 10px;padding-bottom: 10px;border-bottom: 1px dashed #CCC;}
+.topics .topic:hover {background: #F5F5F5;}
+.topics .topic .avatar {width:48px; margin-right:10px;}
+.topics .topic .right-info {margin-left: 58px;}
+.topics .topic .right-info .title {margin-bottom: 5px; font-size: 120%;}
+.topics .topic .right-info .title a {color:#474747}
+.topics .topic .right-info .title a:hover {color: #DB6D4C;text-decoration: none;}
+.topics .topic .right-info .meta {color: #bbb; font-size: 13px;}
+.topics .topic .right-info .meta .node {padding: 1px 5px;color: #778087;text-decoration: none;background-color: #f5f5f5;}
+.topics .topic .right-info .meta .node:hover {background-color: #222;text-decoration: none; color:#fff;}
+.topics .topic .right-info .meta .author {color: #778087;}
+.topics .topic .right-info .meta .num {margin-right: 10px;}
+.topics .topic .right-info .meta .num a {color: #979797; text-decoration: none;}
+.topics .topic .right-info .meta .num a:hover {text-decoration: none;color: #DB6D4C;}
+.topics .topic .right-info .meta .num span {margin-left: 5px;margin-right: 10px;}
+
+.nodes .title {position: relative;border-bottom: 1px solid #ccc;}
+.nodes .title h3 {line-height: 24px;font-size: 14px;font-weight: bold;padding-top: 10px;}
+.nodes ul li {line-height: 200%;font-size: 14px;padding: 8px 10px;border-top: 1px solid #DDD;position: relative;overflow: auto;}
+.nodes ul li label {font-size: 12px;color: #999;display: inline-block;width: 120px;margin-right: -130px;padding-right: 10px;float: left;text-align: right;}
+.nodes ul li .childnodes {float: left;margin-left: 130px;}
+.nodes ul li .childnodes a {color:#424242;text-decoration: none;background-color: #f5f5f5;}
+.nodes ul li .childnodes a:hover {background-color:#222;color:#fff;text-decoration: none;}
+
+.node-info {background-color: #FAFAFA;padding: 10px 10px 0;border-bottom: 1px solid #ddd;margin-top: 5px;}
+.node-info h2 {line-height: 100%;display: inline;font-size: 16px;margin-right: 10px;font-weight: bold;}
+.node-info .title span {font-size: 13px;}
+.node-info .desc {color: #999;margin: 10px 0;font-size: 13px;}

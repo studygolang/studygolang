@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/static/css/sitemap.xsl"?>
+<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>{{.home.loc}}</loc>
+        <lastmod>{{.home.lastmode}}</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>{{range .articles}}
+    <url>
+        <loc>{{$.home.loc}}/articles/{{.Id}}</loc>
+        <lastmod>{{time_format .Mtime}}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>{{end}}{{range .topics}}
+    <url>
+        <loc>{{$.home.loc}}/topics/{{.Tid}}</loc>
+        <lastmod>{{time_format .Mtime}}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>{{end}}{{range .resources}}
+    <url>
+        <loc>{{$.home.loc}}/resources/{{.Id}}</loc>
+        <lastmod>{{time_format .Mtime}}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>{{end}}{{range .projects}}
+    <url>
+        <loc>{{$.home.loc}}/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}</loc>
+        <lastmod>{{time_format .Mtime}}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>{{end}}{{range .wiki}}
+    <url>
+        <loc>{{$.home.loc}}/wiki/{{.Uri}}</loc>
+        <lastmod>{{time_format .Mtime}}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.4</priority>
+    </url>{{end}}
+    <url>
+        <loc>http://docs.studygolang.com</loc>
+        <lastmod>{{.home.lastmode}}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.2</priority>
+    </url>
+    <url>
+        <loc>http://docscn.studygolang.com</loc>
+        <lastmod>{{.home.lastmode}}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.2</priority>
+    </url>
+    <url>
+        <loc>http://tour.studygolang.com</loc>
+        <lastmod>{{.home.lastmode}}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.2</priority>
+    </url>
+</urlset>

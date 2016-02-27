@@ -1,0 +1,68 @@
+{{define "content"}}
+<div class="pageheader notab">
+	<h1 class="pagetitle">文章管理</h1>
+	<span class="pagedesc">管理抓取的文章信息</span>
+</div><!--pageheader-->
+
+<div id="contentwrapper" class="contentwrapper">
+	<form id="queryform" class="stdform_q" action="" method="get">
+		<div>
+			<p>
+				<label>文章ID</label>
+				<span class="field"><input type="text" id="q_id" name="id" class="smallinput" value=""/></span>
+			</p>
+			<p>
+				<label>来源域名</label>
+				<span class="field"><input type="text" id="q_domain" name="domain" class="smallinput" value=""/></span>
+			</p>
+			<p>
+				<label>文章标题</label>
+				<span class="field"><input type="text" id="q_title" name="title" class="smallinput" value=""/></span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label>创建时间</label>
+				<span class="field">
+					<input type="text" id="create_time_min" name="create_time_min" class="smallinput date_time" style="width:80px;" value=""/> ～ 
+					<input type="text" id="create_time_max" name="create_time_max" class="smallinput date_time" style="width:80px;" value=""/>
+				</span>
+			</p>
+		</div>
+		<div>
+			<p> 
+				<label>&nbsp;</label>
+				<span class="field"><button id="queryform_sub" class="submit radius2">查询</button></span>
+				<span class="field"><a href="/admin/crawl/article/new" class="submit radius2 abtn" target="_blank">抓取文章</a></span>
+			</p>
+		</div>
+	</form>
+	<div class="contenttitle2">
+		<h3>数据列表</h3>
+	</div>
+	<div id="query_result">
+		{{template "querylist" .}}
+	</div>
+	<img id="loaders" src="/static/img/loaders/loader7.gif" alt="" class="hide">
+
+</div><!--contentwrapper-->
+
+<br clear="all" />
+{{end}}
+{{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.jqpagination.min.js"></script>
+<script type="text/javascript">
+// 需要传入下面js的变量定义
+var GLOBAL_CONF = {
+	"action_query" : "/admin/crawl/article/query.html",
+	"query_params" : {
+		'id' : '#q_id',
+		'domain' : '#q_domain',
+		'title' : '#q_title',
+		'create_time_min' : '#create_time_min',
+		'create_time_max' : '#create_time_max'
+	}
+};
+</script>
+<script	type="text/javascript" src="/static/js/admin/datalist.js"></script>
+{{end}}

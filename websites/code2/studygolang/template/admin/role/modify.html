@@ -1,0 +1,83 @@
+{{define "content"}}
+<div class="pageheader notab">
+	<h1 class="pagetitle">修改角色</h1>
+</div><!--pageheader-->
+
+<div id="contentwraapper" class="contentwrapper">
+	<div id="tooltip" class="red"></div>
+	<form id="role_form" method="POST" action="/admin/user/role/modify" class="stdform">
+		<input type="hidden" id="roleid" name="roleid" value="{{.role.Roleid}}" />
+		<div class="contenttitle2">
+			<h3>基本信息</h3>
+		</div>
+		<div>
+			<p>
+				<label for="name">角色名称</label>
+				<span class="field">
+					<input id="name" type="text" name="name" class="smallinput required" value="{{.role.Name}}" />
+				</span>
+			</p>
+		</div>
+		<div class="contenttitle2">
+			<h3>权限信息</h3>
+		</div>
+		<div>
+			<table id="snap_table" cellpadding="0" cellspacing="0" border="0" class="stdtable">
+				<thead class="center">
+						<tr>
+								<td width="5%">序号</td>
+								<td width="20%">一级菜单</td>
+								<td width="20%">二级菜单</td>
+								<td width="20%">普通权限</td>
+						</tr>
+				</thead>
+				<tbody class="center">
+					{{range $i, $menu1 := .allmenu1}}
+					<tr>
+						<td class="img_seq">{{add $i 1}}</td>
+						<td>
+							<label for="menu_one_{{$menu1.Aid}}">
+								<input type="checkbox" id="menu_one_{{$menu1.Aid}}" class="js-checkbox" name="authority[]" value="{{$menu1.Aid}}" {{range $aid := $.role_auth}}{{if eq $aid $menu1.Aid}}checked="checked"{{end}}{{end}}/> {{$menu1.Name}}
+							</lable>
+						</td>
+						<td>
+							<select id="menu_two_{{$menu1.Aid}}" class="js-select-mul" name="authority[]" multiple="multiple" size="10" style="min-width:0;width:300px;">
+								{{$curMenu2 := index $.allmenu2 (print $menu1.Aid)}}
+								{{range $oneMenu := $curMenu2}}
+								<option value="{{index $oneMenu 0}}" {{range $aid := $.role_auth}}{{if eq (print $aid) (index $oneMenu 0)}}selected{{end}}{{end}}>{{index $oneMenu 1}}</option>
+								{{end}}
+							</select>
+						</td>
+						<td>
+							<select id="menu_three_{{$menu1.Aid}}" class="js-select-mul" name="authority[]" multiple="multiple" size="10" style="min-width:0;width:300px;">
+							{{$curMenu3 := index $.allmenu3 $menu1.Aid}}
+							{{range $oneMenu := $curMenu3}}
+							<option value="{{.Aid}}" {{range $aid := $.role_auth}}{{if eq $aid $oneMenu.Aid}}selected{{end}}{{end}}>{{.Name}}</option>
+							{{end}}
+							</select>
+						</td>
+					</tr>
+					{{end}}
+				</tbody>
+			</table>
+		</div>
+		<div class="contenttitle2">
+				<h3>操作</h3>
+		</div>
+		<div>
+			<p> 
+				<label>操作</label>
+				<input type="submit" class="submit radius2" value="提交" />
+			</p>
+		</div>
+	</form>
+	<img id="loaders" src="/static/img/loaders/loader7.gif" alt="" class="hide"><blockquote></blockquote>
+</div><!--contentwrapper-->
+{{end}}
+
+{{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script	type="text/javascript" src="/static/js/admin/forms.js"></script>
+<script type="text/javascript" src="/static/js/admin/role/new.js"></script>
+{{end}}

@@ -1,0 +1,44 @@
+{{define "title"}}会员列表 {{end}}
+{{define "seo"}}<meta name="keywords" content="会员列表, Go语言, Golang, Go中文社区,Golang中文社区, Go语言中文网, Go语言社区, Go语言学习园地">
+<meta name="description" content="中国 Golang 社区，Go语言学习园地，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。完全Go语言实现。">{{end}}
+{{define "content"}}
+<div class="row banner">
+</div>
+<div class="row">
+	<ol class="breadcrumb">
+		<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+		<li class="active">会员</li>
+	</ol>
+	<div class="box_white">
+		<div class="users">
+			<div class="info text-right">目前已经有 {{.total}} 位会员加入了 Golang中文社区。</div>
+			<div id="hot_users" class="user-list clearfix">
+				<h4>活跃会员</h4>
+				{{range .actives}}
+				<div class="item text-center col-md-1">
+					<div class="avatar"><a href="/user/{{.Username}}" title="{{.Username}}"><img alt="{{.Username}}" class="uface" src="{{gravatar .Avatar .Email 48}}" width="48px" height="48px"></a></div>
+					<div class="name"><a href="/user/{{.Username}}" data-name="{{.Username}}">{{.Username}}</a></div>
+				</div>
+				{{end}}
+			</div>
+		</div>
+	</div>
+	<br>
+	<div class="box_white">
+		<div class="users">
+			<div id="recent_users" class="user-list clearfix">
+				<h4>最新加入的会员</h4>
+				{{range .news}}
+				<div class="item text-center col-md-1">
+					<div class="avatar"><a href="/user/{{.Username}}" title="{{.Username}}"><img alt="{{.Username}}" class="uface" src="{{gravatar .Avatar .Email 48}}" style="width:48px;height:48px;"></a></div>
+					<div class="name"><a href="/user/{{.Username}}" data-name="{{.Username}}">{{.Username}}</a></div>
+				</div>
+				{{end}}
+			</div>
+		</div>
+	</div>
+</div>
+{{end}}
+{{define "css"}}
+<link href="/static/css/user.css" media="screen" rel="stylesheet" type="text/css">
+{{end}}

@@ -1,0 +1,6 @@
+pkg
+bin
+
+config/env.ini
+
+log
