@@ -8,6 +8,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/bitly/go-simplejson",
+			"repository": "https://github.com/bitly/go-simplejson",
+			"revision": "aabad6e819789e569bd6aabf444c935aa9ba1e44",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/facebookgo/clock",
 			"repository": "https://github.com/facebookgo/clock",
 			"revision": "600d898af40aa09a7a93ecb9265d87b0504b6f03",
@@ -40,22 +46,43 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/garyburd/redigo/internal",
+			"repository": "https://github.com/garyburd/redigo",
+			"revision": "4ed1111375cbeb698249ffe48dd463e9b0a63a7a",
+			"branch": "master",
+			"path": "/internal"
+		},
+		{
+			"importpath": "github.com/garyburd/redigo/redis",
+			"repository": "https://github.com/garyburd/redigo",
+			"revision": "4ed1111375cbeb698249ffe48dd463e9b0a63a7a",
+			"branch": "master",
+			"path": "/redis"
+		},
+		{
 			"importpath": "github.com/go-sql-driver/mysql",
 			"repository": "https://github.com/go-sql-driver/mysql",
-			"revision": "71f003c6e927d2550713e7637affb769977ece78",
+			"revision": "1fca743146605a172a266e1654e01e5cd5669bee",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/go-xorm/core",
 			"repository": "https://github.com/go-xorm/core",
-			"revision": "9ddf4ee12e7a370dacf0092d9896979ae6e3fb16",
+			"revision": "502158401cde814951eae62f064d9e5ff39e13ce",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/go-xorm/xorm",
 			"repository": "https://github.com/go-xorm/xorm",
-			"revision": "e72082c2fd996f6e01915b3f829216ee05b16880",
+			"revision": "4fec1167dee4d169811e9437d6563c76ac1446bf",
 			"branch": "master"
+		},
+		{
+			"importpath": "github.com/golang/groupcache/lru",
+			"repository": "https://github.com/golang/groupcache",
+			"revision": "4eab30f13db9d8b25c752e99d1583628ac2fa422",
+			"branch": "master",
+			"path": "/lru"
 		},
 		{
 			"importpath": "github.com/labstack/echo",
@@ -80,7 +107,7 @@
 		{
 			"importpath": "github.com/lib/pq",
 			"repository": "https://github.com/lib/pq",
-			"revision": "69552e54d2a9d4c6a2438926a774930f7bc398ec",
+			"revision": "e182dc4027e2ded4b19396d638610f2653295f36",
 			"branch": "master"
 		},
 		{
@@ -98,25 +125,37 @@
 		{
 			"importpath": "github.com/mattn/go-sqlite3",
 			"repository": "https://github.com/mattn/go-sqlite3",
-			"revision": "09d5c451710ef887470709463f4f04ff83e1e039",
+			"revision": "45f056ca8f5ef4ee3f68796167a0a0e6a6214813",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/polaris1119/config",
+			"repository": "https://github.com/polaris1119/config",
+			"revision": "172f2d4cb09bb94bb3ff9b0c66878d77bd2468a5",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/polaris1119/goutils",
 			"repository": "https://github.com/polaris1119/goutils",
-			"revision": "1b59e576b7a5d91f87ac6ea3baa20abe5e9499c2",
+			"revision": "a97c18de28bccd8173cce611ef12a1a42b6af6c6",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/polaris1119/logger",
 			"repository": "https://github.com/polaris1119/logger",
-			"revision": "bff96ac4f718e79b762ffeefe280df9378fe377c",
+			"revision": "5e9b731c420284b82b97da10196355e03f50d6d0",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/polaris1119/middleware",
 			"repository": "https://github.com/polaris1119/middleware",
-			"revision": "bd2b455f0f2d5cdc6ae7768aed43e3e6e03ea465",
+			"revision": "697ba01d6818431cbea35337f7ac4e2a01055e22",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/polaris1119/nosql",
+			"repository": "https://github.com/polaris1119/nosql",
+			"revision": "b39c7613a0e2172db11d962b6b1dec32d8f4e611",
 			"branch": "master"
 		},
 		{
@@ -134,14 +173,14 @@
 		{
 			"importpath": "golang.org/x/net/context",
 			"repository": "https://github.com/golang/net",
-			"revision": "6acef71eb69611914f7a30939ea9f6e194c78172",
+			"revision": "d58ca6618b994150e624f6888d871f4709db51a0",
 			"branch": "master",
 			"path": "/context"
 		},
 		{
 			"importpath": "golang.org/x/net/websocket",
 			"repository": "https://github.com/golang/net",
-			"revision": "6acef71eb69611914f7a30939ea9f6e194c78172",
+			"revision": "d58ca6618b994150e624f6888d871f4709db51a0",
 			"branch": "master",
 			"path": "/websocket"
 		}

@@ -8,12 +8,13 @@ package main
 
 import (
 	"http/controller"
+	"log"
 	"math/rand"
 	"net/http"
 	"runtime"
 	"time"
 
-	. "config"
+	. "github.com/polaris1119/config"
 
 	"github.com/facebookgo/grace/gracehttp"
 	"github.com/labstack/echo"
@@ -53,7 +54,7 @@ func main() {
 	// the connection using TLS as required by HTTP2
 	server.TLSConfig = nil
 
-	gracehttp.Serve(server)
+	log.Fatal(gracehttp.Serve(server))
 }
 
 const (

@@ -3,7 +3,7 @@ package db
 import (
 	"fmt"
 
-	. "config"
+	. "github.com/polaris1119/config"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/core"

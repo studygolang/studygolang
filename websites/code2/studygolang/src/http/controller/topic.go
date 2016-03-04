@@ -9,6 +9,11 @@ import (
 
 type TopicController struct{}
 
+// 注册路由
+func (this *GoodsController) RegisterRoute(e *echo.Echo) {
+	e.Get("/topics/:view", this.Topics)
+}
+
 func (*TopicController) Topics(ctx *echo.Context) error {
 	// nodes := service.GenNodes()
 

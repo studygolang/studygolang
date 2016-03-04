@@ -3,8 +3,8 @@
 set -e
 
 if [ ! -f getpkg.sh ]; then
-	echo 'getpkg.sh must be run within its container folder' 1>&2
-	exit 1
+    echo 'getpkg.sh must be run within its container folder' 1>&2
+    exit 1
 fi
 
 OLDGOPATH="$GOPATH"
@@ -19,9 +19,10 @@ if [ -d "vendor/github.com" ]; then
 elif [ -f "vendor/manifest" ]; then
 	gvt restore -connections 8
 else
-	pkgs=("github.com/go-xorm/xorm" "github.com/polaris1119/goutils"
-		"github.com/polaris1119/middleware" "github.com/Unknwon/goconfig"
-		"github.com/robfig/cron" "github.com/facebookgo/grace/gracehttp")
+	pkgs=("github.com/polaris1119/nosql"
+	"github.com/go-xorm/xorm" "github.com/bitly/go-simplejson"
+	"github.com/polaris1119/middleware" "github.com/robfig/cron"
+	"github.com/facebookgo/grace/gracehttp")
 
 	for pkg in "${pkgs[@]}"; do
 		gvt fetch "$pkg"

@@ -2,7 +2,6 @@ package controller
 
 import (
 	"bytes"
-	"config"
 	"html/template"
 	"net/http"
 	"strings"
@@ -10,6 +9,7 @@ import (
 	"util"
 
 	"github.com/labstack/echo"
+	"github.com/polaris1119/config"
 	"github.com/polaris1119/logger"
 )
 
