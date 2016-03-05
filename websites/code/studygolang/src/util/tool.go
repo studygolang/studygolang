@@ -13,11 +13,25 @@ import (
 	"strings"
 )
 
-// 必须是int类型，否则panic
-func MustInt(s string) int {
+// 必须是int类型
+func MustInt(s string, defaultVal ...int) int {
 	i, err := strconv.Atoi(s)
 	if err != nil {
-		panic(err)
+		if len(defaultVal) > 0 {
+			return defaultVal[0]
+		}
+		return 0
+	}
+	return i
+}
+
+func MustInt64(s string, defaultVal ...int64) int64 {
+	i, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		if len(defaultVal) > 0 {
+			return defaultVal[0]
+		}
+		return 0
 	}
 	return i
 }

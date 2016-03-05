@@ -127,6 +127,18 @@ func UpdateUserStatus(uid, status int) {
 	return
 }
 
+// ActivateUser 激活用户
+func ActivateUser(email string) error {
+	setClause := "status=" + strconv.Itoa(model.StatusAudit)
+	err := model.NewUser().Set(setClause).Where("email=?", email).Update()
+	if err != nil {
+		logger.Errorf("激活用户 【%s】 失败：%s", email, err)
+		return err
+	}
+
+	return nil
+}
+
 // 邮件订阅或取消订阅
 func EmailSubscribe(uid, unsubscribe int) {
 	err := model.NewUser().Set("unsubscribe=?", unsubscribe).Where("uid=?", uid).Update()
@@ -377,6 +389,25 @@ func Login(username, passwd string) (*model.UserLogin, error) {
 		logger.Infof("用户名 %s 不存在", username)
 		return nil, ErrUsername
 	}
+
+	// 检验用户是否审核通过，暂时只有审核通过的才能登录
+	userInfo := model.NewUser()
+	err = userInfo.Where("uid=?", userLogin.Uid).Find()
+	if err != nil {
+		logger.Infof("用户名 %s 不存在", username)
+		return nil, ErrUsername
+	}
+	if userInfo.Status != model.StatusAudit {
+		logger.Infof("用户 %s 状态不是审核通过：%d", username, userInfo.Status)
+		var errMap = map[int]error{
+			model.StatusNoAudit: errors.New("您的账号未激活，请到注册邮件中进行激活操作！"),
+			model.StatusRefuse:  errors.New("您的账号审核拒绝"),
+			model.StatusFreeze:  errors.New("您的账号因为非法发布信息已被冻结，请联系管理员！"),
+			model.StatusOutage:  errors.New("您的账号因为非法发布信息已被停号，请联系管理员！"),
+		}
+		return nil, errMap[userInfo.Status]
+	}
+
 	passcode := userLogin.GetPasscode()
 	md5Passwd := util.Md5(passwd + passcode)
 	logger.Debugf("passwd: %s, passcode: %s, md5passwd: %s, dbpasswd: %s", passwd, passcode, md5Passwd, userLogin.Passwd)
