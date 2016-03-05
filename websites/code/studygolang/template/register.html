@@ -12,9 +12,17 @@
 			<li class="active">注册新会员</li>
 		</ol>
 		<div class="box_white">
-			<form class="form-horizontal validate-form" role="form" action="/account/register.json" method="POST" data-redirect="/">
+			{{if .success}}
+			{{.success}}
+			{{else}}
+			<form class="form-horizontal validate-form" role="form" action="/account/register" method="POST" data-redirect="/">
 				<fieldset>
 					<legend>注册新用户</legend>
+					{{if .error}}
+					<div class="alert alert-block alert-error" id="alert_info">
+						{{.error}}
+					</div>
+					{{end}}
 					<div class="form-group form-group-sm">
 						<label class="col-sm-3 control-label" for="username"><abbr>*</abbr>用户名</label>
 						<div class="col-sm-4">
@@ -50,10 +58,11 @@
 				</fieldset>
 				<div class="form-group form-group-sm">
 					<div class="col-sm-offset-4 col-sm-6">
-						<button type="submit" id="register-submit" class="btn btn-default btn-sm">注册</button>
+						<button type="submit" id="register-submit" class="btn btn-default btn-sm submit">注册</button>
 					</div>
 				</div>
 			</form>
+			{{end}}
 		</div>
 	</div>
 	<div class="col-lg-3 col-md-4 col-sm-5">
@@ -79,4 +88,18 @@
 <script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
 <script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
 <script type="text/javascript" src="/static/js/account.js"></script>
+<script type="text/javascript">
+$(function(){
+	$('#resend_email').on('click', function(){
+		var uuid = $(this).data('uuid');
+		$.post('/account/send_activate_email.json', {uuid:uuid}, function(result) {
+			if (result.ok) {
+				comTip(result.msg);
+			} else {
+				comTip(result.error);
+			}
+		});
+	});
+});
+</script>
 {{end}}

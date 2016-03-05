@@ -27,14 +27,14 @@
 		});
 		
 		// 异步提交
-		$('#register-submit').on('click', function(evt){
-			evt.preventDefault();
-			var validator = $('.validate-form').validate();
-			if (!validator.form()) {
-				return false;
-			}
+		// $('#register-submit').on('click', function(evt){
+		// 	evt.preventDefault();
+		// 	var validator = $('.validate-form').validate();
+		// 	if (!validator.form()) {
+		// 		return false;
+		// 	}
 
-			new SG.Register().publish(this);
-		});
+		// 	new SG.Register().publish(this);
+		// });
 	});
 }).call(this)

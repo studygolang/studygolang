@@ -9,6 +9,7 @@ package util
 import (
 	"crypto/md5"
 	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"time"
@@ -42,6 +43,18 @@ func Md5File(reader io.Reader) string {
 	}
 
 	return fmt.Sprintf("%x", hashMd5.Sum(nil))
+}
+
+func Base64Encode(data string) string {
+	return base64.URLEncoding.EncodeToString([]byte(data))
+}
+
+func Base64Decode(data string) string {
+	b, err := base64.URLEncoding.DecodeString(data)
+	if err != nil {
+		return ""
+	}
+	return string(b)
 }
 
 // 产生唯一的id

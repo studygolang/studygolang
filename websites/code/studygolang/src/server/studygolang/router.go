@@ -49,6 +49,8 @@ func initRouter() *mux.Router {
 
 	// 注册
 	router.HandleFunc("/account/register{json:(|.json)}", RegisterHandler)
+	router.HandleFunc("/account/activate", ActivateHandler)
+	router.HandleFunc("/account/send_activate_email.json", SendActivateEmailHandler)
 	// 登录
 	router.HandleFunc("/account/login{json:(|.json)}", LoginHandler)
 	router.HandleFunc("/account/logout", LogoutHandler)

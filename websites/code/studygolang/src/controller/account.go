@@ -10,16 +10,19 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"net/url"
 	"strings"
+	"time"
 
 	"config"
 	"filter"
-	"github.com/dchest/captcha"
-	"github.com/gorilla/sessions"
-	"github.com/studygolang/mux"
 	"logger"
 	"service"
 	"util"
+
+	"github.com/dchest/captcha"
+	"github.com/gorilla/sessions"
+	"github.com/studygolang/mux"
 )
 
 // 用户注册
@@ -30,18 +33,18 @@ func RegisterHandler(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	vars := mux.Vars(req)
 	username := req.PostFormValue("username")
+	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/register.html")
 	// 请求注册页面
-	if username == "" || req.Method != "POST" || vars["json"] == "" {
+	if username == "" || req.Method != "POST" {
 		filter.SetData(req, map[string]interface{}{"captchaId": captcha.NewLen(4)})
-		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/register.html")
 		return
 	}
 
 	// 校验验证码
 	if !captcha.VerifyString(req.PostFormValue("captchaid"), req.PostFormValue("captchaSolution")) {
-		fmt.Fprint(rw, `{"ok": 0, "error":"验证码错误"}`)
+		// fmt.Fprint(rw, `{"ok": 0, "error":"验证码错误"}`)
+		filter.SetData(req, map[string]interface{}{"error": "验证码错误", "captchaId": captcha.NewLen(4)})
 		return
 	}
 
@@ -52,22 +55,152 @@ func RegisterHandler(rw http.ResponseWriter, req *http.Request) {
 		if errMsg == "" {
 			errMsg = err.Error()
 		}
-		fmt.Fprint(rw, `{"ok": 0, "error":"`, errMsg, `"}`)
+		// fmt.Fprint(rw, `{"ok": 0, "error":"`, errMsg, `"}`)
+		filter.SetData(req, map[string]interface{}{"error": errMsg})
 		return
 	}
 
-	// 注册成功，自动为其登录
-	setCookie(rw, req, req.PostFormValue("username"))
-	// 发送欢迎邮件
-	go sendWelcomeMail([]string{req.PostFormValue("email")})
-	fmt.Fprint(rw, `{"ok": 1, "msg":"注册成功"}`)
+	var (
+		uuid  string
+		email = req.PostFormValue("email")
+	)
+	for {
+		uuid = util.GenUUID()
+		if _, ok := regActivateCodeMap[uuid]; !ok {
+			regActivateCodeMap[uuid] = email
+			break
+		}
+		logger.Errorln("GenUUID 冲突....")
+	}
+	var emailUrl string
+	if strings.HasSuffix(email, "@gmail.com") {
+		emailUrl = "http://mail.google.com"
+	} else {
+		pos := strings.LastIndex(email, "@")
+		emailUrl = "http://mail." + email[pos+1:]
+	}
+	data := map[string]interface{}{
+		"success": template.HTML(`
+			<div style="padding:30px 30px 50px 30px;">
+ 				<div style="color:#339502;font-size:22px;line-height: 2.5;">恭喜您注册成功！</div>
+ 				我们已经发送一封邮件到 xuxinhua@zhimadj.com，请您根据提示信息完成邮箱验证.<br><br>
+ 				<a href="` + emailUrl + `" target="_blank"><button type="button" class="btn btn-success">立即验证</button></a>&nbsp;&nbsp;<button type="button" class="btn btn-link" data-uuid="` + uuid + `" id="resend_email">未收到？再发一次</button>
+			</div>`),
+	}
+	// 需要检验邮箱的正确性
+	go sendActivateMail(email, uuid)
+
+	filter.SetData(req, data)
+
+	// fmt.Fprint(rw, `{"ok": 1, "msg":"注册成功"}`)
+}
+
+// 发送激活邮件
+// uri: /account/send_activate_email.json
+func SendActivateEmailHandler(rw http.ResponseWriter, req *http.Request) {
+	uuid := req.FormValue("uuid")
+	email, ok := regActivateCodeMap[uuid]
+	if !ok {
+		fmt.Fprint(rw, `{"ok":0,"error":"非法请求"}`)
+		return
+	}
+
+	go sendActivateMail(email, uuid)
+
+	fmt.Fprint(rw, `{"ok": 1, "msg":"已发送"}`)
+}
+
+// ActivateHandler 激活用户
+// // uri: /account/activate
+func ActivateHandler(rw http.ResponseWriter, req *http.Request) {
+	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/user/activate.html")
+	data := map[string]interface{}{}
+
+	param := util.Base64Decode(req.FormValue("param"))
+	values, err := url.ParseQuery(param)
+	if err != nil {
+		data["error"] = err.Error()
+		filter.SetData(req, data)
+		return
+	}
+
+	uuid := values.Get("uuid")
+	timestamp := util.MustInt64(values.Get("timestamp"))
+	sign := values.Get("sign")
+	email, ok := regActivateCodeMap[uuid]
+	if !ok {
+		data["error"] = "非法请求！"
+		filter.SetData(req, data)
+		return
+	}
+
+	if timestamp < time.Now().Add(-4*time.Hour).Unix() {
+		delete(regActivateCodeMap, uuid)
+		// TODO:可以再次发激活邮件？
+		data["error"] = "链接已过期"
+		filter.SetData(req, data)
+		return
+	}
+
+	realSign := genSign(email, uuid, timestamp)
+	if sign != realSign {
+		data["error"] = "签名非法！"
+		filter.SetData(req, data)
+		return
+	}
+
+	user := service.FindUserByEmail(email)
+	if user.Uid == 0 {
+		data["error"] = "邮箱非法"
+		filter.SetData(req, data)
+		return
+	}
+
+	if err = service.ActivateUser(email); err != nil {
+		data["error"] = err.Error()
+		filter.SetData(req, data)
+		return
+	}
+
+	delete(regActivateCodeMap, uuid)
+
+	// 自动登录
+	setCookie(rw, req, user.Username)
+
+	filter.SetData(req, data)
+}
+
+const signSalt = "studygolang_#osvq1m!6x82@i1*"
+
+func genSign(email, uuid string, ts int64) string {
+	origStr := fmt.Sprintf("uuid=%semail=%stimestamp=%d%s", uuid, email, ts, signSalt)
+	return util.Md5(origStr)
+}
+
+// 保存uuid和email的对应关系（TODO:重启如何处理，有效期问题）
+var regActivateCodeMap = map[string]string{}
+
+func sendActivateMail(email, uuid string) {
+	timestamp := time.Now().Unix()
+	sign := genSign(email, uuid, timestamp)
+
+	param := util.Base64Encode(fmt.Sprintf("uuid=%s&timestamp=%d&sign=%s", uuid, timestamp, sign))
+
+	activeUrl := fmt.Sprintf("http://%s/account/activate?param=%s", config.Config["domain"], param)
+
+	content := `
+尊敬的Go语言中文网用户：<br/><br/>
+感谢您选择了Go语言中文网，请点击下面的地址激活你在Go语言中文网的帐号（有效期4小时）：<br/><br/>
+<a href="` + activeUrl + `">` + activeUrl + `</a><br/><br/>
+<div style="text-align:right;">&copy;2012-2016 studygolang.com Go语言中文网 | Golang中文社区 | Go语言学习园地</div>`
+	service.SendMail("Go语言中文网帐号激活邮件", content, []string{email})
 }
 
 func sendWelcomeMail(email []string) {
 	content := `Welcome to Study Golang.<br><br>
-欢迎您，成功注册成为 Go语言中文网 | Go语言学习园地 会员<br><br>
-Golang中文社区是一个Go语言技术社区，完全用Go语言开发。我们为gopher们提供一个好的学习交流场所。加入到社区中来，参与分享，学习，不断提高吧。前往 <a href="http://studygolang.com">Golang中文社区 | Go语言学习园地</a><br>
-<div style="text-align:right;">&copy;2012-2015 studygolang.com Go语言中文网 | Golang中文社区 | Go语言学习园地</div>`
+欢迎您，您正在注册成为 Go语言中文网 | Go语言学习园地 会员<br><br>
+Go语言中文网是一个Go语言技术社区，完全用Go语言开发。我们为gopher们提供一个好的学习交流场所。加入到社区中来，参与分享，学习，不断提高吧。前往 <a href="http://studygolang.com">Golang中文社区 | Go语言学习园地</a><br>
+<div style="text-align:right;">&copy;2012-2016 studygolang.com Go语言中文网 | Golang中文社区 | Go语言学习园地</div>`
 	service.SendMail("Golang中文社区 | Go语言学习园地 注册成功通知", content, email)
 }
 
@@ -282,7 +415,7 @@ func ResetPasswdHandler(rw http.ResponseWriter, req *http.Request) {
 // 发重置密码邮件
 func sendResetpwdMail(email, uuid string) {
 	content := `您好，` + email + `,<br/><br/>
-&nbsp;&nbsp;&nbsp;&nbsp;我们的系统收到一个请求，说您希望通过电子邮件重新设置您在 <a href="http://` + config.Config["domain"] + `">Golang中文社区</a> 的密码。您可以点击下面的链接重设密码：<br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;我们的系统收到一个请求，说您希望通过电子邮件重新设置您在 <a href="http://` + config.Config["domain"] + `">Go语言中文网</a> 的密码。您可以点击下面的链接重设密码：<br/><br/>
 
 &nbsp;&nbsp;&nbsp;&nbsp;http://` + config.Config["domain"] + `/account/resetpwd?code=` + uuid + ` <br/><br/>
 
