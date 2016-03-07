@@ -16,13 +16,13 @@ import (
 
 type UserLogic struct{}
 
-var DefaultUserLogic = UserLogic{}
+var DefaultUser = UserLogic{}
 
 func (self UserLogic) FindUserInfos(ctx context.Context, uids []int) map[int]*model.User {
 	objLog := GetLogger(ctx)
 
 	var users []*model.User
-	if DB.Where("uid in (?)", uids).Find(&users).RecordNotFound() {
+	if err := MasterDB.In("uid", uids).Find(&users); err != nil {
 		objLog.Infoln("user logic FindAll not record found:")
 		return nil
 	}

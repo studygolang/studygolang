@@ -17,33 +17,41 @@ import (
 
 type TopicLogic struct{}
 
-func (*TopicLogic) FindAll(ctx context.Context) []map[string]interface{} {
-	// objLog := GetLogger(ctx)
+var DefaultTopic = TopicLogic{}
+
+func (TopicLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy string, querystring string, args ...interface{}) []map[string]interface{} {
+	objLog := GetLogger(ctx)
 
 	var (
-		count    = 10
-		topics   = make([]*model.Topic, count)
-		topicExs = make([]*model.TopicEx, count)
+		count      = paginator.PerPage()
+		topicInfos = make([]*model.TopicInfo, 0)
 	)
-	if MasterDB.Limit(count).Find(&topics).Related(&topicExs, "Tid").RecordNotFound() {
+
+	session := MasterDB.Join("INNER", "topics_ex", "topics.tid=topics_ex.tid")
+	if querystring != "" {
+		session.Where(querystring, args...)
+	}
+	err := session.OrderBy(orderBy).Limit(count, paginator.Offset()).Find(&topicInfos)
+	if err != nil {
+		objLog.Errorln("TopicLogic FindAll error:", err)
 		return nil
 	}
 
 	uids := make([]int, 0, count)
-	nids := make([]int, count)
+	nids := make([]int, 0, count)
 
-	for i, topic := range topics {
+	for _, topic := range topicInfos {
 		uids = append(uids, topic.Uid)
 		if topic.Lastreplyuid != 0 {
 			uids = append(uids, topic.Lastreplyuid)
 		}
-		nids[i] = topic.Nid
+		nids = append(nids, topic.Nid)
 	}
-	usersMap := DefaultUserLogic.FindUserInfos(ctx, uids)
+	usersMap := DefaultUser.FindUserInfos(ctx, uids)
 
-	data := make([]map[string]interface{}, 10)
+	data := make([]map[string]interface{}, len(topicInfos))
 
-	for i, topic := range topics {
+	for i, topic := range topicInfos {
 		dest := make(map[string]interface{})
 
 		// 有人回复
@@ -53,8 +61,8 @@ func (*TopicLogic) FindAll(ctx context.Context) []map[string]interface{} {
 			}
 		}
 
-		util.Struct2Map(dest, topic)
-		util.Struct2Map(dest, topicExs[i])
+		util.Struct2Map(dest, topic.Topic)
+		util.Struct2Map(dest, topic.TopicEx)
 
 		dest["user"] = usersMap[topic.Uid]
 		// tmpMap["node"] = nodes[tmpMap["nid"].(int)]
@@ -63,4 +71,24 @@ func (*TopicLogic) FindAll(ctx context.Context) []map[string]interface{} {
 	}
 
 	return data
+}
+
+func (TopicLogic) Count(ctx context.Context, querystring string, args ...interface{}) int64 {
+	objLog := GetLogger(ctx)
+
+	var (
+		total int64
+		err   error
+	)
+	if querystring == "" {
+		total, err = MasterDB.Count(new(model.Topic))
+	} else {
+		total, err = MasterDB.Where(querystring, args...).Count(new(model.Topic))
+	}
+
+	if err != nil {
+		objLog.Errorln("TopicLogic Count error:", err)
+	}
+
+	return total
 }

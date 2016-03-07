@@ -32,11 +32,14 @@ func init() {
 func main() {
 	logger.Init(ROOT+"/log", ConfigFile.MustValue("global", "log_level", "DEBUG"))
 
+	go ServeBackGround()
+
 	router := echo.New()
 
 	router.Use(thirdmw.EchoLogger())
 	router.Use(mw.Recover())
-	router.Use(mw.Gzip())
+	// router.Use(mw.Gzip())
+	router.Use(thirdmw.EchoCache())
 
 	router.Static("/static/", ROOT+"/static")
 

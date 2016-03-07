@@ -223,11 +223,11 @@ func UnderscoreName(name string) string {
 	for i, r := range name {
 		if unicode.IsUpper(r) {
 			if i != 0 {
-				buffer.AppendRune('_')
+				buffer.Append('_')
 			}
-			buffer.AppendRune(unicode.ToLower(r))
+			buffer.Append(unicode.ToLower(r))
 		} else {
-			buffer.AppendRune(r)
+			buffer.Append(r)
 		}
 	}
 

@@ -6,6 +6,7 @@ import (
 )
 
 func TestFindAll(t *testing.T) {
-	topicsMap := new(logic.TopicLogic).FindAll(nil)
+	paginator := logic.NewPaginator(2)
+	topicsMap := logic.DefaultTopic.FindAll(nil, paginator, "", "")
 	t.Fatal(topicsMap)
 }

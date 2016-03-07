@@ -20,7 +20,7 @@ type UserLogin struct {
 	Username  string `json:"username"`
 	Passwd    string `json:"passwd"`
 	Email     string `json:"email"`
-	LoginTime string `json:"login_time"`
+	LoginTime string `json:"login_time" xorm:"<-"`
 	passcode  string `xorm:"-"` // 加密随机串
 }
 
@@ -68,7 +68,7 @@ type User struct {
 	Introduce   string    `json:"introduce"`
 	Unsubscribe int       `json:"unsubscribe"`
 	Status      int       `json:"status"`
-	Ctime       time.Time `json:"ctime"`
+	Ctime       time.Time `json:"ctime" xorm:"created"`
 	Mtime       time.Time `json:"mtime" xorm:"<-"`
 
 	// 非用户表中的信息，为了方便放在这里

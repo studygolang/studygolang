@@ -1,8 +1,10 @@
 package controller
 
 import (
-	"logic"
-	"strconv"
+	"html/template"
+	. "logic"
+
+	"github.com/polaris1119/goutils"
 
 	"github.com/labstack/echo"
 )
@@ -10,48 +12,39 @@ import (
 type TopicController struct{}
 
 // 注册路由
-func (this *GoodsController) RegisterRoute(e *echo.Echo) {
-	e.Get("/topics/:view", this.Topics)
+func (this *TopicController) RegisterRoute(e *echo.Echo) {
+	e.Get("/topics", this.Topics)
+	e.Get("/topics/no_reply", this.TopicsNoReply)
+	e.Get("/topics/last", this.TopicsLast)
 }
 
-func (*TopicController) Topics(ctx *echo.Context) error {
-	// nodes := service.GenNodes()
+func (self TopicController) Topics(ctx *echo.Context) error {
+	return self.topicList(ctx, "", "topics.mtime DESC", "")
+}
 
-	page, _ := strconv.Atoi(ctx.Query("p"))
-	if page == 0 {
-		page = 1
-	}
+func (self TopicController) TopicsNoReply(ctx *echo.Context) error {
+	return self.topicList(ctx, "no_reply", "topics.mtime DESC", "lastreplyuid=?", 0)
+}
 
-	// order := ""
-	// where := ""
-	// view := ""
-	// switch vars["view"] {
-	// case "/no_reply":
-	// 	view = "no_reply"
-	// 	where = "lastreplyuid=0"
-	// case "/last":
-	// 	view = "last"
-	// 	order = "ctime DESC"
-	// }
+func (self TopicController) TopicsLast(ctx *echo.Context) error {
+	return self.topicList(ctx, "last", "ctime DESC", "")
+}
 
-	// topics, total := service.FindTopics(page, 0, where, order)
-	// pageHtml := service.GetPageHtml(page, total, req.URL.Path)
+func (TopicController) topicList(ctx *echo.Context, view, orderBy, querystring string, args ...interface{}) error {
+	curPage := goutils.MustInt(ctx.Query("p"), 1)
+	paginator := NewPaginator(curPage)
 
-	topicLogic := &logic.TopicLogic{}
-	topics := topicLogic.FindAll(ctx)
+	topics := DefaultTopic.FindAll(ctx, paginator, orderBy, querystring, args...)
+	total := DefaultTopic.Count(ctx, querystring, args...)
+	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL.Path)
 
 	data := map[string]interface{}{
 		"topics":       topics,
 		"activeTopics": "active",
+		"nodes":        GenNodes(),
+		"view":         view,
+		"page":         template.HTML(pageHtml),
 	}
 
-	ctx.Set(TplFileKey, "topics/list.html")
-	ctx.Set(DataKey, data)
-
-	return render(ctx)
-	// pageHtml := service.GetPageHtml(page, total, req.URL.Path)
-	// req.Form.Set(filter.CONTENT_TPL_KEY, "/template/topics/list.html")
-	// 设置模板数据
-	// filter.SetData(req, map[string]interface{}{"activeTopics": "active", "topics": topics, "page": template.HTML(pageHtml), "nodes": nodes, "view": view})
-	// return ctx.Render(http.StatusOK, "layout.html", data)
+	return render(ctx, "topics/list.html", data)
 }

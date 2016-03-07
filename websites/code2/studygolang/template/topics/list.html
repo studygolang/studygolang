@@ -1,6 +1,6 @@
 {{define "title"}}社区主题 {{end}}
 {{define "seo"}}<meta name="keywords" content="Golang,Go社区,Golang中文社区,Go语言学习,Go语言,学习Go语言,Golang 中国,Golang中国,Golang China, Go语言论坛, Go中文社区, Go语言社区, Go语言中文网, Go语言学习园地">
-<meta name="description" content="Go中文社区，Golang中国，Go语言学习园地，提供一个Go爱好者交流的中文平台">{{end}}
+<meta name="description" content="Go语言中文网，Go中文社区，Golang中国，Go语言学习园地，提供一个Go爱好者交流的中文平台">{{end}}
 {{define "content"}}
 <div class="row banner">
 </div>
@@ -11,6 +11,13 @@
 			<li><a href="/topics">社区</a></li>
 			<li class="active">主题</li>
 		</ol>
+		<ul class="nav nav-tabs" role="tablist">
+			<li role="presentation"{{if eq .view ""}} class="active"{{end}}><a href="/topics">最近回复</a></li>
+			<li role="presentation"{{if eq .view "last"}} class="active"{{end}}><a href="/topics/last">最近发布</a></li>
+			<li role="presentation"{{if eq .view "no_reply"}} class="active"{{end}}><a href="/topics/no_reply">尚无回复</a></li>
+			<!--非正常导航-->
+			<li role="presentation" style="float:right;"><a href="/pkgdoc">查看标准库中文版</a></li>
+		</ul>
 		<div class="box_white">
 			<div class="clearfix"></div>
 			<dl class="topics dl-horizontal">
@@ -53,8 +60,8 @@
 			{{end}}
 			</dl>
 			{{if .page}}
-      <nav class="text-center"><ul class="pagination pagination-sm">{{.page}}</ul></nav>
-      {{end}}
+			<nav class="text-center"><ul class="pagination pagination-sm">{{.page}}</ul></nav>
+			{{end}}
 		</div>
 		<div class="box_white nodes">
 			<div class="title text-center"><h3>讨论节点分类导航</h3></div>

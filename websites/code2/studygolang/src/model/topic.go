@@ -27,7 +27,7 @@ type Topic struct {
 	Lastreplytime time.Time `json:"lastreplytime"`
 	EditorUid     int       `json:"editor_uid"`
 	Top           bool      `json:"istop"`
-	Ctime         time.Time `json:"ctime"`
+	Ctime         time.Time `json:"ctime" xorm:"created"`
 	Mtime         time.Time `json:"mtime" xorm:"<-"`
 }
 
@@ -37,7 +37,7 @@ func (*Topic) TableName() string {
 
 // 社区主题扩展（计数）信息
 type TopicEx struct {
-	Tid   int       `xorm:"pk autoincr" json:"tid"`
+	Tid   int       `json:"-" xorm:"pk"`
 	View  int       `json:"view"`
 	Reply int       `json:"reply"`
 	Like  int       `json:"like"`
@@ -46,6 +46,15 @@ type TopicEx struct {
 
 func (*TopicEx) TableName() string {
 	return "topics_ex"
+}
+
+type TopicInfo struct {
+	Topic   `xorm:"extends"`
+	TopicEx `xorm:"extends"`
+}
+
+func (*TopicInfo) TableName() string {
+	return "topics"
 }
 
 // 社区主题节点信息
