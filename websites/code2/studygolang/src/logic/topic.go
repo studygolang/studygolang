@@ -8,10 +8,11 @@ package logic
 
 import (
 	"model"
-	"util"
 
 	. "db"
 
+	"github.com/fatih/set"
+	"github.com/fatih/structs"
 	"golang.org/x/net/context"
 )
 
@@ -37,35 +38,37 @@ func (TopicLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy str
 		return nil
 	}
 
-	uids := make([]int, 0, count)
-	nids := make([]int, 0, count)
-
-	for _, topic := range topicInfos {
-		uids = append(uids, topic.Uid)
-		if topic.Lastreplyuid != 0 {
-			uids = append(uids, topic.Lastreplyuid)
+	uidSet := set.New()
+	nidSet := set.New()
+	for _, topicInfo := range topicInfos {
+		uidSet.Add(topicInfo.Uid)
+		if topicInfo.Lastreplyuid != 0 {
+			uidSet.Add(topicInfo.Lastreplyuid)
 		}
-		nids = append(nids, topic.Nid)
+		nidSet.Add(topicInfo.Nid)
 	}
-	usersMap := DefaultUser.FindUserInfos(ctx, uids)
+
+	usersMap := DefaultUser.FindUserInfos(ctx, set.IntSlice(uidSet))
+	// 获取节点信息
+	nodes := GetNodesName(set.IntSlice(nidSet))
 
 	data := make([]map[string]interface{}, len(topicInfos))
 
-	for i, topic := range topicInfos {
+	for i, topicInfo := range topicInfos {
 		dest := make(map[string]interface{})
 
 		// 有人回复
-		if topic.Lastreplyuid != 0 {
-			if user, ok := usersMap[topic.Lastreplyuid]; ok {
+		if topicInfo.Lastreplyuid != 0 {
+			if user, ok := usersMap[topicInfo.Lastreplyuid]; ok {
 				dest["lastreplyusername"] = user.Username
 			}
 		}
 
-		util.Struct2Map(dest, topic.Topic)
-		util.Struct2Map(dest, topic.TopicEx)
+		structs.FillMap(topicInfo.Topic, dest)
+		structs.FillMap(topicInfo.TopicEx, dest)
 
-		dest["user"] = usersMap[topic.Uid]
-		// tmpMap["node"] = nodes[tmpMap["nid"].(int)]
+		dest["user"] = usersMap[topicInfo.Uid]
+		dest["node"] = nodes[topicInfo.Nid]
 
 		data[i] = dest
 	}

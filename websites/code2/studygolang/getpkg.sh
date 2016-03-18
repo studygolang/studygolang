@@ -19,10 +19,10 @@ if [ -d "vendor/github.com" ]; then
 elif [ -f "vendor/manifest" ]; then
 	gvt restore -connections 8
 else
-	pkgs=("github.com/polaris1119/nosql"
-	"github.com/go-xorm/xorm" "github.com/bitly/go-simplejson"
+	pkgs=("github.com/polaris1119/nosql" "github.com/fatih/structs"
+	"github.com/go-xorm/xorm" "github.com/fatih/set" "github.com/dchest/captcha"
 	"github.com/polaris1119/middleware" "github.com/robfig/cron"
-	"github.com/facebookgo/grace/gracehttp")
+	"github.com/gorilla/schema" "github.com/facebookgo/grace/gracehttp")
 
 	for pkg in "${pkgs[@]}"; do
 		gvt fetch "$pkg"

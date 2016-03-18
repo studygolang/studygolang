@@ -7,5 +7,7 @@ import (
 
 func TestFindUserInfos(t *testing.T) {
 	usersMap := DefaultUser.FindUserInfos(nil, []int{1, 2, 3})
-	t.Fatal(usersMap)
+	if len(usersMap) == 0 {
+		t.Fatal(usersMap)
+	}
 }

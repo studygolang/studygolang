@@ -9,10 +9,16 @@ package logic
 import (
 	"os"
 
-	"golang.org/x/net/context"
-
+	"github.com/gorilla/schema"
 	"github.com/polaris1119/logger"
+	"golang.org/x/net/context"
 )
+
+var schemaDecoder = schema.NewDecoder()
+
+func init() {
+	schemaDecoder.SetAliasTag("json")
+}
 
 func GetLogger(ctx context.Context) *logger.Logger {
 	if ctx == nil {

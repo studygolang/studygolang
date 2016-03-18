@@ -17,6 +17,7 @@ import (
 	. "github.com/polaris1119/config"
 
 	"github.com/facebookgo/grace/gracehttp"
+	"github.com/fatih/structs"
 	"github.com/labstack/echo"
 	mw "github.com/labstack/echo/middleware"
 	"github.com/polaris1119/logger"
@@ -27,6 +28,8 @@ func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	// 设置随机数种子
 	rand.Seed(time.Now().Unix())
+
+	structs.DefaultTagName = "json"
 }
 
 func main() {

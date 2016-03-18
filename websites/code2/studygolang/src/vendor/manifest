@@ -14,6 +14,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/dchest/captcha",
+			"repository": "https://github.com/dchest/captcha",
+			"revision": "9e952142169c3cd6268c6482a3a61c121536aca2",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/facebookgo/clock",
 			"repository": "https://github.com/facebookgo/clock",
 			"revision": "600d898af40aa09a7a93ecb9265d87b0504b6f03",
@@ -43,6 +49,18 @@
 			"importpath": "github.com/facebookgo/stats",
 			"repository": "https://github.com/facebookgo/stats",
 			"revision": "1b76add642e42c6ffba7211ad7b3939ce654526e",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/fatih/set",
+			"repository": "https://github.com/fatih/set",
+			"revision": "27c40922c40b43fe04554d8223a402af3ea333f3",
+			"branch": "v0.1.1"
+		},
+		{
+			"importpath": "github.com/fatih/structs",
+			"repository": "https://github.com/fatih/structs",
+			"revision": "12ff68a6f48a1c8bd118316171545683337655df",
 			"branch": "master"
 		},
 		{
@@ -83,6 +101,12 @@
 			"revision": "4eab30f13db9d8b25c752e99d1583628ac2fa422",
 			"branch": "master",
 			"path": "/lru"
+		},
+		{
+			"importpath": "github.com/gorilla/schema",
+			"repository": "https://github.com/gorilla/schema",
+			"revision": "ddf016c1034e9cfd3eb5b276f626c8f04d765f6f",
+			"branch": "master"
 		},
 		{
 			"importpath": "github.com/labstack/echo",
@@ -137,7 +161,7 @@
 		{
 			"importpath": "github.com/polaris1119/goutils",
 			"repository": "https://github.com/polaris1119/goutils",
-			"revision": "a97c18de28bccd8173cce611ef12a1a42b6af6c6",
+			"revision": "0674daf47a02e7ffefab333337e5f2ec4d8f3be6",
 			"branch": "master"
 		},
 		{
@@ -155,7 +179,7 @@
 		{
 			"importpath": "github.com/polaris1119/nosql",
 			"repository": "https://github.com/polaris1119/nosql",
-			"revision": "b39c7613a0e2172db11d962b6b1dec32d8f4e611",
+			"revision": "c02042c99cd9e093f5559f9927ab46f4aad66712",
 			"branch": "master"
 		},
 		{
