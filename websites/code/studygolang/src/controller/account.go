@@ -83,7 +83,7 @@ func RegisterHandler(rw http.ResponseWriter, req *http.Request) {
 		"success": template.HTML(`
 			<div style="padding:30px 30px 50px 30px;">
  				<div style="color:#339502;font-size:22px;line-height: 2.5;">恭喜您注册成功！</div>
- 				我们已经发送一封邮件到 xuxinhua@zhimadj.com，请您根据提示信息完成邮箱验证.<br><br>
+ 				我们已经发送一封邮件到 ` + email + `，请您根据提示信息完成邮箱验证.<br><br>
  				<a href="` + emailUrl + `" target="_blank"><button type="button" class="btn btn-success">立即验证</button></a>&nbsp;&nbsp;<button type="button" class="btn btn-link" data-uuid="` + uuid + `" id="resend_email">未收到？再发一次</button>
 			</div>`),
 	}
