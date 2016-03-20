@@ -75,16 +75,16 @@
 				<ul class="nav navbar-nav navbar-right" id="userbar">
 					{{if .me}}
 					<li>
-						<a href="/message/system" id="user_message_count"><span class="badge{{if .me.msgnum}} badge-warning{{end}}">{{.me.msgnum}}</span></a>
+						<a href="/message/system" id="user_message_count"><span class="badge{{if .me.MsgNum}} badge-warning{{end}}">{{.me.MsgNum}}</span></a>
 					</li>
 					<li class="dropdown" id="user_menu">
-						<a href="#user_menu" class="dropdown-toggle" data-toggle="dropdown">{{.me.username}} <b class="caret"></b></a>
+						<a href="#user_menu" class="dropdown-toggle" data-toggle="dropdown">{{.me.Username}} <b class="caret"></b></a>
 						<ul class="dropdown-menu">
-							<li class="first"><a href="/user/{{.me.username}}">我的主页</a></li>
+							<li class="first"><a href="/user/{{.me.Username}}">我的主页</a></li>
 							<li><a href="/account/edit">个人资料设置</a></li>
-							<li><a href="/favorites/{{.me.username}}">我的收藏</a></li>
+							<li><a href="/favorites/{{.me.Username}}">我的收藏</a></li>
 							<li role="presentation" class="divider"></li>
-							{{if .me.isadmin}}
+							{{if .me.IsAdmin}}
 							<li><a href="/admin/" target="_blank">管理后台</a></li>
 							{{end}}
 							<li class="last"><a href="/account/logout">退出</a></li>
@@ -196,8 +196,8 @@
 <script src="/static/js/libs/jquery.timeago.zh-CN.js"></script>
 <script src="/static/js/libs/md5.js"></script>
 <script type="text/javascript">
-	var wsUrl = 'ws://{{.wshost}}/ws?uid={{.me.uid}}';
-	// var wsUrl = 'ws://studygolang.com/ws?uid={{.me.uid}}';
+	var wsUrl = 'ws://{{.wshost}}/ws?uid={{.me.Uid}}';
+	// var wsUrl = 'ws://studygolang.com/ws?uid={{.me.Uid}}';
 </script>
 <script src="/static/js/common.js?v=1.2"></script>
 {{template "js" .}}

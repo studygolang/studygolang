@@ -8,6 +8,7 @@ package controller
 
 import (
 	"html/template"
+	"http/middleware"
 	"logic"
 	"model"
 	"net/http"
@@ -29,30 +30,30 @@ type AccountController struct{}
 
 // 注册路由
 func (this *AccountController) RegisterRoute(e *echo.Echo) {
-	e.Any("/account/register", this.Register)
-	e.Post("/account/send_activate_email", this.SendActivateEmail)
-	e.Get("/account/activate", this.Activate)
-	e.Any("/account/login", this.Login)
-	e.Any("/account/edit", this.Edit)
-	e.Post("/account/change_avatar", this.ChangeAvatar)
-	e.Post("/account/changepwd", this.ChangePwd)
-	e.Any("/account/forgetpwd", this.ForgetPasswd)
-	e.Any("/account/resetpwd", this.ResetPasswd)
-	e.Get("/account/logout", this.Logout)
+	e.Any("/account/register", echo.HandlerFunc(this.Register))
+	e.Post("/account/send_activate_email", echo.HandlerFunc(this.SendActivateEmail))
+	e.Get("/account/activate", echo.HandlerFunc(this.Activate))
+	e.Any("/account/login", echo.HandlerFunc(this.Login))
+	e.Any("/account/edit", echo.HandlerFunc(this.Edit), middleware.NeedLogin())
+	e.Post("/account/change_avatar", echo.HandlerFunc(this.ChangeAvatar))
+	e.Post("/account/changepwd", echo.HandlerFunc(this.ChangePwd))
+	e.Any("/account/forgetpwd", echo.HandlerFunc(this.ForgetPasswd))
+	e.Any("/account/resetpwd", echo.HandlerFunc(this.ResetPasswd))
+	e.Get("/account/logout", echo.HandlerFunc(this.Logout))
 }
 
 // 保存uuid和email的对应关系（TODO:重启如何处理，有效期问题）
 var regActivateCodeMap = map[string]string{}
 
-func (AccountController) Register(ctx *echo.Context) error {
-	if _, ok := ctx.Get("user").(*model.User); ok {
+func (AccountController) Register(ctx echo.Context) error {
+	if _, ok := ctx.Get("user").(*model.Me); ok {
 		return ctx.Redirect(http.StatusSeeOther, "/")
 	}
 
 	registerTpl := "register.html"
 	username := ctx.Form("username")
 	// 请求注册页面
-	if username == "" || ctx.Request().Method != "POST" {
+	if username == "" || ctx.Request().Method() != "POST" {
 		return render(ctx, registerTpl, map[string]interface{}{"captchaId": captcha.NewLen(4)})
 	}
 
@@ -62,7 +63,7 @@ func (AccountController) Register(ctx *echo.Context) error {
 	}
 
 	// 入库
-	errMsg, err := logic.DefaultUser.CreateUser(ctx, ctx.Request().Form)
+	errMsg, err := logic.DefaultUser.CreateUser(ctx, Request(ctx).Form)
 	if err != nil {
 		// bugfix：http://studygolang.com/topics/255
 		if errMsg == "" {
@@ -105,7 +106,7 @@ func (AccountController) Register(ctx *echo.Context) error {
 }
 
 // SendActivateEmail 发送注册激活邮件
-func (AccountController) SendActivateEmail(ctx *echo.Context) error {
+func (AccountController) SendActivateEmail(ctx echo.Context) error {
 	uuid := ctx.Form("uuid")
 	email, ok := regActivateCodeMap[uuid]
 	if !ok {
@@ -118,7 +119,7 @@ func (AccountController) SendActivateEmail(ctx *echo.Context) error {
 }
 
 // Activate 用户激活
-func (AccountController) Activate(ctx *echo.Context) error {
+func (AccountController) Activate(ctx echo.Context) error {
 	contentTpl := "user/activate.html"
 
 	data := map[string]interface{}{}
@@ -161,17 +162,23 @@ func (AccountController) Activate(ctx *echo.Context) error {
 }
 
 // Login 登录
-func (AccountController) Login(ctx *echo.Context) error {
-	if _, ok := ctx.Get("user").(*model.User); ok {
+func (AccountController) Login(ctx echo.Context) error {
+	if _, ok := ctx.Get("user").(*model.Me); ok {
 		return ctx.Redirect(http.StatusSeeOther, "/")
 	}
 
-	contentTpl := "login.html"
+	// 支持跳转到源页面
+	uri := ctx.Form("redirect_uri")
+	if uri == "" {
+		uri = "/"
+	}
 
+	contentTpl := "login.html"
 	data := make(map[string]interface{})
 
 	username := ctx.Form("username")
-	if username == "" || ctx.Request().Method != "POST" {
+	if username == "" || Request(ctx).Method != "POST" {
+		data["redirect_uri"] = uri
 		return render(ctx, contentTpl, data)
 	}
 
@@ -187,28 +194,23 @@ func (AccountController) Login(ctx *echo.Context) error {
 	// 登录成功，种cookie
 	SetCookie(ctx, userLogin.Username)
 
-	// 支持跳转到源页面
-	uri := ctx.Query("redirect_uri")
-	if uri == "" {
-		uri = "/"
-	}
-
 	return ctx.Redirect(http.StatusSeeOther, uri)
 }
 
 // Edit 用户编辑个人信息
-func (AccountController) Edit(ctx *echo.Context) error {
-	curUser := ctx.Get("user").(*model.User)
+func (AccountController) Edit(ctx echo.Context) error {
+	me := ctx.Get("user").(*model.Me)
+	user := logic.DefaultUser.FindOne(ctx, "uid", me.Uid)
 
-	if ctx.Request().Method != "POST" {
+	if Request(ctx).Method != "POST" {
 		return render(ctx, "user/edit.html", map[string]interface{}{
-			"user":            curUser,
+			"user":            user,
 			"default_avatars": logic.DefaultAvatars,
 		})
 	}
 
 	// 更新信息
-	errMsg, err := logic.DefaultUser.Update(ctx, curUser.Uid, ctx.Request().PostForm)
+	errMsg, err := logic.DefaultUser.Update(ctx, me.Uid, Request(ctx).PostForm)
 	if err != nil {
 		return fail(ctx, 1, errMsg)
 	}
@@ -217,10 +219,10 @@ func (AccountController) Edit(ctx *echo.Context) error {
 }
 
 // ChangeAvatar 更换头像
-func (AccountController) ChangeAvatar(ctx *echo.Context) error {
+func (AccountController) ChangeAvatar(ctx echo.Context) error {
 	objLog := getLogger(ctx)
 
-	curUser := ctx.Get("user").(*model.User)
+	curUser := ctx.Get("user").(*model.Me)
 
 	avatar := ctx.Form("avatar")
 	if avatar == "" {
@@ -237,8 +239,8 @@ func (AccountController) ChangeAvatar(ctx *echo.Context) error {
 }
 
 // ChangePwd 修改密码
-func (AccountController) ChangePwd(ctx *echo.Context) error {
-	curUser := ctx.Get("user").(*model.User)
+func (AccountController) ChangePwd(ctx echo.Context) error {
+	curUser := ctx.Get("user").(*model.Me)
 
 	curPasswd := ctx.Form("cur_passwd")
 	newPasswd := ctx.Form("passwd")
@@ -253,8 +255,8 @@ func (AccountController) ChangePwd(ctx *echo.Context) error {
 var resetPwdMap = map[string]string{}
 
 // ForgetPasswd 忘记密码
-func (AccountController) ForgetPasswd(ctx *echo.Context) error {
-	if _, ok := ctx.Get("user").(*model.User); ok {
+func (AccountController) ForgetPasswd(ctx echo.Context) error {
+	if _, ok := ctx.Get("user").(*model.Me); ok {
 		return ctx.Redirect(http.StatusSeeOther, "/")
 	}
 
@@ -262,7 +264,7 @@ func (AccountController) ForgetPasswd(ctx *echo.Context) error {
 	data := map[string]interface{}{"activeUsers": "active"}
 
 	email := ctx.Form("email")
-	if email == "" || ctx.Request().Method != "POST" {
+	if email == "" || Request(ctx).Method != "POST" {
 		return render(ctx, contentTpl, data)
 	}
 
@@ -294,8 +296,8 @@ func (AccountController) ForgetPasswd(ctx *echo.Context) error {
 }
 
 // ResetPasswd 重置密码
-func (AccountController) ResetPasswd(ctx *echo.Context) error {
-	if _, ok := ctx.Get("user").(*model.User); ok {
+func (AccountController) ResetPasswd(ctx echo.Context) error {
+	if _, ok := ctx.Get("user").(*model.Me); ok {
 		return ctx.Redirect(http.StatusSeeOther, "/")
 	}
 
@@ -307,7 +309,7 @@ func (AccountController) ResetPasswd(ctx *echo.Context) error {
 	contentTpl := "user/reset_pwd.html"
 	data := map[string]interface{}{"activeUsers": "active"}
 
-	method := ctx.Request().Method
+	method := Request(ctx).Method
 
 	passwd := ctx.Form("passwd")
 	email, ok := resetPwdMap[uuid]
@@ -344,11 +346,11 @@ func (AccountController) ResetPasswd(ctx *echo.Context) error {
 }
 
 // Logout 注销
-func (AccountController) Logout(ctx *echo.Context) error {
+func (AccountController) Logout(ctx echo.Context) error {
 	// 删除cookie信息
 	session := GetCookieSession(ctx)
 	session.Options = &sessions.Options{Path: "/", MaxAge: -1}
-	session.Save(ctx.Request(), ctx.Response())
+	session.Save(Request(ctx), ResponseWriter(ctx))
 	// 重定向得到登录页（TODO:重定向到什么页面比较好？）
 	return ctx.Redirect(http.StatusSeeOther, "/account/login")
 }

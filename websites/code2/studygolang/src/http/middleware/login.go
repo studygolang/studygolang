@@ -20,33 +20,33 @@ import (
 
 // AutoLogin 用于 echo 框架的自动登录和通过 cookie 获取用户信息
 func AutoLogin() echo.MiddlewareFunc {
-	return func(h echo.HandlerFunc) echo.HandlerFunc {
-		return func(ctx *echo.Context) error {
+	return func(next echo.Handler) echo.Handler {
+		return echo.HandlerFunc(func(ctx echo.Context) error {
 			session := GetCookieSession(ctx)
 			username, ok := session.Values["username"]
 			if ok {
-				user := logic.DefaultUser.FindOne(ctx, "username", username)
+				user := logic.DefaultUser.FindCurrentUser(ctx, username)
 				if user.Uid != 0 {
 					ctx.Set("user", user)
 				}
 			}
 
-			if err := h(ctx); err != nil {
-				ctx.Error(err)
+			if err := next.Handle(ctx); err != nil {
+				return err
 			}
 
 			return nil
-		}
+		})
 	}
 }
 
 // NeedLogin 用于 echo 框架的验证必须登录的请求
 func NeedLogin() echo.MiddlewareFunc {
-	return func(h echo.HandlerFunc) echo.HandlerFunc {
-		return func(ctx *echo.Context) error {
-			_, ok := ctx.Get("user").(*model.User)
+	return func(next echo.Handler) echo.Handler {
+		return echo.HandlerFunc(func(ctx echo.Context) error {
+			_, ok := ctx.Get("user").(*model.Me)
 			if !ok {
-				req := ctx.Request()
+				req := Request(ctx)
 				method := req.Method
 				if util.IsAjax(req) {
 					return ctx.JSON(http.StatusForbidden, `{"ok":0,"error":"403 Forbidden"}`)
@@ -54,7 +54,7 @@ func NeedLogin() echo.MiddlewareFunc {
 					if method == "POST" {
 						return ctx.HTML(http.StatusForbidden, `403 Forbidden`)
 					}
-					reqURL := ctx.Request().URL
+					reqURL := req.URL
 					uri := reqURL.Path
 					if reqURL.RawQuery != "" {
 						uri += "?" + reqURL.RawQuery
@@ -63,11 +63,11 @@ func NeedLogin() echo.MiddlewareFunc {
 				}
 			}
 
-			if err := h(ctx); err != nil {
-				ctx.Error(err)
+			if err := next.Handle(ctx); err != nil {
+				return err
 			}
 
 			return nil
-		}
+		})
 	}
 }

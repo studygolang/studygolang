@@ -204,6 +204,61 @@ func (self UserLogic) FindOne(ctx context.Context, field string, val interface{}
 	return user
 }
 
+// 获取当前登录用户信息（常用信息）
+func (self UserLogic) FindCurrentUser(ctx context.Context, username interface{}) *model.Me {
+	objLog := GetLogger(ctx)
+
+	user := &model.User{}
+	_, err := MasterDB.Where("username=?", username).Get(user)
+	if err != nil {
+		objLog.Errorf("获取用户 %q 信息失败：%s", username, err)
+		return &model.Me{}
+	}
+	if user.Uid == 0 {
+		logger.Infof("用户 %q 不存在！", username)
+		return &model.Me{}
+	}
+
+	me := &model.Me{
+		Uid:      user.Uid,
+		Username: user.Username,
+		Email:    user.Email,
+		Avatar:   user.Avatar,
+		Status:   user.Status,
+	}
+
+	// 获取未读消息数
+	// me.MsgNum = FindNotReadMsgNum(userInfo.Uid)
+
+	// 获取角色信息
+	userRoleList := make([]*model.UserRole, 0)
+	err = MasterDB.Where("uid=?", user.Uid).Find(&userRoleList)
+	if err != nil {
+		logger.Errorf("获取用户 %q 角色 信息失败：%s", username, err)
+		return me
+	}
+	for _, userRole := range userRoleList {
+		if userRole.Roleid <= model.AdminMinRoleId {
+			// 是管理员
+			me.IsAdmin = true
+			break
+		}
+	}
+
+	go self.RecordLoginTime(user.Username)
+
+	return me
+}
+
+// 会员总数
+func (UserLogic) Total() int64 {
+	total, err := MasterDB.Count(new(model.User))
+	if err != nil {
+		logger.Errorln("UserLogic Total error:", err)
+	}
+	return total
+}
+
 var (
 	ErrUsername = errors.New("用户名不存在")
 	ErrPasswd   = errors.New("密码错误")

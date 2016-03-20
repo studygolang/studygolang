@@ -7,14 +7,17 @@
 package http
 
 import (
+	"net/http"
+
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/engine/standard"
 	"github.com/polaris1119/config"
 )
 
 var Store = sessions.NewCookieStore([]byte(config.ConfigFile.MustValue("global", "cookie_secret")))
 
-func SetCookie(ctx *echo.Context, username string) {
+func SetCookie(ctx echo.Context, username string) {
 	Store.Options.HttpOnly = true
 
 	session := GetCookieSession(ctx)
@@ -26,10 +29,20 @@ func SetCookie(ctx *echo.Context, username string) {
 		}
 	}
 	session.Values["username"] = username
-	session.Save(ctx.Request(), ctx.Response())
+	req := Request(ctx)
+	resp := ResponseWriter(ctx)
+	session.Save(req, resp)
 }
 
-func GetCookieSession(ctx *echo.Context) *sessions.Session {
-	session, _ := Store.Get(ctx.Request(), "user")
+func GetCookieSession(ctx echo.Context) *sessions.Session {
+	session, _ := Store.Get(Request(ctx), "user")
 	return session
+}
+
+func Request(ctx echo.Context) *http.Request {
+	return ctx.Request().(*standard.Request).Request
+}
+
+func ResponseWriter(ctx echo.Context) http.ResponseWriter {
+	return ctx.Response().(*standard.Response).ResponseWriter
 }

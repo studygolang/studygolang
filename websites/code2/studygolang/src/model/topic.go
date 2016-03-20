@@ -24,10 +24,10 @@ type Topic struct {
 	Uid           int       `json:"uid"`
 	Flag          uint8     `json:"flag"`
 	Lastreplyuid  int       `json:"lastreplyuid"`
-	Lastreplytime time.Time `json:"lastreplytime"`
+	Lastreplytime OftenTime `json:"lastreplytime"`
 	EditorUid     int       `json:"editor_uid"`
 	Top           bool      `json:"istop"`
-	Ctime         time.Time `json:"ctime" xorm:"created"`
+	Ctime         OftenTime `json:"ctime" xorm:"created"`
 	Mtime         time.Time `json:"mtime" xorm:"<-"`
 }
 

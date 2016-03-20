@@ -83,6 +83,17 @@ func (this *User) String() string {
 	return buffer.String()
 }
 
+// Me 代表当前用户
+type Me struct {
+	Uid      int    `json:"uid"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Avatar   string `json:"avatar"`
+	Status   int    `json:"status"`
+	MsgNum   int    `json:"msgnum"`
+	IsAdmin  bool   `json:"isadmin"`
+}
+
 // 活跃用户信息
 // 活跃度规则：
 //	1、注册成功后 +2

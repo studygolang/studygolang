@@ -13,6 +13,7 @@
 		</ol>
 		<div class="box_white">
 			<form class="form-horizontal validate-form" role="form" action="/account/login" method="POST">
+				<input type="hidden" name="redirect_uri" value="{{.redirect_uri}}">
 				<fieldset>
 					<legend>登录</legend>
 					{{if .error}}

@@ -24,6 +24,7 @@ import (
 	"github.com/facebookgo/grace/gracehttp"
 	"github.com/fatih/structs"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/engine/standard"
 	mw "github.com/labstack/echo/middleware"
 	"github.com/polaris1119/logger"
 	thirdmw "github.com/polaris1119/middleware"
@@ -55,19 +56,15 @@ func main() {
 
 	controller.RegisterRoutes(e)
 
-	e.Get("/", func(c *echo.Context) error {
-		return c.String(http.StatusOK, "Hello World!\n")
-	})
+	e.Get("/", echo.HandlerFunc(func(ctx echo.Context) error {
+		return ctx.String(http.StatusOK, "Hello World!\n")
+	}))
 
 	addr := ConfigFile.MustValue("listen", "host", "") + ":" + ConfigFile.MustValue("listen.http", "port", "8080")
-	server := e.Server(addr)
+	std := standard.New(addr)
+	std.SetHandler(e)
 
-	// HTTP2 is currently enabled by default in echo.New(). To override TLS handshake errors
-	// you will need to override the TLSConfig for the server so it does not attempt to validate
-	// the connection using TLS as required by HTTP2
-	server.TLSConfig = nil
-
-	log.Fatal(gracehttp.Serve(server))
+	log.Fatal(gracehttp.Serve(std.Server))
 }
 
 const (

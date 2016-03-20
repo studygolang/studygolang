@@ -5,10 +5,13 @@ import (
 	"encoding/json"
 	"html/template"
 	"logic"
+	"model"
 	"net/http"
 	"strings"
 	"time"
 	"util"
+
+	. "http"
 
 	"github.com/labstack/echo"
 	"github.com/polaris1119/config"
@@ -47,12 +50,12 @@ var funcMap = template.FuncMap{
 	},
 }
 
-func getLogger(ctx *echo.Context) *logger.Logger {
+func getLogger(ctx echo.Context) *logger.Logger {
 	return logic.GetLogger(ctx)
 }
 
 // render html 输出
-func render(ctx *echo.Context, contentTpl string, data map[string]interface{}) error {
+func render(ctx echo.Context, contentTpl string, data map[string]interface{}) error {
 	objLog := getLogger(ctx)
 
 	// 为了使用自定义的模板函数，首先New一个以第一个模板文件名为模板名。
@@ -60,7 +63,7 @@ func render(ctx *echo.Context, contentTpl string, data map[string]interface{}) e
 	htmlFiles := []string{config.TemplateDir + "common/layout.html", config.TemplateDir + contentTpl}
 	tpl, err := template.New("layout.html").Funcs(funcMap).ParseFiles(htmlFiles...)
 	if err != nil {
-		objLog.Errorf("解析模板出错（ParseFiles）：[%q] %s\n", ctx.Request().RequestURI, err)
+		objLog.Errorf("解析模板出错（ParseFiles）：[%q] %s\n", Request(ctx).RequestURI, err)
 		return err
 	}
 	// 如果没有定义css和js模板，则定义之
@@ -72,8 +75,12 @@ func render(ctx *echo.Context, contentTpl string, data map[string]interface{}) e
 	}
 
 	// 当前用户信息
-	// me, _ := CurrentUser(req)
-	data["me"] = map[string]interface{}{}
+	curUser, ok := ctx.Get("user").(*model.Me)
+	if ok {
+		data["me"] = curUser
+	} else {
+		data["me"] = map[string]interface{}{}
+	}
 
 	// websocket主机
 	data["wshost"] = "127.0.0.1"
@@ -92,7 +99,7 @@ func render(ctx *echo.Context, contentTpl string, data map[string]interface{}) e
 	return ctx.HTML(http.StatusOK, buf.String())
 }
 
-func success(ctx *echo.Context, data interface{}) error {
+func success(ctx echo.Context, data interface{}) error {
 	result := map[string]interface{}{
 		"ok":   1,
 		"msg":  "ok",
@@ -118,7 +125,7 @@ func success(ctx *echo.Context, data interface{}) error {
 	return ctx.JSONBlob(http.StatusOK, b)
 }
 
-func fail(ctx *echo.Context, code int, msg string) error {
+func fail(ctx echo.Context, code int, msg string) error {
 	if ctx.Response().Committed() {
 		getLogger(ctx).Flush()
 		return nil

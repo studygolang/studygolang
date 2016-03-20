@@ -7,12 +7,16 @@
 package logic
 
 import (
+	"html/template"
 	"model"
+	"strconv"
+	"util"
 
 	. "db"
 
 	"github.com/fatih/set"
 	"github.com/fatih/structs"
+	"github.com/polaris1119/logger"
 	"golang.org/x/net/context"
 )
 
@@ -84,6 +88,54 @@ func (TopicLogic) FindLastList(beginTime string, limit int) ([]*model.Topic, err
 	return topics, err
 }
 
+// FindRecent 获得最近的主题(uids[0]，则获取某个用户最近的主题)
+func (TopicLogic) FindRecent(limit int, uids ...int) []*model.Topic {
+	dbSession := MasterDB.OrderBy("ctime DESC").Limit(limit)
+	if len(uids) > 0 {
+		dbSession.Where("uid=?", uids[0])
+	}
+
+	topics := make([]*model.Topic, 0)
+	if err := dbSession.Find(&topics); err != nil {
+		logger.Errorln("TopicLogic FindRecent error:", err)
+	}
+	// for _, topic := range topics {
+	// 	topic.Node = GetNodeName(topic.Nid)
+	// }
+	return topics
+}
+
+// FindByNid 获得某个节点下的主题列表（侧边栏推荐）
+func (TopicLogic) FindByNid(ctx context.Context, nid, curTid string) []*model.Topic {
+	objLog := GetLogger(ctx)
+
+	topics := make([]*model.Topic, 0)
+	err := MasterDB.Where("nid=? AND tid!=?", nid, curTid).Limit(10).Find(&topics)
+	if err != nil {
+		objLog.Errorln("TopicLogic FindByNid Error:", err)
+	}
+
+	return topics
+}
+
+// Total 话题总数
+func (TopicLogic) Total() int64 {
+	total, err := MasterDB.Count(new(model.Topic))
+	if err != nil {
+		logger.Errorln("TopicLogic Total error:", err)
+	}
+	return total
+}
+
+// JSEscape 安全过滤
+func (TopicLogic) JSEscape(topics []*model.Topic) []*model.Topic {
+	for i, topic := range topics {
+		topics[i].Title = template.JSEscapeString(topic.Title)
+		topics[i].Content = template.JSEscapeString(topic.Content)
+	}
+	return topics
+}
+
 func (TopicLogic) Count(ctx context.Context, querystring string, args ...interface{}) int64 {
 	objLog := GetLogger(ctx)
 
@@ -102,4 +154,47 @@ func (TopicLogic) Count(ctx context.Context, querystring string, args ...interfa
 	}
 
 	return total
+}
+
+// 话题回复（评论）
+type TopicComment struct{}
+
+// UpdateComment 更新该主题的回复信息
+// cid：评论id；objid：被评论对象id；uid：评论者；cmttime：评论时间
+func (self TopicComment) UpdateComment(cid, objid, uid int, cmttime string) {
+	tid := strconv.Itoa(objid)
+	// 更新最后回复信息
+	stringBuilder := util.NewBuffer().Append("lastreplyuid=").AppendInt(uid).Append(",lastreplytime=").Append(cmttime)
+	err := model.NewTopic().Set(stringBuilder.String()).Where("tid=" + tid).Update()
+	if err != nil {
+		logger.Errorln("更新主题最后回复人信息失败：", err)
+	}
+	// 更新回复数（TODO：暂时每次都更新表）
+	err = model.NewTopicEx().Where("tid="+tid).Increment("reply", 1)
+	if err != nil {
+		logger.Errorln("更新主题回复数失败：", err)
+	}
+}
+
+func (self TopicComment) String() string {
+	return "topic"
+}
+
+// 实现 CommentObjecter 接口
+func (self TopicComment) SetObjinfo(ids []int, commentMap map[int][]*model.Comment) {
+	topics := FindTopicsByTids(ids)
+	if len(topics) == 0 {
+		return
+	}
+
+	for _, topic := range topics {
+		objinfo := make(map[string]interface{})
+		objinfo["title"] = topic.Title
+		objinfo["uri"] = model.PathUrlMap[model.TYPE_TOPIC]
+		objinfo["type_name"] = model.TypeNameMap[model.TYPE_TOPIC]
+
+		for _, comment := range commentMap[topic.Tid] {
+			comment.Objinfo = objinfo
+		}
+	}
 }

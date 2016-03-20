@@ -7,7 +7,9 @@
 package logic
 
 import (
+	"fmt"
 	"os"
+	"regexp"
 
 	"github.com/gorilla/schema"
 	"github.com/polaris1119/logger"
@@ -31,4 +33,19 @@ func GetLogger(ctx context.Context) *logger.Logger {
 	}
 
 	return logger.New(os.Stdout)
+}
+
+// parseAtUser 解析 @某人
+func parseAtUser(ctx context.Context, content string) string {
+	reg := regexp.MustCompile(`@([^\s@]{4,20})`)
+	return reg.ReplaceAllStringFunc(content, func(matched string) string {
+		username := matched[1:]
+
+		// 校验 username 是否存在
+		user := DefaultUser.FindOne(ctx, "username", username)
+		if user.Username != username {
+			return matched
+		}
+		return fmt.Sprintf(`<a href="/user/%s" title="%s">%s</a>`, username, matched, matched)
+	})
 }

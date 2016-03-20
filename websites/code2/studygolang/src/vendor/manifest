@@ -168,14 +168,14 @@
 		{
 			"importpath": "github.com/labstack/gommon/color",
 			"repository": "https://github.com/labstack/gommon",
-			"revision": "bfff5bf04688a4048a5cb4dd3b3f0697caaad19c",
+			"revision": "9c0a60557b6840125c331d8c8075119770aa2805",
 			"branch": "master",
 			"path": "/color"
 		},
 		{
 			"importpath": "github.com/labstack/gommon/log",
 			"repository": "https://github.com/labstack/gommon",
-			"revision": "bfff5bf04688a4048a5cb4dd3b3f0697caaad19c",
+			"revision": "9c0a60557b6840125c331d8c8075119770aa2805",
 			"branch": "master",
 			"path": "/log"
 		},
