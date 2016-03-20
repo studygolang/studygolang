@@ -11,17 +11,17 @@ import (
 	"math/rand"
 	"time"
 
-	"util"
+	"github.com/polaris1119/goutils"
 )
 
 // 用户登录信息
 type UserLogin struct {
-	Uid       int    `json:"uid" xorm:"pk"`
-	Username  string `json:"username"`
-	Passwd    string `json:"passwd"`
-	Email     string `json:"email"`
-	LoginTime string `json:"login_time" xorm:"<-"`
-	passcode  string `xorm:"-"` // 加密随机串
+	Uid       int       `json:"uid" xorm:"pk"`
+	Username  string    `json:"username"`
+	Passwd    string    `json:"passwd"`
+	Email     string    `json:"email"`
+	LoginTime time.Time `json:"login_time"`
+	Passcode  string    `json:"passcode"` // 加密随机串
 }
 
 func (this *UserLogin) TableName() string {
@@ -33,22 +33,18 @@ func (this *UserLogin) GenMd5Passwd(origPwd string) string {
 	if origPwd == "" {
 		origPwd = this.Passwd
 	}
-	this.passcode = fmt.Sprintf("%x", rand.Int31())
+	this.Passcode = fmt.Sprintf("%x", rand.Int31())
 	// 密码经过md5(passwd+passcode)加密保存
-	this.Passwd = util.Md5(origPwd + this.passcode)
+	this.Passwd = goutils.Md5(origPwd + this.Passcode)
 	return this.Passwd
 }
 
-func (this *UserLogin) GetPasscode() string {
-	return this.passcode
-}
-
 const (
-	StatusNoAudit = iota
-	StatusAudit
-	StatusRefuse
-	StatusFreeze // 冻结
-	StatusOutage // 停用
+	UserStatusNoAudit = iota
+	UserStatusAudit
+	UserStatusRefuse
+	UserStatusFreeze // 冻结
+	UserStatusOutage // 停用
 )
 
 // 用户基本信息
@@ -80,6 +76,13 @@ func (this *User) TableName() string {
 	return "user_info"
 }
 
+func (this *User) String() string {
+	buffer := goutils.NewBuffer()
+	buffer.Append(this.Username).Append(this.Email).Append(this.Uid).Append(this.Mtime)
+
+	return buffer.String()
+}
+
 // 活跃用户信息
 // 活跃度规则：
 //	1、注册成功后 +2
@@ -89,7 +92,7 @@ func (this *User) TableName() string {
 //	5、评论 +5
 //	6、创建Wiki页 +10
 type UserActive struct {
-	Uid      int       `json:"uid" xorm:"pk autoincr"`
+	Uid      int       `json:"uid" xorm:"pk"`
 	Username string    `json:"username"`
 	Email    string    `json:"email"`
 	Avatar   string    `json:"avatar"`
@@ -97,17 +100,9 @@ type UserActive struct {
 	Mtime    time.Time `json:"mtime" xorm:"<-"`
 }
 
-func (this *UserActive) TableName() string {
-	return "user_active"
-}
-
 // 用户角色信息
 type UserRole struct {
 	Uid    int    `json:"uid"`
 	Roleid int    `json:"roleid"`
 	ctime  string `xorm:"-"`
-}
-
-func (this *UserRole) TableName() string {
-	return "user_role"
 }

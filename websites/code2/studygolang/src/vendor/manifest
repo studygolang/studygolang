@@ -60,7 +60,7 @@
 		{
 			"importpath": "github.com/fatih/structs",
 			"repository": "https://github.com/fatih/structs",
-			"revision": "12ff68a6f48a1c8bd118316171545683337655df",
+			"revision": "73c4e3dc02a78deaba8640d5f3a8c236ec1352bf",
 			"branch": "master"
 		},
 		{
@@ -103,15 +103,66 @@
 			"path": "/lru"
 		},
 		{
+			"importpath": "github.com/gorilla/context",
+			"repository": "https://github.com/gorilla/context",
+			"revision": "1ea25387ff6f684839d82767c1733ff4d4d15d0a",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/gorilla/schema",
 			"repository": "https://github.com/gorilla/schema",
 			"revision": "ddf016c1034e9cfd3eb5b276f626c8f04d765f6f",
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/gorilla/securecookie",
+			"repository": "https://github.com/gorilla/securecookie",
+			"revision": "8dacca26977607e637262eb66b15b7d39f2d3009",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/gorilla/sessions",
+			"repository": "https://github.com/gorilla/sessions",
+			"revision": "8cd570d8b4ed84b18bca9d8c3ae2db55885ccd8b",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/klauspost/compress/flate",
+			"repository": "https://github.com/klauspost/compress",
+			"revision": "006acde2c5d283d2f8b8aa03d8f0cd2891c680cf",
+			"branch": "master",
+			"path": "/flate"
+		},
+		{
+			"importpath": "github.com/klauspost/compress/gzip",
+			"repository": "https://github.com/klauspost/compress",
+			"revision": "006acde2c5d283d2f8b8aa03d8f0cd2891c680cf",
+			"branch": "master",
+			"path": "/gzip"
+		},
+		{
+			"importpath": "github.com/klauspost/compress/zlib",
+			"repository": "https://github.com/klauspost/compress",
+			"revision": "006acde2c5d283d2f8b8aa03d8f0cd2891c680cf",
+			"branch": "master",
+			"path": "/zlib"
+		},
+		{
+			"importpath": "github.com/klauspost/cpuid",
+			"repository": "https://github.com/klauspost/cpuid",
+			"revision": "09cded8978dc9e80714c4d85b0322337b0a1e5e0",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/klauspost/crc32",
+			"repository": "https://github.com/klauspost/crc32",
+			"revision": "19b0b332c9e4516a6370a0456e6182c3b5036720",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/labstack/echo",
 			"repository": "https://github.com/labstack/echo",
-			"revision": "30ee5fbb95aa1fc1c09f101fc7f9a1022a78da38",
+			"revision": "576dfeb71d257a11e14bf637073b8c64576d2628",
 			"branch": "master"
 		},
 		{
@@ -195,16 +246,28 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/valyala/fasthttp",
+			"repository": "https://github.com/valyala/fasthttp",
+			"revision": "2b172da53920a126cfc2532eced9400864bdacd9",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/valyala/fasttemplate",
+			"repository": "https://github.com/valyala/fasttemplate",
+			"revision": "3b874956e03f1636d171bda64b130f9135f42cff",
+			"branch": "master"
+		},
+		{
 			"importpath": "golang.org/x/net/context",
 			"repository": "https://github.com/golang/net",
-			"revision": "d58ca6618b994150e624f6888d871f4709db51a0",
+			"revision": "a4bbce9fcae005b22ae5443f6af064d80a6f5a55",
 			"branch": "master",
 			"path": "/context"
 		},
 		{
 			"importpath": "golang.org/x/net/websocket",
 			"repository": "https://github.com/golang/net",
-			"revision": "d58ca6618b994150e624f6888d871f4709db51a0",
+			"revision": "a4bbce9fcae005b22ae5443f6af064d80a6f5a55",
 			"branch": "master",
 			"path": "/websocket"
 		}

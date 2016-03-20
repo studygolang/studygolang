@@ -2,6 +2,9 @@ package controller
 
 import "github.com/labstack/echo"
 
-func RegisterRoutes(router *echo.Echo) {
-	new(TopicController).RegisterRoute(router)
+func RegisterRoutes(e *echo.Echo) {
+	// e = e.Group("", middleware.NeedLogin)
+
+	new(TopicController).RegisterRoute(e)
+	new(AccountController).RegisterRoute(e)
 }

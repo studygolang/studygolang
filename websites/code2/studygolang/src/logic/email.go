@@ -1,0 +1,203 @@
+// Copyright 2016 The StudyGolang Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+// http://studygolang.com
+// Author：polaris	polaris@studygolang.com
+
+package logic
+
+import (
+	"bytes"
+	"fmt"
+	"html/template"
+	"model"
+	"net/smtp"
+	"strings"
+	"time"
+	"util"
+
+	"github.com/polaris1119/config"
+	"github.com/polaris1119/goutils"
+	"github.com/polaris1119/logger"
+)
+
+type EmailLogic struct{}
+
+var DefaultEmail = EmailLogic{}
+
+// SendMail 发送电子邮件
+func (EmailLogic) SendMail(subject, content string, tos []string) error {
+	emailConfig, _ := config.ConfigFile.GetSection("email")
+	message := `From: Go语言中文网 | Golang中文社区 | Go语言学习园地<` + emailConfig["from_email"] + `>
+To: ` + strings.Join(tos, ",") + `
+Subject: ` + subject + `
+Content-Type: text/html;charset=UTF-8
+
+` + content
+
+	auth := smtp.PlainAuth("", emailConfig["smtp_username"], emailConfig["smtp_password"], emailConfig["smtp_host"])
+	err := smtp.SendMail(emailConfig["smtp_addr"], auth, emailConfig["from_email"], tos, []byte(message))
+	if err != nil {
+		logger.Errorln("Send Mail to", strings.Join(tos, ","), "error:", err)
+		return err
+	}
+	logger.Infoln("Send Mail to", strings.Join(tos, ","), "Successfully")
+	return nil
+}
+
+// 保存uuid和email的对应关系（TODO:重启如何处理）
+var regActivateCodeMap = map[string]string{}
+
+// SendActivateMail 发送激活邮件
+func (self EmailLogic) SendActivateMail(email, uuid string) {
+	timestamp := time.Now().Unix()
+	sign := self.genActivateSign(email, uuid, timestamp)
+
+	param := goutils.Base64Encode(fmt.Sprintf("uuid=%s&timestamp=%d&sign=%s", uuid, timestamp, sign))
+
+	domain := config.ConfigFile.MustValue("global", "domain")
+	activeUrl := fmt.Sprintf("http://%s/account/activate?param=%s", domain, param)
+
+	content := `
+尊敬的Go语言中文网用户：<br/><br/>
+感谢您选择了Go语言中文网，请点击下面的地址激活你在Go语言中文网的帐号（有效期4小时）：<br/><br/>
+<a href="` + activeUrl + `">` + activeUrl + `</a><br/><br/>
+<div style="text-align:right;">&copy;2012-2016 studygolang.com Go语言中文网 | Golang中文社区 | Go语言学习园地</div>`
+	self.SendMail("Go语言中文网帐号激活邮件", content, []string{email})
+}
+
+func (EmailLogic) genActivateSign(email, uuid string, ts int64) string {
+	emailSignSalt := config.ConfigFile.MustValue("security", "activate_sign_salt")
+	origStr := fmt.Sprintf("uuid=%semail=%stimestamp=%d%s", uuid, email, ts, emailSignSalt)
+	return goutils.Md5(origStr)
+}
+
+// SendResetpwdMail 发重置密码邮件
+func (self EmailLogic) SendResetpwdMail(email, uuid string) {
+	domain := config.ConfigFile.MustValue("global", "domain")
+	content := `您好，` + email + `,<br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;我们的系统收到一个请求，说您希望通过电子邮件重新设置您在 <a href="http://` + domain + `">Go语言中文网</a> 的密码。您可以点击下面的链接重设密码：<br/><br/>
+
+&nbsp;&nbsp;&nbsp;&nbsp;http://` + domain + `/account/resetpwd?code=` + uuid + ` <br/><br/>
+
+如果这个请求不是由您发起的，那没问题，您不用担心，您可以安全地忽略这封邮件。<br/><br/>
+
+如果您有任何疑问，可以回复这封邮件向我们提问。谢谢！<br/><br/>
+
+<div style="text-align:right;">&copy;2013-` + time.Now().Format("2006") + ` studygolang.com  Go语言中文网 | Golang中文社区 | Go语言学习园地</div>`
+	self.SendMail("【Go语言中文网】重设密码 ", content, []string{email})
+}
+
+// 自定义模板函数
+var emailFuncMap = template.FuncMap{
+	"time_format": func(s string) string {
+		t, err := time.ParseInLocation("2006-01-02 15:04:05", s, time.Local)
+		if err != nil {
+			return s
+		}
+
+		return t.Format("01-02")
+	},
+	"substring": util.Substring,
+}
+
+var emailTpl = template.Must(template.New("email.html").Funcs(emailFuncMap).ParseFiles(config.TemplateDir + "email.html"))
+
+// 订阅邮件通知
+func (self EmailLogic) EmailNotice() {
+
+	beginDate := time.Now().Add(-7 * 24 * time.Hour).Format("2006-01-02")
+	endDate := time.Now().Add(-24 * time.Hour).Format("2006-01-02")
+
+	beginTime := beginDate + " 00:00:00"
+
+	// 本周晨读（过去 7 天）
+	readings, err := DefaultReading.FindLastList(beginTime)
+	if err != nil {
+		logger.Errorln("find morning reading error:", err)
+	}
+
+	// 本周精彩文章
+	articles, err := DefaultArticle.FindLastList(beginTime, 10)
+	if err != nil {
+		logger.Errorln("find article error:", err)
+	}
+
+	// 本周热门主题
+	topics, err := DefaultTopic.FindLastList(beginTime, 10)
+	if err != nil {
+		logger.Errorln("find topic error:", err)
+	}
+
+	data := map[string]interface{}{
+		"readings":  readings,
+		"articles":  articles,
+		"topics":    topics,
+		"beginDate": beginDate,
+		"endDate":   endDate,
+	}
+
+	_ = data
+
+	// 给所有用户发送邮件
+	// userModel := model.NewUser()
+
+	// var (
+	// 	lastUid = 0
+	// 	limit   = "500"
+	// 	users   []*model.User
+	// )
+
+	// for {
+	// 	users, err = userModel.Where("uid>?", lastUid).Order("uid ASC").Limit(limit).FindAll()
+	// 	if err != nil {
+	// 		logger.Errorln("find user error:", err)
+	// 		continue
+	// 	}
+
+	// 	if len(users) == 0 {
+	// 		break
+	// 	}
+
+	// 	for _, user := range users {
+	// 		if user.Unsubscribe == 1 {
+	// 			logger.Infoln("user unsubscribe", user)
+	// 			continue
+	// 		}
+
+	// 		data["email"] = user.Email
+	// 		data["token"] = GenUnsubscribeToken(user)
+
+	// 		content, err := genEmailContent(data)
+	// 		if err != nil {
+	// 			logger.Errorln("from email.html gen email content error:", err)
+	// 			continue
+	// 		}
+
+	// 		SendMail("每周精选", content, []string{user.Email})
+
+	// 		if lastUid < user.Uid {
+	// 			lastUid = user.Uid
+	// 		}
+
+	// 		// 控制发信速度
+	// 		time.Sleep(30 * time.Second)
+	// 	}
+	// }
+
+}
+
+// 生成 退订 邮件的 token
+func (EmailLogic) GenUnsubscribeToken(user *model.User) string {
+	return goutils.Md5(user.String() + config.ConfigFile.MustValue("security", "unsubscribe_token_key"))
+}
+
+func (EmailLogic) genEmailContent(data map[string]interface{}) (string, error) {
+	buffer := &bytes.Buffer{}
+	if err := emailTpl.Execute(buffer, data); err != nil {
+		logger.Errorln("email logic execute template error:", err)
+		return "", err
+	}
+
+	return buffer.String(), nil
+}

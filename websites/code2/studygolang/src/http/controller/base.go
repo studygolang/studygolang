@@ -10,11 +10,10 @@ import (
 	"time"
 	"util"
 
-	"github.com/polaris1119/nosql"
-
 	"github.com/labstack/echo"
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/logger"
+	"github.com/polaris1119/nosql"
 )
 
 // 自定义模板函数
@@ -95,7 +94,7 @@ func render(ctx *echo.Context, contentTpl string, data map[string]interface{}) e
 
 func success(ctx *echo.Context, data interface{}) error {
 	result := map[string]interface{}{
-		"code": 0,
+		"ok":   1,
 		"msg":  "ok",
 		"data": data,
 	}
@@ -126,8 +125,8 @@ func fail(ctx *echo.Context, code int, msg string) error {
 	}
 
 	result := map[string]interface{}{
-		"code": code,
-		"msg":  msg,
+		"ok":    0,
+		"error": msg,
 	}
 
 	getLogger(ctx).Errorln("operate fail:", result)

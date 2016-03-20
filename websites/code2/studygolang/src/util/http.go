@@ -29,3 +29,9 @@ func FetchRealUrl(uri string) (realUrl string) {
 
 	return uri
 }
+
+const XRequestedWith = "X-Requested-With"
+
+func IsAjax(req *http.Request) bool {
+	return req.Header.Get(XRequestedWith) == "XMLHttpRequest"
+}

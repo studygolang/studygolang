@@ -21,7 +21,7 @@ elif [ -f "vendor/manifest" ]; then
 else
 	pkgs=("github.com/polaris1119/nosql" "github.com/fatih/structs"
 	"github.com/go-xorm/xorm" "github.com/fatih/set" "github.com/dchest/captcha"
-	"github.com/polaris1119/middleware" "github.com/robfig/cron"
+	"github.com/polaris1119/middleware" "github.com/robfig/cron" "github.com/gorilla/sessions"
 	"github.com/gorilla/schema" "github.com/facebookgo/grace/gracehttp")
 
 	for pkg in "${pkgs[@]}"; do

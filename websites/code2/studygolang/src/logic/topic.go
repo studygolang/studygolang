@@ -76,6 +76,14 @@ func (TopicLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy str
 	return data
 }
 
+func (TopicLogic) FindLastList(beginTime string, limit int) ([]*model.Topic, error) {
+	topics := make([]*model.Topic, 0)
+	err := MasterDB.Where("ctime>? AND flag IN(?,?)", beginTime, model.FlagNoAudit, model.FlagNormal).
+		OrderBy("tid DESC").Limit(limit).Find(&topics)
+
+	return topics, err
+}
+
 func (TopicLogic) Count(ctx context.Context, querystring string, args ...interface{}) int64 {
 	objLog := GetLogger(ctx)
 
