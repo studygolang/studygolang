@@ -11,10 +11,10 @@ import (
 	"model"
 	"regexp"
 	"text/template"
-	"util"
 
 	. "db"
 
+	"github.com/fatih/set"
 	"github.com/polaris1119/logger"
 	"golang.org/x/net/context"
 )
@@ -80,7 +80,7 @@ func (self CommentLogic) FindRecent(ctx context.Context, uid, objtype, limit int
 		model.TypeProject:  ProjectComment{},
 	}
 	for cmtType, cmts := range cmtMap {
-		FillCommentObjs(cmts, cmtObjs[cmtType])
+		self.fillObjinfos(cmts, cmtObjs[cmtType])
 	}
 
 	return comments
@@ -93,16 +93,15 @@ func (CommentLogic) fillObjinfos(comments []*model.Comment, cmtObj CommentObject
 	}
 	count := len(comments)
 	commentMap := make(map[int][]*model.Comment, count)
-	idMap := make(map[int]int, count)
+	idSet := set.New()
 	for _, comment := range comments {
 		if _, ok := commentMap[comment.Objid]; !ok {
 			commentMap[comment.Objid] = make([]*model.Comment, 0, count)
 		}
 		commentMap[comment.Objid] = append(commentMap[comment.Objid], comment)
-		idMap[comment.Objid] = 1
+		idSet.Add(comment.Objid)
 	}
-	ids := util.MapIntKeys(idMap)
-	cmtObj.SetObjinfo(ids, commentMap)
+	cmtObj.SetObjinfo(set.IntSlice(idSet), commentMap)
 }
 
 func (CommentLogic) decodeCmtContent(ctx context.Context, comment *model.Comment) string {

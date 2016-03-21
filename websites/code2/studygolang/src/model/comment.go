@@ -33,18 +33,18 @@ var TypeNameMap = map[int]string{
 
 // 评论信息（通用）
 type Comment struct {
-	Cid     int    `json:"cid" xorm:"pk autoincr"`
-	Objid   int    `json:"objid"`
-	Objtype int    `json:"objtype"`
-	Content string `json:"content"`
-	Uid     int    `json:"uid"`
-	Floor   int    `json:"floor"`
-	Flag    int    `json:"flag"`
-	Ctime   string `json:"ctime" xorm:"created"`
+	Cid     int       `json:"cid" xorm:"pk autoincr"`
+	Objid   int       `json:"objid"`
+	Objtype int       `json:"objtype"`
+	Content string    `json:"content"`
+	Uid     int       `json:"uid"`
+	Floor   int       `json:"floor"`
+	Flag    int       `json:"flag"`
+	Ctime   OftenTime `json:"ctime" xorm:"created"`
 
 	Objinfo map[string]interface{} `json:"objinfo" xorm:"-"`
 }
 
-func (Comment) Table() string {
+func (Comment) TableName() string {
 	return "comments"
 }

@@ -13,10 +13,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/PuerkitoBio/goquery"
 	"logger"
 	"model"
 	"util"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 var domainPatch = map[string]string{

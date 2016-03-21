@@ -9,7 +9,7 @@ package logic
 import (
 	. "db"
 	"model"
-	"strconv"
+	"time"
 
 	"github.com/polaris1119/logger"
 )
@@ -63,16 +63,28 @@ func (ArticleLogic) FindBy(limit int, lastIds ...int) []*model.Article {
 	return articles
 }
 
+// FindByIds 获取多个文章详细信息
+func (ArticleLogic) FindByIds(ids []int) []*model.Article {
+	if len(ids) == 0 {
+		return nil
+	}
+	articles := make([]*model.Article, 0)
+	err := MasterDB.In("id", ids).Find(&articles)
+	if err != nil {
+		logger.Errorln("ArticleLogic FindByIds error:", err)
+		return nil
+	}
+	return articles
+}
+
 // 博文评论
 type ArticleComment struct{}
 
-// 更新该文章的评论信息
+// UpdateComment 更新该文章的评论信息
 // cid：评论id；objid：被评论对象id；uid：评论者；cmttime：评论时间
-func (self ArticleComment) UpdateComment(cid, objid, uid int, cmttime string) {
-	id := strconv.Itoa(objid)
-
+func (self ArticleComment) UpdateComment(cid, objid, uid int, cmttime time.Time) {
 	// 更新评论数（TODO：暂时每次都更新表）
-	err := model.NewArticle().Where("id="+id).Increment("cmtnum", 1)
+	_, err := MasterDB.Id(objid).Incr("cmtnum", 1).Update(new(model.Article))
 	if err != nil {
 		logger.Errorln("更新文章评论数失败：", err)
 	}
@@ -82,9 +94,9 @@ func (self ArticleComment) String() string {
 	return "article"
 }
 
-// 实现 CommentObjecter 接口
+// SetObjinfo 实现 CommentObjecter 接口
 func (self ArticleComment) SetObjinfo(ids []int, commentMap map[int][]*model.Comment) {
-	articles := FindArticlesByIds(ids)
+	articles := DefaultArticle.FindByIds(ids)
 	if len(articles) == 0 {
 		return
 	}
@@ -92,11 +104,28 @@ func (self ArticleComment) SetObjinfo(ids []int, commentMap map[int][]*model.Com
 	for _, article := range articles {
 		objinfo := make(map[string]interface{})
 		objinfo["title"] = article.Title
-		objinfo["uri"] = model.PathUrlMap[model.TYPE_ARTICLE]
-		objinfo["type_name"] = model.TypeNameMap[model.TYPE_ARTICLE]
+		objinfo["uri"] = model.PathUrlMap[model.TypeArticle]
+		objinfo["type_name"] = model.TypeNameMap[model.TypeArticle]
 
 		for _, comment := range commentMap[article.Id] {
 			comment.Objinfo = objinfo
 		}
 	}
 }
+
+// 博文喜欢
+type ArticleLike struct{}
+
+// 更新该文章的喜欢数
+// objid：被喜欢对象id；num: 喜欢数(负数表示取消喜欢)
+// func (self ArticleLike) UpdateLike(objid, num int) {
+// 	// 更新喜欢数（TODO：暂时每次都更新表）
+// 	err := model.NewArticle().Where("id=?", objid).Increment("likenum", num)
+// 	if err != nil {
+// 		logger.Errorln("更新文章喜欢数失败：", err)
+// 	}
+// }
+
+// func (self ArticleLike) String() string {
+// 	return "article"
+// }

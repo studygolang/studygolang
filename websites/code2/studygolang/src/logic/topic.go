@@ -9,8 +9,7 @@ package logic
 import (
 	"html/template"
 	"model"
-	"strconv"
-	"util"
+	"time"
 
 	. "db"
 
@@ -118,6 +117,49 @@ func (TopicLogic) FindByNid(ctx context.Context, nid, curTid string) []*model.To
 	return topics
 }
 
+// FindByTids 获取多个主题详细信息
+func (TopicLogic) FindByTids(tids []int) []*model.Topic {
+	if len(tids) == 0 {
+		return nil
+	}
+
+	topics := make([]*model.Topic, 0)
+	err := MasterDB.In("tid", tids).Find(&topics)
+	if err != nil {
+		logger.Errorln("TopicLogic FindByTids error:", err)
+		return nil
+	}
+	return topics
+}
+
+// FindHotNodes 获得热门节点
+func (TopicLogic) FindHotNodes(ctx context.Context) []map[string]interface{} {
+	objLog := GetLogger(ctx)
+
+	strSql := "SELECT nid, COUNT(1) AS topicnum FROM topics GROUP BY nid ORDER BY topicnum DESC LIMIT 10"
+	rows, err := MasterDB.DB().DB.Query(strSql)
+	if err != nil {
+		objLog.Errorln("TopicLogic FindHotNodes error:", err)
+		return nil
+	}
+	nodes := make([]map[string]interface{}, 0, 10)
+	for rows.Next() {
+		var nid, topicnum int
+		err = rows.Scan(&nid, &topicnum)
+		if err != nil {
+			objLog.Errorln("rows.Scan error:", err)
+			continue
+		}
+		name := GetNodeName(nid)
+		node := map[string]interface{}{
+			"name": name,
+			"nid":  nid,
+		}
+		nodes = append(nodes, node)
+	}
+	return nodes
+}
+
 // Total 话题总数
 func (TopicLogic) Total() int64 {
 	total, err := MasterDB.Count(new(model.Topic))
@@ -161,16 +203,18 @@ type TopicComment struct{}
 
 // UpdateComment 更新该主题的回复信息
 // cid：评论id；objid：被评论对象id；uid：评论者；cmttime：评论时间
-func (self TopicComment) UpdateComment(cid, objid, uid int, cmttime string) {
-	tid := strconv.Itoa(objid)
+func (self TopicComment) UpdateComment(cid, objid, uid int, cmttime time.Time) {
 	// 更新最后回复信息
-	stringBuilder := util.NewBuffer().Append("lastreplyuid=").AppendInt(uid).Append(",lastreplytime=").Append(cmttime)
-	err := model.NewTopic().Set(stringBuilder.String()).Where("tid=" + tid).Update()
+	_, err := MasterDB.Table(new(model.Topic)).Id(objid).Update(map[string]interface{}{
+		"lastreplyuid":  uid,
+		"lastreplytime": cmttime,
+	})
 	if err != nil {
 		logger.Errorln("更新主题最后回复人信息失败：", err)
 	}
+
 	// 更新回复数（TODO：暂时每次都更新表）
-	err = model.NewTopicEx().Where("tid="+tid).Increment("reply", 1)
+	_, err = MasterDB.Id(objid).Incr("reply", 1).Update(new(model.TopicEx))
 	if err != nil {
 		logger.Errorln("更新主题回复数失败：", err)
 	}
@@ -182,7 +226,8 @@ func (self TopicComment) String() string {
 
 // 实现 CommentObjecter 接口
 func (self TopicComment) SetObjinfo(ids []int, commentMap map[int][]*model.Comment) {
-	topics := FindTopicsByTids(ids)
+
+	topics := DefaultTopic.FindByTids(ids)
 	if len(topics) == 0 {
 		return
 	}
@@ -190,8 +235,8 @@ func (self TopicComment) SetObjinfo(ids []int, commentMap map[int][]*model.Comme
 	for _, topic := range topics {
 		objinfo := make(map[string]interface{})
 		objinfo["title"] = topic.Title
-		objinfo["uri"] = model.PathUrlMap[model.TYPE_TOPIC]
-		objinfo["type_name"] = model.TypeNameMap[model.TYPE_TOPIC]
+		objinfo["uri"] = model.PathUrlMap[model.TypeTopic]
+		objinfo["type_name"] = model.TypeNameMap[model.TypeTopic]
 
 		for _, comment := range commentMap[topic.Tid] {
 			comment.Objinfo = objinfo

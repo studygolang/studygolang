@@ -176,20 +176,16 @@ func (UserLogic) EmailOrUsernameExists(ctx context.Context, email, username stri
 
 func (self UserLogic) FindUserInfos(ctx context.Context, uids []int) map[int]*model.User {
 	objLog := GetLogger(ctx)
-
-	var usersMap = make(map[int]*model.User)
-	if err := MasterDB.In("uid", uids).Find(&usersMap); err != nil {
-		objLog.Infoln("user logic FindAll not record found:")
+	if len(uids) == 0 {
+		objLog.Errorln("UserLogic FindUserInfos uids is empty")
 		return nil
 	}
 
-	// usersMap := make(map[int]*model.User, len(users))
-	// for _, user := range users {
-	// 	if user == nil || user.Uid == 0 {
-	// 		continue
-	// 	}
-	// 	usersMap[user.Uid] = user
-	// }
+	usersMap := make(map[int]*model.User)
+	if err := MasterDB.In("uid", uids).Find(&usersMap); err != nil {
+		objLog.Errorln("user logic FindUserInfos not record found:", err)
+		return nil
+	}
 	return usersMap
 }
 
@@ -390,4 +386,30 @@ func (UserLogic) RecordLoginTime(username string) error {
 		logger.Errorf("记录用户 %q 登录时间错误：%s", username, err)
 	}
 	return err
+}
+
+// FindActiveUsers 获得活跃用户
+func (UserLogic) FindActiveUsers(ctx context.Context, limit int, offset ...int) []*model.UserActive {
+	objLog := GetLogger(ctx)
+
+	activeUsers := make([]*model.UserActive, 0)
+	err := MasterDB.OrderBy("weight DESC").Limit(limit, offset...).Find(&activeUsers)
+	if err != nil {
+		objLog.Errorln("UserLogic FindActiveUsers error:", err)
+		return nil
+	}
+	return activeUsers
+}
+
+// FindNewUsers 最新加入会员
+func (UserLogic) FindNewUsers(ctx context.Context, limit int, offset ...int) []*model.User {
+	objLog := GetLogger(ctx)
+
+	users := make([]*model.User, 0)
+	err := MasterDB.OrderBy("ctime DESC").Limit(limit, offset...).Find(&users)
+	if err != nil {
+		objLog.Errorln("UserLogic FindNewUsers error:", err)
+		return nil
+	}
+	return users
 }

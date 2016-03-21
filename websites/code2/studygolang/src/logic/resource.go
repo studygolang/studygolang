@@ -8,7 +8,7 @@ package logic
 
 import (
 	"model"
-	"strconv"
+	"time"
 
 	. "db"
 
@@ -45,15 +45,28 @@ func (ResourceLogic) FindBy(limit int, lastIds ...int) []*model.Resource {
 	return resourceList
 }
 
+// FindByIds 获取多个资源详细信息
+func (ResourceLogic) FindByIds(ids []int) []*model.Resource {
+	if len(ids) == 0 {
+		return nil
+	}
+	resources := make([]*model.Resource, 0)
+	err := MasterDB.In("id", ids).Find(&resources)
+	if err != nil {
+		logger.Errorln("ResourceLogic FindByIds error:", err)
+		return nil
+	}
+	return resources
+}
+
 // 资源评论
 type ResourceComment struct{}
 
 // 更新该资源的评论信息
 // cid：评论id；objid：被评论对象id；uid：评论者；cmttime：评论时间
-func (self ResourceComment) UpdateComment(cid, objid, uid int, cmttime string) {
-	id := strconv.Itoa(objid)
+func (self ResourceComment) UpdateComment(cid, objid, uid int, cmttime time.Time) {
 	// 更新评论数（TODO：暂时每次都更新表）
-	err := model.NewResourceEx().Where("id="+id).Increment("cmtnum", 1)
+	_, err := MasterDB.Id(objid).Incr("cmtnum", 1).Update(new(model.ResourceEx))
 	if err != nil {
 		logger.Errorln("更新资源评论数失败：", err)
 	}
@@ -65,7 +78,7 @@ func (self ResourceComment) String() string {
 
 // 实现 CommentObjecter 接口
 func (self ResourceComment) SetObjinfo(ids []int, commentMap map[int][]*model.Comment) {
-	resources := FindResourcesByIds(ids)
+	resources := DefaultResource.FindByIds(ids)
 	if len(resources) == 0 {
 		return
 	}
@@ -73,8 +86,8 @@ func (self ResourceComment) SetObjinfo(ids []int, commentMap map[int][]*model.Co
 	for _, resource := range resources {
 		objinfo := make(map[string]interface{})
 		objinfo["title"] = resource.Title
-		objinfo["uri"] = model.PathUrlMap[model.TYPE_RESOURCE]
-		objinfo["type_name"] = model.TypeNameMap[model.TYPE_RESOURCE]
+		objinfo["uri"] = model.PathUrlMap[model.TypeResource]
+		objinfo["type_name"] = model.TypeNameMap[model.TypeResource]
 
 		for _, comment := range commentMap[resource.Id] {
 			comment.Objinfo = objinfo

@@ -275,16 +275,16 @@ $(function(){
 	}
 
 	var sidebar_callback = {
-		"/topics/recent.json": {"func": topicRecent, "class": ".topic-list"},
-		"/articles/recent.json": {"func": articleRecent, "class": ".article-list"},
-		"/projects/recent.json": {"func": projectRecent, "class": ".project-list"},
-		"/resources/recent.json": {"func": resourceRecent, "class": ".resource-list"},
-		"/comments/recent.json": {"func": commentRecent, "class": ".cmt-list"},
-		"/users/active.json": {"func": userActive, "class": "#active-list"},
-		"/users/newest.json": {"func": userNewest, "class": "#newest-list"},
-		"/websites/stat.json": {"func": websiteStat, "class": ".stat-list"},
-		"/readings/recent.json": {"func": readingRecent, "class": ".reading-list"},
-		"/nodes/hot.json": {"func": hotNodes, "class": ".node-list"},
+		"/topics/recent": {"func": topicRecent, "class": ".topic-list"},
+		"/articles/recent": {"func": articleRecent, "class": ".article-list"},
+		"/projects/recent": {"func": projectRecent, "class": ".project-list"},
+		"/resources/recent": {"func": resourceRecent, "class": ".resource-list"},
+		"/comments/recent": {"func": commentRecent, "class": ".cmt-list"},
+		"/users/active": {"func": userActive, "class": "#active-list"},
+		"/users/newest": {"func": userNewest, "class": "#newest-list"},
+		"/websites/stat": {"func": websiteStat, "class": ".stat-list"},
+		"/readings/recent": {"func": readingRecent, "class": ".reading-list"},
+		"/nodes/hot": {"func": hotNodes, "class": ".node-list"},
 	};
 	
 	if (typeof SG.SIDE_BARS != "undefined") {
