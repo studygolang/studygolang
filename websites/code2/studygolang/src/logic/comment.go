@@ -8,13 +8,15 @@ package logic
 
 import (
 	"fmt"
+	"html/template"
 	"model"
 	"regexp"
-	"text/template"
+	"util"
 
 	. "db"
 
 	"github.com/fatih/set"
+	"github.com/fatih/structs"
 	"github.com/polaris1119/logger"
 	"golang.org/x/net/context"
 )
@@ -22,6 +24,40 @@ import (
 type CommentLogic struct{}
 
 var DefaultComment = CommentLogic{}
+
+// FindObjComments 获得某个对象的所有评论
+// owner: 被评论对象属主
+// TODO:分页暂不做
+func (self CommentLogic) FindObjComments(ctx context.Context, objid, objtype int, owner, lastCommentUid int /*, page, pageNum int*/) (comments []map[string]interface{}, ownerUser, lastReplyUser *model.User) {
+	objLog := GetLogger(ctx)
+
+	commentList := make([]*model.Comment, 0)
+	err := MasterDB.Where("objid=? AND objtype=?", objid, objtype).Find(&commentList)
+	if err != nil {
+		objLog.Errorln("CommentLogic FindObjComments Error:", err)
+		return
+	}
+
+	uids := util.Models2Intslice(commentList, "Uid")
+
+	// 避免某些情况下最后回复人没在回复列表中
+	uids = append(uids, owner, lastCommentUid)
+
+	// 获得用户信息
+	userMap := DefaultUser.FindUserInfos(ctx, uids)
+	ownerUser = userMap[owner]
+	if lastCommentUid != 0 {
+		lastReplyUser = userMap[lastCommentUid]
+	}
+	comments = make([]map[string]interface{}, 0, len(commentList))
+	for _, comment := range commentList {
+		tmpMap := structs.Map(comment)
+		tmpMap["content"] = template.HTML(self.decodeCmtContent(ctx, comment))
+		tmpMap["user"] = userMap[comment.Uid]
+		comments = append(comments, tmpMap)
+	}
+	return
+}
 
 // Total 评论总数(objtypes[0] 取某一类型的评论总数)
 func (CommentLogic) Total(objtypes ...int) int64 {

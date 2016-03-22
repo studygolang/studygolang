@@ -7,8 +7,17 @@ import (
 
 type OftenTime time.Time
 
+func NewOftenTime() OftenTime {
+	t, _ := time.ParseInLocation("2006-01-02 15:04:05", "2000-01-01 00:00:00", time.Local)
+	return OftenTime(t)
+}
+
 func (self OftenTime) String() string {
-	return time.Time(self).Format("2006-01-02 15:04:05")
+	t := time.Time(self)
+	if t.IsZero() {
+		return "0000-00-00 00:00:00"
+	}
+	return t.Format("2006-01-02 15:04:05")
 }
 
 func (self OftenTime) MarshalBinary() ([]byte, error) {

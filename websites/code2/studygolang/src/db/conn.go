@@ -1,6 +1,7 @@
 package db
 
 import (
+	"database/sql"
 	"fmt"
 
 	. "github.com/polaris1119/config"
@@ -59,4 +60,8 @@ func open() error {
 	// MasterDB.SetDefaultCacher(cacher)
 
 	return nil
+}
+
+func StdMasterDB() *sql.DB {
+	return MasterDB.DB().DB
 }

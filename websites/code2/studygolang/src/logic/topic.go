@@ -7,9 +7,12 @@
 package logic
 
 import (
+	"errors"
 	"html/template"
 	"model"
+	"net/url"
 	"time"
+	"util"
 
 	. "db"
 
@@ -22,6 +25,53 @@ import (
 type TopicLogic struct{}
 
 var DefaultTopic = TopicLogic{}
+
+// Publish 发布主题。入topics和topics_ex库
+func (TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Values) (err error) {
+	objLog := GetLogger(ctx)
+
+	// usernames := form.Get("usernames")
+	form.Del("usernames")
+
+	topic := &model.Topic{}
+	err = schemaDecoder.Decode(topic, form)
+	if err != nil {
+		objLog.Errorln("TopicLogic Publish decode error:", err)
+		return
+	}
+	topic.Uid = me.Uid
+	topic.Lastreplytime = model.NewOftenTime()
+
+	_, err = MasterDB.Insert(topic)
+	if err != nil {
+		objLog.Errorln("TopicLogic Publish insert error:", err)
+		return
+	}
+
+	topicEx := &model.TopicEx{
+		Tid: topic.Tid,
+	}
+
+	_, err = MasterDB.Insert(topicEx)
+	if err != nil {
+		logger.Errorln("TopicLogic Publish Insert TopicEx error:", err)
+		return
+	}
+
+	// 给 被@用户 发系统消息
+	// ext := map[string]interface{}{
+	// 	"objid":   tid,
+	// 	"objtype": model.TYPE_TOPIC,
+	// 	"uid":     user["uid"],
+	// 	"msgtype": model.MsgtypePublishAtMe,
+	// }
+	// go SendSysMsgAtUsernames(form.Get("usernames"), ext)
+
+	// 发布主题，活跃度+10
+	go DefaultUser.IncrUserWeight("uid", me.Uid, 10)
+
+	return
+}
 
 func (TopicLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy string, querystring string, args ...interface{}) []map[string]interface{} {
 	objLog := GetLogger(ctx)
@@ -132,6 +182,51 @@ func (TopicLogic) FindByTids(tids []int) []*model.Topic {
 	return topics
 }
 
+// FindByTid 获得主题详细信息（包括详细回复）
+func (self TopicLogic) FindByTid(ctx context.Context, tid int) (topicMap map[string]interface{}, replies []map[string]interface{}, err error) {
+	objLog := GetLogger(ctx)
+
+	topicInfo := &model.TopicInfo{}
+	_, err = MasterDB.Join("INNER", "topics_ex", "topics.tid=topics_ex.tid").Where("topics.tid=?", tid).Get(topicInfo)
+	if err != nil {
+		objLog.Errorln("TopicLogic FindByTid get error:", err)
+		return
+	}
+
+	topic := &topicInfo.Topic
+
+	if topic.Tid == 0 {
+		err = errors.New("The topic of tid is not exists")
+		objLog.Errorln("TopicLogic FindByTid get error:", err)
+		return
+	}
+
+	topicMap = make(map[string]interface{})
+	structs.FillMap(topic, topicMap)
+	structs.FillMap(topicInfo.TopicEx, topicMap)
+
+	// 解析内容中的 @
+	topicMap["content"] = self.decodeTopicContent(ctx, topic)
+
+	// 节点名字
+	topicMap["node"] = GetNodeName(topic.Nid)
+
+	// 回复信息（评论）
+	replies, owerUser, lastReplyUser := DefaultComment.FindObjComments(ctx, topic.Tid, model.TypeTopic, topic.Uid, topic.Lastreplyuid)
+	topicMap["user"] = owerUser
+	// 有人回复
+	if topic.Lastreplyuid != 0 {
+		topicMap["lastreplyusername"] = lastReplyUser.Username
+	}
+
+	if topic.EditorUid != 0 {
+		editorUser := DefaultUser.FindOne(ctx, "uid", topic.EditorUid)
+		topicMap["editor_username"] = editorUser.Username
+	}
+
+	return
+}
+
 // FindHotNodes 获得热门节点
 func (TopicLogic) FindHotNodes(ctx context.Context) []map[string]interface{} {
 	objLog := GetLogger(ctx)
@@ -196,6 +291,17 @@ func (TopicLogic) Count(ctx context.Context, querystring string, args ...interfa
 	}
 
 	return total
+}
+
+func (TopicLogic) decodeTopicContent(ctx context.Context, topic *model.Topic) string {
+	// 安全过滤
+	content := template.HTMLEscapeString(topic.Content)
+
+	// 允许内嵌 Wide iframe
+	content = util.EmbedWide(content)
+
+	// @别人
+	return parseAtUser(ctx, content)
 }
 
 // 话题回复（评论）

@@ -12,6 +12,7 @@ import (
 	"model"
 	"net/url"
 	"time"
+	"util"
 
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
@@ -411,5 +412,25 @@ func (UserLogic) FindNewUsers(ctx context.Context, limit int, offset ...int) []*
 		objLog.Errorln("UserLogic FindNewUsers error:", err)
 		return nil
 	}
+	return users
+}
+
+// GetUserMentions 获取 @ 的 suggest 列表
+func (UserLogic) GetUserMentions(term string, limit int) []map[string]string {
+	userActives := make([]*model.UserActive, 0)
+	err := MasterDB.Where("username like ?", "%"+term+"%").Desc("mtime").Limit(limit).Find(&userActives)
+	if err != nil {
+		logger.Errorln("UserLogic GetUserMentions Error:", err)
+		return nil
+	}
+
+	users := make([]map[string]string, len(userActives))
+	for i, userActive := range userActives {
+		user := make(map[string]string, 2)
+		user["username"] = userActive.Username
+		user["avatar"] = util.Gravatar(userActive.Avatar, userActive.Email, 20)
+		users[i] = user
+	}
+
 	return users
 }

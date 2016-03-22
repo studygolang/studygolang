@@ -54,13 +54,19 @@ func getLogger(ctx echo.Context) *logger.Logger {
 	return logic.GetLogger(ctx)
 }
 
+const LayoutTpl = "common/layout.html"
+
 // render html 输出
 func render(ctx echo.Context, contentTpl string, data map[string]interface{}) error {
 	objLog := getLogger(ctx)
 
+	contentTpl = LayoutTpl + "," + contentTpl
 	// 为了使用自定义的模板函数，首先New一个以第一个模板文件名为模板名。
 	// 这样，在ParseFiles时，新返回的*Template便还是原来的模板实例
-	htmlFiles := []string{config.TemplateDir + "common/layout.html", config.TemplateDir + contentTpl}
+	htmlFiles := strings.Split(contentTpl, ",")
+	for i, contentTpl := range htmlFiles {
+		htmlFiles[i] = config.TemplateDir + contentTpl
+	}
 	tpl, err := template.New("layout.html").Funcs(funcMap).ParseFiles(htmlFiles...)
 	if err != nil {
 		objLog.Errorf("解析模板出错（ParseFiles）：[%q] %s\n", Request(ctx).RequestURI, err)

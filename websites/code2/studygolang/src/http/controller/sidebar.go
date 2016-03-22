@@ -1,3 +1,9 @@
+// Copyright 2016 The StudyGolang Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+// http://studygolang.com
+// Author：polaris	polaris@studygolang.com
+
 package controller
 
 import (
@@ -141,21 +147,6 @@ func (SidebarController) NewestUser(ctx echo.Context) error {
 	newestUsers := logic.DefaultUser.FindNewUsers(ctx, 9)
 	return success(ctx, newestUsers)
 }
-
-// 评论或回复 @ 某人 suggest
-// uri: /at/users.json
-// func AtUsersHandler(rw http.ResponseWriter, req *http.Request) {
-// 	term := req.FormValue("term")
-// 	users := service.GetUserMentions(term, 10)
-// 	buf, err := json.Marshal(users)
-// 	if err != nil {
-// 		logger.Errorln("[AtUsersHandler] json.marshal error:", err)
-// 		fmt.Fprint(rw, `[]`)
-// 		return
-// 	}
-
-// 	fmt.Fprint(rw, string(buf))
-// }
 
 // const maxImageSize = 5 << 20 // 5M
 

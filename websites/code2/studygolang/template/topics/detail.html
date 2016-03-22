@@ -17,7 +17,7 @@
 				<h1>
 					{{.topic.title}}
 					{{if .me}}
-						{{if or (eq .me.username .topic.user.Username) .me.isadmin}}
+						{{if or (eq .me.Username .topic.user.Username) .me.IsAdmin}}
 						<a class="edit" href="/topics/modify?tid={{.topic.tid}}" title="编辑"><i class="glyphicon glyphicon-pencil"></i> 编辑</a>
 						{{end}}
 					{{end}}
@@ -81,7 +81,7 @@
 				<!-- JiaThis Button END -->
 			</div>
 			<!-- 评论 -->
-			<div class="page-comment" data-objid="{{.topic.tid}}" data-objtype="0" {{if .me}}data-username="{{.me.username}}" data-uid="{{.me.uid}}" data-avatar="{{gravatar .me.avatar .me.email 48}}"{{end}}>
+			<div class="page-comment" data-objid="{{.topic.tid}}" data-objtype="0" {{if .me}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48}}"{{end}}>
 				<div class="words hide">
 					<h3><span class="cmtnum">{{.topic.reply}}</span>条回复</h3>
 					<ul class="list-unstyled">
@@ -181,9 +181,9 @@
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
-	"/topics/recent.json",
-	"/articles/recent.json",
-	"/resources/recent.json"
+	"/topics/recent",
+	"/articles/recent",
+	"/resources/recent"
 ];
 
 $(function(){
