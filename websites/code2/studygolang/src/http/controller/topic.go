@@ -28,6 +28,7 @@ func (this *TopicController) RegisterRoute(e *echo.Echo) {
 	e.Get("/topics/no_reply", echo.HandlerFunc(this.TopicsNoReply))
 	e.Get("/topics/last", echo.HandlerFunc(this.TopicsLast))
 	e.Get("/topics/:tid", echo.HandlerFunc(this.Detail))
+	e.Get("/topics/node/:nid", echo.HandlerFunc(this.NodeTopics))
 
 	e.Any("/topics/new", echo.HandlerFunc(this.Create), middleware.NeedLogin())
 }
@@ -61,6 +62,22 @@ func (TopicController) topicList(ctx echo.Context, view, orderBy, querystring st
 	}
 
 	return render(ctx, "topics/list.html", data)
+}
+
+// NodeTopics 某节点下的主题列表
+func (TopicController) NodeTopics(ctx echo.Context) error {
+	curPage := goutils.MustInt(ctx.Query("p"), 1)
+	paginator := logic.NewPaginator(curPage)
+
+	querystring, nid := "nid=?", goutils.MustInt(ctx.Param("nid"))
+	topics := logic.DefaultTopic.FindAll(ctx, paginator, "topics.mtime DESC", querystring, nid)
+	total := logic.DefaultTopic.Count(ctx, querystring, nid)
+	pageHtml := paginator.SetTotal(total).GetPageHtml(Request(ctx).URL.Path)
+
+	// 当前节点信息
+	node := logic.GetNode(nid)
+
+	return render(ctx, "topics/node.html", map[string]interface{}{"activeTopics": "active", "topics": topics, "page": template.HTML(pageHtml), "total": total, "node": node})
 }
 
 // Detail 社区主题详细页

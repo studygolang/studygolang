@@ -8,11 +8,16 @@ package logic
 
 import (
 	"model"
+	"net/url"
+	"strconv"
 	"time"
 
 	. "db"
 
+	"github.com/fatih/set"
+	"github.com/fatih/structs"
 	"github.com/polaris1119/logger"
+	"golang.org/x/net/context"
 )
 
 type ResourceLogic struct{}
@@ -43,6 +48,61 @@ func (ResourceLogic) FindBy(limit int, lastIds ...int) []*model.Resource {
 	}
 
 	return resourceList
+}
+
+// FindByCatid 获得某个分类的资源列表，分页
+func (ResourceLogic) FindByCatid(ctx context.Context, paginator *Paginator, catid int) (resources []map[string]interface{}, total int64) {
+	objLog := GetLogger(ctx)
+
+	var (
+		count         = paginator.PerPage()
+		resourceInfos = make([]*model.ResourceInfo, 0)
+	)
+
+	err := MasterDB.Join("INNER", "resource_ex", "resource.id=resource_ex.id").Where("catid=?", catid).
+		Desc("resource.mtime").Limit(count, paginator.Offset()).Find(&resourceInfos)
+	if err != nil {
+		objLog.Errorln("ResourceLogic FindByCatid error:", err)
+		return
+	}
+
+	total, err = MasterDB.Where("catid=?", catid).Count(new(model.Resource))
+	if err != nil {
+		objLog.Errorln("ResourceLogic FindByCatid count error:", err)
+		return
+	}
+
+	uidSet := set.New()
+	for _, resourceInfo := range resourceInfos {
+		uidSet.Add(resourceInfo.Uid)
+	}
+
+	usersMap := DefaultUser.FindUserInfos(ctx, set.IntSlice(uidSet))
+
+	resources = make([]map[string]interface{}, len(resourceInfos))
+
+	for i, resourceInfo := range resourceInfos {
+		dest := make(map[string]interface{})
+
+		structs.FillMap(resourceInfo.Resource, dest)
+		structs.FillMap(resourceInfo.ResourceEx, dest)
+
+		dest["user"] = usersMap[resourceInfo.Uid]
+
+		// 链接的host
+		if resourceInfo.Form == model.LinkForm {
+			urlObj, err := url.Parse(resourceInfo.Url)
+			if err == nil {
+				dest["host"] = urlObj.Host
+			}
+		} else {
+			dest["url"] = "/resources/" + strconv.Itoa(resourceInfo.Resource.Id)
+		}
+
+		resources[i] = dest
+	}
+
+	return
 }
 
 // FindByIds 获取多个资源详细信息

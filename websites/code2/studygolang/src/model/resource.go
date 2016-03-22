@@ -26,11 +26,20 @@ type Resource struct {
 
 // 资源扩展（计数）信息
 type ResourceEx struct {
-	Id      int    `json:"-"`
+	Id      int    `json:"-" xorm:"pk"`
 	Viewnum int    `json:"viewnum"`
 	Cmtnum  int    `json:"cmtnum"`
 	Likenum int    `json:"likenum"`
 	Mtime   string `json:"mtime" xorm:"<-"`
+}
+
+type ResourceInfo struct {
+	Resource   `xorm:"extends"`
+	ResourceEx `xorm:"extends"`
+}
+
+func (*ResourceInfo) TableName() string {
+	return "resource"
 }
 
 // 资源分类信息

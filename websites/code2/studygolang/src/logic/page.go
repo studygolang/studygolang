@@ -101,6 +101,10 @@ func (this *Paginator) Offset() (offset int) {
 	return
 }
 
+func (this *Paginator) SetPerPage(perPage int) {
+	this.perPage = perPage
+}
+
 func (this *Paginator) PerPage() int {
 	return this.perPage
 }

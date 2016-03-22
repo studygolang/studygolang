@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/polaris1119/logger"
+	"golang.org/x/net/context"
 )
 
 type ArticleLogic struct{}
@@ -36,7 +37,9 @@ func (ArticleLogic) Total() int64 {
 }
 
 // FindBy 获取抓取的文章列表（分页）
-func (ArticleLogic) FindBy(limit int, lastIds ...int) []*model.Article {
+func (ArticleLogic) FindBy(ctx context.Context, limit int, lastIds ...int) []*model.Article {
+	objLog := GetLogger(ctx)
+
 	dbSession := MasterDB.Where("status IN(?,?)", model.ArticleStatusNew, model.ArticleStatusOnline)
 
 	if len(lastIds) > 0 {
@@ -46,14 +49,14 @@ func (ArticleLogic) FindBy(limit int, lastIds ...int) []*model.Article {
 	articles := make([]*model.Article, 0)
 	err := dbSession.OrderBy("id DESC").Limit(limit).Find(&articles)
 	if err != nil {
-		logger.Errorln("ArticleLogic FindBy Error:", err)
+		objLog.Errorln("ArticleLogic FindBy Error:", err)
 		return nil
 	}
 
 	topArticles := make([]*model.Article, 0)
 	err = MasterDB.Where("top=?", 1).OrderBy("id DESC").Find(&topArticles)
 	if err != nil {
-		logger.Errorln("ArticleLogic Find Top Articles Error:", err)
+		objLog.Errorln("ArticleLogic Find Top Articles Error:", err)
 		return nil
 	}
 	if len(topArticles) > 0 {
@@ -75,6 +78,48 @@ func (ArticleLogic) FindByIds(ids []int) []*model.Article {
 		return nil
 	}
 	return articles
+}
+
+// FindByIdAndPreNext 获取当前(id)博文以及前后博文
+func (ArticleLogic) FindByIdAndPreNext(ctx context.Context, id int) (curArticle *model.Article, prevNext []*model.Article, err error) {
+	objLog := GetLogger(ctx)
+
+	articles := make([]*model.Article, 0)
+
+	err = MasterDB.Where("id BETWEEN ? AND ? AND status!=?", id-5, id+5, model.ArticleStatusOffline).Find(&articles)
+	if err != nil {
+		objLog.Errorln("ArticleLogic FindByIdAndPreNext Error:", err)
+		return
+	}
+
+	if len(articles) == 0 {
+		objLog.Errorln("ArticleLogic FindByIdAndPreNext not find articles, id:", id)
+		return
+	}
+
+	prevNext = make([]*model.Article, 2)
+	prevId, nextId := articles[0].Id, articles[len(articles)-1].Id
+	for _, article := range articles {
+		if article.Id < id && article.Id > prevId {
+			prevId = article.Id
+			prevNext[0] = article
+		} else if article.Id > id && article.Id < nextId {
+			nextId = article.Id
+			prevNext[1] = article
+		} else if article.Id == id {
+			curArticle = article
+		}
+	}
+
+	if prevId == id {
+		prevNext[0] = nil
+	}
+
+	if nextId == id {
+		prevNext[1] = nil
+	}
+
+	return
 }
 
 // 博文评论

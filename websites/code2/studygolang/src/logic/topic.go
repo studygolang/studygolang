@@ -73,6 +73,7 @@ func (TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Values) (e
 	return
 }
 
+// FindAll 支持多页翻看
 func (TopicLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy string, querystring string, args ...interface{}) []map[string]interface{} {
 	objLog := GetLogger(ctx)
 

@@ -92,7 +92,7 @@ func (SidebarController) RecentTopic(ctx echo.Context) error {
 // RecentArticle 最新博文
 func (SidebarController) RecentArticle(ctx echo.Context) error {
 	limit := goutils.MustInt(ctx.Query("limit"), 10)
-	recentArticles := logic.DefaultArticle.FindBy(limit)
+	recentArticles := logic.DefaultArticle.FindBy(ctx, limit)
 	return success(ctx, recentArticles)
 }
 
@@ -106,7 +106,7 @@ func (SidebarController) RecentProject(ctx echo.Context) error {
 // RecentResource 最新资源
 func (SidebarController) RecentResource(ctx echo.Context) error {
 	limit := goutils.MustInt(ctx.Query("limit"), 10)
-	recentResources := logic.DefaultResource.FindBy(limit)
+	recentResources := logic.DefaultResource.FindBy(ctx, limit)
 	return success(ctx, recentResources)
 }
 
