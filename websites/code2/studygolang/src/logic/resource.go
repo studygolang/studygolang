@@ -24,6 +24,109 @@ type ResourceLogic struct{}
 
 var DefaultResource = ResourceLogic{}
 
+// Publish 增加（修改）资源
+func (ResourceLogic) Publish(ctx context.Context, me *model.Me, form url.Values) (err error) {
+	objLog := GetLogger(ctx)
+
+	uid := me.Uid
+	resource := &model.Resource{}
+
+	if form.Get("id") != "" {
+		id := form.Get("id")
+		_, err = MasterDB.Id(id).Get(resource)
+		if err != nil {
+			logger.Errorln("ResourceLogic Publish find error:", err)
+			return
+		}
+
+		if resource.Uid != uid && !me.IsAdmin {
+			err = NotModifyAuthorityErr
+			return
+		}
+
+		fields := []string{"title", "catid", "form", "url", "content"}
+		if form.Get("form") == model.LinkForm {
+			form.Set("content", "")
+		} else {
+			form.Set("url", "")
+		}
+
+		for _, field := range fields {
+			form.Del(field)
+		}
+
+		err = schemaDecoder.Decode(resource, form)
+		if err != nil {
+			objLog.Errorln("ResourceLogic Publish decode error:", err)
+			return
+		}
+		_, err = MasterDB.Id(id).Update(resource)
+		if err != nil {
+			objLog.Errorf("更新資源 【%s】 信息失败：%s\n", id, err)
+			return
+		}
+
+		// 修改資源，活跃度+2
+		go DefaultUser.IncrUserWeight("uid", uid, 2)
+	} else {
+
+		err = schemaDecoder.Decode(resource, form)
+		if err != nil {
+			objLog.Errorln("ResourceLogic Publish decode error:", err)
+			return
+		}
+
+		resource.Uid = uid
+
+		session := MasterDB.NewSession()
+		defer session.Close()
+
+		err = session.Begin()
+		if err != nil {
+			objLog.Errorln("Publish Resource begin tx error:", err)
+			return
+		}
+
+		_, err = session.Insert(resource)
+		if err != nil {
+			session.Rollback()
+			objLog.Errorln("Publish Resource insert resource error:", err)
+			return
+		}
+
+		resourceEx := &model.ResourceEx{
+			Id: resource.Id,
+		}
+		_, err = session.Insert(resourceEx)
+		if err != nil {
+			session.Rollback()
+			objLog.Errorln("Publish Resource insert resource_ex error:", err)
+			return
+		}
+
+		err = session.Commit()
+		if err != nil {
+			objLog.Errorln("Publish Resource commit error:", err)
+		}
+
+		// 给 被@用户 发系统消息
+		/*
+			ext := map[string]interface{}{
+				"objid":   id,
+				"objtype": model.TypeResource,
+				"uid":     user["uid"],
+				"msgtype": model.MsgtypePublishAtMe,
+			}
+			go SendSysMsgAtUsernames(form.Get("usernames"), ext)
+		*/
+
+		// 发布主题，活跃度+10
+		go DefaultUser.IncrUserWeight("uid", uid, 10)
+	}
+
+	return
+}
+
 // Total 资源总数
 func (ResourceLogic) Total() int64 {
 	total, err := MasterDB.Count(new(model.Resource))
@@ -117,6 +220,57 @@ func (ResourceLogic) FindByIds(ids []int) []*model.Resource {
 		return nil
 	}
 	return resources
+}
+
+// 获得资源详细信息
+func (ResourceLogic) FindById(ctx context.Context, id int) (resourceMap map[string]interface{}, comments []map[string]interface{}) {
+	objLog := GetLogger(ctx)
+
+	resourceInfo := &model.ResourceInfo{}
+	_, err := MasterDB.Join("INNER", "resource", "resource.id=resource_ex.id").Where("resource.id=?", id).Get(resourceInfo)
+	if err != nil {
+		objLog.Errorln("ResourceLogic FindById error:", err)
+		return
+	}
+
+	resource := &resourceInfo.Resource
+	if resource.Id == 0 {
+		objLog.Errorln("ResourceLogic FindById get error:", err)
+		return
+	}
+
+	resourceMap = make(map[string]interface{})
+	structs.FillMap(resource, resourceMap)
+	structs.FillMap(resourceInfo.ResourceEx, resourceMap)
+
+	resourceMap["catname"] = GetCategoryName(resource.Catid)
+	// 链接的host
+	if resource.Form == model.LinkForm {
+		urlObj, err := url.Parse(resource.Url)
+		if err == nil {
+			resourceMap["host"] = urlObj.Host
+		}
+	} else {
+		resourceMap["url"] = "/resources/" + strconv.Itoa(resource.Id)
+	}
+
+	// 评论信息
+	comments, ownerUser, _ := DefaultComment.FindObjComments(ctx, id, model.TypeResource, resource.Uid, 0)
+	resourceMap["user"] = ownerUser
+	return
+}
+
+// 获取单个 Resource 信息（用于编辑）
+func (ResourceLogic) FindResource(ctx context.Context, id int) *model.Resource {
+	objLog := GetLogger(ctx)
+
+	resource := &model.Resource{}
+	_, err := MasterDB.Id(id).Get(resource)
+	if err != nil {
+		objLog.Errorf("ResourceLogic FindResource [%d] error：%s\n", id, err)
+	}
+
+	return resource
 }
 
 // 资源评论

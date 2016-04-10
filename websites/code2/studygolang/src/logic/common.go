@@ -7,6 +7,7 @@
 package logic
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"regexp"
@@ -21,6 +22,8 @@ var schemaDecoder = schema.NewDecoder()
 func init() {
 	schemaDecoder.SetAliasTag("json")
 }
+
+var NotModifyAuthorityErr = errors.New("没有修改权限")
 
 func GetLogger(ctx context.Context) *logger.Logger {
 	if ctx == nil {

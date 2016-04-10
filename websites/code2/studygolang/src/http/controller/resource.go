@@ -7,21 +7,14 @@
 package controller
 
 import (
-	"fmt"
 	"html/template"
 	"logic"
 	"net/http"
 
-	"vendor/github.com/polaris1119/goutils"
-
 	"github.com/labstack/echo"
+	"github.com/polaris1119/goutils"
 
-	"filter"
 	"model"
-	"service"
-	"util"
-
-	"github.com/studygolang/mux"
 )
 
 // 在需要评论（喜欢）且要回调的地方注册评论（喜欢）对象
@@ -37,6 +30,9 @@ type ResourceController struct{}
 func (this *ResourceController) RegisterRoute(e *echo.Echo) {
 	e.Get("/resources", echo.HandlerFunc(this.ReadList))
 	e.Get("/resources/cat/:catid", echo.HandlerFunc(this.ReadCatResources))
+	e.Get("/resources/:id", echo.HandlerFunc(this.Detail))
+	e.Any("/resources/new", echo.HandlerFunc(this.Create))
+	e.Any("/resources/modify", echo.HandlerFunc(this.Modify))
 }
 
 // ReadList 资源索引页
@@ -56,98 +52,84 @@ func (ResourceController) ReadCatResources(ctx echo.Context) error {
 	return render(ctx, "resources/index.html", map[string]interface{}{"activeResources": "active", "resources": resources, "categories": logic.AllCategory, "page": template.HTML(pageHtml), "curCatid": catid})
 }
 
-// 某个资源详细页
-// uri: /resources/{id:[0-9]+}
-func ResourceDetailHandler(rw http.ResponseWriter, req *http.Request) {
-	vars := mux.Vars(req)
-	resource, comments := service.FindResource(vars["id"])
-
+// Detail 某个资源详细页
+func (ResourceController) Detail(ctx echo.Context) error {
+	id := goutils.MustInt(ctx.Param("id"))
+	if id > 0 {
+		return ctx.Redirect(http.StatusSeeOther, "/resources/cat/1")
+	}
+	resource, comments := logic.DefaultResource.FindById(ctx, id)
 	if len(resource) == 0 {
-		util.Redirect(rw, req, "/resources")
-		return
+		return ctx.Redirect(http.StatusSeeOther, "/resources/cat/1")
 	}
 
 	likeFlag := 0
 	hadCollect := 0
-	user, ok := filter.CurrentUser(req)
+	me, ok := ctx.Get("user").(*model.Me)
 	if ok {
-		uid := user["uid"].(int)
 		id := resource["id"].(int)
-		likeFlag = service.HadLike(uid, id, model.TYPE_RESOURCE)
-		hadCollect = service.HadFavorite(uid, id, model.TYPE_RESOURCE)
+		likeFlag = logic.DefaultLike.HadLike(ctx, me.Uid, id, model.TypeResource)
+		hadCollect = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, id, model.TypeResource)
 	}
 
-	service.Views.Incr(req, model.TYPE_RESOURCE, util.MustInt(vars["id"]))
+	// service.Views.Incr(req, model.TYPE_RESOURCE, util.MustInt(vars["id"]))
 
-	req.Form.Set(filter.CONTENT_TPL_KEY, "/template/resources/detail.html,/template/common/comment.html")
-	filter.SetData(req, map[string]interface{}{"activeResources": "active", "resource": resource, "comments": comments, "likeflag": likeFlag, "hadcollect": hadCollect})
+	return render(ctx, "resources/detail.html,common/comment.html", map[string]interface{}{"activeResources": "active", "resource": resource, "comments": comments, "likeflag": likeFlag, "hadcollect": hadCollect})
 }
 
-// 发布新资源
-// uri: /resources/new{json:(|.json)}
-func NewResourceHandler(rw http.ResponseWriter, req *http.Request) {
-	vars := mux.Vars(req)
-	title := req.PostFormValue("title")
+// Create 发布新资源
+func (ResourceController) Create(ctx echo.Context) error {
+	title := ctx.Form("title")
 	// 请求新建资源页面
-	if title == "" || req.Method != "POST" || vars["json"] == "" {
-		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/resources/new.html")
-		filter.SetData(req, map[string]interface{}{"activeResources": "active", "categories": service.AllCategory})
-		return
+	if title == "" || Request(ctx).Method != "POST" {
+		return render(ctx, "resources/new.html", map[string]interface{}{"activeResources": "active", "categories": logic.AllCategory})
 	}
 
 	errMsg := ""
-	resForm := req.PostFormValue("form")
+	resForm := ctx.Form("form")
 	if resForm == model.LinkForm {
-		if req.PostFormValue("url") == "" {
+		if ctx.Form("url") == "" {
 			errMsg = "url不能为空"
 		}
 	} else {
-		if req.PostFormValue("content") == "" {
+		if ctx.Form("content") == "" {
 			errMsg = "内容不能为空"
 		}
 	}
 	if errMsg != "" {
-		fmt.Fprint(rw, `{"ok": 0, "error":"`+errMsg+`"}`)
-		return
+		return fail(ctx, 1, errMsg)
 	}
 
-	user, _ := filter.CurrentUser(req)
-	err := service.PublishResource(user, req.PostForm)
+	me := ctx.Get("user").(*model.Me)
+	err := logic.DefaultResource.Publish(ctx, me, Request(ctx).Form)
 	if err != nil {
-		fmt.Fprint(rw, `{"ok": 0, "error":"内部服务错误，请稍候再试！"}`)
-		return
+		return fail(ctx, 2, "内部服务错误，请稍候再试！")
 	}
 
-	fmt.Fprint(rw, `{"ok": 1, "data":""}`)
+	return success(ctx, nil)
 }
 
-// 修改資源
-// uri: /resources/modify{json:(|.json)}
-func ModifyResourceHandler(rw http.ResponseWriter, req *http.Request) {
-	id := req.FormValue("id")
-	if id == "" {
-		util.Redirect(rw, req, "/resources")
-		return
+// Modify 修改資源
+func (ResourceController) Modify(ctx echo.Context) error {
+	id := goutils.MustInt(ctx.Form("id"))
+	if id == 0 {
+		return ctx.Redirect(http.StatusSeeOther, "/resources/cat/1")
 	}
 
-	vars := mux.Vars(req)
 	// 请求编辑資源页面
-	if req.Method != "POST" || vars["json"] == "" {
-		resource := service.FindResourceById(id)
-		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/resources/new.html")
-		filter.SetData(req, map[string]interface{}{"resource": resource, "activeResources": "active", "categories": service.AllCategory})
-		return
+	if Request(ctx).Method != "POST" {
+		resource := logic.DefaultResource.FindResource(ctx, id)
+		return render(ctx, "resources/new.html", map[string]interface{}{"resource": resource, "activeResources": "active", "categories": service.AllCategory})
 	}
 
-	user, _ := filter.CurrentUser(req)
-	err := service.PublishResource(user, req.PostForm)
+	me := ctx.Get("user").(*model.Me)
+	err := logic.DefaultResource.Publish(ctx, me, Request(ctx).Form)
 	if err != nil {
 		if err == service.NotModifyAuthorityErr {
-			rw.WriteHeader(http.StatusForbidden)
-			return
+			return ctx.Error("没有权限修改")
 		}
-		fmt.Fprint(rw, `{"ok": 0, "error":"内部服务错误！"}`)
-		return
+		return fail(ctx, 2, "内部服务错误，请稍候再试！")
 	}
-	fmt.Fprint(rw, `{"ok": 1, "data":""}`)
+
+	return success(ctx, nil)
 }

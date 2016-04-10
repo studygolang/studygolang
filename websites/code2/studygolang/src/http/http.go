@@ -21,7 +21,7 @@ func SetCookie(ctx echo.Context, username string) {
 	Store.Options.HttpOnly = true
 
 	session := GetCookieSession(ctx)
-	if ctx.Form("remember_me") != "1" {
+	if ctx.FormValue("remember_me") != "1" {
 		// 浏览器关闭，cookie删除，否则保存30天(github.com/gorilla/sessions 包的默认值)
 		session.Options = &sessions.Options{
 			Path:     "/",

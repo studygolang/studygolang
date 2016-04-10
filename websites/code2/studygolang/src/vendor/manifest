@@ -8,12 +8,6 @@
 			"branch": "master"
 		},
 		{
-			"importpath": "github.com/bitly/go-simplejson",
-			"repository": "https://github.com/bitly/go-simplejson",
-			"revision": "aabad6e819789e569bd6aabf444c935aa9ba1e44",
-			"branch": "master"
-		},
-		{
 			"importpath": "github.com/dchest/captcha",
 			"repository": "https://github.com/dchest/captcha",
 			"revision": "9e952142169c3cd6268c6482a3a61c121536aca2",
@@ -42,7 +36,7 @@
 		{
 			"importpath": "github.com/facebookgo/httpdown",
 			"repository": "https://github.com/facebookgo/httpdown",
-			"revision": "1fa03998d20119dfe4ef73f56a638d83048052e2",
+			"revision": "a3b1354551a26449fbe05f5d855937f6e7acbd71",
 			"branch": "master"
 		},
 		{
@@ -80,19 +74,19 @@
 		{
 			"importpath": "github.com/go-sql-driver/mysql",
 			"repository": "https://github.com/go-sql-driver/mysql",
-			"revision": "1fca743146605a172a266e1654e01e5cd5669bee",
+			"revision": "1421caf44f6464fd2ee8de694c7508ee13f92964",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/go-xorm/core",
 			"repository": "https://github.com/go-xorm/core",
-			"revision": "502158401cde814951eae62f064d9e5ff39e13ce",
+			"revision": "b9277f807c011387baed9748a45f26da65b42077",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/go-xorm/xorm",
 			"repository": "https://github.com/go-xorm/xorm",
-			"revision": "4fec1167dee4d169811e9437d6563c76ac1446bf",
+			"revision": "2f8952d39b3fde5a64ec5b43052b13ed49dca45a",
 			"branch": "master"
 		},
 		{
@@ -127,62 +121,29 @@
 			"branch": "master"
 		},
 		{
-			"importpath": "github.com/klauspost/compress/flate",
-			"repository": "https://github.com/klauspost/compress",
-			"revision": "006acde2c5d283d2f8b8aa03d8f0cd2891c680cf",
-			"branch": "master",
-			"path": "/flate"
-		},
-		{
-			"importpath": "github.com/klauspost/compress/gzip",
-			"repository": "https://github.com/klauspost/compress",
-			"revision": "006acde2c5d283d2f8b8aa03d8f0cd2891c680cf",
-			"branch": "master",
-			"path": "/gzip"
-		},
-		{
-			"importpath": "github.com/klauspost/compress/zlib",
-			"repository": "https://github.com/klauspost/compress",
-			"revision": "006acde2c5d283d2f8b8aa03d8f0cd2891c680cf",
-			"branch": "master",
-			"path": "/zlib"
-		},
-		{
-			"importpath": "github.com/klauspost/cpuid",
-			"repository": "https://github.com/klauspost/cpuid",
-			"revision": "09cded8978dc9e80714c4d85b0322337b0a1e5e0",
-			"branch": "master"
-		},
-		{
-			"importpath": "github.com/klauspost/crc32",
-			"repository": "https://github.com/klauspost/crc32",
-			"revision": "19b0b332c9e4516a6370a0456e6182c3b5036720",
-			"branch": "master"
-		},
-		{
 			"importpath": "github.com/labstack/echo",
 			"repository": "https://github.com/labstack/echo",
-			"revision": "576dfeb71d257a11e14bf637073b8c64576d2628",
+			"revision": "d42a861a68eb5335ecbbaf230f0cf23b4e8d2a05",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/labstack/gommon/color",
 			"repository": "https://github.com/labstack/gommon",
-			"revision": "9c0a60557b6840125c331d8c8075119770aa2805",
+			"revision": "f4ba73f8bcf88df1524069c117f7878cf530ee4e",
 			"branch": "master",
 			"path": "/color"
 		},
 		{
 			"importpath": "github.com/labstack/gommon/log",
 			"repository": "https://github.com/labstack/gommon",
-			"revision": "9c0a60557b6840125c331d8c8075119770aa2805",
+			"revision": "f4ba73f8bcf88df1524069c117f7878cf530ee4e",
 			"branch": "master",
 			"path": "/log"
 		},
 		{
 			"importpath": "github.com/lib/pq",
 			"repository": "https://github.com/lib/pq",
-			"revision": "e182dc4027e2ded4b19396d638610f2653295f36",
+			"revision": "3cd0097429be7d611bb644ef85b42bfb102ceea4",
 			"branch": "master"
 		},
 		{
@@ -200,19 +161,19 @@
 		{
 			"importpath": "github.com/mattn/go-sqlite3",
 			"repository": "https://github.com/mattn/go-sqlite3",
-			"revision": "45f056ca8f5ef4ee3f68796167a0a0e6a6214813",
+			"revision": "37aa7c6f5bc95b7264de70cd1f0ca1d39228ebd6",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/polaris1119/config",
 			"repository": "https://github.com/polaris1119/config",
-			"revision": "172f2d4cb09bb94bb3ff9b0c66878d77bd2468a5",
+			"revision": "fa59151a9185c5fe415a35bec391dcee8a6d0338",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/polaris1119/goutils",
 			"repository": "https://github.com/polaris1119/goutils",
-			"revision": "0674daf47a02e7ffefab333337e5f2ec4d8f3be6",
+			"revision": "2dc1e58669158610e27c3cdfdff072d70422e14c",
 			"branch": "master"
 		},
 		{
@@ -224,31 +185,25 @@
 		{
 			"importpath": "github.com/polaris1119/middleware",
 			"repository": "https://github.com/polaris1119/middleware",
-			"revision": "697ba01d6818431cbea35337f7ac4e2a01055e22",
+			"revision": "37f7a4f43c595c8b2e937263b0b064dc9547cd26",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/polaris1119/nosql",
 			"repository": "https://github.com/polaris1119/nosql",
-			"revision": "c02042c99cd9e093f5559f9927ab46f4aad66712",
+			"revision": "0988e14cd44db80aab69b14f7591d06e55976501",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/robfig/cron",
 			"repository": "https://github.com/robfig/cron",
-			"revision": "32d9c273155a0506d27cf73dd1246e86a470997e",
+			"revision": "0f39cf7ebc65a602f45692f9894bd6a193faf8fa",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/twinj/uuid",
 			"repository": "https://github.com/twinj/uuid",
 			"revision": "89173bcdda19db0eb88aef1e1cb1cb2505561d31",
-			"branch": "master"
-		},
-		{
-			"importpath": "github.com/valyala/fasthttp",
-			"repository": "https://github.com/valyala/fasthttp",
-			"revision": "2b172da53920a126cfc2532eced9400864bdacd9",
 			"branch": "master"
 		},
 		{
@@ -260,14 +215,14 @@
 		{
 			"importpath": "golang.org/x/net/context",
 			"repository": "https://github.com/golang/net",
-			"revision": "a4bbce9fcae005b22ae5443f6af064d80a6f5a55",
+			"revision": "024ed629fd292398cfd43c9678a5bf004f7defdc",
 			"branch": "master",
 			"path": "/context"
 		},
 		{
 			"importpath": "golang.org/x/net/websocket",
 			"repository": "https://github.com/golang/net",
-			"revision": "a4bbce9fcae005b22ae5443f6af064d80a6f5a55",
+			"revision": "024ed629fd292398cfd43c9678a5bf004f7defdc",
 			"branch": "master",
 			"path": "/websocket"
 		}
