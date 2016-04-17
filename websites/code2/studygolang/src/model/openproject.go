@@ -36,6 +36,6 @@ type OpenProject struct {
 	Cmtnum   int       `json:"cmtnum,omitempty"`
 	Likenum  int       `json:"likenum,omitempty"`
 	Status   int       `json:"status"`
-	Ctime    time.Time `json:"ctime,omitempty" xorm:"created"`
+	Ctime    OftenTime `json:"ctime,omitempty" xorm:"created"`
 	Mtime    time.Time `json:"mtime,omitempty" xorm:"<-"`
 }

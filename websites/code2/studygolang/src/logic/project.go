@@ -7,11 +7,15 @@
 package logic
 
 import (
+	"errors"
 	"model"
+	"net/url"
+	"strings"
 	"time"
 
 	. "db"
 
+	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	"golang.org/x/net/context"
 )
@@ -19,6 +23,89 @@ import (
 type ProjectLogic struct{}
 
 var DefaultProject = ProjectLogic{}
+
+func (self ProjectLogic) Publish(ctx context.Context, user *model.Me, form url.Values) (err error) {
+	objLog := GetLogger(ctx)
+
+	id := form.Get("id")
+	isModify := id != ""
+
+	if !isModify && self.UriExists(ctx, form.Get("uri")) {
+		err = errors.New("uri存在")
+		return
+	}
+
+	project := &model.OpenProject{}
+
+	if isModify {
+		_, err = MasterDB.Id(id).Get(project)
+		if err != nil {
+			objLog.Errorln("Publish Project find error:", err)
+			return
+		}
+		if project.Username != user.Username && !user.IsAdmin {
+			err = NotModifyAuthorityErr
+			return
+		}
+
+		err = schemaDecoder.Decode(project, form)
+		if err != nil {
+			objLog.Errorln("Publish Project schema decode error:", err)
+			return
+		}
+	} else {
+		err = schemaDecoder.Decode(project, form)
+		if err != nil {
+			objLog.Errorln("Publish Project schema decode error:", err)
+			return
+		}
+
+		project.Username = user.Username
+	}
+
+	project.Uri = strings.ToLower(project.Uri)
+
+	github := "github.com"
+	pos := strings.Index(project.Src, github)
+	if pos != -1 {
+		project.Repo = project.Src[pos+len(github)+1:]
+	}
+
+	var affected int64
+	if !isModify {
+		affected, err = MasterDB.Insert(project)
+	} else {
+		affected, err = MasterDB.Update(project)
+	}
+
+	if err != nil {
+		objLog.Errorln("Publish Project error:", err)
+		return
+	}
+
+	if affected == 0 {
+		return
+	}
+
+	// 发布项目，活跃度+10
+	weight := 10
+	if isModify {
+		weight = 2
+	}
+	go DefaultUser.IncrUserWeight("uid", user.Uid, weight)
+
+	return
+}
+
+// UriExists 通过 uri 是否存在 project
+func (ProjectLogic) UriExists(ctx context.Context, uri string) bool {
+	total, err := MasterDB.Where("uri=?", uri).Count(new(model.OpenProject))
+	if err != nil || total == 0 {
+		return false
+	}
+
+	return true
+}
 
 // Total 开源项目总数
 func (ProjectLogic) Total() int64 {
@@ -34,7 +121,7 @@ func (ProjectLogic) FindBy(ctx context.Context, limit int, lastIds ...int) []*mo
 	objLog := GetLogger(ctx)
 
 	dbSession := MasterDB.Where("status IN(?,?)", model.ProjectStatusNew, model.ProjectStatusOnline)
-	if len(lastIds) > 0 {
+	if len(lastIds) > 0 && lastIds[0] > 0 {
 		dbSession.And("id<?", lastIds[0])
 	}
 
@@ -61,6 +148,29 @@ func (ProjectLogic) FindByIds(ids []int) []*model.OpenProject {
 		return nil
 	}
 	return projects
+}
+
+// FindOne 获取单个项目
+func (ProjectLogic) FindOne(ctx context.Context, val interface{}) *model.OpenProject {
+	objLog := GetLogger(ctx)
+
+	field := "id"
+	_, ok := val.(int)
+	if !ok {
+		val := val.(string)
+		if goutils.MustInt(val) == 0 {
+			field = "uri"
+		}
+	}
+
+	project := &model.OpenProject{}
+	_, err := MasterDB.Where(field+"=? AND status IN(?,?)", val, model.ProjectStatusNew, model.ProjectStatusOnline).Get(project)
+	if err != nil {
+		objLog.Errorln("project service FindProject error:", err)
+		return nil
+	}
+
+	return project
 }
 
 // 项目评论
@@ -104,14 +214,14 @@ type ProjectLike struct{}
 
 // 更新该项目的喜欢数
 // objid：被喜欢对象id；num: 喜欢数(负数表示取消喜欢)
-// func (self ProjectLike) UpdateLike(objid, num int) {
-// 	// 更新喜欢数（TODO：暂时每次都更新表）
-// 	err := model.NewOpenProject().Where("id=?", objid).Increment("likenum", num)
-// 	if err != nil {
-// 		logger.Errorln("更新项目喜欢数失败：", err)
-// 	}
-// }
+func (self ProjectLike) UpdateLike(objid, num int) {
+	// 更新喜欢数（TODO：暂时每次都更新表）
+	_, err := MasterDB.Id(objid).Incr("likenum", num).Update(new(model.OpenProject))
+	if err != nil {
+		logger.Errorln("更新项目喜欢数失败：", err)
+	}
+}
 
-// func (self ProjectLike) String() string {
-// 	return "project"
-// }
+func (self ProjectLike) String() string {
+	return "project"
+}

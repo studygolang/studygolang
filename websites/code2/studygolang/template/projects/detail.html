@@ -17,7 +17,7 @@
 					{{if .project.Logo}}<img src="{{.project.Logo}}" alt="{{.project.Name}}" width="48px" />{{end}}
 					{{.project.Category}} <u>{{.project.Name}}</u>
 					{{if .me}}
-						{{if or (eq .me.username .project.Username) .me.isadmin}}
+						{{if or (eq .me.Username .project.Username) .me.IsAdmin}}
 						<a class="edit" href="/project/modify?id={{.project.Id}}" title="修改"><i class="glyphicon glyphicon-pencil"></i></a>
 						{{end}}
 					{{end}}
@@ -105,7 +105,7 @@
 				<!-- JiaThis Button END -->
 			</div>
 			<!-- 评论 -->
-			<div class="page-comment" data-objid="{{.project.Id}}" data-objtype="4" {{if .me}}data-username="{{.me.username}}" data-uid="{{.me.uid}}" data-avatar="{{gravatar .me.avatar .me.email 48}}"{{end}}>
+			<div class="page-comment" data-objid="{{.project.Id}}" data-objtype="4" {{if .me}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48}}"{{end}}>
 				<div class="words hide">
 					<h3><span class="cmtnum">{{.project.Cmtnum}}</span>条评论</h3>
 					<ul class="list-unstyled">
@@ -125,6 +125,12 @@
 		</div>
 	</div>
 	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			<div class="sb-content text-center" style="margin-top: 15px;">
+				<a href="/project/new" class="btn btn-default">发布项目</a>
+			</div>
+		</div>
+
 		<div class="row box_white sidebar">
 			<div class="top">
 				<ul class="list-inline text-center">
@@ -181,7 +187,7 @@
 <script type="text/javascript" src="/static/js/libs/emojis.js"></script>
 <script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
 <script type="text/javascript" src="/static/js/projects.js?v=1.1"></script>
-<script type="text/javascript" src="/static/js/comment.js?v=1.1"></script>
+<script type="text/javascript" src="/static/js/comment.js?v=1.2"></script>
 <script type="text/javascript" src="/static/js/puploader.js"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏

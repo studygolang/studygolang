@@ -195,6 +195,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/polaris1119/slices",
+			"repository": "https://github.com/polaris1119/slices",
+			"revision": "063567f4df49cfae91c3f60a6da4acd928aa27f0",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/robfig/cron",
 			"repository": "https://github.com/robfig/cron",
 			"revision": "0f39cf7ebc65a602f45692f9894bd6a193faf8fa",

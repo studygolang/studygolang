@@ -61,7 +61,7 @@
 				'objid': objid,
 				'objtype': objtype
 			};
-			$.getJSON('/object/comments.json', params, function(data){
+			$.getJSON('/object/comments', params, function(data){
 				if (data.ok) {
 					data = data.data;
 					var comments = data.comments;
@@ -254,7 +254,7 @@
 			
 			$.ajax({
 				type:"post",
-				url: '/comment/'+objid+'.json',
+				url: '/comment/'+objid,
 				data: {
 					"objtype":objtype,
 					"content":content,

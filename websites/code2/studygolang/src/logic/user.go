@@ -123,7 +123,7 @@ func (self UserLogic) Update(ctx context.Context, uid int, form url.Values) (err
 	cols := "name,open,city,company,github,weibo,website,monlog,introduce"
 	_, err = MasterDB.Id(uid).Cols(cols).Update(user)
 	if err != nil {
-		objLog.Errorf("更新用户 【%s】 信息失败：%s", uid, err)
+		objLog.Errorf("更新用户 【%d】 信息失败：%s", uid, err)
 		errMsg = "对不起，服务器内部错误，请稍后再试！"
 		return
 	}
@@ -175,7 +175,7 @@ func (UserLogic) EmailOrUsernameExists(ctx context.Context, email, username stri
 	return true
 }
 
-func (self UserLogic) FindUserInfos(ctx context.Context, uids []int) map[int]*model.User {
+func (self UserLogic) FindUserInfos(ctx context.Context, uids []int64) map[int]*model.User {
 	objLog := GetLogger(ctx)
 	if len(uids) == 0 {
 		objLog.Errorln("UserLogic FindUserInfos uids is empty")

@@ -7,7 +7,9 @@ func RegisterRoutes(e *echo.Echo) {
 	new(AccountController).RegisterRoute(e)
 	new(TopicController).RegisterRoute(e)
 	new(ArticleController).RegisterRoute(e)
+	new(ProjectController).RegisterRoute(e)
 	new(ResourceController).RegisterRoute(e)
+	new(ReadingController).RegisterRoute(e)
 	new(SidebarController).RegisterRoute(e)
 	new(CommentController).RegisterRoute(e)
 }

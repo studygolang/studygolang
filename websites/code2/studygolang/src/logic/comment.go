@@ -10,14 +10,17 @@ import (
 	"fmt"
 	"html/template"
 	"model"
+	"net/url"
 	"regexp"
-	"util"
+	"time"
 
 	. "db"
 
 	"github.com/fatih/set"
 	"github.com/fatih/structs"
+	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
+	"github.com/polaris1119/slices"
 	"golang.org/x/net/context"
 )
 
@@ -38,10 +41,10 @@ func (self CommentLogic) FindObjComments(ctx context.Context, objid, objtype int
 		return
 	}
 
-	uids := util.Models2Intslice(commentList, "Uid")
+	uids := slices.StructsIntSlice(commentList, "Uid")
 
 	// 避免某些情况下最后回复人没在回复列表中
-	uids = append(uids, owner, lastCommentUid)
+	uids = append(uids, int64(owner), int64(lastCommentUid))
 
 	// 获得用户信息
 	userMap := DefaultUser.FindUserInfos(ctx, uids)
@@ -56,6 +59,24 @@ func (self CommentLogic) FindObjComments(ctx context.Context, objid, objtype int
 		tmpMap["user"] = userMap[comment.Uid]
 		comments = append(comments, tmpMap)
 	}
+	return
+}
+
+// FindObjectComments 获得某个对象的所有评论（新版）
+// TODO:分页暂不做
+func (self CommentLogic) FindObjectComments(ctx context.Context, objid, objtype int) (commentList []*model.Comment, err error) {
+	objLog := GetLogger(ctx)
+
+	commentList = make([]*model.Comment, 0)
+	err = MasterDB.Where("objid=? AND objtype=?", objid, objtype).Find(&commentList)
+	if err != nil {
+		objLog.Errorln("comment logic FindObjectComments Error:", err)
+	}
+
+	for _, comment := range commentList {
+		self.decodeCmtContent(ctx, comment)
+	}
+
 	return
 }
 
@@ -120,6 +141,78 @@ func (self CommentLogic) FindRecent(ctx context.Context, uid, objtype, limit int
 	}
 
 	return comments
+}
+
+// Publish 发表评论（或回复）。
+// objid 注册的评论对象
+// uid 评论人
+func (self CommentLogic) Publish(ctx context.Context, uid, objid int, form url.Values) (*model.Comment, error) {
+	objLog := GetLogger(ctx)
+
+	objtype := goutils.MustInt(form.Get("objtype"))
+	comment := &model.Comment{
+		Objid:   objid,
+		Objtype: objtype,
+		Uid:     uid,
+		Content: form.Get("content"),
+	}
+
+	// TODO:评论楼层怎么处理，避免冲突？最后的楼层信息保存在内存中？
+
+	// 暂时只是从数据库中取出最后的评论楼层
+	tmpCmt := &model.Comment{}
+	_, err := MasterDB.Where("objid=? AND objtype=?", objid, objtype).OrderBy("ctime DESC").Get(tmpCmt)
+	if err != nil {
+		objLog.Errorln("post comment service error:", err)
+		return nil, err
+	} else {
+		comment.Floor = tmpCmt.Floor + 1
+	}
+	// 入评论库
+	_, err = MasterDB.Insert(comment)
+	if err != nil {
+		objLog.Errorln("post comment service error:", err)
+		return nil, err
+	}
+	self.decodeCmtContent(ctx, comment)
+
+	// 回调，不关心处理结果（有些对象可能不需要回调）
+	if commenter, ok := commenters[objtype]; ok {
+		objLog.Debugf("评论[objid:%d] [objtype:%d] [uid:%d] 成功，通知被评论者更新", objid, objtype, uid)
+		go commenter.UpdateComment(comment.Cid, objid, uid, time.Now())
+	}
+
+	// 发评论，活跃度+5
+	go DefaultUser.IncrUserWeight("uid", uid, 5)
+
+	// 给被评论对象所有者发系统消息
+	// ext := map[string]interface{}{
+	// 	"objid":   objid,
+	// 	"objtype": objtype,
+	// 	"cid":     comment.Cid,
+	// 	"uid":     uid,
+	// }
+	// go SendSystemMsgTo(0, objtype, ext)
+
+	// @某人 发系统消息
+	// go SendSysMsgAtUids(form.Get("uid"), ext)
+	// go SendSysMsgAtUsernames(form.Get("usernames"), ext)
+
+	return comment, nil
+}
+
+// Modify 修改评论信息
+func (CommentLogic) Modify(ctx context.Context, cid int, content string) (errMsg string, err error) {
+	objLog := GetLogger(ctx)
+
+	_, err = MasterDB.Table(new(model.Comment)).Id(cid).Update(map[string]interface{}{"content": content})
+	if err != nil {
+		objLog.Errorf("更新评论内容 【%d】 失败：%s", cid, err)
+		errMsg = "对不起，服务器内部错误，请稍后再试！"
+		return
+	}
+
+	return
 }
 
 // fillObjinfos 填充评论对应的主体信息

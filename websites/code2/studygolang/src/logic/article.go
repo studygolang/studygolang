@@ -42,7 +42,7 @@ func (ArticleLogic) FindBy(ctx context.Context, limit int, lastIds ...int) []*mo
 
 	dbSession := MasterDB.Where("status IN(?,?)", model.ArticleStatusNew, model.ArticleStatusOnline)
 
-	if len(lastIds) > 0 {
+	if len(lastIds) > 0 && lastIds[0] > 0 {
 		dbSession.And("id<?", lastIds[0])
 	}
 

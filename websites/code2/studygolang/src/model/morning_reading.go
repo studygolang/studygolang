@@ -1,4 +1,4 @@
-// Copyright 2013 The StudyGolang Authors. All rights reserved.
+// Copyright 2016 The StudyGolang Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
@@ -6,15 +6,43 @@
 
 package model
 
-// 资源信息
+import (
+	"strings"
+	"time"
+
+	"github.com/go-xorm/xorm"
+)
+
+const (
+	RtypeGo   = iota // Go技术晨读
+	RtypeComp        // 综合技术晨读
+)
+
+// 技术晨读
 type MorningReading struct {
-	Id       int    `json:"id" xorm:"pk autoincr"`
-	Content  string `json:"content"`
-	Rtype    int    `json:"rtype"`
-	Inner    int    `json:"inner"`
-	Url      string `json:"url"`
-	Moreurls string `json:"moreurls"`
-	Username string `json:"username"`
-	Clicknum int    `json:"clicknum,omitempty"`
-	Ctime    string `json:"ctime,omitempty" xorm:"<-"`
+	Id       int       `json:"id" xorm:"pk autoincr"`
+	Content  string    `json:"content"`
+	Rtype    int       `json:"rtype"`
+	Inner    int       `json:"inner"`
+	Url      string    `json:"url"`
+	Moreurls string    `json:"moreurls"`
+	Username string    `json:"username"`
+	Clicknum int       `json:"clicknum,omitempty"`
+	Ctime    time.Time `json:"ctime,omitempty" xorm:"<-"`
+
+	// 晨读日期，从 ctime 中提取
+	Rdate string `json:"rdate,omitempty" xorm:"-"`
+
+	Urls []string `json:"urls" xorm:"-"`
+}
+
+func (this *MorningReading) AfterSet(name string, cell xorm.Cell) {
+	switch name {
+	case "ctime":
+		this.Rdate = this.Ctime.Format("2006-01-02")
+	case "moreurls":
+		if this.Moreurls != "" {
+			this.Urls = strings.Split(this.Moreurls, ",")
+		}
+	}
 }

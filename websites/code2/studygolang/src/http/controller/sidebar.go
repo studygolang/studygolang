@@ -8,6 +8,7 @@ package controller
 
 import (
 	"logic"
+	"model"
 	"strconv"
 	"util"
 
@@ -35,17 +36,9 @@ func (self SidebarController) RegisterRoute(e *echo.Echo) {
 
 // RecentReading 技术晨读
 func (SidebarController) RecentReading(ctx echo.Context) error {
-	// limit := goutils.MustInt(ctx.QueryParam("limit"), 7)
-
-	// readings := service.FindReadings("0", limit, model.RtypeGo)
-	// buf, err := json.Marshal(readings)
-	// if err != nil {
-	// 	logger.Errorln("[RecentReadingHandler] json.marshal error:", err)
-	// 	fmt.Fprint(rw, `{"ok": 0, "error":"解析json出错"}`)
-	// 	return
-	// }
-	// fmt.Fprint(rw, `{"ok": 1, "data":`+string(buf)+`}`)
-	return nil
+	limit := goutils.MustInt(ctx.QueryParam("limit"), 7)
+	readings := logic.DefaultReading.FindBy(ctx, limit, model.RtypeGo)
+	return success(ctx, readings)
 }
 
 // OtherTopics 某节点下其他帖子
