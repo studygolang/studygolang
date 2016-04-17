@@ -33,7 +33,7 @@
 					<span style="margin-left:10px;">（{{.ctime}}）</span>
 				</h3>
 				<div class="info">{{.content}}</div>
-				<p class="cmd"><a href="/message/delete.json" data-type="{{$.msgtype}}" data-id="{{.id}}" data-cmd="delete" class="label label-default delete">删除</a></p>
+				<p class="cmd"><a href="/message/delete" data-type="{{$.msgtype}}" data-id="{{.id}}" data-cmd="delete" class="label label-default delete">删除</a></p>
 			</li>
 		{{else}}
 			<li class="alert alert-info text-center">暂无消息</li>

@@ -1,5 +1,5 @@
 // Copyright 2016 The StudyGolang Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
+// Use of self source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
 // Author：polaris	polaris@studygolang.com
@@ -18,24 +18,24 @@ import (
 // 侧边栏的内容通过异步请求获取
 type SidebarController struct{}
 
-func (this *SidebarController) RegisterRoute(e *echo.Echo) {
-	e.Get("/readings/recent", echo.HandlerFunc(this.RecentReading))
-	e.Get("/topics/:nid/others", echo.HandlerFunc(this.OtherTopics))
-	e.Get("/websites/stat", echo.HandlerFunc(this.WebsiteStat))
-	e.Get("/dymanics/recent", echo.HandlerFunc(this.RecentDymanic))
-	e.Get("/topics/recent", echo.HandlerFunc(this.RecentTopic))
-	e.Get("/articles/recent", echo.HandlerFunc(this.RecentArticle))
-	e.Get("/projects/recent", echo.HandlerFunc(this.RecentProject))
-	e.Get("/resources/recent", echo.HandlerFunc(this.RecentResource))
-	e.Get("/comments/recent", echo.HandlerFunc(this.RecentComment))
-	e.Get("/nodes/hot", echo.HandlerFunc(this.HotNodes))
-	e.Get("/users/active", echo.HandlerFunc(this.ActiveUser))
-	e.Get("/users/newest", echo.HandlerFunc(this.NewestUser))
+func (self SidebarController) RegisterRoute(e *echo.Echo) {
+	e.Get("/readings/recent", echo.HandlerFunc(self.RecentReading))
+	e.Get("/topics/:nid/others", echo.HandlerFunc(self.OtherTopics))
+	e.Get("/websites/stat", echo.HandlerFunc(self.WebsiteStat))
+	e.Get("/dynamics/recent", echo.HandlerFunc(self.RecentDynamic))
+	e.Get("/topics/recent", echo.HandlerFunc(self.RecentTopic))
+	e.Get("/articles/recent", echo.HandlerFunc(self.RecentArticle))
+	e.Get("/projects/recent", echo.HandlerFunc(self.RecentProject))
+	e.Get("/resources/recent", echo.HandlerFunc(self.RecentResource))
+	e.Get("/comments/recent", echo.HandlerFunc(self.RecentComment))
+	e.Get("/nodes/hot", echo.HandlerFunc(self.HotNodes))
+	e.Get("/users/active", echo.HandlerFunc(self.ActiveUser))
+	e.Get("/users/newest", echo.HandlerFunc(self.NewestUser))
 }
 
 // RecentReading 技术晨读
 func (SidebarController) RecentReading(ctx echo.Context) error {
-	// limit := goutils.MustInt(ctx.Query("limit"), 7)
+	// limit := goutils.MustInt(ctx.QueryParam("limit"), 7)
 
 	// readings := service.FindReadings("0", limit, model.RtypeGo)
 	// buf, err := json.Marshal(readings)
@@ -50,7 +50,7 @@ func (SidebarController) RecentReading(ctx echo.Context) error {
 
 // OtherTopics 某节点下其他帖子
 func (SidebarController) OtherTopics(ctx echo.Context) error {
-	topics := logic.DefaultTopic.FindByNid(ctx, ctx.Param("nid"), ctx.Query("tid"))
+	topics := logic.DefaultTopic.FindByNid(ctx, ctx.Param("nid"), ctx.QueryParam("tid"))
 	topics = logic.DefaultTopic.JSEscape(topics)
 	return success(ctx, topics)
 }
@@ -76,43 +76,43 @@ func (SidebarController) WebsiteStat(ctx echo.Context) error {
 	return success(ctx, data)
 }
 
-// RecentDymanic 社区最新公告或go最新动态
-func (SidebarController) RecentDymanic(ctx echo.Context) error {
+// RecentDynamic 社区最新公告或go最新动态
+func (SidebarController) RecentDynamic(ctx echo.Context) error {
 	dynamics := logic.DefaultDynamic.FindBy(ctx, 0, 3)
 	return success(ctx, dynamics)
 }
 
 // RecentTopic 最新帖子
 func (SidebarController) RecentTopic(ctx echo.Context) error {
-	limit := goutils.MustInt(ctx.Query("limit"), 10)
+	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
 	topicList := logic.DefaultTopic.FindRecent(limit)
 	return success(ctx, topicList)
 }
 
 // RecentArticle 最新博文
 func (SidebarController) RecentArticle(ctx echo.Context) error {
-	limit := goutils.MustInt(ctx.Query("limit"), 10)
+	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
 	recentArticles := logic.DefaultArticle.FindBy(ctx, limit)
 	return success(ctx, recentArticles)
 }
 
 // RecentProject 最新开源项目
 func (SidebarController) RecentProject(ctx echo.Context) error {
-	limit := goutils.MustInt(ctx.Query("limit"), 10)
+	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
 	recentProjects := logic.DefaultProject.FindBy(ctx, limit)
 	return success(ctx, recentProjects)
 }
 
 // RecentResource 最新资源
 func (SidebarController) RecentResource(ctx echo.Context) error {
-	limit := goutils.MustInt(ctx.Query("limit"), 10)
+	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
 	recentResources := logic.DefaultResource.FindBy(ctx, limit)
 	return success(ctx, recentResources)
 }
 
 // RecentComment 最新评论
 func (SidebarController) RecentComment(ctx echo.Context) error {
-	limit := goutils.MustInt(ctx.Query("limit"), 10)
+	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
 	recentComments := logic.DefaultComment.FindRecent(ctx, 0, -1, limit)
 
 	uids := util.Models2Intslice(recentComments, "Uid")

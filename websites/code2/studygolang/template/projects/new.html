@@ -12,7 +12,7 @@
 			<li class="active">{{if .project.Id}}修改{{else}}添加{{end}}项目</li>
 		</ol>
 		<div class="page box_white">
-			<form class="form-horizontal validate-form" role="form" action="{{if .project.Id}}/project/modify.json{{else}}/project/new.json{{end}}" data-redirect="/projects">
+			<form class="form-horizontal validate-form" role="form" action="{{if .project.Id}}/project/modify{{else}}/project/new{{end}}" data-redirect="/projects">
 				{{if .project.Id}}
 				<input type="hidden" name="id" value="{{.project.Id}}" />
 				{{end}}
@@ -35,7 +35,7 @@
 					<div class="col-sm-6">
 						<div class="input-group input-group-sm">
 							<span class="input-group-addon">http://studygolang.com/p/</span>
-							<input class="form-control{{if eq .project.Id 0}} {remote:'/project/uri.json'}{{end}}" type="text" id="uri" name="uri" placeholder="个性uri" value="{{.project.Uri}}">
+							<input class="form-control{{if eq .project.Id 0}} {remote:'/project/uri'}{{end}}" type="text" id="uri" name="uri" placeholder="个性uri" value="{{.project.Uri}}">
 						</div>
 					</div>
 				</div>
@@ -185,9 +185,9 @@
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
-	"/topics/recent.json",
-	"/resources/recent.json",
-	"/comments/recent.json",
+	"/topics/recent",
+	"/resources/recent",
+	"/comments/recent",
 ];
 
 $(function(){

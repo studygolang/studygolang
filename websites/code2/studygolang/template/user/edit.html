@@ -12,7 +12,7 @@
 			<li class="active">编辑</li>
 		</ol>
 		<div class="box_white">
-			<form class="form-horizontal validate-form" role="form" action="/account/edit.json">
+			<form class="form-horizontal validate-form" role="form" action="/account/edit">
 				<fieldset>
 					<legend>个人资料设置</legend>
 					<div class="form-group">
@@ -101,14 +101,14 @@
 				<p>
 					当前头像<img class="img-rounded" src="{{gravatar .user.Avatar .user.Email 120}}">
 				</p>
-				<p><a href="/account/change_avatar.json" class="btn btn-default btn-gravatar">使用Gravatar头像</a></p>
+				<p><a href="/account/change_avatar" class="btn btn-default btn-gravatar">使用Gravatar头像</a></p>
 				<ul class="nav nav-tabs" id="avatar-tab" role="tablist" style="margin-bottom: 15px;">
 					<li role="presentation" class="active"><a href="#default" role="tab" data-toggle="tab">选择默认头像</a></li>
 					<li role="presentation"><a href="#upload" role="tab" data-toggle="tab">上传头像</a></li>
 				</ul>
 				<div class="tab-content">
 					<div id="default" class="tab-pane fade row-fluid active in" role="tabpanel">
-						<form action="/account/change_avatar.json" method="post" class="validate-form" role="form" >
+						<form action="/account/change_avatar" method="post" class="validate-form" role="form" >
 							<div class="form-group">
 								<ul class="list-inline">
 									{{range .default_avatars}}
@@ -129,7 +129,7 @@
 						</form>
 					</div>
 					<div id="upload" class="tab-pane fade">
-					<form action="/account/change_avatar.json" method="post" enctype="multipart/form-data" class="form-horizontal validate-form">
+					<form action="/account/change_avatar" method="post" enctype="multipart/form-data" class="form-horizontal validate-form">
 						<input type="hidden" name="avatar" id="upload-avatar">
 						<div class="form-group">
 							<label class="control-label col-md-2" for="upload-img">选择图片文件</label>
@@ -155,7 +155,7 @@
 		</div>
 		<br>
 		<div class="box_white">
-			<form class="form-horizontal validate-form" role="form" action="/account/changepwd.json">
+			<form class="form-horizontal validate-form" role="form" action="/account/changepwd">
 				<fieldset>
 					<legend>修改密码</legend>
 					<div class="form-group form-group-sm">
@@ -231,9 +231,9 @@
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
-	"/topics/recent.json",
-	"/resources/recent.json",
-	"/comments/recent.json",
+	"/topics/recent",
+	"/resources/recent",
+	"/comments/recent",
 ];
 
 $(function(){

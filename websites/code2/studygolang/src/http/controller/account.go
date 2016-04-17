@@ -1,5 +1,5 @@
 // Copyright 2013 The StudyGolang Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
+// Use of self source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
 // Author：polaris	polaris@studygolang.com
@@ -29,17 +29,17 @@ import (
 type AccountController struct{}
 
 // 注册路由
-func (this *AccountController) RegisterRoute(e *echo.Echo) {
-	e.Any("/account/register", echo.HandlerFunc(this.Register))
-	e.Post("/account/send_activate_email", echo.HandlerFunc(this.SendActivateEmail))
-	e.Get("/account/activate", echo.HandlerFunc(this.Activate))
-	e.Any("/account/login", echo.HandlerFunc(this.Login))
-	e.Any("/account/edit", echo.HandlerFunc(this.Edit), middleware.NeedLogin())
-	e.Post("/account/change_avatar", echo.HandlerFunc(this.ChangeAvatar))
-	e.Post("/account/changepwd", echo.HandlerFunc(this.ChangePwd))
-	e.Any("/account/forgetpwd", echo.HandlerFunc(this.ForgetPasswd))
-	e.Any("/account/resetpwd", echo.HandlerFunc(this.ResetPasswd))
-	e.Get("/account/logout", echo.HandlerFunc(this.Logout))
+func (self AccountController) RegisterRoute(e *echo.Echo) {
+	e.Any("/account/register", echo.HandlerFunc(self.Register))
+	e.Post("/account/send_activate_email", echo.HandlerFunc(self.SendActivateEmail))
+	e.Get("/account/activate", echo.HandlerFunc(self.Activate))
+	e.Any("/account/login", echo.HandlerFunc(self.Login))
+	e.Any("/account/edit", echo.HandlerFunc(self.Edit), middleware.NeedLogin())
+	e.Post("/account/change_avatar", echo.HandlerFunc(self.ChangeAvatar))
+	e.Post("/account/changepwd", echo.HandlerFunc(self.ChangePwd))
+	e.Any("/account/forgetpwd", echo.HandlerFunc(self.ForgetPasswd))
+	e.Any("/account/resetpwd", echo.HandlerFunc(self.ResetPasswd))
+	e.Get("/account/logout", echo.HandlerFunc(self.Logout))
 }
 
 // 保存uuid和email的对应关系（TODO:重启如何处理，有效期问题）
@@ -51,14 +51,14 @@ func (AccountController) Register(ctx echo.Context) error {
 	}
 
 	registerTpl := "register.html"
-	username := ctx.Form("username")
+	username := ctx.FormValue("username")
 	// 请求注册页面
 	if username == "" || ctx.Request().Method() != "POST" {
 		return render(ctx, registerTpl, map[string]interface{}{"captchaId": captcha.NewLen(4)})
 	}
 
 	// 校验验证码
-	if !captcha.VerifyString(ctx.Form("captchaid"), ctx.Form("captchaSolution")) {
+	if !captcha.VerifyString(ctx.FormValue("captchaid"), ctx.FormValue("captchaSolution")) {
 		return render(ctx, registerTpl, map[string]interface{}{"error": "验证码错误", "captchaId": captcha.NewLen(4)})
 	}
 
@@ -74,7 +74,7 @@ func (AccountController) Register(ctx echo.Context) error {
 
 	var (
 		uuid  string
-		email = ctx.Form("email")
+		email = ctx.FormValue("email")
 	)
 	for {
 		uuid = guuid.NewV4().String()
@@ -107,7 +107,7 @@ func (AccountController) Register(ctx echo.Context) error {
 
 // SendActivateEmail 发送注册激活邮件
 func (AccountController) SendActivateEmail(ctx echo.Context) error {
-	uuid := ctx.Form("uuid")
+	uuid := ctx.FormValue("uuid")
 	email, ok := regActivateCodeMap[uuid]
 	if !ok {
 		return fail(ctx, 1, "非法请求")
@@ -124,7 +124,7 @@ func (AccountController) Activate(ctx echo.Context) error {
 
 	data := map[string]interface{}{}
 
-	param := goutils.Base64Decode(ctx.Query("param"))
+	param := goutils.Base64Decode(ctx.QueryParam("param"))
 	values, err := url.ParseQuery(param)
 	if err != nil {
 		data["error"] = err.Error()
@@ -168,7 +168,7 @@ func (AccountController) Login(ctx echo.Context) error {
 	}
 
 	// 支持跳转到源页面
-	uri := ctx.Form("redirect_uri")
+	uri := ctx.FormValue("redirect_uri")
 	if uri == "" {
 		uri = "/"
 	}
@@ -176,14 +176,14 @@ func (AccountController) Login(ctx echo.Context) error {
 	contentTpl := "login.html"
 	data := make(map[string]interface{})
 
-	username := ctx.Form("username")
+	username := ctx.FormValue("username")
 	if username == "" || Request(ctx).Method != "POST" {
 		data["redirect_uri"] = uri
 		return render(ctx, contentTpl, data)
 	}
 
 	// 处理用户登录
-	passwd := ctx.Form("passwd")
+	passwd := ctx.FormValue("passwd")
 	userLogin, err := logic.DefaultUser.Login(ctx, username, passwd)
 	if err != nil {
 		data["username"] = username
@@ -224,7 +224,7 @@ func (AccountController) ChangeAvatar(ctx echo.Context) error {
 
 	curUser := ctx.Get("user").(*model.Me)
 
-	avatar := ctx.Form("avatar")
+	avatar := ctx.FormValue("avatar")
 	if avatar == "" {
 		return fail(ctx, 1, "非法请求")
 	}
@@ -242,8 +242,8 @@ func (AccountController) ChangeAvatar(ctx echo.Context) error {
 func (AccountController) ChangePwd(ctx echo.Context) error {
 	curUser := ctx.Get("user").(*model.Me)
 
-	curPasswd := ctx.Form("cur_passwd")
-	newPasswd := ctx.Form("passwd")
+	curPasswd := ctx.FormValue("cur_passwd")
+	newPasswd := ctx.FormValue("passwd")
 	errMsg, err := logic.DefaultUser.UpdatePasswd(ctx, curUser.Username, curPasswd, newPasswd)
 	if err != nil {
 		return fail(ctx, 1, errMsg)
@@ -263,7 +263,7 @@ func (AccountController) ForgetPasswd(ctx echo.Context) error {
 	contentTpl := "user/forget_pwd.html"
 	data := map[string]interface{}{"activeUsers": "active"}
 
-	email := ctx.Form("email")
+	email := ctx.FormValue("email")
 	if email == "" || Request(ctx).Method != "POST" {
 		return render(ctx, contentTpl, data)
 	}
@@ -301,7 +301,7 @@ func (AccountController) ResetPasswd(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusSeeOther, "/")
 	}
 
-	uuid := ctx.Form("code")
+	uuid := ctx.FormValue("code")
 	if uuid == "" {
 		return ctx.Redirect(http.StatusSeeOther, "/")
 	}
@@ -311,7 +311,7 @@ func (AccountController) ResetPasswd(ctx echo.Context) error {
 
 	method := Request(ctx).Method
 
-	passwd := ctx.Form("passwd")
+	passwd := ctx.FormValue("passwd")
 	email, ok := resetPwdMap[uuid]
 	if !ok {
 		// 是提交重置密码
@@ -330,7 +330,7 @@ func (AccountController) ResetPasswd(ctx echo.Context) error {
 		// 简单校验
 		if len(passwd) < 6 || len(passwd) > 32 {
 			data["error"] = "密码长度必须在6到32个字符之间"
-		} else if passwd != ctx.Form("pass2") {
+		} else if passwd != ctx.FormValue("pass2") {
 			data["error"] = "两次密码输入不一致"
 		} else {
 			// 更新密码

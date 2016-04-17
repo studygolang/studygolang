@@ -21,7 +21,7 @@ import (
 func init() {
 	// 注册评论（喜欢）对象
 	logic.RegisterCommentObject(model.TypeArticle, logic.ArticleComment{})
-	// service.RegisterLikeObject(model.TYPE_ARTICLE, service.ArticleLike{})
+	logic.RegisterLikeObject(model.TypeArticle, logic.ArticleLike{})
 }
 
 type ArticleController struct{}
@@ -36,7 +36,7 @@ func (this *ArticleController) RegisterRoute(e *echo.Echo) {
 func (ArticleController) ReadList(ctx echo.Context) error {
 	limit := 20
 
-	lastId := goutils.MustInt(ctx.Query("lastid"))
+	lastId := goutils.MustInt(ctx.QueryParam("lastid"))
 	articles := logic.DefaultArticle.FindBy(ctx, limit+5, lastId)
 	if articles == nil {
 		logger.Errorln("article controller: find article error")
@@ -87,7 +87,7 @@ func (ArticleController) ReadList(ctx echo.Context) error {
 	me, ok := ctx.Get("user").(*model.Me)
 	var likeFlags map[int]int
 	if ok {
-		// likeFlags, _ = service.FindUserLikeObjects(me.Uid, model.TypeArticle, articles[0].Id, nextId)
+		likeFlags, _ = logic.DefaultLike.FindUserLikeObjects(ctx, me.Uid, model.TypeArticle, articles[0].Id, nextId)
 	}
 
 	return render(ctx, "articles/list.html", map[string]interface{}{"articles": articles, "activeArticles": "active", "page": pageInfo, "likeflags": likeFlags})
@@ -108,11 +108,11 @@ func (ArticleController) Detail(ctx echo.Context) error {
 	hadCollect := 0
 	me, ok := ctx.Get("user").(*model.Me)
 	if ok {
-		// likeFlag = service.HadLike(me.Uid, article.Id, model.TYPE_ARTICLE)
-		// hadCollect = service.HadFavorite(me.Uid, article.Id, model.TYPE_ARTICLE)
+		likeFlag = logic.DefaultLike.HadLike(ctx, me.Uid, article.Id, model.TypeArticle)
+		hadCollect = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, article.Id, model.TypeArticle)
 	}
 
-	// service.Views.Incr(req, model.TYPE_ARTICLE, article.Id)
+	// logic.Views.Incr(req, model.TypeArticle, article.Id)
 
 	// 为了阅读数即时看到
 	article.Viewnum++

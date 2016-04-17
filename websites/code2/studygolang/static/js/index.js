@@ -4,7 +4,7 @@ var objInterval = null;
 
 $(document).ready( function(){
 	// 顶部动态获取
-	$.getJSON('/dymanics/recent.json', function(data){
+	$.getJSON('/dynamics/recent', function(data){
 		if (data.ok) {
 			data = data.data;
 
@@ -32,7 +32,7 @@ $(document).ready( function(){
 	// 登录
 	$('.login').submit(function(evt) {
 		evt.preventDefault();
-		$.post('/account/login.json', $(this).serialize(), function(data) {
+		$.post('/account/login', $(this).serialize(), function(data) {
 			if (data.ok) {
 				location.reload();
 			} else {

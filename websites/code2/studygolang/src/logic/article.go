@@ -163,14 +163,14 @@ type ArticleLike struct{}
 
 // 更新该文章的喜欢数
 // objid：被喜欢对象id；num: 喜欢数(负数表示取消喜欢)
-// func (self ArticleLike) UpdateLike(objid, num int) {
-// 	// 更新喜欢数（TODO：暂时每次都更新表）
-// 	err := model.NewArticle().Where("id=?", objid).Increment("likenum", num)
-// 	if err != nil {
-// 		logger.Errorln("更新文章喜欢数失败：", err)
-// 	}
-// }
+func (self ArticleLike) UpdateLike(objid, num int) {
+	// 更新喜欢数（TODO：暂时每次都更新表）
+	_, err := MasterDB.Where("id=?", objid).Incr("likenum", num).Update(new(model.Article))
+	if err != nil {
+		logger.Errorln("更新文章喜欢数失败：", err)
+	}
+}
 
-// func (self ArticleLike) String() string {
-// 	return "article"
-// }
+func (self ArticleLike) String() string {
+	return "article"
+}

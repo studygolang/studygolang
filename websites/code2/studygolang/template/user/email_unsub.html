@@ -61,9 +61,9 @@
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
-	"/topics/recent.json",
-	"/articles/recent.json",
-	"/resources/recent.json"
+	"/topics/recent",
+	"/articles/recent",
+	"/resources/recent"
 ];
 
 $(function(){
@@ -77,7 +77,7 @@ $(function(){
 			token = $('#token').val();
 
 		var data = {unsubscribe: unsubscribe, email: email, u: token};
-		$.post('/user/email/unsubscribe.json', data, function(result){
+		$.post('/user/email/unsubscribe', data, function(result){
 			comTip(result.msg);
 		});
 	})

@@ -137,7 +137,9 @@ func (ResourceLogic) Total() int64 {
 }
 
 // FindBy 获取资源列表（分页）
-func (ResourceLogic) FindBy(limit int, lastIds ...int) []*model.Resource {
+func (ResourceLogic) FindBy(ctx context.Context, limit int, lastIds ...int) []*model.Resource {
+	objLog := GetLogger(ctx)
+
 	dbSession := MasterDB.OrderBy("id DESC").Limit(limit)
 	if len(lastIds) > 0 {
 		dbSession.Where("id>?", lastIds[0])
@@ -146,7 +148,7 @@ func (ResourceLogic) FindBy(limit int, lastIds ...int) []*model.Resource {
 	resourceList := make([]*model.Resource, 0)
 	err := dbSession.Find(&resourceList)
 	if err != nil {
-		logger.Errorln("ResourceLogic FindBy Error:", err)
+		objLog.Errorln("ResourceLogic FindBy Error:", err)
 		return nil
 	}
 
@@ -307,4 +309,21 @@ func (self ResourceComment) SetObjinfo(ids []int, commentMap map[int][]*model.Co
 			comment.Objinfo = objinfo
 		}
 	}
+}
+
+// 资源喜欢
+type ResourceLike struct{}
+
+// 更新该主题的喜欢数
+// objid：被喜欢对象id；num: 喜欢数(负数表示取消喜欢)
+func (self ResourceLike) UpdateLike(objid, num int) {
+	// 更新喜欢数（TODO：暂时每次都更新表）
+	_, err := MasterDB.Where("id=?", objid).Incr("likenum", num).Update(new(model.ResourceEx))
+	if err != nil {
+		logger.Errorln("更新资源喜欢数失败：", err)
+	}
+}
+
+func (self ResourceLike) String() string {
+	return "resource"
 }

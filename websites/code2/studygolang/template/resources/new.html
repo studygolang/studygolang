@@ -12,7 +12,7 @@
 			<li class="active">{{if .resource.Id}}修改{{else}}发布{{end}}资源</li>
 		</ol>
 		<div class="page box_white">
-			<form class="form-horizontal validate-form" role="form" action="{{if .resource.Id}}/resources/modify.json{{else}}/resources/new.json{{end}}" data-redirect="/resources{{if .resource.Id}}/{{.resource.Id}}{{end}}">
+			<form class="form-horizontal validate-form" role="form" action="{{if .resource.Id}}/resources/modify{{else}}/resources/new{{end}}" data-redirect="/resources{{if .resource.Id}}/{{.resource.Id}}{{end}}">
 				{{if .resource.Id}}
 				<input type="hidden" name="id" value="{{.resource.Id}}" />
 				{{else}}

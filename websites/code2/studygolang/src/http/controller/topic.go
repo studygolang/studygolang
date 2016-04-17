@@ -17,20 +17,20 @@ import (
 func init() {
 	// 注册评论（喜欢）对象
 	logic.RegisterCommentObject(model.TypeTopic, logic.TopicComment{})
-	// logic.RegisterLikeObject(model.TYPE_TOPIC, service.TopicLike{})
+	logic.RegisterLikeObject(model.TypeTopic, logic.TopicLike{})
 }
 
 type TopicController struct{}
 
 // 注册路由
-func (this *TopicController) RegisterRoute(e *echo.Echo) {
-	e.Get("/topics", echo.HandlerFunc(this.Topics))
-	e.Get("/topics/no_reply", echo.HandlerFunc(this.TopicsNoReply))
-	e.Get("/topics/last", echo.HandlerFunc(this.TopicsLast))
-	e.Get("/topics/:tid", echo.HandlerFunc(this.Detail))
-	e.Get("/topics/node/:nid", echo.HandlerFunc(this.NodeTopics))
+func (self TopicController) RegisterRoute(e *echo.Echo) {
+	e.Get("/topics", echo.HandlerFunc(self.Topics))
+	e.Get("/topics/no_reply", echo.HandlerFunc(self.TopicsNoReply))
+	e.Get("/topics/last", echo.HandlerFunc(self.TopicsLast))
+	e.Get("/topics/:tid", echo.HandlerFunc(self.Detail))
+	e.Get("/topics/node/:nid", echo.HandlerFunc(self.NodeTopics))
 
-	e.Any("/topics/new", echo.HandlerFunc(this.Create), middleware.NeedLogin())
+	e.Any("/topics/new", echo.HandlerFunc(self.Create), middleware.NeedLogin())
 }
 
 func (self TopicController) Topics(ctx echo.Context) error {
@@ -46,7 +46,7 @@ func (self TopicController) TopicsLast(ctx echo.Context) error {
 }
 
 func (TopicController) topicList(ctx echo.Context, view, orderBy, querystring string, args ...interface{}) error {
-	curPage := goutils.MustInt(ctx.Query("p"), 1)
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
 	paginator := logic.NewPaginator(curPage)
 
 	topics := logic.DefaultTopic.FindAll(ctx, paginator, orderBy, querystring, args...)
@@ -66,7 +66,7 @@ func (TopicController) topicList(ctx echo.Context, view, orderBy, querystring st
 
 // NodeTopics 某节点下的主题列表
 func (TopicController) NodeTopics(ctx echo.Context) error {
-	curPage := goutils.MustInt(ctx.Query("p"), 1)
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
 	paginator := logic.NewPaginator(curPage)
 
 	querystring, nid := "nid=?", goutils.MustInt(ctx.Param("nid"))
@@ -110,7 +110,7 @@ func (TopicController) Detail(ctx echo.Context) error {
 func (TopicController) Create(ctx echo.Context) error {
 	nodes := logic.GenNodes()
 
-	title := ctx.Form("title")
+	title := ctx.FormValue("title")
 	// 请求新建主题页面
 	if title == "" || Request(ctx).Method != "POST" {
 		return render(ctx, "topics/new.html", map[string]interface{}{"nodes": nodes, "activeTopics": "active"})

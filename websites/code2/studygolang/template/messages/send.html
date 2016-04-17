@@ -11,7 +11,7 @@
 		<li class="active">发送消息</li>
 	</ol>
 	<div class="box_white message">
-		<form class="form-horizontal validate-form" role="form" action="/message/send.json" data-redirect="/message/outbox" method="post">
+		<form class="form-horizontal validate-form" role="form" action="/message/send" data-redirect="/message/outbox" method="post">
 			<input type="hidden" name="to" value="{{.user.Uid}}" />
 			<div class="form-group form-group-sm">
 				<label class="col-lg-2 col-md-3 col-sm-4 control-label" for="title"><abbr>*</abbr>发给</label>

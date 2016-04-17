@@ -241,11 +241,11 @@
 			{{if .me}}
 			<div class="box">
 				<div class="avatar-area pull-left">
-					<span class="avatar"><a href="/account/edit#change-avatar"><img alt="个人首页" width="80" height="80" src="{{gravatar .me.avatar .me.email 80}}" class="img-circle tool-tip" data-toggle="tooltip" data-placement="left" title="更换头像"></a></span>
+					<span class="avatar"><a href="/account/edit#change-avatar"><img alt="个人首页" width="80" height="80" src="{{gravatar .me.Avatar .me.Email 80}}" class="img-circle tool-tip" data-toggle="tooltip" data-placement="left" title="更换头像"></a></span>
 				</div>
 				<div class="profile-show pull-left">
 					<p></p>
-					<p class="user-name"><a href="/user/{{.me.username}}">{{.me.username}}</a></p>
+					<p class="user-name"><a href="/user/{{.me.Username}}">{{.me.Username}}</a></p>
 					<p><a href="/account/edit">个人资料设置</a></p>
 				</div>
 			</div>
@@ -259,7 +259,7 @@
 				<h3 class="title"><i class="glyphicon glyphicon-user"></i> 用户登录</h3>
 			</div>
 			<div class="sb-content">
-				<form action="/account/login.json" method="post" class="form-horizontal login" role="form">
+				<form action="/account/login" method="post" class="form-horizontal login" role="form">
 					<div class="form-group">
 						<div class="col-sm-10">
 							<input type="text" class="form-control input-sm" id="username" name="username" placeholder="请填写用户名或邮箱">
@@ -396,12 +396,12 @@
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
-	"/projects/recent.json",
-	"/comments/recent.json",
-	"/users/active.json",
-	"/users/newest.json",
-	"/websites/stat.json",
-	"/readings/recent.json"
+	"/projects/recent",
+	"/comments/recent",
+	"/users/active",
+	"/users/newest",
+	"/websites/stat",
+	"/readings/recent"
 ];
 </script>
 {{end}}

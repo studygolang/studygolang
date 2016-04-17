@@ -350,3 +350,20 @@ func (self TopicComment) SetObjinfo(ids []int, commentMap map[int][]*model.Comme
 		}
 	}
 }
+
+// 主题喜欢
+type TopicLike struct{}
+
+// 更新该主题的喜欢数
+// objid：被喜欢对象id；num: 喜欢数(负数表示取消喜欢)
+func (self TopicLike) UpdateLike(objid, num int) {
+	// 更新喜欢数（TODO：暂时每次都更新表）
+	_, err := MasterDB.Where("tid=?", objid).Incr("like", num).Update(new(model.TopicEx))
+	if err != nil {
+		logger.Errorln("更新主题喜欢数失败：", err)
+	}
+}
+
+func (self TopicLike) String() string {
+	return "topic"
+}

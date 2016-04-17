@@ -11,7 +11,6 @@ import (
 	"io/ioutil"
 	"log"
 	"math/rand"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -58,10 +57,6 @@ func main() {
 	controller.RegisterRoutes(e)
 
 	websocketHandle(e)
-
-	e.Get("/", echo.HandlerFunc(func(ctx echo.Context) error {
-		return ctx.String(http.StatusOK, "Hello World!\n")
-	}))
 
 	addr := ConfigFile.MustValue("listen", "host", "") + ":" + ConfigFile.MustValue("listen.http", "port", "8080")
 	std := standard.New(addr)

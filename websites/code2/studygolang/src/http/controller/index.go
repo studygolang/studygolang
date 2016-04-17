@@ -8,6 +8,7 @@ package controller
 
 import (
 	"logic"
+	"model"
 
 	"github.com/labstack/echo"
 )
@@ -15,14 +16,12 @@ import (
 type IndexController struct{}
 
 // 注册路由
-func (this *IndexController) RegisterRoute(e *echo.Echo) {
-	e.Get("/", echo.HandlerFunc(this.Index))
+func (self IndexController) RegisterRoute(e *echo.Echo) {
+	e.Get("/", echo.HandlerFunc(self.Index))
 }
 
 // 首页
 func (IndexController) Index(ctx echo.Context) error {
-	// nodes := logic.GenNodes()
-
 	num := 10
 	paginator := logic.NewPaginatorWithPerPage(1, num)
 	topicsList := make([]map[string]interface{}, num)
@@ -43,16 +42,14 @@ func (IndexController) Index(ctx echo.Context) error {
 	var likeFlags map[int]int
 
 	if len(recentArticles) > 0 {
-		user, ok := filter.CurrentUser(req)
+		curUser, ok := ctx.Get("user").(*model.Me)
 		if ok {
-			uid := user["uid"].(int)
-
-			likeFlags, _ = service.FindUserLikeObjects(uid, model.TYPE_ARTICLE, recentArticles[0].Id, recentArticles[len(recentArticles)-1].Id)
+			likeFlags, _ = logic.DefaultLike.FindUserLikeObjects(ctx, curUser.Uid, model.TypeArticle, recentArticles[0].Id, recentArticles[len(recentArticles)-1].Id)
 		}
 	}
 
 	// Golang 资源
-	resources := service.FindResources("0", "10")
+	resources := logic.DefaultResource.FindBy(ctx, 10)
 
 	return render(ctx, "index.html", map[string]interface{}{"topics": topicsList, "articles": recentArticles, "likeflags": likeFlags, "resources": resources})
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/labstack/echo"
 	"github.com/polaris1119/goutils"
 
+	. "http"
 	"model"
 )
 
@@ -21,18 +22,18 @@ import (
 func init() {
 	// 注册评论（喜欢）对象
 	logic.RegisterCommentObject(model.TypeResource, logic.ResourceComment{})
-	// service.RegisterLikeObject(model.TYPE_RESOURCE, service.ResourceLike{})
+	logic.RegisterLikeObject(model.TypeResource, logic.ResourceLike{})
 }
 
 type ResourceController struct{}
 
 // 注册路由
-func (this *ResourceController) RegisterRoute(e *echo.Echo) {
-	e.Get("/resources", echo.HandlerFunc(this.ReadList))
-	e.Get("/resources/cat/:catid", echo.HandlerFunc(this.ReadCatResources))
-	e.Get("/resources/:id", echo.HandlerFunc(this.Detail))
-	e.Any("/resources/new", echo.HandlerFunc(this.Create))
-	e.Any("/resources/modify", echo.HandlerFunc(this.Modify))
+func (self ResourceController) RegisterRoute(e *echo.Echo) {
+	e.Get("/resources", echo.HandlerFunc(self.ReadList))
+	e.Get("/resources/cat/:catid", echo.HandlerFunc(self.ReadCatResources))
+	e.Get("/resources/:id", echo.HandlerFunc(self.Detail))
+	e.Any("/resources/new", echo.HandlerFunc(self.Create))
+	e.Any("/resources/modify", echo.HandlerFunc(self.Modify))
 }
 
 // ReadList 资源索引页
@@ -42,7 +43,7 @@ func (ResourceController) ReadList(ctx echo.Context) error {
 
 // ReadCatResources 某个分类的资源列表
 func (ResourceController) ReadCatResources(ctx echo.Context) error {
-	curPage := goutils.MustInt(ctx.Query("p"), 1)
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
 	paginator := logic.NewPaginator(curPage)
 	catid := goutils.MustInt(ctx.Param("catid"))
 
@@ -72,27 +73,27 @@ func (ResourceController) Detail(ctx echo.Context) error {
 		hadCollect = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, id, model.TypeResource)
 	}
 
-	// service.Views.Incr(req, model.TYPE_RESOURCE, util.MustInt(vars["id"]))
+	// logic.Views.Incr(req, model.TYPE_RESOURCE, util.MustInt(vars["id"]))
 
 	return render(ctx, "resources/detail.html,common/comment.html", map[string]interface{}{"activeResources": "active", "resource": resource, "comments": comments, "likeflag": likeFlag, "hadcollect": hadCollect})
 }
 
 // Create 发布新资源
 func (ResourceController) Create(ctx echo.Context) error {
-	title := ctx.Form("title")
+	title := ctx.FormValue("title")
 	// 请求新建资源页面
 	if title == "" || Request(ctx).Method != "POST" {
 		return render(ctx, "resources/new.html", map[string]interface{}{"activeResources": "active", "categories": logic.AllCategory})
 	}
 
 	errMsg := ""
-	resForm := ctx.Form("form")
+	resForm := ctx.FormValue("form")
 	if resForm == model.LinkForm {
-		if ctx.Form("url") == "" {
+		if ctx.FormValue("url") == "" {
 			errMsg = "url不能为空"
 		}
 	} else {
-		if ctx.Form("content") == "" {
+		if ctx.FormValue("content") == "" {
 			errMsg = "内容不能为空"
 		}
 	}
@@ -111,7 +112,7 @@ func (ResourceController) Create(ctx echo.Context) error {
 
 // Modify 修改資源
 func (ResourceController) Modify(ctx echo.Context) error {
-	id := goutils.MustInt(ctx.Form("id"))
+	id := goutils.MustInt(ctx.FormValue("id"))
 	if id == 0 {
 		return ctx.Redirect(http.StatusSeeOther, "/resources/cat/1")
 	}
@@ -119,14 +120,14 @@ func (ResourceController) Modify(ctx echo.Context) error {
 	// 请求编辑資源页面
 	if Request(ctx).Method != "POST" {
 		resource := logic.DefaultResource.FindResource(ctx, id)
-		return render(ctx, "resources/new.html", map[string]interface{}{"resource": resource, "activeResources": "active", "categories": service.AllCategory})
+		return render(ctx, "resources/new.html", map[string]interface{}{"resource": resource, "activeResources": "active", "categories": logic.AllCategory})
 	}
 
 	me := ctx.Get("user").(*model.Me)
 	err := logic.DefaultResource.Publish(ctx, me, Request(ctx).Form)
 	if err != nil {
-		if err == service.NotModifyAuthorityErr {
-			return ctx.Error("没有权限修改")
+		if err == logic.NotModifyAuthorityErr {
+			return ctx.String(http.StatusForbidden, "没有权限修改")
 		}
 		return fail(ctx, 2, "内部服务错误，请稍候再试！")
 	}

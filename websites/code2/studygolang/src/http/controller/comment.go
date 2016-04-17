@@ -15,13 +15,13 @@ import (
 
 type CommentController struct{}
 
-func (this *CommentController) RegisterRoute(e *echo.Echo) {
-	e.Get("/at/users", echo.HandlerFunc(this.AtUsers))
+func (self CommentController) RegisterRoute(e *echo.Echo) {
+	e.Get("/at/users", echo.HandlerFunc(self.AtUsers))
 }
 
 // AtUsers 评论或回复 @ 某人 suggest
 func (CommentController) AtUsers(ctx echo.Context) error {
-	term := ctx.Query("term")
+	term := ctx.QueryParam("term")
 	users := logic.DefaultUser.GetUserMentions(term, 10)
 	return ctx.JSON(http.StatusOK, users)
 }
