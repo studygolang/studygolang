@@ -16,9 +16,9 @@ import (
 
 	. "db"
 
-	"github.com/fatih/set"
 	"github.com/fatih/structs"
 	"github.com/polaris1119/logger"
+	"github.com/polaris1119/set"
 	"golang.org/x/net/context"
 )
 
@@ -92,8 +92,8 @@ func (TopicLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy str
 		return nil
 	}
 
-	uidSet := set.New()
-	nidSet := set.New()
+	uidSet := set.New(set.NonThreadSafe)
+	nidSet := set.New(set.NonThreadSafe)
 	for _, topicInfo := range topicInfos {
 		uidSet.Add(topicInfo.Uid)
 		if topicInfo.Lastreplyuid != 0 {
@@ -102,7 +102,7 @@ func (TopicLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy str
 		nidSet.Add(topicInfo.Nid)
 	}
 
-	usersMap := DefaultUser.FindUserInfos(ctx, set.IntSlice(uidSet))
+	usersMap := DefaultUser.FindUserInfos(ctx, set.Int64Slice(uidSet))
 	// 获取节点信息
 	nodes := GetNodesName(set.IntSlice(nidSet))
 

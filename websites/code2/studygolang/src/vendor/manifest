@@ -46,12 +46,6 @@
 			"branch": "master"
 		},
 		{
-			"importpath": "github.com/fatih/set",
-			"repository": "https://github.com/fatih/set",
-			"revision": "27c40922c40b43fe04554d8223a402af3ea333f3",
-			"branch": "v0.1.1"
-		},
-		{
 			"importpath": "github.com/fatih/structs",
 			"repository": "https://github.com/fatih/structs",
 			"revision": "73c4e3dc02a78deaba8640d5f3a8c236ec1352bf",
@@ -193,6 +187,12 @@
 			"repository": "https://github.com/polaris1119/nosql",
 			"revision": "0988e14cd44db80aab69b14f7591d06e55976501",
 			"branch": "master"
+		},
+		{
+			"importpath": "github.com/polaris1119/set",
+			"repository": "https://github.com/polaris1119/set",
+			"revision": "654439414ced0c8387b93def333d39cdfa1f2243",
+			"branch": "HEAD"
 		},
 		{
 			"importpath": "github.com/polaris1119/slices",

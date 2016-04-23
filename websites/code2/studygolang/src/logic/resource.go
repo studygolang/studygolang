@@ -14,9 +14,9 @@ import (
 
 	. "db"
 
-	"github.com/fatih/set"
 	"github.com/fatih/structs"
 	"github.com/polaris1119/logger"
+	"github.com/polaris1119/set"
 	"golang.org/x/net/context"
 )
 
@@ -177,12 +177,12 @@ func (ResourceLogic) FindByCatid(ctx context.Context, paginator *Paginator, cati
 		return
 	}
 
-	uidSet := set.New()
+	uidSet := set.New(set.NonThreadSafe)
 	for _, resourceInfo := range resourceInfos {
 		uidSet.Add(resourceInfo.Uid)
 	}
 
-	usersMap := DefaultUser.FindUserInfos(ctx, set.IntSlice(uidSet))
+	usersMap := DefaultUser.FindUserInfos(ctx, set.Int64Slice(uidSet))
 
 	resources = make([]map[string]interface{}, len(resourceInfos))
 

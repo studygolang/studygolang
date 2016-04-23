@@ -16,10 +16,10 @@ import (
 
 	. "db"
 
-	"github.com/fatih/set"
 	"github.com/fatih/structs"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
+	"github.com/polaris1119/set"
 	"github.com/polaris1119/slices"
 	"golang.org/x/net/context"
 )
@@ -222,7 +222,7 @@ func (CommentLogic) fillObjinfos(comments []*model.Comment, cmtObj CommentObject
 	}
 	count := len(comments)
 	commentMap := make(map[int][]*model.Comment, count)
-	idSet := set.New()
+	idSet := set.New(set.NonThreadSafe)
 	for _, comment := range comments {
 		if _, ok := commentMap[comment.Objid]; !ok {
 			commentMap[comment.Objid] = make([]*model.Comment, 0, count)
