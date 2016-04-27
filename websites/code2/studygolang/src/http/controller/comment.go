@@ -7,8 +7,6 @@
 package controller
 
 import (
-	"encoding/json"
-	"fmt"
 	"http/middleware"
 	"logic"
 	"model"
@@ -19,7 +17,6 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/polaris1119/goutils"
-	"github.com/polaris1119/logger"
 	"github.com/polaris1119/slices"
 )
 
@@ -58,6 +55,9 @@ func (CommentController) CommentList(ctx echo.Context) error {
 	objtype := goutils.MustInt(ctx.QueryParam("objtype"))
 
 	commentList, err := logic.DefaultComment.FindObjectComments(ctx, objid, objtype)
+	if err != nil {
+		return fail(ctx, 1, "服务器内部错误")
+	}
 
 	uids := slices.StructsIntSlice(commentList, "Uid")
 	users := logic.DefaultUser.FindUserInfos(ctx, uids)
@@ -71,12 +71,5 @@ func (CommentController) CommentList(ctx echo.Context) error {
 		result[strconv.Itoa(uid)] = user
 	}
 
-	buf, err := json.Marshal(result)
-
-	if err != nil {
-		logger.Errorln("[RecentCommentHandler] json.marshal error:", err)
-		fmt.Fprint(rw, `{"ok": 0, "error":"解析json出错"}`)
-		return
-	}
-	fmt.Fprint(rw, `{"ok": 1, "data":`+string(buf)+`}`)
+	return success(ctx, result)
 }

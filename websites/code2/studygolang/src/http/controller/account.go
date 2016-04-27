@@ -35,11 +35,11 @@ func (self AccountController) RegisterRoute(e *echo.Echo) {
 	e.Get("/account/activate", echo.HandlerFunc(self.Activate))
 	e.Any("/account/login", echo.HandlerFunc(self.Login))
 	e.Any("/account/edit", echo.HandlerFunc(self.Edit), middleware.NeedLogin())
-	e.Post("/account/change_avatar", echo.HandlerFunc(self.ChangeAvatar))
-	e.Post("/account/changepwd", echo.HandlerFunc(self.ChangePwd))
+	e.Post("/account/change_avatar", echo.HandlerFunc(self.ChangeAvatar), middleware.NeedLogin())
+	e.Post("/account/changepwd", echo.HandlerFunc(self.ChangePwd), middleware.NeedLogin())
 	e.Any("/account/forgetpwd", echo.HandlerFunc(self.ForgetPasswd))
 	e.Any("/account/resetpwd", echo.HandlerFunc(self.ResetPasswd))
-	e.Get("/account/logout", echo.HandlerFunc(self.Logout))
+	e.Get("/account/logout", echo.HandlerFunc(self.Logout), middleware.NeedLogin())
 }
 
 // 保存uuid和email的对应关系（TODO:重启如何处理，有效期问题）

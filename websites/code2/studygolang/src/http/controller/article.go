@@ -14,6 +14,7 @@ import (
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 
+	. "http"
 	"model"
 )
 
@@ -112,7 +113,7 @@ func (ArticleController) Detail(ctx echo.Context) error {
 		hadCollect = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, article.Id, model.TypeArticle)
 	}
 
-	// logic.Views.Incr(req, model.TypeArticle, article.Id)
+	logic.Views.Incr(Request(ctx), model.TypeArticle, article.Id)
 
 	// 为了阅读数即时看到
 	article.Viewnum++

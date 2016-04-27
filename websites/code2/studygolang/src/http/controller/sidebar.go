@@ -10,10 +10,10 @@ import (
 	"logic"
 	"model"
 	"strconv"
-	"util"
 
 	"github.com/labstack/echo"
 	"github.com/polaris1119/goutils"
+	"github.com/polaris1119/slices"
 )
 
 // 侧边栏的内容通过异步请求获取
@@ -108,7 +108,7 @@ func (SidebarController) RecentComment(ctx echo.Context) error {
 	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
 	recentComments := logic.DefaultComment.FindRecent(ctx, 0, -1, limit)
 
-	uids := util.Models2Intslice(recentComments, "Uid")
+	uids := slices.StructsIntSlice(recentComments, "Uid")
 	users := logic.DefaultUser.FindUserInfos(ctx, uids)
 
 	result := map[string]interface{}{

@@ -165,21 +165,27 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/polaris1119/echoutils",
+			"repository": "https://github.com/polaris1119/echoutils",
+			"revision": "7395877a70801d90de1913641b3590a54a1a2995",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/polaris1119/goutils",
 			"repository": "https://github.com/polaris1119/goutils",
-			"revision": "2dc1e58669158610e27c3cdfdff072d70422e14c",
+			"revision": "18cc8b9fd2dd2c2ecf711df775414734c4c32873",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/polaris1119/logger",
 			"repository": "https://github.com/polaris1119/logger",
-			"revision": "5e9b731c420284b82b97da10196355e03f50d6d0",
+			"revision": "3ff33b131109cc29dba89eaad5035b7fadbd934b",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/polaris1119/middleware",
 			"repository": "https://github.com/polaris1119/middleware",
-			"revision": "37f7a4f43c595c8b2e937263b0b064dc9547cd26",
+			"revision": "14eddf1b4a05cfdb11bdbbae16d2e7d471f4f566",
 			"branch": "master"
 		},
 		{
