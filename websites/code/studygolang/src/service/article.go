@@ -156,9 +156,11 @@ func ParseArticle(articleUrl string, auto bool) (*model.Article, error) {
 		// YYYYY-MM-dd HH:mm
 		if len(pubDate) == 16 && auto {
 			// 三个月之前不入库
-			pubTime := time.ParseInLocation("2006-01-02 15:04", pubDate, time.Local)
-			if pubTime.Add(3 * 30 * 86400 * time.Second).Before(time.Now()) {
-				return nil, errors.New("article is old!")
+			pubTime, err := time.ParseInLocation("2006-01-02 15:04", pubDate, time.Local)
+			if err == nil {
+				if pubTime.Add(3 * 30 * 86400 * time.Second).Before(time.Now()) {
+					return nil, errors.New("article is old!")
+				}
 			}
 		}
 	}
