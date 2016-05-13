@@ -12,11 +12,13 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
-	"github.com/PuerkitoBio/goquery"
 	"logger"
 	"model"
 	"util"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 var domainPatch = map[string]string{
@@ -140,7 +142,7 @@ func ParseArticle(articleUrl string, auto bool) (*model.Article, error) {
 	if rule.PubDate != "" {
 		pubDate = strings.TrimSpace(doc.Find(rule.PubDate).First().Text())
 
-		// sochina patch
+		// oschina patch
 		re := regexp.MustCompile("[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}")
 		submatches := re.FindStringSubmatch(pubDate)
 		if len(submatches) > 0 {
@@ -150,6 +152,15 @@ func ParseArticle(articleUrl string, auto bool) (*model.Article, error) {
 
 	if pubDate == "" {
 		pubDate = util.TimeNow()
+	} else {
+		// YYYYY-MM-dd HH:mm
+		if len(pubDate) == 16 && auto {
+			// 三个月之前不入库
+			pubTime := time.ParseInLocation("2006-01-02 15:04", pubDate, time.Local)
+			if pubTime.Add(3 * 30 * 86400 * time.Second).Before(time.Now()) {
+				return nil, errors.New("article is old!")
+			}
+		}
 	}
 
 	article := model.NewArticle()
