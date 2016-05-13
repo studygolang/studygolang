@@ -8,6 +8,7 @@ package logic
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 	"model"
 	"net/url"
@@ -178,7 +179,6 @@ func (UserLogic) EmailOrUsernameExists(ctx context.Context, email, username stri
 func (self UserLogic) FindUserInfos(ctx context.Context, uids []int64) map[int]*model.User {
 	objLog := GetLogger(ctx)
 	if len(uids) == 0 {
-		objLog.Errorln("UserLogic FindUserInfos uids is empty")
 		return nil
 	}
 
@@ -379,6 +379,20 @@ func (UserLogic) IncrUserWeight(field string, value interface{}, weight int) {
 	}
 }
 
+func (UserLogic) DecrUserWeight(field string, value interface{}, divide int) {
+	if divide <= 0 {
+		return
+	}
+
+	strSql := fmt.Sprintf("UPDATE user_active SET weight=weight/%d WHERE %s=?", divide, field)
+	if result, err := MasterDB.Exec(strSql, value); err != nil {
+		logger.Errorln("UserActive update Error:", err)
+	} else {
+		n, _ := result.RowsAffected()
+		logger.Debugln(strSql, "affected num:", n)
+	}
+}
+
 // RecordLoginTime 记录用户最后登录时间
 func (UserLogic) RecordLoginTime(username string) error {
 	_, err := MasterDB.Table(new(model.UserLogin)).Where("username=?", username).
@@ -433,4 +447,11 @@ func (UserLogic) GetUserMentions(term string, limit int) []map[string]string {
 	}
 
 	return users
+}
+
+// 获取 loginTime 之前没有登录的用户
+func (UserLogic) FindNotLoginUsers(loginTime time.Time) (userList []*model.UserLogin, err error) {
+	userList = make([]*model.UserLogin, 0)
+	err = MasterDB.Where("login_time<?", loginTime).Find(&userList)
+	return
 }

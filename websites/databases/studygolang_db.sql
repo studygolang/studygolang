@@ -477,6 +477,23 @@ CREATE TABLE `morning_reading` (
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '技术晨读表';
 
+/*---------------------------------------------------------------------------*
+  NAME: image
+  用途：图片表
+*---------------------------------------------------------------------------*/
+CREATE TABLE `image` (
+  `pid` int unsigned NOT NULL AUTO_INCREMENT,
+  `md5` char(32) NOT NULL DEFAULT '' COMMENT '图片md5',
+  `path` varchar(127) NOT NULL DEFAULT '' COMMENT '图片路径（不包括域名）',
+  `size` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '图片的大小（字节）',
+  `width` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '图片宽度',
+  `height` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '图片高度',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`pid`),
+  UNIQUE KEY `md5` (`md5`),
+  KEY `created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='图片表';
+
 
 /*---------------------------------------------------------------------------*
   NAME: advertisement

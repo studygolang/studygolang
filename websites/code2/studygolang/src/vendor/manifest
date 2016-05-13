@@ -2,9 +2,21 @@
 	"version": 0,
 	"dependencies": [
 		{
+			"importpath": "github.com/PuerkitoBio/goquery",
+			"repository": "https://github.com/PuerkitoBio/goquery",
+			"revision": "2e29ea41f0d13f4a303c75553f4eeadddc7a4c56",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/Unknwon/goconfig",
 			"repository": "https://github.com/Unknwon/goconfig",
 			"revision": "5f601ca6ef4d5cea8d52be2f8b3a420ee4b574a5",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/andybalholm/cascadia",
+			"repository": "https://github.com/andybalholm/cascadia",
+			"revision": "3ad29d1ad1c4f2023e355603324348cf1f4b2d48",
 			"branch": "master"
 		},
 		{
@@ -185,7 +197,7 @@
 		{
 			"importpath": "github.com/polaris1119/middleware",
 			"repository": "https://github.com/polaris1119/middleware",
-			"revision": "14eddf1b4a05cfdb11bdbbae16d2e7d471f4f566",
+			"revision": "a771f75dda500569d2757d5bc076cf36a8127a63",
 			"branch": "master"
 		},
 		{
@@ -205,6 +217,36 @@
 			"repository": "https://github.com/polaris1119/slices",
 			"revision": "063567f4df49cfae91c3f60a6da4acd928aa27f0",
 			"branch": "master"
+		},
+		{
+			"importpath": "github.com/polaris1119/times",
+			"repository": "https://github.com/polaris1119/times",
+			"revision": "14f7f3ba487e62bd72b560bf8782555abf2dd9a4",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/qiniu/api.v6",
+			"repository": "https://github.com/qiniu/api.v6",
+			"revision": "705d485512bab38d44f792b1d401b70b4e15a092",
+			"branch": "develop"
+		},
+		{
+			"importpath": "github.com/qiniu/bytes",
+			"repository": "https://github.com/qiniu/bytes",
+			"revision": "4887e7b2bde38e8f2a8cb7a092d6e197dbcda741",
+			"branch": "develop"
+		},
+		{
+			"importpath": "github.com/qiniu/log",
+			"repository": "https://github.com/qiniu/log",
+			"revision": "a304a74568d6982c5b89de1c68ac8fca3add196a",
+			"branch": "develop"
+		},
+		{
+			"importpath": "github.com/qiniu/rpc",
+			"repository": "https://github.com/qiniu/rpc",
+			"revision": "30c22466d920a7dc0e1f79d048f44af85ac04ee6",
+			"branch": "develop"
 		},
 		{
 			"importpath": "github.com/robfig/cron",
@@ -230,6 +272,13 @@
 			"revision": "024ed629fd292398cfd43c9678a5bf004f7defdc",
 			"branch": "master",
 			"path": "/context"
+		},
+		{
+			"importpath": "golang.org/x/net/html",
+			"repository": "https://github.com/golang/net",
+			"revision": "1aafd77e1e7f6849ad16a7bdeb65e3589a10b2bb",
+			"branch": "master",
+			"path": "/html"
 		},
 		{
 			"importpath": "golang.org/x/net/websocket",

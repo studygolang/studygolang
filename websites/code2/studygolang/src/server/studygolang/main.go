@@ -27,7 +27,6 @@ import (
 	mw "github.com/labstack/echo/middleware"
 	"github.com/polaris1119/logger"
 	thirdmw "github.com/polaris1119/middleware"
-	"golang.org/x/net/websocket"
 )
 
 func init() {
@@ -48,29 +47,22 @@ func main() {
 
 	e.Use(thirdmw.EchoLogger())
 	e.Use(mw.Recover())
+	e.Use(pwm.HTTPError())
 	e.Use(pwm.AutoLogin())
 	// e.Use(mw.Gzip())
 	e.Use(thirdmw.EchoCache())
 
 	e.Static("/static/", ROOT+"/static")
+	// 服务 sitemap 文件
+	e.Static("/sitemap/", ROOT+"/sitemap")
 
 	controller.RegisterRoutes(e)
-
-	websocketHandle(e)
 
 	addr := ConfigFile.MustValue("listen", "host", "") + ":" + ConfigFile.MustValue("listen.http", "port", "8080")
 	std := standard.New(addr)
 	std.SetHandler(e)
 
 	log.Fatal(gracehttp.Serve(std.Server))
-}
-
-func websocketHandle(e *echo.Echo) {
-	e.Get("/ws", standard.WrapHandler(websocket.Handler(func(ws *websocket.Conn) {
-		for {
-			time.Sleep(1 * time.Hour)
-		}
-	})))
 }
 
 const (

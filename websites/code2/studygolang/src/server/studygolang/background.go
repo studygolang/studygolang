@@ -9,7 +9,9 @@ package main
 import (
 	"global"
 	"logic"
+	"time"
 
+	"github.com/polaris1119/logger"
 	"github.com/robfig/cron"
 )
 
@@ -17,7 +19,7 @@ import (
 func ServeBackGround() {
 
 	// 初始化 七牛云存储
-	// service.InitQiniu()
+	logic.DefaultUploader.InitQiniu()
 
 	// 常驻内存的数据
 	go loadData()
@@ -28,13 +30,13 @@ func ServeBackGround() {
 	c.AddFunc("@daily", decrUserActiveWeight)
 
 	// 两分钟刷一次浏览数（TODO：重启丢失问题？信号控制重启？）
-	// c.AddFunc("@every 2m", logic.Views.Flush)
+	c.AddFunc("@every 2m", logic.Views.Flush)
 
 	// 每天生成 sitemap 文件
-	// c.AddFunc("@daily", logic.GenSitemap)
+	c.AddFunc("@daily", logic.GenSitemap)
 
 	// 给用户发邮件，如通知网站最近的动态，每周的晨读汇总等
-	// c.AddFunc("0 0 4 * * 1", logic.EmailNotice)
+	// c.AddFunc("0 0 4 * * 1", logic.DefaultEmail.EmailNotice)
 
 	c.Start()
 }
@@ -59,35 +61,34 @@ func loadData() {
 }
 
 func decrUserActiveWeight() {
-	// logger.Debugln("start decr user active weight...")
+	logger.Debugln("start decr user active weight...")
 
-	// loginTime := time.Now().Add(-72 * time.Hour)
-	// userList, err := service.FindNotLoginUsers(loginTime.Format(util.TIME_LAYOUT_OFTEN))
-	// if err != nil {
-	// 	logger.Errorln("获取最近未登录用户失败：", err)
-	// 	return
-	// }
+	loginTime := time.Now().Add(-72 * time.Hour)
+	userList, err := logic.DefaultUser.FindNotLoginUsers(loginTime)
+	if err != nil {
+		logger.Errorln("获取最近未登录用户失败：", err)
+		return
+	}
 
-	// logger.Debugln("need dealing users:", len(userList))
+	logger.Debugln("need dealing users:", len(userList))
 
-	// for _, user := range userList {
-	// 	divide := 5
+	for _, user := range userList {
+		divide := 5
 
-	// 	lastLoginTime, err := util.TimeParseOften(user.LoginTime)
-	// 	if err == nil {
-	// 		hours := (loginTime.Sub(lastLoginTime) / 24).Hours()
-	// 		if hours < 24 {
-	// 			divide = 2
-	// 		} else if hours < 48 {
-	// 			divide = 3
-	// 		} else if hours < 72 {
-	// 			divide = 4
-	// 		}
-	// 	}
+		if err == nil {
+			hours := (loginTime.Sub(user.LoginTime) / 24).Hours()
+			if hours < 24 {
+				divide = 2
+			} else if hours < 48 {
+				divide = 3
+			} else if hours < 72 {
+				divide = 4
+			}
+		}
 
-	// 	logger.Debugln("decr user weight, username:", user.Username, "divide:", divide)
-	// 	service.DecrUserWeight("username='"+user.Username+"'", divide)
-	// }
+		logger.Debugln("decr user weight, username:", user.Username, "divide:", divide)
+		logic.DefaultUser.DecrUserWeight("username", user.Username, divide)
+	}
 
-	// logger.Debugln("end decr user active weight...")
+	logger.Debugln("end decr user active weight...")
 }

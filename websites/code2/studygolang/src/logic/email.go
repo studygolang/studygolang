@@ -10,15 +10,17 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"model"
 	"net/smtp"
 	"strings"
 	"time"
-	"util"
 
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
+
+	. "db"
+	"model"
+	"util"
 )
 
 type EmailLogic struct{}
@@ -137,53 +139,49 @@ func (self EmailLogic) EmailNotice() {
 		"endDate":   endDate,
 	}
 
-	_ = data
-
 	// 给所有用户发送邮件
-	// userModel := model.NewUser()
+	var (
+		lastUid = 0
+		limit   = 500
+		users   []*model.User
+	)
 
-	// var (
-	// 	lastUid = 0
-	// 	limit   = "500"
-	// 	users   []*model.User
-	// )
+	for {
+		err = MasterDB.Where("uid>?", lastUid).Asc("uid").Limit(limit).Find(&users)
+		if err != nil {
+			logger.Errorln("find user error:", err)
+			continue
+		}
 
-	// for {
-	// 	users, err = userModel.Where("uid>?", lastUid).Order("uid ASC").Limit(limit).FindAll()
-	// 	if err != nil {
-	// 		logger.Errorln("find user error:", err)
-	// 		continue
-	// 	}
+		if len(users) == 0 {
+			break
+		}
 
-	// 	if len(users) == 0 {
-	// 		break
-	// 	}
+		for _, user := range users {
+			if user.Unsubscribe == 1 {
+				logger.Infoln("user unsubscribe", user)
+				continue
+			}
 
-	// 	for _, user := range users {
-	// 		if user.Unsubscribe == 1 {
-	// 			logger.Infoln("user unsubscribe", user)
-	// 			continue
-	// 		}
+			data["email"] = user.Email
+			data["token"] = self.GenUnsubscribeToken(user)
 
-	// 		data["email"] = user.Email
-	// 		data["token"] = GenUnsubscribeToken(user)
+			content, err := self.genEmailContent(data)
+			if err != nil {
+				logger.Errorln("from email.html gen email content error:", err)
+				continue
+			}
 
-	// 		content, err := genEmailContent(data)
-	// 		if err != nil {
-	// 			logger.Errorln("from email.html gen email content error:", err)
-	// 			continue
-	// 		}
+			self.SendMail("每周精选", content, []string{user.Email})
 
-	// 		SendMail("每周精选", content, []string{user.Email})
+			if lastUid < user.Uid {
+				lastUid = user.Uid
+			}
 
-	// 		if lastUid < user.Uid {
-	// 			lastUid = user.Uid
-	// 		}
-
-	// 		// 控制发信速度
-	// 		time.Sleep(30 * time.Second)
-	// 	}
-	// }
+			// 控制发信速度
+			time.Sleep(30 * time.Second)
+		}
+	}
 
 }
 

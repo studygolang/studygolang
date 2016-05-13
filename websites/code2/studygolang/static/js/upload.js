@@ -7,13 +7,13 @@ jQuery(document).ready(function(){
 		fileTypeExts: '*.png;*.jpg;*.JPG;*.bmp;*.gif',// 不限制上传文件请修改成'*.*'
 		multi:false,
 		fileSizeLimit: 5*1024*1024, // 大小限制
-		uploader : '/upload/image.json', // 文件上传目标地址
+		uploader : '/image/upload', // 文件上传目标地址
 		buttonText : '上传',
 		fileObjName : 'img',
 		showUploadedPercent:true,
 		onUploadSuccess : function(file, data) {
 			data = $.parseJSON(data);
-			if (data.ok == 1) {
+			if (data.ok) {
 				var url = QINIU_DOAMIN+data.uri;
 				$('.img_url').val(url);
 				$('img.show_img').attr('src', url);

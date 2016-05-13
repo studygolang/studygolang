@@ -101,7 +101,7 @@ func (TopicController) Detail(ctx echo.Context) error {
 		hadCollect = logic.DefaultFavorite.HadFavorite(ctx, user.Uid, tid, model.TypeTopic)
 	}
 
-	// logic.Views.Incr(req, model.TypeTopic, util.MustInt(vars["tid"]))
+	logic.Views.Incr(Request(ctx), model.TypeTopic, tid)
 
 	return render(ctx, "topics/detail.html,common/comment.html", map[string]interface{}{"activeTopics": "active", "topic": topic, "replies": replies, "likeflag": likeFlag, "hadcollect": hadCollect})
 }

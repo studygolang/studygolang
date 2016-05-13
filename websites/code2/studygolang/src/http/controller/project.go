@@ -149,7 +149,7 @@ func (ProjectController) Detail(ctx echo.Context) error {
 		hadCollect = logic.DefaultFavorite.HadFavorite(ctx, user.Uid, project.Id, model.TypeProject)
 	}
 
-	// logic.Views.Incr(req, model.TypeProject, project.Id)
+	logic.Views.Incr(Request(ctx), model.TypeProject, project.Id)
 
 	// 为了阅读数即时看到
 	project.Viewnum++

@@ -117,7 +117,7 @@
 			// 实例化一个plupload上传对象
 			var uploader = new plupload.Uploader({
 				browse_button : 'upload-img', // 触发文件选择对话框的按钮，为那个元素id
-				url : '/upload/image.json', // 服务器端的上传页面地址
+				url : '/image/upload', // 服务器端的上传页面地址
 				filters: {
 					mime_types : [ //只允许上传图片
 						{ title : "图片文件", extensions : "jpg,png" }

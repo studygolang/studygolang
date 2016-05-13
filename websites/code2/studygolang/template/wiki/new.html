@@ -1,123 +1,121 @@
-{{define "topnav"}}
-<li class="first"><a href="/">首页</a><span class="divider">/</span></li>
-<li class=""><a href="/wiki" itemprop="url"><span itemprop="title">Wiki</span></a><span class="divider">/</span></li>
-<li class="last active"><a href="/wiki/new" itemprop="url"><span itemprop="title">新建Wiki页</span></a></li>
-{{end}}
+{{define "title"}}新建Wiki页 {{end}}
+{{define "seo"}}<meta name="keywords" content="新建Wiki,Golang,Go社区,Golang中文社区,Go语言学习,Go语言,学习Go语言,Golang 中国,Golang中国,Golang China, Go语言论坛, Go中文社区, Go语言社区, Go语言中文网, Go语言学习园地">
+<meta name="description" content="Go中文社区，Golang中国，Go语言学习园地，提供一个Go爱好者交流的中文平台">{{end}}
 {{define "content"}}
-<div id="main" class="container-fluid">
-  <div class="content">
-    <div class="box">
-      <form accept-charset="UTF-8" action="/wiki/new" class="simple_form form-horizontal new_page" id="new_page" method="post" novalidate="novalidate">
-        <div style="margin:0;padding:0;display:inline">
-          <input name="authenticity_token" type="hidden" value="akaN6qrCyNOili4mgo2qBZrdEWqX6DzoDABRpFoQWC4=">
-        </div>
-        <div class="alert alert-block alert-error" id="alert_info" style="display:none;">
-        </div>
-        <fieldset>
-          <legend>新建Wiki页</legend>
-          <div class="control-group string required">
-            <label class="string required control-label" for="wiki_title"><abbr title="required">*</abbr> 标题</label>
-            <div class="controls">
-              <input class="span4" id="wiki_title" name="title" size="30" placeholder="Wiki页面标题" type="text"/>
-            </div>
-          </div>
-          <div class="control-group string required">
-            <label class="string required control-label" for="wiki_uri"><abbr title="required">*</abbr> URL</label>
-            <div class="controls">
-              <div class="input-prepend">
-                <span class="add-on">http://studygolang.com/wiki/</span>
-                <input class="small" id="wiki_uri" name="uri" placeholder="Wiki页面访问地址" size="30" type="text"/>
-              </div>
-            </div>
-          </div>
-          <div class="control-group text required">
-            <label class="text required control-label" for="wmd-input"><abbr title="required">*</abbr> 正文</label>
-            <div class="controls">
-              <div class="wmd-panel">
-                <div id="wmd-button-bar"></div>
-                <textarea class="wmd-input" id="wmd-input" name="content"></textarea>
-              </div>
-              <div>预览</div>
-              <div id="wmd-preview" class="wmd-panel wmd-preview"></div>
-            </div>
-          </div>
-          <div class="form-actions">
-            <input class="btn btn-primary" data-disable-with="正在保存" name="commit" type="submit" value="保存">
-            <a href="/wiki" class="btn reset">取消</a>
-          </div>
-        </fieldset>
-      </form>
-  </div>
+<div class="row banner">
 </div>
-
-<div class="sidebar">
-  <div id="wiki_new_tip" class="box">
-    <h2>Wiki发表说明</h2>
-    <span class="body help-block">
-      <ul>
-        <li>支持 Markdown 格式, <strong>**粗体**</strong>、~~删除线~~、<code>`单行代码`</code></li>
-        <!--<li>支持表情，见 <a href="http://www.emoji-cheat-sheet.com/" target="_blank" rel="nofollow">Emoji cheat sheet</a></li>-->
-        <li>按“M”键查看更多 <a href="#markdown_help_tip_modal" data-toggle="modal" data-keyboard="true" data-backdrop="true">帮助</a>。</li>
-      </ul>
-      <div id="markdown_help_tip_modal" class="modal hide fade">
-        <div class="modal-header">
-          <a href="#" class="close" data-dismiss="modal">×</a>
-          <h4>格式说明</h4>
+<div class="row">
+  <div class="col-lg-9 col-md-8 col-sm-7">
+    <ol class="breadcrumb">
+      <li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+      <li><a href="/wiki">Wiki</a></li>
+      <li class="active">新建Wiki页</li>
+    </ol>
+    <div class="page box_white">
+      <form class="form-horizontal validate-form" role="form" action="/wiki/new" data-redirect="/wiki">
+        <div class="form-group form-group-sm">
+          <label class="col-sm-2 control-label" for="title"><abbr>*</abbr>标题</label>
+          <div class="col-sm-9">
+            <div class="row">
+              <span class="col-sm-9">
+                <input class="form-control required" type="text" id="title" name="title" placeholder="标题">
+              </span>
+            </div>
+          </div>
         </div>
-        <div class="modal-body">
-          <ul>
-            <li>支持 Markdown 格式</li>
-            <li><strong>**粗体**</strong>、~~删除线~~、<code>`单行代码`</code></li>
-            <li>http://example.org 自动加链接</li>
-            <li>@name  会链接到用户页面，并会通知他</li>
-            <li>![Alt text here](http://foo.com/bar.jpg) 显示图片</li>
-          </ul>
+        <div class="form-group form-group-sm">
+          <label class="col-sm-2 control-label" for="uri">Wiki访问地址</label>
+          <div class="col-sm-6">
+            <div class="input-group input-group-sm">
+              <span class="input-group-addon">http://studygolang.com/wiki/</span>
+              <input class="form-control {remote:'/wiki/uri'}" type="text" id="uri" name="uri" placeholder="Wiki访问地址">
+            </div>
+          </div>
         </div>
+        <div class="form-group form-group-sm">
+          <label class="col-sm-2 control-label" for="content"><abbr>*</abbr>正文</label>
+          <div class="col-sm-9">
+            <div class="row clearfix md-toolbar">
+              <ul class="col-md-10 list-inline">
+                <li class="edit cur"><a href="#"><i class="glyphicon glyphicon-edit"></i> 编辑</a></li>
+                <li class="preview"><a href="#" title="预览"><i class="glyphicon glyphicon-eye-open preview"></i> 预览</a></li>
+                <li class="wide"><a href="/wide/playground" target="_blank" title="通过Wide编辑代码"><i class="glyphicon glyphicon-cloud"></i> Wide</a></li>
+              </ul>
+              <div class="col-md-2 text-right">
+                <i id="upload-img" class="glyphicon glyphicon-picture upload-img tool-tip" data-toggle="tooltip" data-placement="top" title="上传图片"></i>
+              </div>
+            </div>
+            <textarea class="form-control need-autogrow required main-textarea" id="content" name="content" rows="15"></textarea>
+            <div class="content-preview"></div>
+          </div>
+        </div>
+        <div class="form-group form-group-sm">
+          <label class="col-sm-5 control-label">&nbsp;</label>
+          <div class="col-sm-6">
+            <button type="submit" class="btn btn-default btn-sm" id="submit">发布Wiki</button> (Ctrl+Enter)
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="col-lg-3 col-md-4 col-sm-5">
+    <div class="row box_white sidebar sb-author">
+      <div class="top">
+        <h3 class="title"><i class="glyphicon glyphicon-list-alt"></i>&nbsp;发布Wiki说明</h3>
       </div>
+      <div class="sb-content">
+        <span class="help-block">
+          <ul>
+            <li>支持 Markdown 格式, <strong>**粗体**</strong>、~~删除线~~、<code>`单行代码`</code></li>
+            <li>http://example.org 自动加链接</li>
+            <li>代码支持高亮，如：```go func main() {}``` 则是Go语法高亮</li>
+            <li>![alt 文本](http://foo.com/bar.jpg) 显示图片</li>
+            <li>:smile: 支持 <strong>emoji 表情</strong>，见<a href="http://www.emoji-cheat-sheet.com/" target="_blank">Emoji cheat sheet</a></li>
+            <li>完整 Markdwon 语法说明：<a href="http://wowubuntu.com/markdown/" target="_blank">语法说明 (简体中文版)</a></li>
+            <li>支持嵌入 Wide 的Playground 代码直接运行</li>
+          </ul>
+        </span>
+      </div>
+    </div>
 
-    </span>
+    <div class="row box_white sidebar">
+      <script type="text/javascript">
+      var cpro_id="u1996895";
+      (window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id]={at:"3",rsi0:"291",rsi1:"291",pat:"6",tn:"baiduCustNativeAD",rss1:"#FFFFFF",conBW:"0",adp:"1",ptt:"0",titFF:"%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91",titFS:"14",rss2:"#000000",titSU:"0",ptbg:"90",piw:"0",pih:"0",ptp:"0"}
+      </script>
+      <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script>
+    </div>
+
   </div>
 </div>
 {{end}}
-
-{{define "title"}}新建Wiki页{{end}}
 {{define "css"}}
-<link href="/static/css/markdown.css" media="screen" rel="stylesheet" type="text/css">
-<link href="/static/css/pages.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/jquery.atwho.min.css" rel="stylesheet">
+<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/md_toolbar.css" media="screen" rel="stylesheet" type="text/css">
 {{end}}
 {{define "js"}}
-<script type="text/javascript" src="/static/js/pages.js"></script>
-<script type="text/javascript" src="/static/js/Markdown.Converter.js"></script>
-<script type="text/javascript" src="/static/js/Markdown.Sanitizer.js"></script>
-<script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.caret.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.atwho.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/emojis.js"></script>
+<script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
+<script type="text/javascript" src="/static/js/md_toolbar.js"></script>
+<script type="text/javascript" src="/static/js/puploader.js?v=1.0"></script>
+<script type="text/javascript" src="/static/js/wiki.js?v=1.0"></script>
 <script type="text/javascript">
-(function () {
-    var wikiConverter = Markdown.getSanitizingConverter();
-    
-    wikiConverter.hooks.chain("preBlockGamut", function (text, rbg) {
-        return text.replace(/^ {0,3}""" *\n((?:.*?\n)+?) {0,3}""" *$/gm, function (whole, inner) {
-            return "<blockquote>" + rbg(inner) + "</blockquote>\n";
-        });
-    });
-    
-    var wikiEditor = new Markdown.Editor(wikiConverter);
-    
-    wikiEditor.run();
-})();
+// 需要加载的侧边栏
+SG.SIDE_BARS = [];
 
 $(function(){
-    // 表单提交
-    $('#new_page').submit(function(){
-        var self = $(this);
-        $.post(self.attr('action'), self.serialize(), function(data){
-            if (data.errno) {
-                $('#alert_info').html(data.error).show()
-            } else {
-                location.href = "/wiki/" + data.data.uri;
-            }
-        });
-        return false;
-    });
-})
+  // 文本框自动伸缩
+  $('.need-autogrow').autoGrow();
+});
 </script>
 {{end}}

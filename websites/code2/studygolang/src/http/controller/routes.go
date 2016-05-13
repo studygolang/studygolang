@@ -10,6 +10,10 @@ func RegisterRoutes(e *echo.Echo) {
 	new(ProjectController).RegisterRoute(e)
 	new(ResourceController).RegisterRoute(e)
 	new(ReadingController).RegisterRoute(e)
+	new(WikiController).RegisterRoute(e)
 	new(SidebarController).RegisterRoute(e)
 	new(CommentController).RegisterRoute(e)
+	new(ImageController).RegisterRoute(e)
+	new(CaptchaController).RegisterRoute(e)
+	new(WebsocketController).RegisterRoute(e)
 }
