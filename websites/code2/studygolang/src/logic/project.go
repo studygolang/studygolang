@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
-// Author：polaris	polaris@studygolang.com
+// Author:polaris	polaris@studygolang.com
 
 package logic
 
@@ -150,6 +150,21 @@ func (ProjectLogic) FindByIds(ids []int) []*model.OpenProject {
 	return projects
 }
 
+// findByIds 获取多个项目详细信息 包内使用
+func (ProjectLogic) findByIds(ids []int) map[int]*model.OpenProject {
+	if len(ids) == 0 {
+		return nil
+	}
+
+	projects := make(map[int]*model.OpenProject)
+	err := MasterDB.In("id", ids).Find(&projects)
+	if err != nil {
+		logger.Errorln("ProjectLogic FindByIds error:", err)
+		return nil
+	}
+	return projects
+}
+
 // FindOne 获取单个项目
 func (ProjectLogic) FindOne(ctx context.Context, val interface{}) *model.OpenProject {
 	objLog := GetLogger(ctx)
@@ -171,6 +186,30 @@ func (ProjectLogic) FindOne(ctx context.Context, val interface{}) *model.OpenPro
 	}
 
 	return project
+}
+
+// FindRecent 获得某个用户最近发布的开源项目
+func (ProjectLogic) FindRecent(ctx context.Context, username string) []*model.OpenProject {
+	projectList := make([]*model.OpenProject, 0)
+	err := MasterDB.Where("username=?", username).Limit(5).OrderBy("id DESC").Find(&projectList)
+	if err != nil {
+		logger.Errorln("project logic FindRecent error:", err)
+		return nil
+	}
+	return projectList
+}
+
+// getOwner 通过objid获得 project 的所有者
+func (ProjectLogic) getOwner(ctx context.Context, id int) int {
+	project := &model.OpenProject{}
+	_, err := MasterDB.Id(id).Get(project)
+	if err != nil {
+		logger.Errorln("project logic getOwner Error:", err)
+		return 0
+	}
+
+	user := DefaultUser.FindOne(ctx, "username", project.Username)
+	return user.Uid
 }
 
 // 项目评论

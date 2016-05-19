@@ -149,13 +149,14 @@
 				if (responseObject.status == 200) {
 					var data = $.parseJSON(responseObject.response);
 					if (data.ok) {
-						var url = QINIU_DOAMIN+data.uri;
+						var path = data.data.uri;
+						var url = QINIU_DOAMIN+path;
 						var $img = $('#img-preview').find('img');
 						$img.attr('src', url);
 						$img.attr('alt', file.name);
 						$('#img-preview').show();
 
-						$('#upload-avatar').val(data.uri.substr(7));
+						$('#upload-avatar').val(path.substr(7));
 
 						$('#upload-btn').removeAttr("disabled");
 					} else {

@@ -14,7 +14,7 @@ jQuery(document).ready(function(){
 		onUploadSuccess : function(file, data) {
 			data = $.parseJSON(data);
 			if (data.ok) {
-				var url = QINIU_DOAMIN+data.uri;
+				var url = QINIU_DOAMIN+data.data.uri;
 				$('.img_url').val(url);
 				$('img.show_img').attr('src', url);
 				$('a.show_img').attr('href', url);

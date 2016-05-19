@@ -23,7 +23,7 @@ else
 	"github.com/go-xorm/xorm" "github.com/fatih/set" "github.com/dchest/captcha"
 	"github.com/robfig/cron" "github.com/gorilla/sessions" "github.com/polaris1119/echoutils"
 	"golang.org/x/net/websocket" "github.com/polaris1119/slices" "github.com/qiniu/api.v6"
-	"github.com/polaris1119/times" "github.com/PuerkitoBio/goquery"
+	"github.com/polaris1119/times" "github.com/PuerkitoBio/goquery" "gopkg.in/validator.v2"
 	"github.com/gorilla/schema" "github.com/facebookgo/grace/gracehttp")
 
 	for pkg in "${pkgs[@]}"; do

@@ -9,14 +9,14 @@
 		<ol class="breadcrumb">
 			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
 			<li><a href="/users">会员</a></li>
-			<li class="active">{{if .me}}{{if eq .me.username .user.Username}}我的{{else}}{{.user.Username}}的{{end}}{{else}}{{.user.Username}}的{{end}}信息</li>
+			<li class="active">{{if .me}}{{if eq .me.Username .user.Username}}我的{{else}}{{.user.Username}}的{{end}}{{else}}{{.user.Username}}的{{end}}信息</li>
 		</ol>
 		<div class="box_white">
 			<div class="userinfo">
 				<div class="pull-right">
 					<a href="/user/{{.user.Username}}" title="{{.user.Username}}"><img alt="{{.user.Username}}" src="{{gravatar .user.Avatar .user.Email 80}}" width="80px" height="80px" class="img-rounded"></a>
-					{{if .me.username}}
-					{{if ne .user.Username .me.username}}
+					{{if .me.Username}}
+					{{if ne .user.Username .me.Username}}
 					<a class="btn btn-success btn-sm" href="/favorites/{{.user.Username}}">TA的收藏</a>
 					<a class="btn btn-default btn-sm" href="/message/send?username={{.user.Username}}">发送消息</a>
 					{{else}}
@@ -63,7 +63,7 @@
 				<li>
 					<span class="node"><a href="/topics/node{{.Nid}}" class="node">{{.Node}}</a></span>
 					<a href="/topics/{{.Tid}}" title="{{.Title}}">{{substring .Title 60 "..."}}</a>
-					<span class="info">at <abbr class="timeago" title="{{formatTime .Ctime}}"></abbr></span>
+					<span class="info">at <abbr class="timeago" title="{{.Ctime}}"></abbr></span>
 				</li>
 				{{else}}
 				<p class="no-record text-center">暂无</p>
@@ -75,9 +75,9 @@
 			<ul class="list-unstyled">
 				{{range .resources}}
 				<li>
-					<span class="node"><a href="/resources/cat/{{.Catid}}" class="node">{{index $.resource_cats .Catid}}</a></span>
+					<span class="node"><a href="/resources/cat/{{.Catid}}" class="node">{{.CatName}}</a></span>
 					<a href="/resources/{{.Id}}" title="{{.Title}}">{{substring .Title 60 "..."}}</a>
-					<span class="info">at <abbr class="timeago" title="{{formatTime .Ctime}}"></abbr></span>
+					<span class="info">at <abbr class="timeago" title="{{.Ctime}}"></abbr></span>
 				</li>
 				{{else}}
 				<p class="no-record text-center">暂无</p>
@@ -90,7 +90,7 @@
 				{{range .projects}}
 				<li>
 					<a href="/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}" title="{{.Name}}">{{.Category}} {{.Name}}</a>
-					<span class="info">at <abbr class="timeago" title="{{formatTime .Ctime}}"></abbr></span>
+					<span class="info">at <abbr class="timeago" title="{{.Ctime}}"></abbr></span>
 				</li>
 				{{else}}
 				<p class="no-record text-center">暂无</p>
@@ -103,7 +103,7 @@
 				{{range .comments}}
 				<li>
 					<div class="objinfo">
-						<span class="info"><abbr class="timeago" title="{{formatTime .Ctime}}"></abbr> 评论了<strong>{{.Objinfo.type_name}}</strong></span>
+						<span class="info"><abbr class="timeago" title="{{.Ctime}}"></abbr> 评论了<strong>{{.Objinfo.type_name}}</strong></span>
 						<a href="{{.Objinfo.uri}}{{.Objid}}" title="{{.Objinfo.title}}">{{substring .Objinfo.title 60 "..."}}</a>
 					</div>
 					<div class="content">{{noescape .Content}}</div>

@@ -135,7 +135,7 @@ SG.registerAtEvent = function(isAt, isEmoji, selector) {
 							if (self.xhr) {
 								self.xhr.abort();
 							}
-							self.xhr = $.getJSON("/at/users.json",{
+							self.xhr = $.getJSON("/at/users",{
 								term: thisVal
 							}, function(data) {
 								cachequeryMentions[thisVal] = data
@@ -256,7 +256,7 @@ jQuery(document).ready(function($) {
 			return;
 		}
 		
-		$.post('/account/login.json', $(this).serialize(), function(data){
+		$.post('/account/login', $(this).serialize(), function(data){
 			if (data.ok) {
 				location.reload();
 			} else {
@@ -284,7 +284,7 @@ jQuery(document).ready(function($) {
 			likeFlag = 1;
 		}
 
-		$.post('/like/'+objid+'.json', {objtype:objtype, flag:likeFlag}, function(data){
+		$.post('/like/'+objid, {objtype:objtype, flag:likeFlag}, function(data){
 			if (data.ok) {
 				
 				$(that).data('flag', likeFlag);
@@ -352,7 +352,7 @@ jQuery(document).ready(function($) {
 			hadCollect = 1;
 		}
 
-		$.post('/favorite/'+objid+'.json', {objtype:objtype, collect:hadCollect}, function(data){
+		$.post('/favorite/'+objid, {objtype:objtype, collect:hadCollect}, function(data){
 			if (data.ok) {
 				callback(hadCollect);
 			} else {

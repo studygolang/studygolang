@@ -34,7 +34,7 @@ $(function(){
 			var data = $.parseJSON(responseObject.response);
 			if (data.ok) {
 				var text = $('.main-textarea').val();
-				text += '!['+file.name+']('+QINIU_DOAMIN+data.uri+')';
+				text += '!['+file.name+']('+QINIU_DOAMIN+data.data.uri+')';
 				$('.main-textarea').val(text);
 			} else {
 				comTip("上传失败："+data.error);

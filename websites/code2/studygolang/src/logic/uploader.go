@@ -13,7 +13,6 @@ import (
 	"mime"
 	"model"
 	"net/http"
-	"net/url"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -176,52 +175,7 @@ func (this *UploaderLogic) UploadImage(ctx context.Context, reader gio.Reader, i
 	return path, nil
 }
 
-// UploadUrlFile 将外站图片URL转为本站，如果失败，返回原图
-func (this *UploaderLogic) UploadUrlFile(ctx context.Context, origUrl, prefix string) (string, error) {
-	if origUrl == "" || strings.Contains(origUrl, "studygolang") {
-		return origUrl, errors.New("origin image is empty or is studygolang.com")
-	}
-
-	resp, err := http.Get(origUrl)
-	if err != nil {
-		return origUrl, err
-	}
-	defer resp.Body.Close()
-
-	objUrl, err := url.Parse(origUrl)
-	if err != nil {
-		return origUrl, err
-	}
-
-	filename := objUrl.Path[strings.LastIndex(objUrl.Path, "/"):]
-	path := prefix + filename
-
-	buf, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return origUrl, err
-	}
-
-	md5 := goutils.Md5Buf(buf)
-	objImage, err := this.findImage(md5)
-	if err != nil {
-		logger.Errorln("find image:", md5, "error:", err)
-		return origUrl, err
-	}
-
-	if objImage.Pid > 0 {
-		return objImage.Path, nil
-	}
-
-	err = this.uploadMemoryFile(resp.Body, path)
-	if err != nil {
-		return origUrl, err
-	}
-
-	go this.saveImage(buf, path)
-
-	return path, nil
-}
-
+// TransferUrl 将外站图片URL转为本站，如果失败，返回原图
 func (this *UploaderLogic) TransferUrl(ctx context.Context, origUrl string) (string, error) {
 	if origUrl == "" || strings.Contains(origUrl, "studygolang") {
 		return origUrl, errors.New("origin image is empty or is studygolang.com")
@@ -229,7 +183,7 @@ func (this *UploaderLogic) TransferUrl(ctx context.Context, origUrl string) (str
 
 	resp, err := http.Get(origUrl)
 	if err != nil {
-		return "", errors.New("获取图片失败")
+		return origUrl, errors.New("获取图片失败")
 	}
 	defer resp.Body.Close()
 

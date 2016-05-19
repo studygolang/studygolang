@@ -48,7 +48,7 @@ func NeedLogin() echo.MiddlewareFunc {
 			if !ok {
 				req := Request(ctx)
 				method := req.Method
-				if util.IsAjax(req) {
+				if util.IsAjax(ctx) {
 					return ctx.JSON(http.StatusForbidden, `{"ok":0,"error":"403 Forbidden"}`)
 				} else {
 					if method == "POST" {

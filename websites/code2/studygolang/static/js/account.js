@@ -4,17 +4,6 @@
 	SG.Register.prototype = new SG.Publisher();
 	
 	jQuery(document).ready(function($) {
-		// 同步提交
-		$('.submit').on('click', function(evt){
-			evt.preventDefault();
-			var $form = $(this).parents('.validate-form');
-			var validator = $form.validate();
-			if (!validator.form()) {
-				return false;
-			}
-
-			$form.submit();
-		});
 
 		var origSrc = '';
 		$('#captcha_img').on('click', function(evt){
@@ -26,7 +15,7 @@
 			$(this).attr("src", origSrc+"?reload=" + (new Date()).getTime());
 		});
 		
-		// 异步提交
+		// 注册
 		$('#register-submit').on('click', function(evt){
 			evt.preventDefault();
 			var validator = $('.validate-form').validate();
@@ -34,7 +23,8 @@
 				return false;
 			}
 
-			new SG.Register().publish(this);
+			$form.submit();
+			// new SG.Register().publish(this);
 		});
 	});
 }).call(this)

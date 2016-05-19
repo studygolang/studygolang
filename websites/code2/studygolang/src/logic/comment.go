@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
-// Author：polaris	polaris@studygolang.com
+// Author:polaris	polaris@studygolang.com
 
 package logic
 
@@ -44,7 +44,7 @@ func (self CommentLogic) FindObjComments(ctx context.Context, objid, objtype int
 	uids := slices.StructsIntSlice(commentList, "Uid")
 
 	// 避免某些情况下最后回复人没在回复列表中
-	uids = append(uids, int64(owner), int64(lastCommentUid))
+	uids = append(uids, owner, lastCommentUid)
 
 	// 获得用户信息
 	userMap := DefaultUser.FindUserInfos(ctx, uids)
@@ -185,18 +185,18 @@ func (self CommentLogic) Publish(ctx context.Context, uid, objid int, form url.V
 	// 发评论，活跃度+5
 	go DefaultUser.IncrUserWeight("uid", uid, 5)
 
-	// 给被评论对象所有者发系统消息
-	// ext := map[string]interface{}{
-	// 	"objid":   objid,
-	// 	"objtype": objtype,
-	// 	"cid":     comment.Cid,
-	// 	"uid":     uid,
-	// }
-	// go SendSystemMsgTo(0, objtype, ext)
+	// 给被评论对象所有者发系统消息 TODO: ext 考虑结构化
+	ext := map[string]interface{}{
+		"objid":   objid,
+		"objtype": objtype,
+		"cid":     comment.Cid,
+		"uid":     uid,
+	}
+	go DefaultMessage.SendSystemMsgTo(ctx, 0, objtype, ext)
 
 	// @某人 发系统消息
-	// go SendSysMsgAtUids(form.Get("uid"), ext)
-	// go SendSysMsgAtUsernames(form.Get("usernames"), ext)
+	go DefaultMessage.SendSysMsgAtUids(ctx, form.Get("uid"), ext)
+	go DefaultMessage.SendSysMsgAtUsernames(ctx, form.Get("usernames"), ext)
 
 	return comment, nil
 }
@@ -231,6 +231,21 @@ func (CommentLogic) fillObjinfos(comments []*model.Comment, cmtObj CommentObject
 		idSet.Add(comment.Objid)
 	}
 	cmtObj.SetObjinfo(set.IntSlice(idSet), commentMap)
+}
+
+// 提供给其他service调用（包内）
+func (CommentLogic) findByIds(cids []int) map[int]*model.Comment {
+	if len(cids) == 0 {
+		return nil
+	}
+
+	comments := make(map[int]*model.Comment)
+	err := MasterDB.In("cid", cids).Find(&comments)
+	if err != nil {
+		return nil
+	}
+
+	return comments
 }
 
 func (CommentLogic) decodeCmtContent(ctx context.Context, comment *model.Comment) string {

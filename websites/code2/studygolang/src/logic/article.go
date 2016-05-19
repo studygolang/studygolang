@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
-// Author：polaris	polaris@studygolang.com
+// Author:polaris	polaris@studygolang.com
 
 package logic
 
@@ -75,6 +75,20 @@ func (ArticleLogic) FindByIds(ids []int) []*model.Article {
 	err := MasterDB.In("id", ids).Find(&articles)
 	if err != nil {
 		logger.Errorln("ArticleLogic FindByIds error:", err)
+		return nil
+	}
+	return articles
+}
+
+// findByIds 获取多个文章详细信息 包内使用
+func (ArticleLogic) findByIds(ids []int) map[int]*model.Article {
+	if len(ids) == 0 {
+		return nil
+	}
+	articles := make(map[int]*model.Article)
+	err := MasterDB.In("id", ids).Find(&articles)
+	if err != nil {
+		logger.Errorln("ArticleLogic findByIds error:", err)
 		return nil
 	}
 	return articles

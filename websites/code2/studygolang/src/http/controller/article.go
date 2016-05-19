@@ -60,8 +60,15 @@ func (ArticleController) ReadList(ctx echo.Context) error {
 	if lastId != 0 {
 		prevId = lastId
 
+		firstNoTopId := articles[0].Id
+		for i := 0; i < num; i++ {
+			if articles[i].Top != 1 {
+				firstNoTopId = articles[i].Id
+				break
+			}
+		}
 		// 避免因为文章下线，导致判断错误（所以 > 5）
-		if prevId-articles[0].Id > 5 {
+		if prevId-firstNoTopId > 5 {
 			hasPrev = false
 		} else {
 			prevId += limit

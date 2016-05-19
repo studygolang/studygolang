@@ -15,17 +15,22 @@
 			<form class="form-horizontal validate-form" role="form" action="/account/register" method="POST" data-redirect="/">
 				<fieldset>
 					<legend>注册新用户</legend>
+					{{if .error}}
+					<div class="alert alert-warning" role="alert">
+						{{.error}}
+					</div>
+					{{end}}
 					<div class="form-group form-group-sm">
 						<label class="col-sm-3 control-label" for="username"><abbr>*</abbr>用户名</label>
 						<div class="col-sm-4">
-							<input class="form-control {required:true,rangelength:[4,20]}" type="text" id="username" name="username" placeholder="请输入用户名">
+							<input class="form-control {required:true,rangelength:[4,20]}" type="text" id="username" name="username" value="{{.username}}" placeholder="请输入用户名">
 						</div>
 						<span class="help-block">只能包含大小写字母、数字和下划线(4-20字符)</span>
 					</div>
 					<div class="form-group form-group-sm">
 						<label class="col-sm-3 control-label" for="email"><abbr>*</abbr>Email</label>
 						<div class="col-sm-4">
-							<input class="form-control {required:true,email:true}" type="email" id="email" name="email" placeholder="请输入Email">
+							<input class="form-control {required:true,email:true}" type="email" id="email" name="email" value="{{.email}}" placeholder="请输入Email">
 						</div>
 						<span class="help-block">保存以后就不可以改了哦！</span>
 					</div>

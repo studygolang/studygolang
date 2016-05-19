@@ -53,6 +53,7 @@ func main() {
 	e.Use(thirdmw.EchoCache())
 
 	e.Static("/static/", ROOT+"/static")
+	e.File("/favicon.ico", ROOT+"/static/img/go.ico")
 	// 服务 sitemap 文件
 	e.Static("/sitemap/", ROOT+"/sitemap")
 

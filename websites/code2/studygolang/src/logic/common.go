@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
-// Author：polaris	polaris@studygolang.com
+// Author:polaris	polaris@studygolang.com
 
 package logic
 
@@ -21,6 +21,7 @@ var schemaDecoder = schema.NewDecoder()
 
 func init() {
 	schemaDecoder.SetAliasTag("json")
+	schemaDecoder.IgnoreUnknownKeys(true)
 }
 
 var NotModifyAuthorityErr = errors.New("没有修改权限")

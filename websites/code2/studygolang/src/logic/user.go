@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
-// Author：polaris	polaris@studygolang.com
+// Author:polaris	polaris@studygolang.com
 
 package logic
 
@@ -18,6 +18,7 @@ import (
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	"golang.org/x/net/context"
+	validator "gopkg.in/validator.v2"
 
 	. "db"
 )
@@ -55,6 +56,12 @@ func (self UserLogic) CreateUser(ctx context.Context, form url.Values) (errMsg s
 	err = schemaDecoder.Decode(user, form)
 	if err != nil {
 		objLog.Errorln("user schema Decode error:", err)
+		errMsg = err.Error()
+		return
+	}
+
+	if err = validator.Validate(user); err != nil {
+		objLog.Errorln("validate user error:", err)
 		errMsg = err.Error()
 		return
 	}
@@ -176,7 +183,7 @@ func (UserLogic) EmailOrUsernameExists(ctx context.Context, email, username stri
 	return true
 }
 
-func (self UserLogic) FindUserInfos(ctx context.Context, uids []int64) map[int]*model.User {
+func (self UserLogic) FindUserInfos(ctx context.Context, uids []int) map[int]*model.User {
 	objLog := GetLogger(ctx)
 	if len(uids) == 0 {
 		return nil
@@ -197,6 +204,26 @@ func (self UserLogic) FindOne(ctx context.Context, field string, val interface{}
 	_, err := MasterDB.Where(field+"=?", val).Get(user)
 	if err != nil {
 		objLog.Errorln("user logic FindOne error:", err)
+	}
+
+	if user.Uid != 0 {
+		// 获取用户角色信息
+		userRoleList := make([]*model.UserRole, 0)
+		err = MasterDB.Where("uid=?", user.Uid).OrderBy("roleid ASC").Find(&userRoleList)
+		if err != nil {
+			objLog.Errorf("获取用户 %s 角色 信息失败：%s", val, err)
+			return nil
+		}
+
+		if roleNum := len(userRoleList); roleNum > 0 {
+			user.Roleids = make([]int, roleNum)
+			user.Rolenames = make([]string, roleNum)
+
+			for i, userRole := range userRoleList {
+				user.Roleids[i] = userRole.Roleid
+				user.Rolenames[i] = Roles[userRole.Roleid-1].Name
+			}
+		}
 	}
 	return user
 }
@@ -222,10 +249,8 @@ func (self UserLogic) FindCurrentUser(ctx context.Context, username interface{})
 		Email:    user.Email,
 		Avatar:   user.Avatar,
 		Status:   user.Status,
+		MsgNum:   DefaultMessage.FindNotReadMsgNum(ctx, user.Uid),
 	}
-
-	// 获取未读消息数
-	// me.MsgNum = FindNotReadMsgNum(userInfo.Uid)
 
 	// 获取角色信息
 	userRoleList := make([]*model.UserRole, 0)
@@ -454,4 +479,12 @@ func (UserLogic) FindNotLoginUsers(loginTime time.Time) (userList []*model.UserL
 	userList = make([]*model.UserLogin, 0)
 	err = MasterDB.Where("login_time<?", loginTime).Find(&userList)
 	return
+}
+
+// 邮件订阅或取消订阅
+func (UserLogic) EmailSubscribe(ctx context.Context, uid, unsubscribe int) {
+	_, err := MasterDB.Table(&model.User{}).Id(uid).Update(map[string]interface{}{"unsubscribe": unsubscribe})
+	if err != nil {
+		logger.Errorln("user:", uid, "Email Subscribe Error:", err)
+	}
 }

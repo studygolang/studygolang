@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
-// Author：polaris	polaris@studygolang.com
+// Author:polaris	polaris@studygolang.com
 
 package logic
 
@@ -16,6 +16,7 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/polaris1119/goutils"
+	"github.com/polaris1119/logger"
 	"github.com/polaris1119/set"
 )
 
@@ -67,7 +68,7 @@ func (WikiLogic) FindBy(ctx context.Context, limit int, lastIds ...int) []*model
 	for _, wiki := range wikis {
 		uidSet.Add(wiki.Uid)
 	}
-	usersMap := DefaultUser.FindUserInfos(ctx, set.Int64Slice(uidSet))
+	usersMap := DefaultUser.FindUserInfos(ctx, set.IntSlice(uidSet))
 	for _, wiki := range wikis {
 		wiki.Users = map[int]*model.User{wiki.Uid: usersMap[wiki.Uid]}
 	}
@@ -97,21 +98,46 @@ func (WikiLogic) FindOne(ctx context.Context, uri string) *model.Wiki {
 			uidSet.Add(goutils.MustInt(cuid))
 		}
 	}
-	wiki.Users = DefaultUser.FindUserInfos(ctx, set.Int64Slice(uidSet))
+	wiki.Users = DefaultUser.FindUserInfos(ctx, set.IntSlice(uidSet))
 
 	return wiki
 }
 
-// // 获取多个wiki页面详细信息
-// func FindWikisByIds(ids []int) []*model.Wiki {
-// 	if len(ids) == 0 {
-// 		return nil
-// 	}
-// 	inIds := util.Join(ids, ",")
-// 	wikis, err := model.NewWiki().Where("id in(" + inIds + ")").FindAll()
-// 	if err != nil {
-// 		logger.Errorln("wiki service FindWikisByIds error:", err)
-// 		return nil
-// 	}
-// 	return wikis
-// }
+// getOwner 通过id获得wiki的所有者
+func (WikiLogic) getOwner(id int) int {
+	wiki := &model.Wiki{}
+	_, err := MasterDB.Id(id).Get(wiki)
+	if err != nil {
+		logger.Errorln("wiki logic getOwner Error:", err)
+		return 0
+	}
+	return wiki.Uid
+}
+
+// FindByIds 获取多个wiki页面详细信息
+func (WikiLogic) FindByIds(ids []int) []*model.Wiki {
+	if len(ids) == 0 {
+		return nil
+	}
+	wikis := make([]*model.Wiki, 0)
+	err := MasterDB.In("id", ids).Find(&wikis)
+	if err != nil {
+		logger.Errorln("wiki logic FindByIds error:", err)
+		return nil
+	}
+	return wikis
+}
+
+// findByIds 获取多个wiki页面详细信息 包内使用
+func (WikiLogic) findByIds(ids []int) map[int]*model.Wiki {
+	if len(ids) == 0 {
+		return nil
+	}
+	wikis := make(map[int]*model.Wiki)
+	err := MasterDB.In("id", ids).Find(&wikis)
+	if err != nil {
+		logger.Errorln("wiki logic FindByIds error:", err)
+		return nil
+	}
+	return wikis
+}

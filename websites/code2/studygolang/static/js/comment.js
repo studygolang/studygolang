@@ -262,7 +262,7 @@
 				},
 				dataType: 'json',
 				success: function(data){
-					if(data.errno == 0){
+					if(data.ok){
 						var comment = data.data;
 						var $pageComment = $('.page-comment'),
 						username = $pageComment.data('username'),

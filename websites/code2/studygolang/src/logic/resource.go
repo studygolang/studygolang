@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
-// Author：polaris	polaris@studygolang.com
+// Author:polaris	polaris@studygolang.com
 
 package logic
 
@@ -182,7 +182,7 @@ func (ResourceLogic) FindByCatid(ctx context.Context, paginator *Paginator, cati
 		uidSet.Add(resourceInfo.Uid)
 	}
 
-	usersMap := DefaultUser.FindUserInfos(ctx, set.Int64Slice(uidSet))
+	usersMap := DefaultUser.FindUserInfos(ctx, set.IntSlice(uidSet))
 
 	resources = make([]map[string]interface{}, len(resourceInfos))
 
@@ -216,6 +216,20 @@ func (ResourceLogic) FindByIds(ids []int) []*model.Resource {
 		return nil
 	}
 	resources := make([]*model.Resource, 0)
+	err := MasterDB.In("id", ids).Find(&resources)
+	if err != nil {
+		logger.Errorln("ResourceLogic FindByIds error:", err)
+		return nil
+	}
+	return resources
+}
+
+// findByIds 获取多个资源详细信息 包内使用
+func (ResourceLogic) findByIds(ids []int) map[int]*model.Resource {
+	if len(ids) == 0 {
+		return nil
+	}
+	resources := make(map[int]*model.Resource)
 	err := MasterDB.In("id", ids).Find(&resources)
 	if err != nil {
 		logger.Errorln("ResourceLogic FindByIds error:", err)
@@ -273,6 +287,29 @@ func (ResourceLogic) FindResource(ctx context.Context, id int) *model.Resource {
 	}
 
 	return resource
+}
+
+// 获得某个用户最近的资源
+func (ResourceLogic) FindRecent(ctx context.Context, uid int) []*model.Resource {
+	resourceList := make([]*model.Resource, 0)
+	err := MasterDB.Where("uid=?", uid).Limit(5).OrderBy("id DESC").Find(&resourceList)
+	if err != nil {
+		logger.Errorln("resource logic FindRecent error:", err)
+		return nil
+	}
+
+	return resourceList
+}
+
+// getOwner 通过id获得资源的所有者
+func (ResourceLogic) getOwner(id int) int {
+	resource := &model.Resource{}
+	_, err := MasterDB.Id(id).Get(resource)
+	if err != nil {
+		logger.Errorln("resource logic getOwner Error:", err)
+		return 0
+	}
+	return resource.Uid
 }
 
 // 资源评论

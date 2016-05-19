@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
-// Author：polaris	polaris@studygolang.com
+// Author:polaris	polaris@studygolang.com
 
 package logic
 
@@ -102,7 +102,7 @@ func (TopicLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy str
 		nidSet.Add(topicInfo.Nid)
 	}
 
-	usersMap := DefaultUser.FindUserInfos(ctx, set.Int64Slice(uidSet))
+	usersMap := DefaultUser.FindUserInfos(ctx, set.IntSlice(uidSet))
 	// 获取节点信息
 	nodes := GetNodesName(set.IntSlice(nidSet))
 
@@ -149,9 +149,9 @@ func (TopicLogic) FindRecent(limit int, uids ...int) []*model.Topic {
 	if err := dbSession.Find(&topics); err != nil {
 		logger.Errorln("TopicLogic FindRecent error:", err)
 	}
-	// for _, topic := range topics {
-	// 	topic.Node = GetNodeName(topic.Nid)
-	// }
+	for _, topic := range topics {
+		topic.Node = GetNodeName(topic.Nid)
+	}
 	return topics
 }
 
@@ -178,6 +178,21 @@ func (TopicLogic) FindByTids(tids []int) []*model.Topic {
 	err := MasterDB.In("tid", tids).Find(&topics)
 	if err != nil {
 		logger.Errorln("TopicLogic FindByTids error:", err)
+		return nil
+	}
+	return topics
+}
+
+// findByTids 获取多个主题详细信息 包内用
+func (TopicLogic) findByTids(tids []int) map[int]*model.Topic {
+	if len(tids) == 0 {
+		return nil
+	}
+
+	topics := make(map[int]*model.Topic)
+	err := MasterDB.In("tid", tids).Find(&topics)
+	if err != nil {
+		logger.Errorln("TopicLogic findByTids error:", err)
 		return nil
 	}
 	return topics
@@ -292,6 +307,17 @@ func (TopicLogic) Count(ctx context.Context, querystring string, args ...interfa
 	}
 
 	return total
+}
+
+// getOwner 通过tid获得话题的所有者
+func (TopicLogic) getOwner(tid int) int {
+	topic := &model.Topic{}
+	_, err := MasterDB.Id(tid).Get(topic)
+	if err != nil {
+		logger.Errorln("topic logic getOwner Error:", err)
+		return 0
+	}
+	return topic.Uid
 }
 
 func (TopicLogic) decodeTopicContent(ctx context.Context, topic *model.Topic) string {

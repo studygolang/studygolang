@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
-// Author：polaris	polaris@studygolang.com
+// Author: polaris	polaris@studygolang.com
 
 package model
 
@@ -50,7 +50,7 @@ const (
 // 用户基本信息
 type User struct {
 	Uid         int       `json:"uid" xorm:"pk autoincr"`
-	Username    string    `json:"username"`
+	Username    string    `json:"username" validate:"min=4,max=20,regexp=^[a-zA-Z0-9_]*$"`
 	Email       string    `json:"email"`
 	Open        int       `json:"open"`
 	Name        string    `json:"name"`
@@ -68,8 +68,8 @@ type User struct {
 	Mtime       time.Time `json:"mtime" xorm:"<-"`
 
 	// 非用户表中的信息，为了方便放在这里
-	//Roleids   []int
-	//Rolenames []string
+	Roleids   []int    `xorm:"-"`
+	Rolenames []string `xorm:"-"`
 }
 
 func (this *User) TableName() string {

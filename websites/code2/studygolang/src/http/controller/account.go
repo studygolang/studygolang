@@ -15,6 +15,7 @@ import (
 	"net/url"
 	"strings"
 	"time"
+	"util"
 
 	. "http"
 
@@ -57,9 +58,15 @@ func (AccountController) Register(ctx echo.Context) error {
 		return render(ctx, registerTpl, map[string]interface{}{"captchaId": captcha.NewLen(4)})
 	}
 
+	data := map[string]interface{}{
+		"username":  username,
+		"email":     ctx.FormValue("email"),
+		"captchaId": captcha.NewLen(4),
+	}
 	// 校验验证码
 	if !captcha.VerifyString(ctx.FormValue("captchaid"), ctx.FormValue("captchaSolution")) {
-		return render(ctx, registerTpl, map[string]interface{}{"error": "验证码错误", "captchaId": captcha.NewLen(4)})
+		data["error"] = "验证码错误"
+		return render(ctx, registerTpl, data)
 	}
 
 	// 入库
@@ -69,7 +76,8 @@ func (AccountController) Register(ctx echo.Context) error {
 		if errMsg == "" {
 			errMsg = err.Error()
 		}
-		return render(ctx, registerTpl, map[string]interface{}{"error": errMsg})
+		data["error"] = errMsg
+		return render(ctx, registerTpl, data)
 	}
 
 	var (
@@ -91,7 +99,7 @@ func (AccountController) Register(ctx echo.Context) error {
 		pos := strings.LastIndex(email, "@")
 		emailUrl = "http://mail." + email[pos+1:]
 	}
-	data := map[string]interface{}{
+	data = map[string]interface{}{
 		"success": template.HTML(`
 			<div style="padding:30px 30px 50px 30px;">
  				<div style="color:#339502;font-size:22px;line-height: 2.5;">恭喜您注册成功！</div>
@@ -188,11 +196,20 @@ func (AccountController) Login(ctx echo.Context) error {
 	if err != nil {
 		data["username"] = username
 		data["error"] = err.Error()
+
+		if util.IsAjax(ctx) {
+			return fail(ctx, 1, err.Error())
+		}
+
 		return render(ctx, contentTpl, data)
 	}
 
 	// 登录成功，种cookie
 	SetCookie(ctx, userLogin.Username)
+
+	if util.IsAjax(ctx) {
+		return success(ctx, nil)
+	}
 
 	return ctx.Redirect(http.StatusSeeOther, uri)
 }

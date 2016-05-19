@@ -8,6 +8,7 @@ package http
 
 import (
 	"bytes"
+	"global"
 	"html/template"
 	"logic"
 	"model"
@@ -125,10 +126,7 @@ func Render(ctx echo.Context, contentTpl string, data map[string]interface{}) er
 
 	// websocket主机
 	data["wshost"] = "127.0.0.1:8088"
-	data["build"] = map[string]string{
-		"version": "1.0",        // version.Version,
-		"date":    "2016-01-16", // version.Date,
-	}
+	data["app"] = global.App
 
 	buf := new(bytes.Buffer)
 	err = tpl.Execute(buf, data)

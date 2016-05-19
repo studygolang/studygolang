@@ -197,7 +197,7 @@
 		{
 			"importpath": "github.com/polaris1119/middleware",
 			"repository": "https://github.com/polaris1119/middleware",
-			"revision": "a771f75dda500569d2757d5bc076cf36a8127a63",
+			"revision": "f17141979ae085ca77015f1e3e276039d7c6cfd7",
 			"branch": "master"
 		},
 		{
@@ -215,7 +215,7 @@
 		{
 			"importpath": "github.com/polaris1119/slices",
 			"repository": "https://github.com/polaris1119/slices",
-			"revision": "063567f4df49cfae91c3f60a6da4acd928aa27f0",
+			"revision": "6ecacdb3cd382cbf196bfc6df57ce85a528f3661",
 			"branch": "master"
 		},
 		{
@@ -286,6 +286,12 @@
 			"revision": "024ed629fd292398cfd43c9678a5bf004f7defdc",
 			"branch": "master",
 			"path": "/websocket"
+		},
+		{
+			"importpath": "gopkg.in/validator.v2",
+			"repository": "https://gopkg.in/validator.v2",
+			"revision": "3e4f037f12a1221a0864cf0dd2e81c452ab22448",
+			"branch": "v2"
 		}
 	]
 }

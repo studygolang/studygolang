@@ -50,7 +50,7 @@ func open() error {
 	MasterDB.SetMaxOpenConns(maxConn)
 
 	showSQL := ConfigFile.MustBool("xorm", "show_sql", false)
-	logLevel := ConfigFile.MustInt("xorm", "log_level", 0)
+	logLevel := ConfigFile.MustInt("xorm", "log_level", 1)
 
 	MasterDB.ShowSQL(showSQL)
 	MasterDB.Logger().SetLevel(core.LogLevel(logLevel))

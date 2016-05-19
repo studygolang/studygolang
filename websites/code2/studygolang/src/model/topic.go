@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
-// Author：polaris	polaris@studygolang.com
+// Author: polaris	polaris@studygolang.com
 
 package model
 
@@ -29,6 +29,9 @@ type Topic struct {
 	Top           bool      `json:"istop"`
 	Ctime         OftenTime `json:"ctime" xorm:"created"`
 	Mtime         time.Time `json:"mtime" xorm:"<-"`
+
+	// 为了方便，加上Node（节点名称，数据表没有）
+	Node string `xorm:"-"`
 }
 
 func (*Topic) TableName() string {

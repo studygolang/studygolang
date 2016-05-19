@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
-// Author：polaris	polaris@studygolang.com
+// Author: polaris	polaris@studygolang.com
 
 package model
 
@@ -20,6 +20,7 @@ type Resource struct {
 	Url     string `json:"url"`
 	Uid     int    `json:"uid"`
 	Catid   int    `json:"catid"`
+	CatName string `json:"-" xorm:"-"`
 	Ctime   string `json:"ctime,omitempty" xorm:"created"`
 	Mtime   string `json:"mtime,omitempty" xorm:"<-"`
 }

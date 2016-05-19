@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"util"
 
 	. "http"
 
@@ -18,7 +19,15 @@ func HTTPError() echo.MiddlewareFunc {
 					if he, ok := err.(*echo.HTTPError); ok {
 						switch he.Code {
 						case http.StatusNotFound:
+							if util.IsAjax(ctx) {
+								return ctx.String(http.StatusOK, `{"ok":0,"error":"接口不存在"}`)
+							}
 							return Render(ctx, "404.html", nil)
+						case http.StatusInternalServerError:
+							if util.IsAjax(ctx) {
+								return ctx.String(http.StatusOK, `{"ok":0,"error":"接口服务器错误"}`)
+							}
+							return Render(ctx, "500.html", nil)
 						}
 					}
 				}
