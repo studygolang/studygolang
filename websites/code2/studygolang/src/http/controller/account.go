@@ -241,10 +241,8 @@ func (AccountController) ChangeAvatar(ctx echo.Context) error {
 
 	curUser := ctx.Get("user").(*model.Me)
 
+	// avatar 为空时，表示使用 gravater 头像
 	avatar := ctx.FormValue("avatar")
-	if avatar == "" {
-		return fail(ctx, 1, "非法请求")
-	}
 	err := logic.DefaultUser.ChangeAvatar(ctx, curUser.Uid, avatar)
 	if err != nil {
 		objLog.Errorln("account controller change avatar error:", err)

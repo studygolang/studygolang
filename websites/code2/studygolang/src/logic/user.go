@@ -61,15 +61,29 @@ func (self UserLogic) CreateUser(ctx context.Context, form url.Values) (errMsg s
 	}
 
 	if err = validator.Validate(user); err != nil {
-		objLog.Errorln("validate user error:", err)
-		errMsg = err.Error()
+		objLog.Errorf("validate user error:%#v", err)
+
+		// TODO: 暂时简单处理
+		if errMap, ok := err.(validator.ErrorMap); ok {
+			if _, ok = errMap["Username"]; ok {
+				errMsg = "用户名不合法！"
+			}
+		} else {
+			errMsg = err.Error()
+		}
 		return
 	}
 
+	session := MasterDB.NewSession()
+	defer session.Close()
+
+	session.Begin()
+
 	// 随机给一个默认头像
 	user.Avatar = DefaultAvatars[rand.Intn(len(DefaultAvatars))]
-	_, err = MasterDB.Insert(user)
+	_, err = session.Insert(user)
 	if err != nil {
+		session.Rollback()
 		errMsg = "内部服务器错误"
 		objLog.Errorln(errMsg, ":", err)
 		return
@@ -79,12 +93,20 @@ func (self UserLogic) CreateUser(ctx context.Context, form url.Values) (errMsg s
 	userLogin := &model.UserLogin{}
 	err = schemaDecoder.Decode(userLogin, form)
 	if err != nil {
+		session.Rollback()
 		errMsg = err.Error()
 		objLog.Errorln("CreateUser error:", err)
 		return
 	}
 	userLogin.Uid = user.Uid
-	if _, err = MasterDB.Insert(userLogin); err != nil {
+	err = userLogin.GenMd5Passwd()
+	if err != nil {
+		session.Rollback()
+		errMsg = err.Error()
+		return
+	}
+	if _, err = session.Insert(userLogin); err != nil {
+		session.Rollback()
 		errMsg = "内部服务器错误"
 		logger.Errorln(errMsg, ":", err)
 		return
@@ -95,8 +117,11 @@ func (self UserLogic) CreateUser(ctx context.Context, form url.Values) (errMsg s
 	// 默认为初级会员
 	userRole.Roleid = Roles[len(Roles)-1].Roleid
 	userRole.Uid = user.Uid
-	if _, err = MasterDB.Insert(userRole); err != nil {
+	if _, err = session.Insert(userRole); err != nil {
+		session.Rollback()
 		objLog.Errorln("userRole insert Error:", err)
+		errMsg = "内部服务器错误"
+		return
 	}
 
 	// 存用户活跃信息，初始活跃+2
@@ -106,9 +131,15 @@ func (self UserLogic) CreateUser(ctx context.Context, form url.Values) (errMsg s
 	userActive.Avatar = user.Avatar
 	userActive.Email = user.Email
 	userActive.Weight = 2
-	if _, err = MasterDB.Insert(userActive); err != nil {
+	if _, err = session.Insert(userActive); err != nil {
 		objLog.Errorln("UserActive insert Error:", err)
+		session.Rollback()
+		errMsg = "内部服务器错误"
+		return
 	}
+
+	session.Commit()
+
 	return
 }
 
@@ -338,8 +369,13 @@ func (self UserLogic) UpdatePasswd(ctx context.Context, username, curPasswd, new
 		return "原密码填写错误", err
 	}
 
-	userLogin := &model.UserLogin{}
-	newPasswd = userLogin.GenMd5Passwd(newPasswd)
+	userLogin := &model.UserLogin{
+		Passwd: newPasswd,
+	}
+	err = userLogin.GenMd5Passwd()
+	if err != nil {
+		return err.Error(), err
+	}
 
 	changeData := map[string]interface{}{
 		"passwd":   newPasswd,
@@ -356,14 +392,19 @@ func (self UserLogic) UpdatePasswd(ctx context.Context, username, curPasswd, new
 func (self UserLogic) ResetPasswd(ctx context.Context, email, passwd string) (string, error) {
 	objLog := GetLogger(ctx)
 
-	userLogin := &model.UserLogin{}
-	passwd = userLogin.GenMd5Passwd(passwd)
+	userLogin := &model.UserLogin{
+		Passwd: passwd,
+	}
+	err := userLogin.GenMd5Passwd()
+	if err != nil {
+		return err.Error(), err
+	}
 
 	changeData := map[string]interface{}{
-		"passwd":   passwd,
+		"passwd":   userLogin.Passwd,
 		"passcode": userLogin.Passcode,
 	}
-	_, err := MasterDB.Table(userLogin).Where("email=?", email).Update(changeData)
+	_, err = MasterDB.Table(userLogin).Where("email=?", email).Update(changeData)
 	if err != nil {
 		objLog.Errorf("用户 %s 更新密码错误：%s", email, err)
 		return "对不起，内部服务错误！", err

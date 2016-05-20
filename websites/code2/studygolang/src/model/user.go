@@ -7,6 +7,7 @@
 package model
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"time"
@@ -20,7 +21,7 @@ type UserLogin struct {
 	Username  string    `json:"username"`
 	Passwd    string    `json:"passwd"`
 	Email     string    `json:"email"`
-	LoginTime time.Time `json:"login_time"`
+	LoginTime time.Time `json:"login_time" xorm:"<-"`
 	Passcode  string    `json:"passcode"` // 加密随机串
 }
 
@@ -29,14 +30,14 @@ func (this *UserLogin) TableName() string {
 }
 
 // 生成加密密码
-func (this *UserLogin) GenMd5Passwd(origPwd string) string {
-	if origPwd == "" {
-		origPwd = this.Passwd
+func (this *UserLogin) GenMd5Passwd() error {
+	if this.Passwd == "" {
+		return errors.New("password is empty!")
 	}
 	this.Passcode = fmt.Sprintf("%x", rand.Int31())
 	// 密码经过md5(passwd+passcode)加密保存
-	this.Passwd = goutils.Md5(origPwd + this.Passcode)
-	return this.Passwd
+	this.Passwd = goutils.Md5(this.Passwd + this.Passcode)
+	return nil
 }
 
 const (
@@ -64,7 +65,7 @@ type User struct {
 	Introduce   string    `json:"introduce"`
 	Unsubscribe int       `json:"unsubscribe"`
 	Status      int       `json:"status"`
-	Ctime       time.Time `json:"ctime" xorm:"created"`
+	Ctime       OftenTime `json:"ctime" xorm:"created"`
 	Mtime       time.Time `json:"mtime" xorm:"<-"`
 
 	// 非用户表中的信息，为了方便放在这里

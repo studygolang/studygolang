@@ -26,7 +26,7 @@ type Topic struct {
 	Lastreplyuid  int       `json:"lastreplyuid"`
 	Lastreplytime OftenTime `json:"lastreplytime"`
 	EditorUid     int       `json:"editor_uid"`
-	Top           bool      `json:"istop"`
+	Top           uint8     `json:"top"`
 	Ctime         OftenTime `json:"ctime" xorm:"created"`
 	Mtime         time.Time `json:"mtime" xorm:"<-"`
 

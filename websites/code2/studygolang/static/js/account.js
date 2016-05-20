@@ -18,7 +18,8 @@
 		// 注册
 		$('#register-submit').on('click', function(evt){
 			evt.preventDefault();
-			var validator = $('.validate-form').validate();
+			var $form = $('.validate-form');
+			var validator = $form.validate();
 			if (!validator.form()) {
 				return false;
 			}
