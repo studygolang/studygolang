@@ -18,7 +18,7 @@ var captchaHandler = captcha.Server(100, 40)
 // 验证码
 type CaptchaController struct{}
 
-func (self CaptchaController) RegisterRoute(e *echo.Echo) {
+func (self CaptchaController) RegisterRoute(e *echo.Group) {
 	e.Get("/captcha/*", echo.HandlerFunc(self.Server))
 }
 

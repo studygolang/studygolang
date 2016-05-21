@@ -21,7 +21,7 @@ import (
 type FavoriteController struct{}
 
 // 注册路由
-func (self FavoriteController) RegisterRoute(e *echo.Echo) {
+func (self FavoriteController) RegisterRoute(e *echo.Group) {
 	e.Post("/favorite/:objid", echo.HandlerFunc(self.Create), middleware.NeedLogin())
 	e.Get("/favorites/:username", echo.HandlerFunc(self.ReadList))
 }

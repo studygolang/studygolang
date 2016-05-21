@@ -22,7 +22,7 @@ import (
 type MessageController struct{}
 
 // 注册路由
-func (self MessageController) RegisterRoute(e *echo.Echo) {
+func (self MessageController) RegisterRoute(e *echo.Group) {
 	e.Get("/message/:msgtype", echo.HandlerFunc(self.ReadList), middleware.NeedLogin())
 	e.Get("/message/system", echo.HandlerFunc(self.ReadList), middleware.NeedLogin())
 	e.Match([]string{"GET", "POST"}, "/message/send", echo.HandlerFunc(self.Send), middleware.NeedLogin())

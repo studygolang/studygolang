@@ -23,7 +23,7 @@ func init() {
 type TopicController struct{}
 
 // 注册路由
-func (self TopicController) RegisterRoute(e *echo.Echo) {
+func (self TopicController) RegisterRoute(e *echo.Group) {
 	e.Get("/topics", echo.HandlerFunc(self.Topics))
 	e.Get("/topics/no_reply", echo.HandlerFunc(self.TopicsNoReply))
 	e.Get("/topics/last", echo.HandlerFunc(self.TopicsLast))

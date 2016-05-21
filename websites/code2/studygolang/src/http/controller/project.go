@@ -28,7 +28,7 @@ func init() {
 type ProjectController struct{}
 
 // 注册路由
-func (self ProjectController) RegisterRoute(e *echo.Echo) {
+func (self ProjectController) RegisterRoute(e *echo.Group) {
 	e.Get("/projects", echo.HandlerFunc(self.ReadList))
 	e.Any("/project/new", echo.HandlerFunc(self.Create), middleware.NeedLogin())
 	e.Any("/project/modify", echo.HandlerFunc(self.Modify), middleware.NeedLogin())

@@ -19,7 +19,7 @@ import (
 type UserController struct{}
 
 // 注册路由
-func (self UserController) RegisterRoute(e *echo.Echo) {
+func (self UserController) RegisterRoute(e *echo.Group) {
 	e.Get("/user/:username", echo.HandlerFunc(self.Home))
 	e.Get("/users", echo.HandlerFunc(self.ReadList))
 	e.Any("/user/email/unsubscribe", echo.HandlerFunc(self.EmailUnsub))

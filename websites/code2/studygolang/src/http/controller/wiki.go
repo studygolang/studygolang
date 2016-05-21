@@ -29,7 +29,7 @@ func init() {
 type WikiController struct{}
 
 // 注册路由
-func (self WikiController) RegisterRoute(e *echo.Echo) {
+func (self WikiController) RegisterRoute(e *echo.Group) {
 	e.Any("/wiki/new", echo.HandlerFunc(self.Create), middleware.NeedLogin())
 	e.Get("/wiki", echo.HandlerFunc(self.ReadList))
 	e.Get("/wiki/:uri", echo.HandlerFunc(self.Detail))

@@ -28,7 +28,7 @@ func init() {
 type ResourceController struct{}
 
 // 注册路由
-func (self ResourceController) RegisterRoute(e *echo.Echo) {
+func (self ResourceController) RegisterRoute(e *echo.Group) {
 	e.Get("/resources", echo.HandlerFunc(self.ReadList))
 	e.Get("/resources/cat/:catid", echo.HandlerFunc(self.ReadCatResources))
 	e.Get("/resources/:id", echo.HandlerFunc(self.Detail))
@@ -56,7 +56,7 @@ func (ResourceController) ReadCatResources(ctx echo.Context) error {
 // Detail 某个资源详细页
 func (ResourceController) Detail(ctx echo.Context) error {
 	id := goutils.MustInt(ctx.Param("id"))
-	if id > 0 {
+	if id == 0 {
 		return ctx.Redirect(http.StatusSeeOther, "/resources/cat/1")
 	}
 	resource, comments := logic.DefaultResource.FindById(ctx, id)

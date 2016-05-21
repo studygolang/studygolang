@@ -21,7 +21,7 @@ import (
 type IndexController struct{}
 
 // 注册路由
-func (self IndexController) RegisterRoute(e *echo.Echo) {
+func (self IndexController) RegisterRoute(e *echo.Group) {
 	e.Get("/", echo.HandlerFunc(self.Index))
 	e.Get("/wr", echo.HandlerFunc(self.WrapUrl))
 	e.Get("/pkgdoc", echo.HandlerFunc(self.Pkgdoc))

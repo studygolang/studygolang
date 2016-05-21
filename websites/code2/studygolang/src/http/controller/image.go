@@ -21,7 +21,7 @@ import (
 // 图片处理
 type ImageController struct{}
 
-func (self ImageController) RegisterRoute(e *echo.Echo) {
+func (self ImageController) RegisterRoute(e *echo.Group) {
 	e.Post("/image/upload", echo.HandlerFunc(self.Upload))
 	e.Any("/image/transfer", echo.HandlerFunc(self.Transfer))
 }

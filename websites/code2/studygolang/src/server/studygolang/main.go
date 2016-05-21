@@ -8,6 +8,7 @@ package main
 
 import (
 	"http/controller"
+	"http/controller/admin"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -49,15 +50,18 @@ func main() {
 	e.Use(mw.Recover())
 	e.Use(pwm.HTTPError())
 	e.Use(pwm.AutoLogin())
-	// e.Use(mw.Gzip())
-	e.Use(thirdmw.EchoCache())
 
 	e.Static("/static/", ROOT+"/static")
 	e.File("/favicon.ico", ROOT+"/static/img/go.ico")
 	// 服务 sitemap 文件
 	e.Static("/sitemap/", ROOT+"/sitemap")
 
-	controller.RegisterRoutes(e)
+	frontG := e.Group("", thirdmw.EchoCache())
+	controller.RegisterRoutes(frontG)
+
+	frontG.Get("/admin", echo.HandlerFunc(admin.AdminIndex), pwm.NeedLogin(), pwm.AdminAuth())
+	adminG := e.Group("/admin", pwm.NeedLogin(), pwm.AdminAuth())
+	admin.RegisterRoutes(adminG)
 
 	addr := ConfigFile.MustValue("listen", "host", "") + ":" + ConfigFile.MustValue("listen.http", "port", "8080")
 	std := standard.New(addr)

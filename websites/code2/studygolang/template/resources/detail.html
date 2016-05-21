@@ -17,7 +17,7 @@
 				<h1>
 					{{.resource.title}}
 					{{if .me}}
-						{{if or (eq .me.username .resource.user.Username) .me.isadmin}}
+						{{if or (eq .me.Username .resource.user.Username) .me.IsAdmin}}
 						<a class="edit" href="/resources/modify?id={{.resource.id}}" title="编辑"><i class="glyphicon glyphicon-pencil"></i> 编辑</a>
 						{{end}}
 					{{end}}
@@ -41,7 +41,7 @@
 						<i class="glyphicon glyphicon-heart"></i>
 						<span class="likenum">{{.resource.likenum}}</span> 人喜欢&nbsp;
 					</span>
-					<a href="/resources/{{.resource.tid}}#commentForm" title="我要评论"><i class="glyphicon glyphicon-comment"></i> <span class="cmtnum">{{.resource.cmtnum}}</span> 条评论</a>
+					<a href="/resources/{{.resource.id}}#commentForm" title="我要评论"><i class="glyphicon glyphicon-comment"></i> <span class="cmtnum">{{.resource.cmtnum}}</span> 条评论</a>
 				</div>
 				<!-- p-comment END -->
 			</div>
@@ -76,8 +76,12 @@
 				<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1358871817652577" charset="utf-8"></script>
 				<!-- JiaThis Button END -->
 			</div>
+
+			<!--百度推荐-->
+			<div id="hm_t_56958" style="margin:0 auto;max-width:790px;"></div>
+			
 			<!-- 评论 -->
-			<div class="page-comment" data-objid="{{.resource.id}}" data-objtype="2" {{if .me}}data-username="{{.me.username}}" data-uid="{{.me.uid}}" data-avatar="{{gravatar .me.avatar .me.email 48}}"{{end}}>
+			<div class="page-comment" data-objid="{{.resource.id}}" data-objtype="2" {{if .me}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48}}"{{end}}>
 				<div class="words hide">
 					<h3><span class="cmtnum">{{.resource.cmtnum}}</span>条评论</h3>
 					<ul class="list-unstyled">

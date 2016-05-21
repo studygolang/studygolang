@@ -23,7 +23,7 @@ import (
 type LikeController struct{}
 
 // 注册路由
-func (self LikeController) RegisterRoute(e *echo.Echo) {
+func (self LikeController) RegisterRoute(e *echo.Group) {
 	e.Post("/like/:objid", echo.HandlerFunc(self.Like), middleware.NeedLogin())
 }
 

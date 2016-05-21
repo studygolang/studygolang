@@ -86,7 +86,10 @@ var funcMap = template.FuncMap{
 	},
 }
 
-const LayoutTpl = "common/layout.html"
+const (
+	LayoutTpl      = "common/layout.html"
+	AdminLayoutTpl = "common.html"
+)
 
 // Render html 输出
 func Render(ctx echo.Context, contentTpl string, data map[string]interface{}) error {
@@ -108,6 +111,49 @@ func Render(ctx echo.Context, contentTpl string, data map[string]interface{}) er
 		objLog.Errorf("解析模板出错（ParseFiles）：[%q] %s\n", Request(ctx).RequestURI, err)
 		return err
 	}
+
+	return executeTpl(ctx, tpl, data)
+}
+
+// RenderAdmin html 输出
+func RenderAdmin(ctx echo.Context, contentTpl string, data map[string]interface{}) error {
+	if data == nil {
+		data = map[string]interface{}{}
+	}
+
+	objLog := logic.GetLogger(ctx)
+
+	contentTpl = AdminLayoutTpl + "," + contentTpl
+	// 为了使用自定义的模板函数，首先New一个以第一个模板文件名为模板名。
+	// 这样，在ParseFiles时，新返回的*Template便还是原来的模板实例
+	htmlFiles := strings.Split(contentTpl, ",")
+	for i, contentTpl := range htmlFiles {
+		htmlFiles[i] = config.TemplateDir + "admin/" + contentTpl
+	}
+
+	requestURI := Request(ctx).RequestURI
+	tpl, err := template.New("common.html").Funcs(funcMap).ParseFiles(htmlFiles...)
+	if err != nil {
+		objLog.Errorf("解析模板出错（ParseFiles）：[%q] %s\n", requestURI, err)
+		return err
+	}
+
+	// 当前用户信息
+	curUser := ctx.Get("user").(*model.Me)
+
+	if menu1, menu2, curMenu1 := logic.DefaultAuthority.GetUserMenu(ctx, curUser.Uid, requestURI); menu2 != nil {
+		data["menu1"] = menu1
+		data["menu2"] = menu2
+		data["uri"] = requestURI
+		data["cur_menu1"] = curMenu1
+	}
+
+	return executeTpl(ctx, tpl, data)
+}
+
+func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interface{}) error {
+	objLog := logic.GetLogger(ctx)
+
 	// 如果没有定义css和js模板，则定义之
 	if jsTpl := tpl.Lookup("js"); jsTpl == nil {
 		tpl.Parse(`{{define "js"}}{{end}}`)
@@ -129,7 +175,7 @@ func Render(ctx echo.Context, contentTpl string, data map[string]interface{}) er
 	data["app"] = global.App
 
 	buf := new(bytes.Buffer)
-	err = tpl.Execute(buf, data)
+	err := tpl.Execute(buf, data)
 	if err != nil {
 		objLog.Errorln("excute template error:", err)
 		return err

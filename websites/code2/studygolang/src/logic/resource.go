@@ -243,7 +243,7 @@ func (ResourceLogic) FindById(ctx context.Context, id int) (resourceMap map[stri
 	objLog := GetLogger(ctx)
 
 	resourceInfo := &model.ResourceInfo{}
-	_, err := MasterDB.Join("INNER", "resource", "resource.id=resource_ex.id").Where("resource.id=?", id).Get(resourceInfo)
+	_, err := MasterDB.Join("INNER", "resource_ex", "resource.id=resource_ex.id").Where("resource.id=?", id).Get(resourceInfo)
 	if err != nil {
 		objLog.Errorln("ResourceLogic FindById error:", err)
 		return

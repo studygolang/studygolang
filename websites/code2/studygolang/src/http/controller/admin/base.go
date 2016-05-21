@@ -1,4 +1,4 @@
-package controller
+package admin
 
 import (
 	"encoding/json"
@@ -18,7 +18,7 @@ func getLogger(ctx echo.Context) *logger.Logger {
 
 // render html 输出
 func render(ctx echo.Context, contentTpl string, data map[string]interface{}) error {
-	return Render(ctx, contentTpl, data)
+	return RenderAdmin(ctx, contentTpl, data)
 }
 
 func success(ctx echo.Context, data interface{}) error {

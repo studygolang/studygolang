@@ -19,7 +19,7 @@ import (
 // 侧边栏的内容通过异步请求获取
 type SidebarController struct{}
 
-func (self SidebarController) RegisterRoute(e *echo.Echo) {
+func (self SidebarController) RegisterRoute(e *echo.Group) {
 	e.Get("/readings/recent", echo.HandlerFunc(self.RecentReading))
 	e.Get("/topics/:nid/others", echo.HandlerFunc(self.OtherTopics))
 	e.Get("/websites/stat", echo.HandlerFunc(self.WebsiteStat))

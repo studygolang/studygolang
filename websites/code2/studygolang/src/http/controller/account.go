@@ -30,7 +30,7 @@ import (
 type AccountController struct{}
 
 // 注册路由
-func (self AccountController) RegisterRoute(e *echo.Echo) {
+func (self AccountController) RegisterRoute(e *echo.Group) {
 	e.Any("/account/register", echo.HandlerFunc(self.Register))
 	e.Post("/account/send_activate_email", echo.HandlerFunc(self.SendActivateEmail))
 	e.Get("/account/activate", echo.HandlerFunc(self.Activate))

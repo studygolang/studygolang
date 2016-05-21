@@ -3,7 +3,7 @@
 	<head>
 	<meta	charset="utf-8"	/>
 	<meta	name="viewport"	content="width=device-width, initial-scale=1.0" />
-	<title>管理后台 | Golang中文社区 - Go语言学习园地</title>
+	<title>管理后台 | Go语言中文网 - Go语言学习园地</title>
 	<link rel="shortcut icon" href="/static/img/go.ico">
 	<link	rel="stylesheet" href="/static/css/admin/style.default.css" type="text/css" />
 	<link	rel="stylesheet" href="/static/css/admin/revise.css" type="text/css" />
@@ -21,8 +21,8 @@
 <div class="bodywrapper">
 		<div class="topheader">
 				<div class="left">
-					<a href="/admin/">
-						<h1	class="logo">Go中文社区<span>管理后台</span></h1>
+					<a href="/admin">
+						<h1	class="logo">Go语言中文网<span>管理后台</span></h1>
 					</a>
 					<br	clear="all"	/>
 					
@@ -30,13 +30,13 @@
 				
 				<div class="right">
 					<div class="userinfo">
-						<img src="{{gravatar .me.avatar .me.email 23}}" alt="" />
-							<span>{{.me.username}}</span>
+						<img src="{{gravatar .me.Avatar .me.Email 23}}" alt="" />
+							<span>{{.me.Username}}</span>
 					</div><!--userinfo-->
 					
 					<div class="userinfodrop">
 						<div class="avatar">
-							<a href=""><img src="{{gravatar .me.avatar .me.email 95}}" alt="" /></a>
+							<a href=""><img src="{{gravatar .me.Avatar .me.Email 95}}" alt="" /></a>
 							<div class="changetheme">
 								更改皮肤:	<br	/>
 								<a class="default"></a>
@@ -47,8 +47,8 @@
 							</div>
 						</div><!--avatar-->
 						<div class="userdata">
-							<h4>{{.me.username}}</h4>
-								<span	class="email">{{.me.email}}</span>
+							<h4>{{.me.Username}}</h4>
+								<span	class="email">{{.me.Email}}</span>
 								<ul>
 									<li><a href="/user/polaris" target="_blank">个人首页</a></li>
 									<li><a href="/account/edit" target="_blank">个人资料设置</a></li>
