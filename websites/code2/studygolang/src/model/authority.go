@@ -8,12 +8,12 @@ package model
 
 // 权限信息
 type Authority struct {
-	Aid    int    `json:"aid" xorm:"pk autoincr"`
-	Name   string `json:"name"`
-	Menu1  int    `json:"menu1"`
-	Menu2  int    `json:"menu2"`
-	Route  string `json:"route"`
-	OpUser string `json:"op_user"`
-	Ctime  string `json:"ctime,omitempty" xorm:"created"`
-	Mtime  string `json:"mtime,omitempty"`
+	Aid    int       `json:"aid" xorm:"pk autoincr"`
+	Name   string    `json:"name"`
+	Menu1  int       `json:"menu1"`
+	Menu2  int       `json:"menu2"`
+	Route  string    `json:"route"`
+	OpUser string    `json:"op_user"`
+	Ctime  OftenTime `json:"ctime" xorm:"created"`
+	Mtime  OftenTime `json:"mtime"`
 }

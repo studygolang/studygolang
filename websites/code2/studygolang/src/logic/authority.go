@@ -109,28 +109,32 @@ func (self AuthorityLogic) GetUserMenu(ctx context.Context, uid int, uri string)
 // 	return false
 // }
 
-// func FindAuthoritiesByPage(conds map[string]string, curPage, limit int) ([]*model.Authority, int) {
-// 	conditions := make([]string, 0, len(conds))
-// 	for k, v := range conds {
-// 		conditions = append(conditions, k+"="+v)
-// 	}
+func (AuthorityLogic) FindAuthoritiesByPage(ctx context.Context, conds map[string]string, curPage, limit int) ([]*model.Authority, int) {
+	objLog := GetLogger(ctx)
 
-// 	authority := model.NewAuthority()
+	offset := (curPage - 1) * limit
+	session := MasterDB.Limit(limit, offset)
+	for k, v := range conds {
+		session.And(k+"=?", v)
+	}
 
-// 	limitStr := strconv.Itoa((curPage-1)*limit) + "," + strconv.Itoa(limit)
-// 	auhtorities, err := authority.Where(strings.Join(conditions, " AND ")).Limit(limitStr).
-// 		FindAll()
-// 	if err != nil {
-// 		return nil, 0
-// 	}
+	totalSession := session.Clone()
 
-// 	total, err := authority.Count()
-// 	if err != nil {
-// 		return nil, 0
-// 	}
+	auhtorities := make([]*model.Authority, 0)
+	err := session.Find(&auhtorities)
+	if err != nil {
+		objLog.Errorln("find error:", err)
+		return nil, 0
+	}
 
-// 	return auhtorities, total
-// }
+	total, err := totalSession.Count(new(model.Authority))
+	if err != nil {
+		objLog.Errorln("find count error:", err)
+		return nil, 0
+	}
+
+	return auhtorities, int(total)
+}
 
 // func FindAuthority(aid string) *model.Authority {
 // 	if aid == "" {

@@ -17,28 +17,28 @@ var ArticleStatusSlice = []string{"未上线", "已上线", "已下线"}
 
 // 抓取的文章信息
 type Article struct {
-	Id        int    `json:"id" xorm:"pk autoincr"`
-	Domain    string `json:"domain"`
-	Name      string `json:"name"`
-	Title     string `json:"title"`
-	Cover     string `json:"cover"`
-	Author    string `json:"author"`
-	AuthorTxt string `json:"author_txt"`
-	Lang      int    `json:"lang"`
-	PubDate   string `json:"pub_date"`
-	Url       string `json:"url"`
-	Content   string `json:"content"`
-	Txt       string `json:"txt"`
-	Tags      string `json:"tags"`
-	Css       string `json:"css"`
-	Viewnum   int    `json:"viewnum"`
-	Cmtnum    int    `json:"cmtnum"`
-	Likenum   int    `json:"likenum"`
-	Top       uint8  `json:"top"`
-	Status    int    `json:"status"`
-	OpUser    string `json:"op_user"`
-	Ctime     string `json:"ctime" xorm:"created"`
-	Mtime     string `json:"mtime" xorm:"<-"`
+	Id        int       `json:"id" xorm:"pk autoincr"`
+	Domain    string    `json:"domain"`
+	Name      string    `json:"name"`
+	Title     string    `json:"title"`
+	Cover     string    `json:"cover"`
+	Author    string    `json:"author"`
+	AuthorTxt string    `json:"author_txt"`
+	Lang      int       `json:"lang"`
+	PubDate   string    `json:"pub_date"`
+	Url       string    `json:"url"`
+	Content   string    `json:"content"`
+	Txt       string    `json:"txt"`
+	Tags      string    `json:"tags"`
+	Css       string    `json:"css"`
+	Viewnum   int       `json:"viewnum"`
+	Cmtnum    int       `json:"cmtnum"`
+	Likenum   int       `json:"likenum"`
+	Top       uint8     `json:"top"`
+	Status    int       `json:"status"`
+	OpUser    string    `json:"op_user"`
+	Ctime     OftenTime `json:"ctime" xorm:"created"`
+	Mtime     OftenTime `json:"mtime" xorm:"<-"`
 }
 
 func (*Article) TableName() string {

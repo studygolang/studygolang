@@ -66,6 +66,34 @@ func (ArticleLogic) FindBy(ctx context.Context, limit int, lastIds ...int) []*mo
 	return articles
 }
 
+// 获取抓取的文章列表（分页）：后台用
+func (ArticleLogic) FindArticleByPage(ctx context.Context, conds map[string]string, curPage, limit int) ([]*model.Article, int) {
+	objLog := GetLogger(ctx)
+
+	offset := (curPage - 1) * limit
+	session := MasterDB.Limit(limit, offset)
+	for k, v := range conds {
+		session.And(k+"=?", v)
+	}
+
+	totalSession := session.Clone()
+
+	articleList := make([]*model.Article, 0)
+	err := session.OrderBy("id DESC").Find(&articleList)
+	if err != nil {
+		objLog.Errorln("find error:", err)
+		return nil, 0
+	}
+
+	total, err := totalSession.Count(new(model.Article))
+	if err != nil {
+		objLog.Errorln("find count error:", err)
+		return nil, 0
+	}
+
+	return articleList, int(total)
+}
+
 // FindByIds 获取多个文章详细信息
 func (ArticleLogic) FindByIds(ids []int) []*model.Article {
 	if len(ids) == 0 {

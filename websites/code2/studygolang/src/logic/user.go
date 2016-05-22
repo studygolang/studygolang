@@ -298,8 +298,6 @@ func (self UserLogic) FindCurrentUser(ctx context.Context, username interface{})
 		}
 	}
 
-	go self.RecordLoginTime(user.Username)
-
 	return me
 }
 

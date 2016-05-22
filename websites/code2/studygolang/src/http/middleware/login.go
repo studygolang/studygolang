@@ -25,6 +25,7 @@ func AutoLogin() echo.MiddlewareFunc {
 			session := GetCookieSession(ctx)
 			username, ok := session.Values["username"]
 			if ok {
+				// TODO: 考虑缓存，或延迟查询，避免每次都查询
 				user := logic.DefaultUser.FindCurrentUser(ctx, username)
 				if user.Uid != 0 {
 					ctx.Set("user", user)

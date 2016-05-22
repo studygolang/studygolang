@@ -151,6 +151,33 @@ func RenderAdmin(ctx echo.Context, contentTpl string, data map[string]interface{
 	return executeTpl(ctx, tpl, data)
 }
 
+// 后台 query 查询返回结果
+func RenderQuery(ctx echo.Context, contentTpl string, data map[string]interface{}) error {
+	objLog := logic.GetLogger(ctx)
+
+	contentTpl = "common_query.html," + contentTpl
+	contentTpls := strings.Split(contentTpl, ",")
+	for i, contentTpl := range contentTpls {
+		contentTpls[i] = config.TemplateDir + "admin/" + strings.TrimSpace(contentTpl)
+	}
+
+	requestURI := Request(ctx).RequestURI
+	tpl, err := template.New("common_query.html").Funcs(funcMap).ParseFiles(contentTpls...)
+	if err != nil {
+		objLog.Errorf("解析模板出错（ParseFiles）：[%q] %s\n", requestURI, err)
+		return err
+	}
+
+	buf := new(bytes.Buffer)
+	err = tpl.Execute(buf, data)
+	if err != nil {
+		objLog.Errorf("执行模板出错（Execute）：[%q] %s\n", requestURI, err)
+		return err
+	}
+
+	return ctx.HTML(http.StatusOK, buf.String())
+}
+
 func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interface{}) error {
 	objLog := logic.GetLogger(ctx)
 

@@ -8,9 +8,28 @@ import (
 	. "http"
 
 	"github.com/labstack/echo"
+	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	"github.com/polaris1119/nosql"
 )
+
+func parsePage(ctx echo.Context) (curPage, limit int) {
+	curPage = goutils.MustInt(ctx.FormValue("page"), 1)
+	limit = goutils.MustInt(ctx.FormValue("limit"), 20)
+	return
+}
+
+func parseConds(ctx echo.Context, fields []string) map[string]string {
+	conds := make(map[string]string)
+
+	for _, field := range fields {
+		if value := ctx.FormValue(field); value != "" {
+			conds[field] = value
+		}
+	}
+
+	return conds
+}
 
 func getLogger(ctx echo.Context) *logger.Logger {
 	return logic.GetLogger(ctx)
@@ -19,6 +38,10 @@ func getLogger(ctx echo.Context) *logger.Logger {
 // render html 输出
 func render(ctx echo.Context, contentTpl string, data map[string]interface{}) error {
 	return RenderAdmin(ctx, contentTpl, data)
+}
+
+func renderQuery(ctx echo.Context, contentTpl string, data map[string]interface{}) error {
+	return RenderQuery(ctx, contentTpl, data)
 }
 
 func success(ctx echo.Context, data interface{}) error {
