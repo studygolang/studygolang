@@ -89,8 +89,8 @@
 		<article class="article box_white">
 			<div class="row">
 				<div>
-					<h2><a href="/topics/{{.Id}}" target="_blank" title="{{.Title}}">{{.Title}}</a></h2>
-					<p class="text">{{substring .Content 250 "..."}}<a href="/topics/{{.Id}}" target="_blank" title="阅读全文">阅读全文</a></p>
+					<h2><a href="/topics/{{.Tid}}" target="_blank" title="{{.Title}}">{{.Title}}</a></h2>
+					<p class="text">{{substring .Content 250 "..."}}<a href="/topics/{{.Tid}}" target="_blank" title="阅读全文">阅读全文</a></p>
 				</div>
 			</div>
 			<div class="row">
@@ -101,7 +101,7 @@
 				<div class="col-md-6 metatag text-right">
 					{{if $.me}}
 					{{if eq $.me.username $.user.Username}}
-					<a href="#" class="collect" title="取消收藏" data-objid="{{.Id}}" data-objtype="1" data-collect="1">
+					<a href="#" class="collect" title="取消收藏" data-objid="{{.Tid}}" data-objtype="0" data-collect="1">
 						<i class="glyphicon glyphicon-bookmark"></i>
 						取消收藏
 					</a>
@@ -150,7 +150,7 @@
 					</span>
 					{{if $.me}}
 					{{if eq $.me.username $.user.Username}}
-					<a href="#" class="collect" title="取消收藏" data-objid="{{.Id}}" data-objtype="1" data-collect="1">
+					<a href="#" class="collect" title="取消收藏" data-objid="{{.Id}}" data-objtype="4" data-collect="1">
 						<i class="glyphicon glyphicon-bookmark"></i>
 						取消收藏
 					</a>
@@ -182,7 +182,7 @@
 				<div class="col-md-6 metatag text-right">
 					{{if $.me}}
 					{{if eq $.me.username $.user.Username}}
-					<a href="#" class="collect" title="取消收藏" data-objid="{{.Id}}" data-objtype="1" data-collect="1">
+					<a href="#" class="collect" title="取消收藏" data-objid="{{.Id}}" data-objtype="2" data-collect="1">
 						<i class="glyphicon glyphicon-bookmark"></i>
 						取消收藏
 					</a>
