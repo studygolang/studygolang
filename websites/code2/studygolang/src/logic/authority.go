@@ -112,16 +112,18 @@ func (self AuthorityLogic) GetUserMenu(ctx context.Context, uid int, uri string)
 func (AuthorityLogic) FindAuthoritiesByPage(ctx context.Context, conds map[string]string, curPage, limit int) ([]*model.Authority, int) {
 	objLog := GetLogger(ctx)
 
-	offset := (curPage - 1) * limit
-	session := MasterDB.Limit(limit, offset)
+	session := MasterDB.NewSession()
+	session.IsAutoClose = true
+
 	for k, v := range conds {
 		session.And(k+"=?", v)
 	}
 
 	totalSession := session.Clone()
 
+	offset := (curPage - 1) * limit
 	auhtorities := make([]*model.Authority, 0)
-	err := session.Find(&auhtorities)
+	err := session.Limit(limit, offset).Find(&auhtorities)
 	if err != nil {
 		objLog.Errorln("find error:", err)
 		return nil, 0

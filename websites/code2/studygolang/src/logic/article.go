@@ -8,16 +8,189 @@ package logic
 
 import (
 	. "db"
+	"errors"
 	"model"
+	"net/url"
+	"regexp"
+	"strconv"
+	"strings"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/polaris1119/logger"
+	"github.com/polaris1119/times"
 	"golang.org/x/net/context"
 )
 
 type ArticleLogic struct{}
 
 var DefaultArticle = ArticleLogic{}
+
+var domainPatch = map[string]string{
+	"iteye.com":      "iteye.com",
+	"blog.51cto.com": "blog.51cto.com",
+}
+
+var articleRe = regexp.MustCompile("[\r　\n  \t\v]+")
+var articleSpaceRe = regexp.MustCompile("[ ]+")
+
+// ParseArticle 获取 url 对应的文章并根据规则进行解析
+func (ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, auto bool) (*model.Article, error) {
+	articleUrl = strings.TrimSpace(articleUrl)
+	if !strings.HasPrefix(articleUrl, "http") {
+		articleUrl = "http://" + articleUrl
+	}
+
+	tmpArticle := &model.Article{}
+	_, err := MasterDB.Where("url=?", articleUrl).Get(tmpArticle)
+	if err != nil || tmpArticle.Id != 0 {
+		logger.Errorln(articleUrl, "has exists:", err)
+		return nil, errors.New("has exists!")
+	}
+
+	urlPaths := strings.SplitN(articleUrl, "/", 5)
+	domain := urlPaths[2]
+
+	for k, v := range domainPatch {
+		if strings.Contains(domain, k) && !strings.Contains(domain, "www."+k) {
+			domain = v
+			break
+		}
+	}
+
+	rule := &model.CrawlRule{}
+	_, err = MasterDB.Where("domain=?", domain).Get(rule)
+	if err != nil {
+		logger.Errorln("find rule by domain error:", err)
+		return nil, err
+	}
+
+	if rule.Id == 0 {
+		logger.Errorln("domain:", domain, "not exists!")
+		return nil, errors.New("domain not exists")
+	}
+
+	var doc *goquery.Document
+	if doc, err = goquery.NewDocument(articleUrl); err != nil {
+		logger.Errorln("goquery newdocument error:", err)
+		return nil, err
+	}
+
+	author, authorTxt := "", ""
+	if rule.InUrl {
+		index, err := strconv.Atoi(rule.Author)
+		if err != nil {
+			logger.Errorln("author rule is illegal:", rule.Author, "error:", err)
+			return nil, err
+		}
+		author = urlPaths[index]
+		authorTxt = author
+	} else {
+		if strings.HasPrefix(rule.Author, ".") || strings.HasPrefix(rule.Author, "#") {
+			authorSelection := doc.Find(rule.Author)
+			author, err = authorSelection.Html()
+			if err != nil {
+				logger.Errorln("goquery parse author error:", err)
+				return nil, err
+			}
+
+			author = strings.TrimSpace(author)
+			authorTxt = strings.TrimSpace(authorSelection.Text())
+		} else {
+			// 某些个人博客，页面中没有作者的信息，因此，规则中 author 即为 作者
+			author = rule.Author
+			authorTxt = rule.Author
+		}
+	}
+
+	title := ""
+	doc.Find(rule.Title).Each(func(i int, selection *goquery.Selection) {
+		if title != "" {
+			return
+		}
+
+		tmpTitle := strings.TrimSpace(strings.TrimPrefix(selection.Text(), "原"))
+		tmpTitle = strings.TrimSpace(strings.TrimPrefix(tmpTitle, "荐"))
+		tmpTitle = strings.TrimSpace(strings.TrimPrefix(tmpTitle, "转"))
+		tmpTitle = strings.TrimSpace(strings.TrimPrefix(tmpTitle, "顶"))
+		if tmpTitle != "" {
+			title = tmpTitle
+		}
+	})
+
+	if title == "" {
+		logger.Errorln("url:", articleUrl, "parse title error:", err)
+		return nil, err
+	}
+
+	replacer := strings.NewReplacer("[置顶]", "", "[原]", "", "[转]", "")
+	title = strings.TrimSpace(replacer.Replace(title))
+
+	contentSelection := doc.Find(rule.Content)
+	content, err := contentSelection.Html()
+	if err != nil {
+		logger.Errorln("goquery parse content error:", err)
+		return nil, err
+	}
+	content = strings.TrimSpace(content)
+	txt := strings.TrimSpace(contentSelection.Text())
+	txt = articleRe.ReplaceAllLiteralString(txt, " ")
+	txt = articleSpaceRe.ReplaceAllLiteralString(txt, " ")
+
+	// 自动抓取，内容长度不能少于 300 字
+	if auto && len(txt) < 300 {
+		logger.Infoln(articleUrl, "content is short")
+		return nil, errors.New("content is short")
+	}
+
+	pubDate := times.Format("Y-m-d H:i:s")
+	if rule.PubDate != "" {
+		pubDate = strings.TrimSpace(doc.Find(rule.PubDate).First().Text())
+
+		// oschina patch
+		re := regexp.MustCompile("[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}")
+		submatches := re.FindStringSubmatch(pubDate)
+		if len(submatches) > 0 {
+			pubDate = submatches[0]
+		}
+	}
+
+	if pubDate == "" {
+		pubDate = times.Format("Y-m-d H:i:s")
+	} else {
+		// YYYYY-MM-dd HH:mm
+		if len(pubDate) == 16 && auto {
+			// 三个月之前不入库
+			pubTime, err := time.ParseInLocation("2006-01-02 15:04", pubDate, time.Local)
+			if err == nil {
+				if pubTime.Add(3 * 30 * 86400 * time.Second).Before(time.Now()) {
+					return nil, errors.New("article is old!")
+				}
+			}
+		}
+	}
+
+	article := &model.Article{
+		Domain:    domain,
+		Name:      rule.Name,
+		Author:    author,
+		AuthorTxt: authorTxt,
+		Title:     title,
+		Content:   content,
+		Txt:       txt,
+		PubDate:   pubDate,
+		Url:       articleUrl,
+		Lang:      rule.Lang,
+	}
+
+	_, err = MasterDB.Insert(article)
+	if err != nil {
+		logger.Errorln("insert article error:", err)
+		return nil, err
+	}
+
+	return article, nil
+}
 
 func (ArticleLogic) FindLastList(beginTime string, limit int) ([]*model.Article, error) {
 	articles := make([]*model.Article, 0)
@@ -70,16 +243,18 @@ func (ArticleLogic) FindBy(ctx context.Context, limit int, lastIds ...int) []*mo
 func (ArticleLogic) FindArticleByPage(ctx context.Context, conds map[string]string, curPage, limit int) ([]*model.Article, int) {
 	objLog := GetLogger(ctx)
 
-	offset := (curPage - 1) * limit
-	session := MasterDB.Limit(limit, offset)
+	session := MasterDB.NewSession()
+	session.IsAutoClose = true
+
 	for k, v := range conds {
 		session.And(k+"=?", v)
 	}
 
 	totalSession := session.Clone()
 
+	offset := (curPage - 1) * limit
 	articleList := make([]*model.Article, 0)
-	err := session.OrderBy("id DESC").Find(&articleList)
+	err := session.OrderBy("id DESC").Limit(limit, offset).Find(&articleList)
 	if err != nil {
 		objLog.Errorln("find error:", err)
 		return nil, 0
@@ -162,6 +337,43 @@ func (ArticleLogic) FindByIdAndPreNext(ctx context.Context, id int) (curArticle 
 	}
 
 	return
+}
+
+// Modify 修改文章信息
+func (ArticleLogic) Modify(ctx context.Context, user *model.Me, form url.Values) (errMsg string, err error) {
+	form.Set("op_user", user.Username)
+
+	fields := []string{
+		"title", "url", "cover", "author", "author_txt",
+		"lang", "pub_date", "content",
+		"tags", "status", "op_user",
+	}
+	change := make(map[string]string)
+
+	for _, field := range fields {
+		change[field] = form.Get(field)
+	}
+
+	id := form.Get("id")
+	_, err = MasterDB.Table(new(model.Article)).Id(id).Update(change)
+	if err != nil {
+		logger.Errorf("更新文章 【%s】 信息失败：%s\n", id, err)
+		errMsg = "对不起，服务器内部错误，请稍后再试！"
+		return
+	}
+
+	return
+}
+
+// FindById 获取单条博文
+func (ArticleLogic) FindById(ctx context.Context, id string) (*model.Article, error) {
+	article := &model.Article{}
+	_, err := MasterDB.Id(id).Get(article)
+	if err != nil {
+		logger.Errorln("article logic FindById Error:", err)
+	}
+
+	return article, err
 }
 
 // 博文评论

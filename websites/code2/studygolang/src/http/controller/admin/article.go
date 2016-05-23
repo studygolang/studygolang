@@ -8,16 +8,14 @@ package admin
 
 import (
 	"logic"
+	"model"
 	"net/http"
+	"strings"
+
+	. "http"
 
 	"github.com/labstack/echo"
 )
-
-// subrouter.HandleFunc("/crawl/article/list", admin.ArticleListHandler)
-// 	subrouter.HandleFunc("/crawl/article/query.html", admin.ArticleQueryHandler)
-// 	subrouter.HandleFunc("/crawl/article/modify", admin.ModifyArticleHandler)
-// 	subrouter.HandleFunc("/crawl/article/new", admin.CrawlArticleHandler)
-// 	subrouter.HandleFunc("/crawl/article/del", admin.DelArticleHandler)
 
 type ArticleController struct{}
 
@@ -25,6 +23,8 @@ type ArticleController struct{}
 func (self ArticleController) RegisterRoute(g *echo.Group) {
 	g.Get("/crawl/article/list", echo.HandlerFunc(self.ArticleList))
 	g.Post("/crawl/article/query.html", echo.HandlerFunc(self.ArticleQuery))
+	g.Match([]string{"GET", "POST"}, "/crawl/article/new", echo.HandlerFunc(self.CrawlArticle))
+	g.Match([]string{"GET", "POST"}, "/crawl/article/modify", echo.HandlerFunc(self.Modify))
 }
 
 // ArticleList 所有文章（分页）
@@ -69,70 +69,57 @@ func (ArticleController) ArticleQuery(ctx echo.Context) error {
 	return renderQuery(ctx, "article/query.html", data)
 }
 
-// // /admin/crawl/article/new
-// func CrawlArticleHandler(rw http.ResponseWriter, req *http.Request) {
-// 	var data = make(map[string]interface{})
+// CrawlArticle
+func (ArticleController) CrawlArticle(ctx echo.Context) error {
+	var data = make(map[string]interface{})
 
-// 	if req.PostFormValue("submit") == "1" {
-// 		urls := strings.Split(req.PostFormValue("urls"), "\n")
+	if ctx.FormValue("submit") == "1" {
+		urls := strings.Split(ctx.FormValue("urls"), "\n")
 
-// 		var errMsg string
-// 		for _, articleUrl := range urls {
-// 			_, err := service.ParseArticle(strings.TrimSpace(articleUrl), false)
+		var errMsg string
+		for _, articleUrl := range urls {
+			_, err := logic.DefaultArticle.ParseArticle(ctx, strings.TrimSpace(articleUrl), false)
 
-// 			if err != nil {
-// 				errMsg = err.Error()
-// 			}
-// 		}
+			if err != nil {
+				errMsg = err.Error()
+			}
+		}
 
-// 		if errMsg != "" {
-// 			data["ok"] = 0
-// 			data["error"] = errMsg
-// 		} else {
-// 			data["ok"] = 1
-// 			data["msg"] = "添加成功"
-// 		}
-// 	} else {
+		if errMsg != "" {
+			return fail(ctx, 1, errMsg)
+		}
+		return success(ctx, nil)
+	}
 
-// 		// 设置内容模板
-// 		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/admin/article/new.html")
-// 	}
+	return render(ctx, "article/new.html", data)
+}
 
-// 	filter.SetData(req, data)
-// }
+// Modify
+func (self ArticleController) Modify(ctx echo.Context) error {
+	var data = make(map[string]interface{})
 
-// func ModifyArticleHandler(rw http.ResponseWriter, req *http.Request) {
-// 	var data = make(map[string]interface{})
+	if ctx.FormValue("submit") == "1" {
+		user := ctx.Get("user").(*model.Me)
+		errMsg, err := logic.DefaultArticle.Modify(ctx, user, Request(ctx).Form)
+		if err != nil {
+			return fail(ctx, 1, errMsg)
+		}
+		return success(ctx, nil)
+	}
+	article, err := logic.DefaultArticle.FindById(ctx, ctx.QueryParam("id"))
+	if err != nil {
+		return ctx.Redirect(http.StatusSeeOther, ctx.Echo().URI(echo.HandlerFunc(self.ArticleList)))
+	}
 
-// 	if req.PostFormValue("submit") == "1" {
-// 		user, _ := filter.CurrentUser(req)
+	data["article"] = article
+	data["statusSlice"] = model.ArticleStatusSlice
+	data["langSlice"] = model.LangSlice
 
-// 		errMsg, err := service.ModifyArticle(user, req.PostForm)
-// 		if err != nil {
-// 			data["ok"] = 0
-// 			data["error"] = errMsg
-// 		} else {
-// 			data["ok"] = 1
-// 			data["msg"] = "修改成功"
-// 		}
-// 	} else {
-// 		article, err := service.FindArticleById(req.FormValue("id"))
+	return render(ctx, "article/modify.html", data)
 
-// 		if err != nil {
-// 			rw.WriteHeader(http.StatusInternalServerError)
-// 			return
-// 		}
+}
 
-// 		// 设置内容模板
-// 		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/admin/article/modify.html")
-// 		data["article"] = article
-// 		data["statusSlice"] = model.StatusSlice
-// 		data["langSlice"] = model.LangSlice
-// 	}
-
-// 	filter.SetData(req, data)
-// }
-
+// /crawl/article/del
 // func DelArticleHandler(rw http.ResponseWriter, req *http.Request) {
 // 	var data = make(map[string]interface{})
 

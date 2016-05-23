@@ -28,7 +28,7 @@ type MorningReading struct {
 	Moreurls string    `json:"moreurls"`
 	Username string    `json:"username"`
 	Clicknum int       `json:"clicknum,omitempty"`
-	Ctime    time.Time `json:"ctime,omitempty" xorm:"<-"`
+	Ctime    OftenTime `json:"ctime" xorm:"<-"`
 
 	// 晨读日期，从 ctime 中提取
 	Rdate string `json:"rdate,omitempty" xorm:"-"`
@@ -39,7 +39,7 @@ type MorningReading struct {
 func (this *MorningReading) AfterSet(name string, cell xorm.Cell) {
 	switch name {
 	case "ctime":
-		this.Rdate = this.Ctime.Format("2006-01-02")
+		this.Rdate = time.Time(this.Ctime).Format("2006-01-02")
 	case "moreurls":
 		if this.Moreurls != "" {
 			this.Urls = strings.Split(this.Moreurls, ",")

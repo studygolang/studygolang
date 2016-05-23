@@ -9,8 +9,11 @@ package logic
 import (
 	. "db"
 	"model"
+	"net/url"
 	"strconv"
+	"strings"
 
+	"github.com/polaris1119/logger"
 	"golang.org/x/net/context"
 )
 
@@ -68,72 +71,81 @@ func (ReadingLogic) IReading(ctx context.Context, id int) string {
 	return "/articles/" + strconv.Itoa(reading.Inner)
 }
 
-// // 获取晨读列表（分页）
-// func FindReadingByPage(conds map[string]string, curPage, limit int) ([]*model.MorningReading, int) {
-// 	conditions := make([]string, 0, len(conds))
-// 	for k, v := range conds {
-// 		conditions = append(conditions, k+"="+v)
-// 	}
+// FindReadingByPage 获取晨读列表（分页）
+func (ReadingLogic) FindReadingByPage(ctx context.Context, conds map[string]string, curPage, limit int) ([]*model.MorningReading, int) {
+	objLog := GetLogger(ctx)
 
-// 	reading := model.NewMorningReading()
+	session := MasterDB.NewSession()
+	session.IsAutoClose = true
 
-// 	limitStr := strconv.Itoa((curPage-1)*limit) + "," + strconv.Itoa(limit)
-// 	readingList, err := reading.Where(strings.Join(conditions, " AND ")).Order("id DESC").Limit(limitStr).
-// 		FindAll()
-// 	if err != nil {
-// 		logger.Errorln("reading service FindArticleByPage Error:", err)
-// 		return nil, 0
-// 	}
+	for k, v := range conds {
+		session.And(k+"=?", v)
+	}
 
-// 	total, err := reading.Count()
-// 	if err != nil {
-// 		logger.Errorln("reading service FindReadingByPage COUNT Error:", err)
-// 		return nil, 0
-// 	}
+	totalSession := session.Clone()
 
-// 	return readingList, total
-// }
+	offset := (curPage - 1) * limit
+	readingList := make([]*model.MorningReading, 0)
+	err := session.OrderBy("id DESC").Limit(limit, offset).Find(&readingList)
+	if err != nil {
+		objLog.Errorln("reading find error:", err)
+		return nil, 0
+	}
 
-// // 保存晨读
-// func SaveReading(form url.Values, username string) (errMsg string, err error) {
-// 	reading := model.NewMorningReading()
-// 	err = util.ConvertAssign(reading, form)
-// 	if err != nil {
-// 		logger.Errorln("reading SaveReading error", err)
-// 		errMsg = err.Error()
-// 		return
-// 	}
+	total, err := totalSession.Count(new(model.MorningReading))
+	if err != nil {
+		objLog.Errorln("reading find count error:", err)
+		return nil, 0
+	}
 
-// 	reading.Moreurls = strings.TrimSpace(reading.Moreurls)
-// 	if strings.Contains(reading.Moreurls, "\n") {
-// 		reading.Moreurls = strings.Join(strings.Split(reading.Moreurls, "\n"), ",")
-// 	}
+	return readingList, int(total)
+}
 
-// 	reading.Username = username
+// SaveReading 保存晨读
+func (ReadingLogic) SaveReading(ctx context.Context, form url.Values, username string) (errMsg string, err error) {
+	reading := &model.MorningReading{}
+	err = schemaDecoder.Decode(reading, form)
+	if err != nil {
+		logger.Errorln("reading SaveReading error", err)
+		errMsg = err.Error()
+		return
+	}
 
-// 	logger.Infoln(reading.Rtype, "id=", reading.Id)
-// 	if reading.Id != 0 {
-// 		err = reading.Persist(reading)
-// 	} else {
-// 		_, err = reading.Insert()
-// 	}
+	reading.Moreurls = strings.TrimSpace(reading.Moreurls)
+	if strings.Contains(reading.Moreurls, "\n") {
+		reading.Moreurls = strings.Join(strings.Split(reading.Moreurls, "\n"), ",")
+	}
 
-// 	if err != nil {
-// 		errMsg = "内部服务器错误"
-// 		logger.Errorln("reading save:", errMsg, ":", err)
-// 		return
-// 	}
+	reading.Username = username
 
-// 	return
-// }
+	logger.Debugln(reading.Rtype, "id=", reading.Id)
+	if reading.Id != 0 {
+		_, err = MasterDB.Update(reading)
+	} else {
+		_, err = MasterDB.Insert(reading)
+	}
 
-// // 获取单条晨读
-// func FindReadingById(id int) (*model.MorningReading, error) {
-// 	reading := model.NewMorningReading()
-// 	err := reading.Where("id=?", id).Find()
-// 	if err != nil {
-// 		logger.Errorln("reading service FindReadingById Error:", err)
-// 	}
+	if err != nil {
+		errMsg = "内部服务器错误"
+		logger.Errorln("reading save:", errMsg, ":", err)
+		return
+	}
 
-// 	return reading, err
-// }
+	return
+}
+
+// FindById 获取单条晨读
+func (ReadingLogic) FindById(ctx context.Context, id int) *model.MorningReading {
+	reading := &model.MorningReading{}
+	_, err := MasterDB.Id(id).Get(reading)
+	if err != nil {
+		logger.Errorln("reading logic FindReadingById Error:", err)
+		return nil
+	}
+
+	if reading.Id == 0 {
+		return nil
+	}
+
+	return reading
+}
