@@ -22,13 +22,13 @@ import (
 
 // 自定义模板函数
 var funcMap = template.FuncMap{
-	"time_format": func(s string) string {
-		t, err := time.ParseInLocation("2006-01-02 15:04:05", s, time.Local)
-		if err != nil {
-			return s
+	"time_format": func(i interface{}) string {
+		if t, ok := i.(time.Time); ok {
+			return t.Format(time.RFC3339)
+		} else if t, ok := i.(model.OftenTime); ok {
+			return time.Time(t).Format(time.RFC3339)
 		}
-
-		return t.Format(time.RFC3339)
+		return ""
 	},
 }
 
@@ -89,6 +89,8 @@ func GenSitemap() {
 		if err = output(sitemapFile, data); err == nil {
 			sitemapFiles = append(sitemapFiles, sitemapFile)
 		}
+
+		articles = make([]*model.Article, 0)
 	}
 
 	little = 1
@@ -118,6 +120,8 @@ func GenSitemap() {
 		if err = output(sitemapFile, data); err == nil {
 			sitemapFiles = append(sitemapFiles, sitemapFile)
 		}
+
+		topics = make([]*model.Topic, 0)
 	}
 
 	little = 1
@@ -132,6 +136,7 @@ func GenSitemap() {
 		little, large = large+1, little+step
 
 		if err != nil {
+			logger.Errorln("sitemap resource find error:", err)
 			continue
 		}
 
@@ -147,6 +152,8 @@ func GenSitemap() {
 		if err = output(sitemapFile, data); err == nil {
 			sitemapFiles = append(sitemapFiles, sitemapFile)
 		}
+
+		resources = make([]*model.Resource, 0)
 	}
 
 	little = 1
@@ -157,7 +164,7 @@ func GenSitemap() {
 	for {
 		sitemapFile := "sitemap_project_" + strconv.Itoa(large) + ".xml"
 
-		err = MasterDB.Where("id BETWEEN ? AND ?", little, large).Select("id,uri,mtime").Find(&resources)
+		err = MasterDB.Where("id BETWEEN ? AND ?", little, large).Select("id,uri,mtime").Find(&projects)
 		little, large = large+1, little+step
 
 		if err != nil {
@@ -176,36 +183,40 @@ func GenSitemap() {
 		if err = output(sitemapFile, data); err == nil {
 			sitemapFiles = append(sitemapFiles, sitemapFile)
 		}
+
+		projects = make([]*model.OpenProject, 0)
 	}
 
 	little = 1
 	large = little + step
 
 	// wiki
-	// wiki := model.NewWiki()
-	// for {
-	// 	sitemapFile := "sitemap_wiki_" + strconv.Itoa(large) + ".xml"
+	wikis := make([]*model.Wiki, 0)
+	for {
+		sitemapFile := "sitemap_wiki_" + strconv.Itoa(large) + ".xml"
 
-	// 	wikis, err := wiki.Where("id BETWEEN ? AND ?", little, large).FindAll("id", "uri", "mtime")
-	// 	little, large = large+1, little+step
+		err = MasterDB.Where("id BETWEEN ? AND ?", little, large).Select("id,uri,mtime").Find(&wikis)
+		little, large = large+1, little+step
 
-	// 	if err != nil {
-	// 		continue
-	// 	}
+		if err != nil {
+			continue
+		}
 
-	// 	if len(wikis) == 0 {
-	// 		break
-	// 	}
+		if len(wikis) == 0 {
+			break
+		}
 
-	// 	data := map[string]interface{}{
-	// 		"home":  home,
-	// 		"wikis": wikis,
-	// 	}
+		data := map[string]interface{}{
+			"home":  home,
+			"wikis": wikis,
+		}
 
-	// 	if err = output(sitemapFile, data); err == nil {
-	// 		sitemapFiles = append(sitemapFiles, sitemapFile)
-	// 	}
-	// }
+		if err = output(sitemapFile, data); err == nil {
+			sitemapFiles = append(sitemapFiles, sitemapFile)
+		}
+
+		wikis = make([]*model.Wiki, 0)
+	}
 
 	file, err := os.Create(sitemapPath + "sitemapindex.xml")
 	if err != nil {

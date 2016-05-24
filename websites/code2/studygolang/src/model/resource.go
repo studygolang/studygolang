@@ -6,6 +6,8 @@
 
 package model
 
+import "time"
+
 const (
 	LinkForm    = "只是链接"
 	ContentForm = "包括内容"
@@ -13,16 +15,16 @@ const (
 
 // 资源信息
 type Resource struct {
-	Id      int    `json:"id" xorm:"pk autoincr"`
-	Title   string `json:"title"`
-	Form    string `json:"form"`
-	Content string `json:"content"`
-	Url     string `json:"url"`
-	Uid     int    `json:"uid"`
-	Catid   int    `json:"catid"`
-	CatName string `json:"-" xorm:"-"`
-	Ctime   string `json:"ctime,omitempty" xorm:"created"`
-	Mtime   string `json:"mtime,omitempty" xorm:"<-"`
+	Id      int       `json:"id" xorm:"pk autoincr"`
+	Title   string    `json:"title"`
+	Form    string    `json:"form"`
+	Content string    `json:"content"`
+	Url     string    `json:"url"`
+	Uid     int       `json:"uid"`
+	Catid   int       `json:"catid"`
+	CatName string    `json:"-" xorm:"-"`
+	Ctime   OftenTime `json:"ctime" xorm:"created"`
+	Mtime   time.Time `json:"mtime" xorm:"<-"`
 }
 
 // 资源扩展（计数）信息

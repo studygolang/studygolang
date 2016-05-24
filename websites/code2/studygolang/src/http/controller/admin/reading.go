@@ -67,7 +67,7 @@ func (ReadingController) ReadingQuery(ctx echo.Context) error {
 	return render(ctx, "reading/query.html", data)
 }
 
-// /admin/reading/publish
+// Publish
 func (ReadingController) Publish(ctx echo.Context) error {
 	var data = make(map[string]interface{})
 
