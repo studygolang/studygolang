@@ -177,11 +177,12 @@ func (MessageLogic) SendSysMsgAtUsernames(ctx context.Context, usernames string,
 //		{"uid":xxx,"objid":xxx}
 //   model.MsgtypeAtMe 为：{"uid":xxx,"cid":xxx,"objid":xxx,"objtype":xxx}
 //   model.MsgtypePulishAtMe 为：{"uid":xxx,"objid":xxx,"objtype":xxx}
-func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int) []map[string]interface{} {
+func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginator *Paginator) []map[string]interface{} {
 	objLog := GetLogger(ctx)
 
 	messages := make([]*model.SystemMessage, 0)
-	err := MasterDB.Where("`to`=?", uid).OrderBy("id DESC").Find(&messages)
+	err := MasterDB.Where("`to`=?", uid).OrderBy("id DESC").
+		Limit(paginator.PerPage(), paginator.Offset()).Find(&messages)
 	if err != nil {
 		objLog.Errorln("message logic FindSysMsgsByUid Error:", err)
 		return nil
@@ -213,6 +214,8 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int) []map[st
 			resIdSet.Add(objid)
 		case model.MsgtypeWikiComment:
 			wikiIdSet.Add(objid)
+		case model.MsgtypeProjectComment:
+			pidSet.Add(objid)
 		case model.MsgtypeAtMe, model.MsgtypePublishAtMe:
 			objTypeFloat := ext["objtype"].(float64)
 			switch int(objTypeFloat) {
@@ -269,6 +272,16 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int) []map[st
 				objTitle = wikiMap[objid].Title
 				objUrl = "/wiki/" + strconv.Itoa(wikiMap[objid].Id)
 				title = "评论了你的Wiki页："
+			case model.MsgtypeProjectComment:
+				project := projectMap[objid]
+				objTitle = project.Category + project.Name
+				objUrl = "/p/"
+				if project.Uri != "" {
+					objUrl += project.Uri
+				} else {
+					objUrl += strconv.Itoa(project.Id)
+				}
+				title = "评论了你的开源项目："
 			case model.MsgtypeAtMe:
 				title = "评论时提到了你，在"
 				switch int(ext["objtype"].(float64)) {
@@ -363,12 +376,18 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int) []map[st
 	return result
 }
 
+func (MessageLogic) SysMsgCount(ctx context.Context, uid int) int64 {
+	total, _ := MasterDB.Where("`to`=?", uid).Count(new(model.SystemMessage))
+	return total
+}
+
 // 获得发给某人的短消息（收件箱）
-func (self MessageLogic) FindToMsgsByUid(ctx context.Context, uid int) []map[string]interface{} {
+func (self MessageLogic) FindToMsgsByUid(ctx context.Context, uid int, paginator *Paginator) []map[string]interface{} {
 	objLog := GetLogger(ctx)
 
 	messages := make([]*model.Message, 0)
-	err := MasterDB.Where("`to`=? AND tdel=?", uid, model.TdelNotDel).OrderBy("id DESC").Find(&messages)
+	err := MasterDB.Where("`to`=? AND tdel=?", uid, model.TdelNotDel).
+		Limit(paginator.PerPage(), paginator.Offset()).OrderBy("id DESC").Find(&messages)
 	if err != nil {
 		objLog.Errorln("message logic FindToMsgsByUid Error:", err)
 		return nil
@@ -399,12 +418,18 @@ func (self MessageLogic) FindToMsgsByUid(ctx context.Context, uid int) []map[str
 	return result
 }
 
+func (MessageLogic) ToMsgCount(ctx context.Context, uid int) int64 {
+	total, _ := MasterDB.Where("`to`=? AND tdel=?", uid, model.TdelNotDel).Count(new(model.Message))
+	return total
+}
+
 // 获取某人发送的消息
-func (MessageLogic) FindFromMsgsByUid(ctx context.Context, uid int) []map[string]interface{} {
+func (MessageLogic) FindFromMsgsByUid(ctx context.Context, uid int, paginator *Paginator) []map[string]interface{} {
 	objLog := GetLogger(ctx)
 
 	messages := make([]*model.Message, 0)
-	err := MasterDB.Where("`from`=? AND fdel=?", uid, model.FdelNotDel).OrderBy("id DESC").Find(&messages)
+	err := MasterDB.Where("`from`=? AND fdel=?", uid, model.FdelNotDel).
+		OrderBy("id DESC").Limit(paginator.PerPage(), paginator.Offset()).Find(&messages)
 	if err != nil {
 		objLog.Errorln("message logic FindFromMsgsByUid Error:", err)
 		return nil
@@ -420,6 +445,11 @@ func (MessageLogic) FindFromMsgsByUid(ctx context.Context, uid int) []map[string
 		result[i] = tmpMap
 	}
 	return result
+}
+
+func (MessageLogic) FromMsgCount(ctx context.Context, uid int) int64 {
+	total, _ := MasterDB.Where("`from`=? AND fdel=?", uid, model.FdelNotDel).Count(new(model.Message))
+	return total
 }
 
 // MarkHasRead 标记消息已读

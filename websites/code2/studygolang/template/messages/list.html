@@ -39,6 +39,9 @@
 			<li class="alert alert-info text-center">暂无消息</li>
 		{{end}}
 		</ul>
+		{{if .page}}
+		<nav class="text-center"><ul class="pagination pagination-sm">{{.page}}</ul></nav>
+		{{end}}
 	</div>
 </div>
 {{end}}

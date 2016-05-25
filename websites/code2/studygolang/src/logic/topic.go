@@ -77,16 +77,13 @@ func (TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Values) (e
 func (TopicLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy string, querystring string, args ...interface{}) []map[string]interface{} {
 	objLog := GetLogger(ctx)
 
-	var (
-		count      = paginator.PerPage()
-		topicInfos = make([]*model.TopicInfo, 0)
-	)
+	topicInfos := make([]*model.TopicInfo, 0)
 
 	session := MasterDB.Join("INNER", "topics_ex", "topics.tid=topics_ex.tid")
 	if querystring != "" {
 		session.Where(querystring, args...)
 	}
-	err := session.OrderBy(orderBy).Limit(count, paginator.Offset()).Find(&topicInfos)
+	err := session.OrderBy(orderBy).Limit(paginator.PerPage(), paginator.Offset()).Find(&topicInfos)
 	if err != nil {
 		objLog.Errorln("TopicLogic FindAll error:", err)
 		return nil

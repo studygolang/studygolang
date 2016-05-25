@@ -7,16 +7,17 @@
 package controller
 
 import (
+	"fmt"
+	"html/template"
 	"net/http"
 
+	. "http"
 	"http/middleware"
 	"logic"
+	"model"
 
 	"github.com/labstack/echo"
 	"github.com/polaris1119/goutils"
-
-	. "http"
-	"model"
 )
 
 type MessageController struct{}
@@ -60,19 +61,30 @@ func (MessageController) ReadList(ctx echo.Context) error {
 		msgtype = "system"
 	}
 
-	var messages []map[string]interface{}
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	paginator := logic.NewPaginator(curPage)
+
+	var (
+		messages []map[string]interface{}
+		total    int64
+	)
 	switch msgtype {
 	case "system":
-		messages = logic.DefaultMessage.FindSysMsgsByUid(ctx, user.Uid)
+		messages = logic.DefaultMessage.FindSysMsgsByUid(ctx, user.Uid, paginator)
+		total = logic.DefaultMessage.SysMsgCount(ctx, user.Uid)
 	case "inbox":
-		messages = logic.DefaultMessage.FindToMsgsByUid(ctx, user.Uid)
+		messages = logic.DefaultMessage.FindToMsgsByUid(ctx, user.Uid, paginator)
+		total = logic.DefaultMessage.ToMsgCount(ctx, user.Uid)
 	case "outbox":
-		messages = logic.DefaultMessage.FindFromMsgsByUid(ctx, user.Uid)
+		messages = logic.DefaultMessage.FindFromMsgsByUid(ctx, user.Uid, paginator)
+		total = logic.DefaultMessage.FromMsgCount(ctx, user.Uid)
 	default:
 		return ctx.Redirect(http.StatusSeeOther, "/")
 	}
 
-	return render(ctx, "messages/list.html", map[string]interface{}{"messages": messages, "msgtype": msgtype})
+	pageHtml := paginator.SetTotal(total).GetPageHtml(fmt.Sprintf("/system/%s", msgtype))
+
+	return render(ctx, "messages/list.html", map[string]interface{}{"messages": messages, "msgtype": msgtype, "page": template.HTML(pageHtml)})
 }
 
 // 删除消息
