@@ -32,6 +32,8 @@ func NewPaginatorWithPerPage(curPage, perPage int) *Paginator {
 	return &Paginator{curPage: curPage, perPage: perPage}
 }
 
+const maxShow = 5
+
 // GetPageHtml 构造分页html, uri 当前uri, total 记录总数
 func (this *Paginator) GetPageHtml(uri string, total ...int) string {
 	if len(total) > 0 {
@@ -42,46 +44,93 @@ func (this *Paginator) GetPageHtml(uri string, total ...int) string {
 		return ""
 	}
 
+	if !strings.Contains(uri, "?") {
+		uri += "?"
+	}
+
 	// 显示5页，然后显示...，接着显示最后两页
 	stringBuilder := goutils.NewBuffer()
 	stringBuilder.Append(`<li class="prev previous_page">`)
 	// 当前是第一页
 	if this.curPage != 1 {
-		stringBuilder.Append(`<a href="`).Append(uri).Append("?p=").Append(this.curPage - 1).Append(`">&laquo;</a>`)
+		stringBuilder.Append(`<a href="`).Append(uri).Append("p=").Append(this.curPage - 1).Append(`">&laquo;</a>`)
 	}
 	stringBuilder.Append(`</li>`)
-	before := 5
-	showPages := 8
-	for i := 0; i < this.totalPage; i++ {
-		if i >= showPages {
-			break
+
+	// 当前页前后至少保持两页可以翻看；
+	// 离最开始或最后5页内，不显示 ...，否则显示 ...
+	if this.curPage <= maxShow {
+		// 当前页之前的页
+		for i := 0; i < this.curPage-1; i++ {
+			this.appendPage(stringBuilder, uri, i+1)
 		}
-		if this.curPage == i+1 {
-			stringBuilder.Append(`<li class="active"><a href="`).Append(uri).Append("?p=").Append(i + 1).Append(`">`).Append(i + 1).Append("</a></li>")
-			continue
-		}
-		// 分界点
-		if this.curPage >= before {
-			if this.curPage >= 7 {
-				before = 2
-			} else {
-				before = this.curPage + 2
+		// 当前页
+		this.appendCurPage(stringBuilder, uri)
+
+		// 当前页之后的页
+
+		// 全部显示
+		if this.totalPage-this.curPage <= maxShow {
+			for i := this.curPage; i < this.totalPage; i++ {
+				this.appendPage(stringBuilder, uri, i+1)
 			}
-			showPages += 2
-		}
-		if i == before {
+		} else {
+			// 显示当前页后两页、...和最后两页
+			for i := this.curPage; i < this.curPage+2; i++ {
+				this.appendPage(stringBuilder, uri, i+1)
+			}
 			stringBuilder.Append(`<li class="disabled"><a href="#"><span class="gap">…</span></a></li>`)
-			continue
+			for i := this.totalPage - 2; i < this.totalPage; i++ {
+				this.appendPage(stringBuilder, uri, i+1)
+			}
 		}
-		stringBuilder.Append(`<li><a href="`).Append(uri).Append("?p=").Append(i + 1).Append(`">`).Append(i + 1).Append("</a></li>")
+	} else {
+		// 显示最开始两页，然后是...和挨着当前页的两页
+		for i := 0; i < 2; i++ {
+			this.appendPage(stringBuilder, uri, i+1)
+		}
+		stringBuilder.Append(`<li class="disabled"><a href="#"><span class="gap">…</span></a></li>`)
+		for i := this.curPage - 2; i < this.curPage; i++ {
+			this.appendPage(stringBuilder, uri, i)
+		}
+		// 当前页
+		this.appendCurPage(stringBuilder, uri)
+
+		// 当前页之后的页
+
+		// 全部显示
+		if this.totalPage-this.curPage <= maxShow {
+			for i := this.curPage; i < this.totalPage; i++ {
+				this.appendPage(stringBuilder, uri, i+1)
+			}
+		} else {
+			// 显示当前页后两页、...和最后两页
+			for i := this.curPage; i < this.curPage+2; i++ {
+				this.appendPage(stringBuilder, uri, i+1)
+			}
+			stringBuilder.Append(`<li class="disabled"><a href="#"><span class="gap">…</span></a></li>`)
+			for i := this.totalPage - 2; i < this.totalPage; i++ {
+				this.appendPage(stringBuilder, uri, i+1)
+			}
+		}
 	}
+
+	// 处理next
 	stringBuilder.Append(`<li class="next next_page ">`)
-	// 最后一页
 	if this.curPage < this.totalPage {
-		stringBuilder.Append(`<a href="`).Append(uri).Append("?p=").Append(this.curPage + 1).Append(`">&raquo;</a>`)
+		stringBuilder.Append(`<a href="`).Append(uri).Append("p=").Append(this.curPage + 1).Append(`">&raquo;</a>`)
 	}
 	stringBuilder.Append(`</li>`)
 	return stringBuilder.String()
+}
+
+func (this *Paginator) appendPage(stringBuilder *goutils.Buffer, uri string, page int) {
+	stringBuilder.Append(`<li><a href="`).Append(uri).Append("p=").Append(page).Append(`">`).Append(page).Append("</a></li>")
+}
+
+// appendCurPage 当前页
+func (this *Paginator) appendCurPage(stringBuilder *goutils.Buffer, uri string) {
+	stringBuilder.Append(`<li class="active"><a href="`).Append(uri).Append("p=").Append(this.curPage).Append(`">`).Append(this.curPage).Append("</a></li>")
 }
 
 func (this *Paginator) SetTotal(total int64) *Paginator {
@@ -107,93 +156,4 @@ func (this *Paginator) SetPerPage(perPage int) {
 
 func (this *Paginator) PerPage() int {
 	return this.perPage
-}
-
-// 构造分页html(new)
-// curPage 当前页码；pageNum 每页记录数；total总记录数；uri 当前uri
-func GenPageHtml(curPage, pageNum, total int, uri string) string {
-	// 总页数
-	pageCount := int(total / pageNum)
-	if total%pageNum != 0 {
-		pageCount++
-	}
-	if pageCount < 2 {
-		return ""
-	}
-
-	needQues := true
-	if strings.Contains(uri, "?") {
-		needQues = false
-	}
-
-	// 显示5页，然后显示...，接着显示最后两页
-	stringBuilder := goutils.NewBuffer()
-	// 当前是第一页
-	if curPage != 1 {
-		stringBuilder.Append(`<li><a href="`).Append(uri)
-		if needQues {
-			stringBuilder.Append("?")
-		} else {
-			stringBuilder.Append("&")
-		}
-		stringBuilder.Append("p=").Append(curPage - 1).Append(`">&laquo;</a>`)
-	} else {
-		stringBuilder.Append(`<li class="disabled"><a href="#">&laquo;</a>`)
-	}
-	stringBuilder.Append(`</li>`)
-
-	before := 5
-	showPages := 8
-	for i := 0; i < pageCount; i++ {
-		if i >= showPages {
-			break
-		}
-		if curPage == i+1 {
-			stringBuilder.Append(`<li class="active"><a href="`).Append(uri)
-			if needQues {
-				stringBuilder.Append("?")
-			} else {
-				stringBuilder.Append("&")
-			}
-
-			stringBuilder.Append("p=").Append(i + 1).Append(`">`).Append(i + 1).Append("</a></li>")
-			continue
-		}
-		// 分界点
-		if curPage >= before {
-			if curPage >= 7 {
-				before = 2
-			} else {
-				before = curPage + 2
-			}
-			showPages += 2
-		}
-		if i == before {
-			stringBuilder.Append(`<li class="disabled"><a href="#"><span class="gap">…</span></a></li>`)
-			continue
-		}
-		stringBuilder.Append(`<li><a href="`).Append(uri)
-		if needQues {
-			stringBuilder.Append("?")
-		} else {
-			stringBuilder.Append("&")
-		}
-		stringBuilder.Append("p=").Append(i + 1).Append(`">`).Append(i + 1).Append("</a></li>")
-	}
-
-	// 最后一页
-	if curPage < pageCount {
-		stringBuilder.Append(`<li><a href="`).Append(uri)
-		if needQues {
-			stringBuilder.Append("?")
-		} else {
-			stringBuilder.Append("&")
-		}
-		stringBuilder.Append("p=").Append(curPage + 1).Append(`">&raquo;</a>`)
-	} else {
-		stringBuilder.Append(`<li class="disabled"><a href="#">&raquo;</a>`)
-	}
-	stringBuilder.Append(`</li>`)
-
-	return stringBuilder.String()
 }

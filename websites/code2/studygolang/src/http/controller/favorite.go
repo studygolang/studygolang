@@ -61,7 +61,10 @@ func (FavoriteController) ReadList(ctx echo.Context) error {
 
 	data := map[string]interface{}{"objtype": objtype, "user": user}
 
-	rows := 20
+	rows := goutils.MustInt(ctx.QueryParam("rows"), 20)
+	if rows > 20 {
+		rows = 20
+	}
 	favorites, total := logic.DefaultFavorite.FindUserFavorites(ctx, user.Uid, objtype, (p-1)*rows, rows)
 	if total > 0 {
 		objids := slices.StructsIntSlice(favorites, "Objid")
@@ -80,8 +83,9 @@ func (FavoriteController) ReadList(ctx echo.Context) error {
 		}
 	}
 
-	uri := fmt.Sprintf("/favorites/%s?objtype=%d&p=%d", user.Username, objtype, p)
-	data["pageHtml"] = logic.GenPageHtml(p, rows, int(total), uri)
+	uri := fmt.Sprintf("/favorites/%s?objtype=%d&rows=%d&", user.Username, objtype, rows)
+	paginator := logic.NewPaginatorWithPerPage(p, rows)
+	data["pageHtml"] = paginator.SetTotal(total).GetPageHtml(uri)
 
 	return render(ctx, "favorite.html", data)
 }
