@@ -1,3 +1,9 @@
+// Copyright 2016 The StudyGolang Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+// http://studygolang.com
+// Author: polaris	polaris@studygolang.com
+
 package controller
 
 import (
@@ -30,7 +36,8 @@ func (self TopicController) RegisterRoute(e *echo.Group) {
 	e.Get("/topics/:tid", echo.HandlerFunc(self.Detail))
 	e.Get("/topics/node/:nid", echo.HandlerFunc(self.NodeTopics))
 
-	e.Any("/topics/new", echo.HandlerFunc(self.Create), middleware.NeedLogin())
+	e.Match([]string{"GET", "POST"}, "/topics/new", echo.HandlerFunc(self.Create), middleware.NeedLogin(), middleware.Sensivite())
+	e.Match([]string{"GET", "POST"}, "/topics/modify", echo.HandlerFunc(self.Modify), middleware.NeedLogin(), middleware.Sensivite())
 }
 
 func (self TopicController) Topics(ctx echo.Context) error {
@@ -125,35 +132,32 @@ func (TopicController) Create(ctx echo.Context) error {
 	return success(ctx, nil)
 }
 
-// 修改主题
-// uri: /topics/modify{json:(|.json)}
-// func ModifyTopicHandler(rw http.ResponseWriter, req *http.Request) {
-// 	tid := req.FormValue("tid")
-// 	if tid == "" {
-// 		util.Redirect(rw, req, "/topics")
-// 		return
-// 	}
+// Modify 修改主题
+func (TopicController) Modify(ctx echo.Context) error {
+	tid := goutils.MustInt(ctx.FormValue("tid"))
+	if tid == 0 {
+		return ctx.Redirect(http.StatusSeeOther, "/topics")
+	}
 
-// 	nodes := service.GenNodes()
+	nodes := logic.GenNodes()
 
-// 	vars := mux.Vars(req)
-// 	// 请求编辑主题页面
-// 	if req.Method != "POST" || vars["json"] == "" {
-// 		topic := service.FindTopic(tid)
-// 		req.Form.Set(filter.CONTENT_TPL_KEY, "/template/topics/new.html")
-// 		filter.SetData(req, map[string]interface{}{"nodes": nodes, "topic": topic, "activeTopics": "active"})
-// 		return
-// 	}
+	if ctx.Request().Method() != "POST" {
+		topics := logic.DefaultTopic.FindByTids([]int{tid})
+		if len(topics) == 0 {
+			return ctx.Redirect(http.StatusSeeOther, "/topics")
+		}
 
-// 	user, _ := filter.CurrentUser(req)
-// 	err := service.PublishTopic(user, req.PostForm)
-// 	if err != nil {
-// 		if err == service.NotModifyAuthorityErr {
-// 			rw.WriteHeader(http.StatusForbidden)
-// 			return
-// 		}
-// 		fmt.Fprint(rw, `{"ok": 0, "error":"内部服务错误！"}`)
-// 		return
-// 	}
-// 	fmt.Fprint(rw, `{"ok": 1, "data":""}`)
-// }
+		return render(ctx, "topics/new.html", map[string]interface{}{"nodes": nodes, "topic": topics[0], "activeTopics": "active"})
+	}
+
+	me := ctx.Get("user").(*model.Me)
+	err := logic.DefaultTopic.Publish(ctx, me, Request(ctx).Form)
+	if err != nil {
+		if err == logic.NotModifyAuthorityErr {
+			return fail(ctx, 1, "没有权限操作")
+		}
+
+		return fail(ctx, 2, "服务错误，请稍后重试！")
+	}
+	return success(ctx, nil)
+}

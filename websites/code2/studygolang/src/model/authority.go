@@ -15,5 +15,5 @@ type Authority struct {
 	Route  string    `json:"route"`
 	OpUser string    `json:"op_user"`
 	Ctime  OftenTime `json:"ctime" xorm:"created"`
-	Mtime  OftenTime `json:"mtime"`
+	Mtime  OftenTime `json:"mtime" xorm:"<-"`
 }

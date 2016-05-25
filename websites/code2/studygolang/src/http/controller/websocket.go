@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
-// Author：polaris	polaris@studygolang.com
+// Author: polaris	polaris@studygolang.com
 
 package controller
 
@@ -63,6 +63,7 @@ func (this *WebsocketController) Ws(wsConn *websocket.Conn) {
 		}
 		if clientClosed {
 			logic.Book.DelUser(user, serverId)
+			logger.Infoln("user:", user, "client close")
 			break
 		}
 	}

@@ -7,7 +7,10 @@
 package logic
 
 import (
+	"global"
 	"model"
+	"net/url"
+	"strconv"
 
 	. "db"
 
@@ -50,64 +53,64 @@ func (self AuthorityLogic) GetUserMenu(ctx context.Context, uid int, uri string)
 	return userMenu1, userMenu2, curMenu1
 }
 
-// // 获取整个菜单
-// func GetMenus() ([]*model.Authority, map[string][][]string) {
-// 	var (
-// 		menu1 = make([]*model.Authority, 0, 10)
-// 		menu2 = make(map[string][][]string)
-// 	)
+// 获取整个菜单
+func (AuthorityLogic) GetMenus() ([]*model.Authority, map[string][][]string) {
+	var (
+		menu1 = make([]*model.Authority, 0, 10)
+		menu2 = make(map[string][][]string)
+	)
 
-// 	for _, authority := range Authorities {
-// 		if authority.Menu1 == 0 {
-// 			menu1 = append(menu1, authority)
-// 			aid := strconv.Itoa(authority.Aid)
-// 			menu2[aid] = make([][]string, 0, 4)
-// 		} else if authority.Menu2 == 0 {
-// 			m := strconv.Itoa(authority.Menu1)
-// 			oneMenu2 := []string{strconv.Itoa(authority.Aid), authority.Name}
-// 			menu2[m] = append(menu2[m], oneMenu2)
-// 		}
-// 	}
+	for _, authority := range Authorities {
+		if authority.Menu1 == 0 {
+			menu1 = append(menu1, authority)
+			aid := strconv.Itoa(authority.Aid)
+			menu2[aid] = make([][]string, 0, 4)
+		} else if authority.Menu2 == 0 {
+			m := strconv.Itoa(authority.Menu1)
+			oneMenu2 := []string{strconv.Itoa(authority.Aid), authority.Name}
+			menu2[m] = append(menu2[m], oneMenu2)
+		}
+	}
 
-// 	return menu1, menu2
-// }
+	return menu1, menu2
+}
 
-// // 除了一级、二级菜单之外的权限（路由）
-// func GeneralAuthorities() map[int][]*model.Authority {
-// 	auths := make(map[int][]*model.Authority)
+// 除了一级、二级菜单之外的权限（路由）
+func (AuthorityLogic) GeneralAuthorities() map[int][]*model.Authority {
+	auths := make(map[int][]*model.Authority)
 
-// 	for _, authority := range Authorities {
-// 		if authority.Menu1 == 0 {
-// 			auths[authority.Aid] = make([]*model.Authority, 0, 8)
-// 		} else if authority.Menu2 != 0 {
-// 			auths[authority.Menu1] = append(auths[authority.Menu1], authority)
-// 		}
-// 	}
+	for _, authority := range Authorities {
+		if authority.Menu1 == 0 {
+			auths[authority.Aid] = make([]*model.Authority, 0, 8)
+		} else if authority.Menu2 != 0 {
+			auths[authority.Menu1] = append(auths[authority.Menu1], authority)
+		}
+	}
 
-// 	return auths
-// }
+	return auths
+}
 
-// // 判断用户是否有某个权限
-// func HasAuthority(uid int, route string) bool {
-// 	aidMap, err := userAuthority(strconv.Itoa(uid))
-// 	if err != nil {
-// 		logger.Errorln("HasAuthority:Read user authority error:", err)
-// 		return false
-// 	}
+// 判断用户是否有某个权限
+func (self AuthorityLogic) HasAuthority(uid int, route string) bool {
+	aidMap, err := self.userAuthority(uid)
+	if err != nil {
+		logger.Errorln("HasAuthority:Read user authority error:", err)
+		return false
+	}
 
-// 	authLocker.RLock()
-// 	defer authLocker.RUnlock()
+	authLocker.RLock()
+	defer authLocker.RUnlock()
 
-// 	for _, authority := range Authorities {
-// 		if _, ok := aidMap[authority.Aid]; ok {
-// 			if route == authority.Route {
-// 				return true
-// 			}
-// 		}
-// 	}
+	for _, authority := range Authorities {
+		if _, ok := aidMap[authority.Aid]; ok {
+			if route == authority.Route {
+				return true
+			}
+		}
+	}
 
-// 	return false
-// }
+	return false
+}
 
 func (AuthorityLogic) FindAuthoritiesByPage(ctx context.Context, conds map[string]string, curPage, limit int) ([]*model.Authority, int) {
 	objLog := GetLogger(ctx)
@@ -138,58 +141,60 @@ func (AuthorityLogic) FindAuthoritiesByPage(ctx context.Context, conds map[strin
 	return auhtorities, int(total)
 }
 
-// func FindAuthority(aid string) *model.Authority {
-// 	if aid == "" {
-// 		return nil
-// 	}
+func (AuthorityLogic) FindById(ctx context.Context, aid int) *model.Authority {
+	objLog := GetLogger(ctx)
 
-// 	authority := model.NewAuthority()
-// 	err := authority.Where("aid=" + aid).Find()
-// 	if err != nil {
-// 		logger.Errorln("authority FindAuthority error:", err)
-// 		return nil
-// 	}
+	if aid == 0 {
+		return nil
+	}
 
-// 	return authority
-// }
+	authority := &model.Authority{}
+	_, err := MasterDB.Id(aid).Get(authority)
+	if err != nil {
+		objLog.Errorln("authority FindById error:", err)
+		return nil
+	}
 
-// func SaveAuthority(form url.Values, opUser string) (errMsg string, err error) {
-// 	authority := model.NewAuthority()
-// 	err = util.ConvertAssign(authority, form)
-// 	if err != nil {
-// 		logger.Errorln("authority ConvertAssign error", err)
-// 		errMsg = err.Error()
-// 		return
-// 	}
+	return authority
+}
 
-// 	authority.OpUser = opUser
+func (AuthorityLogic) Save(ctx context.Context, form url.Values, opUser string) (errMsg string, err error) {
+	objLog := GetLogger(ctx)
 
-// 	if authority.Aid != 0 {
-// 		err = authority.Persist(authority)
-// 	} else {
-// 		authority.Ctime = util.TimeNow()
+	authority := &model.Authority{}
+	err = schemaDecoder.Decode(authority, form)
+	if err != nil {
+		objLog.Errorln("authority schema Decoder error", err)
+		errMsg = err.Error()
+		return
+	}
 
-// 		_, err = authority.Insert()
-// 	}
+	authority.OpUser = opUser
 
-// 	if err != nil {
-// 		errMsg = "内部服务器错误"
-// 		logger.Errorln(errMsg, ":", err)
-// 		return
-// 	}
+	if authority.Aid != 0 {
+		_, err = MasterDB.Id(authority.Aid).Update(authority)
+	} else {
+		_, err = MasterDB.Insert(authority)
+	}
 
-// 	global.AuthorityChan <- struct{}{}
+	if err != nil {
+		errMsg = "内部服务器错误"
+		objLog.Errorln(errMsg, ":", err)
+		return
+	}
 
-// 	return
-// }
+	global.AuthorityChan <- struct{}{}
 
-// func DelAuthority(aid string) error {
-// 	err := model.NewAuthority().Where("aid=" + aid).Delete()
+	return
+}
 
-// 	global.AuthorityChan <- struct{}{}
+func (AuthorityLogic) Del(aid int) error {
+	_, err := MasterDB.Id(aid).Delete(new(model.Authority))
 
-// 	return err
-// }
+	global.AuthorityChan <- struct{}{}
+
+	return err
+}
 
 func (AuthorityLogic) userAuthority(uid int) (map[int]bool, error) {
 	userRoles := make([]*model.UserRole, 0)

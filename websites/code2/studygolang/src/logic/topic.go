@@ -17,6 +17,7 @@ import (
 	. "db"
 
 	"github.com/fatih/structs"
+	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	"github.com/polaris1119/set"
 	"golang.org/x/net/context"
@@ -27,48 +28,102 @@ type TopicLogic struct{}
 var DefaultTopic = TopicLogic{}
 
 // Publish 发布主题。入topics和topics_ex库
-func (TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Values) (err error) {
+func (self TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Values) (err error) {
 	objLog := GetLogger(ctx)
 
-	// usernames := form.Get("usernames")
-	form.Del("usernames")
+	tid := goutils.MustInt(form.Get("tid"))
+	if tid != 0 {
+		topic := &model.Topic{}
+		_, err = MasterDB.Id(tid).Get(topic)
+		if err != nil {
+			objLog.Errorln("Publish Topic find error:", err)
+			return
+		}
 
-	topic := &model.Topic{}
-	err = schemaDecoder.Decode(topic, form)
+		if topic.Uid != me.Uid && !me.IsAdmin {
+			err = NotModifyAuthorityErr
+			return
+		}
+
+		_, err = self.Modify(ctx, me, form)
+		if err != nil {
+			objLog.Errorln("Publish Topic modif error:", err)
+			return
+		}
+	} else {
+		usernames := form.Get("usernames")
+		form.Del("usernames")
+
+		topic := &model.Topic{}
+		err = schemaDecoder.Decode(topic, form)
+		if err != nil {
+			objLog.Errorln("TopicLogic Publish decode error:", err)
+			return
+		}
+		topic.Uid = me.Uid
+		topic.Lastreplytime = model.NewOftenTime()
+
+		session := MasterDB.NewSession()
+		defer session.Close()
+
+		_, err = session.Insert(topic)
+		if err != nil {
+			session.Rollback()
+			objLog.Errorln("TopicLogic Publish insert error:", err)
+			return
+		}
+
+		topicEx := &model.TopicEx{
+			Tid: topic.Tid,
+		}
+
+		_, err = session.Insert(topicEx)
+		if err != nil {
+			session.Rollback()
+			objLog.Errorln("TopicLogic Publish Insert TopicEx error:", err)
+			return
+		}
+
+		// 给 被@用户 发系统消息
+		ext := map[string]interface{}{
+			"objid":   topic.Tid,
+			"objtype": model.TypeTopic,
+			"uid":     me.Uid,
+			"msgtype": model.MsgtypePublishAtMe,
+		}
+		go DefaultMessage.SendSysMsgAtUsernames(ctx, usernames, ext)
+
+		// 发布主题，活跃度+10
+		go DefaultUser.IncrUserWeight("uid", me.Uid, 10)
+	}
+
+	return
+}
+
+// Modify 修改主题
+// user 修改人的（有可能是作者或管理员）
+func (TopicLogic) Modify(ctx context.Context, user *model.Me, form url.Values) (errMsg string, err error) {
+	objLog := GetLogger(ctx)
+
+	change := map[string]interface{}{
+		"editor_uid": user.Uid,
+	}
+
+	fields := []string{"title", "content", "nid"}
+	for _, field := range fields {
+		change[field] = form.Get(field)
+	}
+
+	tid := form.Get("tid")
+	_, err = MasterDB.Table(new(model.Topic)).Id(tid).Update(change)
 	if err != nil {
-		objLog.Errorln("TopicLogic Publish decode error:", err)
+		objLog.Errorf("更新主题 【%s】 信息失败：%s\n", tid, err)
+		errMsg = "对不起，服务器内部错误，请稍后再试！"
 		return
 	}
-	topic.Uid = me.Uid
-	topic.Lastreplytime = model.NewOftenTime()
 
-	_, err = MasterDB.Insert(topic)
-	if err != nil {
-		objLog.Errorln("TopicLogic Publish insert error:", err)
-		return
-	}
-
-	topicEx := &model.TopicEx{
-		Tid: topic.Tid,
-	}
-
-	_, err = MasterDB.Insert(topicEx)
-	if err != nil {
-		logger.Errorln("TopicLogic Publish Insert TopicEx error:", err)
-		return
-	}
-
-	// 给 被@用户 发系统消息
-	// ext := map[string]interface{}{
-	// 	"objid":   tid,
-	// 	"objtype": model.TYPE_TOPIC,
-	// 	"uid":     user["uid"],
-	// 	"msgtype": model.MsgtypePublishAtMe,
-	// }
-	// go SendSysMsgAtUsernames(form.Get("usernames"), ext)
-
-	// 发布主题，活跃度+10
-	go DefaultUser.IncrUserWeight("uid", me.Uid, 10)
+	// 修改主题，活跃度+2
+	go DefaultUser.IncrUserWeight("uid", user.Uid, 2)
 
 	return
 }

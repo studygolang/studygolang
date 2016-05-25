@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
-// Author：polaris	studygolang@gmail.com
+// Author: polaris	polaris@studygolang.com
 
 package controller
 
@@ -30,7 +30,7 @@ type WikiController struct{}
 
 // 注册路由
 func (self WikiController) RegisterRoute(e *echo.Group) {
-	e.Any("/wiki/new", echo.HandlerFunc(self.Create), middleware.NeedLogin())
+	e.Match([]string{"GET", "POST"}, "/wiki/new", echo.HandlerFunc(self.Create), middleware.NeedLogin(), middleware.Sensivite())
 	e.Get("/wiki", echo.HandlerFunc(self.ReadList))
 	e.Get("/wiki/:uri", echo.HandlerFunc(self.Detail))
 }

@@ -2,12 +2,13 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
-// Author：polaris	studygolang@gmail.com
+// Author: polaris	polaris@studygolang.com
 
 package controller
 
 import (
 	"html/template"
+	"http/middleware"
 	"logic"
 	"net/http"
 
@@ -32,8 +33,8 @@ func (self ResourceController) RegisterRoute(e *echo.Group) {
 	e.Get("/resources", echo.HandlerFunc(self.ReadList))
 	e.Get("/resources/cat/:catid", echo.HandlerFunc(self.ReadCatResources))
 	e.Get("/resources/:id", echo.HandlerFunc(self.Detail))
-	e.Any("/resources/new", echo.HandlerFunc(self.Create))
-	e.Any("/resources/modify", echo.HandlerFunc(self.Modify))
+	e.Match([]string{"GET", "POST"}, "/resources/new", echo.HandlerFunc(self.Create), middleware.NeedLogin(), middleware.Sensivite())
+	e.Match([]string{"GET", "POST"}, "/resources/modify", echo.HandlerFunc(self.Modify), middleware.NeedLogin(), middleware.Sensivite())
 }
 
 // ReadList 资源索引页

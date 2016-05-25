@@ -1,8 +1,8 @@
-// Copyright 2013 The StudyGolang Authors. All rights reserved.
+// Copyright 2016 The StudyGolang Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
-// Author：polaris	studygolang@gmail.com
+// Author: polaris	polaris@studygolang.com
 
 package http
 
@@ -83,6 +83,9 @@ var funcMap = template.FuncMap{
 	},
 	"noescape": func(s string) template.HTML {
 		return template.HTML(s)
+	},
+	"timestamp": func() int64 {
+		return time.Now().Unix()
 	},
 }
 
@@ -198,7 +201,11 @@ func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interf
 	}
 
 	// websocket主机
-	data["wshost"] = "127.0.0.1:8088"
+	if global.OnlineEnv() {
+		data["wshost"] = config.ConfigFile.MustValue("global", "domain")
+	} else {
+		data["wshost"] = config.ConfigFile.MustValue("listen", "host") + ":" + config.ConfigFile.MustValue("listen", "port")
+	}
 	data["app"] = global.App
 
 	buf := new(bytes.Buffer)

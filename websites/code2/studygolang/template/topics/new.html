@@ -12,7 +12,7 @@
 			<li class="active">{{if .topic.Tid}}修改{{else}}发布{{end}}主题</li>
 		</ol>
 		<div class="page box_white">
-			<form class="form-horizontal validate-form" role="form" action="{{if .topic.Tid}}/topics/modify{{else}}/topics/new{{end}}" data-redirect="/topics{{if .topic.Tid}}/{{.topic.Tid}}{{end}}">
+			<form class="form-horizontal validate-form" role="form" action="{{if .topic.Tid}}/topics/modify{{else}}/topics/new{{end}}" data-redirect="/topics{{if .topic.Tid}}/{{.topic.Tid}}?r={{timestamp}}{{end}}">
 				{{if .topic.Tid}}
 				<input type="hidden" name="tid" value="{{.topic.Tid}}" />
 				{{else}}

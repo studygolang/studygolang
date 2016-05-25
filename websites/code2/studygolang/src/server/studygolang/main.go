@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
-// Author：polaris	polaris@studygolang.com
+// Author: polaris	polaris@studygolang.com
 
 package main
 
@@ -63,7 +63,7 @@ func main() {
 	adminG := e.Group("/admin", pwm.NeedLogin(), pwm.AdminAuth())
 	admin.RegisterRoutes(adminG)
 
-	addr := ConfigFile.MustValue("listen", "host", "") + ":" + ConfigFile.MustValue("listen.http", "port", "8080")
+	addr := ConfigFile.MustValue("listen", "host", "") + ":" + ConfigFile.MustValue("listen", "port", "8080")
 	std := standard.New(addr)
 	std.SetHandler(e)
 

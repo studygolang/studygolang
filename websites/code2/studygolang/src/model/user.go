@@ -42,7 +42,7 @@ func (this *UserLogin) GenMd5Passwd() error {
 
 const (
 	UserStatusNoAudit = iota
-	UserStatusAudit
+	UserStatusAudit   // 已激活
 	UserStatusRefuse
 	UserStatusFreeze // 冻结
 	UserStatusOutage // 停用

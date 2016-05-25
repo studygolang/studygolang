@@ -173,6 +173,16 @@ func (self UserLogic) Update(ctx context.Context, uid int, form url.Values) (err
 	return
 }
 
+// UpdateUserStatus 更新用户状态
+func (UserLogic) UpdateUserStatus(ctx context.Context, uid, status int) {
+	objLog := GetLogger(ctx)
+
+	_, err := MasterDB.Table(new(model.User)).Id(uid).Update(map[string]interface{}{"status": status})
+	if err != nil {
+		objLog.Errorf("更新用户 【%d】 状态失败：%s", uid, err)
+	}
+}
+
 // ChangeAvatar 更换头像
 func (UserLogic) ChangeAvatar(ctx context.Context, uid int, avatar string) (err error) {
 	changeData := map[string]interface{}{"avatar": avatar}
@@ -264,7 +274,7 @@ func (self UserLogic) FindCurrentUser(ctx context.Context, username interface{})
 	objLog := GetLogger(ctx)
 
 	user := &model.User{}
-	_, err := MasterDB.Where("username=?", username).Get(user)
+	_, err := MasterDB.Where("username=? AND status=?", username, model.UserStatusAudit).Get(user)
 	if err != nil {
 		objLog.Errorf("获取用户 %q 信息失败：%s", username, err)
 		return &model.Me{}

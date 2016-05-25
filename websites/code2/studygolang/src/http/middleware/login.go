@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
-// Author：polaris	polaris@studygolang.com
+// Author: polaris	polaris@studygolang.com
 
 package middleware
 
@@ -47,18 +47,18 @@ func NeedLogin() echo.MiddlewareFunc {
 		return echo.HandlerFunc(func(ctx echo.Context) error {
 			_, ok := ctx.Get("user").(*model.Me)
 			if !ok {
-				req := Request(ctx)
-				method := req.Method
+				method := ctx.Request().Method()
 				if util.IsAjax(ctx) {
 					return ctx.JSON(http.StatusForbidden, `{"ok":0,"error":"403 Forbidden"}`)
 				} else {
 					if method == "POST" {
 						return ctx.HTML(http.StatusForbidden, `403 Forbidden`)
 					}
-					reqURL := req.URL
-					uri := reqURL.Path
-					if reqURL.RawQuery != "" {
-						uri += "?" + reqURL.RawQuery
+
+					reqURL := ctx.Request().URL()
+					uri := reqURL.Path()
+					if reqURL.QueryString() != "" {
+						uri += "?" + reqURL.QueryString()
 					}
 					return ctx.Redirect(http.StatusSeeOther, "/account/login?redirect_uri="+url.QueryEscape(uri))
 				}
