@@ -21,22 +21,10 @@ type InstallController struct{}
 
 // 注册路由
 func (self InstallController) RegisterRoute(g *echo.Group) {
-	g.Get("/install", echo.HandlerFunc(self.Install))
+	g.Get("/install", echo.HandlerFunc(self.SetupConfig))
 	g.Match([]string{"GET", "POST"}, "/install/setup-config", echo.HandlerFunc(self.SetupConfig))
 	g.Match([]string{"GET", "POST"}, "/install/do", echo.HandlerFunc(self.DoInstall))
 	g.Match([]string{"GET", "POST"}, "/install/options", echo.HandlerFunc(self.SetupOptions))
-}
-
-func (InstallController) Install(ctx echo.Context) error {
-	// config/env.ini 存在
-	if db.MasterDB != nil {
-		if logic.DefaultInstall.IsTableExist(ctx) {
-			return ctx.Redirect(http.StatusSeeOther, "/")
-		}
-		return ctx.Redirect(http.StatusSeeOther, "/install/do")
-	}
-
-	return renderInstall(ctx, "install/index.html", nil)
 }
 
 func (self InstallController) SetupConfig(ctx echo.Context) error {

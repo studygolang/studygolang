@@ -164,6 +164,11 @@ func (self EmailLogic) EmailNotice() {
 				continue
 			}
 
+			if user.Status != model.UserStatusAudit {
+				logger.Infoln("user is not normal:", user)
+				continue
+			}
+
 			data["email"] = user.Email
 			data["token"] = self.GenUnsubscribeToken(user)
 

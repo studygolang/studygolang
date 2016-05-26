@@ -204,7 +204,7 @@ func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interf
 	if global.OnlineEnv() {
 		data["wshost"] = config.ConfigFile.MustValue("global", "domain")
 	} else {
-		data["wshost"] = config.ConfigFile.MustValue("listen", "host") + ":" + config.ConfigFile.MustValue("listen", "port")
+		data["wshost"] = config.ConfigFile.MustValue("listen", "host", "127.0.0.1") + ":" + config.ConfigFile.MustValue("listen", "port")
 	}
 	data["app"] = global.App
 

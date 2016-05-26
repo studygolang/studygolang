@@ -33,7 +33,7 @@ func (self ResourceController) RegisterRoute(e *echo.Group) {
 	e.Get("/resources", echo.HandlerFunc(self.ReadList))
 	e.Get("/resources/cat/:catid", echo.HandlerFunc(self.ReadCatResources))
 	e.Get("/resources/:id", echo.HandlerFunc(self.Detail))
-	e.Match([]string{"GET", "POST"}, "/resources/new", echo.HandlerFunc(self.Create), middleware.NeedLogin(), middleware.Sensivite())
+	e.Match([]string{"GET", "POST"}, "/resources/new", echo.HandlerFunc(self.Create), middleware.NeedLogin(), middleware.Sensivite(), middleware.PublishNotice())
 	e.Match([]string{"GET", "POST"}, "/resources/modify", echo.HandlerFunc(self.Modify), middleware.NeedLogin(), middleware.Sensivite())
 }
 

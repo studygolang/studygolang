@@ -66,7 +66,7 @@ func Sensivite() echo.MiddlewareFunc {
 
 // hasSensitive 是否有敏感词
 func hasSensitive(content, sensitive string) bool {
-	if content == "" {
+	if content == "" || sensitive == "" {
 		return false
 	}
 

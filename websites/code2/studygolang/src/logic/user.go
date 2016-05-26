@@ -251,6 +251,12 @@ func (self UserLogic) FindOne(ctx context.Context, field string, val interface{}
 	}
 
 	if user.Uid != 0 {
+		if user.IsRoot {
+			user.Roleids = []int{0}
+			user.Rolenames = []string{"站长"}
+			return user
+		}
+
 		// 获取用户角色信息
 		userRoleList := make([]*model.UserRole, 0)
 		err = MasterDB.Where("uid=?", user.Uid).OrderBy("roleid ASC").Find(&userRoleList)

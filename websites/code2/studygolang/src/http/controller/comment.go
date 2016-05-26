@@ -24,7 +24,7 @@ type CommentController struct{}
 
 func (self CommentController) RegisterRoute(e *echo.Group) {
 	e.Get("/at/users", echo.HandlerFunc(self.AtUsers))
-	e.Post("/comment/:objid", echo.HandlerFunc(self.Create), middleware.NeedLogin())
+	e.Post("/comment/:objid", echo.HandlerFunc(self.Create), middleware.NeedLogin(), middleware.Sensivite(), middleware.PublishNotice())
 	e.Get("/object/comments", echo.HandlerFunc(self.CommentList))
 }
 

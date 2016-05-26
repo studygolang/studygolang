@@ -36,7 +36,7 @@ func (self TopicController) RegisterRoute(e *echo.Group) {
 	e.Get("/topics/:tid", echo.HandlerFunc(self.Detail))
 	e.Get("/topics/node/:nid", echo.HandlerFunc(self.NodeTopics))
 
-	e.Match([]string{"GET", "POST"}, "/topics/new", echo.HandlerFunc(self.Create), middleware.NeedLogin(), middleware.Sensivite())
+	e.Match([]string{"GET", "POST"}, "/topics/new", echo.HandlerFunc(self.Create), middleware.NeedLogin(), middleware.Sensivite(), middleware.PublishNotice())
 	e.Match([]string{"GET", "POST"}, "/topics/modify", echo.HandlerFunc(self.Modify), middleware.NeedLogin(), middleware.Sensivite())
 }
 
