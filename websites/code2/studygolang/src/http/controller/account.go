@@ -69,8 +69,19 @@ func (AccountController) Register(ctx echo.Context) error {
 		return render(ctx, registerTpl, data)
 	}
 
+	if ctx.FormValue("passwd") != ctx.FormValue("pass2") {
+		data["error"] = "两次密码不一致"
+		return render(ctx, registerTpl, data)
+	}
+
+	fields := []string{"username", "email", "passwd"}
+	form := url.Values{}
+	for _, field := range fields {
+		form.Set(field, ctx.FormValue(field))
+	}
+
 	// 入库
-	errMsg, err := logic.DefaultUser.CreateUser(ctx, Request(ctx).Form)
+	errMsg, err := logic.DefaultUser.CreateUser(ctx, form)
 	if err != nil {
 		// bugfix：http://studygolang.com/topics/255
 		if errMsg == "" {

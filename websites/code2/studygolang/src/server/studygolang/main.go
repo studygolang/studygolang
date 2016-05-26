@@ -61,7 +61,7 @@ func main() {
 	adminG := e.Group("/admin", pwm.NeedLogin(), pwm.AdminAuth())
 	admin.RegisterRoutes(adminG)
 
-	addr := ConfigFile.MustValue("listen", "host", "") + ":" + ConfigFile.MustValue("listen", "port", "8666")
+	addr := ConfigFile.MustValue("listen", "host", "") + ":" + ConfigFile.MustValue("listen", "port", "8088")
 	std := standard.New(addr)
 	std.SetHandler(e)
 

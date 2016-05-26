@@ -50,7 +50,7 @@
 			<tr>
 				<th scope="row"><label for="dbhost">数据库主机</label></th>
 				<td><input name="dbhost" id="dbhost" type="text" size="25" value="localhost" /></td>
-				<td>通常情况下，应填写 <code>localhost</code>，若测试连接失败，请联系主机提供商咨询。</td>
+				<td>通常情况下，应填写 <code>localhost或127.0.0.1</code>。</td>
 			</tr>
 			<tr>
 				<th scope="row"><label for="dbport">数据库端口</label></th>
@@ -63,7 +63,7 @@
 	{{else if eq .step 2}}
 	<p>非常好！您已顺利完成安装中的这一步骤，Go语言中文网 已经可以和您的数据库沟通。若您准备好了，现在就&hellip;</p>
 
-	<p class="step"><a href="/install/db" class="button">进行安装</a></p>
+	<p class="step"><a href="/install/do" class="button">进行安装</a></p>
 	{{end}}
 </body>
 </html>

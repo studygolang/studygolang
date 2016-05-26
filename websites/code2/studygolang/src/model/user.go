@@ -65,6 +65,7 @@ type User struct {
 	Introduce   string    `json:"introduce"`
 	Unsubscribe int       `json:"unsubscribe"`
 	Status      int       `json:"status"`
+	IsRoot      bool      `json:"is_root"`
 	Ctime       OftenTime `json:"ctime" xorm:"created"`
 	Mtime       time.Time `json:"mtime" xorm:"<-"`
 
@@ -93,6 +94,7 @@ type Me struct {
 	Status   int    `json:"status"`
 	MsgNum   int    `json:"msgnum"`
 	IsAdmin  bool   `json:"isadmin"`
+	IsRoot   bool   `json:"is_root"`
 }
 
 // 活跃用户信息

@@ -81,6 +81,7 @@ func (self UserLogic) CreateUser(ctx context.Context, form url.Values) (errMsg s
 
 	// 随机给一个默认头像
 	user.Avatar = DefaultAvatars[rand.Intn(len(DefaultAvatars))]
+	user.Open = 1
 	_, err = session.Insert(user)
 	if err != nil {
 		session.Rollback()
@@ -112,16 +113,18 @@ func (self UserLogic) CreateUser(ctx context.Context, form url.Values) (errMsg s
 		return
 	}
 
-	// 存用户角色信息
-	userRole := &model.UserRole{}
-	// 默认为初级会员
-	userRole.Roleid = Roles[len(Roles)-1].Roleid
-	userRole.Uid = user.Uid
-	if _, err = session.Insert(userRole); err != nil {
-		session.Rollback()
-		objLog.Errorln("userRole insert Error:", err)
-		errMsg = "内部服务器错误"
-		return
+	if !user.IsRoot {
+		// 存用户角色信息
+		userRole := &model.UserRole{}
+		// 默认为初级会员
+		userRole.Roleid = Roles[len(Roles)-1].Roleid
+		userRole.Uid = user.Uid
+		if _, err = session.Insert(userRole); err != nil {
+			session.Rollback()
+			objLog.Errorln("userRole insert Error:", err)
+			errMsg = "内部服务器错误"
+			return
+		}
 	}
 
 	// 存用户活跃信息，初始活跃+2
@@ -290,7 +293,13 @@ func (self UserLogic) FindCurrentUser(ctx context.Context, username interface{})
 		Email:    user.Email,
 		Avatar:   user.Avatar,
 		Status:   user.Status,
+		IsRoot:   user.IsRoot,
 		MsgNum:   DefaultMessage.FindNotReadMsgNum(ctx, user.Uid),
+	}
+
+	if user.IsRoot {
+		me.IsAdmin = true
+		return me
 	}
 
 	// 获取角色信息

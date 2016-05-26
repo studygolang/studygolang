@@ -80,6 +80,7 @@
 	</style>
 </head>
 <body id="error-page">
+	{{if eq .err_type 1}}
 	<p>
 		<h1>数据库连接错误</h1>
 		<p>您在 <code>config/env.ini</code> 文件中提供的数据库用户名和密码可能不正确，或者无法连接到 <code>{{.dbhost}}:{{.dbport}}</code> 上的数据库服务器，这意味着您的主机数据库服务器已停止工作。</p>
@@ -91,5 +92,17 @@
 		<p>若您不理解上述术语，请联系您的服务提供商。如果您仍需帮助，可访问 <a href='https://github.com/studygolang/studygolang/blob/master/README.md'>Go语言中文网帮助文档</a>。</p>
 		<p class="step"><a href="/install/setup-config?step=1" onclick="javascript:history.go(-1);return false;" class="button">重试</a></p>
 	</p>
+	{{else if eq .err_type 2}}
+	<p>
+		<h1>无法选择数据库</h1>
+		<p>我们可以和数据库服务器建立连接（说明您提供的用户名和密码正确），但无法选择（select）{{.dbname}}数据库。</p>
+		<ul>
+			<li>您确认数据库 <code>{{.dbname}}</code> 存在？</li>
+			<li>您确认用户 {{.uname}} 拥有使用 <code>{{.dbname}}</code> 数据库的权限？</li>
+		</ul>
+		<p>若您不理解上述术语，请联系您的服务提供商。如果您仍需帮助，可访问 <a href='https://github.com/studygolang/studygolang/blob/master/README.md'>Go语言中文网帮助文档</a>。</p>
+		<p class="step"><a href="/install/setup-config?step=1" onclick="javascript:history.go(-1);return false;" class="button">重试</a></p>
+	</p>
+	{{end}}
 </body>
 </html>

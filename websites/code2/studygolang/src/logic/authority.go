@@ -23,10 +23,17 @@ type AuthorityLogic struct{}
 var DefaultAuthority = AuthorityLogic{}
 
 // GetUserMenu 获取用户菜单
-func (self AuthorityLogic) GetUserMenu(ctx context.Context, uid int, uri string) ([]*model.Authority, map[int][]*model.Authority, int) {
-	aidMap, err := self.userAuthority(uid)
-	if err != nil {
-		return nil, nil, 0
+func (self AuthorityLogic) GetUserMenu(ctx context.Context, user *model.Me, uri string) ([]*model.Authority, map[int][]*model.Authority, int) {
+	var (
+		aidMap = make(map[int]bool)
+		err    error
+	)
+
+	if !user.IsRoot {
+		aidMap, err = self.userAuthority(user)
+		if err != nil {
+			return nil, nil, 0
+		}
 	}
 
 	authLocker.RLock()
@@ -37,7 +44,7 @@ func (self AuthorityLogic) GetUserMenu(ctx context.Context, uid int, uri string)
 	curMenu1 := 0
 
 	for _, authority := range Authorities {
-		if _, ok := aidMap[authority.Aid]; ok {
+		if _, ok := aidMap[authority.Aid]; ok || user.IsRoot {
 			if authority.Menu1 == 0 {
 				userMenu1 = append(userMenu1, authority)
 				userMenu2[authority.Aid] = make([]*model.Authority, 0, 4)
@@ -91,8 +98,12 @@ func (AuthorityLogic) GeneralAuthorities() map[int][]*model.Authority {
 }
 
 // 判断用户是否有某个权限
-func (self AuthorityLogic) HasAuthority(uid int, route string) bool {
-	aidMap, err := self.userAuthority(uid)
+func (self AuthorityLogic) HasAuthority(user *model.Me, route string) bool {
+	if user.IsRoot {
+		return true
+	}
+
+	aidMap, err := self.userAuthority(user)
 	if err != nil {
 		logger.Errorln("HasAuthority:Read user authority error:", err)
 		return false
@@ -196,9 +207,9 @@ func (AuthorityLogic) Del(aid int) error {
 	return err
 }
 
-func (AuthorityLogic) userAuthority(uid int) (map[int]bool, error) {
+func (AuthorityLogic) userAuthority(user *model.Me) (map[int]bool, error) {
 	userRoles := make([]*model.UserRole, 0)
-	err := MasterDB.Where("uid=?", uid).Find(&userRoles)
+	err := MasterDB.Where("uid=?", user.Uid).Find(&userRoles)
 	if err != nil {
 		logger.Errorln("userAuthority userole read fail:", err)
 		return nil, err

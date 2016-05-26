@@ -144,7 +144,7 @@ func RenderAdmin(ctx echo.Context, contentTpl string, data map[string]interface{
 	// 当前用户信息
 	curUser := ctx.Get("user").(*model.Me)
 
-	if menu1, menu2, curMenu1 := logic.DefaultAuthority.GetUserMenu(ctx, curUser.Uid, requestURI); menu2 != nil {
+	if menu1, menu2, curMenu1 := logic.DefaultAuthority.GetUserMenu(ctx, curUser, requestURI); menu2 != nil {
 		data["menu1"] = menu1
 		data["menu2"] = menu2
 		data["uri"] = requestURI

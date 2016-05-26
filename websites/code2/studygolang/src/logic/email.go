@@ -37,8 +37,9 @@ Content-Type: text/html;charset=UTF-8
 
 ` + content
 
+	smtpAddr := emailConfig["smtp_host"] + ":" + emailConfig["smtp_port"]
 	auth := smtp.PlainAuth("", emailConfig["smtp_username"], emailConfig["smtp_password"], emailConfig["smtp_host"])
-	err := smtp.SendMail(emailConfig["smtp_addr"], auth, emailConfig["from_email"], tos, []byte(message))
+	err := smtp.SendMail(smtpAddr, auth, emailConfig["from_email"], tos, []byte(message))
 	if err != nil {
 		logger.Errorln("Send Mail to", strings.Join(tos, ","), "error:", err)
 		return err

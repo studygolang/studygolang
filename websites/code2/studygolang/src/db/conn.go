@@ -8,6 +8,7 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	. "github.com/polaris1119/config"
@@ -31,9 +32,60 @@ func init() {
 	fillDns(mysqlConfig)
 
 	// 启动时就打开数据库连接
-	if err = open(); err != nil {
+	if err = initEngine(); err != nil {
 		panic(err)
 	}
+}
+
+var (
+	ConnectDBErr = errors.New("connect db error")
+	UseDBErr     = errors.New("use db error")
+)
+
+// TestDB 测试数据库
+func TestDB() error {
+	mysqlConfig, err := ConfigFile.GetSection("mysql")
+	if err != nil {
+		fmt.Println("get mysql config error:", err)
+		return err
+	}
+
+	tmpDns := fmt.Sprintf("%s:%s@tcp(%s:%s)/?charset=%s&parseTime=True&loc=Local",
+		mysqlConfig["user"],
+		mysqlConfig["password"],
+		mysqlConfig["host"],
+		mysqlConfig["port"],
+		mysqlConfig["charset"])
+	egnine, err := xorm.NewEngine("mysql", tmpDns)
+	if err != nil {
+		fmt.Println("new engine error:", err)
+		return err
+	}
+	defer egnine.Close()
+
+	// 测试数据库连接是否 OK
+	if err = egnine.Ping(); err != nil {
+		fmt.Println("ping db error:", err)
+		return ConnectDBErr
+	}
+
+	_, err = egnine.Exec("use " + mysqlConfig["dbname"])
+	if err != nil {
+		fmt.Println("use db error:", err)
+		_, err = egnine.Exec("CREATE DATABASE " + mysqlConfig["dbname"] + " DEFAULT CHARACTER SET " + mysqlConfig["charset"])
+		if err != nil {
+			fmt.Println("create database error:", err)
+
+			return UseDBErr
+		}
+
+		fmt.Println("create database successfully!")
+	}
+
+	// 初始化 MasterDB
+	Init()
+
+	return nil
 }
 
 func Init() error {
@@ -46,7 +98,7 @@ func Init() error {
 	fillDns(mysqlConfig)
 
 	// 启动时就打开数据库连接
-	if err = open(); err != nil {
+	if err = initEngine(); err != nil {
 		fmt.Println("mysql is not open:", err)
 		return err
 	}
@@ -64,7 +116,7 @@ func fillDns(mysqlConfig map[string]string) {
 		mysqlConfig["charset"])
 }
 
-func open() error {
+func initEngine() error {
 	var err error
 
 	MasterDB, err = xorm.NewEngine("mysql", dns)
