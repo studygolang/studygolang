@@ -3,6 +3,7 @@ package controller
 import (
 	"bytes"
 	"db"
+	"global"
 	"html/template"
 	"logic"
 	"model"
@@ -193,7 +194,7 @@ func (InstallController) genConfig(ctx echo.Context) error {
 
 	var (
 		logLevel     = "DEBUG"
-		domain       = "127.0.0.1"
+		domain       = global.App.Host + ":" + global.App.Port
 		xormLogLevel = "0"
 		xormShowSql  = "true"
 	)
@@ -211,7 +212,7 @@ func (InstallController) genConfig(ctx echo.Context) error {
 
 	config.ConfigFile.SetSectionComments("listen", "")
 	config.ConfigFile.SetValue("listen", "host", "")
-	config.ConfigFile.SetValue("listen", "port", "8088")
+	config.ConfigFile.SetValue("listen", "port", global.App.Port)
 
 	dbname := ctx.FormValue("dbname")
 	uname := ctx.FormValue("uname")

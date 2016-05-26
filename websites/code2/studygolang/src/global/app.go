@@ -41,6 +41,9 @@ var App = struct {
 	Date    time.Time
 
 	Env string
+
+	Host string
+	Port string
 }{}
 
 var showVersion = flag.Bool("version", false, "Print version of this binary")

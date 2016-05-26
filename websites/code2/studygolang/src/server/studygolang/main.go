@@ -7,6 +7,7 @@
 package main
 
 import (
+	"global"
 	"http/controller"
 	"http/controller/admin"
 	"io/ioutil"
@@ -61,11 +62,21 @@ func main() {
 	adminG := e.Group("/admin", pwm.NeedLogin(), pwm.AdminAuth())
 	admin.RegisterRoutes(adminG)
 
-	addr := ConfigFile.MustValue("listen", "host", "") + ":" + ConfigFile.MustValue("listen", "port", "8088")
-	std := standard.New(addr)
+	std := standard.New(getAddr())
 	std.SetHandler(e)
 
 	log.Fatal(gracehttp.Serve(std.Server))
+}
+
+func getAddr() string {
+	host := ConfigFile.MustValue("listen", "host", "")
+	if host == "" {
+		global.App.Host = "localhost"
+	} else {
+		global.App.Host = host
+	}
+	global.App.Port = ConfigFile.MustValue("listen", "port", "8088")
+	return host + ":" + global.App.Port
 }
 
 const (
