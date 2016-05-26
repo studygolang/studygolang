@@ -46,15 +46,13 @@ func main() {
 
 	e := echo.New()
 
+	serveStatic(e)
+
 	e.Use(thirdmw.EchoLogger())
 	e.Use(mw.Recover())
+	e.Use(pwm.Installed(filterPrefixs))
 	e.Use(pwm.HTTPError())
 	e.Use(pwm.AutoLogin())
-
-	e.Static("/static/", ROOT+"/static")
-	e.File("/favicon.ico", ROOT+"/static/img/go.ico")
-	// 服务 sitemap 文件
-	e.Static("/sitemap/", ROOT+"/sitemap")
 
 	frontG := e.Group("", thirdmw.EchoCache())
 	controller.RegisterRoutes(frontG)
@@ -63,7 +61,7 @@ func main() {
 	adminG := e.Group("/admin", pwm.NeedLogin(), pwm.AdminAuth())
 	admin.RegisterRoutes(adminG)
 
-	addr := ConfigFile.MustValue("listen", "host", "") + ":" + ConfigFile.MustValue("listen", "port", "8080")
+	addr := ConfigFile.MustValue("listen", "host", "") + ":" + ConfigFile.MustValue("listen", "port", "8666")
 	std := standard.New(addr)
 	std.SetHandler(e)
 

@@ -127,6 +127,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/jmcvetta/randutil",
+			"repository": "https://github.com/jmcvetta/randutil",
+			"revision": "2bb1b664bcff821e02b2a0644cd29c7e824d54f8",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/labstack/echo",
 			"repository": "https://github.com/labstack/echo",
 			"revision": "d42a861a68eb5335ecbbaf230f0cf23b4e8d2a05",

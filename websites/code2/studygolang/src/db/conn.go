@@ -24,9 +24,37 @@ var dns string
 func init() {
 	mysqlConfig, err := ConfigFile.GetSection("mysql")
 	if err != nil {
-		panic(err)
+		fmt.Println("get mysql config error:", err)
+		return
 	}
 
+	fillDns(mysqlConfig)
+
+	// 启动时就打开数据库连接
+	if err = open(); err != nil {
+		panic(err)
+	}
+}
+
+func Init() error {
+	mysqlConfig, err := ConfigFile.GetSection("mysql")
+	if err != nil {
+		fmt.Println("get mysql config error:", err)
+		return err
+	}
+
+	fillDns(mysqlConfig)
+
+	// 启动时就打开数据库连接
+	if err = open(); err != nil {
+		fmt.Println("mysql is not open:", err)
+		return err
+	}
+
+	return nil
+}
+
+func fillDns(mysqlConfig map[string]string) {
 	dns = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=Local",
 		mysqlConfig["user"],
 		mysqlConfig["password"],
@@ -34,11 +62,6 @@ func init() {
 		mysqlConfig["port"],
 		mysqlConfig["dbname"],
 		mysqlConfig["charset"])
-
-	// 启动时就打开数据库连接
-	if err = open(); err != nil {
-		panic(err)
-	}
 }
 
 func open() error {

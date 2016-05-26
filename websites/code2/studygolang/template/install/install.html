@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<title>Go语言中文网 &rsaquo; 开始安装</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="/static/css/install/install.css" type="text/css" />
+</head>
+<body>
+	<h1 id="logo"><img alt="WordPress" src="/static/img/logo1.png" /></h1>
+
+	<h1>欢迎</h1>
+	<p>欢迎使用 Go语言中文网 五分钟安装程序。<!-- 如果您愿意花时间，可以看看<a href="../readme.html">介绍文档</a>。或者 -->只需简单地填写下面的表格，开始使用 Go语言中文网 搭建自己的社区网站。</p>
+
+	<h1>需要信息</h1>
+	<p>您需要填写一些基本信息。无需担心填错，这些信息以后可以再次修改。</p>
+
+	<form id="setup" method="post" action="/install/do?step=2">
+		<table class="form-table">
+			<!-- <tr>
+				<th scope="row"><label for="weblog_title">站点标题</label></th>
+				<td><input name="weblog_title" type="text" id="weblog_title" size="25" value="" /></td>
+			</tr> -->
+			<tr>
+				<th scope="row"><label for="user_name">用户名</label></th>
+				<td>
+				<input name="user_name" type="text" id="user_login" size="25" value="admin" />
+					<p>用户名只能包含字母、数字、空格、下划线、连字符（-）、句号和 @ 符号。</p>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">
+					<label for="admin_password">输入两次密码</label>
+					<p>若您留空密码栏，WordPress 将会为您生成一个密码。</p>
+				</th>
+				<td>
+					<input name="admin_password" type="password" id="pass1" size="25" value="" />
+					<p><input name="admin_password2" type="password" id="pass2" size="25" value="" /></p>
+					<div id="pass-strength-result">强度评估</div>
+					<p>提示：您的密码最好至少包含 7 个字符。为了保证密码强度，使用大小写字母，数字和符号，例如 ! " ? $ % ^ &amp; )。</p>
+				</td>
+			</tr>
+					<tr>
+				<th scope="row"><label for="admin_email">您的电子邮件</label></th>
+				<td><input name="admin_email" type="text" id="admin_email" size="25" value="" />
+				<p>请仔细检查电子邮件地址后再继续。</p></td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="blog_public">隐私</label></th>
+				<td colspan="2"><label><input type="checkbox" name="blog_public" value="1"  checked='checked' /> 允许我的站点出现在 Google 和 Technorati 等网站的搜索结果中。</label></td>
+			</tr>
+		</table>
+		<p class="step"><input type="submit" name="Submit" value="安装 WordPress" class="button" /></p>
+	</form>
+	<script type="text/javascript">var t = document.getElementById('weblog_title'); if (t){ t.focus(); }</script>
+	<script type='text/javascript' src='http://jiajiakuaisong.com/wp-includes/js/jquery/jquery.js?ver=1.7.1'></script>
+	<script type='text/javascript'>
+	/* <![CDATA[ */
+	var pwsL10n = {"empty":"\u5f3a\u5ea6\u8bc4\u4f30","short":"\u6781\u5f31","bad":"\u5f31","good":"\u4e2d\u7b49","strong":"\u5f3a","mismatch":"\u4e0d\u5339\u914d"};
+	/* ]]> */
+	</script>
+	<script type='text/javascript' src='http://jiajiakuaisong.com/wp-admin/js/password-strength-meter.js?ver=20101027'></script>
+	<script type='text/javascript' src='http://jiajiakuaisong.com/wp-admin/js/user-profile.js?ver=20110628'></script>
+</body>
+</html>

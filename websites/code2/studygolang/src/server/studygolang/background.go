@@ -7,6 +7,7 @@
 package main
 
 import (
+	"db"
 	"global"
 	"logic"
 	"time"
@@ -17,6 +18,10 @@ import (
 
 // 后台运行的任务
 func ServeBackGround() {
+
+	if db.MasterDB == nil {
+		return
+	}
 
 	// 初始化 七牛云存储
 	logic.DefaultUploader.InitQiniu()
