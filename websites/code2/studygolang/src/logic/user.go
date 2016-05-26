@@ -15,10 +15,10 @@ import (
 	"time"
 	"util"
 
+	"github.com/go-validator/validator"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	"golang.org/x/net/context"
-	validator "gopkg.in/validator.v2"
 
 	. "db"
 )

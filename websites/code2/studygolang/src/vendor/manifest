@@ -84,6 +84,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/go-validator/validator",
+			"repository": "https://github.com/go-validator/validator",
+			"revision": "3e4f037f12a1221a0864cf0dd2e81c452ab22448",
+			"branch": "v2"
+		},
+		{
 			"importpath": "github.com/go-xorm/core",
 			"repository": "https://github.com/go-xorm/core",
 			"revision": "b9277f807c011387baed9748a45f26da65b42077",
@@ -292,12 +298,6 @@
 			"revision": "024ed629fd292398cfd43c9678a5bf004f7defdc",
 			"branch": "master",
 			"path": "/websocket"
-		},
-		{
-			"importpath": "gopkg.in/validator.v2",
-			"repository": "https://gopkg.in/validator.v2",
-			"revision": "3e4f037f12a1221a0864cf0dd2e81c452ab22448",
-			"branch": "v2"
 		}
 	]
 }
