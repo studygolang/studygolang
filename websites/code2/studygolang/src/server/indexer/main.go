@@ -13,24 +13,28 @@ import (
 
 	"logic"
 
+	. "github.com/polaris1119/config"
 	"github.com/polaris1119/logger"
 	"github.com/robfig/cron"
 )
+
+var manualIndex = flag.Bool("manual", false, "do manual index once or not")
 
 func init() {
 	// 设置随机数种子
 	rand.Seed(time.Now().Unix())
 
-	var manualIndex bool
-	flag.BoolVar(&manualIndex, "manual", false, "do manual index once or not")
-	flag.Parse()
-
-	if manualIndex {
-		indexing(true)
+	if !flag.Parsed() {
+		flag.Parse()
 	}
 }
 
 func main() {
+	logger.Init(ROOT+"/log", ConfigFile.MustValue("global", "log_level", "DEBUG"))
+
+	if manualIndex {
+		indexing(true)
+	}
 
 	c := cron.New()
 	// 构建 solr 需要的索引数据
