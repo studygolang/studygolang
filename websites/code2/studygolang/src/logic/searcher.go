@@ -394,7 +394,7 @@ func (this *SolrClient) Post() error {
 			stringBuilder.Append(",")
 		}
 
-		stringBuilder.Append(`"del":`).Append(commandJson)
+		stringBuilder.Append(`"delete":`).Append(commandJson)
 	}
 
 	if stringBuilder.Len() == 1 {
