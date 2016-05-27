@@ -155,11 +155,11 @@ func NewAddCommand(doc *Document, boost float64, overwrite bool, commitWithin in
 }
 
 type DelCommand struct {
-	*Document
+	Id string `json:"id"`
 }
 
 func NewDelCommand(doc *Document) *DelCommand {
-	return &DelCommand{Document: doc}
+	return &DelCommand{Id: doc.Id}
 }
 
 type ResponseBody struct {
