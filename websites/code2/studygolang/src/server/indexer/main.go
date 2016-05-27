@@ -32,7 +32,7 @@ func init() {
 func main() {
 	logger.Init(ROOT+"/log", ConfigFile.MustValue("global", "log_level", "DEBUG"))
 
-	if manualIndex {
+	if *manualIndex {
 		indexing(true)
 	}
 
