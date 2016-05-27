@@ -30,7 +30,7 @@
 						{{end}}
 						<p class="ino">
 							<i class="glyphicon glyphicon-user"></i> <a class="a-pop-info" href="/user/{{.user.Username}}" title="{{.user.Username}}">{{.user.Username}}</a> 于
-							<em><abbr class="timeago" title="{{formatTime .ctime}}"></abbr></em> 发布
+							<em><abbr class="timeago" title="{{.ctime}}"></abbr></em> 发布
 						</p>
 						<p class="edi">
 							<a href="/resources/{{.id}}#commentForm">
