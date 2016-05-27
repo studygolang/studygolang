@@ -100,6 +100,9 @@ func (this *book) AddUser(user, serverId int) *UserData {
 
 // 删除用户
 func (this *book) DelUser(user, serverId int) {
+	this.rwMutex.Lock()
+	defer this.rwMutex.Unlock()
+
 	// 自己只有一个页面建立websocket连接
 	if this.users[user].Len() == 1 {
 		delete(this.users, user)
