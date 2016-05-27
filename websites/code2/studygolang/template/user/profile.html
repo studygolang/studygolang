@@ -61,7 +61,7 @@
 			<ul class="list-unstyled">
 				{{range .topics}}
 				<li>
-					<span class="node"><a href="/topics/node{{.Nid}}" class="node">{{.Node}}</a></span>
+					<span class="node"><a href="/topics/node/{{.Nid}}" class="node">{{.Node}}</a></span>
 					<a href="/topics/{{.Tid}}" title="{{.Title}}">{{substring .Title 60 "..."}}</a>
 					<span class="info">at <abbr class="timeago" title="{{.Ctime}}"></abbr></span>
 				</li>

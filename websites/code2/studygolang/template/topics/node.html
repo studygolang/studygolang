@@ -32,7 +32,7 @@
 							<a href="/topics/{{.tid}}" title="{{.title}}">{{substring .title 60 "..."}}</a>
 						</div>
 						<div class="meta">
-							<a href="/topics/node{{.nid}}" class="node" title="{{.node}}">{{.node}}</a>
+							<a href="/topics/node/{{.nid}}" class="node" title="{{.node}}">{{.node}}</a>
 							•
 							<a href="/user/{{.user.Username}}" title="{{.user.Username}}" class="author"><strong>{{.user.Username}}</strong></a>
 							{{if .lastreplyuid}}
