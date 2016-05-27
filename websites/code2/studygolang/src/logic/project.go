@@ -10,12 +10,12 @@ import (
 	"errors"
 	"model"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
 	. "db"
 
-	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	"golang.org/x/net/context"
 )
@@ -173,7 +173,7 @@ func (ProjectLogic) FindOne(ctx context.Context, val interface{}) *model.OpenPro
 	_, ok := val.(int)
 	if !ok {
 		val := val.(string)
-		if goutils.MustInt(val) == 0 {
+		if _, err := strconv.Atoi(val); err != nil {
 			field = "uri"
 		}
 	}
