@@ -53,7 +53,7 @@ func (self SearcherLogic) IndexingArticle(isAll bool) {
 		id := 0
 		for {
 			articleList = make([]*model.Article, 0)
-			err = MasterDB.Where("id>?", id).Limit(self.maxRows).Find(&articleList)
+			err = MasterDB.Where("id>?", id).Limit(self.maxRows).OrderBy("id ASC").Find(&articleList)
 			if err != nil {
 				logger.Errorln("IndexingArticle error:", err)
 				break
@@ -98,7 +98,7 @@ func (self SearcherLogic) IndexingTopic(isAll bool) {
 			topicList = make([]*model.Topic, 0)
 			topicExList = make(map[int]*model.TopicEx)
 
-			err = MasterDB.Where("tid>?", id).Limit(self.maxRows).Find(&topicList)
+			err = MasterDB.Where("tid>?", id).OrderBy("tid ASC").Limit(self.maxRows).Find(&topicList)
 			if err != nil {
 				logger.Errorln("IndexingTopic error:", err)
 				break
@@ -148,7 +148,7 @@ func (self SearcherLogic) IndexingResource(isAll bool) {
 		id := 0
 		for {
 			resourceList = make([]*model.Resource, 0)
-			err = MasterDB.Where("id>?", id).Limit(self.maxRows).Find(&resourceList)
+			err = MasterDB.Where("id>?", id).OrderBy("id ASC").Limit(self.maxRows).Find(&resourceList)
 			if err != nil {
 				logger.Errorln("IndexingResource error:", err)
 				break
@@ -197,7 +197,7 @@ func (self SearcherLogic) IndexingOpenProject(isAll bool) {
 		id := 0
 		for {
 			projectList = make([]*model.OpenProject, 0)
-			err = MasterDB.Where("id>?", id).Limit(self.maxRows).Find(&projectList)
+			err = MasterDB.Where("id>?", id).OrderBy("id ASC").Limit(self.maxRows).Find(&projectList)
 			if err != nil {
 				logger.Errorln("IndexingArticle error:", err)
 				break
