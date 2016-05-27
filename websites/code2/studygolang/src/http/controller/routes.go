@@ -23,6 +23,7 @@ func RegisterRoutes(e *echo.Group) {
 	new(MessageController).RegisterRoute(e)
 	new(SidebarController).RegisterRoute(e)
 	new(CommentController).RegisterRoute(e)
+	new(SearchController).RegisterRoute(e)
 	new(WideController).RegisterRoute(e)
 	new(ImageController).RegisterRoute(e)
 	new(CaptchaController).RegisterRoute(e)
