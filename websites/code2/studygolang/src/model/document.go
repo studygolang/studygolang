@@ -9,6 +9,7 @@ package model
 import (
 	"db"
 	"fmt"
+	"html/template"
 	"regexp"
 	"strings"
 )
@@ -94,7 +95,7 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 			Title:   objdoc.Title,
 			Author:  userLogin.Username,
 			PubTime: objdoc.Ctime.String(),
-			Content: objdoc.Content,
+			Content: template.HTMLEscapeString(objdoc.Content),
 			Tags:    "",
 			Viewnum: viewnum,
 			Cmtnum:  cmtnum,
