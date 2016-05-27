@@ -254,7 +254,7 @@ func (self SearcherLogic) DoSearch(q, field string, start, rows int) (*model.Res
 	resp, err := http.Get(selectUrl + values.Encode())
 	if err != nil {
 		logger.Errorln("search error:", err)
-		return nil, err
+		return &model.ResponseBody{}, err
 	}
 
 	defer resp.Body.Close()
@@ -263,7 +263,7 @@ func (self SearcherLogic) DoSearch(q, field string, start, rows int) (*model.Res
 	err = json.NewDecoder(resp.Body).Decode(&searchResponse)
 	if err != nil {
 		logger.Errorln("parse response error:", err)
-		return nil, err
+		return &model.ResponseBody{}, err
 	}
 
 	if len(searchResponse.Highlight) > 0 {
