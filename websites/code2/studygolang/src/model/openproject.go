@@ -9,8 +9,9 @@ package model
 import "time"
 
 const (
-	ProjectStatusNew    = 0
-	ProjectStatusOnline = 1
+	ProjectStatusNew     = 0
+	ProjectStatusOnline  = 1
+	ProjectStatusOffline = 2
 )
 
 // 开源项目信息

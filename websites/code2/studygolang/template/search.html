@@ -56,7 +56,7 @@
 			<div class="row">
 				<div class="col-md-8 metatag">
 					<i class="glyphicon glyphicon-tasks"></i>
-					<span class="source" title="类别">{{if eq .Objtype 0}}主题{{else if eq .Objtype 1}}博文{{else}}帖子{{end}}</span>
+					<span class="source" title="类别">{{if eq .Objtype 0}}主题{{else if eq .Objtype 1}}博文{{else if eq .Objtype 2}}资源{{else if eq .Objtype 4}}开源项目{{else}}Wiki{{end}}</span>
 					<i class="glyphicon glyphicon-calendar"></i>
 					<span class="date" title="发布日期">{{.PubTime}}</span>
 					<i class="glyphicon glyphicon-user"></i>

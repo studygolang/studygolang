@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"util"
 
 	. "db"
 
@@ -40,156 +41,187 @@ func (self SearcherLogic) Indexing(isAll bool) {
 
 // IndexingArticle 索引博文
 func (self SearcherLogic) IndexingArticle(isAll bool) {
-	// solrClient := NewSolrClient()
+	solrClient := NewSolrClient()
 
-	// articleObj := model.NewArticle()
+	var (
+		articleList []*model.Article
+		err         error
+	)
 
-	// limit := strconv.Itoa(self.maxRows)
-	// if isAll {
-	// 	id := 0
-	// 	for {
-	// 		articleList, err := articleObj.Where("id>? AND status!=?", id, model.StatusOffline).Limit(limit).FindAll()
-	// 		if err != nil {
-	// 			logger.Errorln("IndexingArticle error:", err)
-	// 			break
-	// 		}
+	if isAll {
+		id := 0
+		for {
+			articleList = make([]*model.Article, 0)
+			err = MasterDB.Where("id>?", id).Limit(self.maxRows).Find(&articleList)
+			if err != nil {
+				logger.Errorln("IndexingArticle error:", err)
+				break
+			}
 
-	// 		if len(articleList) == 0 {
-	// 			break
-	// 		}
+			if len(articleList) == 0 {
+				break
+			}
 
-	// 		for _, article := range articleList {
-	// 			if id < article.Id {
-	// 				id = article.Id
-	// 			}
+			for _, article := range articleList {
+				if id < article.Id {
+					id = article.Id
+				}
 
-	// 			document := model.NewDocument(article, nil)
-	// 			addCommand := model.NewDefaultArgsAddCommand(document)
+				document := model.NewDocument(article, nil)
+				if article.Status != model.ArticleStatusOffline {
+					solrClient.PushAdd(model.NewDefaultArgsAddCommand(document))
+				} else {
+					solrClient.PushDel(model.NewDelCommand(document))
+				}
+			}
 
-	// 			solrClient.Push(addCommand)
-	// 		}
-
-	// 		solrClient.Post()
-	// 	}
-	// }
+			solrClient.Post()
+		}
+	}
 }
 
-// 索引帖子
-func (SearcherLogic) IndexingTopic(isAll bool) {
-	// solrClient := NewSolrClient()
+// 索引主题
+func (self SearcherLogic) IndexingTopic(isAll bool) {
+	solrClient := NewSolrClient()
 
-	// topicObj := model.NewTopic()
-	// topicExObj := model.NewTopicEx()
+	var (
+		topicList   []*model.Topic
+		topicExList map[int]*model.TopicEx
 
-	// limit := strconv.Itoa(MaxRows)
-	// if isAll {
-	// 	id := 0
-	// 	for {
-	// 		topicList, err := topicObj.Where("tid>?", id).Limit(limit).FindAll()
-	// 		if err != nil {
-	// 			logger.Errorln("IndexingTopic error:", err)
-	// 			break
-	// 		}
+		err error
+	)
 
-	// 		if len(topicList) == 0 {
-	// 			break
-	// 		}
+	if isAll {
+		id := 0
+		for {
+			topicList = make([]*model.Topic, 0)
+			topicExList = make(map[int]*model.TopicEx)
 
-	// 		tids := util.Models2Intslice(topicList, "Tid")
+			err = MasterDB.Where("tid>?", id).Limit(self.maxRows).Find(&topicList)
+			if err != nil {
+				logger.Errorln("IndexingTopic error:", err)
+				break
+			}
 
-	// 		tmpStr := strings.Repeat("?,", len(tids))
-	// 		query := "tid in(" + tmpStr[:len(tmpStr)-1] + ")"
-	// 		args := make([]interface{}, len(tids))
-	// 		for i, tid := range tids {
-	// 			args[i] = tid
-	// 		}
+			if len(topicList) == 0 {
+				break
+			}
 
-	// 		topicExList, err := topicExObj.Where(query, args...).FindAll()
-	// 		if err != nil {
-	// 			logger.Errorln("IndexingTopic error:", err)
-	// 			break
-	// 		}
+			tids := util.Models2Intslice(topicList, "Tid")
 
-	// 		topicExMap := make(map[int]*model.TopicEx, len(topicExList))
-	// 		for _, topicEx := range topicExList {
-	// 			topicExMap[topicEx.Tid] = topicEx
-	// 		}
+			err = MasterDB.In("tid", tids).Find(&topicExList)
+			if err != nil {
+				logger.Errorln("IndexingTopic error:", err)
+				break
+			}
 
-	// 		for _, topic := range topicList {
-	// 			if id < topic.Tid {
-	// 				id = topic.Tid
-	// 			}
+			for _, topic := range topicList {
+				if id < topic.Tid {
+					id = topic.Tid
+				}
 
-	// 			topicEx, _ := topicExMap[topic.Tid]
+				topicEx := topicExList[topic.Tid]
 
-	// 			document := model.NewDocument(topic, topicEx)
-	// 			addCommand := model.NewDefaultArgsAddCommand(document)
+				document := model.NewDocument(topic, topicEx)
+				addCommand := model.NewDefaultArgsAddCommand(document)
 
-	// 			solrClient.Push(addCommand)
-	// 		}
+				solrClient.PushAdd(addCommand)
+			}
 
-	// 		solrClient.Post()
-	// 	}
-	// }
+			solrClient.Post()
+		}
+	}
 }
 
 // 索引资源
-func (SearcherLogic) IndexingResource(isAll bool) {
-	// solrClient := NewSolrClient()
+func (self SearcherLogic) IndexingResource(isAll bool) {
+	solrClient := NewSolrClient()
 
-	// resourceObj := model.NewResource()
-	// resourceExObj := model.NewResourceEx()
+	var (
+		resourceList   []*model.Resource
+		resourceExList map[int]*model.ResourceEx
+		err            error
+	)
 
-	// limit := strconv.Itoa(MaxRows)
-	// if isAll {
-	// 	id := 0
-	// 	for {
-	// 		resourceList, err := resourceObj.Where("id>?", id).Limit(limit).FindAll()
-	// 		if err != nil {
-	// 			logger.Errorln("IndexingResource error:", err)
-	// 			break
-	// 		}
+	if isAll {
+		id := 0
+		for {
+			resourceList = make([]*model.Resource, 0)
+			err = MasterDB.Where("id>?", id).Limit(self.maxRows).Find(&resourceList)
+			if err != nil {
+				logger.Errorln("IndexingResource error:", err)
+				break
+			}
 
-	// 		if len(resourceList) == 0 {
-	// 			break
-	// 		}
+			if len(resourceList) == 0 {
+				break
+			}
 
-	// 		ids := util.Models2Intslice(resourceList, "Id")
+			ids := util.Models2Intslice(resourceList, "Id")
 
-	// 		tmpStr := strings.Repeat("?,", len(ids))
-	// 		query := "id in(" + tmpStr[:len(tmpStr)-1] + ")"
-	// 		args := make([]interface{}, len(ids))
-	// 		for i, rid := range ids {
-	// 			args[i] = rid
-	// 		}
+			err = MasterDB.In("id", ids).Find(&resourceExList)
+			if err != nil {
+				logger.Errorln("IndexingResource error:", err)
+				break
+			}
 
-	// 		resourceExList, err := resourceExObj.Where(query, args...).FindAll()
-	// 		if err != nil {
-	// 			logger.Errorln("IndexingResource error:", err)
-	// 			break
-	// 		}
+			for _, resource := range resourceList {
+				if id < resource.Id {
+					id = resource.Id
+				}
 
-	// 		resourceExMap := make(map[int]*model.ResourceEx, len(resourceExList))
-	// 		for _, resourceEx := range resourceExList {
-	// 			resourceExMap[resourceEx.Id] = resourceEx
-	// 		}
+				resourceEx := resourceExList[resource.Id]
 
-	// 		for _, resource := range resourceList {
-	// 			if id < resource.Id {
-	// 				id = resource.Id
-	// 			}
+				document := model.NewDocument(resource, resourceEx)
+				addCommand := model.NewDefaultArgsAddCommand(document)
 
-	// 			resourceEx, _ := resourceExMap[resource.Id]
+				solrClient.PushAdd(addCommand)
+			}
 
-	// 			document := model.NewDocument(resource, resourceEx)
-	// 			addCommand := model.NewDefaultArgsAddCommand(document)
+			solrClient.Post()
+		}
+	}
+}
 
-	// 			solrClient.Push(addCommand)
-	// 		}
+// IndexingOpenProject 索引博文
+func (self SearcherLogic) IndexingOpenProject(isAll bool) {
+	solrClient := NewSolrClient()
 
-	// 		solrClient.Post()
-	// 	}
-	// }
+	var (
+		projectList []*model.OpenProject
+		err         error
+	)
+
+	if isAll {
+		id := 0
+		for {
+			projectList = make([]*model.OpenProject, 0)
+			err = MasterDB.Where("id>?", id).Limit(self.maxRows).Find(&projectList)
+			if err != nil {
+				logger.Errorln("IndexingArticle error:", err)
+				break
+			}
+
+			if len(projectList) == 0 {
+				break
+			}
+
+			for _, project := range projectList {
+				if id < project.Id {
+					id = project.Id
+				}
+
+				document := model.NewDocument(project, nil)
+				if project.Status != model.ProjectStatusOffline {
+					solrClient.PushAdd(model.NewDefaultArgsAddCommand(document))
+				} else {
+					solrClient.PushDel(model.NewDelCommand(document))
+				}
+			}
+
+			solrClient.Post()
+		}
+	}
 }
 
 const searchContentLen = 350
@@ -304,16 +336,22 @@ func (self SearcherLogic) DoSearch(q, field string, start, rows int) (*model.Res
 
 type SolrClient struct {
 	addCommands []*model.AddCommand
+	delCommands []*model.DelCommand
 }
 
 func NewSolrClient() *SolrClient {
 	return &SolrClient{
 		addCommands: make([]*model.AddCommand, 0, 100),
+		delCommands: make([]*model.DelCommand, 0, 100),
 	}
 }
 
-func (this *SolrClient) Push(addCommand *model.AddCommand) {
+func (this *SolrClient) PushAdd(addCommand *model.AddCommand) {
 	this.addCommands = append(this.addCommands, addCommand)
+}
+
+func (this *SolrClient) PushDel(delCommand *model.DelCommand) {
+	this.delCommands = append(this.delCommands, delCommand)
 }
 
 func (this *SolrClient) Post() error {
@@ -337,6 +375,25 @@ func (this *SolrClient) Post() error {
 		}
 
 		stringBuilder.Append(`"add":`).Append(commandJson)
+	}
+
+	for _, delCommand := range this.delCommands {
+		commandJson, err := json.Marshal(delCommand)
+		if err != nil {
+			continue
+		}
+
+		if stringBuilder.Len() == 1 {
+			needComma = false
+		} else {
+			needComma = true
+		}
+
+		if needComma {
+			stringBuilder.Append(",")
+		}
+
+		stringBuilder.Append(`"del":`).Append(commandJson)
 	}
 
 	if stringBuilder.Len() == 1 {

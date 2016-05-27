@@ -100,7 +100,20 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 			Cmtnum:  cmtnum,
 			Likenum: likenum,
 		}
-	case *Wiki:
+	case *OpenProject:
+		document = &Document{
+			Id:      fmt.Sprintf("%d%d", TypeProject, objdoc.Id),
+			Objid:   objdoc.Id,
+			Objtype: TypeProject,
+			Title:   objdoc.Category + objdoc.Name,
+			Author:  objdoc.Author,
+			PubTime: objdoc.Ctime.String(),
+			Content: objdoc.Desc,
+			Tags:    objdoc.Tags,
+			Viewnum: objdoc.Viewnum,
+			Cmtnum:  objdoc.Cmtnum,
+			Likenum: objdoc.Likenum,
+		}
 	}
 
 	return document
@@ -138,6 +151,14 @@ func NewAddCommand(doc *Document, boost float64, overwrite bool, commitWithin in
 		Overwrite:    overwrite,
 		CommitWithin: commitWithin,
 	}
+}
+
+type DelCommand struct {
+	*Document
+}
+
+func NewDelCommand(doc *Document) *DelCommand {
+	return &DelCommand{Document: doc}
 }
 
 type ResponseBody struct {
