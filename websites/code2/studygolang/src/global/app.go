@@ -55,10 +55,6 @@ const (
 )
 
 func init() {
-	if !flag.Parsed() {
-		flag.Parse()
-	}
-
 	App.Name = os.Args[0]
 	App.Version = "V2.0.0"
 	App.Build = Build
@@ -71,19 +67,23 @@ func init() {
 	App.Date = fileInfo.ModTime()
 
 	App.Env = config.ConfigFile.MustValue("global", "env")
-
-	if showVersion != nil && *showVersion {
-		PrintVersion(os.Stdout)
-		os.Exit(0)
-	}
 }
 
 func PrintVersion(w io.Writer) {
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+
+	if showVersion == nil || !*showVersion {
+		return
+	}
+
 	fmt.Fprintf(w, "Binary: %s\n", App.Name)
 	fmt.Fprintf(w, "Version: %s\n", App.Version)
 	fmt.Fprintf(w, "Build: %s\n", App.Build)
 	fmt.Fprintf(w, "Compile date: %s\n", App.Date.Format("2006-01-02 15:04:05"))
 	fmt.Fprintf(w, "Env: %s\n", App.Env)
+	os.Exit(0)
 }
 
 func OnlineEnv() bool {

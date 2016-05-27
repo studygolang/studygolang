@@ -37,6 +37,7 @@ func (self SearcherLogic) Indexing(isAll bool) {
 	self.IndexingArticle(isAll)
 	self.IndexingTopic(isAll)
 	self.IndexingResource(isAll)
+	self.IndexingOpenProject(isAll)
 }
 
 // IndexingArticle 索引博文
@@ -403,6 +404,8 @@ func (this *SolrClient) Post() error {
 
 	stringBuilder.Append("}")
 
+	logger.Infoln("start post data to solr...")
+
 	resp, err := http.Post(config.ConfigFile.MustValue("search", "engine_url")+"/update?wt=json&commit=true", "application/json", stringBuilder)
 	if err != nil {
 		logger.Errorln("post error:", err)
@@ -417,6 +420,8 @@ func (this *SolrClient) Post() error {
 		logger.Errorln("parse response error:", err)
 		return err
 	}
+
+	logger.Infoln("post data result:", result)
 
 	return nil
 }

@@ -23,13 +23,13 @@ var manualIndex = flag.Bool("manual", false, "do manual index once or not")
 func init() {
 	// 设置随机数种子
 	rand.Seed(time.Now().Unix())
-
-	if !flag.Parsed() {
-		flag.Parse()
-	}
 }
 
 func main() {
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+
 	logger.Init(ROOT+"/log", ConfigFile.MustValue("global", "log_level", "DEBUG"))
 
 	if *manualIndex {

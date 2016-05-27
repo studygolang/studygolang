@@ -39,6 +39,9 @@ func init() {
 }
 
 func main() {
+	// 支持根据参数打印版本信息
+	global.PrintVersion(os.Stdout)
+
 	savePid()
 
 	logger.Init(ROOT+"/log", ConfigFile.MustValue("global", "log_level", "DEBUG"))
