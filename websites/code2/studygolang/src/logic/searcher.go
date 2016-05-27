@@ -295,6 +295,10 @@ func (self SearcherLogic) DoSearch(q, field string, start, rows int) (*model.Res
 		}
 	}
 
+	if searchResponse.RespBody == nil {
+		searchResponse.RespBody = &model.ResponseBody{}
+	}
+
 	return searchResponse.RespBody, nil
 }
 
