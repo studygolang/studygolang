@@ -321,7 +321,7 @@ func (self SearcherLogic) DoSearch(q, field string, start, rows int) (*model.Res
 				if maxLen > searchContentLen {
 					maxLen = searchContentLen
 				}
-				doc.HlContent = doc.Content[:maxLen]
+				doc.HlContent = util.NewString(doc.Content).Slice(0, maxLen)
 			}
 
 			doc.HlContent += "..."
