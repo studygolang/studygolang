@@ -148,6 +148,8 @@ func (self SearcherLogic) IndexingResource(isAll bool) {
 		id := 0
 		for {
 			resourceList = make([]*model.Resource, 0)
+			resourceExList = make(map[int]*model.ResourceEx)
+
 			err = MasterDB.Where("id>?", id).OrderBy("id ASC").Limit(self.maxRows).Find(&resourceList)
 			if err != nil {
 				logger.Errorln("IndexingResource error:", err)
