@@ -15,6 +15,8 @@ if [ ! -d pid ]; then
 	mkdir pid
 fi
 
+export GOTRACEBACK=crash
+
 bin/studygolang >> log/panic.log 2>&1 &
 
 echo "start successfully"

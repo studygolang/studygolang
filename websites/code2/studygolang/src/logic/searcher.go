@@ -319,7 +319,8 @@ func (self SearcherLogic) DoSearch(q, field string, start, rows int) (*model.Res
 			}
 
 			if doc.HlContent == "" && doc.Content != "" {
-				maxLen := len(doc.Content) - 1
+				utf8string := util.NewString(doc.Content)
+				maxLen := utf8string.RuneCount() - 1
 				if maxLen > searchContentLen {
 					maxLen = searchContentLen
 				}
