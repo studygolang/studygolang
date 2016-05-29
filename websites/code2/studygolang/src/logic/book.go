@@ -58,6 +58,12 @@ func (this *UserData) MessageQueue(serverId int) chan *Message {
 	return this.serverMsgQueue[serverId]
 }
 
+func (this *UserData) InitMessageQueue(serverId int) {
+	this.rwMutex.Lock()
+	defer this.rwMutex.Unlock()
+	this.serverMsgQueue[serverId] = make(chan *Message, 1)
+}
+
 var Book = &book{users: make(map[int]*UserData)}
 
 type book struct {
@@ -73,7 +79,7 @@ func (this *book) AddUser(user, serverId int) *UserData {
 	this.rwMutex.Lock()
 	defer this.rwMutex.Unlock()
 	if userData, ok = this.users[user]; ok {
-		userData.serverMsgQueue[serverId] = make(chan *Message, 1)
+		userData.InitMessageQueue(serverId)
 		userData.onlineDuartion += time.Now().Sub(userData.lastAccessTime)
 		userData.lastAccessTime = time.Now()
 	} else {
