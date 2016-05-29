@@ -267,7 +267,7 @@ $(function(){
 
 			var content = '';
 			for(var i in data) {
-				content += '<li><a href="/topics/node'+data[i].nid+'" title="'+data[i].name+'">'+data[i].name+'</a></li>';
+				content += '<li><a href="/topics/node/'+data[i].nid+'" title="'+data[i].name+'">'+data[i].name+'</a></li>';
 			}
 			
 			$('.sb-content .node-list ul').html(content);

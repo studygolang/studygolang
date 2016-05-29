@@ -53,6 +53,8 @@ func (this *UserData) Len() int {
 }
 
 func (this *UserData) MessageQueue(serverId int) chan *Message {
+	this.rwMutex.RLock()
+	defer this.rwMutex.RUnlock()
 	return this.serverMsgQueue[serverId]
 }
 
