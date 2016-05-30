@@ -29,6 +29,11 @@ func HTTPError() echo.MiddlewareFunc {
 								return ctx.String(http.StatusOK, `{"ok":0,"error":"接口不存在"}`)
 							}
 							return Render(ctx, "404.html", nil)
+						case http.StatusForbidden:
+							if util.IsAjax(ctx) {
+								return ctx.String(http.StatusOK, `{"ok":0,"error":"没有权限访问"}`)
+							}
+							return Render(ctx, "403.html", map[string]interface{}{"msg": he.Message})
 						case http.StatusInternalServerError:
 							if util.IsAjax(ctx) {
 								return ctx.String(http.StatusOK, `{"ok":0,"error":"接口服务器错误"}`)

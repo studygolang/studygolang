@@ -159,6 +159,10 @@ func (self EmailLogic) EmailNotice() {
 		}
 
 		for _, user := range users {
+			if lastUid < user.Uid {
+				lastUid = user.Uid
+			}
+
 			if user.Unsubscribe == 1 {
 				logger.Infoln("user unsubscribe", user)
 				continue
@@ -179,10 +183,6 @@ func (self EmailLogic) EmailNotice() {
 			}
 
 			self.SendMail("每周精选", content, []string{user.Email})
-
-			if lastUid < user.Uid {
-				lastUid = user.Uid
-			}
 
 			// 控制发信速度
 			time.Sleep(30 * time.Second)

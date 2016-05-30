@@ -21,14 +21,19 @@
 							<p class="form-control-static">{{.user.Username}}</p>
 						</div>
 					</div>
-					<div class="form-group">
+					<div class="form-group form-group-sm">
 						<label class="col-sm-3 control-label" for="email">Email</label>
 						<div class="col-sm-6">
-							<p class="form-control-static">{{.user.Email}}</p>
+							<input class="form-control {required:true,email:true}" type="email" id="email" name="email" placeholder="邮箱" value="{{.user.Email}}">
 							<label>
+								{{if ne .user.Status 1}}
+								邮箱未激活，<a href="#" id="active_email">发激活邮件</a>
+								{{else}}
 								<input type="checkbox" name="open" value="1" {{if .user.Open}}checked{{end}}> 公开Email
+								{{end}}
 							</label>
 						</div>
+						<span class="help-block">更改邮箱需要重新激活</span>
 					</div>
 					<div class="form-group form-group-sm">
 						<label class="col-sm-3 control-label" for="name">名字</label>
@@ -227,7 +232,7 @@
 <script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
-<script type="text/javascript" src="/static/js/user.js?v=1.0"></script>
+<script type="text/javascript" src="/static/js/user.js?v=1.1"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [

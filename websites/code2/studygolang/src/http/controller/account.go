@@ -46,7 +46,7 @@ func (self AccountController) RegisterRoute(e *echo.Group) {
 // 保存uuid和email的对应关系（TODO:重启如何处理，有效期问题）
 var regActivateCodeMap = map[string]string{}
 
-func (AccountController) Register(ctx echo.Context) error {
+func (self AccountController) Register(ctx echo.Context) error {
 	if _, ok := ctx.Get("user").(*model.Me); ok {
 		return ctx.Redirect(http.StatusSeeOther, "/")
 	}
@@ -91,18 +91,8 @@ func (AccountController) Register(ctx echo.Context) error {
 		return render(ctx, registerTpl, data)
 	}
 
-	var (
-		uuid  string
-		email = ctx.FormValue("email")
-	)
-	for {
-		uuid = guuid.NewV4().String()
-		if _, ok := regActivateCodeMap[uuid]; !ok {
-			regActivateCodeMap[uuid] = email
-			break
-		}
-		logger.Errorln("GenUUID 冲突....")
-	}
+	email := ctx.FormValue("email")
+	uuid := self.genUUID(email)
 	var emailUrl string
 	if strings.HasSuffix(email, "@gmail.com") {
 		emailUrl = "http://mail.google.com"
@@ -124,15 +114,37 @@ func (AccountController) Register(ctx echo.Context) error {
 	return render(ctx, registerTpl, data)
 }
 
-// SendActivateEmail 发送注册激活邮件
-func (AccountController) SendActivateEmail(ctx echo.Context) error {
-	uuid := ctx.FormValue("uuid")
-	email, ok := regActivateCodeMap[uuid]
-	if !ok {
-		return fail(ctx, 1, "非法请求")
+func (AccountController) genUUID(email string) string {
+	var uuid string
+	for {
+		uuid = guuid.NewV4().String()
+		if _, ok := regActivateCodeMap[uuid]; !ok {
+			regActivateCodeMap[uuid] = email
+			break
+		}
+		logger.Errorln("GenUUID 冲突....")
 	}
+	return uuid
+}
 
-	go logic.DefaultEmail.SendActivateMail(email, uuid)
+// SendActivateEmail 发送注册激活邮件
+func (self AccountController) SendActivateEmail(ctx echo.Context) error {
+	uuid := ctx.FormValue("uuid")
+	if uuid != "" {
+		email, ok := regActivateCodeMap[uuid]
+		if !ok {
+			return fail(ctx, 1, "非法请求")
+		}
+
+		go logic.DefaultEmail.SendActivateMail(email, uuid)
+	} else {
+		user, ok := ctx.Get("user").(*model.Me)
+		if !ok {
+			return fail(ctx, 1, "非法请求")
+		}
+
+		go logic.DefaultEmail.SendActivateMail(user.Email, self.genUUID(user.Email))
+	}
 
 	return success(ctx, nil)
 }
@@ -226,11 +238,11 @@ func (AccountController) Login(ctx echo.Context) error {
 }
 
 // Edit 用户编辑个人信息
-func (AccountController) Edit(ctx echo.Context) error {
+func (self AccountController) Edit(ctx echo.Context) error {
 	me := ctx.Get("user").(*model.Me)
-	user := logic.DefaultUser.FindOne(ctx, "uid", me.Uid)
 
-	if Request(ctx).Method != "POST" {
+	if ctx.Request().Method() != "POST" {
+		user := logic.DefaultUser.FindOne(ctx, "uid", me.Uid)
 		return render(ctx, "user/edit.html", map[string]interface{}{
 			"user":            user,
 			"default_avatars": logic.DefaultAvatars,
@@ -238,9 +250,14 @@ func (AccountController) Edit(ctx echo.Context) error {
 	}
 
 	// 更新信息
-	errMsg, err := logic.DefaultUser.Update(ctx, me.Uid, Request(ctx).PostForm)
+	errMsg, err := logic.DefaultUser.Update(ctx, me, ctx.Request().FormParams())
 	if err != nil {
 		return fail(ctx, 1, errMsg)
+	}
+
+	email := ctx.FormValue("email")
+	if me.Email != email {
+		go logic.DefaultEmail.SendActivateMail(email, self.genUUID(email))
 	}
 
 	return success(ctx, nil)

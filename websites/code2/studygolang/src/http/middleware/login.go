@@ -12,6 +12,7 @@ import (
 	"model"
 	"net/http"
 	"net/url"
+	"strings"
 	"util"
 
 	. "http"
@@ -48,8 +49,8 @@ func AutoLogin() echo.MiddlewareFunc {
 func NeedLogin() echo.MiddlewareFunc {
 	return func(next echo.Handler) echo.Handler {
 		return echo.HandlerFunc(func(ctx echo.Context) error {
-			_, ok := ctx.Get("user").(*model.Me)
-			if !ok {
+			user, ok := ctx.Get("user").(*model.Me)
+			if !ok || user.Status != model.UserStatusAudit {
 				method := ctx.Request().Method()
 				if util.IsAjax(ctx) {
 					return ctx.JSON(http.StatusForbidden, `{"ok":0,"error":"403 Forbidden"}`)
@@ -58,12 +59,19 @@ func NeedLogin() echo.MiddlewareFunc {
 						return ctx.HTML(http.StatusForbidden, `403 Forbidden`)
 					}
 
-					reqURL := ctx.Request().URL()
-					uri := reqURL.Path()
-					if reqURL.QueryString() != "" {
-						uri += "?" + reqURL.QueryString()
+					if !ok {
+						reqURL := ctx.Request().URL()
+						uri := reqURL.Path()
+						if reqURL.QueryString() != "" {
+							uri += "?" + reqURL.QueryString()
+						}
+						return ctx.Redirect(http.StatusSeeOther, "/account/login?redirect_uri="+url.QueryEscape(uri))
+					} else {
+						// 未激活可以查看账号信息
+						if !strings.HasPrefix(ctx.Path(), "/account") {
+							return echo.NewHTTPError(http.StatusForbidden, `您的邮箱未激活，<a href="/account/edit">去激活</a>`)
+						}
 					}
-					return ctx.Redirect(http.StatusSeeOther, "/account/login?redirect_uri="+url.QueryEscape(uri))
 				}
 			}
 

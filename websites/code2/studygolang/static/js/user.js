@@ -77,6 +77,30 @@
 
 			user.edit(this);
 		});
+
+		$('#active_email').on('click', function(evt){
+			evt.preventDefault();
+
+			$.ajax({
+				type:"post",
+				url: "/account/send_activate_email",
+				dataType: 'json',
+				success: function(data){
+					if(data.ok){
+						comTip("激活邮件已发到您邮箱，请查收！");
+					}else{
+						comTip(data.error);
+					}
+				},
+				error:function(xmlReq, textStatus, errorThrown){
+					if (xmlReq.status == 403) {
+						comTip("没有操作权限");
+					}
+				}
+			});
+
+			return false;
+		});
 		
 		$('#avatar-tab a').click(function (evt) {
 			evt.preventDefault();

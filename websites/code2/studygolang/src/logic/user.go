@@ -147,7 +147,7 @@ func (self UserLogic) CreateUser(ctx context.Context, form url.Values) (errMsg s
 }
 
 // Update 更新用户信息
-func (self UserLogic) Update(ctx context.Context, uid int, form url.Values) (errMsg string, err error) {
+func (self UserLogic) Update(ctx context.Context, me *model.Me, form url.Values) (errMsg string, err error) {
 	objLog := GetLogger(ctx)
 
 	if form.Get("open") != "1" {
@@ -163,15 +163,20 @@ func (self UserLogic) Update(ctx context.Context, uid int, form url.Values) (err
 	}
 
 	cols := "name,open,city,company,github,weibo,website,monlog,introduce"
-	_, err = MasterDB.Id(uid).Cols(cols).Update(user)
+	// 变更了邮箱
+	if user.Email != me.Email {
+		cols += ",email,status"
+		user.Status = model.UserStatusNoAudit
+	}
+	_, err = MasterDB.Id(me.Uid).Cols(cols).Update(user)
 	if err != nil {
-		objLog.Errorf("更新用户 【%d】 信息失败：%s", uid, err)
+		objLog.Errorf("更新用户 【%d】 信息失败：%s", me.Uid, err)
 		errMsg = "对不起，服务器内部错误，请稍后再试！"
 		return
 	}
 
 	// 修改用户资料，活跃度+1
-	go self.IncrUserWeight("uid", uid, 1)
+	go self.IncrUserWeight("uid", me.Uid, 1)
 
 	return
 }
@@ -283,13 +288,13 @@ func (self UserLogic) FindCurrentUser(ctx context.Context, username interface{})
 	objLog := GetLogger(ctx)
 
 	user := &model.User{}
-	_, err := MasterDB.Where("username=? AND status=?", username, model.UserStatusAudit).Get(user)
+	_, err := MasterDB.Where("username=? AND status<=?", username, model.UserStatusAudit).Get(user)
 	if err != nil {
 		objLog.Errorf("获取用户 %q 信息失败：%s", username, err)
 		return &model.Me{}
 	}
 	if user.Uid == 0 {
-		logger.Infof("用户 %q 不存在！", username)
+		logger.Infof("用户 %q 不存在或状态不正常！", username)
 		return &model.Me{}
 	}
 
@@ -356,16 +361,15 @@ func (self UserLogic) Login(ctx context.Context, username, passwd string) (*mode
 		return nil, ErrUsername
 	}
 
-	// 检验用户是否审核通过，暂时只有审核通过的才能登录
+	// 检验用户状态是否正常（未激活的可以登录，但不能发布信息）
 	user := &model.User{}
 	MasterDB.Id(userLogin.Uid).Get(user)
-	if user.Status != model.UserStatusAudit {
+	if user.Status > model.UserStatusAudit {
 		objLog.Infof("用户 %q 的状态非审核通过, 用户的状态值：%d", username, user.Status)
 		var errMap = map[int]error{
-			model.UserStatusNoAudit: errors.New("您的账号未激活，请到注册邮件中进行激活操作！"),
-			model.UserStatusRefuse:  errors.New("您的账号审核拒绝"),
-			model.UserStatusFreeze:  errors.New("您的账号因为非法发布信息已被冻结，请联系管理员！"),
-			model.UserStatusOutage:  errors.New("您的账号因为非法发布信息已被停号，请联系管理员！"),
+			model.UserStatusRefuse: errors.New("您的账号审核拒绝"),
+			model.UserStatusFreeze: errors.New("您的账号因为非法发布信息已被冻结，请联系管理员！"),
+			model.UserStatusOutage: errors.New("您的账号因为非法发布信息已被停号，请联系管理员！"),
 		}
 		return nil, errMap[user.Status]
 	}
