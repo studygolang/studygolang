@@ -82,6 +82,8 @@ func (self UserLogic) CreateUser(ctx context.Context, form url.Values) (errMsg s
 	// 随机给一个默认头像
 	user.Avatar = DefaultAvatars[rand.Intn(len(DefaultAvatars))]
 	user.Open = 1
+	// 避免前端伪造，传递 status=1
+	user.Status = model.UserStatusNoAudit
 	_, err = session.Insert(user)
 	if err != nil {
 		session.Rollback()
