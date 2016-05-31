@@ -16,7 +16,7 @@
 	SG.Topics = function(){}
 	SG.Topics.prototype = new SG.Publisher();
 	SG.Topics.prototype.parseContent = function(selector) {
-		var markdownString = selector.text();
+		var markdownString = SG.preProcess(selector.text());
 		// 配置 marked 语法高亮
 		marked = SG.markSetting();
 

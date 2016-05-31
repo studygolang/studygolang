@@ -89,6 +89,13 @@ SG.replaceCodeChar = function(code) {
 	});
 }
 
+// marked 处理之前进行预处理
+SG.preProcess = function(content) {
+	// 对引用进行处理
+	content = content.replace(/&gt;/g, '>');
+	return content;
+}
+
 // 分析 @ 的用户
 SG.analyzeAt = function(text) {
 	var usernames = [];
