@@ -206,6 +206,7 @@ func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interf
 	} else {
 		data["wshost"] = global.App.Host + ":" + global.App.Port
 	}
+	global.App.SetUptime()
 	data["app"] = global.App
 
 	buf := new(bytes.Buffer)

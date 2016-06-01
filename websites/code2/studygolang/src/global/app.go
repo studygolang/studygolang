@@ -34,17 +34,23 @@ import (
 
 var Build string
 
-var App = struct {
+type app struct {
 	Name    string
 	Build   string
 	Version string
 	Date    time.Time
 
+	// 启动时间
+	LaunchTime time.Time
+	Uptime     time.Duration
+
 	Env string
 
 	Host string
 	Port string
-}{}
+}
+
+var App = app{}
 
 var showVersion = flag.Bool("version", false, "Print version of this binary")
 
@@ -58,6 +64,7 @@ func init() {
 	App.Name = os.Args[0]
 	App.Version = "V2.0.0"
 	App.Build = Build
+	App.LaunchTime = time.Now()
 
 	fileInfo, err := os.Stat(os.Args[0])
 	if err != nil {
@@ -67,6 +74,10 @@ func init() {
 	App.Date = fileInfo.ModTime()
 
 	App.Env = config.ConfigFile.MustValue("global", "env")
+}
+
+func (this *app) SetUptime() {
+	this.Uptime = time.Now().Sub(this.LaunchTime)
 }
 
 func PrintVersion(w io.Writer) {

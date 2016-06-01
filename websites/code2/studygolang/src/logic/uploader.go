@@ -182,7 +182,7 @@ func (this *UploaderLogic) UploadImage(ctx context.Context, reader gio.Reader, i
 }
 
 // TransferUrl 将外站图片URL转为本站，如果失败，返回原图
-func (this *UploaderLogic) TransferUrl(ctx context.Context, origUrl string) (string, error) {
+func (this *UploaderLogic) TransferUrl(ctx context.Context, origUrl string, prefixs ...string) (string, error) {
 	if origUrl == "" || strings.Contains(origUrl, "studygolang") {
 		return origUrl, errors.New("origin image is empty or is studygolang.com")
 	}
@@ -215,7 +215,11 @@ func (this *UploaderLogic) TransferUrl(ctx context.Context, origUrl string) (str
 		}
 	}
 
-	path := times.Format("ymd") + "/" + md5 + ext
+	prefix := times.Format("ymd")
+	if len(prefixs) > 0 {
+		prefix = prefixs[0]
+	}
+	path := prefix + "/" + md5 + ext
 	reader := bytes.NewReader(buf)
 
 	if len(buf) > MaxImageSize {

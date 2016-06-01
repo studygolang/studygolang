@@ -249,6 +249,9 @@ func (InstallController) genConfig(ctx echo.Context) error {
 	config.ConfigFile.SetKeyComments("sensitive", "content", "内容关键词")
 	config.ConfigFile.SetValue("sensitive", "content", "")
 
+	config.ConfigFile.SetSectionComments("search", "搜索配置")
+	config.ConfigFile.SetValue("search", "engine_url", "")
+
 	// 校验数据库配置是否正确有效
 	if err := db.TestDB(); err != nil {
 		return err

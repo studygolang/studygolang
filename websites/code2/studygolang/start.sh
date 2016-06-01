@@ -16,6 +16,7 @@ if [ ! -d pid ]; then
 fi
 
 export GOTRACEBACK=crash
+ulimit -c unlimited
 
 bin/studygolang >> log/panic.log 2>&1 &
 

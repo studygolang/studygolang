@@ -165,6 +165,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/lunny/html2md",
+			"repository": "https://github.com/lunny/html2md",
+			"revision": "7b7960a64564188cf224bd2ea5a19386f8bca2ab",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/mattn/go-colorable",
 			"repository": "https://github.com/mattn/go-colorable",
 			"revision": "9cbef7c35391cca05f15f8181dc0b18bc9736dbb",
@@ -203,7 +209,7 @@
 		{
 			"importpath": "github.com/polaris1119/logger",
 			"repository": "https://github.com/polaris1119/logger",
-			"revision": "3ff33b131109cc29dba89eaad5035b7fadbd934b",
+			"revision": "bf758fa309a21f0d24ebd0791bfb9180fc5e4fb8",
 			"branch": "master"
 		},
 		{
