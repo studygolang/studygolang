@@ -24,8 +24,8 @@ type WebsocketController struct {
 	mutex    sync.Mutex
 }
 
-func (this *WebsocketController) RegisterRoute(e *echo.Group) {
-	e.Get("/ws", standard.WrapHandler(websocket.Handler(this.Ws)))
+func (this *WebsocketController) RegisterRoute(g *echo.Group) {
+	g.Get("/ws", standard.WrapHandler(websocket.Handler(this.Ws)))
 }
 
 // websocket，统计在线用户数

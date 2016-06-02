@@ -203,7 +203,7 @@
 		{
 			"importpath": "github.com/polaris1119/goutils",
 			"repository": "https://github.com/polaris1119/goutils",
-			"revision": "15c2eed5ef7632c6807c5b46eaf4cfc3c201d629",
+			"revision": "582c98b3184b83e1600833fb042b3ecc3070dcda",
 			"branch": "master"
 		},
 		{

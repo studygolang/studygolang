@@ -403,12 +403,14 @@ window.WebSocket = window.WebSocket || window.MozWebSocket;
 if (window.WebSocket) {
 	var websocket = new WebSocket(wsUrl);
 
-	websocket.onopen = function(){
+	websocket.onopen = function(evt){
 		// console.log("open");
+		// console.log(evt);
 	}
 
-	websocket.onclose = function(){
+	websocket.onclose = function(evt){
 		// console.log("close");
+		// console.log(evt);
 	}
 
 	websocket.onmessage = function(msgEvent){
@@ -433,7 +435,9 @@ if (window.WebSocket) {
 		}
 	}
 	
-	// websocket.onerror = onError;
+	websocket.onerror = function(evt) {
+		// console.log(evt);
+	}
 }
 
 $(function(){
