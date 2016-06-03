@@ -58,10 +58,25 @@ func (this *UserData) MessageQueue(serverId int) chan *Message {
 	return this.serverMsgQueue[serverId]
 }
 
+func (this *UserData) Remove(serverId int) {
+	this.rwMutex.RLock()
+	defer this.rwMutex.RUnlock()
+	delete(this.serverMsgQueue, serverId)
+}
+
 func (this *UserData) InitMessageQueue(serverId int) {
 	this.rwMutex.Lock()
 	defer this.rwMutex.Unlock()
 	this.serverMsgQueue[serverId] = make(chan *Message, 1)
+}
+
+func (this *UserData) SendMessage(message *Message) {
+	this.rwMutex.Lock()
+	defer this.rwMutex.Unlock()
+
+	for _, messageQueue := range this.serverMsgQueue {
+		messageQueue <- message
+	}
 }
 
 var Book = &book{users: make(map[int]*UserData)}
@@ -115,7 +130,7 @@ func (this *book) DelUser(user, serverId int) {
 	if this.users[user].Len() == 1 {
 		delete(this.users, user)
 	} else {
-		delete(this.users[user].serverMsgQueue, serverId)
+		this.users[user].Remove(serverId)
 	}
 }
 
@@ -140,9 +155,7 @@ func (this *book) Len() int {
 func (this *book) PostMessage(uid int, message *Message) {
 	if userData, ok := this.users[uid]; ok {
 		logger.Infoln("post message to", uid, message)
-		for _, messageQueue := range userData.serverMsgQueue {
-			messageQueue <- message
-		}
+		userData.SendMessage(message)
 	}
 }
 
@@ -150,9 +163,7 @@ func (this *book) PostMessage(uid int, message *Message) {
 func (this *book) BroadcastAllUsersMessage(message *Message) {
 	logger.Infoln("BroadcastAllUsersMessage message", message)
 	for _, userData := range this.users {
-		for _, messageQueue := range userData.serverMsgQueue {
-			messageQueue <- message
-		}
+		userData.SendMessage(message)
 	}
 }
 
@@ -163,9 +174,7 @@ func (this *book) BroadcastToOthersMessage(message *Message, myself int) {
 		if uid == myself {
 			continue
 		}
-		for _, messageQueue := range userData.serverMsgQueue {
-			messageQueue <- message
-		}
+		userData.SendMessage(message)
 	}
 }
 
