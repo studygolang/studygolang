@@ -153,15 +153,20 @@ func (this *book) Len() int {
 
 // 给某个用户发送一条消息
 func (this *book) PostMessage(uid int, message *Message) {
+	this.rwMutex.RLock()
+	defer this.rwMutex.RUnlock()
 	if userData, ok := this.users[uid]; ok {
 		logger.Infoln("post message to", uid, message)
-		userData.SendMessage(message)
+		go userData.SendMessage(message)
 	}
 }
 
 // 给所有用户广播消息
 func (this *book) BroadcastAllUsersMessage(message *Message) {
 	logger.Infoln("BroadcastAllUsersMessage message", message)
+
+	this.rwMutex.RLock()
+	defer this.rwMutex.RUnlock()
 	for _, userData := range this.users {
 		userData.SendMessage(message)
 	}
@@ -170,6 +175,9 @@ func (this *book) BroadcastAllUsersMessage(message *Message) {
 // 给除了自己的其他用户广播消息
 func (this *book) BroadcastToOthersMessage(message *Message, myself int) {
 	logger.Infoln("BroadcastToOthersMessage message", message)
+
+	this.rwMutex.RLock()
+	defer this.rwMutex.RUnlock()
 	for uid, userData := range this.users {
 		if uid == myself {
 			continue
