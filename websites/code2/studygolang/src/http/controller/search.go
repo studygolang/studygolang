@@ -30,7 +30,7 @@ func (SearchController) Search(ctx echo.Context) error {
 		"f":        field,
 	}
 	if err == nil {
-		uri := "/search?q=" + q + "&f=" + field
+		uri := "/search?q=" + q + "&f=" + field + "&"
 		paginator := logic.NewPaginatorWithPerPage(p, rows)
 		data["pageHtml"] = paginator.SetTotal(int64(respBody.NumFound)).GetPageHtml(uri)
 	}

@@ -92,8 +92,9 @@ func (this *book) AddUser(user, serverId int) *UserData {
 	var userData *UserData
 	var ok bool
 	this.rwMutex.Lock()
-	defer this.rwMutex.Unlock()
 	if userData, ok = this.users[user]; ok {
+		this.rwMutex.Unlock()
+
 		userData.InitMessageQueue(serverId)
 		userData.onlineDuartion += time.Now().Sub(userData.lastAccessTime)
 		userData.lastAccessTime = time.Now()
@@ -103,12 +104,15 @@ func (this *book) AddUser(user, serverId int) *UserData {
 			lastAccessTime: time.Now(),
 		}
 		this.users[user] = userData
+		length := len(this.users)
 
-		onlineInfo := map[string]int{"online": len(this.users)}
+		this.rwMutex.Unlock()
+
+		onlineInfo := map[string]int{"online": length}
 		// 在线人数超过历史最高
-		if len(this.users) > MaxOnlineNum() {
+		if length > MaxOnlineNum() {
 			maxRwMu.Lock()
-			maxOnlineNum = len(this.users)
+			maxOnlineNum = length
 			onlineInfo["maxonline"] = maxOnlineNum
 			maxRwMu.Unlock()
 			saveMaxOnlineNum()
