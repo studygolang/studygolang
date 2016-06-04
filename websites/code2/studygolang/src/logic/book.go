@@ -59,20 +59,20 @@ func (this *UserData) MessageQueue(serverId int) chan *Message {
 }
 
 func (this *UserData) Remove(serverId int) {
-	this.rwMutex.RLock()
-	defer this.rwMutex.RUnlock()
+	this.rwMutex.Lock()
+	defer this.rwMutex.Unlock()
 	delete(this.serverMsgQueue, serverId)
 }
 
 func (this *UserData) InitMessageQueue(serverId int) {
 	this.rwMutex.Lock()
 	defer this.rwMutex.Unlock()
-	this.serverMsgQueue[serverId] = make(chan *Message, 1)
+	this.serverMsgQueue[serverId] = make(chan *Message, 4)
 }
 
 func (this *UserData) SendMessage(message *Message) {
-	this.rwMutex.Lock()
-	defer this.rwMutex.Unlock()
+	this.rwMutex.RLock()
+	defer this.rwMutex.RUnlock()
 
 	for _, messageQueue := range this.serverMsgQueue {
 		messageQueue <- message
@@ -100,7 +100,7 @@ func (this *book) AddUser(user, serverId int) *UserData {
 		userData.lastAccessTime = time.Now()
 	} else {
 		userData = &UserData{
-			serverMsgQueue: map[int]chan *Message{serverId: make(chan *Message, 1)},
+			serverMsgQueue: map[int]chan *Message{serverId: make(chan *Message, 4)},
 			lastAccessTime: time.Now(),
 		}
 		this.users[user] = userData
