@@ -25,6 +25,8 @@ const (
 	WsMsgOnline        // 发送在线用户数（和需要时也发历史最高）
 )
 
+const MessageQueueLen = 1
+
 type Message struct {
 	Type int         `json:"type"`
 	Body interface{} `json:"body"`
@@ -67,15 +69,20 @@ func (this *UserData) Remove(serverId int) {
 func (this *UserData) InitMessageQueue(serverId int) {
 	this.rwMutex.Lock()
 	defer this.rwMutex.Unlock()
-	this.serverMsgQueue[serverId] = make(chan *Message, 4)
+	this.serverMsgQueue[serverId] = make(chan *Message, MessageQueueLen)
 }
 
 func (this *UserData) SendMessage(message *Message) {
 	this.rwMutex.RLock()
 	defer this.rwMutex.RUnlock()
 
-	for _, messageQueue := range this.serverMsgQueue {
-		messageQueue <- message
+	for serverId, messageQueue := range this.serverMsgQueue {
+		// 有可能用户已经退出，导致 messageQueue满，阻塞
+		if len(messageQueue) < MessageQueueLen {
+			messageQueue <- message
+		} else {
+			logger.Infoln("server_id:", serverId, "had close")
+		}
 	}
 }
 
@@ -100,7 +107,7 @@ func (this *book) AddUser(user, serverId int) *UserData {
 		userData.lastAccessTime = time.Now()
 	} else {
 		userData = &UserData{
-			serverMsgQueue: map[int]chan *Message{serverId: make(chan *Message, 4)},
+			serverMsgQueue: map[int]chan *Message{serverId: make(chan *Message, MessageQueueLen)},
 			lastAccessTime: time.Now(),
 		}
 		this.users[user] = userData
