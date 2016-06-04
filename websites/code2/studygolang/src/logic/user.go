@@ -311,7 +311,7 @@ func (self UserLogic) FindCurrentUser(ctx context.Context, username interface{})
 	}
 
 	// TODO: 先每次都记录登录时间
-	self.RecordLoginTime(user.Username)
+	go self.RecordLoginTime(user.Username)
 
 	if user.IsRoot {
 		me.IsAdmin = true
