@@ -93,13 +93,8 @@ func (self EmailLogic) SendResetpwdMail(email, uuid string) {
 
 // 自定义模板函数
 var emailFuncMap = template.FuncMap{
-	"time_format": func(s string) string {
-		t, err := time.ParseInLocation("2006-01-02 15:04:05", s, time.Local)
-		if err != nil {
-			return s
-		}
-
-		return t.Format("01-02")
+	"time_format": func(t model.OftenTime) string {
+		return time.Time(t).Format("01-02")
 	},
 	"substring": util.Substring,
 }
