@@ -61,7 +61,7 @@ func main() {
 	frontG := e.Group("", thirdmw.EchoCache())
 	controller.RegisterRoutes(frontG)
 
-	frontG.Get("/admin", echo.HandlerFunc(admin.AdminIndex), pwm.NeedLogin(), pwm.AdminAuth())
+	frontG.GET("/admin", echo.HandlerFunc(admin.AdminIndex), pwm.NeedLogin(), pwm.AdminAuth())
 	adminG := e.Group("/admin", pwm.NeedLogin(), pwm.AdminAuth())
 	admin.RegisterRoutes(adminG)
 

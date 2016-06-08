@@ -13,8 +13,6 @@ import (
 	"net/http"
 	"strconv"
 
-	. "http"
-
 	"github.com/labstack/echo"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/slices"
@@ -22,10 +20,10 @@ import (
 
 type CommentController struct{}
 
-func (self CommentController) RegisterRoute(e *echo.Group) {
-	e.Get("/at/users", echo.HandlerFunc(self.AtUsers))
-	e.Post("/comment/:objid", echo.HandlerFunc(self.Create), middleware.NeedLogin(), middleware.Sensivite(), middleware.PublishNotice())
-	e.Get("/object/comments", echo.HandlerFunc(self.CommentList))
+func (self CommentController) RegisterRoute(g *echo.Group) {
+	g.Get("/at/users", self.AtUsers)
+	g.Post("/comment/:objid", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.PublishNotice())
+	g.Get("/object/comments", self.CommentList)
 }
 
 // AtUsers 评论或回复 @ 某人 suggest
@@ -41,7 +39,7 @@ func (CommentController) Create(ctx echo.Context) error {
 
 	// 入库
 	objid := goutils.MustInt(ctx.Param("objid"))
-	comment, err := logic.DefaultComment.Publish(ctx, user.Uid, objid, Request(ctx).Form)
+	comment, err := logic.DefaultComment.Publish(ctx, user.Uid, objid, ctx.FormParams())
 	if err != nil {
 		return fail(ctx, 1, "服务器内部错误")
 	}

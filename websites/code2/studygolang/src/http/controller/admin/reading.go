@@ -11,8 +11,6 @@ import (
 	"model"
 	"net/http"
 
-	. "http"
-
 	"github.com/labstack/echo"
 	"github.com/polaris1119/goutils"
 )
@@ -21,9 +19,9 @@ type ReadingController struct{}
 
 // 注册路由
 func (self ReadingController) RegisterRoute(g *echo.Group) {
-	g.Get("/reading/list", echo.HandlerFunc(self.ReadingList))
-	g.Post("/reading/query.html", echo.HandlerFunc(self.ReadingQuery))
-	g.Match([]string{"GET", "POST"}, "/reading/publish", echo.HandlerFunc(self.Publish))
+	g.GET("/reading/list", self.ReadingList)
+	g.POST("/reading/query.html", self.ReadingQuery)
+	g.Match([]string{"GET", "POST"}, "/reading/publish", self.Publish)
 }
 
 // ReadingList 所有晨读（分页）
@@ -73,7 +71,7 @@ func (ReadingController) Publish(ctx echo.Context) error {
 
 	if ctx.FormValue("submit") == "1" {
 		user := ctx.Get("user").(*model.Me)
-		errMsg, err := logic.DefaultReading.SaveReading(ctx, Request(ctx).Form, user.Username)
+		errMsg, err := logic.DefaultReading.SaveReading(ctx, ctx.FormParams(), user.Username)
 		if err != nil {
 			return fail(ctx, 1, errMsg)
 		}

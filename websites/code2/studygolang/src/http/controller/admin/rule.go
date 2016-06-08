@@ -11,8 +11,6 @@ import (
 	"model"
 	"net/http"
 
-	. "http"
-
 	"github.com/labstack/echo"
 )
 
@@ -20,11 +18,11 @@ type RuleController struct{}
 
 // 注册路由
 func (self RuleController) RegisterRoute(g *echo.Group) {
-	g.Get("/crawl/rule/list", echo.HandlerFunc(self.RuleList))
-	g.Post("/crawl/rule/query.html", echo.HandlerFunc(self.Query))
-	g.Match([]string{"GET", "POST"}, "/crawl/rule/new", echo.HandlerFunc(self.New))
-	g.Match([]string{"GET", "POST"}, "/crawl/rule/modify", echo.HandlerFunc(self.Modify))
-	g.Post("/crawl/rule/del", echo.HandlerFunc(self.Del))
+	g.GET("/crawl/rule/list", self.RuleList)
+	g.POST("/crawl/rule/query.html", self.Query)
+	g.Match([]string{"GET", "POST"}, "/crawl/rule/new", self.New)
+	g.Match([]string{"GET", "POST"}, "/crawl/rule/modify", self.Modify)
+	g.POST("/crawl/rule/del", self.Del)
 }
 
 // RuleList 所有规则（分页）
@@ -76,7 +74,7 @@ func (RuleController) New(ctx echo.Context) error {
 	if ctx.FormValue("submit") == "1" {
 		user := ctx.Get("user").(*model.Me)
 
-		errMsg, err := logic.DefaultRule.Save(ctx, Request(ctx).Form, user.Username)
+		errMsg, err := logic.DefaultRule.Save(ctx, ctx.FormParams(), user.Username)
 		if err != nil {
 			return fail(ctx, 1, errMsg)
 		}
@@ -93,7 +91,7 @@ func (self RuleController) Modify(ctx echo.Context) error {
 	if ctx.FormValue("submit") == "1" {
 		user := ctx.Get("user").(*model.Me)
 
-		errMsg, err := logic.DefaultRule.Save(ctx, Request(ctx).Form, user.Username)
+		errMsg, err := logic.DefaultRule.Save(ctx, ctx.FormParams(), user.Username)
 		if err != nil {
 			return fail(ctx, 1, errMsg)
 		}

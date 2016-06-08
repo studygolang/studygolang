@@ -16,7 +16,7 @@ type ToolController struct{}
 
 // 注册路由
 func (self ToolController) RegisterRoute(g *echo.Group) {
-	g.Get("/tool/sitemap", echo.HandlerFunc(self.GenSitemap))
+	g.GET("/tool/sitemap", self.GenSitemap)
 }
 
 // GenSitemap

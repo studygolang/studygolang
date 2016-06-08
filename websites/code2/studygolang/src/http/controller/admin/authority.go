@@ -17,8 +17,8 @@ type AuthorityController struct{}
 
 // 注册路由
 func (self AuthorityController) RegisterRoute(g *echo.Group) {
-	g.Get("/user/auth/list", echo.HandlerFunc(self.AuthList))
-	g.Post("/user/auth/query.html", echo.HandlerFunc(self.AuthQuery))
+	g.GET("/user/auth/list", self.AuthList)
+	g.POST("/user/auth/query.html", self.AuthQuery)
 }
 
 // AuthList 所有权限（分页）

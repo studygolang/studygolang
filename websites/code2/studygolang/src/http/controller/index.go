@@ -21,10 +21,10 @@ import (
 type IndexController struct{}
 
 // 注册路由
-func (self IndexController) RegisterRoute(e *echo.Group) {
-	e.Get("/", echo.HandlerFunc(self.Index))
-	e.Get("/wr", echo.HandlerFunc(self.WrapUrl))
-	e.Get("/pkgdoc", echo.HandlerFunc(self.Pkgdoc))
+func (self IndexController) RegisterRoute(g *echo.Group) {
+	g.GET("/", self.Index)
+	g.GET("/wr", self.WrapUrl)
+	g.GET("/pkgdoc", self.Pkgdoc)
 }
 
 // Index 首页

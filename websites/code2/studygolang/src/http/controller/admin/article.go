@@ -12,8 +12,6 @@ import (
 	"net/http"
 	"strings"
 
-	. "http"
-
 	"github.com/labstack/echo"
 )
 
@@ -21,10 +19,10 @@ type ArticleController struct{}
 
 // 注册路由
 func (self ArticleController) RegisterRoute(g *echo.Group) {
-	g.Get("/crawl/article/list", echo.HandlerFunc(self.ArticleList))
-	g.Post("/crawl/article/query.html", echo.HandlerFunc(self.ArticleQuery))
-	g.Match([]string{"GET", "POST"}, "/crawl/article/new", echo.HandlerFunc(self.CrawlArticle))
-	g.Match([]string{"GET", "POST"}, "/crawl/article/modify", echo.HandlerFunc(self.Modify))
+	g.GET("/crawl/article/list", self.ArticleList)
+	g.POST("/crawl/article/query.html", self.ArticleQuery)
+	g.Match([]string{"GET", "POST"}, "/crawl/article/new", self.CrawlArticle)
+	g.Match([]string{"GET", "POST"}, "/crawl/article/modify", self.Modify)
 }
 
 // ArticleList 所有文章（分页）
@@ -100,7 +98,7 @@ func (self ArticleController) Modify(ctx echo.Context) error {
 
 	if ctx.FormValue("submit") == "1" {
 		user := ctx.Get("user").(*model.Me)
-		errMsg, err := logic.DefaultArticle.Modify(ctx, user, Request(ctx).Form)
+		errMsg, err := logic.DefaultArticle.Modify(ctx, user, ctx.FormParams())
 		if err != nil {
 			return fail(ctx, 1, errMsg)
 		}

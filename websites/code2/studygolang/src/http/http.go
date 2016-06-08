@@ -42,6 +42,7 @@ func SetCookie(ctx echo.Context, username string) {
 	session.Save(req, resp)
 }
 
+// 必须是 http.Request
 func GetCookieSession(ctx echo.Context) *sessions.Session {
 	session, _ := Store.Get(Request(ctx), "user")
 	return session

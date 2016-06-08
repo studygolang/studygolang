@@ -7,6 +7,13 @@ if [ ! -f getpkg.sh ]; then
     exit 1
 fi
 
+if ! type gvt >/dev/null 2>&1; then
+	echo >&2 "This script requires the gvt tool."
+	echo >&2 "You may obtain it with the following command:"
+	echo >&2 "go get github.com/polaris1119/gvt"
+	exit 1
+fi
+
 OLDGOPATH="$GOPATH"
 export GOPATH=`pwd`
 

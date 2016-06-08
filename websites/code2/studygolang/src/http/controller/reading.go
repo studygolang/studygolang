@@ -18,9 +18,9 @@ import (
 type ReadingController struct{}
 
 // 注册路由
-func (self ReadingController) RegisterRoute(e *echo.Group) {
-	e.Get("/readings", echo.HandlerFunc(self.ReadingList))
-	e.Get("/readings/:id", echo.HandlerFunc(self.IReading))
+func (self ReadingController) RegisterRoute(g *echo.Group) {
+	g.GET("/readings", self.ReadingList)
+	g.GET("/readings/:id", self.IReading)
 }
 
 // ReadingList 晨读列表页

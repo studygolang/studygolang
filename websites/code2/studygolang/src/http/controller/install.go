@@ -22,10 +22,10 @@ type InstallController struct{}
 
 // 注册路由
 func (self InstallController) RegisterRoute(g *echo.Group) {
-	g.Get("/install", echo.HandlerFunc(self.SetupConfig))
-	g.Match([]string{"GET", "POST"}, "/install/setup-config", echo.HandlerFunc(self.SetupConfig))
-	g.Match([]string{"GET", "POST"}, "/install/do", echo.HandlerFunc(self.DoInstall))
-	g.Match([]string{"GET", "POST"}, "/install/options", echo.HandlerFunc(self.SetupOptions))
+	g.GET("/install", self.SetupConfig)
+	g.Match([]string{"GET", "POST"}, "/install/setup-config", self.SetupConfig)
+	g.Match([]string{"GET", "POST"}, "/install/do", self.DoInstall)
+	g.Match([]string{"GET", "POST"}, "/install/options", self.SetupOptions)
 }
 
 func (self InstallController) SetupConfig(ctx echo.Context) error {

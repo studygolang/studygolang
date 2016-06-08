@@ -30,8 +30,8 @@ func init() {
 
 // Sensivite 用于 echo 框架的过滤发布敏感词（广告）
 func Sensivite() echo.MiddlewareFunc {
-	return func(next echo.Handler) echo.Handler {
-		return echo.HandlerFunc(func(ctx echo.Context) error {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) error {
 			content := ctx.FormValue("content")
 			title := ctx.FormValue("title")
 
@@ -55,12 +55,12 @@ func Sensivite() echo.MiddlewareFunc {
 				return errors.New("对不起，您的账号已被冻结！")
 			}
 
-			if err := next.Handle(ctx); err != nil {
+			if err := next(ctx); err != nil {
 				return err
 			}
 
 			return nil
-		})
+		}
 	}
 }
 

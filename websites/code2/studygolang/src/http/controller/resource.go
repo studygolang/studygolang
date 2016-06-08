@@ -29,12 +29,12 @@ func init() {
 type ResourceController struct{}
 
 // 注册路由
-func (self ResourceController) RegisterRoute(e *echo.Group) {
-	e.Get("/resources", echo.HandlerFunc(self.ReadList))
-	e.Get("/resources/cat/:catid", echo.HandlerFunc(self.ReadCatResources))
-	e.Get("/resources/:id", echo.HandlerFunc(self.Detail))
-	e.Match([]string{"GET", "POST"}, "/resources/new", echo.HandlerFunc(self.Create), middleware.NeedLogin(), middleware.Sensivite(), middleware.PublishNotice())
-	e.Match([]string{"GET", "POST"}, "/resources/modify", echo.HandlerFunc(self.Modify), middleware.NeedLogin(), middleware.Sensivite())
+func (self ResourceController) RegisterRoute(g *echo.Group) {
+	g.GET("/resources", self.ReadList)
+	g.GET("/resources/cat/:catid", self.ReadCatResources)
+	g.GET("/resources/:id", self.Detail)
+	g.Match([]string{"GET", "POST"}, "/resources/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.PublishNotice())
+	g.Match([]string{"GET", "POST"}, "/resources/modify", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
 }
 
 // ReadList 资源索引页
@@ -49,7 +49,7 @@ func (ResourceController) ReadCatResources(ctx echo.Context) error {
 	catid := goutils.MustInt(ctx.Param("catid"))
 
 	resources, total := logic.DefaultResource.FindByCatid(ctx, paginator, catid)
-	pageHtml := paginator.SetTotal(total).GetPageHtml(Request(ctx).URL.Path)
+	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
 
 	return render(ctx, "resources/index.html", map[string]interface{}{"activeResources": "active", "resources": resources, "categories": logic.AllCategory, "page": template.HTML(pageHtml), "curCatid": catid})
 }
@@ -83,7 +83,7 @@ func (ResourceController) Detail(ctx echo.Context) error {
 func (ResourceController) Create(ctx echo.Context) error {
 	title := ctx.FormValue("title")
 	// 请求新建资源页面
-	if title == "" || Request(ctx).Method != "POST" {
+	if title == "" || ctx.Request().Method() != "POST" {
 		return render(ctx, "resources/new.html", map[string]interface{}{"activeResources": "active", "categories": logic.AllCategory})
 	}
 
@@ -103,7 +103,7 @@ func (ResourceController) Create(ctx echo.Context) error {
 	}
 
 	me := ctx.Get("user").(*model.Me)
-	err := logic.DefaultResource.Publish(ctx, me, Request(ctx).Form)
+	err := logic.DefaultResource.Publish(ctx, me, ctx.FormParams())
 	if err != nil {
 		return fail(ctx, 2, "内部服务错误，请稍候再试！")
 	}
@@ -119,13 +119,13 @@ func (ResourceController) Modify(ctx echo.Context) error {
 	}
 
 	// 请求编辑資源页面
-	if Request(ctx).Method != "POST" {
+	if ctx.Request().Method() != "POST" {
 		resource := logic.DefaultResource.FindResource(ctx, id)
 		return render(ctx, "resources/new.html", map[string]interface{}{"resource": resource, "activeResources": "active", "categories": logic.AllCategory})
 	}
 
 	me := ctx.Get("user").(*model.Me)
-	err := logic.DefaultResource.Publish(ctx, me, Request(ctx).Form)
+	err := logic.DefaultResource.Publish(ctx, me, ctx.FormParams())
 	if err != nil {
 		if err == logic.NotModifyAuthorityErr {
 			return ctx.String(http.StatusForbidden, "没有权限修改")

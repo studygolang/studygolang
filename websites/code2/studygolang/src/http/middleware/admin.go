@@ -15,18 +15,18 @@ import (
 
 // AdminAuth 用于 echo 框架的判断用户是否有管理后台权限
 func AdminAuth() echo.MiddlewareFunc {
-	return func(next echo.Handler) echo.Handler {
-		return echo.HandlerFunc(func(ctx echo.Context) error {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) error {
 			user := ctx.Get("user").(*model.Me)
 			if !user.IsAdmin {
 				return ctx.HTML(http.StatusForbidden, `403 Forbidden`)
 			}
 
-			if err := next.Handle(ctx); err != nil {
+			if err := next(ctx); err != nil {
 				return err
 			}
 
 			return nil
-		})
+		}
 	}
 }

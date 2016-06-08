@@ -30,17 +30,17 @@ import (
 type AccountController struct{}
 
 // 注册路由
-func (self AccountController) RegisterRoute(e *echo.Group) {
-	e.Any("/account/register", echo.HandlerFunc(self.Register))
-	e.Post("/account/send_activate_email", echo.HandlerFunc(self.SendActivateEmail))
-	e.Get("/account/activate", echo.HandlerFunc(self.Activate))
-	e.Any("/account/login", echo.HandlerFunc(self.Login))
-	e.Any("/account/edit", echo.HandlerFunc(self.Edit), middleware.NeedLogin())
-	e.Post("/account/change_avatar", echo.HandlerFunc(self.ChangeAvatar), middleware.NeedLogin())
-	e.Post("/account/changepwd", echo.HandlerFunc(self.ChangePwd), middleware.NeedLogin())
-	e.Any("/account/forgetpwd", echo.HandlerFunc(self.ForgetPasswd))
-	e.Any("/account/resetpwd", echo.HandlerFunc(self.ResetPasswd))
-	e.Get("/account/logout", echo.HandlerFunc(self.Logout), middleware.NeedLogin())
+func (self AccountController) RegisterRoute(g *echo.Group) {
+	g.Any("/account/register", self.Register)
+	g.Post("/account/send_activate_email", self.SendActivateEmail)
+	g.Get("/account/activate", self.Activate)
+	g.Any("/account/login", self.Login)
+	g.Any("/account/edit", self.Edit, middleware.NeedLogin())
+	g.Post("/account/change_avatar", self.ChangeAvatar, middleware.NeedLogin())
+	g.Post("/account/changepwd", self.ChangePwd, middleware.NeedLogin())
+	g.Any("/account/forgetpwd", self.ForgetPasswd)
+	g.Any("/account/resetpwd", self.ResetPasswd)
+	g.Get("/account/logout", self.Logout, middleware.NeedLogin())
 }
 
 // 保存uuid和email的对应关系（TODO:重启如何处理，有效期问题）
@@ -208,7 +208,7 @@ func (AccountController) Login(ctx echo.Context) error {
 	data := make(map[string]interface{})
 
 	username := ctx.FormValue("username")
-	if username == "" || Request(ctx).Method != "POST" {
+	if username == "" || ctx.Request().Method() != "POST" {
 		data["redirect_uri"] = uri
 		return render(ctx, contentTpl, data)
 	}
@@ -307,7 +307,7 @@ func (AccountController) ForgetPasswd(ctx echo.Context) error {
 	data := map[string]interface{}{"activeUsers": "active"}
 
 	email := ctx.FormValue("email")
-	if email == "" || Request(ctx).Method != "POST" {
+	if email == "" || ctx.Request().Method() != "POST" {
 		return render(ctx, contentTpl, data)
 	}
 
@@ -352,7 +352,7 @@ func (AccountController) ResetPasswd(ctx echo.Context) error {
 	contentTpl := "user/reset_pwd.html"
 	data := map[string]interface{}{"activeUsers": "active"}
 
-	method := Request(ctx).Method
+	method := ctx.Request().Method()
 
 	passwd := ctx.FormValue("passwd")
 	email, ok := resetPwdMap[uuid]

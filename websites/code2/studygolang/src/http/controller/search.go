@@ -11,7 +11,7 @@ type SearchController struct{}
 
 // 注册路由
 func (self SearchController) RegisterRoute(g *echo.Group) {
-	g.Get("/search", echo.HandlerFunc(self.Search))
+	g.GET("/search", self.Search)
 }
 
 // Search

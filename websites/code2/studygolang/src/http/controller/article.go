@@ -28,9 +28,9 @@ func init() {
 type ArticleController struct{}
 
 // 注册路由
-func (this *ArticleController) RegisterRoute(e *echo.Group) {
-	e.Get("/articles", echo.HandlerFunc(this.ReadList))
-	e.Get("/articles/:id", echo.HandlerFunc(this.Detail))
+func (this *ArticleController) RegisterRoute(g *echo.Group) {
+	g.Get("/articles", this.ReadList)
+	g.Get("/articles/:id", this.Detail)
 }
 
 // ReadList 网友文章列表页

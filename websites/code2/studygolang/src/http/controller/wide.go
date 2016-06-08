@@ -11,8 +11,8 @@ import "github.com/labstack/echo"
 type WideController struct{}
 
 // 注册路由
-func (self WideController) RegisterRoute(e *echo.Group) {
-	e.Get("/wide/playground", echo.HandlerFunc(self.Playground))
+func (self WideController) RegisterRoute(g *echo.Group) {
+	g.GET("/wide/playground", self.Playground)
 }
 
 // Playground Wide 的内嵌 iframe 的 playground

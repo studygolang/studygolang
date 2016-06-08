@@ -22,8 +22,8 @@ import (
 
 // AutoLogin 用于 echo 框架的自动登录和通过 cookie 获取用户信息
 func AutoLogin() echo.MiddlewareFunc {
-	return func(next echo.Handler) echo.Handler {
-		return echo.HandlerFunc(func(ctx echo.Context) error {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) error {
 			session := GetCookieSession(ctx)
 			username, ok := session.Values["username"]
 			if ok {
@@ -36,19 +36,19 @@ func AutoLogin() echo.MiddlewareFunc {
 				}
 			}
 
-			if err := next.Handle(ctx); err != nil {
+			if err := next(ctx); err != nil {
 				return err
 			}
 
 			return nil
-		})
+		}
 	}
 }
 
 // NeedLogin 用于 echo 框架的验证必须登录的请求
 func NeedLogin() echo.MiddlewareFunc {
-	return func(next echo.Handler) echo.Handler {
-		return echo.HandlerFunc(func(ctx echo.Context) error {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) error {
 			user, ok := ctx.Get("user").(*model.Me)
 			if !ok || user.Status != model.UserStatusAudit {
 				method := ctx.Request().Method()
@@ -75,11 +75,11 @@ func NeedLogin() echo.MiddlewareFunc {
 				}
 			}
 
-			if err := next.Handle(ctx); err != nil {
+			if err := next(ctx); err != nil {
 				return err
 			}
 
 			return nil
-		})
+		}
 	}
 }

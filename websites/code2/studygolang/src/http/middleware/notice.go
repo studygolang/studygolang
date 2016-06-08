@@ -10,9 +10,9 @@ import (
 
 // PublishNotice 用于 echo 框架，用户发布内容邮件通知站长
 func PublishNotice() echo.MiddlewareFunc {
-	return func(next echo.Handler) echo.Handler {
-		return echo.HandlerFunc(func(ctx echo.Context) error {
-			if err := next.Handle(ctx); err != nil {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) error {
+			if err := next(ctx); err != nil {
 				return err
 			}
 
@@ -37,6 +37,6 @@ func PublishNotice() echo.MiddlewareFunc {
 			}
 
 			return nil
-		})
+		}
 	}
 }

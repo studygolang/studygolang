@@ -29,22 +29,22 @@ func init() {
 type WikiController struct{}
 
 // 注册路由
-func (self WikiController) RegisterRoute(e *echo.Group) {
-	e.Match([]string{"GET", "POST"}, "/wiki/new", echo.HandlerFunc(self.Create), middleware.NeedLogin(), middleware.Sensivite())
-	e.Get("/wiki", echo.HandlerFunc(self.ReadList))
-	e.Get("/wiki/:uri", echo.HandlerFunc(self.Detail))
+func (self WikiController) RegisterRoute(g *echo.Group) {
+	g.Match([]string{"GET", "POST"}, "/wiki/new", self.Create, middleware.NeedLogin(), middleware.Sensivite())
+	g.GET("/wiki", self.ReadList)
+	g.GET("/wiki/:uri", self.Detail)
 }
 
 // Create 创建wiki页
 func (WikiController) Create(ctx echo.Context) error {
 	title := ctx.FormValue("title")
 	// 请求新建 wiki 页面
-	if title == "" || Request(ctx).Method != "POST" {
+	if title == "" || ctx.Request().Method() != "POST" {
 		return render(ctx, "wiki/new.html", map[string]interface{}{"activeWiki": "active"})
 	}
 
 	me := ctx.Get("user").(*model.Me)
-	err := logic.DefaultWiki.Create(ctx, me, Request(ctx).PostForm)
+	err := logic.DefaultWiki.Create(ctx, me, ctx.FormParams())
 	if err != nil {
 		return fail(ctx, 1, "内部服务错误")
 	}

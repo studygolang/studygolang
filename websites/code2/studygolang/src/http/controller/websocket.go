@@ -25,7 +25,7 @@ type WebsocketController struct {
 }
 
 func (this *WebsocketController) RegisterRoute(g *echo.Group) {
-	g.Get("/ws", standard.WrapHandler(websocket.Handler(this.Ws)))
+	g.GET("/ws", standard.WrapHandler(websocket.Handler(this.Ws)))
 }
 
 // websocket，统计在线用户数

@@ -9,8 +9,6 @@ package controller
 // 喜欢系统
 
 import (
-	. "http"
-
 	"http/middleware"
 	"logic"
 	"model"
@@ -23,13 +21,13 @@ import (
 type LikeController struct{}
 
 // 注册路由
-func (self LikeController) RegisterRoute(e *echo.Group) {
-	e.Post("/like/:objid", echo.HandlerFunc(self.Like), middleware.NeedLogin())
+func (self LikeController) RegisterRoute(g *echo.Group) {
+	g.POST("/like/:objid", self.Like, middleware.NeedLogin())
 }
 
 // Like 喜欢（或取消喜欢）
 func (LikeController) Like(ctx echo.Context) error {
-	form := Request(ctx).Form
+	form := ctx.FormParams()
 	if !util.CheckInt(form, "objtype") || !util.CheckInt(form, "flag") {
 		return fail(ctx, 1, "参数错误")
 	}

@@ -17,9 +17,9 @@ import (
 
 // EchoLogger 用于 echo 框架的日志中间件
 func HTTPError() echo.MiddlewareFunc {
-	return func(next echo.Handler) echo.Handler {
-		return echo.HandlerFunc(func(ctx echo.Context) error {
-			if err := next.Handle(ctx); err != nil {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) error {
+			if err := next(ctx); err != nil {
 
 				if !ctx.Response().Committed() {
 					if he, ok := err.(*echo.HTTPError); ok {
@@ -44,6 +44,6 @@ func HTTPError() echo.MiddlewareFunc {
 				}
 			}
 			return nil
-		})
+		}
 	}
 }

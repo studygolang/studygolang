@@ -11,7 +11,6 @@ import (
 	"html/template"
 	"net/http"
 
-	. "http"
 	"http/middleware"
 	"logic"
 	"model"
@@ -23,18 +22,25 @@ import (
 type MessageController struct{}
 
 // 注册路由
-func (self MessageController) RegisterRoute(e *echo.Group) {
-	e.Get("/message/:msgtype", echo.HandlerFunc(self.ReadList), middleware.NeedLogin())
-	e.Get("/message/system", echo.HandlerFunc(self.ReadList), middleware.NeedLogin())
-	e.Match([]string{"GET", "POST"}, "/message/send", echo.HandlerFunc(self.Send), middleware.NeedLogin())
-	e.Post("/message/delete", echo.HandlerFunc(self.Delete), middleware.NeedLogin())
+func (self MessageController) RegisterRoute(g *echo.Group) {
+	messageG := g.Group("/message/", middleware.NeedLogin())
+
+	messageG.GET(":msgtype", self.ReadList)
+	messageG.GET("system", self.ReadList)
+	messageG.Match([]string{"GET", "POST"}, "/message/send", self.Send)
+	messageG.POST("delete", self.Delete)
+
+	// g.GET("/message/:msgtype", self.ReadList, middleware.NeedLogin())
+	// g.GET("/message/system", self.ReadList, middleware.NeedLogin())
+	// g.Match([]string{"GET", "POST"}, "/message/send", self.Send, middleware.NeedLogin())
+	// g.POST("/message/delete", self.Delete, middleware.NeedLogin())
 }
 
 // Send 发短消息
 func (MessageController) Send(ctx echo.Context) error {
 	content := ctx.FormValue("content")
 	// 请求发送消息页面
-	if content == "" || Request(ctx).Method != "POST" {
+	if content == "" || ctx.Request().Method() != "POST" {
 		username := ctx.FormValue("username")
 		if username == "" {
 			return ctx.Redirect(http.StatusSeeOther, "/")

@@ -28,12 +28,12 @@ func init() {
 type ProjectController struct{}
 
 // 注册路由
-func (self ProjectController) RegisterRoute(e *echo.Group) {
-	e.Get("/projects", echo.HandlerFunc(self.ReadList))
-	e.Match([]string{"GET", "POST"}, "/project/new", echo.HandlerFunc(self.Create), middleware.NeedLogin(), middleware.Sensivite(), middleware.PublishNotice())
-	e.Match([]string{"GET", "POST"}, "/project/modify", echo.HandlerFunc(self.Modify), middleware.NeedLogin(), middleware.Sensivite())
-	e.Get("/p/:uri", echo.HandlerFunc(self.Detail))
-	e.Get("/project/uri", echo.HandlerFunc(self.CheckExist))
+func (self ProjectController) RegisterRoute(g *echo.Group) {
+	g.GET("/projects", self.ReadList)
+	g.Match([]string{"GET", "POST"}, "/project/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.PublishNotice())
+	g.Match([]string{"GET", "POST"}, "/project/modify", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
+	g.GET("/p/:uri", self.Detail)
+	g.GET("/project/uri", self.CheckExist)
 }
 
 // ReadList 开源项目列表页
@@ -97,13 +97,13 @@ func (ProjectController) ReadList(ctx echo.Context) error {
 func (ProjectController) Create(ctx echo.Context) error {
 	name := ctx.FormValue("name")
 	// 请求新建项目页面
-	if name == "" || Request(ctx).Method != "POST" {
+	if name == "" || ctx.Request().Method() != "POST" {
 		project := &model.OpenProject{}
 		return render(ctx, "projects/new.html", map[string]interface{}{"project": project, "activeProjects": "active"})
 	}
 
 	user := ctx.Get("user").(*model.Me)
-	err := logic.DefaultProject.Publish(ctx, user, Request(ctx).Form)
+	err := logic.DefaultProject.Publish(ctx, user, ctx.FormParams())
 	if err != nil {
 		return fail(ctx, 1, "内部服务错误！")
 	}
@@ -118,13 +118,13 @@ func (ProjectController) Modify(ctx echo.Context) error {
 	}
 
 	// 请求编辑项目页面
-	if Request(ctx).Method != "POST" {
+	if ctx.Request().Method() != "POST" {
 		project := logic.DefaultProject.FindOne(ctx, id)
 		return render(ctx, "projects/new.html", map[string]interface{}{"project": project, "activeProjects": "active"})
 	}
 
 	user := ctx.Get("user").(*model.Me)
-	err := logic.DefaultProject.Publish(ctx, user, Request(ctx).Form)
+	err := logic.DefaultProject.Publish(ctx, user, ctx.FormParams())
 	if err != nil {
 		if err == logic.NotModifyAuthorityErr {
 			return ctx.String(http.StatusForbidden, "没有权限")

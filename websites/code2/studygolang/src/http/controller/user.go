@@ -10,8 +10,6 @@ import (
 	"logic"
 	"net/http"
 
-	. "http"
-
 	"github.com/labstack/echo"
 	"github.com/polaris1119/goutils"
 )
@@ -19,10 +17,10 @@ import (
 type UserController struct{}
 
 // 注册路由
-func (self UserController) RegisterRoute(e *echo.Group) {
-	e.Get("/user/:username", echo.HandlerFunc(self.Home))
-	e.Get("/users", echo.HandlerFunc(self.ReadList))
-	e.Any("/user/email/unsubscribe", echo.HandlerFunc(self.EmailUnsub))
+func (self UserController) RegisterRoute(g *echo.Group) {
+	g.GET("/user/:username", self.Home)
+	g.GET("/users", self.ReadList)
+	g.Match([]string{"GET", "POST"}, "/user/email/unsubscribe", self.EmailUnsub)
 }
 
 // Home 用户个人首页
@@ -77,7 +75,7 @@ func (UserController) EmailUnsub(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusSeeOther, "/")
 	}
 
-	if Request(ctx).Method != "POST" {
+	if ctx.Request().Method() != "POST" {
 		data := map[string]interface{}{
 			"email":       email,
 			"token":       token,

@@ -18,8 +18,8 @@ import (
 func Installed(filterPrefixs []string) echo.MiddlewareFunc {
 	filterPrefixs = append(filterPrefixs, "/install")
 
-	return func(next echo.Handler) echo.Handler {
-		return echo.HandlerFunc(func(ctx echo.Context) error {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) error {
 			if db.MasterDB == nil {
 				shouldRedirect := true
 
@@ -35,11 +35,11 @@ func Installed(filterPrefixs []string) echo.MiddlewareFunc {
 					return ctx.Redirect(http.StatusSeeOther, "/install")
 				}
 			}
-			if err := next.Handle(ctx); err != nil {
+			if err := next(ctx); err != nil {
 				return err
 			}
 
 			return nil
-		})
+		}
 	}
 }
