@@ -1,8 +1,0 @@
-.message {}
-.message .nav {background: #fff; margin-top: 10px; padding: 20px 0 0 20px;}
-.message .data {padding-left: 20px; padding-right: 20px; }
-.message .data li {border-bottom: 1px dotted #999;margin: 10px 0;padding-bottom: 15px;position: relative;}
-.message .data li h3 {font-size: 14px;color: #999;line-height: 18px;font-weight: normal;padding-bottom: 8px;font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; margin:0;}
-.message .data li h3 a img {float: left; margin-right: 10px;}
-.message .data li .info {line-height:18px;min-height:18px;}
-.message .data li .cmd {position: absolute;right: 0;top: 0;}
