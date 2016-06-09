@@ -99,7 +99,7 @@
 		{
 			"importpath": "github.com/go-sql-driver/mysql",
 			"repository": "https://github.com/go-sql-driver/mysql",
-			"revision": "1421caf44f6464fd2ee8de694c7508ee13f92964",
+			"revision": "3654d25ec346ee8ce71a68431025458d52a38ac0",
 			"branch": "master"
 		},
 		{

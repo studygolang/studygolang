@@ -41,6 +41,5 @@ fi
 cd ..
 
 export GOPATH="$OLDGOPATH"
-export PATH="$OLDPATH"
 
 echo 'finished'
