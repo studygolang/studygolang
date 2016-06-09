@@ -1,0 +1,34 @@
+{{define "topnav"}}
+<li class="first"><a href="/">首页</a><span class="divider">/</span></li>
+<li class="last active"><a href="/sites" itemprop="url"><span itemprop="title">酷站</span></a></li>
+{{end}}
+{{define "content"}}
+<div id="main" class="container-fluid">
+  <div id="site_nodes">
+    <div class="box">
+      <h2>Golang 社区网站</h2>
+      <div class="row">
+        <div class="span3 site">
+          <img alt="Big_logo" class="favicon" src="/static/img/logo.png">
+          <a href="/" rel="nofollow" target="_blank" title="就是这里啦">Golang China</a>
+        </div>
+        <div class="span3 site">
+          <img alt="Big_logo" class="favicon" src="http://p3.ucai.cn/static/i3/mission/logo.png">
+          <a href="http://www.ucai.cn/course/all?sid=75" rel="nofollow" target="_blank" title="优才网">优才网Golang频道</a>
+        </div>
+      </div>
+    </div>
+    <div class="box">
+      <h2>技术博客 </h2>
+      <div class="row">
+        <div class="span3 site">
+          <img alt="Go语言学习园地博客" class="favicon" src="">
+          <a href="http://blog.studygolang.com/" rel="nofollow" target="_blank" title="Go语言学习园地博客">Go语言学习园地博客</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{end}}
+{{define "title"}}酷站 {{end}}
+{{define "css"}}<link href="/static/css/sites.css" media="screen" rel="stylesheet" type="text/css">{{end}}

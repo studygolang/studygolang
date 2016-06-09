@@ -1,0 +1,214 @@
+{{define "title"}}{{.resource.title}} {{end}}
+{{define "seo"}}<meta name="keywords" content="{{.resource.title}}, Golang中国社区, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
+<meta name="description" content="{{substring .resource.content 200 ""}}">{{end}}
+{{define "content"}}
+<div class="row banner">
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/resources">资源</a></li>
+			<li><a href="/resources/cat/{{.resource.catid}}">{{.resource.catname}}</a></li>
+			<li class="active">{{.resource.title}}</li>
+		</ol>
+		<div class="page box_white">
+			<div class="title text-center">
+				<h1>
+					{{.resource.title}}
+					{{if .me}}
+						{{if or (eq .me.Username .resource.user.Username) .me.IsAdmin}}
+						<a class="edit" href="/resources/modify?id={{.resource.id}}" title="编辑"><i class="glyphicon glyphicon-pencil"></i> 编辑</a>
+						{{end}}
+					{{end}}
+				</h1>
+			</div>
+			<div class="meta">
+				<div class="p-author">
+					<i class="glyphicon glyphicon-calendar"></i>
+					<span title="{{.resource.ctime}}" class="timeago"></span>&nbsp;
+					<i class="glyphicon glyphicon-user"></i>
+					<a href="/user/{{.resource.user.Username}}" title="{{if .resource.user.Name}}{{.resource.user.Name}}{{else}}{{.resource.user.Username}}{{end}}">{{if .resource.user.Name}}{{.resource.user.Name}}({{.resource.user.Username}}){{else}}{{.resource.user.Username}}{{end}}</a>
+				</div>
+				<!-- p-author END -->
+				
+				<div class="p-comment text-right">
+					<span class="view" title="阅读数">
+						<i class="glyphicon glyphicon-eye-open"></i>
+						阅读 <span>{{add .resource.viewnum 1}}</span> 次&nbsp;
+					</span>
+					<span class="like" title="喜欢人数">
+						<i class="glyphicon glyphicon-heart"></i>
+						<span class="likenum">{{.resource.likenum}}</span> 人喜欢&nbsp;
+					</span>
+					<a href="/resources/{{.resource.id}}#commentForm" title="我要评论"><i class="glyphicon glyphicon-comment"></i> <span class="cmtnum">{{.resource.cmtnum}}</span> 条评论</a>
+				</div>
+				<!-- p-comment END -->
+			</div>
+			<div class="tags">
+				<ul class="list-inline"></ul>
+			</div>
+			<!-- tags -->
+
+			<div class="content">{{if eq .resource.form "只是链接"}}资源链接 {{.resource.url}}{{else}}{{.resource.content}}{{end}}</div>
+			<!-- content END -->
+			<div class="active row">
+				<div class="mark-like-btn col-md-8">
+					<a class="share-btn like-btn {{if .likeflag}}hadlike{{end}}" href="javascript:;" title="{{if .likeflag}}取消喜欢{{else}}我喜欢{{end}}" data-objid="{{.resource.id}}" data-objtype="2" data-flag="{{.likeflag}}">
+						<i class="glyphicon glyphicon-heart-empty"></i><span class="likenum">{{.resource.likenum}}</span>人喜欢
+					</a>
+					<a class="share-btn collect {{if .hadcollect}}hadlike{{end}}" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}稍后再读{{end}}" data-objid="{{.resource.id}}" data-objtype="2" data-collect="{{.hadcollect}}">
+						<i class="glyphicon glyphicon-star-empty"></i>收藏
+					</a>
+				</div>
+				<!-- JiaThis Button BEGIN -->
+				<div class="jiathis_style_32x32">
+					<a class="jiathis_button_qzone"></a>
+					<a class="jiathis_button_tsina"></a>
+					<a class="jiathis_button_tqq"></a>
+					<a class="jiathis_button_weixin"></a>
+					<a href="http://www.jiathis.com/share?uid=1895190" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+					<a class="jiathis_counter_style"></a>
+				</div>
+				<script type="text/javascript">
+				var jiathis_config = {data_track_clickback:'true'};
+				</script>
+				<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1358871817652577" charset="utf-8"></script>
+				<!-- JiaThis Button END -->
+			</div>
+
+			<!--百度推荐-->
+			<div id="hm_t_56958" style="margin:0 auto;max-width:790px;"></div>
+			
+			<!-- 评论 -->
+			<div class="page-comment" data-objid="{{.resource.id}}" data-objtype="2" {{if .me}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48}}"{{end}}>
+				<div class="words hide">
+					<h3><span class="cmtnum">{{.resource.cmtnum}}</span>条评论</h3>
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+				<div class="comment-title">
+					<h2>资源评论：</h2>
+					{{if .me}}
+					{{else}}
+					<span class="h2-tip">
+					（您需要 <a class="c-log" href="javascript:openPop('#login-pop');">登录</a> 后才能评论 <a href="/user/register" class="c-reg"> 没有账号</a> ？）</span>
+					{{end}}
+				</div>
+				{{template "comment" .}}
+			</div>
+			<!-- 评论 -->
+		</div>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar sb-author">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-user"></i>&nbsp;作者</h3>
+			</div>
+			<div class="sb-content">
+				<a href="/user/{{.resource.user.Username}}" class="pull-left avatar" title="{{.resource.user.Username}}">
+					<img src="{{gravatar .resource.user.Avatar .resource.user.Email 48}}" alt="{{if .resource.user.Name}}{{.resource.user.Name}}{{else}}{{.resource.user.Username}}{{end}}" width="48px" height="48px">
+				</a>
+				<h4>
+					<a href="/user/{{.resource.user.Username}}" title="{{if .resource.user.Name}}{{.resource.user.Name}}{{else}}{{.resource.user.Username}}{{end}}">{{if .resource.user.Name}}{{.resource.user.Name}}({{.resource.user.Username}}){{else}}{{.resource.user.Username}}{{end}}</a>
+					<p>{{.resource.user.Monlog}}</p>
+				</h4>
+			</div>
+		</div>
+
+		<div class="row box_white sidebar">
+			<div class="sb-content text-center" style="margin-top: 15px;">
+				<a href="/resources/new" class="btn btn-default">分享资源</a>
+			</div>
+		</div>
+
+		<div class="row box_white sidebar">
+			<a href="http://click.aliyun.com/m/3701/" target="_blank" title="28.8元/月" class="ad"><img src="http://studygolang.qiniudn.com/ad/aliyun_right6.jpg" alt="28.8元/月" class="center-block"></a>
+		</div>
+
+		<div class="row box_white sidebar">
+			<div class="top">
+				<ul class="list-inline text-center">
+					<li class="first"><a href="/resources" target="_blank" class="cur" title="点击更多">最新资源</a>|</li>
+					<li class="second"><a href="/topics" target="_blank" title="点击更多">最新主题</a>|</li>
+					<li class="last"><a href="/articles" target="_blank" title="点击更多">最新博文</a></li>
+				</ul>
+				<p class="bar"></p>
+			</div>
+			<div class="sb-content">
+				<div class="resource-list first">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+				<div class="topic-list second hidden">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+				<div class="article-list last hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="row box_white sidebar">
+			<script type="text/javascript">
+			var cpro_id="u1996895";
+			(window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id]={at:"3",rsi0:"291",rsi1:"291",pat:"6",tn:"baiduCustNativeAD",rss1:"#FFFFFF",conBW:"0",adp:"1",ptt:"0",titFF:"%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91",titFS:"14",rss2:"#000000",titSU:"0",ptbg:"90",piw:"0",pih:"0",ptp:"0"}
+			</script>
+			<script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script>
+		</div>
+		
+	</div>
+</div>
+{{end}}
+{{define "css"}}
+<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/jquery.atwho.min.css" media="screen" rel="stylesheet" type="text/css">
+<style type="text/css">
+.sb-author .sb-content .avatar {margin: 0 10px 10px;}
+.edit-info {color: #3c763d;background-color: #dff0d8;border-color: #d6e9c6; margin:0 10px;}
+</style>
+{{end}}
+{{define "js"}}
+<script type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.caret.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.atwho.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/emojis.js"></script>
+<script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
+<script type="text/javascript" src="/static/js/resources.js?v=1.1"></script>
+<script type="text/javascript" src="/static/js/comment.js?v=1.1"></script>
+<script type="text/javascript" src="/static/js/puploader.js?v=1.0"></script>
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/topics/recent",
+	"/articles/recent",
+	"/resources/recent"
+];
+
+$(function(){
+	new SG.Resources().parseContent($('.page .content'));
+
+	// 文本框自动伸缩
+	$('.need-autogrow').autoGrow();
+	
+	loadComments();
+
+	// 链接，add target=_blank
+	$('#wrapper .content').on('mousedown', 'a', function(evt){
+		var url = $(this).attr('href');
+		$(this).attr('target', '_blank');
+	});
+});
+</script>
+<script type="text/javascript">
+/* 内文方式  创建于 2015-03-15*/
+var cpro_id = "u1989498";
+</script>
+<script src="http://cpro.baidustatic.com/cpro/ui/cnw.js" type="text/javascript"></script>
+{{end}}

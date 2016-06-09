@@ -1,0 +1,137 @@
+{{define "title"}}{{if .resource.Id}}修改{{else}}分享{{end}}资源 {{end}}
+{{define "seo"}}<meta name="keywords" content="分享资源,Golang,Go社区,Golang中文社区,Go语言学习,Go语言,学习Go语言,Golang 中国,Golang中国,Golang China, Go语言论坛, Go中文社区, Go语言社区, Go语言中文网, Go语言学习园地">
+<meta name="description" content="Go中文社区，Golang中国，Go语言学习园地，提供一个Go爱好者交流的中文平台">{{end}}
+{{define "content"}}
+<div class="row banner">
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/resources">资源</a></li>
+			<li class="active">{{if .resource.Id}}修改{{else}}发布{{end}}资源</li>
+		</ol>
+		<div class="page box_white">
+			<form class="form-horizontal validate-form" role="form" action="{{if .resource.Id}}/resources/modify{{else}}/resources/new{{end}}" data-redirect="/resources{{if .resource.Id}}/{{.resource.Id}}{{end}}">
+				{{if .resource.Id}}
+				<input type="hidden" name="id" value="{{.resource.Id}}" />
+				{{else}}
+				<input type="hidden" name="usernames" class="usernames" />
+				{{end}}
+				<div class="form-group form-group-sm">
+					<label class="col-sm-2 control-label" for="title"><abbr>*</abbr>标题</label>
+					<div class="col-sm-9">
+						<div class="row">
+							<span class="col-sm-3">
+								<select name="catid" class="form-control required">
+									{{if .resource.Id}}{{else}}<option value="">选择类别</option>{{end}}
+									{{range .categories}}
+										<option value="{{.Catid}}"{{if $.resource.Id}}{{if eq $.resource.Catid .Catid}} selected{{end}}{{end}}>{{.Name}}</option>
+									{{end}}
+								</select>
+							</span>
+							<span class="col-sm-9">
+								<input class="form-control required" type="text" id="title" name="title" placeholder="标题" value="{{.resource.Title}}">
+							</span>
+						</div>
+					</div>
+				</div>
+				<div class="form-group form-group-sm res-form">
+					<label class="col-sm-2 control-label" for="form"><abbr>*</abbr>资源形式</label>
+					<div class="col-sm-9">
+						<label class="radio-inline">
+							<input type="radio" name="form" value="只是链接" class="required"{{if .resource.Id}}{{if eq .resource.Form "只是链接"}} checked{{end}}{{end}}>
+							只是链接
+						</label>
+						<label class="radio-inline">
+							<input type="radio" name="form" value="包括内容"{{if .resource.Id}}{{if eq .resource.Form "包括内容"}} checked{{end}}{{end}}>
+							包括内容
+						</label>
+					</div>
+				</div>				
+				<div class="form-group form-group-sm {{if .resource.Id}}{{if eq .resource.Form "只是链接"}}dn{{end}}{{else}}dn{{end}} res-content">
+					<label class="col-sm-2 control-label" for="content"><abbr>*</abbr>正文</label>
+					<div class="col-sm-9">
+						<div class="row clearfix md-toolbar">
+							<ul class="col-md-10 list-inline">
+								<li class="edit cur"><a href="#"><i class="glyphicon glyphicon-edit"></i> 编辑</a></li>
+								<li class="preview"><a href="#" title="预览"><i class="glyphicon glyphicon-eye-open preview"></i> 预览</a></li>
+							</ul>
+							<div class="col-md-2 text-right">
+								<i id="upload-img" class="glyphicon glyphicon-picture upload-img tool-tip" data-toggle="tooltip" data-placement="top" title="上传图片"></i>
+							</div>
+						</div>
+						<textarea class="form-control need-autogrow main-textarea" id="content" name="content" rows="15">{{.resource.Content}}</textarea>
+						<div class="content-preview"></div>
+					</div>
+				</div>
+				<div class="form-group form-group-sm {{if .resource.Id}}{{if eq .resource.Form "包括内容"}}dn{{end}}{{else}}dn{{end}} res-url">
+					<label class="col-sm-2 control-label" for="url"><abbr>*</abbr>资源URL</label>
+					<div class="col-sm-9">
+						<input class="form-control" type="url" id="url" name="url" placeholder="资源的URL" value="{{.resource.Url}}">
+					</div>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-5 control-label">&nbsp;</label>
+					<div class="col-sm-6">
+						<button type="submit" class="btn btn-default btn-sm" id="submit">{{if .resource.Id}}提交修改{{else}}分享资源{{end}}</button> (Ctrl+Enter)
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar sb-author">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-list-alt"></i>&nbsp;分享资源说明</h3>
+			</div>
+			<div class="sb-content">
+				<span class="help-block">
+					<ul>
+						<li>内容支持 Markdown 格式, <strong>**粗体**</strong>、~~删除线~~、<code>`单行代码`</code></li>
+						<li>http://example.org 自动加链接</li>
+						<!--<li><strong>@name</strong> 会链接到用户页面，并会通知他</li>-->
+						<li>![alt 文本](http://foo.com/bar.jpg) 显示图片</li>
+						<li>:smile: 支持 <strong>emoji 表情</strong>，见<a href="http://www.emoji-cheat-sheet.com/" target="_blank">Emoji cheat sheet</a></li>
+						<li>完整 Markdwon 语法说明：<a href="http://wowubuntu.com/markdown/" target="_blank">语法说明 (简体中文版)</a></li>
+					</ul>
+				</span>
+			</div>
+		</div>
+
+	</div>
+</div>
+{{end}}
+{{define "css"}}
+<link href="/static/css/jquery.atwho.min.css" rel="stylesheet">
+<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/md_toolbar.css" media="screen" rel="stylesheet" type="text/css">
+<style type="text/css">
+.res-form .radio-inline {padding-top: 6px;}
+</style>
+{{end}}
+{{define "js"}}
+<script type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.caret.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.atwho.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/emojis.js"></script>
+<script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
+<script type="text/javascript" src="/static/js/md_toolbar.js"></script>
+<script type="text/javascript" src="/static/js/puploader.js?v=1.0"></script>
+<script type="text/javascript" src="/static/js/resources.js?v=1.0"></script>
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [];
+
+$(function(){
+	// 文本框自动伸缩
+	$('.need-autogrow').autoGrow();
+});
+</script>
+{{end}}

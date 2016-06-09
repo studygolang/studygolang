@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<title>Go语言中文网 安装 &rsaquo; 准备配置文件</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="/static/css/install/install.css" type="text/css" />
+</head>
+<body>
+	<h1 id="logo"><img alt="Go语言中文网" src="/static/img/logo1.png" /></h1>
+	{{if eq .step 0}}
+	<p>欢迎使用 Go语言中文网！在您开始使用前，Go语言中文网 需要一些数据库的信息。下列信息将会被问到，请做好准备。</p>
+	<ol>
+		<li>数据库名</li>
+		<li>数据库用户用户名</li>
+		<li>数据库用户密码</li>
+		<li>数据库主机</li>
+		<li>数据库端口</li>
+	</ol>
+	<p><strong>出于各种原因，自动创建文件可能失败，但本向导只是助您在配置文件中写如数据库信息。如果失败，您只需用文本编辑器打开 <code>config/env.sample.ini</code>，填入您的信息，另存为 <code>config/env.ini</code> 即可。</strong></p>
+	<p>大多数的互联网主机服务提供商都向您提供了数据库的信息。若您不知道这些信息，您需要先询问好，再进行安装。若您已准备好&hellip;</p>
+
+	<p class="step"><a href="/install/setup-config?step=1" class="button">现在就开始！</a></p>
+	{{else if eq .step 1}}
+	<form method="post" action="/install/setup-config?step=2">
+		<p>请在下方输入数据库相关信息。若您不清楚，请咨询主机提供商。</p>
+		<table class="form-table">
+			<tr>
+				<th scope="row"><label for="env">环境</label></th>
+				<td>
+					<label><input type="radio" name="env" value="dev" checked="checked">开发环境</label>
+					<label><input type="radio" name="env" value="pro">生产环境</label>
+				</td>
+				<td>当前运行 Go语言中文网 的环境</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="dbname">数据库名</label></th>
+				<td><input name="dbname" id="dbname" type="text" size="25" value="studygolang" /></td>
+				<td>您希望 Go语言中文网 使用哪个数据库运行？</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="uname">用户名</label></th>
+				<td><input name="uname" id="uname" type="text" size="25" value="root" /></td>
+				<td>您的 MySQL 用户名</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="pwd">密码</label></th>
+				<td><input name="pwd" id="pwd" type="text" size="25" value="" /></td>
+				<td>...以及您的 MySQL 密码。</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="dbhost">数据库主机</label></th>
+				<td><input name="dbhost" id="dbhost" type="text" size="25" value="localhost" /></td>
+				<td>通常情况下，应填写 <code>localhost或127.0.0.1</code>。</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="dbport">数据库端口</label></th>
+				<td><input name="dbport" id="dbport" type="text" size="25" value="3306" /></td>
+				<td>默认3306</td>
+			</tr>
+		</table>
+		<p class="step"><input name="submit" type="submit" value="提交" class="button" /></p>
+	</form>
+	{{else if eq .step 2}}
+	<p>非常好！您已顺利完成安装中的这一步骤，Go语言中文网 已经可以和您的数据库沟通。若您准备好了，现在就&hellip;</p>
+
+	<p class="step"><a href="/install/do" class="button">进行安装</a></p>
+	{{end}}
+</body>
+</html>

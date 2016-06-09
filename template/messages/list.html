@@ -1,0 +1,72 @@
+{{define "title"}}{{if eq .msgtype "system"}}系统消息{{else}}{{if eq .msgtype "inbox"}}收件箱{{else}}发件箱{{end}}{{end}} {{end}}
+{{define "seo"}}<meta name="keywords" content="消息, Go语言开源项目, Go语言博文, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
+<meta name="description" content="Go中文社区，Golang中国，Go语言学习园地，提供一个Go爱好者交流的中文平台">{{end}}
+{{define "content"}}
+<div class="row banner">
+</div>
+<div class="row">
+	<ol class="breadcrumb">
+		<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+		<li><a href="/message/system">消息</a></li>
+		<li class="active">{{if eq .msgtype "system"}}系统消息{{else}}{{if eq .msgtype "inbox"}}收件箱{{else}}发件箱{{end}}{{end}}</li>
+	</ol>
+	<div class="box_white message">
+		<ul class="nav nav-tabs" role="tablist">
+			<li role="presentation"{{if eq .msgtype "system"}}class="active"{{end}}><a href="/message/system">系统消息</a></li>
+			<li role="presentation"{{if eq .msgtype "inbox"}}class="active"{{end}}><a href="/message/inbox">收件箱</a></li>
+			<li role="presentation"{{if eq .msgtype "outbox"}}class="active"{{end}}><a href="/message/outbox">发件箱</a></li>
+		</ul>
+		<ul class="list-unstyled data">
+		{{range .messages}}
+			<li>
+				<h3>
+					<a href="/user/{{.user.Username}}" title="{{.user.Username}}"><img src="{{gravatar .user.Avatar .user.Email 48}}" width="48" height="48" alt="{{.user.Username}}"></a>
+					<span class="user">{{if eq $.msgtype "outbox"}}你对 {{end}}<a href="/user/{{.user.Username}}" title="{{.user.Username}}">{{.user.Username}}</a> {{if eq $.msgtype "outbox"}}说:{{else}}{{.title}}{{end}}</span>
+					{{if .objtitle}}<a href="{{.objurl}}" title="{{.objtitle}}">{{.objtitle}}</a>{{end}}
+					{{if eq .hasread "未读"}}
+					{{if eq $.msgtype "outbox"}}
+					<span class="label label-warning">对方未查看</span>
+					{{else}}
+					<span class="label label-warning">新</span>
+					{{end}}
+					{{end}}
+					<span style="margin-left:10px;">（{{.ctime}}）</span>
+				</h3>
+				<div class="info">{{.content}}</div>
+				<p class="cmd"><a href="/message/delete" data-type="{{$.msgtype}}" data-id="{{.id}}" data-cmd="delete" class="label label-default delete">删除</a></p>
+			</li>
+		{{else}}
+			<li class="alert alert-info text-center">暂无消息</li>
+		{{end}}
+		</ul>
+		{{if .page}}
+		<nav class="text-center"><ul class="pagination pagination-sm">{{.page}}</ul></nav>
+		{{end}}
+	</div>
+</div>
+{{end}}
+{{define "css"}}
+<link href="/static/css/message.css" media="screen" rel="stylesheet" type="text/css">
+{{end}}
+{{define "js"}}
+<script type="text/javascript">
+jQuery(document).ready(function(){
+	$('.message .cmd a.delete').on("click", function(env){
+		env.preventDefault();
+		var self = $(this),
+			msgtype = self.data("type"),
+			id = self.data("id"),
+			url = self.attr("href");
+		$.post(url, {"id":id,"msgtype":msgtype}, function(data){
+			if (data.ok) {
+				comTip("删除成功");
+				self.parents("li").remove();
+			} else {
+				comTip(data.error);
+			}
+		});
+		return false;
+	});
+});
+</script>
+{{end}}

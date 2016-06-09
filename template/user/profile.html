@@ -1,0 +1,167 @@
+{{define "title"}}{{.user.Username}}的个人首页 {{end}}
+{{define "seo"}}<meta name="keywords" content="{{.user.Username}}的个人首页, Go语言, Golang, Go中文社区,Golang中文社区, Go语言中文网, Go语言社区, Go语言学习园地">
+<meta name="description" content="中国 Golang 社区，Go语言学习园地，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。完全Go语言实现。">{{end}}
+{{define "content"}}
+<div class="row banner">
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/users">会员</a></li>
+			<li class="active">{{if .me}}{{if eq .me.Username .user.Username}}我的{{else}}{{.user.Username}}的{{end}}{{else}}{{.user.Username}}的{{end}}信息</li>
+		</ol>
+		<div class="box_white">
+			<div class="userinfo">
+				<div class="pull-right">
+					<a href="/user/{{.user.Username}}" title="{{.user.Username}}"><img alt="{{.user.Username}}" src="{{gravatar .user.Avatar .user.Email 80}}" width="80px" height="80px" class="img-rounded"></a>
+					{{if .me.Username}}
+					{{if ne .user.Username .me.Username}}
+					<a class="btn btn-success btn-sm" href="/favorites/{{.user.Username}}">TA的收藏</a>
+					<a class="btn btn-default btn-sm" href="/message/send?username={{.user.Username}}">发送消息</a>
+					{{else}}
+					<a class="btn btn-success btn-sm" href="/favorites/{{.user.Username}}">我的收藏</a>
+					<a class="btn btn-default btn-sm" href="/account/edit">编辑信息</a>
+					{{end}}
+					{{else}}
+					<a class="btn btn-success btn-sm" href="/favorites/{{.user.Username}}">TA的收藏</a>
+					{{end}}
+				</div>
+				<span class="label label-default role">{{range .user.Rolenames}}{{.}} {{end}}</span>
+				<ul class="list-unstyled">
+					<li>
+						<label>&nbsp;</label>
+						<span class="title">第 {{.user.Uid}} 位会员</span>
+					</li>
+					<li>
+						<label>ID:</label>
+						<strong class="fn">{{.user.Username}}</strong>
+					</li>
+					{{if .user.Name}}
+					<li>
+						<label>名字:</label>
+						<span>{{.user.Name}}</span>
+					</li>
+					{{end}}
+					{{if .user.Open}}
+					<li>
+						<label>Email:</label>
+						<span><a href="mailto:{{.user.Email}}">{{.user.Email}}</a></span>
+					</li>
+					{{end}}
+					<li>
+						<label>注册时间:</label>
+						<span>{{.user.Ctime}}</span>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div class="box_white recent recent-topics">
+			<h2 class="title">最近发布的主题</h2>
+			<ul class="list-unstyled">
+				{{range .topics}}
+				<li>
+					<span class="node"><a href="/topics/node/{{.Nid}}" class="node">{{.Node}}</a></span>
+					<a href="/topics/{{.Tid}}" title="{{.Title}}">{{substring .Title 60 "..."}}</a>
+					<span class="info">at <abbr class="timeago" title="{{.Ctime}}"></abbr></span>
+				</li>
+				{{else}}
+				<p class="no-record text-center">暂无</p>
+				{{end}}
+			</ul>
+		</div>
+		<div class="box_white recent recent-topics">
+			<h2 class="title">最近分享的资源</h2>
+			<ul class="list-unstyled">
+				{{range .resources}}
+				<li>
+					<span class="node"><a href="/resources/cat/{{.Catid}}" class="node">{{.CatName}}</a></span>
+					<a href="/resources/{{.Id}}" title="{{.Title}}">{{substring .Title 60 "..."}}</a>
+					<span class="info">at <abbr class="timeago" title="{{.Ctime}}"></abbr></span>
+				</li>
+				{{else}}
+				<p class="no-record text-center">暂无</p>
+				{{end}}
+			</ul>
+		</div>
+		<div class="box_white recent recent-projects">
+			<h2 class="title">最近发布的项目</h2>
+			<ul class="list-unstyled">
+				{{range .projects}}
+				<li>
+					<a href="/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}" title="{{.Name}}">{{.Category}} {{.Name}}</a>
+					<span class="info">at <abbr class="timeago" title="{{.Ctime}}"></abbr></span>
+				</li>
+				{{else}}
+				<p class="no-record text-center">暂无</p>
+				{{end}}
+			</ul>
+		</div>
+		<div class="box_white recent recent-comments">
+			<h2 class="title">最近的评论</h2>
+			<ul class="list-unstyled">
+				{{range .comments}}
+				<li>
+					<div class="objinfo">
+						<span class="info"><abbr class="timeago" title="{{.Ctime}}"></abbr> 评论了<strong>{{.Objinfo.type_name}}</strong></span>
+						<a href="{{.Objinfo.uri}}{{.Objid}}" title="{{.Objinfo.title}}">{{substring .Objinfo.title 60 "..."}}</a>
+					</div>
+					<div class="content">{{noescape .Content}}</div>
+				</li>
+				{{else}}
+				<p class="no-record text-center">暂无</p>
+				{{end}}
+			</ul>
+		</div>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			<div class="top">
+				<ul class="list-inline text-center">
+					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新主题</a>|</li>
+					<li class="second"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
+					<li class="last"><a href="javascript:;">最新评论</a></li>
+				</ul>
+				<p class="bar"></p>
+			</div>
+			<div class="sb-content">
+				<div class="topic-list first">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+				<div class="resource-list second hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+				<div class="cmt-list last hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{{end}}
+{{define "css"}}
+<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/user.css" media="screen" rel="stylesheet" type="text/css">
+{{end}}
+{{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/emojis.js"></script>
+<!-- <script type="text/javascript" src="//twemoji.maxcdn.com/twemoji.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/twemojis.js"></script> -->
+<script type="text/javascript" src="/static/js/user.js?v=1.0"></script>
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/topics/recent",
+	"/resources/recent",
+	"/comments/recent",
+];
+</script>
+{{end}}

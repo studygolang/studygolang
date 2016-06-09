@@ -1,0 +1,417 @@
+{{define "title"}}首页{{end}}
+{{define "seo"}}<meta name="keywords" content="Go语言,Golang,Go社区,Go中文社区,Golang中文社区,Go语言社区,Go语言学习,学习Go语言,Go语言学习园地,Golang 中国,Golang中国,Golang China, Go语言论坛">
+<meta name="description" content="Go语言中文网，中国 Golang 社区，Go语言学习园地，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。分享 Go 语言知识，交流使用经验">{{end}}
+{{define "content"}}
+<div class="row">
+	<div id="content" class="tip box_white">
+		<div id="top">
+			<ul class="list-unstyled">
+			</ul>
+		</div>
+		<div id="bottom"></div> 
+	</div>
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<div class="row box_white">
+			<div class="col-md-6 recent-list">
+				<div class="title">
+					<h3><a href="/topics">最新主题</a></h3>
+					<a class="pull-right more" href="/topics">更多&gt;&gt;</a>
+				</div>
+				<ul class="clearfix list-unstyled">
+					{{range .topics}}
+					<li><i></i>{{if .top}}<font color="red"><span class="glyphicon glyphicon-pushpin"></span></font> {{end}}<a href="/topics/{{.tid}}" title="{{.title}}">{{substring .title 35 "..."}}</a><span class="pull-right timeago" title="{{.ctime}}"></span></li>
+					{{end}}
+				</ul>
+			</div>
+			<div class="col-md-6 recent-list">
+				<div class="title">
+					<h3><a href="/resources">Golang 资源</a></h3>
+					<a class="pull-right more" href="/resources">更多&gt;&gt;</a>
+				</div>
+				<ul class="clearfix list-unstyled">
+					{{range .resources}}
+					<li><i></i><a href="/resources/{{.Id}}" title="{{.Title}}" target="_blank">{{substring .Title 45 "..."}}</a><span class="pull-right timeago" title="{{.Ctime}}"></span></li>
+					{{end}}
+				</ul>
+			</div>
+		</div>
+		<div class="row box_white article-list">
+			<div class="title">
+				<h3><a href="/articles">最新博文</a></h3>
+				<a class="pull-right more" href="/articles">更多&gt;&gt;</a>
+			</div>
+			{{range .articles}}
+			<article class="article box_white">
+				<div class="row">
+					{{if .Cover}}
+					<div class="pull-left">
+						<a href="/articles/{{.Id}}" target="_blank" title="{{.Title}}">
+							<img class="lazy" src="{{.Cover}}" width="200" alt="{{.Title}}" style="display: inline;">
+						</a>
+					</div>
+					<div style="margin-left:220px;">
+					{{else}}
+					<div>
+					{{end}}
+						<h2><a href="/articles/{{.Id}}" target="_blank" title="{{.Title}}">
+							{{if .Top}}<font color="red">[置顶]</font>{{end}}{{.Title}}
+						</a></h2>
+						<p class="text">{{substring .Txt 220 "..."}}<a href="/articles/{{.Id}}" target="_blank" title="阅读全文">阅读全文</a></p>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-8 metatag">
+						<i class="glyphicon glyphicon-th"></i>
+						<span class="source" title="来源">{{.Name}}</span>
+						<i class="glyphicon glyphicon-calendar"></i>
+						<span class="date" title="发布日期">{{.PubDate}}</span>
+						<i class="glyphicon glyphicon-user"></i>
+						<span class="author" title="作者">{{substring .AuthorTxt 15 " 等"}}</span>
+						{{if .Tags}}
+						{{$tags := explode .Tags ","}}
+						<ul class="list-inline">
+							<i class="glyphicon glyphicon-tags"></i>
+							{{range $tag := $tags}}
+							<li>
+								<a href="/search?q={{$tag}}&f=tag" title="{{$tag}}" target="_blank">
+									{{$tag}}
+								</a>
+							</li>
+							{{end}}
+						</ul>
+						{{end}}
+					</div>
+					<div class="col-md-4 metatag text-right">
+						<span class="view" title="阅读数">
+							<i class="glyphicon glyphicon-eye-open"></i>
+							阅读:<span>{{.Viewnum}}</span>次
+						</span>
+						<a href="/articles/{{.Id}}#commentForm" class="cmt" target="_blank" title="评论数">
+							<i class="glyphicon glyphicon-comment"></i>
+							评论:<span>{{.Cmtnum}}</span>条
+						</a>
+						{{if $.likeflags}}
+						{{$likeFlag := index $.likeflags .Id}}
+						<a href="#" class="like{{if $likeFlag}} hadlike{{end}}" title="{{if $likeFlag}}取消喜欢{{else}}我喜欢{{end}}" data-objid="{{.Id}}" data-objtype="1" data-flag="{{if $likeFlag}}{{$likeFlag}}{{else}}0{{end}}">
+							<i class="glyphicon glyphicon-heart{{if not $likeFlag}}-empty{{end}}"></i>
+						{{else}}
+						<a href="#" class="like" title="我喜欢" data-objid="{{.Id}}" data-objtype="1" data-flag="0">
+							<i class="glyphicon glyphicon-heart-empty"></i>
+						{{end}}
+							<span class="likenum">{{.Likenum}}</span>人喜欢
+						</a>
+					</div>
+				</div>
+			</article>
+			{{end}}
+			{{if (len .articles) gt 0}}
+			{{$article := index .articles 0}}
+			<div class="pull-right article-bottom"><a href="/articles?lastid={{add $article.Id -10}}" title="查看更多">查看更多&gt;&gt;</a></div>
+			{{end}}
+		</div>
+		<div class="row box_white learn-info">
+			<h3><a href="javascript:">学习资料</a></h3>
+			<div class="col-md-6 infolist">
+				<ul class="list-unstyled">
+					<li>
+						<i></i>
+						<a href="http://www.ucai.cn/course/show/69" title="Go编程基础(无闻)" target="_blank" class="video">【视频】《Go编程基础(无闻)》</a>
+						<a href="http://www.ucai.cn/course/chapter/69/3210/4555" target="_blank" class="learn pull-right">开始学习&gt;&gt;</a>
+					</li>
+					<li>
+						<i></i>
+						<a href="http://www.ucai.cn/course/show/87" title="Go Web基础(无闻)" target="_blank" class="video">【视频】《Go Web基础(无闻)》</a>
+						<a href="http://www.ucai.cn/course/chapter/87/3267/4710" target="_blank" class="learn pull-right">开始学习&gt;&gt;</a>
+					</li>
+					<li>
+						<i></i>
+						<a href="http://www.ucai.cn/course/show/134" title="Go 名库讲解(无闻)" target="_blank" class="video">【视频】《Go 名库讲解(无闻)》</a>
+						<a href="http://www.ucai.cn/course/chapter/134/3699/6825" target="_blank" class="learn pull-right">开始学习&gt;&gt;</a>
+					</li>
+					<li>
+						<i></i>
+						<a href="http://www.ucai.cn/course/show/26" title="Go 语言语法与特性教程（陈皓）" target="_blank" class="video">【文本】《Go 语言语法与特性教程（陈皓）》</a>
+						<a href="http://www.ucai.cn/course/chapter/26/2922/3095" target="_blank" class="learn pull-right">开始学习&gt;&gt;</a>
+					</li>
+					<li>
+						<i></i>
+						<a href="http://www.ucai.cn/course/show/151" title="Go语言实例学习" target="_blank" class="video">【文本】《Go语言实例学习》</a>
+						<a href="http://www.ucai.cn/course/chapter/151/3868/7056" target="_blank" class="learn pull-right">开始学习&gt;&gt;</a>
+					</li>
+					<li>
+						<i></i>
+						<a href="http://www.ucai.cn/course/show/133" title="Go 语言轻松学" target="_blank" class="video">【文本】《Go 语言轻松学》</a>
+						<a href="http://www.ucai.cn/course/chapter/133/3696/6818" target="_blank" class="learn pull-right">开始学习&gt;&gt;</a>
+					</li>
+					<li>
+						<i></i>
+						<a href="http://www.ucai.cn/course/show/22" title="Go 语言入门教程" target="_blank" class="video">【文本】《Go 语言入门教程》</a>
+						<a href="http://www.ucai.cn/course/chapter/22/2887/2927" target="_blank" class="learn pull-right">开始学习&gt;&gt;</a>
+					</li>
+					<li>
+						<i></i>
+						<a href="http://product.china-pub.com/3804180" title="Go并发编程实la" target="_blank" class="video">【图书】《Go并发编程实战 — 郝林》</a>
+						<a href="http://product.china-pub.com/3804180" target="_blank" class="learn pull-right">查看详情&gt;&gt;</a>
+					</li>
+					<li>
+						<i></i>
+						<a href="http://book.douban.com/subject/19897704/" title="An Introduction to Programming in Go" target="_blank" class="video">【图书】《An Introduction to Programming in Go》</a>
+						<a href="http://book.douban.com/subject/19897704/" target="_blank" class="learn pull-right">详情&gt;&gt;</a>
+					</li>
+					<li>
+						<i></i>
+						<a href="https://github.com/tiancaiamao/go-internals" title="深入解析Go — tiancaiamao" target="_blank" class="video">【图书】《深入解析Go — tiancaiamao》</a>
+						<a href="https://github.com/tiancaiamao/go-internals/blob/master/ebook/preface.md" target="_blank" class="learn pull-right">开始阅读&gt;&gt;</a>
+					</li>
+					<li>
+						<i></i>
+						<a href="https://github.com/astaxie/Go-in-Action" title="Go实战开发 — astaxie" target="_blank" class="video">【图书】《Go实战开发 — astaxie》</a>
+						<a href="https://github.com/astaxie/Go-in-Action/blob/master/ebook/zh/preface.md" target="_blank" class="learn pull-right">开始阅读&gt;&gt;</a>
+					</li>
+					<li>
+						<i></i>
+						<a href="https://github.com/achun/Go-Blog-In-Action" title="Go语言博客实践 — achun" target="_blank" class="video">【图书】《Go语言博客实践 — achun》</a>
+						<a href="https://github.com/achun/Go-Blog-In-Action" target="_blank" class="learn pull-right">开始阅读&gt;&gt;</a>
+					</li>
+				</ul>
+			</div>
+			<div class="col-md-6 infolist">
+				<ul class="list-unstyled">
+					<li>
+						<i></i>
+						<a href="https://github.com/qyuhen/book" title="Go 学习笔记 第三版 — 雨痕" target="_blank" class="video">【图书】《Go 学习笔记 第三版 — 雨痕》</a>
+						<a href="https://github.com/qyuhen/book/blob/master/Go%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%20%E7%AC%AC%E4%B8%89%E7%89%88.pdf?raw=true" target="_blank" class="learn pull-right">立即下载&gt;&gt;</a>
+					</li>
+					<li>
+						<i></i>
+						<a href="https://github.com/astaxie/build-web-application-with-golang" title="Go Web 编程 — 谢孟军" target="_blank" class="video">【图书】《Go Web 编程 — 谢孟军》</a>
+						<a href="https://github.com/astaxie/build-web-application-with-golang/blob/master/ebook/preface.md" target="_blank" class="learn pull-right">开始阅读&gt;&gt;</a>
+					</li>
+					<li>
+						<i></i>
+						<a href="https://github.com/polaris1119/The-Golang-Standard-Library-by-Example" title="Go语言标准库 — polaris" target="_blank" class="video">【图书】《Go语言标准库 — polaris》</a>
+						<a href="https://github.com/polaris1119/The-Golang-Standard-Library-by-Example/blob/master/preface.md" target="_blank" class="learn pull-right">开始阅读&gt;&gt;</a>
+					</li>
+					<li>
+						<i></i>
+						<a href="http://book.douban.com/subject/11577300/" title="Go语言编程 — 许式伟等" target="_blank" class="video">【图书】《Go语言编程 — 许式伟等》</a>
+						<a href="http://book.douban.com/subject/11577300/" target="_blank" class="learn pull-right">查看详情&gt;&gt;</a>
+					</li>
+					<li>
+						<i></i>
+						<a href="http://book.douban.com/subject/24869910/" title="Go语言程序设计 — Mark Summerfield，许式伟等译" target="_blank" class="video">【图书】《Go语言程序设计 — 许式伟等译》</a>
+						<a href="http://book.douban.com/subject/24869910/" target="_blank" class="learn pull-right">查看详情&gt;&gt;</a>
+					</li>
+					<li>
+						<i></i>
+						<a href="http://book.douban.com/subject/25919900/" title="Go语言程序设计 — 王鹏" target="_blank" class="video">【图书】《Go语言程序设计 — 王鹏》</a>
+						<a href="http://book.douban.com/subject/25919900/" target="_blank" class="learn pull-right">查看详情&gt;&gt;</a>
+					</li>
+					<li>
+						<i></i>
+						<a href="http://book.douban.com/subject/10770080/" title="Go语言·云动力 — [新加坡] 樊虹剑" target="_blank" class="video">【图书】《Go语言·云动力 — [新加坡] 樊虹剑》</a>
+						<a href="http://book.douban.com/subject/10770080/" target="_blank" class="learn pull-right">查看详情&gt;&gt;</a>
+					</li>
+					<li>
+						<i></i>
+						<a href="http://book.douban.com/subject/10558892/" title="The Way to Go — Ivo Balbaert" target="_blank" class="video">【图书】《The Way to Go — Ivo Balbaert》</a>
+						<a href="http://book.douban.com/subject/10558892/" target="_blank" class="learn pull-right">查看详情&gt;&gt;</a>
+					</li>
+					<li>
+						<i></i>
+						<a href="https://github.com/Unknwon/the-way-to-go_ZH_CN" title="The Way to Go 中文 — 无闻译" target="_blank" class="video">【图书】《The Way to Go 中文 — 无闻译》</a>
+						<a href="https://github.com/Unknwon/the-way-to-go_ZH_CN/blob/master/eBook/directory.md" target="_blank" class="learn pull-right">开始阅读&gt;&gt;</a>
+					</li>
+					<li>
+						<i></i>
+						<a href="https://github.com/astaxie/NPWG_zh" title="Network programming with Go — astaxie等译" target="_blank" class="video">【图书】《Network programming with Go》</a>
+						<a href="http://jan.newmarch.name/go/zh/index.html" target="_blank" class="learn pull-right">开始阅读&gt;&gt;</a>
+					</li>
+					<li>
+						<i></i>
+						<a href="https://www.gitbook.io/book/codegangsta/building-web-apps-with-go" title="Building Web Apps with Go" target="_blank" class="video">【图书】《Building Web Apps with Go》</a>
+						<a href="http://codegangsta.gitbooks.io/building-web-apps-with-go/" target="_blank" class="learn pull-right">开始阅读&gt;&gt;</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			{{if .me}}
+			<div class="box">
+				<div class="avatar-area pull-left">
+					<span class="avatar"><a href="/account/edit#change-avatar"><img alt="个人首页" width="80" height="80" src="{{gravatar .me.Avatar .me.Email 80}}" class="img-circle tool-tip" data-toggle="tooltip" data-placement="left" title="更换头像"></a></span>
+				</div>
+				<div class="profile-show pull-left">
+					<p></p>
+					<p class="user-name"><a href="/user/{{.me.Username}}">{{.me.Username}}</a></p>
+					<p><a href="/account/edit">个人资料设置</a></p>
+				</div>
+			</div>
+			<div class="box" style="margin: 0 5px;">
+				<a class="btn btn-default btn-sm" href="/topics/new">发布主题</a>&nbsp;&nbsp;
+				<a class="btn btn-default btn-sm" href="/resources/new">分享资源</a>&nbsp;&nbsp;
+				<a class="btn btn-default btn-sm" href="/project/new">发布项目</a>
+			</div>
+			{{else}}
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-user"></i> 用户登录</h3>
+			</div>
+			<div class="sb-content">
+				<form action="/account/login" method="post" class="form-horizontal login" role="form">
+					<div class="form-group">
+						<div class="col-sm-10">
+							<input type="text" class="form-control input-sm" id="username" name="username" placeholder="请填写用户名或邮箱">
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-10">
+							<input type="password" class="form-control input-sm" id="passwd" name="passwd" placeholder="请填写密码">
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-10">
+							<div class="checkbox">
+								<label>
+									<input id="user_remember_me" name="remember_me" type="checkbox" value="1" checked="checked" />	记住登录状态
+								</label>
+								<input class="btn btn-primary btn-sm" data-disable-with="正在登录" name="commit" type="submit" value="登录" />
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+			{{end}}
+		</div>
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-book"></i>&nbsp;<a href="/readings" target="_blank" title="点击更多">今日晨读</a></h3>
+			</div>
+			<div class="sb-content">
+				<div class="reading-list" data-limit="1">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-fire"></i>&nbsp;<a href="/projects" target="_blank" title="点击更多">开源项目</a></h3>
+			</div>
+			<div class="sb-content">
+				<div class="project-list" data-limit="10">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-comment"></i>&nbsp;最新评论</h3>
+			</div>
+			<div class="sb-content">
+				<div class="cmt-list" data-limit="5">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-user"></i>&nbsp;<a href="/users" target="_blank" title="点击更多">新会员</a></h3>
+			</div>
+			<div class="sb-content">
+				<div id="newest-list" class="user-list" data-limit="9">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-user"></i>&nbsp;<a href="/users" target="_blank" title="点击更多">活跃会员</a></h3>
+			</div>
+			<div class="sb-content">
+				<div id="active-list" class="user-list" data-limit="9">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-stats"></i>&nbsp;&nbsp;统计信息</h3>
+			</div>
+			<div class="sb-content">
+				<div class="stat-list">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-link"></i>&nbsp;友情链接</h3>
+			</div>
+			<div class="sb-content">
+				<div class="friendslink-list">
+					<ul class="list-unstyled">
+						<li style="margin-left:5px; margin-bottom:5px;">
+							<a href="http://www.shiyanlou.com?fr=studygolang" target="_blank" title="实验楼IT在线教育">实验楼IT在线教育</a>
+						</li>
+						<li style="margin-left:5px; margin-bottom:5px;">
+							<a href="http://www.jpush.cn/" target="_blank" title="消息推送">消息推送</a>
+						</li>
+						<li style="margin-left:5px; margin-bottom:5px;">
+							<a href="http://gopm.io/" target="_blank" title="Go 语言包管理">Go 语言包管理</a>
+						</li>
+						<li style="margin-left:5px; margin-bottom:5px;">
+							<a href="http://hubwiz.com/?fr=studygolang" target="_blank" title="汇智网在线编程学习">汇智网在线编程学习</a>
+						</li>
+						<li style="margin-left:5px; margin-bottom:5px;">
+							<a href="http://www.5ibc.net/?fr=studygolang" target="_blank" title="PHP程序员之家">HP程序员之家</a>
+						</li>
+						<!--
+						<li>
+							<a href="/" target="_blank" title="">
+									<img src="" width="242" height="95">
+							</a>
+						</li>
+						-->
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+</div>
+{{end}}
+{{define "css"}}
+<link href="/static/css/index.css" rel="stylesheet"/>
+{{end}}
+{{define "js"}}
+<script type="text/javascript" src="/static/js/index.js?v=0.1"></script>
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/projects/recent",
+	"/comments/recent",
+	"/users/active",
+	"/users/newest",
+	"/websites/stat",
+	"/readings/recent"
+];
+</script>
+{{end}}

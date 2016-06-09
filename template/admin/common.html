@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+	<head>
+	<meta	charset="utf-8"	/>
+	<meta	name="viewport"	content="width=device-width, initial-scale=1.0" />
+	<title>管理后台 | Go语言中文网 - Go语言学习园地</title>
+	<link rel="shortcut icon" href="/static/img/go.ico">
+	<link	rel="stylesheet" href="/static/css/admin/style.default.css" type="text/css" />
+	<link	rel="stylesheet" href="/static/css/admin/revise.css" type="text/css" />
+	<!--[if	IE 9]>
+		<link	rel="stylesheet" media="screen"	href="css/style.ie9.css"/>
+	<![endif]-->
+	<!--[if	IE 8]>
+		<link	rel="stylesheet" media="screen"	href="css/style.ie8.css"/>
+	<![endif]-->
+	{{template "css"}}
+</head>
+
+<body	class="withvernav">
+
+<div class="bodywrapper">
+		<div class="topheader">
+				<div class="left">
+					<a href="/admin">
+						<h1	class="logo">Go语言中文网<span>管理后台</span></h1>
+					</a>
+					<br	clear="all"	/>
+					
+				</div><!--left-->
+				
+				<div class="right">
+					<div class="userinfo">
+						<img src="{{gravatar .me.Avatar .me.Email 23}}" alt="" />
+							<span>{{.me.Username}}</span>
+					</div><!--userinfo-->
+					
+					<div class="userinfodrop">
+						<div class="avatar">
+							<a href=""><img src="{{gravatar .me.Avatar .me.Email 95}}" alt="" /></a>
+							<div class="changetheme">
+								更改皮肤:	<br	/>
+								<a class="default"></a>
+								<a class="blueline"></a>
+								<a class="greenline"></a>
+								<a class="contrast"></a>
+								<a class="custombg"></a>
+							</div>
+						</div><!--avatar-->
+						<div class="userdata">
+							<h4>{{.me.Username}}</h4>
+								<span	class="email">{{.me.Email}}</span>
+								<ul>
+									<li><a href="/user/polaris" target="_blank">个人首页</a></li>
+									<li><a href="/account/edit" target="_blank">个人资料设置</a></li>
+									<li><a href="/account/logout">退出</a></li>
+								</ul>
+						</div><!--userdata-->
+					</div><!--userinfodrop-->
+				</div><!--right-->
+		</div><!--topheader-->
+		
+		<div class="vernav2	iconmenu">
+			<ul>
+			{{with $root := .}}
+				{{range $menu1 := $root.menu1}}
+				<li{{if eq $root.cur_menu1 $menu1.Aid }} class="current"{{end}}>
+					<a href="#formsub{{$menu1.Aid}}" class="elements">{{$menu1.Name}}</a>
+					<span	class="arrow"></span>
+					<ul	id="formsub{{$menu1.Aid}}">
+					{{range $menu2 := index $root.menu2 $menu1.Aid}}
+				 		<li{{with $uri := html $root.uri}}{{if eq $uri $menu2.Route }} class="current"{{end}}{{end}}><a href="{{$menu2.Route}}">{{$menu2.Name}}</a></li>
+					{{end}}
+					</ul>
+				</li>
+				{{end}}
+			{{end}}
+			</ul>
+			<a class="togglemenu"></a>
+			<br	/><br	/>
+		</div><!--leftmenu-->
+		
+		<div class="centercontent">
+		{{template "content" .}}
+	</div><!-- centercontent -->
+		
+</div><!--bodywrapper-->
+<script	type="text/javascript" src="http://apps.bdimg.com/libs/jquery/1.7.2/jquery.min.js"></script>
+<script	type="text/javascript" src="http://apps.bdimg.com/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.cookie.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.uniform.min.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery-ui-timepicker-addon.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.alerts.js"></script>
+<script	type="text/javascript" src="/static/js/admin/general.js"></script>
+<!--[if	lte	IE 8]><script	language="javascript"	type="text/javascript" src="js/plugins/excanvas.min.js"></script><![endif]-->
+<!--[if	lt IE	9]><script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script>
+<![endif]-->
+{{template "js" .}}
+</body>
+</html>

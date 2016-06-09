@@ -1,0 +1,67 @@
+{{define "title"}}忘记密码 {{end}}
+{{define "seo"}}<meta name="keywords" content="会员登录, 忘记密码, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
+<meta name="description" content="中国 Golang 社区，Go语言学习园地，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。完全Go语言实现。">{{end}}
+{{define "content"}}
+<div class="row banner">
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/users">会员</a></li>
+			<li class="active">忘记密码</li>
+		</ol>
+		<div class="box_white">
+			{{if .success}}
+				<h2>重置密码邮件已发出</h2>
+				{{.success}}
+			{{else}}
+			<form class="form-horizontal validate-form" role="form" action="/account/forgetpwd" method="POST">
+				<fieldset>
+					<legend>忘记密码</legend>
+					{{if .error}}
+					<div class="alert alert-block alert-error" id="alert_info">
+						{{.error}}
+					</div>
+					{{end}}
+					<div class="form-group form-group-sm">
+						<label class="col-sm-2 control-label" for="email"><abbr>*</abbr>Email</label>
+						<div class="col-sm-9">
+							<input class="form-control required" type="email" id="email" name="email" placeholder="请输入邮箱">
+							<span class="help-block">将会发送一个找回密码的特别链接到您的邮箱，通过该链接可以进入重置密码的页面。</span>
+						</div>
+					</div>
+				</fieldset>
+				<div class="form-group form-group-sm">
+					<div class="col-sm-offset-5 col-sm-6">
+						<button type="submit" class="btn btn-default btn-sm submit">找回密码</button>
+					</div>
+				</div>
+			</form>
+			{{end}}
+		</div>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-list-alt"></i>&nbsp;其他操作</h3>
+			</div>
+			<div class="sb-content">
+				<ul>
+					<li><a href="/account/login">登录</a></li>
+					<li><a href="/account/register">注册</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+{{end}}
+{{define "css"}}
+<link href="/static/css/user.css" media="screen" rel="stylesheet" type="text/css">
+{{end}}
+{{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script type="text/javascript" src="/static/js/account.js"></script>
+{{end}}

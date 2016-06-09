@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<title>Go语言中文网 安装 &rsaquo; 配置可选项</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="/static/css/install/install.css" type="text/css" />
+</head>
+<body>
+	<h1 id="logo"><img alt="Go语言中文网" src="/static/img/logo1.png" /></h1>
+	{{if .success}}
+	<p>可选配置成功！</p>
+	<p class="step"><a href="/account/login" class="button button-large">登录</a>&nbsp;</p>
+	{{else}}
+	<p>以下配置信息也可以直接修改 <code>config/env.ini</code> 文件。</p>
+	<form method="post" action="/install/options?step=2">
+		{{if .no_email_conf}}
+		<p>如果配置了 SMTP 邮件服务器，Go语言中文网 就可以给用户发送通知邮件。</p>
+		<table class="form-table">
+			<tr>
+				<th scope="row"><label for="from_email">发件人</label></th>
+				<td><input name="from_email" id="from_email" type="text" size="25" value="" /></td>
+				<td>发送邮件的邮箱地址。</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="smtp_host">服务器地址</label></th>
+				<td><input name="smtp_host" id="smtp_host" type="text" size="25" value="" /></td>
+				<td>SMTP 邮件服务器地址</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="smtp_port">STMP 端口</label></th>
+				<td><input name="smtp_port" id="smtp_port" type="text" size="25" value="25" /></td>
+				<td>可选 - SMTP 端口。留空使用默认端口 (默认: 25)。</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="smtp_username">用户名</label></th>
+				<td><input name="smtp_username" id="smtp_username" type="text" size="25" value="" /></td>
+				<td>SMTP 邮箱用户名</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="smtp_password">密码</label></th>
+				<td><input name="smtp_password" id="smtp_password" type="password" size="25" value="" /></td>
+				<td>SMTP 邮箱密码</td>
+			</tr>
+		</table>
+		{{end}}
+		{{if .no_qiniu_conf}}
+		<p>如果配置了 七牛云存储账号，Go语言中文网 会将图片存到七牛上，否则存在本地。如果没有账号可以 <a href="https://portal.qiniu.com/signup?code=3lfz4at7pxfma" target="_blank">免费申请</a></p>
+		<table class="form-table">
+			<tr>
+				<th scope="row"><label for="access_key">access_key</label></th>
+				<td><input name="access_key" id="access_key" type="text" size="45" style="width: 400px;"/></td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="secret_key">secret_key</label></th>
+				<td><input name="secret_key" id="secret_key" type="text" size="45" style="width: 400px;" /></td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="bucket_name">bucket_name</label></th>
+				<td><input name="bucket_name" id="bucket_name" type="text" size="25" /></td>
+			</tr>
+		</table>
+		{{end}}
+		<p class="step"><input name="submit" type="submit" value="提交" class="button" /></p>
+	</form>
+	{{end}}
+</body>
+</html>

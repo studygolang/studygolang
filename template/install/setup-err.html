@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<title>Go语言中文网 安装 &rsaquo; 出错了</title>
+	<meta charset="utf-8">
+	<style type="text/css">
+		html {
+			background: #f9f9f9;
+		}
+		body {
+			background: #fff;
+			color: #333;
+			font-family: sans-serif;
+			margin: 2em auto;
+			padding: 1em 2em;
+			-webkit-border-radius: 3px;
+			border-radius: 3px;
+			border: 1px solid #dfdfdf;
+			max-width: 700px;
+		}
+		#error-page {
+			margin-top: 50px;
+		}
+		#error-page p {
+			font-size: 14px;
+			line-height: 1.5;
+			margin: 25px 0 20px;
+		}
+		#error-page code {
+			font-family: Consolas, Monaco, monospace;
+		}
+		ul li {
+			margin-bottom: 10px;
+			font-size: 14px ;
+		}
+		a {
+			color: #21759B;
+			text-decoration: none;
+		}
+		a:hover {
+			color: #D54E21;
+		}
+
+		.button {
+			font-family: sans-serif;
+			text-decoration: none;
+			font-size: 14px !important;
+			line-height: 16px;
+			padding: 6px 12px;
+			cursor: pointer;
+			border: 1px solid #bbb;
+			color: #464646;
+			-webkit-border-radius: 15px;
+			border-radius: 15px;
+			-moz-box-sizing: content-box;
+			-webkit-box-sizing: content-box;
+			box-sizing: content-box;
+			background-color: #f5f5f5;
+			background-image: -ms-linear-gradient(top, #ffffff, #f2f2f2);
+			background-image: -moz-linear-gradient(top, #ffffff, #f2f2f2);
+			background-image: -o-linear-gradient(top, #ffffff, #f2f2f2);
+			background-image: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#f2f2f2));
+			background-image: -webkit-linear-gradient(top, #ffffff, #f2f2f2);
+			background-image: linear-gradient(top, #ffffff, #f2f2f2);
+		}
+
+		.button:hover {
+			color: #000;
+			border-color: #666;
+		}
+
+		.button:active {
+			background-image: -ms-linear-gradient(top, #f2f2f2, #ffffff);
+			background-image: -moz-linear-gradient(top, #f2f2f2, #ffffff);
+			background-image: -o-linear-gradient(top, #f2f2f2, #ffffff);
+			background-image: -webkit-gradient(linear, left top, left bottom, from(#f2f2f2), to(#ffffff));
+			background-image: -webkit-linear-gradient(top, #f2f2f2, #ffffff);
+			background-image: linear-gradient(top, #f2f2f2, #ffffff);
+		}
+	</style>
+</head>
+<body id="error-page">
+	{{if eq .err_type 1}}
+	<p>
+		<h1>数据库连接错误</h1>
+		<p>您在 <code>config/env.ini</code> 文件中提供的数据库用户名和密码可能不正确，或者无法连接到 <code>{{.dbhost}}:{{.dbport}}</code> 上的数据库服务器，这意味着您的主机数据库服务器已停止工作。</p>
+		<ul>
+			<li>您确认您提供的用户名和密码正确么？</li>
+			<li>您确认您提供的主机名和端口正确么？</li>
+			<li>您确认数据库服务器运行正常么？</li>
+		</ul>
+		<p>若您不理解上述术语，请联系您的服务提供商。如果您仍需帮助，可访问 <a href='https://github.com/studygolang/studygolang/blob/master/README.md'>Go语言中文网帮助文档</a>。</p>
+		<p class="step"><a href="/install/setup-config?step=1" onclick="javascript:history.go(-1);return false;" class="button">重试</a></p>
+	</p>
+	{{else if eq .err_type 2}}
+	<p>
+		<h1>无法选择数据库</h1>
+		<p>我们可以和数据库服务器建立连接（说明您提供的用户名和密码正确），但无法选择（select）{{.dbname}}数据库。</p>
+		<ul>
+			<li>您确认数据库 <code>{{.dbname}}</code> 存在？</li>
+			<li>您确认用户 {{.uname}} 拥有使用 <code>{{.dbname}}</code> 数据库的权限？</li>
+		</ul>
+		<p>若您不理解上述术语，请联系您的服务提供商。如果您仍需帮助，可访问 <a href='https://github.com/studygolang/studygolang/blob/master/README.md'>Go语言中文网帮助文档</a>。</p>
+		<p class="step"><a href="/install/setup-config?step=1" onclick="javascript:history.go(-1);return false;" class="button">重试</a></p>
+	</p>
+	{{end}}
+</body>
+</html>

@@ -1,0 +1,55 @@
+{{define "querylist"}}
+<h4>总数：{{ .total }}</h4><br/>
+<table id="logo_table" cellpadding="0" cellspacing="0" border="0" class="stdtable">
+	<thead class="center">
+		<tr>
+			<td width="3%">文章ID</td>
+			<td width="5%">来源域名</td>
+			<td width="5%">来源名称</td>
+			<td width="8%">标题</td>
+			<td width="5%">作者</td>
+			<td width="5%">发布时间</td>
+			<td width="15%">内容</td>
+			<td width="3%">状态</td>
+			<td width="5%">创建时间</td>
+			<td width="8%">操作</td>
+		</tr>
+	</thead>
+	<tbody class="center">
+		{{range .datalist}}
+			<tr>
+				<td>{{ .Id }}</td>
+				<td class="newline">{{ .Domain }}</td>
+				<td>{{ .Name }}</td>
+				<td class="newline">{{ .Title }}</td>
+				<td>{{ .AuthorTxt }}</td>
+				<td>{{ .PubDate }}</td>
+				<td class="newline">{{substring .Txt 40 "..."}}</td>
+				<td>{{ .Status }}</td>
+				<td>{{ .Ctime }}</td>
+				<td class="actions">
+					<a href="/admin/crawl/article/modify?id={{ .Id }}" target="_blank">修改</a>
+					<a data-type="ajax-submit" href="#"
+						ajax-action="/admin/crawl/article/del?id={{ .Id }}" 
+						ajax-hint="是否确定要删除?"
+						success-hint="删除成功"
+						callback="delCallback">删除</a>
+				</td>
+			</tr>
+		{{end}}
+	</tbody>
+</table>
+
+<div class="gigantic pagination">
+	<a href="#" class="first" data-action="first">&laquo;</a>
+	<a href="#" class="previous" data-action="previous">&lsaquo;</a>
+	<input type="text" readonly="readonly" data-max-page="40" />
+	<a href="#" class="next" data-action="next">&rsaquo;</a>
+	<a href="#" class="last" data-action="last">&raquo;</a>
+</div>
+
+<input type="hidden" id="totalPages" value="{{ .totalPages }}"/>
+<input type="hidden" id="cur_page" value="{{ .page }}"/>
+<input type="hidden" id="limit" value="{{ .limit }}"/>
+
+{{end}}

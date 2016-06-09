@@ -1,0 +1,160 @@
+{{define "title"}}搜索{{end}}
+{{define "seo"}}<meta name="keywords" content="Go语言博客文章, Go语言博文, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区,Go语言中文网,Go语言学习园地">
+<meta name="description" content="文章来自国内知名网站知名，Go爱好者学习笔记，经验分享；也有爱好者自己的博客文章，以及一些国外精彩文章。">{{end}}
+{{define "content"}}
+<div class="row header_title">
+	<div class="col-lg-12 col-md-12 col-sm-12 search-box">
+		<div class="box_white">
+		<form action="/search" class="search-form">
+			<div>
+				<div class="col-xs-2">
+				</div>
+				<div class="col-xs-6">
+					<input type="text" class="form-control" name="q" placeholder="输入搜索词" value="{{.q}}" />
+				</div>
+				<div class="col-xs-1">
+					<button type="submit" class="btn btn-default">搜索</button>
+				</div>
+			</div>
+			<div class="clearfix">
+				<div class="col-xs-2">
+				</div>
+				<div class="col-xs-6">
+					<div class="radio">
+						<label>
+							<input type="radio" name="f" {{if or (eq .f "text") (eq .f "")}}checked="checked"{{end}} value="text" /> 全文
+						</label>&nbsp;&nbsp;
+						<label>
+							<input type="radio" name="f" {{if eq .f "title"}}checked="checked"{{end}} value="title" /> 标题
+						</label>&nbsp;&nbsp;
+						<label>
+							<input type="radio" name="f" {{if eq .f "author"}}checked="checked"{{end}} value="author" /> 作者
+						</label>
+					</div>
+				</div>
+			</div>
+		</form>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7 search-result">
+		<div class="box_white result-title">
+			<span class="website">Go语言中文网</span> 为您找到相关结果 <strong class="num">{{.respBody.NumFound}}</strong> 个
+		</div>
+		{{range .respBody.Docs}}
+		<article class="article box_white">
+			<div class="row">
+				<div>
+					<h2>
+						<a href="/{{if eq .Objtype 0}}topics{{else if eq .Objtype 1}}articles{{else}}resources{{end}}/{{.Objid}}" target="_blank" title="{{.Title}}">{{noescape .HlTitle}}</a></h2>
+					{{if .Content}}
+					<p class="text">{{noescape .HlContent}}<a href="/articles/{{.Objid}}" target="_blank" title="阅读全文">阅读全文</a></p>
+					{{end}}
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-8 metatag">
+					<i class="glyphicon glyphicon-tasks"></i>
+					<span class="source" title="类别">{{if eq .Objtype 0}}主题{{else if eq .Objtype 1}}博文{{else if eq .Objtype 2}}资源{{else if eq .Objtype 4}}开源项目{{else}}Wiki{{end}}</span>
+					<i class="glyphicon glyphicon-calendar"></i>
+					<span class="date" title="发布日期">{{.PubTime}}</span>
+					<i class="glyphicon glyphicon-user"></i>
+					<span class="author" title="作者">
+					{{if eq .Objtype 1}}
+						{{.Author}}
+					{{else}}
+						<a href="/user/{{.Author}}" target="_blank">{{.Author}}</a>
+					{{end}}
+					</span>
+					{{if .Tags}}
+					{{$tags := explode .Tags ","}}
+					<ul class="list-inline">
+						<i class="glyphicon glyphicon-tags"></i>
+						{{range $tag := $tags}}
+						<li>
+							<a href="/search?q={{$tag}}&f=tag" title="{{$tag}}" target="_blank">
+								{{$tag}}
+							</a>
+						</li>
+						{{end}}
+					</ul>
+					{{end}}
+				</div>
+				<div class="col-md-4 metatag text-right">
+					<span class="view" title="阅读数">
+						<i class="glyphicon glyphicon-eye-open"></i>
+						阅读:<span>{{.Viewnum}}</span>次
+					</span>
+					<a href="/articles/{{.Id}}#commentForm" class="cmt" target="_blank" title="评论数">
+						<i class="glyphicon glyphicon-comment"></i>
+						评论:<span>{{.Cmtnum}}</span>条
+					</a>
+					{{if $.likeflags}}
+					{{$likeFlag := index $.likeflags .Id}}
+					<a href="#" class="like{{if $likeFlag}} hadlike{{end}}" title="{{if $likeFlag}}取消喜欢{{else}}我喜欢{{end}}" data-objid="{{.Id}}" data-objtype="{{.Objtype}}" data-flag="{{if $likeFlag}}{{$likeFlag}}{{else}}0{{end}}">
+						<i class="glyphicon glyphicon-heart{{if not $likeFlag}}-empty{{end}}"></i>
+					{{else}}
+					<a href="#" class="like" title="我喜欢" data-objid="{{.Id}}" data-objtype="{{.Objtype}}" data-flag="0">
+						<i class="glyphicon glyphicon-heart-empty"></i>
+					{{end}}
+						<span class="likenum">{{.Likenum}}</span>人喜欢
+					</a>
+				</div>
+			</div>
+		</article>
+		{{end}}
+		<ul class="pagination pull-right">
+			{{noescape .pageHtml}}
+		</ul>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<!--
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-search"></i>&nbsp;热门搜索</h3>
+			</div>
+			<div class="sb-content">
+				<div class="keyword-list" data-limit="5">
+					<ul class="list-unstyled">
+						<li><a href="/search?q=golang">golang</a></li>
+						<li><a href="/search?q=golang">golang</a></li>
+						<li><a href="/search?q=golang">golang</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		-->
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-comment"></i>&nbsp;最新评论</h3>
+			</div>
+			<div class="sb-content">
+				<div class="cmt-list" data-limit="5">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+</div>
+{{end}}
+{{define "css"}}
+<link href="/static/css/search.css" rel="stylesheet"/>
+{{end}}
+{{define "js"}}
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/comments/recent",
+];
+
+$(function(){
+	$('.search-form input:radio').on('click', function(){
+		$('.search-form').submit();
+	});
+});
+</script>
+{{end}}

@@ -1,0 +1,129 @@
+{{define "title"}}资源索引 {{end}}
+{{define "seo"}}<meta name="keywords" content="Golang,Go社区,Golang中文社区,Go语言学习,Go语言,学习Go语言,Golang 中国,Golang中国,Golang China, Go语言论坛, Go中文社区, Go语言社区, Go语言中文网, Go语言学习园地">
+<meta name="description" content="Go中文社区，Golang中国，Go语言学习园地，提供一个Go爱好者交流的中文平台">{{end}}
+{{define "content"}}
+<div class="row banner">
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li class="active">资源索引</li>
+		</ol>
+		<ul class="nav nav-tabs" role="tablist">
+			{{range .categories}}
+			<li role="presentation" id="tb-{{.Catid}}" data-intro="{{.Intro}}"{{if eq $.curCatid .Catid}} class="active"{{end}}><a href="/resources/cat/{{.Catid}}">{{.Name}}</a></li>
+			{{end}}
+		</ul>
+		<div class="box_white">
+			<div class="desc">
+				<i class="glyphicon glyphicon-star"></i> <span id="cat_intro"></span>
+			</div>
+			<div class="resources">
+				{{range .resources}}
+				<div class="resource">
+					<div class="rinfo">
+						<a class="avatar pull-right" href="/user/{{.user.Username}}"><img src="{{gravatar .user.Avatar .user.Email 48}}" alt="{{.user.Username}}"></a>
+						<a class="link-url" href="{{.url}}" target="_blank" data-id="{{.id}}">{{.title}}</a>
+						{{if .host}}
+						<span class="host">({{.host}})</span>
+						{{end}}
+						<p class="ino">
+							<i class="glyphicon glyphicon-user"></i> <a class="a-pop-info" href="/user/{{.user.Username}}" title="{{.user.Username}}">{{.user.Username}}</a> 于
+							<em><abbr class="timeago" title="{{.ctime}}"></abbr></em> 发布
+						</p>
+						<p class="edi">
+							<a href="/resources/{{.id}}#commentForm">
+								<i class="glyphicon glyphicon-comment"></i> {{if .cmtnum}} <b>{{.cmtnum}}</b> {{end}}评论
+							</a>
+							<span><i class="glyphicon glyphicon-heart"></i> <b>{{.likenum}}</b> 喜欢</span>
+							<span><i class="glyphicon glyphicon-eye-open"></i> <b>{{.viewnum}}</b> 阅读</span>
+						</p>
+					</div>
+				</div>
+				{{else}}
+				<p class="text-center">该分类暂时没有任何资源</p>
+				{{end}}
+			</div>
+			{{if .page}}
+			<nav class="text-center"><ul class="pagination pagination-sm">{{.page}}</ul></nav>
+			{{end}}
+		</div>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			<div class="sb-content text-center" style="margin-top: 15px;">
+				<a href="/resources/new" class="btn btn-default">分享资源</a>
+			</div>
+		</div>
+
+		<div class="row box_white sidebar">
+			<script type="text/javascript">
+			var cpro_id="u1996895";
+			(window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id]={at:"3",rsi0:"291",rsi1:"291",pat:"6",tn:"baiduCustNativeAD",rss1:"#FFFFFF",conBW:"0",adp:"1",ptt:"0",titFF:"%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91",titFS:"14",rss2:"#000000",titSU:"0",ptbg:"90",piw:"0",pih:"0",ptp:"0"}
+			</script>
+			<script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script>
+		</div>
+		
+		<div class="row box_white sidebar">
+			<div class="top">
+				<ul class="list-inline text-center">
+					<li class="first"><a href="javascript:;" class="cur">最新评论</a>|</li>
+					<li class="second"><a href="/articles" target="_blank" title="点击更多">最新博文</a>|</li>
+					<li class="last"><a href="/topics" target="_blank" title="点击更多">最新主题</a></li>
+				</ul>
+				<p class="bar"></p>
+			</div>
+			<div class="sb-content">
+				<div class="cmt-list first" data-limit="5">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+				<div class="article-list second hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+				<div class="topic-list last hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-stats"></i>&nbsp;&nbsp;统计信息</h3>
+			</div>
+			<div class="sb-content">
+				<div class="stat-list">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+</div>
+{{end}}
+{{define "css"}}
+<link href="/static/css/resources.css?v=1.0" rel="stylesheet"/>
+{{end}}
+{{define "js"}}
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/comments/recent",
+	"/articles/recent",
+	"/topics/recent",
+	"/nodes/hot",
+	"/websites/stat"
+];
+
+$(function(){
+	var intro = $('#tb-'+{{.curCatid}}).data('intro');
+	$('#cat_intro').html(intro);
+});
+</script>
+{{end}}

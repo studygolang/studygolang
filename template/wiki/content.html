@@ -1,0 +1,152 @@
+{{define "title"}}{{.wiki.Title}}{{end}}
+{{define "seo"}}<meta name="keywords" content="{{.wiki.Title}}, Go语言开源项目, Go语言博文, Go语言, Go语言中文网, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
+<meta name="description" content="{{substring .wiki.Content 200 "..."}}">{{end}}
+{{define "content"}}
+<div class="row banner">
+</div>
+<div class="row">
+  <div class="col-lg-9 col-md-8 col-sm-7">
+    <ol class="breadcrumb">
+      <li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+      <li><a href="/wiki">Wiki</a></li>
+      <li class="active">查看 {{.wiki.Title}}</li>
+    </ol>
+    <div class="page box_white">
+      <div class="title text-center">
+        <h1>
+          {{.wiki.Title}}
+          {{if .me}}
+            {{if or (eq .me.Uid .wiki.Uid) .me.IsAdmin}}
+            <a class="edit" href="/wiki/{{.wiki.Id}}" title="修改"><i class="glyphicon glyphicon-pencil"></i></a>
+            {{end}}
+          {{end}}
+        </h1>
+      </div>
+      <div class="meta">
+        <div class="p-author">
+          <i class="glyphicon glyphicon-calendar"></i>
+          <span class="timeago" title="{{.wiki.Ctime}}"></span>&nbsp;
+          <i class="glyphicon glyphicon-user"></i>
+          {{$user := index .wiki.Users .wiki.Uid}}
+          {{$user.Username}}
+        </div>
+        <!-- p-author END -->
+        
+        <div class="p-comment text-right">
+          <span class="view" title="阅读数">
+            <i class="glyphicon glyphicon-eye-open"></i>
+            阅读 <span>{{.wiki.Viewnum}}</span> 次&nbsp;
+          </span>&nbsp;
+        </div>
+        <!-- p-comment END -->
+      </div>
+      <div class="tags"></div>
+      <div class="content wiki">
+        <div class="desc">{{.wiki.Content}}</div>
+      </div>
+      <div class="line"></div>
+      <div class="editors">
+        <!--
+        <div class="pull-right">
+          <a href="/wiki/about/comments#new_comment" class="btn btn-success">发表评论</a>
+        </div>-->
+        <h4>本页贡献者:</h4>
+        <div>
+          {{range .wiki.Users}}
+          <a href="/user/{{.Username}}" title="{{.Username}}"><img alt="{{.Username}}" class="uface" src="{{gravatar .Avatar .Email 32}}" with="32" height="32"></a>
+          {{end}}
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="col-lg-3 col-md-4 col-sm-5">
+    {{if .me.IsAdmin}}
+    <div class="row box_white sidebar">
+      <div class="sb-content text-center" style="margin-top: 15px;">
+        <a href="/wiki/new" class="btn btn-default">创建Wiki</a>
+      </div>
+    </div>
+    {{end}}
+
+    <div class="row box_white sidebar">
+      <div class="top">
+        <ul class="list-inline text-center">
+          <li class="first"><a href="/articles" target="_blank" class="cur" title="点击更多">最新博文</a>|</li>
+          <li class="second"><a href="/topics" target="_blank" title="点击更多">最新主题</a>|</li>
+          <li class="last"><a href="javascript:;">最新评论</a></li>
+        </ul>
+        <p class="bar"></p>
+      </div>
+      <div class="sb-content">
+        <div class="article-list first">
+          <ul class="list-unstyled">
+            <img src="/static/img/loaders/loader7.gif" alt="加载中" />
+          </ul>
+        </div>
+        <div class="topic-list second hidden">
+          <ul class="list-unstyled">
+          </ul>
+        </div>
+        <div class="cmt-list last hidden">
+          <ul class="list-unstyled">
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="row box_white sidebar">
+      <script type="text/javascript">
+      var cpro_id="u1996895";
+      (window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id]={at:"3",rsi0:"291",rsi1:"291",pat:"6",tn:"baiduCustNativeAD",rss1:"#FFFFFF",conBW:"0",adp:"1",ptt:"0",titFF:"%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91",titFS:"14",rss2:"#000000",titSU:"0",ptbg:"90",piw:"0",pih:"0",ptp:"0"}
+      </script>
+      <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script>
+    </div>
+  </div>
+</div>
+{{end}}
+{{define "css"}}
+<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/jquery.atwho.min.css" media="screen" rel="stylesheet" type="text/css">
+<style type="text/css">
+.wiki.attrs {background: #f6f6f6;border: 1px solid #eee;padding: 5px 10px;margin: 15px 0;font-weight: bold;line-height: 22px;}
+.wiki .attrs a {font-weight: normal;}
+.wiki .attrs a:hover {color: #C00; text-decoration: none;}
+
+.editors {margin-left: 25px; padding-bottom: 20px;}
+</style>
+{{end}}
+{{define "js"}}
+<script type="text/javascript" src="/static/js/libs/jquery.githubRepoWidget.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.caret.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.atwho.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/emojis.js"></script>
+<script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
+<script type="text/javascript" src="/static/js/wiki.js"></script>
+<script type="text/javascript" src="/static/js/comment.js?v=1.2"></script>
+<script type="text/javascript" src="/static/js/puploader.js?v=1.0"></script>
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+  "/articles/recent",
+  "/topics/recent",
+  "/comments/recent"
+];
+
+$(function(){
+  // 解析 desc
+  new SG.Wiki().parseDesc();
+
+  // loadComments();
+});
+</script>
+<script type="text/javascript">
+/* 内文方式  创建于 2015-03-15*/
+var cpro_id = "u1989498";
+</script>
+<script src="http://cpro.baidustatic.com/cpro/ui/cnw.js" type="text/javascript"></script>
+{{end}}

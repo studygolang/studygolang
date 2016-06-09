@@ -1,0 +1,50 @@
+{{define "title"}}激活账号{{end}}
+{{define "seo"}}<meta name="keywords" content="激活账号, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
+<meta name="description" content="Go语言中文网，中国 Golang 社区，Go语言学习园地，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。完全Go语言实现。">{{end}}
+{{define "content"}}
+<div class="row banner">
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/users">会员</a></li>
+			<li class="active">激活账号</li>
+		</ol>
+		<div class="box_white">
+			{{if .error}}
+				<h2>激活账号出错了！</h2>
+				{{.error}}
+				<p>如果您确定已经注册了，可以登录，在 个人资料设置 中再次发送激活邮件</p>
+			{{else}}
+			<div style="padding:30px 30px 50px 30px;">
+				<div style="color:#339502;font-size:22px;line-height: 2.5;">恭喜您激活成功！</div>
+				现在就去和大家分享你的Go经验吧！！<a href="/">Let's Go>></a>
+			</div>
+			{{end}}
+		</div>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-list-alt"></i>&nbsp;其他操作</h3>
+			</div>
+			<div class="sb-content">
+				<ul>
+					<li><a href="/account/login">登录</a></li>
+					<li><a href="/account/register">注册</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+{{end}}
+{{define "css"}}
+<link href="/static/css/user.css" media="screen" rel="stylesheet" type="text/css">
+{{end}}
+{{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script type="text/javascript" src="/static/js/account.js"></script>
+{{end}}

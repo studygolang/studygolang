@@ -1,0 +1,86 @@
+#popup_container {
+	font-family: Arial, sans-serif;
+	font-size: 12px;
+	min-width: 300px; /* Dialog will be no smaller than this */
+	max-width: 600px; /* Dialog will wrap after this width */
+	background: #ddd;
+	padding: 5px !important;
+	color: #666;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	-moz-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+	-webkit-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); 
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+#popup_title {
+	font-size: 18px;
+	line-height: 21px;
+	font-weight: normal;
+	color: #fff;
+	background: #32415A;
+	cursor: default;
+	padding: 10px;
+	margin: 0em;
+}
+
+#popup_content {
+	/*background: 16px 16px no-repeat url(../../images/info.gif);*/
+	padding: 10px; 
+	margin: 0em;
+	background: #fcfcfc;
+	border: 1px solid #ccc;
+	border-top: 0;
+}
+/*
+#popup_content.alert {
+	background-image: url(../../images/info.gif);
+}
+
+#popup_content.confirm {
+	background-image: url(../../images/important.gif);
+}
+
+#popup_content.prompt {
+	background-image: url(../../images/help.gif);
+}*/
+
+#popup_message {
+	margin: 20px 0;
+}
+
+#popup_panel {
+	text-align: center;
+	margin: 20px 0 10px 0;
+}
+
+#popup_panel input { min-width: 100px; text-align: center; }
+
+#popup_prompt {
+	margin: 5px 0;
+	padding: 7px 5px;
+	border: 1px solid #ccc;
+	background: #f7f7f7;
+	-moz-border-radius: 2px; -webkit-border-radius: 2px; border-radius: 2px;
+	-moz-box-shadow: inset 1px 1px 1px #eee; -webkit-box-shadow: inset 1px 1px 2px #eee; box-shadow: inset 1px 1px 2px #eee;
+	color: #666;
+}
+#popup_prompt:focus { background: #fff; }
+
+#popup_overlay { background: #000 !important; opacity: 0.5 !important; }
+
+#popup_ok, #popup_cancel { padding: 5px 15px; font-size: 12px; display: inline-block; -moz-border-radius: 3px; -webkit-border-radius: 3px; border-radius: 3px; }
+#popup_ok, #popup_cancel { 
+	-moz-box-shadow: 1px 1px 2px #eee; -webkit-box-shadow: 1px 1px 2px #eee; box-shadow: 1px 1px 2px #eee; cursor: pointer; 
+	font-family: 'RobotoCondensed', Arial, Helvetica, sans-serif; text-transform: uppercase; 
+}
+#popup_ok:hover, #popup_ok:active, #popup_cancel:hover, #popup_cancel:active { background-position: 0 -39px; }
+
+#popup_ok { border: 1px solid #c2691a; background: #eb862d; font-weight: bold; color: #fff; }
+#popup_ok:hover { background: #fb9a45; }
+
+#popup_cancel { border: 1px solid #ccc; background: #eee; text-shadow: 1px 1px #f7f7f7; color: #333; }
+#popup_cancel:hover { background-color: #ddd; border: 1px solid #bbb; }
+
+#popup_prompt { width: 270px !important; }

@@ -1,0 +1,155 @@
+{{define "title"}}社区主题 - {{.node.name}} {{end}}
+{{define "seo"}}<meta name="keywords" content="{{.node.name}} Golang,Go社区,Golang中文社区,Go语言学习,Go语言,学习Go语言,Golang 中国,Golang中国,Golang China, Go语言论坛, Go中文社区, Go语言社区, Go语言中文网, Go语言学习园地">
+<meta name="description" content="Go中文社区，Golang中国，Go语言学习园地，提供一个Go爱好者交流的中文平台">{{end}}
+{{define "content"}}
+<div class="row banner">
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/topics">社区</a></li>
+			<li class="active">{{.node.name}}</li>
+		</ol>
+		<div class="box_white">
+			<div class="node-info">
+        <div class="title">
+          <h2>{{.node.name}}</h2>
+          <span class="total">共有 {{.total}} 个讨论主题</span>
+        </div>
+        <div class="desc">
+          <p>{{.node.intro}}</p>
+        </div>
+      </div>
+			<dl class="topics dl-horizontal">
+			{{range .topics}}
+				<div class="topic">
+					<dt class="avatar">
+						<a href="/user/{{.user.Username}}" title="{{.user.Username}}"><img alt="{{.user.Username}}" class="img-rounded" src="{{gravatar .user.Avatar .user.Email 48}}" width="48px" height="48px"></a>
+					</dt>
+					<dd class="right-info">
+						<div class="title">
+							<a href="/topics/{{.tid}}" title="{{.title}}">{{substring .title 60 "..."}}</a>
+						</div>
+						<div class="meta">
+							<a href="/topics/node/{{.nid}}" class="node" title="{{.node}}">{{.node}}</a>
+							•
+							<a href="/user/{{.user.Username}}" title="{{.user.Username}}" class="author"><strong>{{.user.Username}}</strong></a>
+							{{if .lastreplyuid}}
+							<span>
+							•
+								最后由 <a href="/user/{{.lastreplyusername}}" title="{{.lastreplyusername}}" class="author">{{.lastreplyusername}}</a> 于<abbr class="timeago" title="{{.lastreplytime}}"></abbr>回复
+							</span>
+							{{else}}
+							<span>
+							•
+								于<abbr class="timeago" title="{{.ctime}}"></abbr>发布
+							</span>
+							{{end}}
+							<div class="pull-right num">
+								{{if .reply}}
+								<a href="/topics/{{.tid}}#commentForm" title="查看评论">{{.reply}} <span class="glyphicon glyphicon-comment"></span></a>
+								{{end}}
+								{{if .like}}{{.like}} <span class="glyphicon glyphicon-heart"></span>{{end}}
+								{{.view}} <span class="glyphicon glyphicon-eye-open"></span>
+							</div>
+						</div>
+					</dd>
+				</div>
+			{{else}}
+			<p class="text-center">暂时没有任何帖子</p>
+			{{end}}
+			</dl>
+			{{if .page}}
+      <nav class="text-center"><ul class="pagination pagination-sm">{{.page}}</ul></nav>
+      {{end}}
+		</div>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-edit"></i>&nbsp;{{.node.name}}</h3>
+			</div>
+			<div class="sb-content text-center">
+				<a href="/topics/new?nid={{.node.nid}}" class="btn btn-default">发布主题</a>
+			</div>
+		</div>
+
+		<div class="row box_white sidebar">
+			<script type="text/javascript">
+			var cpro_id="u1996895";
+			(window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id]={at:"3",rsi0:"291",rsi1:"291",pat:"6",tn:"baiduCustNativeAD",rss1:"#FFFFFF",conBW:"0",adp:"1",ptt:"0",titFF:"%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91",titFS:"14",rss2:"#000000",titSU:"0",ptbg:"90",piw:"0",pih:"0",ptp:"0"}
+			</script>
+			<script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script>
+		</div>
+		
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-th"></i>&nbsp;热门节点</h3>
+			</div>
+			<div class="sb-content">
+				<div class="node-list" data-limit="10">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+		<div class="row box_white sidebar">
+			<div class="top">
+				<ul class="list-inline text-center">
+					<li class="first"><a href="javascript:;" class="cur">最新评论</a>|</li>
+					<li class="second"><a href="/articles" target="_blank" title="点击更多">最新博文</a>|</li>
+					<li class="last"><a href="/resources" target="_blank" title="点击更多">最新资源</a></li>
+				</ul>
+				<p class="bar"></p>
+			</div>
+			<div class="sb-content">
+				<div class="cmt-list first" data-limit="5">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+				<div class="article-list second hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+				<div class="resource-list last hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-stats"></i>&nbsp;&nbsp;统计信息</h3>
+			</div>
+			<div class="sb-content">
+				<div class="stat-list">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+</div>
+{{end}}
+{{define "css"}}
+<link href="/static/css/topics.css?v=1.0" rel="stylesheet" type="text/css" />
+{{end}}
+{{define "js"}}
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/resources/recent",
+	"/comments/recent",
+	"/articles/recent",
+	"/nodes/hot",
+	"/websites/stat"
+];
+</script>
+{{end}}

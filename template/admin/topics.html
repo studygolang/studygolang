@@ -1,0 +1,48 @@
+{{define "content"}}
+<a class="btn btn-primary" style="margin:10px 40px 0;" href="/admin/topics/new">创建帖子</a>
+<article class="module width_full">
+  <header>
+    <h3 class="tabs_involved">帖子管理</h3>
+    <ul class="tabs">
+        <li><a href="#tab1">主贴</a></li>
+        <li><a href="#tab2">回复</a></li>
+    </ul>
+  </header>
+
+  <div class="tab_container">
+    <div class="tab_content">
+      <table class="tablesorter" cellspacing="0"> 
+        <thead> 
+          <tr> 
+              <th></th> 
+              <th>帖子id</th> 
+              <th>标题</th>
+              <th>作者</th>
+              <th>最后回复人</th>
+              <th>创建时间</th>
+              <th>操作</th>
+          </tr> 
+        </thead> 
+        <tbody>
+          {{range .topics}}
+          <tr> 
+              <td><input type="checkbox"></td> 
+              <td><a href="/admin/topics/{{.tid}}">{{.tid}}</a></td> 
+              <td><a href="/admin/topics/{{.tid}}">{{.title}}</a></td>
+              <td>{{.user.Username}}</td>
+              <td>{{.lastreplyusername}}</td>
+              <td>{{.ctime}}</td> 
+              <td><input type="image" src="/static/img/admin/icn_edit.png" title="Edit"><input type="image" src="/static/img/admin/icn_trash.png" title="Trash"></td>
+          </tr>
+          {{else}}
+          <tr> 
+              <td colspan="7" style="text-align:center;color:red;">暂时没有任何用户！</td> 
+          </tr>
+          {{end}}
+        </tbody> 
+      </table>
+
+    </div><!-- end of #tab1 -->
+  </div><!-- end of .tab_container -->
+</article><!-- end of content manager article -->
+{{end}}

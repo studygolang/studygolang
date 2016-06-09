@@ -1,0 +1,215 @@
+{{define "title"}}{{.project.Name}}首页、文档和下载 - {{.project.Category}} {{end}}
+{{define "seo"}}<meta name="keywords" content="{{.project.Name}},{{.project.Name}}是什么,{{.project.Name}}下载,{{.project.Name}}论坛,{{.project.Name}}汉化,{{.project.Category}}, 开源项目, Go语言开源项目, Go语言博文, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
+<meta name="description" content="{{substring .project.Desc 200 "..."}}">{{end}}
+{{define "content"}}
+<div class="row banner">
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/projects">开源项目</a></li>
+			<li class="active">{{.project.Name}}</li>
+		</ol>
+		<div class="page box_white">
+			<div class="title text-center">
+				<h1>
+					{{if .project.Logo}}<img src="{{.project.Logo}}" alt="{{.project.Name}}" width="48px" />{{end}}
+					{{.project.Category}} <u>{{.project.Name}}</u>
+					{{if .me}}
+						{{if or (eq .me.Username .project.Username) .me.IsAdmin}}
+						<a class="edit" href="/project/modify?id={{.project.Id}}" title="修改"><i class="glyphicon glyphicon-pencil"></i></a>
+						{{end}}
+					{{end}}
+				</h1>
+			</div>
+			<div class="meta">
+				<div class="p-author">
+					<i class="glyphicon glyphicon-calendar"></i>
+					<span class="timeago" title="{{.project.Ctime}}"></span>&nbsp;
+					{{if .project.Author}}
+					<i class="glyphicon glyphicon-user"></i>
+					{{.project.Author}}
+					{{end}}
+				</div>
+				<!-- p-author END -->
+				
+				<div class="p-comment text-right">
+					<span class="view" title="阅读数">
+						<i class="glyphicon glyphicon-eye-open"></i>
+						阅读 <span>{{.project.Viewnum}}</span> 次&nbsp;
+					</span>
+					<span class="like" title="喜欢人数">
+						<i class="glyphicon glyphicon-heart"></i>
+						<span class="likenum">{{.project.Likenum}}</span> 人喜欢&nbsp;
+					</span>
+					<a href="/p/{{if .project.Uri}}{{.project.Uri}}{{else}}{{.project.Id}}{{end}}#commentForm" title="我要评论"><i class="glyphicon glyphicon-comment"></i> <span class="cmtnum">{{.project.Cmtnum}}</span> 条评论</a>
+				</div>
+				<!-- p-comment END -->
+			</div>
+			<div class="tags">
+				{{if .project.Tags}}
+				{{$tags := explode .project.Tags ","}}
+				<ul class="list-inline">
+					{{range $tag := $tags}}
+					<li><a href="/search?q={{$tag}}&f=tag" title="{{$tag}}">{{$tag}}</a></li>
+					{{end}}
+				</ul>
+				{{end}}
+			</div>
+			<!-- tags -->
+			<div class="content project">
+				<div class="desc">{{.project.Desc}}</div>
+				{{if .project.Repo}}
+				<div class="github-widget" data-repo="{{.project.Repo}}"></div>
+				{{end}}
+				<dl class="dl-horizontal attrs">
+					<dt>授权协议：</dt><dd><a>{{.project.Licence}}</a></dd>
+					<dt>开发语言：</dt><dd><a>{{.project.Lang}}</a>&nbsp;<a href="{{.project.Src}}" title="{{.project.Name}} 源码" target="_blank">查看源码»</a></dd>
+					{{if .project.Os}}
+					<dt>操作系统：</dt><dd><a>{{.project.Os}}</a></dd>
+					{{end}}
+				</dl>
+				<ul class="urls list-inline text-center">
+					<li><a href="{{.project.Home}}" title="{{.project.Name}} 网站" class="btn btn-default btn-sm" target="_blank">项目首页</a></li>
+					<li><a href="{{.project.Doc}}" title="{{.project.Name}} 文档" class="btn btn-default btn-sm" target="_blank">项目文档</a></li>
+					{{if .project.Download}}
+					<li><a href="{{.project.Download}}" title="下载 {{.project.Name}}" class="btn btn-default btn-sm" target="_blank">软件下载</a></li>
+					{{end}}
+				</ul>
+			</div>
+			<div class="line"></div>
+			<!-- content END -->
+			<div class="active row">
+				<div class="mark-like-btn col-md-8">
+					<a class="share-btn like-btn {{if .likeflag}}hadlike{{end}}" href="javascript:;" title="{{if .likeflag}}取消喜欢{{else}}我喜欢{{end}}" data-objid="{{.project.Id}}" data-objtype="4" data-flag="{{.likeflag}}">
+						<i class="glyphicon glyphicon-heart-empty"></i><span class="likenum">{{.project.Likenum}}</span>人喜欢
+					</a>
+					<a class="share-btn collect {{if .hadcollect}}hadlike{{end}}" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}稍后再读{{end}}" data-objid="{{.project.Id}}" data-objtype="4" data-collect="{{.hadcollect}}">
+						<i class="glyphicon glyphicon-star-empty"></i>收藏
+					</a>
+				</div>
+				<!-- JiaThis Button BEGIN -->
+				<div class="jiathis_style_32x32">
+					<a class="jiathis_button_qzone"></a>
+					<a class="jiathis_button_tsina"></a>
+					<a class="jiathis_button_tqq"></a>
+					<a class="jiathis_button_weixin"></a>
+					<a href="http://www.jiathis.com/share?uid=1895190" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+					<a class="jiathis_counter_style"></a>
+				</div>
+				<script type="text/javascript">
+				var jiathis_config = {data_track_clickback:'true'};
+				</script>
+				<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1358871817652577" charset="utf-8"></script>
+				<!-- JiaThis Button END -->
+			</div>
+			<!-- 评论 -->
+			<div class="page-comment" data-objid="{{.project.Id}}" data-objtype="4" {{if .me}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48}}"{{end}}>
+				<div class="words hide">
+					<h3><span class="cmtnum">{{.project.Cmtnum}}</span>条评论</h3>
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+				<div class="comment-title">
+					<h2>项目点评：</h2>
+					{{if .me}}
+					{{else}}
+					<span class="h2-tip">
+					（您需要 <a class="c-log" href="javascript:openPop('#login-pop');">登录</a> 后才能评论 <a href="/user/register" class="c-reg"> 没有账号</a> ？）</span>
+					{{end}}
+				</div>
+				{{template "comment" .}}
+			</div>
+			<!-- 评论 -->
+		</div>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			<div class="sb-content text-center" style="margin-top: 15px;">
+				<a href="/project/new" class="btn btn-default">发布项目</a>
+			</div>
+		</div>
+
+		<div class="row box_white sidebar">
+			<div class="top">
+				<ul class="list-inline text-center">
+					<li class="first"><a href="/articles" target="_blank" class="cur" title="点击更多">最新博文</a>|</li>
+					<li class="second"><a href="/topics" target="_blank" title="点击更多">最新主题</a>|</li>
+					<li class="last"><a href="javascript:;">最新评论</a></li>
+				</ul>
+				<p class="bar"></p>
+			</div>
+			<div class="sb-content">
+				<div class="article-list first">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+				<div class="topic-list second hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+				<div class="cmt-list last hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="row box_white sidebar">
+			<script type="text/javascript">
+			var cpro_id="u1996895";
+			(window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id]={at:"3",rsi0:"291",rsi1:"291",pat:"6",tn:"baiduCustNativeAD",rss1:"#FFFFFF",conBW:"0",adp:"1",ptt:"0",titFF:"%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91",titFS:"14",rss2:"#000000",titSU:"0",ptbg:"90",piw:"0",pih:"0",ptp:"0"}
+			</script>
+			<script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script>
+		</div>
+	</div>
+</div>
+{{end}}
+{{define "css"}}
+<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/jquery.atwho.min.css" media="screen" rel="stylesheet" type="text/css">
+<style type="text/css">
+.project .attrs {background: #f6f6f6;border: 1px solid #eee;padding: 5px 10px;margin: 15px 0;font-weight: bold;line-height: 22px;}
+.project .attrs a {font-weight: normal;}
+.project .attrs a:hover {color: #C00; text-decoration: none;}
+</style>
+{{end}}
+{{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.githubRepoWidget.min.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.caret.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.atwho.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/emojis.js"></script>
+<script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
+<script type="text/javascript" src="/static/js/projects.js?v=1.1"></script>
+<script type="text/javascript" src="/static/js/comment.js?v=1.2"></script>
+<script type="text/javascript" src="/static/js/puploader.js?v=1.0"></script>
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/articles/recent",
+	"/topics/recent",
+	"/comments/recent"
+];
+
+$(function(){
+	// 解析 desc
+	new SG.Projects().parseDesc();
+
+	// 文本框自动伸缩
+	$('.need-autogrow').autoGrow();
+	
+	loadComments();
+});
+</script>
+<script type="text/javascript">
+/* 内文方式  创建于 2015-03-15*/
+var cpro_id = "u1989498";
+</script>
+<script src="http://cpro.baidustatic.com/cpro/ui/cnw.js" type="text/javascript"></script>
+{{end}}

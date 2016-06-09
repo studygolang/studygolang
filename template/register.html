@@ -1,0 +1,105 @@
+{{define "title"}}注册新会员 {{end}}
+{{define "seo"}}<meta name="keywords" content="会员, 注册新会员, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
+<meta name="description" content="中国 Golang 社区，Go语言学习园地，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。完全Go语言实现。">{{end}}
+{{define "content"}}
+<div class="row banner">
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/users">会员</a></li>
+			<li class="active">注册新会员</li>
+		</ol>
+		<div class="box_white">
+			{{if .success}}
+			{{.success}}
+			{{else}}
+			<form class="form-horizontal validate-form" role="form" action="/account/register" method="POST" data-redirect="/">
+				<fieldset>
+					<legend>注册新用户</legend>
+					{{if .error}}
+					<div class="alert alert-warning" role="alert">
+						{{.error}}
+					</div>
+					{{end}}
+					<div class="form-group form-group-sm">
+						<label class="col-sm-3 control-label" for="username"><abbr>*</abbr>用户名</label>
+						<div class="col-sm-4">
+							<input class="form-control {required:true,rangelength:[4,20]}" type="text" id="username" name="username" value="{{.username}}" placeholder="请输入用户名">
+						</div>
+						<span class="help-block">只能包含大小写字母、数字和下划线(4-20字符)</span>
+					</div>
+					<div class="form-group form-group-sm">
+						<label class="col-sm-3 control-label" for="email"><abbr>*</abbr>Email</label>
+						<div class="col-sm-4">
+							<input class="form-control {required:true,email:true}" type="email" id="email" name="email" value="{{.email}}" placeholder="请输入Email">
+						</div>
+						<span class="help-block">可以在个人资料设置中更改！</span>
+					</div>
+					<div class="form-group form-group-sm">
+						<label class="col-sm-3 control-label" for="passwd"><abbr>*</abbr>密码</label>
+						<div class="col-sm-4">
+							<input class="form-control {required:true,rangelength:[6,32]}" type="password" id="passwd" name="passwd" placeholder="请输入密码">
+						</div>
+					</div>
+					<div class="form-group form-group-sm">
+						<label class="col-sm-3 control-label" for="pass2"><abbr>*</abbr>确认密码</label>
+						<div class="col-sm-4">
+							<input class="form-control {required:true,equalTo:'#passwd'}" type="password" id="pass2" name="pass2" placeholder="请再次输入密码">
+						</div>
+					</div>
+					<div class="form-group form-group-sm">
+						<label class="col-sm-3 control-label" for="captchaSolution"><abbr>*</abbr>验证码</label>
+						<div class="col-sm-6">
+							<input type="text" id="captchaSolution" name="captchaSolution" placeholder="请输入右侧验证码" /><img id="captcha_img" src="/captcha/{{.captchaId}}.png" alt="验证码" title="看不清，点击" /><input type="hidden" name="captchaid" value="{{.captchaId}}">
+						</div>
+					</div>
+				</fieldset>
+				<div class="form-group form-group-sm">
+					<div class="col-sm-offset-4 col-sm-6">
+						<button type="submit" id="register-submit" class="btn btn-default btn-sm">注册</button>
+					</div>
+				</div>
+			</form>
+			{{end}}
+		</div>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-list-alt"></i>&nbsp;已经有帐号了？</h3>
+			</div>
+			<div class="sb-content">
+				<ul>
+					<li><a href="/account/login">登录</a></li>
+					<li><a href="/account/forgetpwd">忘记了密码？</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+{{end}}
+{{define "css"}}
+<link href="/static/css/user.css" media="screen" rel="stylesheet" type="text/css">
+{{end}}
+{{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script type="text/javascript" src="/static/js/account.js"></script>
+<script type="text/javascript">
+$(function(){
+	$('#resend_email').on('click', function(){
+		var uuid = $(this).data('uuid');
+		$.post('/account/send_activate_email', {uuid:uuid}, function(result) {
+			if (result.ok) {
+				comTip(result.msg);
+			} else {
+				comTip(result.error);
+			}
+		});
+	});
+});
+</script>
+{{end}}

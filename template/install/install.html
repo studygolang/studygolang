@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<title>Go语言中文网 &rsaquo; 开始安装</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="/static/css/install/install.css" type="text/css" />
+</head>
+<body>
+	<h1 id="logo"><img alt="WordPress" src="/static/img/logo1.png" /></h1>
+	{{if eq .step 3}}
+	<h1>成功！</h1>
+
+	<p>Go语言中文网 安装完成。您是否还沉浸在愉悦的安装过程中？很遗憾，一切皆已完成！ :)</p>
+
+	<table class="form-table install-success">
+		<tr>
+			<th>用户名</th>
+			<td>{{.user_name}}</td>
+		</tr>
+		<tr>
+			<th>密码</th>
+			<td><p><em>{{if .passwd}}{{.passwd}}{{else}}您设定的密码。{{end}}</em></p></td>
+		</tr>
+	</table>
+	<p class="step">
+		<a href="/account/login" class="button button-large">登录</a>&nbsp;
+		<a href="/install/options" class="button button-large">完善可选配置</a>
+	</p>
+	{{else}}
+
+	{{if .err}}
+	<p class="message">{{.err}}</p>
+	{{else}}
+	<h1>欢迎</h1>
+	<p>欢迎使用 Go语言中文网 五分钟安装程序。<!-- 如果您愿意花时间，可以看看<a href="../readme.html">介绍文档</a>。或者 -->只需简单地填写下面的表格，开始使用 Go语言中文网 搭建自己的社区网站。</p>
+
+	<h1>需要信息</h1>
+	<p>您需要填写一些基本信息。无需担心填错，这些信息以后可以再次修改。</p>
+	{{end}}
+	<form id="setup" method="post" action="/install/do?step=2">
+		<table class="form-table">
+			<!-- <tr>
+				<th scope="row"><label for="weblog_title">站点标题</label></th>
+				<td><input name="weblog_title" type="text" id="weblog_title" size="25" value="" /></td>
+			</tr> -->
+			<tr>
+				<th scope="row"><label for="user_name">管理员</label></th>
+				<td>
+				<input name="user_name" type="text" id="user_login" size="25" value="{{.user_name}}" />
+					<p>管理员用户名只能包含字母、数字、空格、下划线、连字符（-）、句号和 @ 符号。</p>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="admin_email">您的电子邮件</label></th>
+				<td><input name="admin_email" type="text" id="admin_email" size="25" value="{{.admin_email}}" />
+				<p>请仔细检查电子邮件地址后再继续。</p></td>
+			</tr>
+			<tr>
+				<th scope="row">
+					<label for="admin_password">输入两次密码</label>
+					<p>若您留空密码栏，Go语言中文网 将会为您生成一个密码。</p>
+				</th>
+				<td>
+					<input name="admin_password" type="password" id="pass1" size="25" value="" />
+					<p><input name="admin_password2" type="password" id="pass2" size="25" value="" /></p>
+					<div id="pass-strength-result">强度评估</div>
+					<p>提示：您的密码最好至少包含 7 个字符。为了保证密码强度，使用大小写字母，数字和符号，例如 ! " ? $ % ^ &amp; )。</p>
+				</td>
+			</tr>
+		</table>
+		<p class="step"><input type="submit" name="submit" value="安装 Go语言中文网" class="button" /></p>
+	</form>
+	{{end}}
+	<script type="text/javascript">var t = document.getElementById('user_login'); if (t){ t.focus(); }</script>
+	<script type='text/javascript' src='/static/js/libs/jquery-1.11.1.min.js'></script>
+	<script type='text/javascript'>
+	/* <![CDATA[ */
+	var pwsL10n = {"empty":"\u5f3a\u5ea6\u8bc4\u4f30","short":"\u6781\u5f31","bad":"\u5f31","good":"\u4e2d\u7b49","strong":"\u5f3a","mismatch":"\u4e0d\u5339\u914d"};
+	/* ]]> */
+	</script>
+	<script type='text/javascript' src='/static/js/install/password-strength-meter.js'></script>
+	<script type='text/javascript' src='/static/js/install/user-profile.js'></script>
+</body>
+</html>

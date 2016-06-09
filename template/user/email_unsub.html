@@ -1,0 +1,86 @@
+{{define "title"}}邮件退订 {{end}}
+{{define "seo"}}<meta name="keywords" content="邮件退订, 邮件订阅, Golang中国社区, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言中文网, Go语言学习园地">
+<meta name="description" content="中国 Golang 社区，Go语言学习园地，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。完全Go语言实现。">{{end}}
+{{define "content"}}
+<div class="row banner">
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li class="active">邮件订阅管理</li>
+		</ol>
+		<div class="page box_white">
+			<div class="unsubscribe">
+				<p>您正在管理发往 <u>{{.email}}</u> 的 Go语言中文网 订阅邮件。</p>
+				<input type="hidden" id="token" name="u" value="{{.token}}">
+				<input type="hidden" id="email" name="email" value="{{.email}}">
+				<div class="checkbox">
+					<label title="选中表示订阅">
+						<input id="unsubscribe" type="checkbox" name="unsubscribe" {{if eq .unsubscribe 0}}checked{{end}}> 订阅每周精选
+					</label>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			<div class="top">
+				<ul class="list-inline text-center">
+					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新主题</a>|</li>
+					<li class="second"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
+					<li class="last"><a href="/articles" target="_blank" title="点击更多">最新博文</a></li>
+				</ul>
+				<p class="bar"></p>
+			</div>
+			<div class="sb-content">
+				<div class="topic-list first">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+				<div class="resource-list second hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+				<div class="article-list last hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{{end}}
+{{define "css"}}
+<style type="text/css">
+.page .unsubscribe { margin-left: 10px; padding-bottom: 10px; padding-top: 10px;}
+</style>
+{{end}}
+{{define "js"}}
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/topics/recent",
+	"/articles/recent",
+	"/resources/recent"
+];
+
+$(function(){
+	$('#unsubscribe').on('change', function(){
+		var unsubscribe = 1;
+		if($(this).is(":checked")) {
+			unsubscribe = 0;	
+		}
+
+		var email = $('#email').val(),
+			token = $('#token').val();
+
+		var data = {unsubscribe: unsubscribe, email: email, u: token};
+		$.post('/user/email/unsubscribe', data, function(result){
+			comTip(result.msg);
+		});
+	})
+});
+</script>
+{{end}}

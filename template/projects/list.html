@@ -1,0 +1,124 @@
+{{define "title"}}开源项目 {{end}}
+{{define "seo"}}<meta name="keywords" content="开源项目, Go语言开源项目, Go语言博文, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
+<meta name="description" content="Go语言中文网，收集了Go语言的大部分知名开源项目，有项目的介绍，甚至有网友对开源项目的解读">{{end}}
+{{define "content"}}
+<div class="row banner">
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li class="active">开源项目</li>
+		</ol>
+		{{range .projects}}
+		<article class="article box_white">
+			<div class="row">
+				<div>
+					<h2>
+						{{if .Logo}}<img src="{{.Logo}}" alt="{{.Name}}" width="36px" />{{end}}
+						<a href="/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}" target="_blank" title="{{.Name}}">{{.Category}} <em>{{.Name}}</em></a>
+					</h2>
+					<p class="text">{{substring .Desc 250 "..."}}<a href="/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}" target="_blank" title="阅读全文">阅读全文</a></p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-8 metatag">
+					<i class="glyphicon glyphicon-calendar"></i>
+					<span class="date" title="发布日期">{{.Ctime}}</span>
+					<i class="glyphicon glyphicon-user"></i>
+					<span class="author" title="作者">{{.Author}}</span>
+				</div>
+				<div class="col-md-4 metatag text-right">
+					<span class="view" title="阅读数">
+						<i class="glyphicon glyphicon-eye-open"></i>
+						阅读:<span>{{.Viewnum}}</span>次
+					</span>
+					<a href="/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}#commentForm" class="cmt" target="_blank" title="评论数">
+						<i class="glyphicon glyphicon-comment"></i>
+						评论:<span>{{.Cmtnum}}</span>条
+					</a>
+					{{if $.likeflags}}
+					{{$likeFlag := index $.likeflags .Id}}
+					<a href="#" class="like{{if $likeFlag}} hadlike{{end}}" title="{{if $likeFlag}}取消喜欢{{else}}我喜欢{{end}}" data-objid="{{.Id}}" data-objtype="1" data-flag="{{if $likeFlag}}{{$likeFlag}}{{else}}0{{end}}">
+						<i class="glyphicon glyphicon-heart{{if not $likeFlag}}-empty{{end}}"></i>
+					{{else}}
+					<a href="#" class="like" title="我喜欢" data-objid="{{.Id}}" data-objtype="1" data-flag="0">
+						<i class="glyphicon glyphicon-heart-empty"></i>
+					{{end}}
+						<span class="likenum">{{.Likenum}}</span>人喜欢
+					</a>
+				</div>
+			</div>
+		</article>
+		{{end}}
+		<ul class="pager">
+			{{if .page.has_prev}}
+			<li class="previous"><a href="/projects?lastid={{.page.prev_id}}">&larr; 上一页</a></li>
+			{{end}}
+			{{if .page.has_next}}
+			<li class="next"><a href="/projects?lastid={{.page.next_id}}">下一页 &rarr;</a></li>
+			{{end}}
+		</ul>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-list"></i>&nbsp;<a href="/articles" target="_blank" title="点击更多">最新博文</a></h3>
+			</div>
+			<div class="sb-content">
+				<div class="article-list" data-limit="10">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="row box_white sidebar">
+			<script type="text/javascript">
+			var cpro_id="u1996895";
+			(window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id]={at:"3",rsi0:"291",rsi1:"291",pat:"6",tn:"baiduCustNativeAD",rss1:"#FFFFFF",conBW:"0",adp:"1",ptt:"0",titFF:"%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91",titFS:"14",rss2:"#000000",titSU:"0",ptbg:"90",piw:"0",pih:"0",ptp:"0"}
+			</script>
+			<script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script>
+		</div>
+		
+		<div class="row box_white sidebar">
+			<div class="top">
+				<ul class="list-inline text-center">
+					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新主题</a>|</li>
+					<li class="second"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
+					<li class="last"><a href="javascript:;">最新评论</a></li>
+				</ul>
+				<p class="bar"></p>
+			</div>
+			<div class="sb-content">
+				<div class="topic-list first">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+				<div class="resource-list second hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+				<div class="cmt-list last hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>
+{{end}}
+{{define "js"}}
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/topics/recent",
+	"/resources/recent",
+	"/comments/recent",
+	"/articles/recent"
+];
+</script>
+{{end}}

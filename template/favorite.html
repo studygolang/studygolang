@@ -1,0 +1,243 @@
+{{define "title"}}{{.user.Username}}的收藏{{end}}
+{{define "seo"}}<meta name="keywords" content="{{.user.Username}}的收藏, Go语言, Golang, Go中文社区, Golang中文社区, Go语言社区, Go语言中文网, Go语言学习园地">
+<meta name="description" content="我收藏的主题、资源、文章和项目等">{{end}}
+{{define "content"}}
+<div class="row banner">
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li class="active">{{if .me}}{{if eq .me.Username .user.Username}}我的{{else}}{{.user.Username}}的{{end}}{{else}}{{.user.Username}}的{{end}}收藏</li>
+		</ol>
+		<ul class="nav nav-tabs" role="tablist">
+			<li role="presentation" class="{{if eq .objtype 1}}active{{end}}"><a href="/favorites/{{.user.Username}}">博文</a></li>
+			<li role="presentation" class="{{if eq .objtype 0}}active{{end}}"><a href="/favorites/{{.user.Username}}?objtype=0">主题</a></li>
+			<li role="presentation" class="{{if eq .objtype 4}}active{{end}}"><a href="/favorites/{{.user.Username}}?objtype=4">开源项目</a></li>
+			<li role="presentation" class="{{if eq .objtype 2}}active{{end}}"><a href="/favorites/{{.user.Username}}?objtype=2">资源</a></li>
+		</ul>
+		{{if eq .objtype 1}}
+		{{range .articles}}
+		<article class="article box_white">
+			<div class="row">
+				{{if .Cover}}
+				<div class="pull-left">
+					<a href="/articles/{{.Id}}" target="_blank" title="{{.Title}}">
+						<img class="lazy" src="{{.Cover}}" width="240" alt="{{.Title}}" style="display: inline;">
+					</a>
+				</div>
+				<div style="margin-left:260px;">
+				{{else}}
+				<div>
+				{{end}}
+					<h2><a href="/articles/{{.Id}}" target="_blank" title="{{.Title}}">{{.Title}}</a></h2>
+					<p class="text">{{substring .Txt 250 "..."}}<a href="/articles/{{.Id}}" target="_blank" title="阅读全文">阅读全文</a></p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-6 metatag">
+					<i class="glyphicon glyphicon-calendar"></i>
+					<span class="date" title="发布日期">{{.PubDate}}</span>
+					<i class="glyphicon glyphicon-user"></i>
+					<span class="author" title="作者">{{substring .AuthorTxt 15 " 等"}}</span>
+					{{if .Tags}}
+					{{$tags := explode .Tags ","}}
+					<ul class="list-inline">
+						<i class="glyphicon glyphicon-tags"></i>
+						{{range $tag := $tags}}
+						<li>
+							<a href="/" title="{{$tag}}" target="_blank">
+								{{$tag}}
+							</a>
+						</li>
+						{{end}}
+					</ul>
+					{{end}}
+				</div>
+				<div class="col-md-6 metatag text-right">
+					<span class="view" title="阅读数">
+						<i class="glyphicon glyphicon-eye-open"></i>
+						阅读:<span>{{.Viewnum}}</span>次
+					</span>
+					<a href="/articles/{{.Id}}#commentForm" class="cmt" target="_blank" title="评论数">
+						<i class="glyphicon glyphicon-comment"></i>
+						评论:<span>{{.Cmtnum}}</span>条
+					</a>
+					<span class="like" title="喜欢数">
+						<i class="glyphicon glyphicon-heart-empty"></i>
+						<span class="likenum">{{.Likenum}}</span>人喜欢
+					</span>
+					{{if $.me}}
+					{{if eq $.me.Username $.user.Username}}
+					<a href="#" class="collect" title="取消收藏" data-objid="{{.Id}}" data-objtype="1" data-collect="1">
+						<i class="glyphicon glyphicon-bookmark"></i>
+						取消收藏
+					</a>
+					{{end}}
+					{{end}}
+				</div>
+			</div>
+		</article>
+		{{else}}
+		<div class="box_white">
+			<p class="no-record text-center">{{if $.me}}{{if eq $.me.Username $.user.Username}}您{{else}}TA{{end}}{{else}}TA{{end}}还未收藏任何文章</p>
+		</div>
+		{{end}}
+		{{end}}
+		{{if eq .objtype 0}}
+		{{range .topics}}
+		<article class="article box_white">
+			<div class="row">
+				<div>
+					<h2><a href="/topics/{{.Tid}}" target="_blank" title="{{.Title}}">{{.Title}}</a></h2>
+					<p class="text">{{substring .Content 250 "..."}}<a href="/topics/{{.Tid}}" target="_blank" title="阅读全文">阅读全文</a></p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-6 metatag">
+					<i class="glyphicon glyphicon-calendar"></i>
+					<span class="date" title="发布日期">{{.Ctime}}</span>
+				</div>
+				<div class="col-md-6 metatag text-right">
+					{{if $.me}}
+					{{if eq $.me.Username $.user.Username}}
+					<a href="#" class="collect" title="取消收藏" data-objid="{{.Tid}}" data-objtype="0" data-collect="1">
+						<i class="glyphicon glyphicon-bookmark"></i>
+						取消收藏
+					</a>
+					{{end}}
+					{{end}}
+				</div>
+			</div>
+		</article>
+		{{else}}
+		<div class="box_white">
+			<p class="no-record text-center">{{if $.me}}{{if eq $.me.Username $.user.Username}}您{{else}}TA{{end}}{{else}}TA{{end}}还未收藏任何主题</p>
+		</div>
+		{{end}}
+		{{end}}
+		{{if eq .objtype 4}}
+		{{range .projects}}
+		<article class="article box_white">
+			<div class="row">
+				<div>
+					<h2>
+						{{if .Logo}}<img src="{{.Logo}}" alt="{{.Name}}" width="36px" />{{end}}
+						<a href="/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}" target="_blank" title="{{.Name}}">{{.Category}}<em>{{.Name}}</em></a>
+					</h2>
+					<p class="text">{{substring .Desc 250 "..."}}<a href="/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}" target="_blank" title="阅读全文">阅读全文</a></p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-8 metatag">
+					<i class="glyphicon glyphicon-calendar"></i>
+					<span class="date" title="发布日期">{{.Ctime}}</span>
+					<i class="glyphicon glyphicon-user"></i>
+					<span class="author" title="作者">{{.Author}}</span>
+				</div>
+				<div class="col-md-4 metatag text-right">
+					<span class="view" title="阅读数">
+						<i class="glyphicon glyphicon-eye-open"></i>
+						阅读:<span>{{.Viewnum}}</span>次
+					</span>
+					<a href="/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}#commentForm" class="cmt" target="_blank" title="评论数">
+						<i class="glyphicon glyphicon-comment"></i>
+						评论:<span>{{.Cmtnum}}</span>条
+					</a>
+					<span class="like" title="喜欢数">
+						<i class="glyphicon glyphicon-heart-empty"></i>
+						<span class="likenum">{{.Likenum}}</span>人喜欢
+					</span>
+					{{if $.me}}
+					{{if eq $.me.Username $.user.Username}}
+					<a href="#" class="collect" title="取消收藏" data-objid="{{.Id}}" data-objtype="4" data-collect="1">
+						<i class="glyphicon glyphicon-bookmark"></i>
+						取消收藏
+					</a>
+					{{end}}
+					{{end}}
+				</div>
+			</div>
+		</article>
+		{{else}}
+		<div class="box_white">
+			<p class="no-record text-center">{{if $.me}}{{if eq $.me.Username $.user.Username}}您{{else}}TA{{end}}{{else}}TA{{end}}还未收藏任何开源项目</p>
+		</div>
+		{{end}}
+		{{end}}
+		{{if eq .objtype 2}}
+		{{range .resources}}
+		<article class="article box_white">
+			<div class="row">
+				<div>
+					<h2><a href="/resources/{{.Id}}" target="_blank" title="{{.Title}}">{{.Title}}</a></h2>
+					<p class="text">{{substring .Content 250 "..."}}<a href="/resources/{{.Id}}" target="_blank" title="阅读全文">阅读全文</a></p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-6 metatag">
+					<i class="glyphicon glyphicon-calendar"></i>
+					<span class="date" title="发布日期">{{.Ctime}}</span>
+				</div>
+				<div class="col-md-6 metatag text-right">
+					{{if $.me}}
+					{{if eq $.me.Username $.user.Username}}
+					<a href="#" class="collect" title="取消收藏" data-objid="{{.Id}}" data-objtype="2" data-collect="1">
+						<i class="glyphicon glyphicon-bookmark"></i>
+						取消收藏
+					</a>
+					{{end}}
+					{{end}}
+				</div>
+			</div>
+		</article>
+		{{else}}
+		<div class="box_white">
+			<p class="no-record text-center">{{if $.me}}{{if eq $.me.Username $.user.Username}}您{{else}}TA{{end}}{{else}}TA{{end}}还未收藏任何资源</p>
+		</div>
+		{{end}}
+		{{end}}
+		<ul class="pagination pull-right">
+			{{noescape .pageHtml}}
+		</ul>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			<div class="top">
+				<ul class="list-inline text-center">
+					<li class="first"><a href="/articles" target="_blank" class="cur" title="点击更多">最新博文</a>|</li>
+					<li class="second"><a href="/topics" target="_blank" title="点击更多">最新话题</a>|</li>
+					<li class="last"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
+				</ul>
+				<p class="bar"></p>
+			</div>
+			<div class="sb-content">
+				<div class="article-list first">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+				<div class="topic-list second hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+				<div class="resource-list last hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+</div>
+{{end}}
+{{define "js"}}
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/articles/recent",
+	"/topics/recent",
+	"/resources/recent",
+];
+</script>
+{{end}}
