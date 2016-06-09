@@ -11,7 +11,6 @@ import (
 	"http/controller"
 	"http/controller/admin"
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -22,7 +21,6 @@ import (
 
 	pwm "http/middleware"
 
-	"github.com/facebookgo/grace/gracehttp"
 	"github.com/fatih/structs"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
@@ -68,7 +66,7 @@ func main() {
 	std := standard.New(getAddr())
 	std.SetHandler(e)
 
-	log.Fatal(gracehttp.Serve(std.Server))
+	gracefulRun(std)
 }
 
 func getAddr() string {

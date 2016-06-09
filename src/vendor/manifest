@@ -20,6 +20,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/codegangsta/negroni",
+			"repository": "https://github.com/codegangsta/negroni",
+			"revision": "feacfc52d357c844f524c794947493483ed881b3",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/davecgh/go-spew/spew",
 			"repository": "https://github.com/davecgh/go-spew",
 			"revision": "5215b55f46b2b919f50a1df0eaa5886afe4e3b3d",
@@ -251,7 +257,7 @@
 		{
 			"importpath": "github.com/polaris1119/config",
 			"repository": "https://github.com/polaris1119/config",
-			"revision": "0653707cf2ad9116ef0dbffa545dafa29c505866",
+			"revision": "06a751e884f30c6ca264fd45bb158e154fa865e4",
 			"branch": "master"
 		},
 		{
@@ -346,6 +352,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/tylerb/graceful",
+			"repository": "https://github.com/tylerb/graceful",
+			"revision": "84177357ab104029f9237abcb52339a7b80760ef",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/valyala/fasthttp",
 			"repository": "https://github.com/valyala/fasthttp",
 			"revision": "efbb037c40c52079e7ba605abb055ad7470a12de",
@@ -370,6 +382,13 @@
 			"revision": "1aafd77e1e7f6849ad16a7bdeb65e3589a10b2bb",
 			"branch": "master",
 			"path": "/html"
+		},
+		{
+			"importpath": "golang.org/x/net/netutil",
+			"repository": "https://github.com/golang/net",
+			"revision": "313cf39d4ac368181bce6960ac9be9e7cee67e68",
+			"branch": "master",
+			"path": "/netutil"
 		},
 		{
 			"importpath": "golang.org/x/net/websocket",

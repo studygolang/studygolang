@@ -127,6 +127,16 @@ func (ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, auto bo
 	title = strings.TrimSpace(replacer.Replace(title))
 
 	contentSelection := doc.Find(rule.Content)
+
+	// relative url -> abs url
+	contentSelection.Find("img").Each(func(i int, s *goquery.Selection) {
+		if v, ok := s.Attr("src"); ok {
+			if !strings.HasPrefix(v, "http") {
+				s.SetAttr("src", domain+v)
+			}
+		}
+	})
+
 	content, err := contentSelection.Html()
 	if err != nil {
 		logger.Errorln("goquery parse content error:", err)

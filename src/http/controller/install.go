@@ -1,3 +1,9 @@
+// Copyright 2016 The StudyGolang Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+// http://studygolang.com
+// Author: polaris	polaris@studygolang.com
+
 package controller
 
 import (
@@ -9,9 +15,8 @@ import (
 	"model"
 	"net/http"
 	"net/url"
-	"os"
+	"runtime"
 	"strconv"
-	"syscall"
 
 	"github.com/labstack/echo"
 	"github.com/polaris1119/config"
@@ -62,7 +67,7 @@ func (self InstallController) SetupConfig(ctx echo.Context) error {
 }
 
 // DoInstall 执行安装，包括站点简单配置，安装数据库（创建数据库、表，填充基本数据）等
-func (InstallController) DoInstall(ctx echo.Context) error {
+func (self InstallController) DoInstall(ctx echo.Context) error {
 	if db.MasterDB == nil {
 		return ctx.Redirect(http.StatusSeeOther, "/install")
 	}
@@ -132,9 +137,10 @@ func (InstallController) DoInstall(ctx echo.Context) error {
 
 		data["step"] = 3
 
-		go func() {
-			syscall.Kill(os.Getpid(), syscall.SIGUSR2)
-		}()
+		data["os"] = runtime.GOOS
+
+		// 为了保证程序正常，需要重启
+		go self.reload()
 	}
 	return renderInstall(ctx, "install/install.html", data)
 }
