@@ -139,7 +139,7 @@ func (self EmailLogic) EmailNotice() {
 	var (
 		lastUid = 0
 		limit   = 500
-		users   []*model.User
+		users   = make([]*model.User, 0)
 	)
 
 	for {
@@ -182,6 +182,8 @@ func (self EmailLogic) EmailNotice() {
 			// 控制发信速度
 			time.Sleep(30 * time.Second)
 		}
+
+		users = make([]*model.User, 0)
 	}
 
 }

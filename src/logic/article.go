@@ -44,7 +44,7 @@ func (ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, auto bo
 	tmpArticle := &model.Article{}
 	_, err := MasterDB.Where("url=?", articleUrl).Get(tmpArticle)
 	if err != nil || tmpArticle.Id != 0 {
-		logger.Errorln(articleUrl, "has exists:", err)
+		logger.Infoln(articleUrl, "has exists:", err)
 		return nil, errors.New("has exists!")
 	}
 

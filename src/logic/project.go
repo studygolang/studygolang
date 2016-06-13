@@ -297,7 +297,8 @@ func (ProjectLogic) ParseOneProject(projectUrl string) error {
 	_, err = MasterDB.Where("uri=?", uri).Get(project)
 	// 已经存在
 	if project.Id != 0 {
-		return errors.New("url" + projectUrl + "has exists!")
+		logger.Infoln("url", projectUrl, "has exists!")
+		return nil
 	}
 
 	logoSelection := doc.Find(".Project .PN img")
