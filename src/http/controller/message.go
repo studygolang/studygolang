@@ -27,7 +27,7 @@ func (self MessageController) RegisterRoute(g *echo.Group) {
 
 	messageG.GET(":msgtype", self.ReadList)
 	messageG.GET("system", self.ReadList)
-	messageG.Match([]string{"GET", "POST"}, "/message/send", self.Send)
+	messageG.Match([]string{"GET", "POST"}, "/send", self.Send)
 	messageG.POST("delete", self.Delete)
 
 	// g.GET("/message/:msgtype", self.ReadList, middleware.NeedLogin())
