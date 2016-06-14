@@ -32,7 +32,9 @@ func (MessageLogic) SendMessageTo(ctx context.Context, from, to int, content str
 
 	message := &model.Message{
 		From:    from,
+		Fdel:    model.FdelNotDel,
 		To:      to,
+		Tdel:    model.TdelNotDel,
 		Content: content,
 		Hasread: model.NotRead,
 	}
