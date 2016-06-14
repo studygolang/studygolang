@@ -88,7 +88,7 @@ func (MessageController) ReadList(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusSeeOther, "/")
 	}
 
-	pageHtml := paginator.SetTotal(total).GetPageHtml(fmt.Sprintf("/system/%s", msgtype))
+	pageHtml := paginator.SetTotal(total).GetPageHtml(fmt.Sprintf("/message/%s", msgtype))
 
 	return render(ctx, "messages/list.html", map[string]interface{}{"messages": messages, "msgtype": msgtype, "page": template.HTML(pageHtml)})
 }
