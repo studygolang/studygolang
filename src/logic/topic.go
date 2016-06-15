@@ -91,7 +91,7 @@ func (self TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Value
 			"uid":     me.Uid,
 			"msgtype": model.MsgtypePublishAtMe,
 		}
-		go DefaultMessage.SendSysMsgAtUsernames(ctx, usernames, ext)
+		go DefaultMessage.SendSysMsgAtUsernames(ctx, usernames, ext, 0)
 
 		// 发布主题，活跃度+10
 		go DefaultUser.IncrUserWeight("uid", me.Uid, 10)

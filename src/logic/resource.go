@@ -110,15 +110,13 @@ func (ResourceLogic) Publish(ctx context.Context, me *model.Me, form url.Values)
 		}
 
 		// 给 被@用户 发系统消息
-		/*
-			ext := map[string]interface{}{
-				"objid":   id,
-				"objtype": model.TypeResource,
-				"uid":     user["uid"],
-				"msgtype": model.MsgtypePublishAtMe,
-			}
-			go SendSysMsgAtUsernames(form.Get("usernames"), ext)
-		*/
+		ext := map[string]interface{}{
+			"objid":   resource.Id,
+			"objtype": model.TypeResource,
+			"uid":     uid,
+			"msgtype": model.MsgtypePublishAtMe,
+		}
+		go DefaultMessage.SendSysMsgAtUsernames(ctx, form.Get("usernames"), ext, 0)
 
 		// 发布主题，活跃度+10
 		go DefaultUser.IncrUserWeight("uid", uid, 10)

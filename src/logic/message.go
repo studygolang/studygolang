@@ -50,24 +50,7 @@ func (MessageLogic) SendMessageTo(ctx context.Context, from, to int, content str
 }
 
 // SendSystemMsgTo 给某人发系统消息
-// to=0时，自己根据ext中的objid和objtype获得to
 func (MessageLogic) SendSystemMsgTo(ctx context.Context, to, msgtype int, ext map[string]interface{}) bool {
-	if to == 0 {
-		objid := ext["objid"].(int)
-		objtype := ext["objtype"].(int)
-		switch objtype {
-		case model.TypeTopic:
-			to = DefaultTopic.getOwner(objid)
-		case model.TypeArticle:
-		case model.TypeResource:
-			to = DefaultResource.getOwner(objid)
-		case model.TypeWiki:
-			to = DefaultWiki.getOwner(objid)
-		case model.TypeProject:
-			to = DefaultProject.getOwner(ctx, objid)
-		}
-	}
-
 	if to == 0 {
 		return true
 	}
@@ -96,10 +79,12 @@ func (MessageLogic) SendSystemMsgTo(ctx context.Context, to, msgtype int, ext ma
 }
 
 // SendSysMsgAtUids 给被@的用户发系统消息
-func (MessageLogic) SendSysMsgAtUids(ctx context.Context, uids string, ext map[string]interface{}) bool {
+// authors 是被评论对象的作者
+func (MessageLogic) SendSysMsgAtUids(ctx context.Context, uids string, ext map[string]interface{}, author int) bool {
 	if uids == "" {
 		return true
 	}
+
 	message := &model.SystemMessage{
 		Msgtype: model.MsgtypeAtMe,
 		Hasread: model.NotRead,
@@ -111,6 +96,12 @@ func (MessageLogic) SendSysMsgAtUids(ctx context.Context, uids string, ext map[s
 	uidSlice := strings.Split(uids, ",")
 	for _, uidStr := range uidSlice {
 		uid := goutils.MustInt(strings.TrimSpace(uidStr))
+
+		// 评论时 @ 作者了，不发通知，因为给作者已经发过一次了
+		if uid == author {
+			continue
+		}
+
 		if from, ok := ext["uid"]; ok {
 			// 自己的动作不发系统消息
 			if uid == from.(int) {
@@ -130,7 +121,7 @@ func (MessageLogic) SendSysMsgAtUids(ctx context.Context, uids string, ext map[s
 
 // SendSysMsgAtUsernames 给被@的用户发系统消息
 // ext 中可以指定 msgtype，没有指定，默认为 MsgtypeAtMe
-func (MessageLogic) SendSysMsgAtUsernames(ctx context.Context, usernames string, ext map[string]interface{}) bool {
+func (MessageLogic) SendSysMsgAtUsernames(ctx context.Context, usernames string, ext map[string]interface{}, author int) bool {
 	if usernames == "" {
 		return true
 	}
@@ -156,6 +147,12 @@ func (MessageLogic) SendSysMsgAtUsernames(ctx context.Context, usernames string,
 		}
 
 		uid := user.Uid
+
+		// 评论时 @ 作者了，不发通知，因为给作者已经发过一次了
+		if uid == author {
+			continue
+		}
+
 		if from, ok := ext["uid"]; ok {
 			// 自己的动作不发系统消息
 			if uid == from.(int) {

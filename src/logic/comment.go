@@ -185,20 +185,38 @@ func (self CommentLogic) Publish(ctx context.Context, uid, objid int, form url.V
 	// 发评论，活跃度+5
 	go DefaultUser.IncrUserWeight("uid", uid, 5)
 
+	go self.sendSystemMsg(ctx, uid, objid, objtype, comment.Cid, form)
+
+	return comment, nil
+}
+
+func (CommentLogic) sendSystemMsg(ctx context.Context, uid, objid, objtype, cid int, form url.Values) {
 	// 给被评论对象所有者发系统消息 TODO: ext 考虑结构化
 	ext := map[string]interface{}{
 		"objid":   objid,
 		"objtype": objtype,
-		"cid":     comment.Cid,
+		"cid":     cid,
 		"uid":     uid,
 	}
-	go DefaultMessage.SendSystemMsgTo(ctx, 0, objtype, ext)
+
+	to := 0
+	switch objtype {
+	case model.TypeTopic:
+		to = DefaultTopic.getOwner(objid)
+	case model.TypeArticle:
+	case model.TypeResource:
+		to = DefaultResource.getOwner(objid)
+	case model.TypeWiki:
+		to = DefaultWiki.getOwner(objid)
+	case model.TypeProject:
+		to = DefaultProject.getOwner(ctx, objid)
+	}
+
+	DefaultMessage.SendSystemMsgTo(ctx, to, objtype, ext)
 
 	// @某人 发系统消息
-	go DefaultMessage.SendSysMsgAtUids(ctx, form.Get("uid"), ext)
-	go DefaultMessage.SendSysMsgAtUsernames(ctx, form.Get("usernames"), ext)
-
-	return comment, nil
+	DefaultMessage.SendSysMsgAtUids(ctx, form.Get("uid"), ext, to)
+	DefaultMessage.SendSysMsgAtUsernames(ctx, form.Get("usernames"), ext, to)
 }
 
 // Modify 修改评论信息
