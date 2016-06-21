@@ -31,6 +31,8 @@ func (this *WebsocketController) RegisterRoute(g *echo.Group) {
 // websocket，统计在线用户数
 // uri: /ws
 func (this *WebsocketController) Ws(wsConn *websocket.Conn) {
+	defer wsConn.Close()
+
 	this.mutex.Lock()
 	this.ServerId++
 	serverId := this.ServerId
