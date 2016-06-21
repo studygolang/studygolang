@@ -17,6 +17,7 @@ import (
 
 	. "http"
 
+	"github.com/gorilla/context"
 	"github.com/labstack/echo"
 )
 
@@ -24,6 +25,9 @@ import (
 func AutoLogin() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
+			// github.com/gorilla/sessions 要求必须 Clear
+			defer context.Clear(Request(ctx))
+
 			session := GetCookieSession(ctx)
 			username, ok := session.Values["username"]
 			if ok {
