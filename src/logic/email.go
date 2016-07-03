@@ -48,6 +48,31 @@ Content-Type: text/html;charset=UTF-8
 	return nil
 }
 
+// sendMailBy163 通过163账号发送电子邮件
+func (self EmailLogic) sendMailBy163(subject, content string, tos []string) error {
+	emailConfig, err := config.ConfigFile.GetSection("email.163")
+	if err != nil {
+		return self.SendMail(subject, content, tos)
+	}
+	fromEmail := config.ConfigFile.MustValue("email", "from_email")
+	message := `From: Go语言中文网 | Golang中文社区 | Go语言学习园地<` + fromEmail + `>
+To: ` + strings.Join(tos, ",") + `
+Subject: ` + subject + `
+Content-Type: text/html;charset=UTF-8
+
+` + content
+
+	smtpAddr := emailConfig["smtp_host"] + ":" + emailConfig["smtp_port"]
+	auth := smtp.PlainAuth("", emailConfig["smtp_username"], emailConfig["smtp_password"], emailConfig["smtp_host"])
+	err = smtp.SendMail(smtpAddr, auth, emailConfig["smtp_username"], tos, []byte(message))
+	if err != nil {
+		logger.Errorln("Send Mail to", strings.Join(tos, ","), "error:", err)
+		return err
+	}
+	logger.Infoln("Send Mail to", strings.Join(tos, ","), "Successfully")
+	return nil
+}
+
 // 保存uuid和email的对应关系（TODO:重启如何处理）
 var regActivateCodeMap = map[string]string{}
 
@@ -177,7 +202,11 @@ func (self EmailLogic) EmailNotice() {
 				continue
 			}
 
-			self.SendMail("每周精选", content, []string{user.Email})
+			if strings.HasSuffix(user.Email, "@163.com") {
+				self.sendMailBy163("每周精选", content, []string{user.Email})
+			} else {
+				self.SendMail("每周精选", content, []string{user.Email})
+			}
 
 			// 控制发信速度
 			time.Sleep(30 * time.Second)
