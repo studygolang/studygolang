@@ -20,12 +20,14 @@ func (InstallLogic) CreateTable(ctx context.Context) error {
 
 	dbFile := config.ROOT + "/config/db.sql"
 	buf, err := ioutil.ReadFile(dbFile)
+
 	if err != nil {
 		objLog.Errorln("create table, read db file error:", err)
 		return err
 	}
 
 	sqlSlice := bytes.Split(buf, []byte("CREATE TABLE"))
+	MasterDB.Exec("SET SQL_MODE='ALLOW_INVALID_DATES';")
 	for _, oneSql := range sqlSlice {
 		strSql := string(bytes.TrimSpace(oneSql))
 		if strSql == "" {
