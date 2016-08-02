@@ -28,7 +28,7 @@ type RedditLogic struct {
 }
 
 var DefaultReddit = RedditLogic{
-	domain: "http://www.reddit.com",
+	domain: "https://www.reddit.com",
 	golang: "/r/golang/new/",
 }
 
@@ -37,8 +37,8 @@ func (this *RedditLogic) Parse(redditUrl string) error {
 	redditUrl = strings.TrimSpace(redditUrl)
 	if redditUrl == "" {
 		redditUrl = this.domain + this.golang
-	} else if !strings.HasPrefix(redditUrl, "http") {
-		redditUrl = "http://" + redditUrl
+	} else if !strings.HasPrefix(redditUrl, "https") {
+		redditUrl = "https://" + redditUrl
 	}
 
 	var (
