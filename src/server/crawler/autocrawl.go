@@ -108,8 +108,16 @@ func doCrawl(wbconf map[string]string, isAll bool) {
 	for _, keyword := range keywords {
 		for p := 1; p <= maxPage; p++ {
 
+			curUrl := ""
+
 			page := fmt.Sprintf("&%s=%d", pageField, p)
-			if err := parseArticleList(crawlUrl+keyword+page, listselector, resultselector, true); err != nil {
+			if strings.Contains(crawlUrl, "%s") {
+				curUrl = fmt.Sprintf(crawlUrl, keyword) + page
+			} else {
+				curUrl = crawlUrl + keyword + page
+			}
+
+			if err := parseArticleList(curUrl, listselector, resultselector, true); err != nil {
 				logger.Errorln("parse article url error:", err)
 				break
 			}
