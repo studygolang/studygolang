@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"log"
 	"logic"
+	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
@@ -131,7 +132,22 @@ func parseArticleList(url, listselector, resultselector string, isAuto bool) (er
 
 	var doc *goquery.Document
 
-	if doc, err = goquery.NewDocument(url); err != nil {
+	if strings.Contains(url, "oschina.net") {
+		req, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			return err
+		}
+		req.Header.Add("Referer", "http://www.oschina.net/search?q=go&scope=blog&onlytitle=1&sort_by_time=1")
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return err
+		}
+		doc, err = goquery.NewDocumentFromResponse(resp)
+	} else {
+		doc, err = goquery.NewDocument(url)
+	}
+
+	if err != nil {
 		return
 	}
 
