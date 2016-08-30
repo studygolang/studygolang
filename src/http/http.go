@@ -85,7 +85,10 @@ var funcMap = template.FuncMap{
 	"noescape": func(s string) template.HTML {
 		return template.HTML(s)
 	},
-	"timestamp": func() int64 {
+	"timestamp": func(ts ...time.Time) int64 {
+		if len(ts) > 0 {
+			return ts[0].Unix()
+		}
 		return time.Now().Unix()
 	},
 }
@@ -209,6 +212,8 @@ func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interf
 	}
 	global.App.SetUptime()
 	data["app"] = global.App
+
+	data["online_users"] = map[string]int{"online": logic.Book.Len(), "maxonline": logic.MaxOnlineNum()}
 
 	buf := new(bytes.Buffer)
 	err := tpl.Execute(buf, data)

@@ -123,7 +123,7 @@
 					<a href="/wiki/about">关于</a> | <a href="/api">API</a> | <a href="/wiki/contributors">贡献者</a> | <a href="/wiki">帮助推广</a> | <a href="/topics/node/16">反馈</a> | <a href="http://github.com/studygolang" target="_blank" rel="nofollow">Github</a> | <a href="http://weibo.com/studygolang" target="_blank" rel="nofollow">新浪微博</a> | <a href="/wide/playground">内嵌Wide</a> | <a href="/wiki/duty">免责声明</a>
 				</p>
 				<p class="copyright">&copy;2013-2016 studygolang.com 采用 <a href="http://golang.org" target="_blank">Go语言</a> + <a href="http://www.mysql.com/" target="_blank">MYSQL 构建</a>
-				&nbsp;&nbsp;当前在线：<span id="onlineusers">30</span>人&nbsp;&nbsp;历史最高：<span id="maxonline">300</span>人&nbsp;&nbsp;运行时间：<attr>{{.app.Uptime}}</attr>
+				&nbsp;&nbsp;当前在线：<span id="onlineusers">{{.online_users.online}}</span>人&nbsp;&nbsp;历史最高：<span id="maxonline">{{.online_users.maxonline}}</span>人&nbsp;&nbsp;运行时间：<attr>{{.app.Uptime}}</attr>
 				<br/>
 				<b>网站编译信息</b>&nbsp;版本：{{.app.Version}}/{{.app.Build}}，时间：<attr class="timeago">{{.app.Date}}</attr>
 				<br/>Go语言中文网，中国 Golang 社区，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。
@@ -219,9 +219,10 @@
 <script src="/static/js/libs/jquery.timeago.zh-CN.js"></script>
 <script src="/static/js/libs/md5.js"></script>
 <script type="text/javascript">
-var wsUrl = 'ws://{{.wshost}}/ws?uid={{.me.Uid}}';
+var wsUrl = 'ws://{{.wshost}}/ws?uid={{.me.Uid}}',
+	GLaunchTime = {{timestamp .app.LaunchTime}}*1000;
 </script>
-<script src="/static/js/common.js?v=1.5"></script>
+<script src="/static/js/common.js?v=1.20"></script>
 {{template "js" .}}
 <script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
 <script type="text/javascript" src="/static/js/sidebar.js?v=1.1"></script>

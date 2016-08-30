@@ -160,7 +160,7 @@ SG.registerAtEvent = function(isAt, isEmoji, selector) {
 		selector.atwho({
 			at: ":",
 			data: window.emojis,
-			tpl:"<li data-value='${key}'><img src='http://www.emoji-cheat-sheet.com/graphics/emojis/${name}.png' height='20' width='20' /> ${name}</li>"
+			tpl:"<li data-value='${key}'><img src='http://hassankhan.me/emojify.js/images/emoji/${name}.png' height='20' width='20' /> ${name}</li>"
 		})/*.atwho({
 			at: "\\",
 			data: window.twemojis,
