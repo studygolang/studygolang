@@ -1,0 +1,161 @@
+{{define "content"}}
+<div class="pageheader notab">
+	<h1 class="pagetitle">修改文章</h1>
+</div><!--pageheader-->
+
+<div id="contentwraapper" class="contentwrapper">
+	<div id="tooltip" class="red"></div>
+	<form method="POST" action="/admin/crawl/article/modify" class="stdform_q">
+		<input type="hidden" id="id" name="id" value="{{.article.Id}}" />
+		<div class="contenttitle2">
+			<h3>基本信息</h3>
+		</div>
+		<div>
+			<p>
+				<label>文章ID</label>
+				<span class="field txt">
+					{{.article.Id}}
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label for="title">标题</label>
+				<span class="field">
+					<input id="title" type="text" name="title" class="mediuminput required" value="{{.article.Title}}" />
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label for="url">文章原始链接</label>
+				<span class="field">
+					<input id="url" type="text" name="url" class="mediuminput required {url:true}" value="{{.article.Url}}" />&nbsp;<a href="{{.article.Url}}" target="_blank" style="color:blue;">查看</a>
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label>内容</label>
+				<span class="field">
+					<textarea name="content" rows="25" cols="144">{{noescape .article.Content}}</textarea>
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label for="author">作者(带HTML)</label>
+				<span class="field">
+					<input id="author" type="text" name="author" class="smallinput required" value="{{.article.Author}}" />
+				</span>
+			</p>
+			<p>
+				<label for="author_txt">作者(纯文本)</label>
+				<span class="field">
+					<input id="author_txt" type="text" name="author_txt" class="smallinput required" value="{{.article.AuthorTxt}}" />
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label for="pub_date">发布时间</label>
+				<span class="field">
+					<input id="pub_date" type="text" name="pub_date" class="smallinput required" value="{{.article.PubDate}}" />
+				</span>
+			</p>
+			<p>
+				<label>语言</label>
+				<span class="field">
+					<select name="lang" class="uniformselect">
+						{{range $i, $v := .langSlice}}
+						<option value="{{$i}}"{{if eq $i $.article.Lang}} selected{{end}}>{{$v}}</option>
+						{{end}}
+					</select>
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label for="tags">tags</label>
+				<span class="field">
+					<input id="tags" type="text" name="tags" class="smallinput" value="{{.article.Tags}}" />
+				</span>
+			</p>
+			<p>
+				<label>状态</label>
+				<span class="field">
+					<select name="status" class="uniformselect">
+						{{range $i, $v := .statusSlice}}
+						<option value="{{$i}}"{{if eq $i $.article.Status}} selected{{end}}>{{$v}}</option>
+						{{end}}
+					</select>
+				</span>
+			</p>
+		</div>
+		<div style="border:1px dashed;">
+			<p>
+				<label>推荐封面</label>
+				<span class="upload_img_single"></span>
+			</p>
+			<p>
+				<span class="field">
+					<input type="text" name="cover" class="mediuminput img_url {url:true}" value="{{.article.Cover}}"/>
+				</span>
+			</p>
+			<p>
+				<span class="field">
+					<a class="show_img" href="{{.article.Cover}}" target="_blank"><img class="show_img" src="{{.article.Cover}}" width="100" height="100"/></a>
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label>抓取时间</label>
+				<span class="field txt">
+					{{.article.Ctime}}
+				</span>
+			</p>
+			<p>
+				<label>最后修改时间</label>
+				<span class="field txt">
+					{{.article.Mtime}}
+				</span>
+			</p>
+			<p>
+				<label>最后操作人</label>
+				<span class="field txt">
+					<a class="normal" href="/admin/user/user/detail?username={{.article.OpUser}}" target="_blank">{{.article.OpUser}}</a>
+				</span>
+			</p>
+		</div>
+		<div class="contenttitle2">
+			<h3>操作</h3>
+		</div>
+		<div>
+			<p>
+				<label>&nbsp;</label>
+				<input type="submit" class="submit radius2" value="提交" />
+			</p>
+		</div>
+	</form>
+	<img id="loaders" src="/static/img/loaders/loader7.gif" alt="" class="hide">
+	<div id="toast"></div>
+	<br/>
+	<br/>
+</div><!--contentwrapper-->
+{{end}}
+
+{{define "css"}}
+<link href="/static/css/jquery.cftoaster.1.0.1.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/Huploadify.css" media="screen" rel="stylesheet" type="text/css">
+{{end}}
+
+{{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.cftoaster.1.0.1.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.Huploadify.js"></script>
+<script	type="text/javascript" src="/static/js/admin/forms.js"></script>
+<script type="text/javascript" src="/static/js/upload.js?v=1.0"></script>
+{{end}}

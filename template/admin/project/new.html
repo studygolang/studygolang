@@ -1,0 +1,27 @@
+{{define "content"}}
+<div class="pageheader notab">
+	<h1 class="pagetitle">抓取开源项目</h1>
+</div><!--pageheader-->
+
+<div id="contentwraapper" class="contentwrapper">
+	<div id="tooltip" class="red"></div>
+	<form method="POST" action="/admin/crawl/project/new" class="stdform">
+		<div>
+			<p>
+				<label for="url">项目列表URL</label>
+				<span class="field">
+					<textarea name="urls" rows="20" class="required"></textarea>&nbsp;一行一个
+				</span>
+			</p>
+		</div>
+		<div style="margin: 0 auto; width: 500px;"><input class="submit_btn" type="submit" name="save" value="提交" /></a></div>
+	</form>
+	<img id="loaders" src="/static/img/loaders/loader7.gif" alt="" class="hide"><blockquote></blockquote>
+</div><!--contentwrapper-->
+{{end}}
+
+{{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script	type="text/javascript" src="/static/js/admin/forms.js"></script>
+{{end}}
