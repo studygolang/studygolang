@@ -10,6 +10,7 @@ package logic
 import (
 	"errors"
 	"math/rand"
+	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
@@ -46,7 +47,8 @@ func (this *RedditLogic) Parse(redditUrl string) error {
 		err error
 	)
 
-	if doc, err = goquery.NewDocument(redditUrl); err != nil {
+	// if doc, err = goquery.NewDocument(redditUrl); err != nil {
+	if doc, err = this.newDocumentFromResp(redditUrl); err != nil {
 		logger.Errorln("goquery reddit newdocument error:", err)
 		return err
 	}
@@ -63,6 +65,19 @@ func (this *RedditLogic) Parse(redditUrl string) error {
 	}
 
 	return err
+}
+
+func (this *RedditLogic) newDocumentFromResp(url string) (*goquery.Document, error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	return goquery.NewDocumentFromResponse(resp)
 }
 
 var PresetUids = []int{1, 1747, 1748, 1827}
