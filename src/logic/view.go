@@ -51,7 +51,7 @@ func (this *view) flush() {
 	case model.TypeArticle:
 		session.Incr("viewnum", this.num).Update(new(model.Article))
 	case model.TypeResource:
-		session.Incr("viewnum", this.num).Update(new(model.Resource))
+		session.Incr("viewnum", this.num).Update(new(model.ResourceEx))
 	case model.TypeProject:
 		session.Incr("viewnum", this.num).Update(new(model.OpenProject))
 	case model.TypeWiki:
