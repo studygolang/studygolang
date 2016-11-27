@@ -149,8 +149,13 @@ func (ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, auto bo
 
 	// 自动抓取，内容长度不能少于 300 字
 	if auto && len(txt) < 300 {
-		logger.Infoln(articleUrl, "content is short")
+		logger.Errorln(articleUrl, "content is short")
 		return nil, errors.New("content is short")
+	}
+
+	if auto && strings.Count(txt, "http://") > 10 {
+		logger.Errorln(articleUrl, "content contains too many link!")
+		return nil, errors.New("content contains too many link")
 	}
 
 	pubDate := times.Format("Y-m-d H:i:s")
