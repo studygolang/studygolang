@@ -109,7 +109,8 @@ func (ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, auto bo
 			return
 		}
 
-		tmpTitle := strings.TrimSpace(strings.TrimPrefix(selection.Text(), "原"))
+		tmpTitle := strings.TrimSpace(selection.Text())
+		tmpTitle = strings.TrimSpace(strings.TrimPrefix(tmpTitle, "原"))
 		tmpTitle = strings.TrimSpace(strings.TrimPrefix(tmpTitle, "荐"))
 		tmpTitle = strings.TrimSpace(strings.TrimPrefix(tmpTitle, "转"))
 		tmpTitle = strings.TrimSpace(strings.TrimPrefix(tmpTitle, "顶"))
@@ -167,6 +168,9 @@ func (ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, auto bo
 		submatches := re.FindStringSubmatch(pubDate)
 		if len(submatches) > 0 {
 			pubDate = submatches[0]
+		} else {
+			// oschina 多少之前忽略
+			pubDate = ""
 		}
 	}
 
