@@ -234,12 +234,12 @@ func (self ProjectLogic) ParseProjectList(pUrl string) error {
 	}
 
 	// 最后面的先入库处理
-	projectsSelection := doc.Find(".ProjectList .List li")
+	projectsSelection := doc.Find(".news-list .box")
 
 	for i := projectsSelection.Length() - 1; i >= 0; i-- {
 
 		contentSelection := goquery.NewDocumentFromNode(projectsSelection.Get(i)).Selection
-		projectUrl, ok := contentSelection.Find("h3 a").Attr("href")
+		projectUrl, ok := contentSelection.Find(".box-aw").Attr("href")
 
 		if !ok || projectUrl == "" {
 			continue
@@ -278,8 +278,8 @@ func (ProjectLogic) ParseOneProject(projectUrl string) error {
 	}
 
 	// 标题
-	category := strings.TrimSpace(doc.Find(".Project .name").Text())
-	name := strings.TrimSpace(doc.Find(".Project .name u").Text())
+	category := strings.TrimSpace(doc.Find("#v-header header .box-aw h1").Text())
+	name := strings.TrimSpace(doc.Find("#v-header header .box-aw h1 span").Text())
 	if category == "" && name == "" {
 		return errors.New("projectUrl:" + projectUrl + " category and name are empty")
 	}
@@ -301,25 +301,26 @@ func (ProjectLogic) ParseOneProject(projectUrl string) error {
 		return nil
 	}
 
-	logoSelection := doc.Find(".Project .PN img")
+	logoSelection := doc.Find("#v-header header .logo img")
 	if logoSelection.AttrOr("title", "") != "" {
 		project.Logo = logoSelection.AttrOr("src", "")
 
 		if !strings.HasPrefix(project.Logo, "http") {
-			project.Logo = OsChinaDomain + project.Logo
-		}
-
-		project.Logo, err = DefaultUploader.TransferUrl(nil, project.Logo, ProjectLogoPrefix)
-		if err != nil {
-			logger.Errorln("project logo upload error:", err)
+			// project.Logo = OsChinaDomain + project.Logo
+			// 默认图
+			project.Logo = ""
+		} else {
+			project.Logo, err = DefaultUploader.TransferUrl(nil, project.Logo, ProjectLogoPrefix)
+			if err != nil {
+				logger.Errorln("project logo upload error:", err)
+			}
 		}
 	}
 
 	// 获取项目相关链接
-	doc.Find("#Body .urls li").Each(func(i int, liSelection *goquery.Selection) {
-		aSelection := liSelection.Find("a")
+	doc.Find("#v-details .urls a").Each(func(i int, aSelection *goquery.Selection) {
 		uri := util.FetchRealUrl(OsChinaDomain + aSelection.AttrOr("href", ""))
-		switch aSelection.Text() {
+		switch aSelection.Find("span").Text() {
 		case "软件首页":
 			project.Home = uri
 		case "软件文档":
@@ -329,9 +330,8 @@ func (ProjectLogic) ParseOneProject(projectUrl string) error {
 		}
 	})
 
-	ctime := time.Now()
-	doc.Find("#Body .attrs li").Each(func(i int, liSelection *goquery.Selection) {
-		aSelection := liSelection.Find("a")
+	doc.Find("#v-basic .list").Each(func(i int, liSelection *goquery.Selection) {
+		aSelection := liSelection.Find("span")
 		txt := aSelection.Text()
 		if i == 0 {
 			project.Licence = txt
@@ -342,20 +342,13 @@ func (ProjectLogic) ParseOneProject(projectUrl string) error {
 			project.Lang = txt
 		} else if i == 2 {
 			project.Os = txt
-		} else if i == 3 {
-			dtime, err := time.ParseInLocation("2006年01月02日", aSelection.Last().Text(), time.Local)
-			if err != nil {
-				logger.Errorln("parse ctime error:", err)
-			} else {
-				ctime = dtime.Local()
-			}
 		}
 	})
 
 	project.Name = name
 	project.Category = category
 	project.Uri = uri
-	project.Repo = strings.TrimSpace(doc.Find("#Body .github-widget").AttrOr("data-repo", ""))
+	project.Repo = strings.TrimSpace(doc.Find("#v-details .github-widget").AttrOr("data-repo", ""))
 	project.Src = "https://github.com/" + project.Repo
 
 	pos := strings.Index(project.Repo, "/")
@@ -371,7 +364,7 @@ func (ProjectLogic) ParseOneProject(projectUrl string) error {
 	}
 
 	desc := ""
-	doc.Find("#Body .detail").Find("p").NextAll().Each(func(i int, domSelection *goquery.Selection) {
+	doc.Find("#v-details .detail").Find("p").Each(func(i int, domSelection *goquery.Selection) {
 		doc.FindSelection(domSelection).WrapHtml(`<div id="tmp` + strconv.Itoa(i) + `"></div>`)
 		domHtml, _ := doc.Find("#tmp" + strconv.Itoa(i)).Html()
 		if domSelection.Is("pre") {
@@ -384,7 +377,7 @@ func (ProjectLogic) ParseOneProject(projectUrl string) error {
 	project.Desc = strings.TrimSpace(desc)
 	project.Username = PresetUsernames[rand.Intn(4)]
 	project.Status = model.ProjectStatusOnline
-	project.Ctime = model.OftenTime(ctime)
+	project.Ctime = model.OftenTime(time.Now())
 
 	_, err = MasterDB.Insert(project)
 	if err != nil {
