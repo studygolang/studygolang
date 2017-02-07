@@ -335,7 +335,7 @@ func (ProjectLogic) ParseOneProject(projectUrl string) error {
 
 	doc.Find("#v-basic .list .box").Each(func(i int, liSelection *goquery.Selection) {
 		aSelection := liSelection.Find("span")
-		txt := aSelection.Text()
+		txt := strings.TrimSpace(aSelection.Text())
 		if i == 0 {
 			project.Licence = txt
 			if txt == "未知" {
