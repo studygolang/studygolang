@@ -239,9 +239,10 @@ func (self ProjectLogic) ParseProjectList(pUrl string) error {
 	for i := projectsSelection.Length() - 1; i >= 0; i-- {
 
 		contentSelection := goquery.NewDocumentFromNode(projectsSelection.Get(i)).Selection
-		projectUrl, ok := contentSelection.Find(".box-aw").Attr("href")
+		projectUrl, ok := contentSelection.Find(".box-aw a").Attr("href")
 
 		if !ok || projectUrl == "" {
+			logger.Errorln("project url is empty")
 			continue
 		}
 		err = self.ParseOneProject(projectUrl)
@@ -330,7 +331,7 @@ func (ProjectLogic) ParseOneProject(projectUrl string) error {
 		}
 	})
 
-	doc.Find("#v-basic .list").Each(func(i int, liSelection *goquery.Selection) {
+	doc.Find("#v-basic .list .box").Each(func(i int, liSelection *goquery.Selection) {
 		aSelection := liSelection.Find("span")
 		txt := aSelection.Text()
 		if i == 0 {
