@@ -245,11 +245,13 @@ func (self ProjectLogic) ParseProjectList(pUrl string) error {
 			logger.Errorln("project url is empty")
 			continue
 		}
-		err = self.ParseOneProject(projectUrl)
+		go func() {
+			err := self.ParseOneProject(projectUrl)
 
-		if err != nil {
-			logger.Errorln(err)
-		}
+			if err != nil {
+				logger.Errorln(err)
+			}
+		}()
 	}
 
 	return err
@@ -347,7 +349,7 @@ func (ProjectLogic) ParseOneProject(projectUrl string) error {
 	})
 
 	project.Name = name
-	project.Category = category
+	project.Category = strings.TrimSpace(category)
 	project.Uri = uri
 	project.Repo = strings.TrimSpace(doc.Find("#v-details .github-widget").AttrOr("data-repo", ""))
 	project.Src = "https://github.com/" + project.Repo
