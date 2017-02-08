@@ -74,7 +74,9 @@ func (self AutoCrawlLogic) crawlOneWebsite(autoCrawlConf *model.AutoCrawlRule, i
 	if autoCrawlConf.Keywords == "" {
 		for p := maxPage; p >= 1; p-- {
 			if pageField == "" {
-				crawlUrl += strconv.Itoa(p)
+				if p > 1 {
+					crawlUrl += "page/" + strconv.Itoa(p)
+				}
 			} else {
 				page := fmt.Sprintf("?%s=%d", pageField, p)
 				crawlUrl += page
