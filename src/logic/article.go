@@ -162,16 +162,6 @@ func (ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, auto bo
 	pubDate := times.Format("Y-m-d H:i:s")
 	if rule.PubDate != "" {
 		pubDate = strings.TrimSpace(doc.Find(rule.PubDate).First().Text())
-
-		// oschina patch
-		re := regexp.MustCompile("[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}")
-		submatches := re.FindStringSubmatch(pubDate)
-		if len(submatches) > 0 {
-			pubDate = submatches[0]
-		} else {
-			// oschina 多少之前忽略
-			pubDate = ""
-		}
 	}
 
 	if pubDate == "" {
@@ -200,6 +190,13 @@ func (ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, auto bo
 		PubDate:   pubDate,
 		Url:       articleUrl,
 		Lang:      rule.Lang,
+	}
+
+	extMap := rule.ParseExt()
+	if extMap != nil {
+		if css, ok := extMap["css"]; ok {
+			article.Css = css
+		}
 	}
 
 	_, err = MasterDB.Insert(article)

@@ -63,8 +63,24 @@ type CrawlRule struct {
 	InUrl   bool   `json:"in_url"`
 	PubDate string `json:"pub_date"`
 	Content string `json:"content"`
+	Ext     string `json:"ext"`
 	OpUser  string `json:"op_user"`
 	Ctime   string `json:"ctime" xorm:"<-"`
+}
+
+func (this *CrawlRule) ParseExt() map[string]string {
+	if this.Ext == "" {
+		return nil
+	}
+
+	extMap := make(map[string]string)
+	err := json.Unmarshal([]byte(this.Ext), &extMap)
+	if err != nil {
+		logger.Errorln("parse crawl rule ext error:", err)
+		return nil
+	}
+
+	return extMap
 }
 
 const (
