@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"model"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
@@ -108,17 +109,17 @@ func (self AutoCrawlLogic) crawlOneWebsite(autoCrawlConf *model.AutoCrawlRule, i
 	}
 }
 
-func (self AutoCrawlLogic) parseArticleList(url string, autoCrawlConf *model.AutoCrawlRule, isSearch bool) (err error) {
+func (self AutoCrawlLogic) parseArticleList(strUrl string, autoCrawlConf *model.AutoCrawlRule, isSearch bool) (err error) {
 
-	logger.Infoln("parse url:", url)
+	logger.Infoln("parse url:", strUrl)
 
 	var doc *goquery.Document
 
 	extMap := autoCrawlConf.ParseExt()
 	if extMap == nil {
-		doc, err = goquery.NewDocument(url)
+		doc, err = goquery.NewDocument(strUrl)
 	} else {
-		req, err := http.NewRequest("GET", url, nil)
+		req, err := http.NewRequest("GET", strUrl, nil)
 		if err != nil {
 			return err
 		}
@@ -139,6 +140,13 @@ func (self AutoCrawlLogic) parseArticleList(url string, autoCrawlConf *model.Aut
 
 	listSelector := autoCrawlConf.ListSelector
 	resultSelector := autoCrawlConf.ResultSelector
+
+	u, err := url.Parse(autoCrawlConf.IncrUrl)
+	if err != nil {
+		logger.Errorln("parse incr_url error:", err)
+		return
+	}
+	host := u.Scheme + "://" + u.Host
 
 	doc.Find(listSelector).Each(func(i int, contentSelection *goquery.Selection) {
 
@@ -164,6 +172,10 @@ func (self AutoCrawlLogic) parseArticleList(url string, autoCrawlConf *model.Aut
 			pos := strings.LastIndex(articleUrl, "?")
 			if pos != -1 {
 				articleUrl = articleUrl[:pos]
+			}
+
+			if !strings.HasPrefix(articleUrl, "http") {
+				articleUrl = host + articleUrl
 			}
 			DefaultArticle.ParseArticle(context.Background(), articleUrl, isSearch)
 		}
