@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo"
+	"github.com/polaris1119/goutils"
 )
 
 type ArticleController struct{}
@@ -74,9 +75,23 @@ func (ArticleController) CrawlArticle(ctx echo.Context) error {
 	if ctx.FormValue("submit") == "1" {
 		urls := strings.Split(ctx.FormValue("urls"), "\n")
 
-		var errMsg string
-		for _, articleUrl := range urls {
-			_, err := logic.DefaultArticle.ParseArticle(ctx, strings.TrimSpace(articleUrl), false)
+		var (
+			errMsg string
+			err    error
+		)
+		for _, url := range urls {
+			url = strings.TrimSpace(url)
+
+			if strings.HasPrefix(url, "http") {
+				_, err = logic.DefaultArticle.ParseArticle(ctx, url, false)
+			} else {
+				isAll := false
+				websiteInfo := strings.Split(url, ":")
+				if len(websiteInfo) >= 2 {
+					isAll = goutils.MustBool(websiteInfo[1])
+				}
+				err = logic.DefaultAutoCrawl.CrawlWebsite(strings.TrimSpace(websiteInfo[0]), isAll)
+			}
 
 			if err != nil {
 				errMsg = err.Error()

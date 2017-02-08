@@ -6,6 +6,12 @@
 
 package model
 
+import (
+	"encoding/json"
+
+	"github.com/polaris1119/logger"
+)
+
 const (
 	ArticleStatusNew = iota
 	ArticleStatusOnline
@@ -59,4 +65,40 @@ type CrawlRule struct {
 	Content string `json:"content"`
 	OpUser  string `json:"op_user"`
 	Ctime   string `json:"ctime" xorm:"<-"`
+}
+
+const (
+	AutoCrawlOn = 0
+	AutoCrawOff = 1
+)
+
+// 网站自动抓取规则
+type AutoCrawlRule struct {
+	Id             int    `json:"id" xorm:"pk autoincr"`
+	Website        string `json:"website"`
+	AllUrl         string `json:"all_url"`
+	IncrUrl        string `json:"incr_url"`
+	Keywords       string `json:"keywords"`
+	ListSelector   string `json:"list_selector"`
+	ResultSelector string `json:"result_selector"`
+	PageField      string `json:"page_field"`
+	MaxPage        int    `json:"max_page"`
+	Ext            string `json:"ext"`
+	OpUser         string `json:"op_user"`
+	Mtime          string `json:"mtime" xorm:"<-"`
+}
+
+func (this *AutoCrawlRule) ParseExt() map[string]string {
+	if this.Ext == "" {
+		return nil
+	}
+
+	extMap := make(map[string]string)
+	err := json.Unmarshal([]byte(this.Ext), &extMap)
+	if err != nil {
+		logger.Errorln("parse auto crawl rule ext error:", err)
+		return nil
+	}
+
+	return extMap
 }

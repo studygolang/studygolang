@@ -273,6 +273,25 @@ CREATE TABLE IF NOT EXISTS `crawl_rule` (
   KEY (`ctime`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '网站抓取规则表';
 
+CREATE TABLE IF NOT EXISTS `auto_crawl_rule` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `website` varchar(20) NOT NULL DEFAULT '' COMMENT '网站标识，有可能是网站某个子模块',
+  `all_url` varchar(127) NOT NULL DEFAULT '' COMMENT '全量url，关键词占位符使用%s',
+  `incr_url` varchar(127) NOT NULL DEFAULT '' COMMENT '增量url，关键词占位符使用%s',
+  `keywords` varchar(63) NOT NULL DEFAULT '' COMMENT '搜索关键词，多个逗号分隔',
+  `list_selector` varchar(31) NOT NULL DEFAULT '' COMMENT '列表选择器',
+  `result_selector` varchar(31) NOT NULL DEFAULT '' COMMENT '结果选择器，获取具体文章的 url',
+  `page_field` varchar(20) NOT NULL DEFAULT '' COMMENT '分页字段名',
+  `max_page` int unsigned NOT NULL DEFAULT 0 COMMENT '全量最多抓取多少页',
+  `ext` varchar(1023) NOT NULL DEFAULT '' COMMENT '扩展信息，某些网站的特殊配置，json格式',
+  `status` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '状态：0-自动抓取；1-停止抓取',
+  `op_user` varchar(20) NOT NULL DEFAULT '' COMMENT '操作人',
+  `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `website` (`website`),
+  KEY `mtime` (`mtime`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='网站自动抓取规则表';
+
 CREATE TABLE IF NOT EXISTS `dynamic` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `content` varchar(255) NOT NULL DEFAULT '' COMMENT '动态内容',
