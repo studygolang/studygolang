@@ -39,7 +39,7 @@
   border: none;
 }
 .article-entry .highlight {
-  background: transparent url("/images/code-bk.png") repeat scroll 0% 0%;
+  background: transparent url("http://studygolang.qiniudn.com/170208/012acbe788ee429da8d7d8d619455fc8.png") repeat scroll 0% 0%;
 }
 .article-entry .highlight pre {
   border: none;
@@ -82,9 +82,16 @@
   padding-right: 10px;
   color: #bbb;
   font-size: 12.8px;
+  
+  border-bottom: none;
+  margin: auto;
+  line-height: inherit;
 }
 .article-entry .highlight .line {
   height: 25.6px;
+  border-bottom: none;
+  margin: auto;
+  line-height: inherit;
 }
 .article-entry .gist {
   margin: 0 -20px;

@@ -73,18 +73,20 @@ func (self AutoCrawlLogic) crawlOneWebsite(autoCrawlConf *model.AutoCrawlRule, i
 	// 个人博客，一般通过 tag 方式获取，这种处理方式和搜索不一样
 	if autoCrawlConf.Keywords == "" {
 		for p := maxPage; p >= 1; p-- {
+			curUrl := ""
+
 			if pageField == "" {
 				if p > 1 {
-					crawlUrl += "page/" + strconv.Itoa(p)
+					curUrl += crawlUrl + "page/" + strconv.Itoa(p)
 				}
 			} else {
 				page := fmt.Sprintf("?%s=%d", pageField, p)
-				crawlUrl += page
+				curUrl += crawlUrl + page
 			}
 
 			// 标题不包含 go 等关键词的，也入库
-			if err := self.parseArticleList(crawlUrl, autoCrawlConf, false); err != nil {
-				logger.Errorln("parse article url", crawlUrl, "error:", err)
+			if err := self.parseArticleList(curUrl, autoCrawlConf, false); err != nil {
+				logger.Errorln("parse article url", curUrl, "error:", err)
 				break
 			}
 		}
