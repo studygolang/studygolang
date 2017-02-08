@@ -78,6 +78,8 @@ func (self AutoCrawlLogic) crawlOneWebsite(autoCrawlConf *model.AutoCrawlRule, i
 			if pageField == "" {
 				if p > 1 {
 					curUrl += crawlUrl + "page/" + strconv.Itoa(p)
+				} else {
+					curUrl = crawlUrl
 				}
 			} else {
 				page := fmt.Sprintf("?%s=%d", pageField, p)
@@ -152,7 +154,11 @@ func (self AutoCrawlLogic) parseArticleList(strUrl string, autoCrawlConf *model.
 	}
 	host := u.Scheme + "://" + u.Host
 
-	doc.Find(listSelector).Each(func(i int, contentSelection *goquery.Selection) {
+	articleSelection := doc.Find(listSelector)
+	// 后面的先入库
+	for i := articleSelection.Length() - 1; i >= 0; i-- {
+
+		contentSelection := goquery.NewDocumentFromNode(articleSelection.Get(i)).Selection
 
 		aSelection := contentSelection.Find(resultSelector)
 
@@ -163,11 +169,11 @@ func (self AutoCrawlLogic) parseArticleList(strUrl string, autoCrawlConf *model.
 			matched, err := regexp.MatchString(titlePattern, title)
 			if err != nil {
 				logger.Errorln(err)
-				return
+				continue
 			}
 
 			if !matched {
-				return
+				continue
 			}
 		}
 
@@ -183,7 +189,7 @@ func (self AutoCrawlLogic) parseArticleList(strUrl string, autoCrawlConf *model.
 			}
 			DefaultArticle.ParseArticle(context.Background(), articleUrl, isSearch)
 		}
-	})
+	}
 
 	return
 }
