@@ -20,6 +20,7 @@ import (
 	"github.com/polaris1119/logger"
 	"github.com/polaris1119/times"
 	"golang.org/x/net/context"
+	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
 type ArticleLogic struct{}
@@ -35,7 +36,7 @@ var articleRe = regexp.MustCompile("[\r　\n  \t\v]+")
 var articleSpaceRe = regexp.MustCompile("[ ]+")
 
 // ParseArticle 获取 url 对应的文章并根据规则进行解析
-func (ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, auto bool) (*model.Article, error) {
+func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, auto bool) (*model.Article, error) {
 	articleUrl = strings.TrimSpace(articleUrl)
 	if !strings.HasPrefix(articleUrl, "http") {
 		articleUrl = "http://" + articleUrl
@@ -194,8 +195,9 @@ func (ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, auto bo
 
 	extMap := rule.ParseExt()
 	if extMap != nil {
-		if css, ok := extMap["css"]; ok {
-			article.Css = css
+		err = self.convertByExt(extMap, article)
+		if err != nil {
+			return nil, err
 		}
 	}
 
@@ -206,6 +208,35 @@ func (ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, auto bo
 	}
 
 	return article, nil
+}
+
+func (ArticleLogic) convertByExt(extMap map[string]string, article *model.Article) error {
+	var err error
+	if css, ok := extMap["css"]; ok {
+		article.Css = css
+	}
+
+	if charset, ok := extMap["charset"]; ok {
+		if charset == "gbk" {
+			article.Title, err = simplifiedchinese.GBK.NewDecoder().String(article.Title)
+			if err != nil {
+				logger.Errorln("convert title gbk to utf8 error:", err)
+				return err
+			}
+			article.Content, err = simplifiedchinese.GBK.NewDecoder().String(article.Content)
+			if err != nil {
+				logger.Errorln("convert content gbk to utf8 error:", err)
+				return err
+			}
+			article.Txt, err = simplifiedchinese.GBK.NewDecoder().String(article.Txt)
+			if err != nil {
+				logger.Errorln("convert txt gbk to utf8 error:", err)
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 func (ArticleLogic) FindLastList(beginTime string, limit int) ([]*model.Article, error) {

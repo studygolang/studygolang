@@ -396,6 +396,48 @@
 			"revision": "024ed629fd292398cfd43c9678a5bf004f7defdc",
 			"branch": "master",
 			"path": "/websocket"
+		},
+		{
+			"importpath": "golang.org/x/text/encoding",
+			"repository": "https://github.com/golang/text",
+			"revision": "dafb3384ad25363d928a9e97ce4ad3a2f0667e34",
+			"branch": "master",
+			"path": "/encoding"
+		},
+		{
+			"importpath": "golang.org/x/text/internal/tag",
+			"repository": "https://github.com/golang/text",
+			"revision": "dafb3384ad25363d928a9e97ce4ad3a2f0667e34",
+			"branch": "master",
+			"path": "/internal/tag"
+		},
+		{
+			"importpath": "golang.org/x/text/internal/utf8internal",
+			"repository": "https://github.com/golang/text",
+			"revision": "dafb3384ad25363d928a9e97ce4ad3a2f0667e34",
+			"branch": "master",
+			"path": "/internal/utf8internal"
+		},
+		{
+			"importpath": "golang.org/x/text/language",
+			"repository": "https://github.com/golang/text",
+			"revision": "dafb3384ad25363d928a9e97ce4ad3a2f0667e34",
+			"branch": "master",
+			"path": "/language"
+		},
+		{
+			"importpath": "golang.org/x/text/runes",
+			"repository": "https://github.com/golang/text",
+			"revision": "dafb3384ad25363d928a9e97ce4ad3a2f0667e34",
+			"branch": "master",
+			"path": "/runes"
+		},
+		{
+			"importpath": "golang.org/x/text/transform",
+			"repository": "https://github.com/golang/text",
+			"revision": "dafb3384ad25363d928a9e97ce4ad3a2f0667e34",
+			"branch": "master",
+			"path": "/transform"
 		}
 	]
 }
