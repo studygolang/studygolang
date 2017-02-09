@@ -233,6 +233,12 @@ func (ArticleLogic) convertByExt(extMap map[string]string, article *model.Articl
 				logger.Errorln("convert txt gbk to utf8 error:", err)
 				return err
 			}
+			article.AuthorTxt, err = simplifiedchinese.GBK.NewDecoder().String(article.AuthorTxt)
+			if err != nil {
+				logger.Errorln("convert txt gbk to utf8 error:", err)
+				return err
+			}
+			article.Author = article.AuthorTxt
 		}
 	}
 
