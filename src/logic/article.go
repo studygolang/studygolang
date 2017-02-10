@@ -42,6 +42,8 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 		articleUrl = "http://" + articleUrl
 	}
 
+	articleUrl = self.cleanUrl(articleUrl, auto)
+
 	tmpArticle := &model.Article{}
 	_, err := MasterDB.Where("url=?", articleUrl).Get(tmpArticle)
 	if err != nil || tmpArticle.Id != 0 {
@@ -208,6 +210,22 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 	}
 
 	return article, nil
+}
+
+func (ArticleLogic) cleanUrl(articleUrl string, auto bool) string {
+	pos := strings.LastIndex(articleUrl, "#")
+	if pos > 0 {
+		articleUrl = articleUrl[:pos]
+	}
+	// 过滤多余的参数，避免加一个参数就是一个新文章，但实际上是同一篇
+	if auto {
+		pos = strings.Index(articleUrl, "?")
+		if pos > 0 {
+			articleUrl = articleUrl[:pos]
+		}
+	}
+
+	return articleUrl
 }
 
 func (ArticleLogic) convertByExt(extMap map[string]string, article *model.Article) error {
