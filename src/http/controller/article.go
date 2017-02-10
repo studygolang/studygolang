@@ -9,6 +9,7 @@ package controller
 import (
 	"logic"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo"
 	"github.com/polaris1119/goutils"
@@ -30,6 +31,8 @@ type ArticleController struct{}
 // 注册路由
 func (this *ArticleController) RegisterRoute(g *echo.Group) {
 	g.Get("/articles", this.ReadList)
+	g.Get("/articles/crawl", this.Crawl)
+
 	g.Get("/articles/:id", this.Detail)
 }
 
@@ -126,4 +129,23 @@ func (ArticleController) Detail(ctx echo.Context) error {
 	article.Viewnum++
 
 	return render(ctx, "articles/detail.html,common/comment.html", map[string]interface{}{"activeArticles": "active", "article": article, "prev": prevNext[0], "next": prevNext[1], "likeflag": likeFlag, "hadcollect": hadCollect})
+}
+
+func (ArticleController) Crawl(ctx echo.Context) error {
+	strUrl := ctx.QueryParam("url")
+
+	var (
+		errMsg string
+		err    error
+	)
+	strUrl = strings.TrimSpace(strUrl)
+	_, err = logic.DefaultArticle.ParseArticle(ctx, strUrl, false)
+	if err != nil {
+		errMsg = err.Error()
+	}
+
+	if errMsg != "" {
+		return fail(ctx, 1, errMsg)
+	}
+	return success(ctx, nil)
 }
