@@ -74,6 +74,7 @@ func newViews() *views {
 	return &views{data: make(map[string]*view), users: make(map[string]bool)}
 }
 
+// TODO: 用户登录了，应该用用户标识，而不是IP
 func (this *views) Incr(req *http.Request, objtype, objid int) {
 	user := goutils.Ip2long(goutils.RemoteIp(req))
 
