@@ -373,11 +373,8 @@ func (TopicLogic) getOwner(tid int) int {
 }
 
 func (TopicLogic) decodeTopicContent(ctx context.Context, topic *model.Topic) string {
-	// 安全过滤
-	content := template.HTMLEscapeString(topic.Content)
-
 	// 允许内嵌 Wide iframe
-	content = util.EmbedWide(content)
+	content := util.EmbedWide(topic.Content)
 
 	// @别人
 	return parseAtUser(ctx, content)

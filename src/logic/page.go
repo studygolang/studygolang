@@ -157,3 +157,7 @@ func (this *Paginator) SetPerPage(perPage int) {
 func (this *Paginator) PerPage() int {
 	return this.perPage
 }
+
+func (this *Paginator) HasMorePage() bool {
+	return this.totalPage > this.curPage
+}

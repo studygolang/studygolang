@@ -51,7 +51,7 @@
 				</ul>
 			</div>
 			<!-- tags -->
-			<div class="content">{{.topic.content}}</div>
+			<div class="content">{{.topic.content | html}}</div>
 			{{if .topic.editor_username}}
 			<div class="alert alert-success edit-info" role="alert">{{.topic.editor_username}}于 {{.topic.mtime}} 修改了本主题</div>
 			{{end}}

@@ -1,4 +1,4 @@
-// Copyright 2014 The StudyGolang Authors. All rights reserved.
+// Copyright 2017 The StudyGolang Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 // http://studygolang.com
@@ -34,19 +34,14 @@ func (ArticleController) ReadList(ctx echo.Context) error {
 		return fail(ctx, "获取失败")
 	}
 
-	hasMore := false
-	if len(articles) > limit {
-		hasMore = true
-		articles = articles[:limit]
-	}
-
-	data := map[string]interface{}{
-		"has_more": hasMore,
-	}
-
-	articleList := make([]map[string]interface{}, len(articles))
-	for i, article := range articles {
-		articleList[i] = map[string]interface{}{
+	articleList := make([]map[string]interface{}, 0, len(articles))
+	for _, article := range articles {
+		if lastId > 0 {
+			if article.Top == 1 {
+				continue
+			}
+		}
+		articleList = append(articleList, map[string]interface{}{
 			"id":       article.Id,
 			"name":     article.Name,
 			"title":    article.Title,
@@ -57,9 +52,19 @@ func (ArticleController) ReadList(ctx echo.Context) error {
 			"likenum":  article.Likenum,
 			"top":      article.Top,
 			"author":   article.AuthorTxt,
-		}
+		})
 	}
-	data["articles"] = articleList
+
+	hasMore := false
+	if len(articleList) > limit {
+		hasMore = true
+		articleList = articleList[:limit]
+	}
+
+	data := map[string]interface{}{
+		"has_more": hasMore,
+		"articles": articleList,
+	}
 
 	return success(ctx, data)
 }
