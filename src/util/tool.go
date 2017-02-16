@@ -14,7 +14,9 @@ import (
 	"github.com/polaris1119/goutils"
 )
 
-const qiniuDomain = "http://studygolang.qiniudn.com"
+const qiniuDomain = "https://dn-studygolang.qbox.me"
+
+// const qiniuDomain = "http://studygolang.qiniudn.com"
 
 // 获取头像
 func Gravatar(avatar string, emailI interface{}, size uint16) string {

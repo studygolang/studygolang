@@ -38,7 +38,8 @@ import (
 )
 
 const (
-	ImageDomain  = "http://studygolang.qiniudn.com/"
+	// ImageDomain  = "http://studygolang.qiniudn.com/"
+	ImageDomain  = "https://dn-studygolang.qbox.me/"
 	MaxImageSize = 5 << 20 // 5M
 )
 
