@@ -34,11 +34,6 @@ func (self ProjectLogic) Publish(ctx context.Context, user *model.Me, form url.V
 	id := form.Get("id")
 	isModify := id != ""
 
-	if !isModify && self.UriExists(ctx, form.Get("uri")) {
-		err = errors.New("uri存在")
-		return
-	}
-
 	project := &model.OpenProject{}
 
 	if isModify {
@@ -66,8 +61,15 @@ func (self ProjectLogic) Publish(ctx context.Context, user *model.Me, form url.V
 
 		project.Username = user.Username
 	}
-
+	if project.Uri == "" {
+		project.Uri = strings.Replace(project.Name, " ", "-", -1)
+	}
 	project.Uri = strings.ToLower(project.Uri)
+
+	if !isModify && self.UriExists(ctx, form.Get("uri")) {
+		err = errors.New("项目已存在")
+		return
+	}
 
 	github := "github.com"
 	pos := strings.Index(project.Src, github)
@@ -222,6 +224,8 @@ func (self ProjectLogic) ParseProjectList(pUrl string) error {
 	if !strings.HasPrefix(pUrl, "http") {
 		pUrl = "http://" + pUrl
 	}
+
+	logger.Infoln("parse project url:", pUrl)
 
 	var (
 		doc *goquery.Document
