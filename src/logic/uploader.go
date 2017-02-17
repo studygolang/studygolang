@@ -37,9 +37,12 @@ import (
 	"github.com/qiniu/api.v6/rs"
 )
 
+var (
+	// QiniuDomain = "https://dn-studygolang.qbox.me/"
+	QiniuDomain = "http://studygolang.qiniudn.com/"
+)
+
 const (
-	// ImageDomain  = "http://studygolang.qiniudn.com/"
-	ImageDomain  = "https://dn-studygolang.qbox.me/"
 	MaxImageSize = 5 << 20 // 5M
 )
 
@@ -58,6 +61,11 @@ func (this *UploaderLogic) InitQiniu() {
 	conf.ACCESS_KEY = config.ConfigFile.MustValue("qiniu", "access_key")
 	conf.SECRET_KEY = config.ConfigFile.MustValue("qiniu", "secret_key")
 	this.bucketName = config.ConfigFile.MustValue("qiniu", "bucket_name")
+
+	qiniuDomain := config.ConfigFile.MustValue("qiniu", "domain")
+	if qiniuDomain != "" {
+		QiniuDomain = qiniuDomain
+	}
 }
 
 // 生成上传凭证

@@ -76,5 +76,5 @@ func (ImageController) Transfer(ctx echo.Context) error {
 		return fail(ctx, 2, "文件上传失败！")
 	}
 
-	return success(ctx, map[string]interface{}{"uri": logic.ImageDomain + path})
+	return success(ctx, map[string]interface{}{"uri": logic.QiniuDomain + path})
 }
