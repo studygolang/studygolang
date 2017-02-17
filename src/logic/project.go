@@ -225,8 +225,6 @@ func (self ProjectLogic) ParseProjectList(pUrl string) error {
 		pUrl = "http://" + pUrl
 	}
 
-	logger.Infoln("parse project url:", pUrl)
-
 	var (
 		doc *goquery.Document
 		err error
@@ -238,24 +236,24 @@ func (self ProjectLogic) ParseProjectList(pUrl string) error {
 	}
 
 	// 最后面的先入库处理
-	projectsSelection := doc.Find(".news-list .box")
+	projectsSelection := doc.Find(".news-list").Children()
 
 	for i := projectsSelection.Length() - 1; i >= 0; i-- {
 
 		contentSelection := goquery.NewDocumentFromNode(projectsSelection.Get(i)).Selection
-		projectUrl, ok := contentSelection.Find(".box-aw a").Attr("href")
+		projectUrl, ok := contentSelection.Find(".box-aw a").First().Attr("href")
 
 		if !ok || projectUrl == "" {
 			logger.Errorln("project url is empty")
 			continue
 		}
-		go func() {
+		go func(projectUrl string) {
 			err := self.ParseOneProject(projectUrl)
 
 			if err != nil {
 				logger.Errorln(err)
 			}
-		}()
+		}(projectUrl)
 	}
 
 	return err
