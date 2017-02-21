@@ -89,6 +89,8 @@ func (this *User) String() string {
 type Me struct {
 	Uid      int    `json:"uid"`
 	Username string `json:"username"`
+	Name     string `json:"name"`
+	Monlog   string `json:"monlog"`
 	Email    string `json:"email"`
 	Avatar   string `json:"avatar"`
 	Status   int    `json:"status"`

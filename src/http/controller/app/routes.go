@@ -13,4 +13,5 @@ func RegisterRoutes(g *echo.Group) {
 	new(TopicController).RegisterRoute(g)
 	new(ResourceController).RegisterRoute(g)
 	new(ProjectController).RegisterRoute(g)
+	new(UserController).RegisterRoute(g)
 }

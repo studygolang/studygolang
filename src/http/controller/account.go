@@ -8,6 +8,7 @@ package controller
 
 import (
 	"html/template"
+	. "http/internal/helper"
 	"http/middleware"
 	"logic"
 	"model"
@@ -42,9 +43,6 @@ func (self AccountController) RegisterRoute(g *echo.Group) {
 	g.Any("/account/resetpwd", self.ResetPasswd)
 	g.Get("/account/logout", self.Logout, middleware.NeedLogin())
 }
-
-// 保存uuid和email的对应关系（TODO:重启如何处理，有效期问题）
-var regActivateCodeMap = map[string]string{}
 
 func (self AccountController) Register(ctx echo.Context) error {
 	if _, ok := ctx.Get("user").(*model.Me); ok {
@@ -92,7 +90,8 @@ func (self AccountController) Register(ctx echo.Context) error {
 	}
 
 	email := ctx.FormValue("email")
-	uuid := self.genUUID(email)
+
+	uuid := RegActivateCode.GenUUID(email)
 	var emailUrl string
 	if strings.HasSuffix(email, "@gmail.com") {
 		emailUrl = "http://mail.google.com"
@@ -114,24 +113,11 @@ func (self AccountController) Register(ctx echo.Context) error {
 	return render(ctx, registerTpl, data)
 }
 
-func (AccountController) genUUID(email string) string {
-	var uuid string
-	for {
-		uuid = guuid.NewV4().String()
-		if _, ok := regActivateCodeMap[uuid]; !ok {
-			regActivateCodeMap[uuid] = email
-			break
-		}
-		logger.Errorln("GenUUID 冲突....")
-	}
-	return uuid
-}
-
 // SendActivateEmail 发送注册激活邮件
 func (self AccountController) SendActivateEmail(ctx echo.Context) error {
 	uuid := ctx.FormValue("uuid")
 	if uuid != "" {
-		email, ok := regActivateCodeMap[uuid]
+		email, ok := RegActivateCode.GetEmail(uuid)
 		if !ok {
 			return fail(ctx, 1, "非法请求")
 		}
@@ -143,7 +129,7 @@ func (self AccountController) SendActivateEmail(ctx echo.Context) error {
 			return fail(ctx, 1, "非法请求")
 		}
 
-		go logic.DefaultEmail.SendActivateMail(user.Email, self.genUUID(user.Email))
+		go logic.DefaultEmail.SendActivateMail(user.Email, RegActivateCode.GenUUID(user.Email))
 	}
 
 	return success(ctx, nil)
@@ -165,14 +151,14 @@ func (AccountController) Activate(ctx echo.Context) error {
 	uuid := values.Get("uuid")
 	timestamp := goutils.MustInt64(values.Get("timestamp"))
 	sign := values.Get("sign")
-	email, ok := regActivateCodeMap[uuid]
+	email, ok := RegActivateCode.GetEmail(uuid)
 	if !ok {
 		data["error"] = "非法请求！"
 		return render(ctx, contentTpl, data)
 	}
 
 	if timestamp < time.Now().Add(-4*time.Hour).Unix() {
-		delete(regActivateCodeMap, uuid)
+		RegActivateCode.DelUUID(uuid)
 		// TODO:可以再次发激活邮件？
 		data["error"] = "链接已过期"
 		return render(ctx, contentTpl, data)
@@ -184,7 +170,7 @@ func (AccountController) Activate(ctx echo.Context) error {
 		return render(ctx, contentTpl, data)
 	}
 
-	delete(regActivateCodeMap, uuid)
+	RegActivateCode.DelUUID(uuid)
 
 	// 自动登录
 	SetCookie(ctx, user.Username)
@@ -257,7 +243,7 @@ func (self AccountController) Edit(ctx echo.Context) error {
 
 	email := ctx.FormValue("email")
 	if me.Email != email {
-		go logic.DefaultEmail.SendActivateMail(email, self.genUUID(email))
+		go logic.DefaultEmail.SendActivateMail(email, RegActivateCode.GenUUID(email))
 	}
 
 	return success(ctx, nil)

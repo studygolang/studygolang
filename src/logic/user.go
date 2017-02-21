@@ -293,7 +293,14 @@ func (self UserLogic) FindCurrentUser(ctx context.Context, username interface{})
 	objLog := GetLogger(ctx)
 
 	user := &model.User{}
-	_, err := MasterDB.Where("username=? AND status<=?", username, model.UserStatusAudit).Get(user)
+	var err error
+
+	if uid, ok := username.(int); ok {
+		_, err = MasterDB.Where("uid=? AND status<=?", uid, model.UserStatusAudit).Get(user)
+	} else {
+		_, err = MasterDB.Where("username=? AND status<=?", username, model.UserStatusAudit).Get(user)
+	}
+
 	if err != nil {
 		objLog.Errorf("获取用户 %q 信息失败：%s", username, err)
 		return &model.Me{}
@@ -306,6 +313,8 @@ func (self UserLogic) FindCurrentUser(ctx context.Context, username interface{})
 	me := &model.Me{
 		Uid:      user.Uid,
 		Username: user.Username,
+		Name:     user.Name,
+		Monlog:   user.Monlog,
 		Email:    user.Email,
 		Avatar:   user.Avatar,
 		Status:   user.Status,

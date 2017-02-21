@@ -14,6 +14,8 @@ import (
 	"github.com/labstack/echo"
 	"github.com/polaris1119/logger"
 	"github.com/polaris1119/nosql"
+
+	. "http"
 )
 
 func getLogger(ctx echo.Context) *logger.Logger {
@@ -38,7 +40,7 @@ func success(ctx echo.Context, data interface{}) error {
 		}
 	}(b)
 
-	ctx.Response().Header().Add("Access-Control-Allow-Origin", "*")
+	AccessControl(ctx)
 
 	if ctx.Response().Committed() {
 		getLogger(ctx).Flush()
@@ -49,6 +51,8 @@ func success(ctx echo.Context, data interface{}) error {
 }
 
 func fail(ctx echo.Context, msg string, codes ...int) error {
+	AccessControl(ctx)
+
 	if ctx.Response().Committed() {
 		getLogger(ctx).Flush()
 		return nil
