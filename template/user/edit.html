@@ -104,7 +104,7 @@
 				<h4 class="title">头像</h4>
 				<p>本站使用<a href="http://www.qiniu.com/" target="_blank">七牛云存储</a>来提供头像服务.</p>
 				<p>
-					当前头像<img class="img-rounded" src="{{gravatar .user.Avatar .user.Email 120}}">
+					当前头像<img class="img-rounded" src="{{gravatar .user.Avatar .user.Email 120 .is_https}}">
 				</p>
 				<p><a href="/account/change_avatar" class="btn btn-default btn-gravatar">使用Gravatar头像</a></p>
 				<ul class="nav nav-tabs" id="avatar-tab" role="tablist" style="margin-bottom: 15px;">
@@ -116,14 +116,16 @@
 						<form action="/account/change_avatar" method="post" class="validate-form" role="form" >
 							<div class="form-group">
 								<ul class="list-inline">
+								{{with $root := .}}
 									{{range .default_avatars}}
 									<li>
 										<label>
 											<input type="radio" name="avatar" value="{{.}}" class="required">
-											<img class="img-rounded" src="http://studygolang.qiniudn.com/avatar/{{.}}?imageView2/2/w/80" alt="{{.}}">
+											<img class="img-rounded" src="{{$root.cdn_domain}}/avatar/{{.}}?imageView2/2/w/80" alt="{{.}}">
 										</label>
 									</li>
 									{{end}}
+								{{end}}
 								</ul>
 							<div class="control-group">
 								<div class="controls text-center">

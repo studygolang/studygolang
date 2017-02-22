@@ -52,8 +52,10 @@
         </div>-->
         <h4>本页贡献者:</h4>
         <div>
+          {{with $root := .}}
           {{range .wiki.Users}}
-          <a href="/user/{{.Username}}" title="{{.Username}}"><img alt="{{.Username}}" class="uface" src="{{gravatar .Avatar .Email 32}}" with="32" height="32"></a>
+          <a href="/user/{{.Username}}" title="{{.Username}}"><img alt="{{.Username}}" class="uface" src="{{gravatar .Avatar .Email 32 $root.is_https}}" with="32" height="32"></a>
+          {{end}}
           {{end}}
         </div>
       </div>
@@ -100,7 +102,7 @@
       var cpro_id="u1996895";
       (window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id]={at:"3",rsi0:"291",rsi1:"291",pat:"6",tn:"baiduCustNativeAD",rss1:"#FFFFFF",conBW:"0",adp:"1",ptt:"0",titFF:"%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91",titFS:"14",rss2:"#000000",titSU:"0",ptbg:"90",piw:"0",pih:"0",ptp:"0"}
       </script>
-      <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script>
+      <script src="//cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script>
     </div>
   </div>
 </div>
