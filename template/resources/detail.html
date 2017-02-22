@@ -67,7 +67,7 @@
 			<div id="hm_t_56958" style="margin:0 auto;max-width:790px;"></div>
 			
 			<!-- 评论 -->
-			<div class="page-comment" data-objid="{{.resource.id}}" data-objtype="2" {{if .me}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48}}"{{end}}>
+			<div class="page-comment" data-objid="{{.resource.id}}" data-objtype="2" {{if .me}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
 				<div class="words hide">
 					<h3><span class="cmtnum">{{.resource.cmtnum}}</span>条评论</h3>
 					<ul class="list-unstyled">
@@ -93,7 +93,7 @@
 			</div>
 			<div class="sb-content">
 				<a href="/user/{{.resource.user.Username}}" class="pull-left avatar" title="{{.resource.user.Username}}">
-					<img src="{{gravatar .resource.user.Avatar .resource.user.Email 48}}" alt="{{if .resource.user.Name}}{{.resource.user.Name}}{{else}}{{.resource.user.Username}}{{end}}" width="48px" height="48px">
+					<img src="{{gravatar .resource.user.Avatar .resource.user.Email 48 .is_https}}" alt="{{if .resource.user.Name}}{{.resource.user.Name}}{{else}}{{.resource.user.Username}}{{end}}" width="48px" height="48px">
 				</a>
 				<h4>
 					<a href="/user/{{.resource.user.Username}}" title="{{if .resource.user.Name}}{{.resource.user.Name}}{{else}}{{.resource.user.Username}}{{end}}">{{if .resource.user.Name}}{{.resource.user.Name}}({{.resource.user.Username}}){{else}}{{.resource.user.Username}}{{end}}</a>

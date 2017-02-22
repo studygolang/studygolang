@@ -21,10 +21,11 @@
 		<div class="box_white">
 			<div class="clearfix"></div>
 			<dl class="topics dl-horizontal">
+			{{with $root := .}}
 			{{range .topics}}
 				<div class="topic">
 					<dt class="avatar">
-						<a href="/user/{{.user.Username}}" title="{{.user.Username}}"><img alt="{{.user.Username}}" class="img-rounded" src="{{gravatar .user.Avatar .user.Email 48}}" width="48px" height="48px"></a>
+						<a href="/user/{{.user.Username}}" title="{{.user.Username}}"><img alt="{{.user.Username}}" class="img-rounded" src="{{gravatar .user.Avatar .user.Email 48 $root.is_https}}" width="48px" height="48px"></a>
 					</dt>
 					<dd class="right-info">
 						<div class="title">
@@ -57,6 +58,7 @@
 				</div>
 			{{else}}
 			<p class="text-center">暂时没有任何帖子</p>
+			{{end}}
 			{{end}}
 			</dl>
 			{{if .page}}

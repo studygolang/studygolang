@@ -20,10 +20,11 @@
 				<i class="glyphicon glyphicon-star"></i> <span id="cat_intro"></span>
 			</div>
 			<div class="resources">
+				{{with $root := .}}
 				{{range .resources}}
 				<div class="resource">
 					<div class="rinfo">
-						<a class="avatar pull-right" href="/user/{{.user.Username}}"><img src="{{gravatar .user.Avatar .user.Email 48}}" alt="{{.user.Username}}"></a>
+						<a class="avatar pull-right" href="/user/{{.user.Username}}"><img src="{{gravatar .user.Avatar .user.Email 48 $root.is_https}}" alt="{{.user.Username}}"></a>
 						<a class="link-url" href="{{.url}}" target="_blank" data-id="{{.id}}">{{.title}}</a>
 						{{if .host}}
 						<span class="host">({{.host}})</span>
@@ -43,6 +44,7 @@
 				</div>
 				{{else}}
 				<p class="text-center">该分类暂时没有任何资源</p>
+				{{end}}
 				{{end}}
 			</div>
 			{{if .page}}

@@ -52,8 +52,10 @@
         </div>-->
         <h4>本页贡献者:</h4>
         <div>
+          {{with $root := .}}
           {{range .wiki.Users}}
-          <a href="/user/{{.Username}}" title="{{.Username}}"><img alt="{{.Username}}" class="uface" src="{{gravatar .Avatar .Email 32}}" with="32" height="32"></a>
+          <a href="/user/{{.Username}}" title="{{.Username}}"><img alt="{{.Username}}" class="uface" src="{{gravatar .Avatar .Email 32 $root.is_https}}" with="32" height="32"></a>
+          {{end}}
           {{end}}
         </div>
       </div>

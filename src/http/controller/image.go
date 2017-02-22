@@ -7,6 +7,7 @@
 package controller
 
 import (
+	"global"
 	"io/ioutil"
 	"logic"
 	"os"
@@ -15,6 +16,7 @@ import (
 	. "http"
 
 	"github.com/labstack/echo"
+	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/times"
 )
 
@@ -76,5 +78,10 @@ func (ImageController) Transfer(ctx echo.Context) error {
 		return fail(ctx, 2, "文件上传失败！")
 	}
 
-	return success(ctx, map[string]interface{}{"uri": logic.QiniuDomain + path})
+	cdnDomain := global.App.CDNHttp
+	if goutils.MustBool(ctx.Request().Header().Get("X-Https")) {
+		cdnDomain = global.App.CDNHttps
+	}
+
+	return success(ctx, map[string]interface{}{"uri": cdnDomain + path})
 }

@@ -206,6 +206,9 @@
 	
 	<div style="display:none;">
 		<script type="text/javascript">
+		var isHttps = "{{.is_https}}",
+			cdnDomain = "{{.cdnDomain}}";
+
 		var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
 		document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F224c227cd9239761ec770bc8c1fb134c' type='text/javascript'%3E%3C/script%3E"));
 		</script>
@@ -218,8 +221,12 @@
 	<script src="/static/js/libs/jquery.timeago.zh-CN.js"></script>
 	<script src="/static/js/libs/md5.js"></script>
 	<script type="text/javascript">
-	var wsUrl = 'ws://{{.wshost}}/ws?uid={{.me.Uid}}',
-		GLaunchTime = {{timestamp .app.LaunchTime}}*1000;
+	if (isHttps) {
+		var wsUrl = 'ws://{{.wshost}}/ws?uid={{.me.Uid}}';
+	} else {
+		var wsUrl = 'wss://{{.wshost}}/ws?uid={{.me.Uid}}';
+	}
+	var GLaunchTime = {{timestamp .app.LaunchTime}}*1000;
 	</script>
 	<script src="/static/js/common.js?v=1.20"></script>
 	{{template "js" .}}

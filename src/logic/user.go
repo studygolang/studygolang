@@ -531,7 +531,7 @@ func (UserLogic) FindNewUsers(ctx context.Context, limit int, offset ...int) []*
 }
 
 // GetUserMentions 获取 @ 的 suggest 列表
-func (UserLogic) GetUserMentions(term string, limit int) []map[string]string {
+func (UserLogic) GetUserMentions(term string, limit int, isHttps bool) []map[string]string {
 	userActives := make([]*model.UserActive, 0)
 	err := MasterDB.Where("username like ?", "%"+term+"%").Desc("mtime").Limit(limit).Find(&userActives)
 	if err != nil {
@@ -543,7 +543,7 @@ func (UserLogic) GetUserMentions(term string, limit int) []map[string]string {
 	for i, userActive := range userActives {
 		user := make(map[string]string, 2)
 		user["username"] = userActive.Username
-		user["avatar"] = util.Gravatar(userActive.Avatar, userActive.Email, 20)
+		user["avatar"] = util.Gravatar(userActive.Avatar, userActive.Email, 20, isHttps)
 		users[i] = user
 	}
 

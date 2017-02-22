@@ -32,6 +32,11 @@ import (
 	"github.com/polaris1119/config"
 )
 
+const (
+	DefaultCDNHttp  = "http://studygolang.qiniudn.com/"
+	DefaultCDNHttps = "https://dn-studygolang.qbox.me/"
+)
+
 var Build string
 
 type app struct {
@@ -48,6 +53,10 @@ type app struct {
 
 	Host string
 	Port string
+
+	// CDN 资源域名
+	CDNHttp  string
+	CDNHttps string
 }
 
 var App = app{}
@@ -74,6 +83,9 @@ func init() {
 	App.Date = fileInfo.ModTime()
 
 	App.Env = config.ConfigFile.MustValue("global", "env")
+
+	App.CDNHttp = config.ConfigFile.MustValue("qiniu", "http_domain", DefaultCDNHttp)
+	App.CDNHttps = config.ConfigFile.MustValue("qiniu", "https_domain", DefaultCDNHttps)
 }
 
 func (this *app) SetUptime() {

@@ -29,7 +29,8 @@ func (self CommentController) RegisterRoute(g *echo.Group) {
 // AtUsers 评论或回复 @ 某人 suggest
 func (CommentController) AtUsers(ctx echo.Context) error {
 	term := ctx.QueryParam("term")
-	users := logic.DefaultUser.GetUserMentions(term, 10)
+	isHttps := goutils.MustBool(ctx.Request().Header().Get("X-Https"), false)
+	users := logic.DefaultUser.GetUserMentions(term, 10, isHttps)
 	return ctx.JSON(http.StatusOK, users)
 }
 

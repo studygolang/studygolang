@@ -67,7 +67,7 @@
 				</div>
 			</div>
 			<!-- 评论 -->
-			<div class="page-comment" data-objid="{{.topic.tid}}" data-objtype="0" {{if .me}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48}}"{{end}}>
+			<div class="page-comment" data-objid="{{.topic.tid}}" data-objtype="0" {{if .me}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
 				<div class="words hide">
 					<h3><span class="cmtnum">{{.topic.reply}}</span>条回复</h3>
 					<ul class="list-unstyled">
@@ -93,7 +93,7 @@
 			</div>
 			<div class="sb-content">
 				<a href="/user/{{.topic.user.Username}}" class="pull-left avatar" title="{{.topic.user.Username}}">
-					<img src="{{gravatar .topic.user.Avatar .topic.user.Email 48}}" alt="{{if .topic.user.Name}}{{.topic.user.Name}}{{else}}{{.topic.user.Username}}{{end}}" width="48px" height="48px">
+					<img src="{{gravatar .topic.user.Avatar .topic.user.Email 48 .is_https}}" alt="{{if .topic.user.Name}}{{.topic.user.Name}}{{else}}{{.topic.user.Username}}{{end}}" width="48px" height="48px">
 				</a>
 				<h4>
 					<a href="/user/{{.topic.user.Username}}" title="{{if .topic.user.Name}}{{.topic.user.Name}}{{else}}{{.topic.user.Username}}{{end}}">{{if .topic.user.Name}}{{.topic.user.Name}}({{.topic.user.Username}}){{else}}{{.topic.user.Username}}{{end}}</a>

@@ -30,13 +30,13 @@
         
         <div class="right">
           <div class="userinfo">
-            <img src="{{gravatar .me.Avatar .me.Email 23}}" alt="" />
+            <img src="{{gravatar .me.Avatar .me.Email 23 .is_https}}" alt="" />
               <span>{{.me.Username}}</span>
           </div><!--userinfo-->
           
           <div class="userinfodrop">
             <div class="avatar">
-              <a href=""><img src="{{gravatar .me.Avatar .me.Email 95}}" alt="" /></a>
+              <a href=""><img src="{{gravatar .me.Avatar .me.Email 95 .is_https}}" alt="" /></a>
               <div class="changetheme">
                 更改皮肤: <br />
                 <a class="default"></a>
