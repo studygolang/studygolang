@@ -212,7 +212,15 @@ func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interf
 		data["wshost"] = global.App.Host + ":" + global.App.Port
 	}
 	global.App.SetUptime()
+
+	isHttps := goutils.MustBool(ctx.Request().Header().Get("X-Https"))
+	cdnDomain := global.App.CDNHttp
+	if isHttps {
+		cdnDomain = global.App.CDNHttps
+	}
 	data["app"] = global.App
+	data["is_https"] = goutils.MustBool(ctx.Request().Header().Get("X-Https"))
+	data["cdn_domain"] = cdnDomain
 
 	data["online_users"] = map[string]int{"online": logic.Book.Len(), "maxonline": logic.MaxOnlineNum()}
 

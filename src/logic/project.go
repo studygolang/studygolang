@@ -34,11 +34,6 @@ func (self ProjectLogic) Publish(ctx context.Context, user *model.Me, form url.V
 	id := form.Get("id")
 	isModify := id != ""
 
-	if !isModify && self.UriExists(ctx, form.Get("uri")) {
-		err = errors.New("uri存在")
-		return
-	}
-
 	project := &model.OpenProject{}
 
 	if isModify {
@@ -66,8 +61,15 @@ func (self ProjectLogic) Publish(ctx context.Context, user *model.Me, form url.V
 
 		project.Username = user.Username
 	}
-
+	if project.Uri == "" {
+		project.Uri = strings.Replace(project.Name, " ", "-", -1)
+	}
 	project.Uri = strings.ToLower(project.Uri)
+
+	if !isModify && self.UriExists(ctx, form.Get("uri")) {
+		err = errors.New("项目已存在")
+		return
+	}
 
 	github := "github.com"
 	pos := strings.Index(project.Src, github)
@@ -234,24 +236,24 @@ func (self ProjectLogic) ParseProjectList(pUrl string) error {
 	}
 
 	// 最后面的先入库处理
-	projectsSelection := doc.Find(".news-list .box")
+	projectsSelection := doc.Find(".news-list").Children()
 
 	for i := projectsSelection.Length() - 1; i >= 0; i-- {
 
 		contentSelection := goquery.NewDocumentFromNode(projectsSelection.Get(i)).Selection
-		projectUrl, ok := contentSelection.Find(".box-aw a").Attr("href")
+		projectUrl, ok := contentSelection.Find(".box-aw a").First().Attr("href")
 
 		if !ok || projectUrl == "" {
 			logger.Errorln("project url is empty")
 			continue
 		}
-		go func() {
+		go func(projectUrl string) {
 			err := self.ParseOneProject(projectUrl)
 
 			if err != nil {
 				logger.Errorln(err)
 			}
-		}()
+		}(projectUrl)
 	}
 
 	return err

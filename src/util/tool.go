@@ -8,25 +8,30 @@ package util
 
 import (
 	"fmt"
+	"global"
 	"regexp"
 	"strings"
 
 	"github.com/polaris1119/goutils"
 )
 
-const qiniuDomain = "http://studygolang.qiniudn.com"
-
 // 获取头像
-func Gravatar(avatar string, emailI interface{}, size uint16) string {
+func Gravatar(avatar string, emailI interface{}, size uint16, isHttps bool) string {
+	cdnDomain := global.App.CDNHttp
+	gravatarDomain := "http://gravatar.com"
+	if isHttps {
+		cdnDomain = global.App.CDNHttps
+		gravatarDomain = "https://secure.gravatar.com"
+	}
 	if avatar != "" {
-		return fmt.Sprintf("%s/avatar/%s?imageView2/2/w/%d", qiniuDomain, avatar, size)
+		return fmt.Sprintf("%savatar/%s?imageView2/2/w/%d", cdnDomain, avatar, size)
 	}
 
 	email, ok := emailI.(string)
 	if !ok {
-		return fmt.Sprintf("%s/avatar/gopher28.png?imageView2/2/w/%d", qiniuDomain, size)
+		return fmt.Sprintf("%savatar/gopher28.png?imageView2/2/w/%d", cdnDomain, size)
 	}
-	return fmt.Sprintf("http://gravatar.duoshuo.com/avatar/%s?s=%d", goutils.Md5(email), size)
+	return fmt.Sprintf("%s/avatar/%s?s=%d", gravatarDomain, goutils.Md5(email), size)
 }
 
 // 内嵌 Wide iframe 版
