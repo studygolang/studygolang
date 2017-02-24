@@ -10,6 +10,7 @@ import (
 	"global"
 	"http/controller"
 	"http/controller/admin"
+	"http/controller/app"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -62,6 +63,10 @@ func main() {
 	frontG.GET("/admin", echo.HandlerFunc(admin.AdminIndex), pwm.NeedLogin(), pwm.AdminAuth())
 	adminG := e.Group("/admin", pwm.NeedLogin(), pwm.AdminAuth())
 	admin.RegisterRoutes(adminG)
+
+	// appG := e.Group("/app", thirdmw.EchoCache())
+	appG := e.Group("/app")
+	app.RegisterRoutes(appG)
 
 	std := standard.New(getAddr())
 	std.SetHandler(e)

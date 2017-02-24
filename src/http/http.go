@@ -233,3 +233,50 @@ func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interf
 
 	return ctx.HTML(http.StatusOK, buf.String())
 }
+
+///////////////////////////////// APP 相关 //////////////////////////////
+
+const (
+	TokenSalt       = "b3%JFOykZx_golang_polaris"
+	NeedReLoginCode = 600
+)
+
+func ParseToken(token string) (int, bool) {
+	if len(token) < 32 {
+		return 0, false
+	}
+
+	pos := strings.LastIndex(token, "uid")
+	if pos == -1 {
+		return 0, false
+	}
+	return goutils.MustInt(token[pos+3:]), true
+}
+
+func ValidateToken(token string) bool {
+	_, ok := ParseToken(token)
+	if !ok {
+		return false
+	}
+
+	expireTime := time.Unix(goutils.MustInt64(token[:10]), 0)
+	if time.Now().Before(expireTime) {
+		return true
+	}
+	return false
+}
+
+func GenToken(uid int) string {
+	expireTime := time.Now().Add(30 * 24 * time.Hour).Unix()
+
+	buffer := goutils.NewBuffer().Append(expireTime).Append(uid).Append(TokenSalt)
+
+	md5 := goutils.Md5(buffer.String())
+
+	buffer = goutils.NewBuffer().Append(expireTime).Append(md5).Append("uid").Append(uid)
+	return buffer.String()
+}
+
+func AccessControl(ctx echo.Context) {
+	ctx.Response().Header().Add("Access-Control-Allow-Origin", "*")
+}
