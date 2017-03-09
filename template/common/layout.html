@@ -222,9 +222,9 @@
 	<script src="/static/js/libs/md5.js"></script>
 	<script type="text/javascript">
 	if (isHttps) {
-		var wsUrl = 'ws://{{.wshost}}/ws?uid={{.me.Uid}}';
-	} else {
 		var wsUrl = 'wss://{{.wshost}}/ws?uid={{.me.Uid}}';
+	} else {
+		var wsUrl = 'ws://{{.wshost}}/ws?uid={{.me.Uid}}';
 	}
 	var GLaunchTime = {{timestamp .app.LaunchTime}}*1000;
 	</script>
