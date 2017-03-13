@@ -7,9 +7,11 @@
 package controller
 
 import (
+	"encoding/json"
 	"global"
 	"io/ioutil"
 	"logic"
+	"net/http"
 	"os"
 	"path/filepath"
 
@@ -25,7 +27,71 @@ type ImageController struct{}
 
 func (self ImageController) RegisterRoute(g *echo.Group) {
 	g.POST("/image/upload", self.Upload)
+	g.POST("/image/quick_upload", self.QuickUpload)
 	g.Match([]string{"GET", "POST"}, "/image/transfer", self.Transfer)
+}
+
+// QuickUpload CKEditor 编辑器，上传图片，支持粘贴方式上传
+func (self ImageController) QuickUpload(ctx echo.Context) error {
+	objLogger := getLogger(ctx)
+
+	file, fileHeader, err := Request(ctx).FormFile("upload")
+	if err != nil {
+		objLogger.Errorln("upload error:", err)
+		return self.quickUploadFail(ctx, err.Error())
+	}
+	defer file.Close()
+
+	// 如果是临时文件，存在硬盘中，则是 *os.File（大于32M），直接报错
+	if _, ok := file.(*os.File); ok {
+		objLogger.Errorln("upload error:file too large!")
+		return self.quickUploadFail(ctx, "文件太大！")
+	}
+
+	buf, err := ioutil.ReadAll(file)
+	if err != nil {
+		return self.quickUploadFail(ctx, "文件读取失败！")
+	}
+	if len(buf) > logic.MaxImageSize {
+		return self.quickUploadFail(ctx, "文件太大！")
+	}
+
+	fileName := goutils.Md5Buf(buf) + filepath.Ext(fileHeader.Filename)
+	imgDir := times.Format("ymd")
+	path, err := logic.DefaultUploader.UploadImage(ctx, file, imgDir, buf, filepath.Ext(fileHeader.Filename))
+	if err != nil {
+		return self.quickUploadFail(ctx, "文件上传失败！")
+	}
+
+	cdnDomain := global.App.CDNHttp
+	if goutils.MustBool(ctx.Request().Header().Get("X-Https")) {
+		cdnDomain = global.App.CDNHttps
+	}
+
+	data := map[string]interface{}{
+		"uploaded": 1,
+		"fileName": fileName,
+		"url":      cdnDomain + path,
+	}
+	b, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	return ctx.JSONBlob(http.StatusOK, b)
+}
+
+func (ImageController) quickUploadFail(ctx echo.Context, message string) error {
+	data := map[string]interface{}{
+		"uploaded": 0,
+		"error": map[string]string{
+			"message": message,
+		},
+	}
+	b, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	return ctx.JSONBlob(http.StatusOK, b)
 }
 
 // Upload 上传图片

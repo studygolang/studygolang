@@ -13,14 +13,25 @@
 		</ol>
 		<div class="page box_white">
 			<div class="title text-center">
-				<h1>{{.article.Title}}</h1>
+				<h1 id="title" data-id="{{.article.Id}}">
+					{{.article.Title}}
+					{{if .me}}
+						{{if or (eq .me.Username .article.Author) .me.IsRoot}}
+						<button id="edit" type="button" class="btn btn-primary btn-xs">编辑</button>
+						{{end}}
+					{{end}}
+				</h1>
 			</div>
 			<div class="meta">
 				<div class="p-author">
 					<i class="glyphicon glyphicon-calendar"></i>
 					<span title="发布日期">{{.article.PubDate}}</span>&nbsp;
 					<i class="glyphicon glyphicon-user"></i>
+					{{if .article.IsSelf}}
+					<a href="/user/{{.article.Author}}">{{.article.Author}}</a>
+					{{else}}
 					{{noescape .article.Author}}
+					{{end}}
 				</div>
 				<!-- p-author END -->
 				
@@ -50,16 +61,18 @@
 				</ul>
 				{{end}}
 			</div>
-			<!-- tags -->
-			<div class="content article-entry">
+			<!-- tags END -->
+			<div id="myeditor" class="content article-entry">
 				{{noescape .article.Content}}
 			</div>
 			<!-- content END -->
+			{{if not .article.IsSelf}}
 			<div class="row orig-info">
 				<p>本文来自：<a href="/wr?u=http://{{.article.Domain}}" target="_blank" title="{{.article.Name}}">{{.article.Name}}</a></p>
 				<p>感谢作者：{{noescape .article.Author}}</p>
 				<p>查看原文：<a href="/wr?u={{.article.Url}}" target="_blank" title="{{.article.Title}}">{{.article.Title}}</a></p>
 			</div>
+			{{end}}
 			<div class="active row">
 				<div class="mark-like-btn col-md-8">
 					<a class="share-btn like-btn {{if .likeflag}}hadlike{{end}}" href="javascript:;" title="{{if .likeflag}}取消喜欢{{else}}我喜欢{{end}}" data-objid="{{.article.Id}}" data-objtype="1" data-flag="{{.likeflag}}">
@@ -99,6 +112,12 @@
 		</div>
 	</div>
 	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			<div class="sb-content text-center" style="margin-top: 15px;">
+				<a href="/articles/new" class="btn btn-default">撰写文章</a>
+			</div>
+		</div>
+		
 		<div class="row box_white sidebar">
 			<div class="top">
 				<ul class="list-inline text-center">
@@ -148,6 +167,11 @@
 	</div>
 	
 </div>
+
+<template id="content_tpl">
+{{noescape .article.Content}}
+</template>
+
 {{end}}
 {{define "css"}}
 <link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
@@ -156,9 +180,13 @@
 {{if .article.Css}}
 <link href="{{.article.Css}}" media="screen" rel="stylesheet" type="text/css">
 {{end}}
+{{if .article.IsSelf}}
+<link href="/static/css/prism.css" media="screen" rel="stylesheet" type="text/css">
+{{end}}
 <link href="/static/css/jquery.atwho.min.css" media="screen" rel="stylesheet" type="text/css">
 {{end}}
 {{define "js"}}
+<script type="text/javascript" src="//cdn.ckeditor.com/4.6.2/standard-all/ckeditor.js"></script>
 <script	type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
@@ -171,6 +199,12 @@
 <script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
 <script type="text/javascript" src="/static/js/comment.js?v=1.1"></script>
 <script type="text/javascript" src="/static/js/puploader.js?v=1.0"></script>
+{{if .article.IsSelf}}
+<script type="text/javascript">
+$('code[class*="language-"]').parent('pre').addClass('line-numbers');
+</script>
+<script type="text/javascript" src="/static/js/prism.js"></script>
+{{end}}
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
@@ -194,6 +228,85 @@ $(function(){
 		$(this).attr('target', '_blank');
 	});
 });
+</script>
+<script type="text/javascript" src="/static/ckeditor/config.js"></script>
+<script type="text/javascript">
+$(function(){
+	CKEDITOR.plugins.addExternal('prism', '/static/ckeditor/plugins/prism/', 'plugin.js');
+	$('#edit').on('click', function(){
+		var txt = $(this).text();
+		if (txt == '编辑') {
+			$('#myeditor').attr('contenteditable', true);
+			$('#myeditor').html($('#content_tpl').html());
+			if (!CKEDITOR.instances.myeditor) {
+				MyEditorConfig.extraPlugins = MyEditorExtraPlugins+',prism,sourcedialog';
+				MyEditorConfig.toolbarGroups = [
+					{ name: 'undo' },
+					{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+					{ name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align' ] },
+					{ name: 'links' },
+					{ name: 'insert' },
+					{ name: 'styles' },
+					{ name: 'document', groups: [ 'mode', 'document' ] }
+				];
+				MyEditorConfig.removeButtons = 'Anchor,SpecialChar,HorizontalRule,Table,Styles,Subscript,Superscript';
+				CKEDITOR.inline( 'myeditor', MyEditorConfig );
+			}
+
+			$(this).text('完成');
+		} else {
+			if (CKEDITOR.instances.myeditor) {
+				var content = CKEDITOR.instances.myeditor.getData();
+				modify(content);
+
+				CKEDITOR.instances.myeditor.destroy();
+
+				Prism.highlightAll();
+			}
+
+			$('#myeditor').attr('contenteditable', false);
+			$(this).text('编辑');
+		}
+	});
+
+	CKEDITOR.on('instanceReady', function(evt, editor) {
+		$('#myeditor').find('.cke_widget_element').each(function(){
+			$(this).addClass('line-numbers').css('background-color', '#000');
+		});
+	});
+
+	function modify(content)
+	{
+		var url = '/articles/modify',
+			data = { id: $('#title').data('id'), content:content };
+
+		$.ajax({
+			type: "post",
+			url: url,
+			data: data,
+			dataType: 'json',
+			success: function(data){
+				if(data.ok){
+					if (typeof data.msg != "undefined") {
+						comTip(data.msg);
+					} else {
+						comTip("修改成功！");
+					}
+				}else{
+					comTip(data.error);
+				}
+			},
+			complete:function(xmlReq, textStatus){
+			},
+			error:function(xmlReq, textStatus, errorThrown){
+				if (xmlReq.status == 403) {
+					comTip("没有修改权限");
+				}
+			}
+		});
+	}
+});
+
 </script>
 <script>
 var baiduImagePlus = {

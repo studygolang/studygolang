@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/polaris1119/config"
 	"github.com/polaris1119/logger"
 	"github.com/polaris1119/times"
 	"golang.org/x/net/context"
@@ -210,6 +211,46 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 	}
 
 	return article, nil
+}
+
+func (self ArticleLogic) Publish(ctx context.Context, me *model.Me, form url.Values) error {
+	objLog := GetLogger(ctx)
+
+	article := &model.Article{
+		Domain:    config.ConfigFile.MustValue("global", "domain", "studygolang.com"),
+		Name:      config.ConfigFile.MustValue("global", "website_name", "Go语言中文网"),
+		Author:    me.Username,
+		AuthorTxt: me.Username,
+		Title:     form.Get("title"),
+		Content:   form.Get("content"),
+		Txt:       form.Get("txt"),
+		PubDate:   times.Format("Y-m-d H:i:s"),
+	}
+
+	requestIdInter := ctx.Value("request_id")
+	if requestIdInter != nil {
+		if requestId, ok := requestIdInter.(string); ok {
+			article.Url = requestId
+		}
+	}
+	if article.Url == "" {
+		objLog.Errorln("request_id is empty!")
+		// 理论上不会执行
+		return errors.New("request_id is empty!")
+	}
+
+	_, err := MasterDB.Insert(article)
+	if err != nil {
+		objLog.Errorln("insert article error:", err)
+		return err
+	}
+
+	change := map[string]interface{}{
+		"url": article.Id,
+	}
+	MasterDB.Table(new(model.Article)).Id(article.Id).Update(change)
+
+	return nil
 }
 
 func (ArticleLogic) cleanUrl(articleUrl string, auto bool) string {
@@ -422,7 +463,10 @@ func (ArticleLogic) Modify(ctx context.Context, user *model.Me, form url.Values)
 	change := make(map[string]string)
 
 	for _, field := range fields {
-		change[field] = form.Get(field)
+		val := form.Get(field)
+		if val != "" {
+			change[field] = form.Get(field)
+		}
 	}
 
 	id := form.Get("id")

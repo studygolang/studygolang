@@ -8,7 +8,9 @@ package model
 
 import (
 	"encoding/json"
+	"strconv"
 
+	"github.com/go-xorm/xorm"
 	"github.com/polaris1119/logger"
 )
 
@@ -45,6 +47,14 @@ type Article struct {
 	OpUser    string    `json:"op_user"`
 	Ctime     OftenTime `json:"ctime" xorm:"created"`
 	Mtime     OftenTime `json:"mtime" xorm:"<-"`
+
+	IsSelf bool `json:"is_self" xorm:"-"`
+}
+
+func (this *Article) AfterSet(name string, cell xorm.Cell) {
+	if name == "id" {
+		this.IsSelf = strconv.Itoa(this.Id) == this.Url
+	}
 }
 
 func (*Article) TableName() string {

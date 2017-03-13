@@ -1,0 +1,79 @@
+{{define "title"}}发布文章 {{end}}
+{{define "seo"}}<meta name="keywords" content="发布文章,Golang,Go社区,Golang中文社区,Go语言学习,Go语言,学习Go语言,Golang 中国,Golang中国,Golang China, Go语言论坛, Go中文社区, Go语言社区, Go语言中文网, Go语言学习园地">
+<meta name="description" content="Go语言中文网，Go中文社区，Golang中国，Go语言学习园地，提供一个Go爱好者交流的中文平台">{{end}}
+{{define "content"}}
+<div class="row">
+    <div class="col-lg-9 col-md-8 col-sm-7">
+        <ol class="breadcrumb">
+            <li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+            <li><a href="/topics">文章</a></li>
+            <li class="active">写文章</li>
+        </ol>
+        <div class="page box_white">
+            <form class="form-horizontal validate-form" role="form" action="/articles/new" data-redirect="/articles?r={{timestamp}}">
+                <textarea id="txt" name="txt" style="display: none;"></textarea>
+                <div class="form-group form-group-sm">
+                    <label class="col-sm-2 control-label" for="title"><abbr>*</abbr>标题</label>
+                    <div class="col-sm-9">
+                        <input class="form-control required" type="text" id="title" name="title" placeholder="标题" value="">
+                    </div>
+                </div>
+                <textarea id="myeditor" name="content" cols="102" rows="22" style="margin-left: 5px;"></textarea>
+                <div class="form-group form-group-sm">
+                    <label class="col-sm-5 control-label">&nbsp;</label>
+                    <div class="col-sm-6">
+                        <button type="submit" class="btn btn-default btn-sm" id="submit">发布文章</button> (Ctrl+Enter)
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-4 col-sm-5">
+        <div class="row box_white sidebar sb-author">
+            <div class="top">
+                <h3 class="title"><i class="glyphicon glyphicon-list-alt"></i>&nbsp;发布文章说明</h3>
+            </div>
+            <div class="sb-content">
+                <span class="help-block">
+                    <ul>
+                        <li>富文本编辑器使用的是 <a href="http://ckeditor.com" target="_blank">ckeditor</a></li>
+                        <li>代码请通过工具栏代码按钮撰写，支持高亮</li>
+                        <li>支持截图后直接粘贴上传图片</li>
+                    </ul>
+                </span>
+            </div>
+        </div>
+
+    </div>
+</div>
+{{end}}
+{{define "css"}}
+<style type="text/css">
+#cke_myeditor { margin: 0 auto 8px; }
+</style>
+{{end}}
+{{define "js"}}
+<script type="text/javascript" src="//cdn.ckeditor.com/4.6.2/standard-all/ckeditor.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script type="text/javascript" src="/static/ckeditor/config.js"></script>
+<script>
+CKEDITOR.plugins.addExternal('autosave', '/static/ckeditor/plugins/autosave/', 'plugin.js');
+CKEDITOR.plugins.addExternal('prism', '/static/ckeditor/plugins/prism/', 'plugin.js');
+
+MyEditorConfig.extraPlugins = MyEditorExtraPlugins+',preview,prism,autosave';
+MyEditorConfig.toolbar = [
+    { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'RemoveFormat' ] },
+    { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight' ] },
+    { name: 'clipboard', items: [ 'Undo', 'Redo' ] },
+    { name: 'links', items: [ 'Link', 'Unlink' ] },
+    { name: 'insert', items: [ 'CodeSnippet', 'Image' ] },
+    { name: 'styles', items: [ 'Format' ] },
+    { name: 'document', items: [ 'Source', 'Preview' ] },
+    { name: 'tools', items: [ 'Maximize' ] }
+];
+CKEDITOR.replace( 'myeditor', MyEditorConfig );
+</script>
+<script type="text/javascript" src="/static/js/articles.js"></script>
+{{end}}

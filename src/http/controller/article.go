@@ -7,11 +7,13 @@
 package controller
 
 import (
+	"http/middleware"
 	"logic"
 	"net/http"
 	"strings"
 
 	"github.com/labstack/echo"
+	"github.com/polaris1119/echoutils"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 
@@ -29,11 +31,14 @@ func init() {
 type ArticleController struct{}
 
 // 注册路由
-func (this *ArticleController) RegisterRoute(g *echo.Group) {
-	g.Get("/articles", this.ReadList)
-	g.Get("/articles/crawl", this.Crawl)
+func (self ArticleController) RegisterRoute(g *echo.Group) {
+	g.Get("/articles", self.ReadList)
+	g.Get("/articles/crawl", self.Crawl)
 
-	g.Get("/articles/:id", this.Detail)
+	g.Get("/articles/:id", self.Detail)
+
+	g.Match([]string{"GET", "POST"}, "/articles/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.PublishNotice())
+	g.Post("/articles/modify", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
 }
 
 // ReadList 网友文章列表页
@@ -129,6 +134,49 @@ func (ArticleController) Detail(ctx echo.Context) error {
 	article.Viewnum++
 
 	return render(ctx, "articles/detail.html,common/comment.html", map[string]interface{}{"activeArticles": "active", "article": article, "prev": prevNext[0], "next": prevNext[1], "likeflag": likeFlag, "hadcollect": hadCollect})
+}
+
+// Create 发布新文章
+func (ArticleController) Create(ctx echo.Context) error {
+	title := ctx.FormValue("title")
+	if title == "" || ctx.Request().Method() != "POST" {
+		return render(ctx, "articles/new.html", map[string]interface{}{"activeArticles": "active"})
+	}
+
+	if ctx.FormValue("content") == "" || ctx.FormValue("txt") == "" {
+		return fail(ctx, 1, "内容不能为空")
+	}
+
+	me := ctx.Get("user").(*model.Me)
+	err := logic.DefaultArticle.Publish(echoutils.WrapEchoContext(ctx), me, ctx.FormParams())
+	if err != nil {
+		return fail(ctx, 2, "内部服务错误")
+	}
+
+	return success(ctx, nil)
+}
+
+// Modify 修改文章
+func (ArticleController) Modify(ctx echo.Context) error {
+	if ctx.FormValue("id") == "" || ctx.FormValue("content") == "" {
+		return fail(ctx, 1, "内容不能为空")
+	}
+	article, err := logic.DefaultArticle.FindById(ctx, ctx.FormValue("id"))
+	if err != nil {
+		return fail(ctx, 2, "文章不存在")
+	}
+
+	me := ctx.Get("user").(*model.Me)
+	if article.Author != me.Username && !me.IsRoot {
+		return fail(ctx, 3, "没有修改权限")
+	}
+
+	errMsg, err := logic.DefaultArticle.Modify(echoutils.WrapEchoContext(ctx), me, ctx.FormParams())
+	if err != nil {
+		return fail(ctx, 4, errMsg)
+	}
+
+	return success(ctx, nil)
 }
 
 func (ArticleController) Crawl(ctx echo.Context) error {

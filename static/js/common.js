@@ -1,6 +1,8 @@
 // studygolang 全局对象（空间）
 var SG = {};
 
+SG.EMOJI_DOMAIN = 'https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic';
+
 function goTop()
 {
 	$(window).scroll(function(e) {
@@ -160,12 +162,8 @@ SG.registerAtEvent = function(isAt, isEmoji, selector) {
 		selector.atwho({
 			at: ":",
 			data: window.emojis,
-			tpl:"<li data-value='${key}'><img src='http://hassankhan.me/emojify.js/images/emoji/${name}.png' height='20' width='20' /> ${name}</li>"
-		})/*.atwho({
-			at: "\\",
-			data: window.twemojis,
-			tpl:"<li data-value='${name}'><img src='https://twemoji.maxcdn.com/16x16/${key}.png' height='16' width='16' /> ${name}</li>"
-		})*/;
+			tpl:"<li data-value='${key}'><img src='${SG.EMOJI_DOMAIN}/${name}.png' height='20' width='20' /> ${name}</li>"
+		});
 	}
 }
 

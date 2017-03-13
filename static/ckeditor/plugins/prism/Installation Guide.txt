@@ -1,0 +1,263 @@
+I. OVERVIEW
+
+This Prism Highlighter plugin requires CKEditor 4.4 or later versions, and it extends
+the Code Snippet widget/plugin. It requires CKEditor 4.4 since the Code Snippet's mechanism
+for extending/overriding the highlighting engine is only available starting from that version.
+Hence, the Code Snippet plugin is also a hard dependency
+(which also depends on Widget and Line Utilities).
+
+In essence, we need to download these plugins:
+a. Widget (http://ckeditor.com/addon/widget)
+b. Line Utilities (http://ckeditor.com/addon/lineutils)
+c. Code Snippet (http://ckeditor.com/addon/codesnippet),
+d. Prism Highlighter plugin (http://ckeditor.com/addon/prism).
+
+For Linux users, after downloading, make sure that the zipped folders or the target CKEditor folders
+have right read/write/execute permissions, otherwise you might encounter loading issues
+like the "File x could not be found" notice. You might need to run "sudo chmod 777 -R lineutils",
+"sudo chmod 777 -R widget", "sudo chmod 777 -R codesnippet", and "sudo chmod 777 -R prism",
+before or after copying them in the appropriate CKEditor folders.
+
+After the installation (Part 2 for Non-Drupal, Part 3 for Drupal), read the important notes in part 4 also to avoid surprises.
+
+
+II. STANDARD INSTALLATION (Usual Setup)
+
+1) After unzipping the folder, paste the 4 folders
+    ("lineutils", "widget", "codesnippet", and "prism")
+    to "ckeditor/plugins" folder. After that, you should have the following folder structures:
+        "ckeditor/plugins/lineutils"
+        "ckeditor/plugins/widget"
+        "ckeditor/plugins/codesnippet"
+        "ckeditor/plugins/prism"
+
+2) Edit the "ckeditor/config.js" file, and add the following:
+    if there's no existing line yet:
+        config.extraPlugins = "lineutils,widget,codesnippet,prism";
+
+    otherwise, append it to the existing list, no extra spaces are allowed:
+        config.extraPlugins =
+            "existing_plugin,another_existing_plugin,lineutils,widget,codesnippet,prism";
+
+3.) Just to make sure, clear the web browser's cache after modifying your configuration.
+    Clearing the browser's cache is also very important
+    since the CKEditor's JS and CSS assets/components are cached also in the browser.
+
+
+III. DRUPAL INSTALLATION
+
+In Drupal, the typical/recommended way to embed the CKEditor WSYIWYG is
+through the CKEditor module (https://drupal.org/project/ckeditor),
+and then building/loading the corresponding CKEditor JS library (http://ckeditor.com/).
+
+Drupal's CKEditor module is typically installed to have this internal path:
+    sites/all/modules/ckeditor or sites/all/modules/contrib/ckeditor.
+
+Moreover, the CKEditor JS Library is typically installed to have this internal path:
+    "sites/all/modules/ckeditor/ckeditor/ckeditor.js" or
+    "sites/all/modules/contrib/ckeditor/ckeditor/ckeditor.js" or
+    "sites/all/libraries/ckeditor/ckeditor.js."
+
+With Drupal's latest CKEditor (https://www.drupal.org/project/ckeditor, 7.x-1.16),
+the Widget and Lineutils plugins are already bundled and enabled by default which is indicated
+as the "Full" CKEditor.js build if you check in the the CKEditor Global Profile admin page
+    "admin/config/content/ckeditor/editg"
+        Path to CKEditor: //cdn.ckeditor.com/4.4.3/full-all
+
+the path is pointing to the CDN copy/build of CKEditor 4.4.3 with Full Plugins,
+so the Widget and Lineutils plugins should not be downloaded anymore,
+including the Code Snippet (but Code Snippet must still be activated in
+the Drupal's CKEditor Configuration page since it's not activated by default);
+actually, conflicts and console error like this will show if you try to still download
+and integrate them into the setup:
+    Uncaught TypeError: CKEDITOR.tools.getIndex is not a function
+
+Hence, it is highly recommended that you use the latest Drupal CKEditor module
+since it would be the easiest to setup, especially in the context of Prism Highlighter plugin.
+
+Summary of Drupal's CKEditor 7.x-1.16 version:
+a. Widget and Line Utilities are already bundled and activated by default.
+b. Code Snippet is bundled but not activated
+c. Prism Highlighter must be downloaded and activated.
+
+The instructions below are guides on how to do (b) and (c) above.
+
+These are the possible plugin setups, the idea is to copy the plugin folder, enable it,
+and make it visible in the toolbar:
+
+A. DRUPAL INSTALLATION OPTION 1 (Easier Setup Than Option 2)
+
+    1.) Download and unzip the plugin here (depending on your setup):
+            "sites/all/modules/ckeditor/plugins" or
+            "sites/all/modules/contrib/ckeditor/plugins".
+
+        After that, you should have this folder structure:
+            "ckeditor/plugins/prism"
+
+    2.) We should now activate the new plugin and add them to the toolbar.
+        This is done by configuring the CKEditor Profile Settings,
+        in which by default is located in:
+            "admin/config/content/ckeditor/edit/Advanced"
+
+        A. Activate the Code Snippet and Prism Highlighter Plugins
+            In EDITOR APPEARANCE >>> Plugins section:
+            Enable the corresponding checkboxes for the Code Snippet and Prism Highlighter.
+            This is the text displayed adjacent to their checkboxes:
+                "Plugin for inserting Code Snippets ..."
+                "Plugin file: prism"
+
+        B. Add the Code Snippet plugin to the Toolbar
+            Prism Highlighter just overrides the highlighting engine (back-end)
+            of Code Snippet so it doesn't need another toolbar button/icon and
+            it could just utilize the existing one used by Code Snippet. In other words,
+            Prism Highlighter is just the Code Snippet plugin but with some overrides
+            under the hood.
+
+            Ultimately, we should then make the activated Code Snippet plugin visible in the toolbar,
+            skipping this step will make the Code Snippet plugin (and consequently Prism Highligher)
+            inaccessible in the toolbar.
+
+            In EDITOR APPEARANCE >>> Toolbar section:
+            Drag the Code Snippet icon (black-colored) from the 'All Buttons' section
+            to the 'Used Buttons' section.
+
+    3.) Then, click the Save button. Clear the Drupal's overall cache AND
+        clear the browser's cache. Clearing the browser's cache is also
+        very important since the CKEditor's JS and CSS assets/components
+        are cached also in the browser.
+
+    As indicated above, using the "sites/all/modules/ckeditor/plugins" or
+        "sites/all/modules/contrib/ckeditor/plugins"
+    will work with no additional custom hooks programming since by default
+    CKEditor utilize that folder in the CKEditor Global Profile Settings:
+        "admin/config/content/ckeditor/editg".
+
+    If you go that Global Profile Settings page, this will be indicated
+    (unless you override the default configuration):
+        Path to the CKEditor plugins directory: "%m/plugins"
+
+        In which "%m" refers to the base URL path where the CKEditor module is stored,
+        and defaults to "sites/all/modules/ckeditor" or "sites/all/modules/contrib/ckeditor".
+
+
+B. DRUPAL INSTALLATION OPTION 2
+
+    With the advent of Libraries API (https://drupal.org/project/libraries),
+    Drupal offers more flexibility in the handling of external/third-party libraries,
+    which means a clean mechanism that provides a separation of control between
+    the CKEditor module and CKEditor library, and implies that we could
+    safely upgrade the library and module independent to each other.
+    Having a Libraries folder (sites/all/libraries) is also a very common setup in Drupal.
+
+    This setup assumes that you've already installed and enabled the Libraries API module
+    and configured the CKEditor library (sites/all/libraries/ckeditor).
+    Make sure also that the "Path to CKEditor" settings indicated in
+    the CKEditor's Global Profile (admin/config/content/ckeditor/editg) is
+    indicated as "%l/ckeditor", in which "%l" refers to the "sites/all/libraries".
+
+    1.) Download and unzip the plugin here:
+            "sites/all/libraries/ckeditor/plugins"
+
+        After that, you should have this folder structure:
+            "ckeditor/plugins/prism"
+
+    2.) We should now activate the new plugin.
+        This is done by implementing first the hook_ckeditor_plugin() in a custom module:
+
+        function MYMODULE_ckeditor_plugin() {
+          return array(
+            'prism' => array(
+              'name' => 'prism',
+              'desc' => t('Prism Highlighter Plugin'),
+              'path' => libraries_get_path('ckeditor') . '/plugins/prism/',
+            ),
+          );
+        }
+
+        That hook will make it possible for the Prism Highlighter to show in
+        the Drupal's CKEditor Configuration page.
+
+    3.  We should now activate the new plugin and add them to the toolbar.
+        This is done by configuring the CKEditor Profile Settings,
+        in which by default is located in:
+            "admin/config/content/ckeditor/edit/Advanced"
+
+        A. Activate the Code Snippet and Prism Highlighter Plugins
+            In EDITOR APPEARANCE >>> Plugins section:
+            Enable the corresponding checkboxes for the Code Snippet and Prism Highlighter.
+            This is the text displayed adjacent to their checkboxes:
+                "Plugin for inserting Code Snippets ..."
+                "Prism Highlighter Plugin"
+
+        B. Add the Code Snippet plugin to the Toolbar
+            Prism Highlighter just overrides the highlighting engine (back-end)
+            of Code Snippet so it doesn't need another toolbar button/icon and
+            it could just utilize the existing one used by Code Snippet. In other words,
+            Prism Highlighter is just the Code Snippet plugin but with some overrides
+            under the hood.
+
+            Ultimately, we should then make the activated Code Snippet plugin visible in the toolbar,
+            skipping this step will make the Code Snippet plugin (and consequently Prism Highligher)
+            inaccessible in the toolbar.
+
+            In EDITOR APPEARANCE >>> Toolbar section:
+            Drag the Code Snippet icon (black-colored) from the 'All Buttons' section
+            to the 'Used Buttons' section.
+
+    4.) Then, click the Save button. Clear the Drupal's overall cache AND
+        clear the browser's cache. Clearing the browser's cache is also
+        very important since the CKEditor's JS and CSS assets/components
+        are cached also in the browser.
+
+
+IV. IMPORTANT NOTES
+
+    A. HTML (SECURITY) FILTERING ISSUES
+
+    Code Snippet/Prism Syntax Highlighter inserts <PRE><CODE>...</CODE></PRE> tags/blocks
+    in your webpages. The <PRE><CODE> is one of the main basis for the styling/syntax highlighting.
+    Yet, for some systems like Drupal, <PRE> tag is blacklisted by default
+    when filtering/rendering page contents (actually <pre><code> will become <p><code> when rendered).
+    In Drupal, <CODE> is allowed by default. Hence, you must allow/whitelist <PRE> tag in order for the syntax highlighter to work as intended. In Drupal, you should add the "<pre>"" tag
+    as one of the whitelisted tags in the
+        'Allowed HTML tags' section in 'Limit allowed HTML tags' filter/tab in
+            "admin/config/content/formats/filtered_html" page.
+
+    B. VIEWING THE PAGE
+
+    This syntax highlighter utilizes the Prism JS/CSS files in order to work as intended.
+
+    Typically, there are 2 view modes for every page in CMS: CKEditor Mode and Page Mode.
+    In CKEditor Mode (when editing the page), the Prism Highlighter handles the auto-loading
+    of Prism JS and CSS files. In Page Mode (when rendering/viewing the actual page),
+    Prism Highlighiter is not loaded anymore (since it depends on CKEditor.)
+
+    In effect, you have to load the Prism JS and CSS files when displaying the page.
+    You should add these link and script tags in your HTML <head>:
+        <head>
+            ...
+            <link href="PATH_TO/prism_patched.min.css" rel="stylesheet">
+
+            <script src="PATH_TO/prism_patched.min.js"></script>
+        </head>
+
+    For example, in my personal site I have these values:
+        <head>
+            ...
+            <link href=" http://ranelpadon.com/sites/all/libraries/ckeditor/plugins/prism/lib/prism/prism_patched.min.css" rel="stylesheet">
+
+            <script src=" http://ranelpadon.com/sites/all/libraries/ckeditor/plugins/prism/lib/prism/prism_patched.min.js"></script>
+        </head>
+
+    Note that even if you're not using Prism Syntax Highlighter, and just using
+    the Code Snippet plugin, you'll have to do the same steps:
+        http://docs.ckeditor.com/#!/guide/dev_codesnippet.
+
+    In Drupal, you could easily add the script using JS Injector module
+        https://www.drupal.org/project/js_injector
+
+    and for adding the stylesheet, you could use the CSS Injector module
+        https://www.drupal.org/project/css_injector
+
+    If you're a Drupal developer, you could do the JS/CSS insertions using the
+        drupal_add_js() and drupal_add_css() functions in a custom module.
