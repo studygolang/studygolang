@@ -1,0 +1,132 @@
+{{define "title"}}图书{{end}}
+{{define "seo"}}<meta name="keywords" content="Go语言图书, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地,Go语言中文网">
+<meta name="description" content="汇总了国内外Go语言相关的图书">{{end}}
+{{define "content"}}
+<div class="row banner">
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li class="active">图书</li>
+		</ol>
+		<div class="books box_white">
+			{{range .books}}
+			<div class="book row">
+				<div class="col-lg-2 col-md-2 col-sm-2 meta-num">
+					<div class="stats">
+						<div class="votes">
+							<strong>{{.Likenum}}</strong>推荐
+						</div>
+						<div class="answered">
+							<strong>{{.Cmtnum}}</strong>评论
+						</div>
+					</div>
+					<div class="views-orange">{{.Viewnum}} 阅读</div>
+				</div>
+				<div class="col-md-8 col-sm-8">
+					<h4><a href="/book/{{.Id}}" target="_blank" title="{{.Name}}">{{.Name}}</a></h4>
+					<div class="author-date">
+						[作] <a>{{.Author}}</a>&nbsp;&nbsp;&nbsp;
+						[译] <a>刘晓艳</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						{{.PubDate}}
+					</div>
+					<p class="desc">{{.Desc}} <a href="/book/{{.Id}}" target="_blank" title="{{.Name}}">[...]</a></p>
+				</div>
+				<div class="col-md-2 col-sm-2 cover pull-right">
+					<a href="/book/{{.Id}}" target="_blank" title="{{.Name}}">
+						<img class="lazy" src="{{.Cover}}" alt="{{.Name}}" style="display: inline;">
+					</a>
+				</div>
+			</div>
+			<hr class="dashed">
+			{{end}}
+		</div>
+		<ul class="pager">
+			{{if .page.has_prev}}
+			<li class="previous"><a href="/articles?lastid={{.page.prev_id}}">&larr; 上一页</a></li>
+			{{end}}
+			{{if .page.has_next}}
+			<li class="next"><a href="/articles?lastid={{.page.next_id}}">下一页 &rarr;</a></li>
+			{{end}}
+		</ul>
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			<div class="sb-content text-center" style="margin-top: 15px;">
+				<a href="/articles/new" class="btn btn-default">撰写文章</a>
+			</div>
+		</div>
+		<div class="row box_white sidebar">
+			<div class="top">
+				<ul class="list-inline text-center">
+					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新主题</a>|</li>
+					<li class="second"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
+					<li class="last"><a href="javascript:;">最新评论</a></li>
+				</ul>
+				<p class="bar"></p>
+			</div>
+			<div class="sb-content">
+				<div class="topic-list first">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+				<div class="resource-list second hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+				<div class="cmt-list last hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="row box_white sidebar">
+			<script type="text/javascript">
+			var cpro_id="u1996895";
+			(window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id]={at:"3",rsi0:"291",rsi1:"291",pat:"6",tn:"baiduCustNativeAD",rss1:"#FFFFFF",conBW:"0",adp:"1",ptt:"0",titFF:"%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91",titFS:"14",rss2:"#000000",titSU:"0",ptbg:"90",piw:"0",pih:"0",ptp:"0"}
+			</script>
+			<script src="//cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script>
+		</div>
+	</div>
+
+</div>
+{{end}}
+{{define "css"}}
+<style type="text/css">
+.books { margin-top: 10px; padding: 5px 0; }
+.book { overflow: hidden; clear: both; padding: 0 15px; }
+.book .meta-num { max-width: 100px; margin-top: 10.5px; }
+.book h4 { color: #474747; }
+.book h4 a {color: #474747;text-decoration: none;overflow: hidden;}
+.book h4 a:hover { color: #DB6D4C; }
+.book .stats { background: #eeeeee; -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px; margin: 0; padding: 5px; text-align: center; }
+.book .stats .votes { color: #555555; }
+.stats strong { display: block; font-size: 140%; font-weight: bold; }
+.stats .answered { color: #ffffff; background-color: #7e91bd; -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px; padding: 4px 0; margin: 0; }
+.views-orange { color: #ee7711; padding-top: 4px; text-align: center;}
+.author-date { color: #999; font-size: 13px; }
+.author-date a { color: #999; text-decoration: none; }
+.author-date a:hover { color: #DB6D4C; }
+
+.book .desc { margin-top: 5px; font-size: 14px; }
+.book .desc a { text-decoration: none; color: #3d5998; }
+.book .desc a:hover { color: #DB6D4C; }
+
+.book .cover { margin-top: 10.5px; }
+.book .cover a { position: relative; overflow: visible; margin: 5px 0; width: 120px; margin-right: .6em; float: right; }
+.book .cover img { width: 100%; border: 1px solid #fff; box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.7); -webkit-box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7); -moz-box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); display: block; max-width: 100%; vertical-align: middle; }
+</style>
+{{end}}
+{{define "js"}}
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/topics/recent",
+	"/resources/recent",
+	"/comments/recent",
+];
+</script>
+{{end}}

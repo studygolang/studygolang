@@ -375,6 +375,32 @@ CREATE TABLE IF NOT EXISTS `image` (
   KEY `created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='图片表';
 
+CREATE TABLE IF NOT EXISTS `book` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(63) NOT NULL DEFAULT '' COMMENT '书名',
+  `ename` varchar(63) NOT NULL DEFAULT '' COMMENT '英文书名',
+  `lang` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '语言：0-中文；1-英文',
+  `author` varchar(15) NOT NULL DEFAULT '' COMMENT '作者',
+  `translator` varchar(15) NOT NULL DEFAULT '' COMMENT '译者',
+  `cover` varchar(127) NOT NULL DEFAULT '' COMMENT '封面',
+  `pub_date` varchar(10) NOT NULL DEFAULT '' COMMENT '出版日期，2017-04-01',
+  `desc` varchar(1022) NOT NULL DEFAULT '' COMMENT '简介',
+  `catalogue` varchar(2046) NOT NULL DEFAULT '' COMMENT '目录',
+  `is_free` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否免费；0-否；1-是',
+  `online_url` varchar(127) NOT NULL DEFAULT '' COMMENT '在线阅读url',
+  `download_url` varchar(127) NOT NULL DEFAULT '' COMMENT '下载url',
+  `buy_url` varchar(127) NOT NULL DEFAULT '' COMMENT '购买url',
+  `price` decimal(10,2) unsigned NOT NULL DEFAULT 0.0 COMMENT '参考价格',
+  `viewnum` int unsigned NOT NULL DEFAULT 0 COMMENT '浏览数',
+  `cmtnum` int unsigned NOT NULL DEFAULT 0 COMMENT '评论数',
+  `likenum` int unsigned NOT NULL DEFAULT 0 COMMENT '赞数（推荐数）',
+  `created_at` timestamp NOT NULL DEFAULT 0 COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
+  PRIMARY KEY (`id`),
+  KEY `name` (`name`),
+  KEY `created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Go语言图书表';
+
 CREATE TABLE IF NOT EXISTS `advertisement` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(20) NOT NULL DEFAULT '' COMMENT '广告名称',

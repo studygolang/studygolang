@@ -56,6 +56,8 @@ func (this *view) flush() {
 		session.Incr("viewnum", this.num).Update(new(model.OpenProject))
 	case model.TypeWiki:
 		session.Incr("viewnum", this.num).Update(new(model.Wiki))
+	case model.TypeBook:
+		session.Incr("viewnum", this.num).Update(new(model.Book))
 	}
 
 	this.num = 0
