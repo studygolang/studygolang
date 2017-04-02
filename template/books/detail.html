@@ -76,11 +76,13 @@
 						</ul>
 					</div>
 					<div class="desc">
+						<h4>简介</h4>
 						{{.book.Desc}}
 					</div>
 					{{if .book.Catalogue}}
 					<div class="catalogue">
-						{{.book.Catalogue}}
+						<h4>目录</h4>
+						{{noescape .book.Catalogue}}
 					</div>
 					{{end}}
 				</div>
