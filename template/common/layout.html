@@ -47,6 +47,9 @@
 					<li class="{{.activeResources}}">
 						<a href="/resources">资源</a>
 					</li>
+					<li class="{{.activeBooks}}">
+						<a href="/books">图书</a>
+					</li>
 					<li class="dropdown {{.activeReadings}}">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="readings">技术晨读 <span class="caret"></span></a>
 						<ul class="dropdown-menu" aria-labelledby="readings">
@@ -222,9 +225,9 @@
 	<script src="/static/js/libs/md5.js"></script>
 	<script type="text/javascript">
 	if (isHttps) {
-		var wsUrl = 'ws://{{.wshost}}/ws?uid={{.me.Uid}}';
-	} else {
 		var wsUrl = 'wss://{{.wshost}}/ws?uid={{.me.Uid}}';
+	} else {
+		var wsUrl = 'ws://{{.wshost}}/ws?uid={{.me.Uid}}';
 	}
 	var GLaunchTime = {{timestamp .app.LaunchTime}}*1000;
 	</script>

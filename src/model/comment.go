@@ -13,6 +13,7 @@ const (
 	TypeResource        // 资源
 	TypeWiki            // WIKI
 	TypeProject         // 开源项目
+	TypeBook            // 图书
 )
 
 var PathUrlMap = map[int]string{
@@ -21,6 +22,7 @@ var PathUrlMap = map[int]string{
 	TypeResource: "/resources/",
 	TypeWiki:     "/wiki/",
 	TypeProject:  "/p/",
+	TypeBook:     "/book/",
 }
 
 var TypeNameMap = map[int]string{
@@ -29,6 +31,7 @@ var TypeNameMap = map[int]string{
 	TypeResource: "资源",
 	TypeWiki:     "Wiki",
 	TypeProject:  "项目",
+	TypeBook:     "图书",
 }
 
 // 评论信息（通用）
