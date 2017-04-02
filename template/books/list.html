@@ -28,10 +28,10 @@
 					<h4><a href="/book/{{.Id}}" target="_blank" title="{{.Name}}">{{.Name}}</a></h4>
 					<div class="author-date">
 						[作] <a>{{.Author}}</a>&nbsp;&nbsp;&nbsp;
-						[译] <a>刘晓艳</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						{{if .Translator}}[译] <a>{{.Translator}}</a>{{end}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 						{{.PubDate}}
 					</div>
-					<p class="desc">{{.Desc}} <a href="/book/{{.Id}}" target="_blank" title="{{.Name}}">[...]</a></p>
+					<p class="desc">{{substring .Desc 180 "..."}} <a href="/book/{{.Id}}" target="_blank" title="{{.Name}}">[...]</a></p>
 				</div>
 				<div class="col-md-2 col-sm-2 book-cover-box pull-right">
 					<a href="/book/{{.Id}}" target="_blank" title="{{.Name}}">
