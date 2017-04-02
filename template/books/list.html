@@ -33,7 +33,7 @@
 					</div>
 					<p class="desc">{{.Desc}} <a href="/book/{{.Id}}" target="_blank" title="{{.Name}}">[...]</a></p>
 				</div>
-				<div class="col-md-2 col-sm-2 cover pull-right">
+				<div class="col-md-2 col-sm-2 book-cover-box pull-right">
 					<a href="/book/{{.Id}}" target="_blank" title="{{.Name}}">
 						<img class="lazy" src="{{.Cover}}" alt="{{.Name}}" style="display: inline;">
 					</a>
@@ -44,10 +44,10 @@
 		</div>
 		<ul class="pager">
 			{{if .page.has_prev}}
-			<li class="previous"><a href="/articles?lastid={{.page.prev_id}}">&larr; 上一页</a></li>
+			<li class="previous"><a href="/books?lastid={{.page.prev_id}}">&larr; 上一页</a></li>
 			{{end}}
 			{{if .page.has_next}}
-			<li class="next"><a href="/articles?lastid={{.page.next_id}}">下一页 &rarr;</a></li>
+			<li class="next"><a href="/books?lastid={{.page.next_id}}">下一页 &rarr;</a></li>
 			{{end}}
 		</ul>
 	</div>
@@ -95,30 +95,7 @@
 </div>
 {{end}}
 {{define "css"}}
-<style type="text/css">
-.books { margin-top: 10px; padding: 5px 0; }
-.book { overflow: hidden; clear: both; padding: 0 15px; }
-.book .meta-num { max-width: 100px; margin-top: 10.5px; }
-.book h4 { color: #474747; }
-.book h4 a {color: #474747;text-decoration: none;overflow: hidden;}
-.book h4 a:hover { color: #DB6D4C; }
-.book .stats { background: #eeeeee; -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px; margin: 0; padding: 5px; text-align: center; }
-.book .stats .votes { color: #555555; }
-.stats strong { display: block; font-size: 140%; font-weight: bold; }
-.stats .answered { color: #ffffff; background-color: #7e91bd; -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px; padding: 4px 0; margin: 0; }
-.views-orange { color: #ee7711; padding-top: 4px; text-align: center;}
-.author-date { color: #999; font-size: 13px; }
-.author-date a { color: #999; text-decoration: none; }
-.author-date a:hover { color: #DB6D4C; }
-
-.book .desc { margin-top: 5px; font-size: 14px; }
-.book .desc a { text-decoration: none; color: #3d5998; }
-.book .desc a:hover { color: #DB6D4C; }
-
-.book .cover { margin-top: 10.5px; }
-.book .cover a { position: relative; overflow: visible; margin: 5px 0; width: 120px; margin-right: .6em; float: right; }
-.book .cover img { width: 100%; border: 1px solid #fff; box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.7); -webkit-box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7); -moz-box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); display: block; max-width: 100%; vertical-align: middle; }
-</style>
+<link rel="stylesheet" type="text/css" href="/static/css/book.css"></link>
 {{end}}
 {{define "js"}}
 <script type="text/javascript">

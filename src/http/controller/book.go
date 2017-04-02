@@ -84,14 +84,7 @@ func (BookController) ReadList(ctx echo.Context) error {
 		"next_id":  nextId,
 	}
 
-	// 获取当前用户喜欢对象信息
-	me, ok := ctx.Get("user").(*model.Me)
-	var likeFlags map[int]int
-	if ok {
-		likeFlags, _ = logic.DefaultLike.FindUserLikeObjects(ctx, me.Uid, model.TypeBook, books[0].Id, nextId)
-	}
-
-	return render(ctx, "books/list.html", map[string]interface{}{"books": books, "activeBooks": "active", "page": pageInfo, "likeflags": likeFlags})
+	return render(ctx, "books/list.html", map[string]interface{}{"books": books, "activeBooks": "active", "page": pageInfo})
 }
 
 // Detail 图书详细页

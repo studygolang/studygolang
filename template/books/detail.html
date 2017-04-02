@@ -1,6 +1,6 @@
-{{define "title"}}{{.article.Title}} {{end}}
-{{define "seo"}}<meta name="keywords" content="{{.article.Title}}, Go语言博客文章, Go语言博文, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
-<meta name="description" content="{{substring .article.Txt 200 ""}}">{{end}}
+{{define "title"}}{{.book.Name}} {{end}}
+{{define "seo"}}<meta name="keywords" content="{{.book.Name}}, Go语言图书, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地,Go语言中文网">
+<meta name="description" content="{{substring .book.Desc 200 ""}}">{{end}}
 {{define "content"}}
 <div class="row banner">
 </div>
@@ -8,93 +8,90 @@
 	<div class="col-lg-9 col-md-8 col-sm-7">
 		<ol class="breadcrumb">
 			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
-			<li><a href="/articles">网友博文</a></li>
-			<li class="active">{{.article.Title}}</li>
+			<li><a href="/books">图书</a></li>
+			<li class="active">{{.book.Name}}</li>
 		</ol>
 		<div class="page box_white">
-			<div class="title text-center">
-				<h1 id="title" data-id="{{.article.Id}}">
-					{{.article.Title}}
-					{{if .me}}
-						{{if or (eq .me.Username .article.Author) .me.IsRoot}}
-						<button id="edit" type="button" class="btn btn-primary btn-xs">编辑</button>
+			<div class="row book">
+				<div class="col-lg-2 col-md-2">
+					<div class="book-cover-col">
+						<div class="book-cover-box wide">
+							<a href="{{.book.Cover}}" style="float: none;">
+								<img src="{{.book.Cover}}" class="bookcover">
+							</a>
+							<span class="ebook"></span>
+						</div>
+						{{if .book.Price}}
+						<div class="book-sales">
+							<b>¥ {{.book.Price}}</b>
+						</div>
 						{{end}}
-					{{end}}
-				</h1>
-			</div>
-			<div class="meta">
-				<div class="p-author">
-					<i class="glyphicon glyphicon-calendar"></i>
-					<span title="发布日期">{{.article.PubDate}}</span>&nbsp;
-					<i class="glyphicon glyphicon-user"></i>
-					{{if .article.IsSelf}}
-					<a href="/user/{{.article.Author}}">{{.article.Author}}</a>
-					{{else}}
-					{{noescape .article.Author}}
-					{{end}}
+						<div class="book-like">
+							<div class="like">
+								<a class="share-btn like-btn {{if .likeflag}}hadlike{{end}}" href="javascript:;" title="{{if .likeflag}}取消推荐{{else}}推荐{{end}}" data-objid="{{.book.Id}}" data-objtype="1" data-flag="{{.likeflag}}">{{if .likeflag}}取消推荐{{else}}推荐{{end}}</a>
+								<strong>{{.book.Likenum}}</strong>
+							</div>
+						</div>
+					</div>
 				</div>
-				<!-- p-author END -->
-				
-				<div class="p-comment text-right">
-					<span class="view" title="阅读数">
-						<i class="glyphicon glyphicon-eye-open"></i>
-						阅读 <span>{{.article.Viewnum}}</span> 次&nbsp;
-					</span>
-					<span class="like" title="喜欢人数">
-						<i class="glyphicon glyphicon-heart"></i>
-						<span class="likenum">{{.article.Likenum}}</span> 人喜欢&nbsp;
-					</span>
-					<a href="/articles/{{.article.Id}}#commentForm" title="我要评论"><i class="glyphicon glyphicon-comment"></i> <span class="cmtnum">{{.article.Cmtnum}}</span> 条评论</a>&nbsp;
-					<a class="favorite collect {{if .hadcollect}}hadlike{{end}}" href="#" title="{{if .hadcollect}}取消收藏{{else}}稍后再读{{end}}" data-objid="{{.article.Id}}" data-objtype="1" data-collect="{{.hadcollect}}">
-						<i class="glyphicon glyphicon-star{{if eq .hadcollect 0}}-empty{{end}}"></i> 收藏
-					</a>
-				</div>
-				<!-- p-comment END -->
-			</div>
-			<div class="tags">
-				{{if .article.Tags}}
-				{{$tags := explode .article.Tags ","}}
-				<ul class="list-inline">
-					{{range $tag := $tags}}
-					<li><a href="/search?q={{$tag}}&f=tag" title="{{$tag}}">{{$tag}}</a></li>
-					{{end}}
-				</ul>
-				{{end}}
-			</div>
-			<!-- tags END -->
-			<div id="myeditor" class="content article-entry">
-				{{noescape .article.Content}}
-			</div>
-			<!-- content END -->
-			{{if not .article.IsSelf}}
-			<div class="row orig-info">
-				<p>本文来自：<a href="/wr?u=http://{{.article.Domain}}" target="_blank" title="{{.article.Name}}">{{.article.Name}}</a></p>
-				<p>感谢作者：{{noescape .article.Author}}</p>
-				<p>查看原文：<a href="/wr?u={{.article.Url}}" target="_blank" title="{{.article.Title}}">{{.article.Title}}</a></p>
-			</div>
-			{{end}}
-			<div class="active row">
-				<div class="mark-like-btn col-md-8">
-					<a class="share-btn like-btn {{if .likeflag}}hadlike{{end}}" href="javascript:;" title="{{if .likeflag}}取消喜欢{{else}}我喜欢{{end}}" data-objid="{{.article.Id}}" data-objtype="1" data-flag="{{.likeflag}}">
-						<i class="glyphicon glyphicon-heart-empty"></i><span class="likenum">{{.article.Likenum}}</span>人喜欢
-					</a>
-					<a class="share-btn collect {{if .hadcollect}}hadlike{{end}}" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}稍后再读{{end}}" data-objid="{{.article.Id}}" data-objtype="1" data-collect="{{.hadcollect}}">
-						<i class="glyphicon glyphicon-star-empty"></i>收藏
-					</a>
-				</div>
-			</div>
-			
-			<!--百度推荐-->
-			<div id="hm_t_45501" style="margin:0 auto;max-width:790px;"></div>
+				<div class="col-lg-10 col-md-10">
+					<div class="book-header">
+						<h3>{{.book.Name}}<span class="lang">({{if .book.Lang}}英文版{{else}}中文版{{end}})</span></h3>
+						{{if .book.Ename}}
+						<small>英文书名：<strong>{{.book.Ename}}</strong></small>
+						{{end}}
+					</div>
+					<div class="meta" style="margin: 0;">
+						<div class="p-author">
+							<i class="glyphicon glyphicon-calendar"></i>
+							<span title="发布日期">{{.book.PubDate}}</span>&nbsp;
+							<i class="glyphicon glyphicon-user"></i>
+							{{.book.Author}} (作者) 　
+							{{if .book.Translator}}
+								{{.book.Translator}} (译者)
+							{{end}}
+						</div>
+						<!-- p-author END -->
 
-			<div class="row prev-next">
-				{{if .prev}}<div><a href="/articles/{{.prev.Id}}" title="{{.prev.Title}}">« </a>上一篇: <a href="/articles/{{.prev.Id}}" title="{{.prev.Title}}">{{.prev.Title}}</a></div>{{end}}
-				{{if .next}}<div><a href="/articles/{{.next.Id}}" title="{{.next.Title}}">» </a>下一篇: <a href="/articles/{{.next.Id}}" title="{{.next.Title}}">{{.next.Title}}</a></div>{{end}}
+						<div class="p-comment text-right">
+							<span class="view" title="阅读数">
+								<i class="glyphicon glyphicon-eye-open"></i>
+								阅读 <span>{{.book.Viewnum}}</span> 次&nbsp;
+							</span>
+							<a href="/book/{{.book.Id}}#commentForm" title="我要评论"><i class="glyphicon glyphicon-comment"></i> <span class="cmtnum">{{.book.Cmtnum}}</span> 条评论</a>
+						</div>
+						<!-- p-comment END -->
+					</div>
+					<div class="tags" style="margin: 0;">
+						<ul class="list-inline">
+							{{if .book.OnlineUrl}}
+							<li><a href="{{.book.OnlineUrl}}" target="_blank">在线阅读</a></li>
+							{{end}}
+							{{if .book.DownloadUrl}}
+							<li><a href="{{.book.DownloadUrl}}" target="_blank">下载</a></li>
+							{{end}}
+							{{if .book.BuyUrl}}
+							<li><a href="{{.book.BuyUrl}}" target="_blank">去购买</a></li>
+							{{end}}
+						</ul>
+					</div>
+					<div class="desc">
+						{{.book.Desc}}
+					</div>
+					{{if .book.Catalogue}}
+					<div class="catalogue">
+						{{.book.Catalogue}}
+					</div>
+					{{end}}
+				</div>
 			</div>
+
+			<hr class="dashed">
+
 			<!-- 评论 -->
-			<div class="page-comment" data-objid="{{.article.Id}}" data-objtype="1" {{if .me}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
+			<div class="page-comment" data-objid="{{.book.Id}}" data-objtype="1" {{if .me}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
 				<div class="words hide">
-					<h3><span class="cmtnum">{{.article.Cmtnum}}</span>条评论</h3>
+					<h3><span class="cmtnum">{{.book.Cmtnum}}</span>条评论</h3>
 					<ul class="list-unstyled">
 					</ul>
 				</div>
@@ -112,12 +109,6 @@
 		</div>
 	</div>
 	<div class="col-lg-3 col-md-4 col-sm-5">
-		<div class="row box_white sidebar">
-			<div class="sb-content text-center" style="margin-top: 15px;">
-				<a href="/articles/new" class="btn btn-default">撰写文章</a>
-			</div>
-		</div>
-		
 		<div class="row box_white sidebar">
 			<div class="top">
 				<ul class="list-inline text-center">
@@ -168,25 +159,15 @@
 	
 </div>
 
-<template id="content_tpl">
-{{noescape .article.Content}}
-</template>
-
 {{end}}
 {{define "css"}}
+<link rel="stylesheet" type="text/css" href="/static/css/book.css"></link>
 <link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
 <link href="/static/css/syntax_highlight/shCore.css" media="screen" rel="stylesheet" type="text/css">
 <link href="/static/css/syntax_highlight/shCoreDefault.css" media="screen" rel="stylesheet" type="text/css">
-{{if .article.Css}}
-<link href="{{.article.Css}}" media="screen" rel="stylesheet" type="text/css">
-{{end}}
-{{if .article.IsSelf}}
-<link href="/static/css/prism.css" media="screen" rel="stylesheet" type="text/css">
-{{end}}
 <link href="/static/css/jquery.atwho.min.css" media="screen" rel="stylesheet" type="text/css">
 {{end}}
 {{define "js"}}
-<script type="text/javascript" src="//cdn.ckeditor.com/4.6.2/standard-all/ckeditor.js"></script>
 <script	type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
@@ -199,12 +180,6 @@
 <script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
 <script type="text/javascript" src="/static/js/comment.js?v=1.1"></script>
 <script type="text/javascript" src="/static/js/puploader.js?v=1.0"></script>
-{{if .article.IsSelf}}
-<script type="text/javascript">
-$('code[class*="language-"]').parent('pre').addClass('line-numbers');
-</script>
-<script type="text/javascript" src="/static/js/prism.js"></script>
-{{end}}
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
@@ -219,95 +194,9 @@ $(function(){
 	$('.need-autogrow').autoGrow();
 	
 	loadComments();
-
-	// 文章链接，在本站的 iframe 中打开
-	$('#wrapper .content').on('mousedown', 'a', function(evt){
-		var url = $(this).attr('href');
-		// $(this).attr('href', '/wr?u='+url);
-		$(this).attr('href', url);
-		$(this).attr('target', '_blank');
-	});
 });
 </script>
 <script type="text/javascript" src="/static/ckeditor/config.js"></script>
-<script type="text/javascript">
-$(function(){
-	CKEDITOR.plugins.addExternal('prism', '/static/ckeditor/plugins/prism/', 'plugin.js');
-	$('#edit').on('click', function(){
-		var txt = $(this).text();
-		if (txt == '编辑') {
-			$('#myeditor').attr('contenteditable', true);
-			$('#myeditor').html($('#content_tpl').html());
-			if (!CKEDITOR.instances.myeditor) {
-				MyEditorConfig.extraPlugins = MyEditorExtraPlugins+',prism,sourcedialog';
-				MyEditorConfig.toolbarGroups = [
-					{ name: 'undo' },
-					{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
-					{ name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align' ] },
-					{ name: 'links' },
-					{ name: 'insert' },
-					{ name: 'styles' },
-					{ name: 'document', groups: [ 'mode', 'document' ] }
-				];
-				MyEditorConfig.removeButtons = 'Anchor,SpecialChar,HorizontalRule,Table,Styles,Subscript,Superscript';
-				CKEDITOR.inline( 'myeditor', MyEditorConfig );
-			}
-
-			$(this).text('完成');
-		} else {
-			if (CKEDITOR.instances.myeditor) {
-				var content = CKEDITOR.instances.myeditor.getData();
-				modify(content);
-
-				CKEDITOR.instances.myeditor.destroy();
-
-				Prism.highlightAll();
-			}
-
-			$('#myeditor').attr('contenteditable', false);
-			$(this).text('编辑');
-		}
-	});
-
-	CKEDITOR.on('instanceReady', function(evt, editor) {
-		$('#myeditor').find('.cke_widget_element').each(function(){
-			$(this).addClass('line-numbers').css('background-color', '#000');
-		});
-	});
-
-	function modify(content)
-	{
-		var url = '/articles/modify',
-			data = { id: $('#title').data('id'), content:content };
-
-		$.ajax({
-			type: "post",
-			url: url,
-			data: data,
-			dataType: 'json',
-			success: function(data){
-				if(data.ok){
-					if (typeof data.msg != "undefined") {
-						comTip(data.msg);
-					} else {
-						comTip("修改成功！");
-					}
-				}else{
-					comTip(data.error);
-				}
-			},
-			complete:function(xmlReq, textStatus){
-			},
-			error:function(xmlReq, textStatus, errorThrown){
-				if (xmlReq.status == 403) {
-					comTip("没有修改权限");
-				}
-			}
-		});
-	}
-});
-
-</script>
 <script>
 var baiduImagePlus = {
 noLogo:true,
