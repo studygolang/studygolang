@@ -33,7 +33,7 @@
 					</div>
 					<p class="desc">{{substring .Desc 180 "..."}} <a href="/book/{{.Id}}" target="_blank" title="{{.Name}}">[...]</a></p>
 				</div>
-				<div class="col-md-2 col-sm-2 book-cover-box pull-right">
+				<div class="col-md-2 col-sm-2 book-cover-box">
 					<a href="/book/{{.Id}}" target="_blank" title="{{.Name}}">
 						<img class="lazy" src="{{.Cover}}" alt="{{.Name}}" style="display: inline;">
 					</a>
@@ -52,11 +52,6 @@
 		</ul>
 	</div>
 	<div class="col-lg-3 col-md-4 col-sm-5">
-		<div class="row box_white sidebar">
-			<div class="sb-content text-center" style="margin-top: 15px;">
-				<a href="/articles/new" class="btn btn-default">撰写文章</a>
-			</div>
-		</div>
 		<div class="row box_white sidebar">
 			<div class="top">
 				<ul class="list-inline text-center">
@@ -95,7 +90,7 @@
 </div>
 {{end}}
 {{define "css"}}
-<link rel="stylesheet" type="text/css" href="/static/css/book.css"></link>
+<link rel="stylesheet" type="text/css" href="/static/css/book.css?v=0.1"></link>
 {{end}}
 {{define "js"}}
 <script type="text/javascript">
