@@ -7,6 +7,8 @@
 package controller
 
 import (
+	"bytes"
+	"html/template"
 	"logic"
 	"model"
 	"net/http"
@@ -110,5 +112,19 @@ func (IndexController) WrapUrl(ctx echo.Context) error {
 
 // PkgdocHandler Go 语言文档中文版
 func (IndexController) Pkgdoc(ctx echo.Context) error {
-	return render(ctx, "pkgdoc.html", map[string]interface{}{"activeDoc": "active"})
+	// return render(ctx, "pkgdoc.html", map[string]interface{}{"activeDoc": "active"})
+	tpl, err := template.ParseFiles(config.TemplateDir + "pkgdoc.html")
+	if err != nil {
+		logger.Errorln("parse file error:", err)
+		return err
+	}
+
+	buf := new(bytes.Buffer)
+	err = tpl.Execute(buf, nil)
+	if err != nil {
+		logger.Errorln("execute template error:", err)
+		return err
+	}
+
+	return ctx.HTML(http.StatusOK, buf.String())
 }
