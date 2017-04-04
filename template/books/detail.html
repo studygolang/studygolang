@@ -16,8 +16,8 @@
 				<div class="col-lg-2 col-md-2">
 					<div class="book-cover-col">
 						<div class="book-cover-box wide">
-							<a href="{{.book.Cover}}" style="float: none;">
-								<img src="{{.book.Cover}}" class="bookcover">
+							<a href="{{if .book.Cover}}{{.book.Cover}}{{else}}http://studygolang.qiniudn.com/img/nocover.png{{end}}" style="float: none;">
+								<img src="{{if .book.Cover}}{{.book.Cover}}{{else}}http://studygolang.qiniudn.com/img/nocover.png{{end}}" class="bookcover">
 							</a>
 							<span class="ebook"></span>
 						</div>
@@ -28,7 +28,7 @@
 						{{end}}
 						<div class="book-like">
 							<div class="like">
-								<a class="share-btn like-btn {{if .likeflag}}hadlike{{end}}" href="javascript:;" title="{{if .likeflag}}取消推荐{{else}}推荐{{end}}" data-objid="{{.book.Id}}" data-objtype="1" data-flag="{{.likeflag}}">{{if .likeflag}}取消推荐{{else}}推荐{{end}}</a>
+								<a class="share-btn like-btn {{if .likeflag}}hadlike{{end}}" href="javascript:;" title="{{if .likeflag}}取消推荐{{else}}推荐{{end}}" data-objid="{{.book.Id}}" data-objtype="5" data-flag="{{.likeflag}}">{{if .likeflag}}取消推荐{{else}}推荐{{end}}</a>
 								<strong>{{.book.Likenum}}</strong>
 							</div>
 						</div>

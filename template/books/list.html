@@ -35,7 +35,7 @@
 				</div>
 				<div class="col-md-2 col-sm-2 book-cover-box">
 					<a href="/book/{{.Id}}" target="_blank" title="{{.Name}}">
-						<img class="lazy" src="{{.Cover}}" alt="{{.Name}}" style="display: inline;">
+						<img class="lazy" src="{{if .Cover}}{{.Cover}}{{else}}http://studygolang.qiniudn.com/img/nocover.png{{end}}" alt="{{.Name}}" style="display: inline;">
 					</a>
 				</div>
 			</div>
