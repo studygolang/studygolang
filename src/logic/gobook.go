@@ -39,6 +39,36 @@ func (GoBookLogic) FindBy(ctx context.Context, limit int, lastIds ...int) []*mod
 	return books
 }
 
+// FindAll 支持多页翻看
+func (GoBookLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy string) []*model.Book {
+	objLog := GetLogger(ctx)
+
+	bookList := make([]*model.Book, 0)
+	err := MasterDB.OrderBy(orderBy).Limit(paginator.PerPage(), paginator.Offset()).Find(&bookList)
+	if err != nil {
+		objLog.Errorln("GoBookLogic FindAll error:", err)
+		return nil
+	}
+
+	return bookList
+}
+
+func (GoBookLogic) Count(ctx context.Context) int64 {
+	objLog := GetLogger(ctx)
+
+	var (
+		total int64
+		err   error
+	)
+	total, err = MasterDB.Count(new(model.Book))
+
+	if err != nil {
+		objLog.Errorln("GoBookLogic Count error:", err)
+	}
+
+	return total
+}
+
 // FindByIds 获取多个图书详细信息
 func (GoBookLogic) FindByIds(ids []int) []*model.Book {
 	if len(ids) == 0 {

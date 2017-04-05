@@ -7,12 +7,12 @@
 package controller
 
 import (
+	"html/template"
 	"logic"
 	"net/http"
 
 	"github.com/labstack/echo"
 	"github.com/polaris1119/goutils"
-	"github.com/polaris1119/logger"
 
 	. "http"
 	"model"
@@ -36,55 +36,20 @@ func (self BookController) RegisterRoute(g *echo.Group) {
 
 // ReadList 图书列表页
 func (BookController) ReadList(ctx echo.Context) error {
-	limit := 20
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	paginator := logic.NewPaginator(curPage)
 
-	lastId := goutils.MustInt(ctx.QueryParam("lastid"))
-	books := logic.DefaultGoBook.FindBy(ctx, limit+1, lastId)
-	if books == nil {
-		logger.Errorln("book controller: find book error")
-		return ctx.Redirect(http.StatusSeeOther, "/books")
+	books := logic.DefaultGoBook.FindAll(ctx, paginator, "likenum DESC,id DESC")
+	total := logic.DefaultGoBook.Count(ctx)
+	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
+
+	data := map[string]interface{}{
+		"books":       books,
+		"activeBooks": "active",
+		"page":        template.HTML(pageHtml),
 	}
 
-	num := len(books)
-	if num == 0 {
-		if lastId == 0 {
-			return ctx.Redirect(http.StatusSeeOther, "/")
-		}
-		return ctx.Redirect(http.StatusSeeOther, "/books")
-	}
-
-	var (
-		hasPrev, hasNext bool
-		prevId, nextId   int
-	)
-
-	if lastId > 0 {
-		prevId = lastId
-
-		if prevId-books[0].Id > 1 {
-			hasPrev = false
-		} else {
-			prevId += limit
-			hasPrev = true
-		}
-	}
-
-	if num > limit {
-		hasNext = true
-		books = books[:limit]
-		nextId = books[limit-1].Id
-	} else {
-		nextId = books[num-1].Id
-	}
-
-	pageInfo := map[string]interface{}{
-		"has_prev": hasPrev,
-		"prev_id":  prevId,
-		"has_next": hasNext,
-		"next_id":  nextId,
-	}
-
-	return render(ctx, "books/list.html", map[string]interface{}{"books": books, "activeBooks": "active", "page": pageInfo})
+	return render(ctx, "books/list.html", data)
 }
 
 // Detail 图书详细页

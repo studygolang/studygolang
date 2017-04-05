@@ -41,15 +41,11 @@
 			</div>
 			<hr class="dashed">
 			{{end}}
+
+			{{if .page}}
+			<nav class="text-center"><ul class="pagination pagination-sm">{{.page}}</ul></nav>
+			{{end}}
 		</div>
-		<ul class="pager">
-			{{if .page.has_prev}}
-			<li class="previous"><a href="/books?lastid={{.page.prev_id}}">&larr; 上一页</a></li>
-			{{end}}
-			{{if .page.has_next}}
-			<li class="next"><a href="/books?lastid={{.page.next_id}}">下一页 &rarr;</a></li>
-			{{end}}
-		</ul>
 	</div>
 	<div class="col-lg-3 col-md-4 col-sm-5">
 		<div class="row box_white sidebar">
