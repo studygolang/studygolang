@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"html/template"
 	"logic"
+	"math/rand"
 	"model"
 	"net/http"
 	"net/url"
@@ -60,7 +61,12 @@ func (IndexController) Index(ctx echo.Context) error {
 	// Golang 资源
 	resources := logic.DefaultResource.FindBy(ctx, 10)
 
-	return render(ctx, "index.html", map[string]interface{}{"topics": topicsList, "articles": recentArticles, "likeflags": likeFlags, "resources": resources})
+	books := logic.DefaultGoBook.FindBy(ctx, 24)
+	bookNum := 8
+	bookStart := rand.Intn(len(books) - bookNum)
+	books = books[bookStart : bookStart+bookNum]
+
+	return render(ctx, "index.html", map[string]interface{}{"topics": topicsList, "articles": recentArticles, "likeflags": likeFlags, "resources": resources, "books": books})
 }
 
 // WrapUrl 包装链接

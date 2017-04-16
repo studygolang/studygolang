@@ -109,25 +109,31 @@
 			<div class="pull-right article-bottom"><a href="/articles?lastid={{add $article.Id -10}}" title="查看更多">查看更多&gt;&gt;</a></div>
 			{{end}}
 		</div>
+		<div class="row box_white book-list">
+			<div class="title">
+				<h3><a href="/books">图书</a></h3>
+				<a class="pull-right more" href="/books">更多&gt;&gt;</a>
+			</div>
+			<ul class="list-unstyled">
+				{{range .books}}
+				<li class="book-item">
+					<div class="book-img">
+						<a href="/book/{{.Id}}" title="{{.Name}}">
+							<img src="{{if .Cover}}{{.Cover}}{{else}}http://studygolang.qiniudn.com/img/golang_default_cover.png{{end}}" width="180px" height="225px" alt="{{.Name}}">
+						</a>
+					</div>
+					<div class="book-title">
+						<h5>{{.Name}}</h5>
+					</div>
+				</li>
+				{{end}}
+			</ul>
+		</div>
+
 		<div class="row box_white learn-info">
 			<h3><a href="javascript:">学习资料</a></h3>
 			<div class="col-md-6 infolist">
 				<ul class="list-unstyled">
-					<li>
-						<i></i>
-						<a href="http://www.ucai.cn/course/show/69" title="Go编程基础(无闻)" target="_blank" class="video">【视频】《Go编程基础(无闻)》</a>
-						<a href="http://www.ucai.cn/course/chapter/69/3210/4555" target="_blank" class="learn pull-right">开始学习&gt;&gt;</a>
-					</li>
-					<li>
-						<i></i>
-						<a href="http://www.ucai.cn/course/show/87" title="Go Web基础(无闻)" target="_blank" class="video">【视频】《Go Web基础(无闻)》</a>
-						<a href="http://www.ucai.cn/course/chapter/87/3267/4710" target="_blank" class="learn pull-right">开始学习&gt;&gt;</a>
-					</li>
-					<li>
-						<i></i>
-						<a href="http://www.ucai.cn/course/show/134" title="Go 名库讲解(无闻)" target="_blank" class="video">【视频】《Go 名库讲解(无闻)》</a>
-						<a href="http://www.ucai.cn/course/chapter/134/3699/6825" target="_blank" class="learn pull-right">开始学习&gt;&gt;</a>
-					</li>
 					<li>
 						<i></i>
 						<a href="http://www.ucai.cn/course/show/26" title="Go 语言语法与特性教程（陈皓）" target="_blank" class="video">【文本】《Go 语言语法与特性教程（陈皓）》</a>
@@ -148,89 +154,24 @@
 						<a href="http://www.ucai.cn/course/show/22" title="Go 语言入门教程" target="_blank" class="video">【文本】《Go 语言入门教程》</a>
 						<a href="http://www.ucai.cn/course/chapter/22/2887/2927" target="_blank" class="learn pull-right">开始学习&gt;&gt;</a>
 					</li>
-					<li>
-						<i></i>
-						<a href="http://product.china-pub.com/3804180" title="Go并发编程实la" target="_blank" class="video">【图书】《Go并发编程实战 — 郝林》</a>
-						<a href="http://product.china-pub.com/3804180" target="_blank" class="learn pull-right">查看详情&gt;&gt;</a>
-					</li>
-					<li>
-						<i></i>
-						<a href="http://book.douban.com/subject/19897704/" title="An Introduction to Programming in Go" target="_blank" class="video">【图书】《An Introduction to Programming in Go》</a>
-						<a href="http://book.douban.com/subject/19897704/" target="_blank" class="learn pull-right">详情&gt;&gt;</a>
-					</li>
-					<li>
-						<i></i>
-						<a href="https://github.com/tiancaiamao/go-internals" title="深入解析Go — tiancaiamao" target="_blank" class="video">【图书】《深入解析Go — tiancaiamao》</a>
-						<a href="https://github.com/tiancaiamao/go-internals/blob/master/ebook/preface.md" target="_blank" class="learn pull-right">开始阅读&gt;&gt;</a>
-					</li>
-					<li>
-						<i></i>
-						<a href="https://github.com/astaxie/Go-in-Action" title="Go实战开发 — astaxie" target="_blank" class="video">【图书】《Go实战开发 — astaxie》</a>
-						<a href="https://github.com/astaxie/Go-in-Action/blob/master/ebook/zh/preface.md" target="_blank" class="learn pull-right">开始阅读&gt;&gt;</a>
-					</li>
-					<li>
-						<i></i>
-						<a href="https://github.com/achun/Go-Blog-In-Action" title="Go语言博客实践 — achun" target="_blank" class="video">【图书】《Go语言博客实践 — achun》</a>
-						<a href="https://github.com/achun/Go-Blog-In-Action" target="_blank" class="learn pull-right">开始阅读&gt;&gt;</a>
-					</li>
 				</ul>
 			</div>
 			<div class="col-md-6 infolist">
 				<ul class="list-unstyled">
 					<li>
 						<i></i>
-						<a href="https://github.com/qyuhen/book" title="Go 学习笔记 第三版 — 雨痕" target="_blank" class="video">【图书】《Go 学习笔记 第三版 — 雨痕》</a>
-						<a href="https://github.com/qyuhen/book/blob/master/Go%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%20%E7%AC%AC%E4%B8%89%E7%89%88.pdf?raw=true" target="_blank" class="learn pull-right">立即下载&gt;&gt;</a>
+						<a href="http://www.ucai.cn/course/show/69" title="Go编程基础(无闻)" target="_blank" class="video">【视频】《Go编程基础(无闻)》</a>
+						<a href="http://www.ucai.cn/course/chapter/69/3210/4555" target="_blank" class="learn pull-right">开始学习&gt;&gt;</a>
 					</li>
 					<li>
 						<i></i>
-						<a href="https://github.com/astaxie/build-web-application-with-golang" title="Go Web 编程 — 谢孟军" target="_blank" class="video">【图书】《Go Web 编程 — 谢孟军》</a>
-						<a href="https://github.com/astaxie/build-web-application-with-golang/blob/master/ebook/preface.md" target="_blank" class="learn pull-right">开始阅读&gt;&gt;</a>
+						<a href="http://www.ucai.cn/course/show/87" title="Go Web基础(无闻)" target="_blank" class="video">【视频】《Go Web基础(无闻)》</a>
+						<a href="http://www.ucai.cn/course/chapter/87/3267/4710" target="_blank" class="learn pull-right">开始学习&gt;&gt;</a>
 					</li>
 					<li>
 						<i></i>
-						<a href="https://github.com/polaris1119/The-Golang-Standard-Library-by-Example" title="Go语言标准库 — polaris" target="_blank" class="video">【图书】《Go语言标准库 — polaris》</a>
-						<a href="https://github.com/polaris1119/The-Golang-Standard-Library-by-Example/blob/master/preface.md" target="_blank" class="learn pull-right">开始阅读&gt;&gt;</a>
-					</li>
-					<li>
-						<i></i>
-						<a href="http://book.douban.com/subject/11577300/" title="Go语言编程 — 许式伟等" target="_blank" class="video">【图书】《Go语言编程 — 许式伟等》</a>
-						<a href="http://book.douban.com/subject/11577300/" target="_blank" class="learn pull-right">查看详情&gt;&gt;</a>
-					</li>
-					<li>
-						<i></i>
-						<a href="http://book.douban.com/subject/24869910/" title="Go语言程序设计 — Mark Summerfield，许式伟等译" target="_blank" class="video">【图书】《Go语言程序设计 — 许式伟等译》</a>
-						<a href="http://book.douban.com/subject/24869910/" target="_blank" class="learn pull-right">查看详情&gt;&gt;</a>
-					</li>
-					<li>
-						<i></i>
-						<a href="http://book.douban.com/subject/25919900/" title="Go语言程序设计 — 王鹏" target="_blank" class="video">【图书】《Go语言程序设计 — 王鹏》</a>
-						<a href="http://book.douban.com/subject/25919900/" target="_blank" class="learn pull-right">查看详情&gt;&gt;</a>
-					</li>
-					<li>
-						<i></i>
-						<a href="http://book.douban.com/subject/10770080/" title="Go语言·云动力 — [新加坡] 樊虹剑" target="_blank" class="video">【图书】《Go语言·云动力 — [新加坡] 樊虹剑》</a>
-						<a href="http://book.douban.com/subject/10770080/" target="_blank" class="learn pull-right">查看详情&gt;&gt;</a>
-					</li>
-					<li>
-						<i></i>
-						<a href="http://book.douban.com/subject/10558892/" title="The Way to Go — Ivo Balbaert" target="_blank" class="video">【图书】《The Way to Go — Ivo Balbaert》</a>
-						<a href="http://book.douban.com/subject/10558892/" target="_blank" class="learn pull-right">查看详情&gt;&gt;</a>
-					</li>
-					<li>
-						<i></i>
-						<a href="https://github.com/Unknwon/the-way-to-go_ZH_CN" title="The Way to Go 中文 — 无闻译" target="_blank" class="video">【图书】《The Way to Go 中文 — 无闻译》</a>
-						<a href="https://github.com/Unknwon/the-way-to-go_ZH_CN/blob/master/eBook/directory.md" target="_blank" class="learn pull-right">开始阅读&gt;&gt;</a>
-					</li>
-					<li>
-						<i></i>
-						<a href="https://github.com/astaxie/NPWG_zh" title="Network programming with Go — astaxie等译" target="_blank" class="video">【图书】《Network programming with Go》</a>
-						<a href="http://jan.newmarch.name/go/zh/index.html" target="_blank" class="learn pull-right">开始阅读&gt;&gt;</a>
-					</li>
-					<li>
-						<i></i>
-						<a href="https://www.gitbook.io/book/codegangsta/building-web-apps-with-go" title="Building Web Apps with Go" target="_blank" class="video">【图书】《Building Web Apps with Go》</a>
-						<a href="http://codegangsta.gitbooks.io/building-web-apps-with-go/" target="_blank" class="learn pull-right">开始阅读&gt;&gt;</a>
+						<a href="http://www.ucai.cn/course/show/134" title="Go 名库讲解(无闻)" target="_blank" class="video">【视频】《Go 名库讲解(无闻)》</a>
+						<a href="http://www.ucai.cn/course/chapter/134/3699/6825" target="_blank" class="learn pull-right">开始学习&gt;&gt;</a>
 					</li>
 				</ul>
 			</div>
@@ -399,10 +340,10 @@
 </div>
 {{end}}
 {{define "css"}}
-<link href="/static/css/index.css" rel="stylesheet"/>
+<link href="/static/css/index.css?v=0.4" rel="stylesheet"/>
 {{end}}
 {{define "js"}}
-<script type="text/javascript" src="/static/js/index.js?v=0.1"></script>
+<script type="text/javascript" src="/static/js/index.js?v=0.5"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
