@@ -180,7 +180,7 @@ func (self EmailLogic) EmailNotice() {
 			self.SendMail("每周精选", content, []string{user.Email})
 
 			// 控制发信速度
-			time.Sleep(60 * time.Second)
+			time.Sleep(2 * time.Second)
 		}
 
 		users = make([]*model.User, 0)
