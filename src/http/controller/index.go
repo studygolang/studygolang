@@ -62,9 +62,11 @@ func (IndexController) Index(ctx echo.Context) error {
 	resources := logic.DefaultResource.FindBy(ctx, 10)
 
 	books := logic.DefaultGoBook.FindBy(ctx, 24)
-	bookNum := 8
-	bookStart := rand.Intn(len(books) - bookNum)
-	books = books[bookStart : bookStart+bookNum]
+	if len(books) > 8 {
+		bookNum := 8
+		bookStart := rand.Intn(len(books) - bookNum)
+		books = books[bookStart : bookStart+bookNum]
+	}
 
 	return render(ctx, "index.html", map[string]interface{}{"topics": topicsList, "articles": recentArticles, "likeflags": likeFlags, "resources": resources, "books": books})
 }
