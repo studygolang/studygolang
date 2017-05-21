@@ -17,7 +17,6 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/polaris1119/config"
 	"github.com/polaris1119/logger"
 	"github.com/polaris1119/times"
 	"golang.org/x/net/context"
@@ -217,8 +216,8 @@ func (self ArticleLogic) Publish(ctx context.Context, me *model.Me, form url.Val
 	objLog := GetLogger(ctx)
 
 	article := &model.Article{
-		Domain:    config.ConfigFile.MustValue("global", "domain", "studygolang.com"),
-		Name:      config.ConfigFile.MustValue("global", "website_name", "Go语言中文网"),
+		Domain:    WebsiteSetting.Domain,
+		Name:      WebsiteSetting.Name,
 		Author:    me.Username,
 		AuthorTxt: me.Username,
 		Title:     form.Get("title"),

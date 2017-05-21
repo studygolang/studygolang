@@ -58,7 +58,7 @@ func (IndexController) Index(ctx echo.Context) error {
 		}
 	}
 
-	// Golang 资源
+	// 资源
 	resources := logic.DefaultResource.FindBy(ctx, 10)
 
 	books := logic.DefaultGoBook.FindBy(ctx, 24)
@@ -68,7 +68,18 @@ func (IndexController) Index(ctx echo.Context) error {
 		books = books[bookStart : bookStart+bookNum]
 	}
 
-	return render(ctx, "index.html", map[string]interface{}{"topics": topicsList, "articles": recentArticles, "likeflags": likeFlags, "resources": resources, "books": books})
+	// 学习资料
+	materials := logic.DefaultLearningMaterial.FindAll(ctx)
+
+	return render(ctx, "index.html",
+		map[string]interface{}{
+			"topics":    topicsList,
+			"articles":  recentArticles,
+			"likeflags": likeFlags,
+			"resources": resources,
+			"books":     books,
+			"materials": materials,
+		})
 }
 
 // WrapUrl 包装链接

@@ -1,3 +1,23 @@
+CREATE TABLE `website_setting` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(63) NOT NULL DEFAULT '' COMMENT '网站名称',
+  `domain` varchar(63) NOT NULL DEFAULT '' COMMENT '网站域名',
+  `title_suffix` varchar(63) NOT NULL DEFAULT '' COMMENT '标题后缀',
+  `favicon` varchar(127) NOT NULL DEFAULT '' COMMENT '自定义favicon',
+  `logo` varchar(127) NOT NULL DEFAULT '' COMMENT '自定义logo',
+  `start_year` int unsigned NOT NULL DEFAULT 0 COMMENT '网站运营开始年份',
+  `blog_url` varchar(127) NOT NULL DEFAULT '' COMMENT '独立博客url，没有则留空',
+  `slogan` varchar(127) NOT NULL DEFAULT '' COMMENT '网站slogan，在页脚最后',
+  `beian` varchar(63) NOT NULL DEFAULT '' COMMENT '网站备案信息',
+  `reading_menu` varchar(127) NOT NULL DEFAULT '' COMMENT '技术晨读菜单名，留空则用默认的',
+  `docs_menu` varchar(255) NOT NULL DEFAULT '' COMMENT '官方文档菜单，json格式，留空则用默认',
+  `footer_nav` varchar(1022) NOT NULL DEFAULT '' COMMENT '底部导航，json格式',
+  `friends_logo` varchar(255) NOT NULL DEFAULT '' COMMENT '底部友情logo，json格式',
+  `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='网站设置信息';
+
 CREATE TABLE IF NOT EXISTS `topics` (
   `tid` int unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL,
@@ -182,16 +202,17 @@ CREATE TABLE IF NOT EXISTS `system_message` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'system_message 系统消息表';
 
 CREATE TABLE IF NOT EXISTS `wiki` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL COMMENT 'wiki标题',
   `content` longtext NOT NULL COMMENT 'wiki内容',
   `uri` varchar(50) NOT NULL COMMENT 'uri',
-  `uid` int unsigned NOT NULL COMMENT '作者',
-  `cuid` varchar(100) NOT NULL DEFAULT '' COMMENT '贡献者',
-  `ctime` timestamp NOT NULL DEFAULT 0,
+  `uid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '作者',
+  `cuid` varchar(100) NOT NULL DEFAULT '' COMMENT '贡献者uid,多个逗号分隔',
+  `viewnum` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '浏览数',
+  `ctime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY (`uri`)
+  UNIQUE KEY `uri` (`uri`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'wiki页';
 
 CREATE TABLE IF NOT EXISTS `resource` (
@@ -399,7 +420,7 @@ CREATE TABLE `book` (
   PRIMARY KEY (`id`),
   KEY `name` (`name`),
   KEY `created_at` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Go语言图书表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='图书表';
 
 CREATE TABLE IF NOT EXISTS `advertisement` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -418,3 +439,31 @@ CREATE TABLE IF NOT EXISTS `page_ad` (
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '页面广告管理表';
+
+CREATE TABLE IF NOT EXISTS `friend_link` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(15) NOT NULL DEFAULT '' COMMENT '链接名',
+  `url` varchar(255) NOT NULL DEFAULT '' COMMENT '链接URL',
+  `seq` smallint unsigned NOT NULL DEFAULT 100 COMMENT '排序',
+  `logo` varchar(63) NOT NULL DEFAULT '' COMMENT 'LOGO url',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '友情链接';
+
+CREATE TABLE IF NOT EXISTS `learning_material` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(31) NOT NULL DEFAULT '' COMMENT '标题',
+  `url` varchar(63) NOT NULL DEFAULT '' COMMENT '资料URL',
+  `type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '类型，0-文本；1-视频',
+  `seq` smallint unsigned NOT NULL DEFAULT 100 COMMENT '排序',
+  `first_url` varchar(63) NOT NULL DEFAULT '' COMMENT '开始学习的url',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '成体系的学习资料';
+
+CREATE TABLE IF NOT EXISTS `default_avatar` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `filename` varchar(31) NOT NULL DEFAULT '' COMMENT '图像文件名',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '默认头像';

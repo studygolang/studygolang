@@ -32,6 +32,7 @@ func (self SidebarController) RegisterRoute(g *echo.Group) {
 	g.GET("/nodes/hot", self.HotNodes)
 	g.GET("/users/active", self.ActiveUser)
 	g.GET("/users/newest", self.NewestUser)
+	g.GET("/friend/links", self.FriendLinks)
 }
 
 // RecentReading 技术晨读
@@ -139,4 +140,10 @@ func (SidebarController) ActiveUser(ctx echo.Context) error {
 func (SidebarController) NewestUser(ctx echo.Context) error {
 	newestUsers := logic.DefaultUser.FindNewUsers(ctx, 9)
 	return success(ctx, newestUsers)
+}
+
+// FriendLinks 友情链接
+func (SidebarController) FriendLinks(ctx echo.Context) error {
+	friendLinks := logic.DefaultFriendLink.FindAll(ctx)
+	return success(ctx, friendLinks)
 }

@@ -48,40 +48,16 @@ VALUES
 	(35, '项目查询', 15, 34, '/admin/community/project/query.html', '', '2014-11-03 21:55:07', '2014-11-03 21:55:01'),
 	(36, '项目上下线', 15, 34, '/admin/community/project/update_status', '', '2014-11-03 21:55:26', '2014-11-03 21:55:19'),
 	(37, '规则查询', 19, 21, '/admin/crawl/rule/query.html', '', '2014-11-08 12:38:20', '2014-11-08 12:38:13'),
-	(38, '用户修改', 1, 12, '/admin/user/user/modify', '', '2015-07-14 13:53:53', '2015-07-14 13:53:53');
+	(38, '用户修改', 1, 12, '/admin/user/user/modify', '', '2015-07-14 13:53:53', '2015-07-14 13:53:53'),
+	(39, '设置', 0, 0, '', '', '2017-05-21 16:03:00', '2017-05-21 16:03:59'),
+	(40, '常规', 39, 0, '/admin/setting/genneral/modify', '', '2017-05-21 16:05:00', '2017-05-21 16:05:46'),
+	(41, '导航', 39, 0, '/admin/setting/nav/modify', '', '2017-05-21 18:01:00', '2017-05-21 18:01:16');
 
-INSERT INTO `topics_node` (`nid`, `parent`, `name`, `intro`, `ctime`)
+INSERT INTO `website_setting` (`id`, `name`, `domain`, `title_suffix`, `favicon`, `logo`, `start_year`, `blog_url`, `reading_menu`, `docs_menu`, `slogan`, `beian`, `friends_logo`, `footer_nav`, `created_at`, `updated_at`)
 VALUES
-	(1, 0, 'Golang', 'Go语言基本问题探讨', '2013-03-15 14:38:09'),
-	(2, 1, 'Go基础', 'Go语言基础、语法、规范等', '2013-03-15 14:38:09'),
-	(3, 1, 'Go标准库', 'Go语言标准库使用、例子、源码等', '2013-03-15 14:38:09'),
-	(4, 1, 'Go源码', '深入Go语言内部实现，分享Go语言源码学习心得', '2013-03-15 14:38:09'),
-	(5, 1, 'Go Web开发', '用Go语言进行Web开发', '2013-03-15 14:38:09'),
-	(6, 1, 'Go问与答', '任何关于Go语言的问题都可以到这里提', '2013-03-15 14:38:09'),
-	(7, 1, 'Go动态', 'Go语言相关资讯和最新动态', '2013-03-15 14:38:09'),
-	(8, 1, 'Go开发工具', '交流Go开发工具的使用', '2013-03-15 14:38:09'),
-	(9, 0, '开源控', 'Golang本身开源，自然gopher们都是开源控', '2013-03-15 14:38:09'),
-	(10, 9, 'Go Web框架', '开源的Go Web框架，你知道多少？使用了吗？', '2013-03-15 14:38:09'),
-	(11, 9, 'Go第三方库', '第三方Go库，你都用了哪些？', '2013-03-15 14:38:09'),
-	(12, 9, 'Go代码分享', '和gopher们分享您自己的Go代码吧', '2013-03-15 14:38:09'),
-	(13, 9, 'Go资料', '好多Go语言资料啊，学习学习……', '2013-03-15 14:38:09'),
-	(14, 0, 'Study Golang', 'Golang China，Go语言学习园地，中文社区', '2013-03-15 14:38:09'),
-	(15, 14, '社区公告', '社区最新动态、公共以及其他信息', '2013-03-15 14:38:09'),
-	(16, 14, '反馈', '使用过程中遇到了问题，可以在这里提交', '2013-03-15 14:38:09'),
-	(17, 14, '社区开发', '对开发该社区感兴趣的可以一起加入进来哦', '2013-03-15 14:38:09'),
-	(18, 0, '分享', '分享生活、学习、工作等方方面面', '2013-03-18 18:02:21'),
-	(19, 18, 'Markdown', '当下Markdown是相当火，本站就使用Markdown发帖，有必要聊聊它的使用', '2013-03-18 18:05:08'),
-	(20, 1, 'Go实战', 'Go语言实际使用经验交流', '2013-03-20 17:43:00'),
-	(21, 1, 'Go工具链', '(go tool chain)Go提供的各种工具学习、使用', '2013-05-09 16:23:57'),
-	(22, 18, '招聘', '发布Go语言招聘信息', '2013-10-23 20:56:38'),
-	(23, 18, '杂谈', 'Go相关或不太相关的杂谈', '2014-04-02 22:39:07'),
-	(24, 0, '其他语言', '非Go语言的相关交流', '2016-04-09 09:06:30'),
-	(25, 24, 'Python交流', '关于Python语言的交流', '2016-04-09 09:06:49');
+	(1, 'Go语言中文网', 'studygolang.com', '| Go语言中文网 | Golang中文社区 | Golang中国', '/static/img/go.ico', '/static/img/logo1.png', 2013, 'http://blog.studygolang.com', '', '', 'Go语言中文网，中国 Golang 社区，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。', '京ICP备14030343号-1', '[{\"image\":\"http://p3.ucai.cn/static/i3/mission/moblie_ucai_logo.png\",\"url\":\"http://www.ucai.cn/?fr=studygolang\",\"name\":\"\",\"width\":\"175px\",\"height\":\"45px\"},{\"image\":\"http://studygolang.qiniudn.com/ad/aliyun_logo2.png\",\"url\":\"http://www.ucai.cn/?fr=studygolang\",\"name\":\"\",\"width\":\"300px\",\"height\":\"60px\"},{\"image\":\"http://qiniutek.com/images/logo-2.png\",\"url\":\"https://portal.qiniu.com/signup?code=3lfz4at7pxfma\",\"name\":\"\",\"width\":\"290px\",\"height\":\"45px\"}]', '[{\"name\":\"关于\",\"url\":\"/wiki/about\",\"outer_site\":false},{\"name\":\"贡献者\",\"url\":\"/wiki/contributors\",\"outer_site\":false},{\"name\":\"帮助推广\",\"url\":\"/wiki\",\"outer_site\":false},{\"name\":\"反馈\",\"url\":\"/topics/node/16\",\"outer_site\":false},{\"name\":\"Github\",\"url\":\"https://github.com/studygolang\",\"outer_site\":true},{\"name\":\"新浪微博\",\"url\":\"http://weibo.com/studygolang\",\"outer_site\":true},{\"name\":\"内嵌Wide\",\"url\":\"/wide/playground\",\"outer_site\":false},{\"name\":\"免责声明\",\"url\":\"/wiki/duty\",\"outer_site\":false}]', '2017-05-21 10:22:00', '2017-05-21 21:30:56');
 
-INSERT INTO `resource_category` (`catid`, `name`, `intro`, `ctime`)
+INSERT INTO `friend_link` (`id`, `name`, `url`, `seq`, `logo`, `created_at`)
 VALUES
-	(1, '精彩文章', '分享来自互联网关于Go语言的精彩文章', '2013-03-23 20:23:29'),
-	(2, '开源项目', '收集优秀的开源项目、第三方库', '2013-03-23 20:23:29'),
-	(3, 'Go语言资料', 'Go语言书籍、资料，提供下载地址或在线链接', '2013-03-23 20:23:29'),
-	(4, '其他资源', '分享跟Go相关或其他有用的资源', '2013-03-25 23:35:07');
+	(1, 'Go语言中文网', 'http://studygolang.com', 0, '', '2017-05-21 14:52:07');
 

@@ -15,4 +15,5 @@ func RegisterRoutes(g *echo.Group) {
 	new(RuleController).RegisterRoute(g)
 	new(ReadingController).RegisterRoute(g)
 	new(ToolController).RegisterRoute(g)
+	new(SettingController).RegisterRoute(g)
 }

@@ -35,6 +35,10 @@ var (
 	catRWMutex sync.RWMutex
 	// 资源分类
 	AllCategory []*model.ResourceCat
+
+	WebsiteSetting = &model.WebsiteSetting{}
+
+	DefaultAvatars []string
 )
 
 // 将所有 权限 加载到内存中；后台修改权限时，重新加载一次
@@ -149,6 +153,36 @@ func LoadNodes() error {
 	}
 
 	logger.Infoln("LoadNodes successfully!")
+
+	return nil
+}
+
+func LoadWebsiteSetting() error {
+	_, err := MasterDB.Get(WebsiteSetting)
+	if err != nil {
+		logger.Errorln("LoadWebsiteSetting read fail:", err)
+		return err
+	}
+
+	logger.Infoln("LoadWebsiteSetting successfully!")
+
+	return nil
+}
+
+func LoadDefaultAvatar() error {
+	defaultAvatars := make([]*model.DefaultAvatar, 0)
+	err := MasterDB.Find(&defaultAvatars)
+	if err != nil {
+		logger.Errorln("LoadDefaultAvatar Find fail:", err)
+		return err
+	}
+
+	DefaultAvatars = make([]string, len(defaultAvatars))
+	for i, defaultAvatar := range defaultAvatars {
+		DefaultAvatars[i] = defaultAvatar.Filename
+	}
+
+	logger.Infoln("LoadDefaultAvatar successfully!")
 
 	return nil
 }

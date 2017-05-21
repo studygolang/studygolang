@@ -3,8 +3,8 @@
   <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>管理后台 | Go语言中文网 - Go语言学习园地</title>
-  <link rel="shortcut icon" href="/static/img/go.ico">
+  <title>管理后台 {{.setting.TitleSuffix}}</title>
+  <link rel="shortcut icon" href="{{.setting.Favicon}}">
   <link rel="stylesheet" href="/static/css/admin/style.default.css" type="text/css" />
   <link rel="stylesheet" href="/static/css/admin/revise.css" type="text/css" />
   <!--[if IE 9]>
@@ -22,7 +22,7 @@
     <div class="topheader">
         <div class="left">
           <a href="/admin">
-            <h1 class="logo">Go语言中文网<span>管理后台</span></h1>
+            <h1 class="logo">{{.setting.Name}}<span>管理后台</span></h1>
           </a>
           <br clear="all" />
           

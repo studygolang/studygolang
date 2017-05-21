@@ -1,0 +1,170 @@
+{{define "content"}}
+<div class="pageheader notab">
+	<h1 class="pagetitle">站点全局信息设置</h1>
+	<span class="pagedesc">顶部菜单、底部导航设置</span>
+</div><!--pageheader-->
+
+<div id="contentwraapper" class="contentwrapper">
+	<div id="tooltip" class="red"></div>
+	<form method="POST" action="/admin/setting/nav/modify" class="stdform_q">
+		<input type="hidden" id="id" name="id" value="{{.setting.Id}}" />
+		<div class="contenttitle2">
+			<h3>菜单设置</h3>
+		</div>
+		<div>
+			<p>
+				<label for="reading_menu">晨读菜单名</label>
+				<span class="field">
+					<input id="reading_menu" type="text" name="reading_menu" class="mediuminput" value="{{.setting.ReadingMenu}}" />
+				</span>
+			</p>
+		</div>
+		<div class="doc-menu" style="border:1px dashed;">
+			<p>
+				<label>官方文档菜单</label>
+				<span class="field">
+					<table class="doc-menu-table">
+						<tr>
+							<th colspan="3"><button class="doc-menu-add">增加</button></th>
+						</tr>
+						{{range .setting.DocMenus}}
+						<tr class="doc-one-menu">
+							<td>菜单名:<input type="text" name="doc_name" value="{{.Name}}"></td>
+							<td>菜单URL:<input type="text" name="doc_url" value="{{.Url}}"></td>
+							<td><br><button class="doc-menu-minus">删除</button></td>
+						</tr>
+						{{end}}
+					</table>
+				</span>
+			</p>
+		</div>
+		<div class="contenttitle2">
+			<h3>导航设置</h3>
+		</div>
+		<div class="footer-nav" style="border:1px dashed;">
+			<p>
+				<label>底部导航</label>
+				<span class="field">
+					<table class="footer-nav-table">
+						<tr>
+							<th colspan="3"><button class="footer-nav-add">增加</button></th>
+						</tr>
+						{{range .setting.FooterNavs}}
+						<tr class="doc-one-menu">
+							<td>导航名:<input type="text" name="nav_name" value="{{.Name}}"></td>
+							<td>导航URL:<input type="text" name="nav_url" value="{{.Url}}"></td>
+							<td><br><button class="footer-nav-minus">删除</button></td>
+						</tr>
+						{{end}}
+					</table>
+				</span>
+			</p>
+		</div>
+		<div class="contenttitle2">
+			<h3>友情链接</h3>
+		</div>
+		<div class="friend-logo" style="border:1px dashed;">
+			<p>
+				<label>底部友情链接</label>
+				<span class="field">
+					<table class="friend-logo-table">
+						<tr>
+							<th colspan="5"><button class="friend-logo-add">增加</button></th>
+						</tr>
+						{{range .setting.FriendLogos}}
+						<tr class="friend-one-logo">
+							<td>Logo图:<input type="text" name="fr_logo_image" value="{{.Image}}"></td>
+							<td>链接URL:<input type="text" name="fr_logo_url" value="{{.Url}}"></td>
+							<td>图宽:<input type="text" name="fr_logo_width" value="{{.Width}}"></td>
+							<td>图高:<input type="text" name="fr_logo_height" value="{{.Height}}"></td>
+							<td><br><button class="friend-logo-minus">删除</button></td>
+						</tr>
+						{{end}}
+					</table>
+				</span>
+			</p>
+		</div>
+		<div class="contenttitle2">
+			<h3>操作</h3>
+		</div>
+		<div>
+			<p>
+				<label>&nbsp;</label>
+				<input type="submit" class="submit radius2" value="提交" />
+			</p>
+		</div>
+	</form>
+	<img id="loaders" src="/static/img/loaders/loader7.gif" alt="" class="hide">
+	<div id="toast"></div>
+	<br/>
+	<br/>
+</div><!--contentwrapper-->
+{{end}}
+
+{{define "css"}}
+<link href="/static/css/jquery.cftoaster.1.0.1.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/Huploadify.css" media="screen" rel="stylesheet" type="text/css">
+{{end}}
+
+{{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.cftoaster.1.0.1.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.Huploadify.js"></script>
+<script	type="text/javascript" src="/static/js/admin/forms.js"></script>
+<script type="text/javascript" src="/static/js/upload.js?v=1.0"></script>
+<script type="text/javascript">
+$(function() {
+	window.formSuccCallback = function(data) {}
+
+	var docMenuHtml = '<tr class="doc-one-menu">'+
+							'<td>菜单名:<input type="text" name="doc_name"></td>'+
+							'<td>菜单URL:<input type="text" name="doc_url"></td>'+
+							'<td><br><button class="doc-menu-minus">删除</button></td>'+
+						'</tr>';
+	var footerNavHtml = '<tr class="footer-one-nav">'+
+							'<td>导航名:<input type="text" name="nav_name"></td>'+
+							'<td>导航URL:<input type="text" name="nav_url"></td>'+
+							'<td><br><button class="footer-nav-minus">删除</button></td>'+
+						'</tr>';
+	var friendLogoHtml = '<tr class="friend-one-logo">'+
+							'<td>Logo图:<input type="text" name="fr_logo_image""></td>'+
+							'<td>链接URL:<input type="text" name="fr_logo_url"></td>'+
+							'<td>图宽:<input type="text" name="fr_logo_width"></td>'+
+							'<td>图高:<input type="text" name="fr_logo_height"></td>'+
+							'<td><br><button class="friend-logo-minus">删除</button></td>'+
+						'</tr>';
+
+	$('.doc-menu-add').on('click', function(evt) {
+		evt.preventDefault();
+		$('.doc-menu-table').append(docMenuHtml);
+	});
+
+	$('.doc-menu-table').on('click', '.doc-menu-minus', function(evt) {
+		evt.preventDefault();
+		$(this).parents('.doc-one-menu').remove();
+	});
+
+	$('.footer-nav-add').on('click', function(evt) {
+		evt.preventDefault();
+		$('.footer-nav-table').append(footerNavHtml);
+	});
+
+	$('.footer-nav-table').on('click', '.footer-nav-minus', function(evt) {
+		evt.preventDefault();
+		$(this).parents('.footer-one-nav').remove();
+	});
+
+	$('.friend-logo-add').on('click', function(evt) {
+		evt.preventDefault();
+		$('.friend-logo-table').append(friendLogoHtml);
+	});
+
+	$('.friend-logo-table').on('click', '.friend-logo-minus', function(evt) {
+		evt.preventDefault();
+		$(this).parents('.friend-one-logo').remove();
+	});
+});
+</script>
+{{end}}

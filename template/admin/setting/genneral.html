@@ -1,0 +1,133 @@
+{{define "content"}}
+<div class="pageheader notab">
+	<h1 class="pagetitle">站点全局信息设置</h1>
+	<span class="pagedesc">常规选项设置</span>
+</div><!--pageheader-->
+
+<div id="contentwraapper" class="contentwrapper">
+	<div id="tooltip" class="red"></div>
+	<form method="POST" action="/admin/setting/genneral/modify" class="stdform_q">
+		<input type="hidden" id="id" name="id" value="{{.setting.Id}}" />
+		<div class="contenttitle2">
+			<h3>常规选项</h3>
+		</div>
+		<div>
+			<p>
+				<label for="name">网站名称</label>
+				<span class="field">
+					<input id="name" type="text" name="name" class="mediuminput required" value="{{.setting.Name}}" />
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label for="domain">网站域名</label>
+				<span class="field">
+					<input id="domain" type="text" name="domain" class="mediuminput required" value="{{.setting.Domain}}" />
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label for="title_suffix">标题后缀</label>
+				<span class="field">
+					<input id="title_suffix" type="text" name="title_suffix" class="mediuminput required" value="{{.setting.TitleSuffix}}" />
+				</span>
+			</p>
+		</div>
+		<div style="border:1px dashed;">
+			<p>
+				<label>网站favicon</label>
+				<span class="upload_img_single"></span>
+			</p>
+			<p>
+				<span class="field">
+					<input type="text" name="favicon" class="mediuminput" value="{{.setting.Favicon}}"/>
+				</span>
+			</p>
+			<p>
+				<span class="field">
+					<a class="show_img" href="{{.setting.Favicon}}" target="_blank"><img class="show_img" src="{{.setting.Favicon}}"/></a>
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label for="start_year">网站开始年份</label>
+				<span class="field">
+					<input id="start_year" type="text" name="start_year" class="mediuminput required" value="{{.setting.StartYear}}" />
+				</span>
+			</p>
+		</div>
+		<div style="border:1px dashed;">
+			<p>
+				<label>网站Logo</label>
+				<span class="upload_img_single"></span>
+			</p>
+			<p>
+				<span class="field">
+					<input type="text" name="logo" class="mediuminput" value="{{.setting.Logo}}"/>
+				</span>
+			</p>
+			<p>
+				<span class="field">
+					<a class="show_img" href="{{.setting.Logo}}" target="_blank"><img class="show_img" src="{{.setting.Logo}}" width="100"/></a>
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label for="blog_url">网站博客</label>
+				<span class="field">
+					<input id="blog_url" type="text" name="blog_url" class="mediuminput" value="{{.setting.BlogUrl}}" />
+					<span class="grey">本站的官方博客，没有则留空</span>
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label for="slogan">网站底部Slogan</label>
+				<span class="field">
+					<input id="slogan" type="text" name="slogan" size="100" class="required" value="{{.setting.Slogan}}" />
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label for="beian">备案信息</label>
+				<span class="field">
+					<input id="beian" type="text" name="beian" class="mediuminput" value="{{.setting.Beian}}" />
+				</span>
+			</p>
+		</div>
+		<div class="contenttitle2">
+			<h3>操作</h3>
+		</div>
+		<div>
+			<p>
+				<label>&nbsp;</label>
+				<input type="submit" class="submit radius2" value="提交" />
+			</p>
+		</div>
+	</form>
+	<img id="loaders" src="/static/img/loaders/loader7.gif" alt="" class="hide">
+	<div id="toast"></div>
+	<br/>
+	<br/>
+</div><!--contentwrapper-->
+{{end}}
+
+{{define "css"}}
+<link href="/static/css/jquery.cftoaster.1.0.1.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/Huploadify.css" media="screen" rel="stylesheet" type="text/css">
+{{end}}
+
+{{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.cftoaster.1.0.1.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.Huploadify.js"></script>
+<script	type="text/javascript" src="/static/js/admin/forms.js"></script>
+<script type="text/javascript" src="/static/js/upload.js?v=1.0"></script>
+{{end}}

@@ -282,6 +282,24 @@ $(function(){
 		}
 	}
 
+	var friendLinks = function(data) {
+		if (data.ok) {
+			data = data.data;
+			if (data == null) {
+				return;
+			}
+
+			var content = '';
+			for(var i in data) {
+				content += '<li style="margin-left:5px; margin-bottom:5px;">'+
+							'<a href="'+data[i].url+'" target="_blank" title="'+data[i].name+'">'+data[i].name+'</a>'+
+						'</li>';
+			}
+			
+			$('.sb-content .friendslink-list ul').html(content);
+		}
+	}
+
 	var sidebar_callback = {
 		"/topics/recent": {"func": topicRecent, "class": ".topic-list"},
 		"/articles/recent": {"func": articleRecent, "class": ".article-list"},
@@ -293,6 +311,7 @@ $(function(){
 		"/websites/stat": {"func": websiteStat, "class": ".stat-list"},
 		"/readings/recent": {"func": readingRecent, "class": ".reading-list"},
 		"/nodes/hot": {"func": hotNodes, "class": ".node-list"},
+		"/friend/links": {"func": friendLinks, "class": ".friendslink-list"},
 	};
 	
 	if (typeof SG.SIDE_BARS != "undefined") {

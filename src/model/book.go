@@ -33,7 +33,3 @@ type Book struct {
 	CreatedAt   OftenTime `json:"created_at" xorm:"created"`
 	UpdatedAt   OftenTime `json:"updated_at" xorm:"<-"`
 }
-
-func (*Book) TableName() string {
-	return "book"
-}

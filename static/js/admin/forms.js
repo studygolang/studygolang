@@ -34,7 +34,7 @@ jQuery(document).ready(function($){
 					jQuery(this).attr('selected',false);
 					sel1.append(jQuery(this));
 				}
-			});		
+			});
 		}
 	});
 	

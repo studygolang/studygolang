@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-	<title>{{template "title" .}} | Go语言中文网 | Golang中文社区 | Golang中国</title>
+	<title>{{template "title" .}} {{.setting.TitleSuffix}}</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
 	<meta charset="utf-8">
-	<link rel="shortcut icon" href="/static/img/go.ico">
+	<link rel="shortcut icon" href="{{.setting.Favicon}}">
 	<link rel="apple-touch-icon" type="image/png" href="/static/img/logo2.png">
 	{{template "seo" .}}
 	<meta name="author" content="polaris <polaris@studygolang.com>">
@@ -28,7 +28,7 @@
 		<div class="container">
 			<!-- Brand and toggle get grouped for better mobile display -->
 			<div class="navbar-header">
-				<a href="/" class="navbar-brand" title="Go语言中文网"><img alt="Go语言中文网" src="/static/img/logo1.png" style="margin-top: -7px; height: 45px;"></a>
+				<a href="/" class="navbar-brand" title="{{.setting.Name}}"><img alt="{{.setting.Name}}" src="{{.setting.Logo}}" style="margin-top: -7px; height: 45px;"></a>
 				<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
@@ -41,11 +41,15 @@
 						<a href="/topics">社区</a>
 					</li>
 					<li class="dropdown {{.activeArticles}}">
+						{{if .setting.BlogUrl}}
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="articles">精彩文章 <span class="caret"></span></a>
 						<ul class="dropdown-menu" aria-labelledby="articles">
 							<li><a href="/articles">网友博文</a></li>
-							<li><a href="http://blog.studygolang.com" target="_blank">本站博客</a></li>
+							<li><a href="{{.setting.BlogUrl}}" target="_blank">本站博客</a></li>
 						</ul>
+						{{else}}
+						<a href="/articles">精彩文章</a>
+						{{end}}
 					</li>
 					<li class="{{.activeProjects}}">
 						<a href="/projects">开源项目</a>
@@ -57,27 +61,30 @@
 						<a href="/books">图书<i class="newfuture"></i></a>
 					</li>
 					<li class="dropdown {{.activeReadings}}">
+						{{if .setting.ReadingMenu}}
+						<a href="/readings">{{.setting.ReadingMenu}}</a>
+						{{else}}
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="readings">技术晨读 <span class="caret"></span></a>
 						<ul class="dropdown-menu" aria-labelledby="readings">
 							<li><a href="/readings">Go晨读</a></li>
 							<li><a href="/readings?rtype=1">综合晨读</a></li>
 						</ul>
+						{{end}}
 					</li>
 					<li class="dropdown {{.activeDoc}}">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="docs">官方文档 <span class="caret"></span></a>
 						<ul class="dropdown-menu" aria-labelledby="docs">
+						{{range .setting.DocMenus}}
+							<li><a href="{{.Url}}" target="_blank">{{.Name}}</a></li>
+						{{else}}
 							<li><a href="http://docs.studygolang.com" target="_blank">英文文档</a></li>
 							<li><a href="http://docscn.studygolang.com" target="_blank">中文文档</a></li>
 							<li><a href="/pkgdoc">标准库中文版</a></li>
 							<li role="presentation" class="divider"></li>
 							<li><a href="http://tour.studygolang.com" target="_blank">Go指南</a></li>
+						{{end}}
 						</ul>
 					</li>
-					<!--
-					<li class="{{.activeWide}}">
-						<a href="/wide/playground">游乐场</a>
-					</li>
-					-->
 				</ul>
 				<form class="navbar-form navbar-left" action="/search" role="search" target="_blank">
 					<input type="text" name="q" class="form-control search-query" placeholder="搜索" value="{{if .q}}{{.q}}{{end}}">
@@ -126,22 +133,26 @@
 		<div class="container">
 			<div>
 				<div class="pull-left" style="margin-right:10px;">
-					<img src="/static/img/logo2.png" widht="48px" height="48px" alt="golang logo">
+					<a href="http://studygolang.com" target="_blank">
+						<img src="/static/img/logo2.png" widht="48px" height="48px" alt="golang logo">
+					</a>
 				</div>
 				<p class="links">
-					<a href="/wiki/about">关于</a> | <a href="/api">API</a> | <a href="/wiki/contributors">贡献者</a> | <a href="/wiki">帮助推广</a> | <a href="/topics/node/16">反馈</a> | <a href="https://github.com/studygolang" target="_blank" rel="nofollow">Github</a> | <a href="http://weibo.com/studygolang" target="_blank" rel="nofollow">新浪微博</a> | <a href="/wide/playground">内嵌Wide</a> | <a href="/wiki/duty">免责声明</a>
+					{{range $i, $el := .setting.FooterNavs}}
+					{{if gt $i 0}} | {{end}}<a href="{{.Url}}">{{.Name}}</a>
+					{{end}}
 				</p>
-				<p class="copyright">&copy;2013-2017 studygolang.com 采用 <a href="https://golang.org" target="_blank">Go语言</a> + <a href="https://www.mysql.com/" target="_blank">MYSQL 构建</a>
+				<p class="copyright">&copy;{{.app.Copyright}} 采用 <a href="https://golang.org" target="_blank">Go语言</a> + <a href="https://www.mysql.com/" target="_blank">MYSQL 构建</a>
 				&nbsp;&nbsp;当前在线：<span id="onlineusers">{{.online_users.online}}</span>人&nbsp;&nbsp;历史最高：<span id="maxonline">{{.online_users.maxonline}}</span>人&nbsp;&nbsp;运行时间：<attr>{{.app.Uptime}}</attr>
 				<br/>
 				<b>网站编译信息</b>&nbsp;版本：{{.app.Version}}/{{.app.Build}}，时间：<attr class="timeago">{{.app.Date}}</attr>
-				<br/>Go语言中文网，中国 Golang 社区，致力于构建完善的 Golang 中文社区，Go语言爱好者的学习家园。
-	京ICP备14030343号-1
+				<br/>{{.setting.Slogan}}
+	{{.setting.Beian}}
 				</p>
 				<p class="text-center">
-					<a href="http://www.ucai.cn?fr=studygolang" title="优才网" target="_blank"><img src="http://p3.ucai.cn/static/i3/mission/moblie_ucai_logo.png" alt="优才网" width="175px" height="45px" /></a>
-					<a href="http://click.aliyun.com/m/4526/" title="阿里云" target="_blank"><img src="http://studygolang.qiniudn.com/ad/aliyun_logo2.png" alt="阿里云" width="300px" height="60px" /></a>
-					<a href="https://portal.qiniu.com/signup?code=3lfz4at7pxfma" title="七牛云存储" target="_blank"><img src="http://qiniutek.com/images/logo-2.png" alt="七牛云存储" width="290px" height="45px" /></a>
+					{{range .setting.FriendLogos}}
+					<a href="{{.Url}}" title="{{.Name}}" target="_blank"><img src="{{.Image}}" alt="{{.Name}}" width="{{.Width}}" height="{{.Height}}" /></a>
+					{{end}}
 					<!--<a href="https://www.jpush.cn" title="极光push" target="_blank"><img src="http://studygolang.qiniudn.com/jpush_logo.png" alt="极光push" width="290px" height="45px" /></a>-->
 					<!--
 					<a href="https://mos.meituan.com" title="美团云" target="_blank"><img src="http://studygolang.qiniudn.com/ad/meituan_logo.png" alt="美团云" height="60px" /></a>
@@ -240,6 +251,6 @@
 	<script src="/static/js/common.js?v=1.20"></script>
 	{{template "js" .}}
 	<script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
-	<script type="text/javascript" src="/static/js/sidebar.js?v=1.1"></script>
+	<script type="text/javascript" src="/static/js/sidebar.js?v=1.2"></script>
 </body>
 </html>

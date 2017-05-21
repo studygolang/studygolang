@@ -54,6 +54,8 @@ func loadData() {
 	logic.LoadRoleAuthorities()
 	logic.LoadNodes()
 	logic.LoadCategories()
+	logic.LoadWebsiteSetting()
+	logic.LoadDefaultAvatar()
 
 	for {
 		select {

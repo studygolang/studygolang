@@ -23,18 +23,6 @@ import (
 	. "db"
 )
 
-var DefaultAvatars = []string{
-	"gopher_aqua.jpg", "gopher_boy.jpg", "gopher_brown.jpg", "gopher_gentlemen.jpg",
-	"gopher_strawberry.jpg", "gopher_strawberry_bg.jpg", "gopher_teal.jpg",
-	"gopher01.png", "gopher02.png", "gopher03.png", "gopher04.png",
-	"gopher05.png", "gopher06.png", "gopher07.png", "gopher08.png",
-	"gopher09.png", "gopher10.png", "gopher11.png", "gopher12.png",
-	"gopher13.png", "gopher14.png", "gopher15.png", "gopher16.png",
-	"gopher17.png", "gopher18.png", "gopher19.png", "gopher20.png",
-	"gopher21.png", "gopher22.png", "gopher23.png", "gopher24.png",
-	"gopher25.png", "gopher26.png", "gopher27.png", "gopher28.png",
-}
-
 type UserLogic struct{}
 
 var DefaultUser = UserLogic{}
@@ -79,8 +67,10 @@ func (self UserLogic) CreateUser(ctx context.Context, form url.Values) (errMsg s
 
 	session.Begin()
 
-	// 随机给一个默认头像
-	user.Avatar = DefaultAvatars[rand.Intn(len(DefaultAvatars))]
+	if len(DefaultAvatars) > 0 {
+		// 随机给一个默认头像
+		user.Avatar = DefaultAvatars[rand.Intn(len(DefaultAvatars))]
+	}
 	user.Open = 1
 
 	if !user.IsRoot {

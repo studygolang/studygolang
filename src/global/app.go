@@ -26,6 +26,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"model"
 	"os"
 	"time"
 
@@ -44,6 +45,8 @@ type app struct {
 	Build   string
 	Version string
 	Date    time.Time
+
+	Copyright string
 
 	// 启动时间
 	LaunchTime time.Time
@@ -90,6 +93,15 @@ func init() {
 
 func (this *app) SetUptime() {
 	this.Uptime = time.Now().Sub(this.LaunchTime)
+}
+
+func (this *app) SetCopyright(websiteSetting *model.WebsiteSetting) {
+	curYear := time.Now().Year()
+	if curYear == websiteSetting.StartYear {
+		this.Copyright = fmt.Sprintf("%d %s", websiteSetting.StartYear, websiteSetting.Domain)
+	} else {
+		this.Copyright = fmt.Sprintf("%d-%d %s", websiteSetting.StartYear, curYear, websiteSetting.Domain)
+	}
 }
 
 func PrintVersion(w io.Writer) {
