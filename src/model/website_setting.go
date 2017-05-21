@@ -62,6 +62,8 @@ func (this *WebsiteSetting) AfterSet(name string, cell xorm.Cell) {
 		this.DocMenus = this.unmarshalDocsMenu()
 	} else if name == "friends_logo" {
 		this.FriendLogos = this.unmarshalFriendsLogo()
+	} else if name == "footer_nav" {
+		this.FooterNavs = this.unmarshalFooterNav()
 	}
 }
 

@@ -55,20 +55,14 @@ func (SettingLogic) Update(ctx context.Context, form url.Values) error {
 		WebsiteSetting.Logo = logo
 	}
 
-	blogUrl := form.Get("blog_url")
-	if blogUrl != "" {
-		WebsiteSetting.BlogUrl = blogUrl
-	}
+	WebsiteSetting.BlogUrl = form.Get("blog_url")
 
 	slogan := form.Get("slogan")
 	if slogan != "" {
 		WebsiteSetting.Slogan = slogan
 	}
 
-	beian := form.Get("beian")
-	if beian != "" {
-		WebsiteSetting.Beian = beian
-	}
+	WebsiteSetting.Beian = form.Get("beian")
 
 	if docNameSlice, ok := form["doc_name"]; ok {
 		docUrlSlice := form["doc_url"]
