@@ -1,5 +1,5 @@
 {{define "title"}}{{.wiki.Title}}{{end}}
-{{define "seo"}}<meta name="keywords" content="{{.wiki.Title}}, Go语言开源项目, Go语言博文, Go语言, Go语言中文网, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地">
+{{define "seo"}}<meta name="keywords" content="{{.setting.SeoKeywords}}">
 <meta name="description" content="{{substring .wiki.Content 200 "..."}}">{{end}}
 {{define "content"}}
 <div class="row banner">

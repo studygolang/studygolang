@@ -1,5 +1,5 @@
 {{define "title"}}{{.book.Name}} {{end}}
-{{define "seo"}}<meta name="keywords" content="{{.book.Name}}, Go语言图书, Go语言, Golang, Go中文社区,Golang中文社区, Go语言社区, Go语言学习园地,Go语言中文网">
+{{define "seo"}}<meta name="keywords" content="{{.book.Name}},{{.setting.SeoKeywords}}">
 <meta name="description" content="{{substring .book.Desc 200 ""}}">{{end}}
 {{define "content"}}
 <div class="row banner">

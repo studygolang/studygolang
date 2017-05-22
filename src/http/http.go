@@ -193,8 +193,15 @@ func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interf
 	if jsTpl := tpl.Lookup("js"); jsTpl == nil {
 		tpl.Parse(`{{define "js"}}{{end}}`)
 	}
-	if jsTpl := tpl.Lookup("css"); jsTpl == nil {
+	if cssTpl := tpl.Lookup("css"); cssTpl == nil {
 		tpl.Parse(`{{define "css"}}{{end}}`)
+	}
+	// 如果没有 seo 模板，则定义之
+	if seoTpl := tpl.Lookup("seo"); seoTpl == nil {
+		tpl.Parse(`{{define "seo"}}
+			<meta name="keywords" content="` + logic.WebsiteSetting.SeoKeywords + `">
+			<meta name="description" content="` + logic.WebsiteSetting.SeoKeywords + `">
+		{{end}}`)
 	}
 
 	// 当前用户信息
