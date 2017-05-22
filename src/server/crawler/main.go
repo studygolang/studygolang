@@ -54,8 +54,11 @@ func autocrawl(needAll bool, whichSite string) {
 		// 抓取 reddit
 		go logic.DefaultReddit.Parse("")
 
-		// 抓取 www.oschina.net/project
-		go logic.DefaultProject.ParseProjectList(config.ConfigFile.MustValue("crawl", "project_url"))
+		projectUrl := config.ConfigFile.MustValue("crawl", "project_url")
+		if projectUrl != "" {
+			// 抓取 project
+			go logic.DefaultProject.ParseProjectList(projectUrl)
+		}
 
 		// 抓取 article
 		go logic.DefaultAutoCrawl.DoCrawl(false)
