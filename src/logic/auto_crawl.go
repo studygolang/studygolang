@@ -18,11 +18,12 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/polaris1119/config"
 	"github.com/polaris1119/logger"
 	"golang.org/x/net/context"
 )
 
-const titlePattern = "(?i)go|golang|goroutine|channel"
+var titlePattern = config.ConfigFile.MustValue("crawl", "article_title_pattern")
 
 type AutoCrawlLogic struct{}
 
@@ -32,7 +33,7 @@ func (self AutoCrawlLogic) DoCrawl(isAll bool) error {
 	autoCrawlConfList := make([]*model.AutoCrawlRule, 0)
 	err := MasterDB.Where("status=?", model.AutoCrawlOn).Find(&autoCrawlConfList)
 	if err != nil {
-		logger.Errorln("ArticleLogic FindBy Error:", err)
+		logger.Errorln("AutoCrawlLogic FindBy Error:", err)
 		return err
 	}
 
@@ -163,7 +164,7 @@ func (self AutoCrawlLogic) parseArticleList(strUrl string, autoCrawlConf *model.
 		aSelection := contentSelection.Find(resultSelector)
 
 		// 搜索时，避免搜到垃圾，对标题进一步判断
-		if isSearch {
+		if isSearch && titlePattern != "" {
 			title := aSelection.Text()
 
 			matched, err := regexp.MatchString(titlePattern, title)

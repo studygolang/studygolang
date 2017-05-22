@@ -20,24 +20,29 @@ import (
 	"model"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/polaris1119/config"
 	"github.com/polaris1119/logger"
 )
 
 type RedditLogic struct {
 	domain string
-	golang string
+	path   string
 }
 
-var DefaultReddit = RedditLogic{
-	domain: "https://www.reddit.com",
-	golang: "/r/golang/new/",
+var DefaultReddit = newRedditLogic()
+
+func newRedditLogic() *RedditLogic {
+	return &RedditLogic{
+		domain: "https://www.reddit.com",
+		path:   config.ConfigFile.MustValue("crawl", "reddit_path"),
+	}
 }
 
 // Parse 获取url对应的资源并根据规则进行解析
 func (this *RedditLogic) Parse(redditUrl string) error {
 	redditUrl = strings.TrimSpace(redditUrl)
 	if redditUrl == "" {
-		redditUrl = this.domain + this.golang
+		redditUrl = this.domain + this.path
 	} else if !strings.HasPrefix(redditUrl, "https") {
 		redditUrl = "https://" + redditUrl
 	}
@@ -126,7 +131,7 @@ func (this *RedditLogic) dealRedditOneResource(contentSelection *goquery.Selecti
 		var doc *goquery.Document
 
 		if doc, err = goquery.NewDocument(resourceUrl); err != nil {
-			return errors.New("goquery reddit.com/r/golang self newdocument error:" + err.Error())
+			return errors.New("goquery reddit.com" + this.path + " self newdocument error:" + err.Error())
 		}
 
 		content, err := doc.Find("#siteTable .usertext .md").Html()
@@ -152,7 +157,7 @@ func (this *RedditLogic) dealRedditOneResource(contentSelection *goquery.Selecti
 		})
 
 		if strings.TrimSpace(content) == "" {
-			return errors.New("goquery reddit.com/r/golang self newdocument(" + resourceUrl + ") error: content is empty")
+			return errors.New("goquery reddit.com" + this.path + " self newdocument(" + resourceUrl + ") error: content is empty")
 		}
 
 		resource.Content = content
