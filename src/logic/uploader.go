@@ -182,8 +182,8 @@ func (this *UploaderLogic) UploadImage(ctx context.Context, reader gio.Reader, i
 
 // TransferUrl 将外站图片URL转为本站，如果失败，返回原图
 func (this *UploaderLogic) TransferUrl(ctx context.Context, origUrl string, prefixs ...string) (string, error) {
-	if origUrl == "" || strings.Contains(origUrl, "studygolang") {
-		return origUrl, errors.New("origin image is empty or is studygolang.com")
+	if origUrl == "" || strings.Contains(origUrl, WebsiteSetting.Domain) {
+		return origUrl, errors.New("origin image is empty or is " + WebsiteSetting.Domain)
 	}
 
 	resp, err := http.Get(origUrl)

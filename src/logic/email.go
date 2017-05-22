@@ -9,6 +9,7 @@ package logic
 import (
 	"bytes"
 	"fmt"
+	"global"
 	"html/template"
 	"net/smtp"
 	"strings"
@@ -30,7 +31,7 @@ var DefaultEmail = EmailLogic{}
 // SendMail 发送电子邮件
 func (EmailLogic) SendMail(subject, content string, tos []string) error {
 	emailConfig, _ := config.ConfigFile.GetSection("email")
-	message := `From: Go语言中文网 | Golang中文社区 | Go语言学习园地<` + emailConfig["from_email"] + `>
+	message := `From: ` + WebsiteSetting.Name + `<` + emailConfig["from_email"] + `>
 To: ` + strings.Join(tos, ",") + `
 Subject: ` + subject + `
 Content-Type: text/html;charset=UTF-8
@@ -58,15 +59,16 @@ func (self EmailLogic) SendActivateMail(email, uuid string) {
 
 	param := goutils.Base64Encode(fmt.Sprintf("uuid=%s&timestamp=%d&sign=%s", uuid, timestamp, sign))
 
-	domain := config.ConfigFile.MustValue("global", "domain")
-	activeUrl := fmt.Sprintf("http://%s/account/activate?param=%s", domain, param)
+	activeUrl := fmt.Sprintf("http://%s/account/activate?param=%s", WebsiteSetting.Domain, param)
+
+	global.App.SetCopyright()
 
 	content := `
-尊敬的Go语言中文网用户：<br/><br/>
-感谢您选择了Go语言中文网，请点击下面的地址激活你在Go语言中文网的帐号（有效期4小时）：<br/><br/>
+尊敬的` + WebsiteSetting.Name + `用户：<br/><br/>
+感谢您选择了` + WebsiteSetting.Name + `，请点击下面的地址激活你在` + WebsiteSetting.Name + `的帐号（有效期4小时）：<br/><br/>
 <a href="` + activeUrl + `">` + activeUrl + `</a><br/><br/>
-<div style="text-align:right;">&copy;2012-2016 studygolang.com Go语言中文网 | Golang中文社区 | Go语言学习园地</div>`
-	self.SendMail("Go语言中文网帐号激活邮件", content, []string{email})
+<div style="text-align:right;">&copy;` + global.App.Copyright + ` ` + WebsiteSetting.Name + `</div>`
+	self.SendMail(WebsiteSetting.Name+"帐号激活邮件", content, []string{email})
 }
 
 func (EmailLogic) genActivateSign(email, uuid string, ts int64) string {
@@ -77,9 +79,11 @@ func (EmailLogic) genActivateSign(email, uuid string, ts int64) string {
 
 // SendResetpwdMail 发重置密码邮件
 func (self EmailLogic) SendResetpwdMail(email, uuid string) {
-	domain := config.ConfigFile.MustValue("global", "domain")
+	global.App.SetCopyright()
+
+	domain := WebsiteSetting.Domain
 	content := `您好，` + email + `,<br/><br/>
-&nbsp;&nbsp;&nbsp;&nbsp;我们的系统收到一个请求，说您希望通过电子邮件重新设置您在 <a href="http://` + domain + `">Go语言中文网</a> 的密码。您可以点击下面的链接重设密码：<br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;我们的系统收到一个请求，说您希望通过电子邮件重新设置您在 <a href="http://` + domain + `">` + WebsiteSetting.Name + `</a> 的密码。您可以点击下面的链接重设密码：<br/><br/>
 
 &nbsp;&nbsp;&nbsp;&nbsp;http://` + domain + `/account/resetpwd?code=` + uuid + ` <br/><br/>
 
@@ -87,8 +91,8 @@ func (self EmailLogic) SendResetpwdMail(email, uuid string) {
 
 如果您有任何疑问，可以回复这封邮件向我们提问。谢谢！<br/><br/>
 
-<div style="text-align:right;">&copy;2013-` + time.Now().Format("2006") + ` studygolang.com  Go语言中文网 | Golang中文社区 | Go语言学习园地</div>`
-	self.SendMail("【Go语言中文网】重设密码 ", content, []string{email})
+<div style="text-align:right;">&copy;` + global.App.Copyright + ` ` + WebsiteSetting.Name + `</div>`
+	self.SendMail("【"+WebsiteSetting.Name+"】重设密码 ", content, []string{email})
 }
 
 // 自定义模板函数

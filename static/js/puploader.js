@@ -1,6 +1,4 @@
 $(function(){
-	var QINIU_DOAMIN = 'http://studygolang.qiniudn.com/';
-	
 	// 实例化一个plupload上传对象
 	var uploader = new plupload.Uploader({
 		browse_button : 'upload-img', // 触发文件选择对话框的按钮，为那个元素id
@@ -34,7 +32,7 @@ $(function(){
 			var data = $.parseJSON(responseObject.response);
 			if (data.ok) {
 				var text = $('.main-textarea').val();
-				text += '!['+file.name+']('+QINIU_DOAMIN+data.data.uri+')';
+				text += '!['+file.name+']('+data.data.url+')';
 				$('.main-textarea').val(text);
 			} else {
 				comTip("上传失败："+data.error);

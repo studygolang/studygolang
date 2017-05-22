@@ -12,7 +12,10 @@ CREATE TABLE `website_setting` (
   `reading_menu` varchar(127) NOT NULL DEFAULT '' COMMENT '技术晨读菜单名，留空则用默认的',
   `docs_menu` varchar(255) NOT NULL DEFAULT '' COMMENT '官方文档菜单，json格式，留空则用默认',
   `footer_nav` varchar(1022) NOT NULL DEFAULT '' COMMENT '底部导航，json格式',
-  `friends_logo` varchar(255) NOT NULL DEFAULT '' COMMENT '底部友情logo，json格式',
+  `friends_logo` varchar(1022) NOT NULL DEFAULT '' COMMENT '底部友情logo，json格式',
+  `project_df_logo` varchar(255) NOT NULL DEFAULT '' COMMENT '开源项目默认logo',
+  `seo_keywords` varchar(63) NOT NULL DEFAULT '' COMMENT '页面 seo 通用keywords',
+  `seo_description` varchar(255) NOT NULL DEFAULT '' COMMENT '页面 seo 通用description',
   `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '创建时间',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
   PRIMARY KEY (`id`)
@@ -467,3 +470,4 @@ CREATE TABLE IF NOT EXISTS `default_avatar` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '默认头像';
+

@@ -49,14 +49,27 @@
 			<tr>
 				<th scope="row"><label for="access_key">access_key</label></th>
 				<td><input name="access_key" id="access_key" type="text" size="45" style="width: 400px;"/></td>
+				<td></td>
 			</tr>
 			<tr>
 				<th scope="row"><label for="secret_key">secret_key</label></th>
 				<td><input name="secret_key" id="secret_key" type="text" size="45" style="width: 400px;" /></td>
+				<td></td>
 			</tr>
 			<tr>
 				<th scope="row"><label for="bucket_name">bucket_name</label></th>
 				<td><input name="bucket_name" id="bucket_name" type="text" size="25" /></td>
+				<td></td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="http_domain">CND HTTP 的域名</label></th>
+				<td><input name="http_domain" id="http_domain" type="text" size="25" /></td>
+				<td></td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="https_domain">CND HTTPS 的域名</label></th>
+				<td><input name="https_domain" id="https_domain" type="text" size="25" /></td>
+				<td>留空表示和HTTP相同</td>
 			</tr>
 		</table>
 		{{end}}

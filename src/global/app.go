@@ -28,6 +28,7 @@ import (
 	"io"
 	"model"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/polaris1119/config"
@@ -60,6 +61,8 @@ type app struct {
 	// CDN 资源域名
 	CDNHttp  string
 	CDNHttps string
+
+	locker sync.Mutex
 }
 
 var App = app{}
@@ -92,15 +95,19 @@ func init() {
 }
 
 func (this *app) SetUptime() {
+	this.locker.Lock()
+	defer this.locker.Unlock()
 	this.Uptime = time.Now().Sub(this.LaunchTime)
 }
 
-func (this *app) SetCopyright(websiteSetting *model.WebsiteSetting) {
+func (this *app) SetCopyright() {
 	curYear := time.Now().Year()
-	if curYear == websiteSetting.StartYear {
-		this.Copyright = fmt.Sprintf("%d %s", websiteSetting.StartYear, websiteSetting.Domain)
+	this.locker.Lock()
+	defer this.locker.Unlock()
+	if curYear == model.WebsiteSetting.StartYear {
+		this.Copyright = fmt.Sprintf("%d %s", model.WebsiteSetting.StartYear, model.WebsiteSetting.Domain)
 	} else {
-		this.Copyright = fmt.Sprintf("%d-%d %s", websiteSetting.StartYear, curYear, websiteSetting.Domain)
+		this.Copyright = fmt.Sprintf("%d-%d %s", model.WebsiteSetting.StartYear, curYear, model.WebsiteSetting.Domain)
 	}
 }
 

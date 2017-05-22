@@ -36,7 +36,7 @@ var (
 	// 资源分类
 	AllCategory []*model.ResourceCat
 
-	WebsiteSetting = &model.WebsiteSetting{}
+	WebsiteSetting = model.WebsiteSetting
 
 	DefaultAvatars []string
 )

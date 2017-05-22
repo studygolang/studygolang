@@ -207,12 +207,12 @@ func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interf
 
 	// websocket主机
 	if global.OnlineEnv() {
-		data["wshost"] = config.ConfigFile.MustValue("global", "domain")
+		data["wshost"] = logic.WebsiteSetting.Domain
 	} else {
 		data["wshost"] = global.App.Host + ":" + global.App.Port
 	}
 	global.App.SetUptime()
-	global.App.SetCopyright(logic.WebsiteSetting)
+	global.App.SetCopyright()
 
 	isHttps := goutils.MustBool(ctx.Request().Header().Get("X-Https"))
 	cdnDomain := global.App.CDNHttp

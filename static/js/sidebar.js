@@ -71,11 +71,8 @@ $(function(){
 				}
 
 				var title = data[i].category + ' ' + data[i].name;
+				var logo = data[i].logo;
 
-				var logo = 'http://studygolang.qiniudn.com/gopher/default_project.jpg?imageView2/2/w/48';
-				if (data[i].logo != '') {
-					logo = data[i].logo;
-				}
 				content += '<li>'+
 					'<a href="/p/'+uri+'">'+
 						'<div class="logo"><img src="'+logo+'" alt="'+data[i].name+'" width="48px"/></div>'+

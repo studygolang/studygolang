@@ -47,7 +47,7 @@
 
             editor.on('instanceReady', function(){
                 if (typeof (jQuery) === 'undefined') {
-                    CKEDITOR.scriptLoader.load('http://studygolang.com/static/js/libs/jquery-1.11.1.min.js', function() {
+                    CKEDITOR.scriptLoader.load('//apps.bdimg.com/libs/jquery/1.11.1/jquery.min.js', function() {
                         jQuery.noConflict();
 
                         loadPlugin(editor, config);

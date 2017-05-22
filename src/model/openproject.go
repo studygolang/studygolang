@@ -6,7 +6,11 @@
 
 package model
 
-import "time"
+import (
+	"time"
+
+	"github.com/go-xorm/xorm"
+)
 
 const (
 	ProjectStatusNew     = 0
@@ -39,4 +43,10 @@ type OpenProject struct {
 	Status   int       `json:"status"`
 	Ctime    OftenTime `json:"ctime,omitempty" xorm:"created"`
 	Mtime    time.Time `json:"mtime,omitempty" xorm:"<-"`
+}
+
+func (this *OpenProject) AfterSet(name string, cell xorm.Cell) {
+	if name == "logo" && this.Logo == "" {
+		this.Logo = WebsiteSetting.ProjectDfLogo
+	}
 }

@@ -34,30 +34,39 @@ type FooterNav struct {
 	OuterSite bool   `json:"outer_site"`
 }
 
-type WebsiteSetting struct {
-	Id          int `xorm:"pk autoincr"`
-	Name        string
-	Domain      string
-	TitleSuffix string
-	Favicon     string
-	Logo        string
-	StartYear   int
-	BlogUrl     string
-	ReadingMenu string
-	DocsMenu    string
-	Slogan      string
-	Beian       string
-	FooterNav   string
-	FriendsLogo string
-	CreatedAt   time.Time `xorm:"created"`
-	UpdatedAt   time.Time `xorm:"<-"`
+type websiteSetting struct {
+	Id             int `xorm:"pk autoincr"`
+	Name           string
+	Domain         string
+	TitleSuffix    string
+	Favicon        string
+	Logo           string
+	StartYear      int
+	BlogUrl        string
+	ReadingMenu    string
+	DocsMenu       string
+	Slogan         string
+	Beian          string
+	FooterNav      string
+	FriendsLogo    string
+	ProjectDfLogo  string
+	SeoKeywords    string
+	SeoDescription string
+	CreatedAt      time.Time `xorm:"created"`
+	UpdatedAt      time.Time `xorm:"<-"`
 
 	DocMenus    []*DocMenu    `xorm:"-"`
 	FriendLogos []*FriendLogo `xorm:"-"`
 	FooterNavs  []*FooterNav  `xorm:"-"`
 }
 
-func (this *WebsiteSetting) AfterSet(name string, cell xorm.Cell) {
+var WebsiteSetting = &websiteSetting{}
+
+func (self websiteSetting) TableName() string {
+	return "website_setting"
+}
+
+func (this *websiteSetting) AfterSet(name string, cell xorm.Cell) {
 	if name == "docs_menu" {
 		this.DocMenus = this.unmarshalDocsMenu()
 	} else if name == "friends_logo" {
@@ -67,7 +76,7 @@ func (this *WebsiteSetting) AfterSet(name string, cell xorm.Cell) {
 	}
 }
 
-func (this *WebsiteSetting) unmarshalDocsMenu() []*DocMenu {
+func (this *websiteSetting) unmarshalDocsMenu() []*DocMenu {
 	if this.DocsMenu == "" {
 		return nil
 	}
@@ -82,7 +91,7 @@ func (this *WebsiteSetting) unmarshalDocsMenu() []*DocMenu {
 	return docMenus
 }
 
-func (this *WebsiteSetting) unmarshalFriendsLogo() []*FriendLogo {
+func (this *websiteSetting) unmarshalFriendsLogo() []*FriendLogo {
 	if this.FriendsLogo == "" {
 		return nil
 	}
@@ -97,7 +106,7 @@ func (this *WebsiteSetting) unmarshalFriendsLogo() []*FriendLogo {
 	return friendLogos
 }
 
-func (this *WebsiteSetting) unmarshalFooterNav() []*FooterNav {
+func (this *websiteSetting) unmarshalFooterNav() []*FooterNav {
 	var footerNavs = []*FooterNav{}
 	err := json.Unmarshal([]byte(this.FooterNav), &footerNavs)
 	if err != nil {

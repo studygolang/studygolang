@@ -97,8 +97,7 @@ func (IndexController) WrapUrl(ctx echo.Context) error {
 		}
 
 		// 本站
-		domain := config.ConfigFile.MustValue("global", "domain")
-		if strings.Contains(pUrl.Host, domain) {
+		if strings.Contains(pUrl.Host, logic.WebsiteSetting.Domain) {
 			return ctx.Redirect(http.StatusSeeOther, tUrl)
 		}
 

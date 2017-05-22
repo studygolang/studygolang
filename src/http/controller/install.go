@@ -175,9 +175,12 @@ func (InstallController) SetupOptions(ctx echo.Context) error {
 		}
 
 		config.ConfigFile.SetSectionComments("qiniu", "图片存储在七牛云，如果没有可以通过 https://portal.qiniu.com/signup?code=3lfz4at7pxfma 免费申请")
-		qiniuFields := []string{"access_key", "secret_key", "bucket_name"}
+		qiniuFields := []string{"access_key", "secret_key", "bucket_name", "http_domain", "https_domain"}
 		for _, field := range qiniuFields {
 			config.ConfigFile.SetValue("qiniu", field, ctx.FormValue(field))
+		}
+		if ctx.FormValue("https_domain") == "" {
+			config.ConfigFile.SetValue("qiniu", "https_domain", ctx.FormValue("http_domain"))
 		}
 
 		config.SaveConfigFile()
@@ -199,20 +202,18 @@ func (InstallController) genConfig(ctx echo.Context) error {
 	config.ConfigFile.SetValue("global", "env", env)
 
 	var (
-		logLevel     = "DEBUG"
-		domain       = global.App.Host + ":" + global.App.Port
+		logLevel = "DEBUG"
+		// domain       = global.App.Host + ":" + global.App.Port
 		xormLogLevel = "0"
 		xormShowSql  = "true"
 	)
 	if env == "pro" {
 		logLevel = "INFO"
-		domain = "studygolang.com"
 		xormLogLevel = "1"
 		xormShowSql = "false"
 	}
 
 	config.ConfigFile.SetValue("global", "log_level", logLevel)
-	config.ConfigFile.SetValue("global", "domain", domain)
 	config.ConfigFile.SetValue("global", "cookie_secret", goutils.RandString(10))
 	config.ConfigFile.SetValue("global", "data_path", "data/max_online_num")
 

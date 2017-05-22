@@ -1,6 +1,4 @@
 jQuery(document).ready(function(){
-
-	var QINIU_DOAMIN = 'http://studygolang.qiniudn.com/';
 	
 	$('.upload_img_single').Huploadify({
 		auto: true,
@@ -14,7 +12,7 @@ jQuery(document).ready(function(){
 		onUploadSuccess : function(file, data) {
 			data = $.parseJSON(data);
 			if (data.ok) {
-				var url = QINIU_DOAMIN+data.data.uri;
+				var url = data.data.url;
 				$('.img_url').val(url);
 				$('img.show_img').attr('src', url);
 				$('a.show_img').attr('href', url);

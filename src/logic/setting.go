@@ -64,6 +64,8 @@ func (SettingLogic) Update(ctx context.Context, form url.Values) error {
 
 	WebsiteSetting.Beian = form.Get("beian")
 
+	WebsiteSetting.ReadingMenu = form.Get("reading_menu")
+
 	if docNameSlice, ok := form["doc_name"]; ok {
 		docUrlSlice := form["doc_url"]
 

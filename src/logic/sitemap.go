@@ -51,7 +51,7 @@ func GenSitemap() {
 
 	// 首页
 	home := map[string]string{
-		"loc":      "http://" + config.ConfigFile.MustValue("global", "domain"),
+		"loc":      "http://" + WebsiteSetting.Domain,
 		"lastmode": time.Now().Format(time.RFC3339),
 	}
 

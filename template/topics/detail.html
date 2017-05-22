@@ -18,7 +18,7 @@
 					{{.topic.title}}
 					{{if .me}}
 						{{if or (eq .me.Username .topic.user.Username) .me.IsAdmin}}
-						<a class="edit" href="/topics/modify?tid={{.topic.tid}}" title="编辑"><i class="glyphicon glyphicon-pencil"></i> 编辑</a>
+						<a class="btn btn-primary btn-xs" href="/topics/modify?tid={{.topic.tid}}" title="编辑">编辑</a>
 						{{end}}
 					{{end}}
 				</h1>
@@ -168,7 +168,7 @@
 <script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
 <script type="text/javascript" src="/static/js/topics.js?v=1.2"></script>
 <script type="text/javascript" src="/static/js/comment.js?v=1.1"></script>
-<script type="text/javascript" src="/static/js/puploader.js?v=1.0"></script>
+<script type="text/javascript" src="/static/js/puploader.js?v=1.1"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [

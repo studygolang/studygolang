@@ -124,12 +124,17 @@ func (ImageController) Upload(ctx echo.Context) error {
 		imgDir = "avatar"
 	}
 
+	cdnDomain := global.App.CDNHttp
+	if goutils.MustBool(ctx.Request().Header().Get("X-Https")) {
+		cdnDomain = global.App.CDNHttps
+	}
+
 	path, err := logic.DefaultUploader.UploadImage(ctx, file, imgDir, buf, filepath.Ext(fileHeader.Filename))
 	if err != nil {
 		return fail(ctx, 5, "文件上传失败！")
 	}
 
-	return success(ctx, map[string]interface{}{"uri": path})
+	return success(ctx, map[string]interface{}{"url": cdnDomain + path})
 }
 
 // Transfer 转换图片：通过 url 从远程下载图片然后转存到七牛
@@ -149,5 +154,5 @@ func (ImageController) Transfer(ctx echo.Context) error {
 		cdnDomain = global.App.CDNHttps
 	}
 
-	return success(ctx, map[string]interface{}{"uri": cdnDomain + path})
+	return success(ctx, map[string]interface{}{"url": cdnDomain + path})
 }
