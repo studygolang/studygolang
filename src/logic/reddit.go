@@ -21,6 +21,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/polaris1119/config"
+	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 )
 
@@ -85,7 +86,7 @@ func (this *RedditLogic) newDocumentFromResp(url string) (*goquery.Document, err
 	return goquery.NewDocumentFromResponse(resp)
 }
 
-var PresetUids = []int{1, 1747, 1748, 1827}
+var PresetUids = config.ConfigFile.MustValueArray("crawl", "preset_uids", ",")
 
 var resourceRe = regexp.MustCompile(`\n\n`)
 
@@ -177,7 +178,7 @@ func (this *RedditLogic) dealRedditOneResource(contentSelection *goquery.Selecti
 
 	resource.Title = title
 	resource.Url = resourceUrl
-	resource.Uid = PresetUids[rand.Intn(4)]
+	resource.Uid = goutils.MustInt(PresetUids[rand.Intn(len(PresetUids))])
 
 	ctime := time.Now()
 	datetime, ok := contentSelection.Find(".tagline time").Attr("datetime")

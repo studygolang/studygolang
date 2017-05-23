@@ -20,6 +20,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/lunny/html2md"
+	"github.com/polaris1119/config"
 	"github.com/polaris1119/logger"
 	"golang.org/x/net/context"
 )
@@ -264,7 +265,7 @@ const OsChinaDomain = "http://www.oschina.net"
 // ProjectLogoPrefix 开源项目 logo 前缀
 const ProjectLogoPrefix = "plogo"
 
-var PresetUsernames = []string{"polaris", "blov", "agolangf", "xuanbao"}
+var PresetUsernames = config.ConfigFile.MustValueArray("crawl", "preset_users", ",")
 
 // ParseOneProject 处理单个 project
 func (ProjectLogic) ParseOneProject(projectUrl string) error {

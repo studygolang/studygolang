@@ -290,6 +290,7 @@ CREATE TABLE IF NOT EXISTS `crawl_rule` (
   `author` varchar(127) NOT NULL DEFAULT '' COMMENT '文章作者规则',
   `pub_date` varchar(127) NOT NULL DEFAULT '' COMMENT '发布时间规则',
   `content` varchar(127) NOT NULL DEFAULT '' COMMENT '正文规则',
+  `ext` varchar(1022) NOT NULL DEFAULT '' COMMENT '扩展，比如附加 css 等，json格式',
   `op_user` varchar(20) NOT NULL DEFAULT '' COMMENT '操作人',
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),

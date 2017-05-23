@@ -76,7 +76,7 @@ func (ProjectController) CrawlProject(ctx echo.Context) error {
 
 		var errMsg string
 		for _, projectUrl := range urls {
-			err := logic.DefaultProject.ParseProjectList(strings.TrimSpace(projectUrl))
+			err := logic.DefaultProject.ParseOneProject(strings.TrimSpace(projectUrl))
 			if err != nil {
 				errMsg = err.Error()
 			}
