@@ -8,6 +8,7 @@ package logic
 
 import (
 	"bytes"
+	"crypto/tls"
 	"fmt"
 	"global"
 	"html/template"
@@ -16,6 +17,7 @@ import (
 	"time"
 
 	"github.com/polaris1119/config"
+	"github.com/polaris1119/email"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 
@@ -29,24 +31,35 @@ type EmailLogic struct{}
 var DefaultEmail = EmailLogic{}
 
 // SendMail 发送电子邮件
-func (EmailLogic) SendMail(subject, content string, tos []string) error {
+func (EmailLogic) SendMail(subject, content string, tos []string) (err error) {
 	emailConfig, _ := config.ConfigFile.GetSection("email")
-	message := `From: ` + WebsiteSetting.Name + `<` + emailConfig["from_email"] + `>
-To: ` + strings.Join(tos, ",") + `
-Subject: ` + subject + `
-Content-Type: text/html;charset=UTF-8
 
-` + content
+	e := email.NewEmail()
+	e.From = WebsiteSetting.Name + ` <` + emailConfig["from_email"] + `>`
+	e.To = tos
+	e.Subject = subject
+	e.HTML = []byte(content)
 
-	smtpAddr := emailConfig["smtp_host"] + ":" + emailConfig["smtp_port"]
 	auth := smtp.PlainAuth("", emailConfig["smtp_username"], emailConfig["smtp_password"], emailConfig["smtp_host"])
-	err := smtp.SendMail(smtpAddr, auth, emailConfig["from_email"], tos, []byte(message))
+	smtpAddr := emailConfig["smtp_host"] + ":" + emailConfig["smtp_port"]
+
+	if goutils.MustBool(emailConfig["tls"]) {
+		err = e.Send(smtpAddr, auth)
+	} else {
+		tlsConfig := &tls.Config{
+			InsecureSkipVerify: true,
+			ServerName:         emailConfig["smtp_host"],
+		}
+
+		err = e.SendWithTLS(smtpAddr, auth, tlsConfig)
+	}
+
 	if err != nil {
 		logger.Errorln("Send Mail to", strings.Join(tos, ","), "error:", err)
-		return err
+		return
 	}
 	logger.Infoln("Send Mail to", strings.Join(tos, ","), "Successfully")
-	return nil
+	return
 }
 
 // 保存uuid和email的对应关系（TODO:重启如何处理）

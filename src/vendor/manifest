@@ -267,6 +267,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/polaris1119/email",
+			"repository": "https://github.com/polaris1119/email",
+			"revision": "fab6eb4568abf395404252a598ff32d7fe445dbf",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/polaris1119/goutils",
 			"repository": "https://github.com/polaris1119/goutils",
 			"revision": "582c98b3184b83e1600833fb042b3ecc3070dcda",
