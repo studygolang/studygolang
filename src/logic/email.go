@@ -44,14 +44,14 @@ func (EmailLogic) SendMail(subject, content string, tos []string) (err error) {
 	smtpAddr := emailConfig["smtp_host"] + ":" + emailConfig["smtp_port"]
 
 	if goutils.MustBool(emailConfig["tls"]) {
-		err = e.Send(smtpAddr, auth)
-	} else {
 		tlsConfig := &tls.Config{
 			InsecureSkipVerify: true,
 			ServerName:         emailConfig["smtp_host"],
 		}
 
 		err = e.SendWithTLS(smtpAddr, auth, tlsConfig)
+	} else {
+		err = e.Send(smtpAddr, auth)
 	}
 
 	if err != nil {
