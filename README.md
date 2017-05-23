@@ -117,3 +117,8 @@ cd 到 studygolang 源码目录
 应该就能看到了。
 
 接下来你会看到图形化安装界面，一步步照做吧。
+
+# 使用该项目搭建的网站：
+
+- [Go语言中文网](http://studygolang.com)
+- [Kotlin中国](https://kotlintc.com)
