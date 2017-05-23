@@ -107,14 +107,18 @@ func (self AccountController) Register(ctx echo.Context) error {
  				<a href="` + emailUrl + `" target="_blank"><button type="button" class="btn btn-success">立即验证</button></a>&nbsp;&nbsp;<button type="button" class="btn btn-link" data-uuid="` + uuid + `" id="resend_email">未收到？再发一次</button>
 			</div>`),
 	}
+
+	isHttps := goutils.MustBool(ctx.Request().Header().Get("X-Https"))
 	// 需要检验邮箱的正确性
-	go logic.DefaultEmail.SendActivateMail(email, uuid)
+	go logic.DefaultEmail.SendActivateMail(email, uuid, isHttps)
 
 	return render(ctx, registerTpl, data)
 }
 
 // SendActivateEmail 发送注册激活邮件
 func (self AccountController) SendActivateEmail(ctx echo.Context) error {
+	isHttps := goutils.MustBool(ctx.Request().Header().Get("X-Https"))
+
 	uuid := ctx.FormValue("uuid")
 	if uuid != "" {
 		email, ok := RegActivateCode.GetEmail(uuid)
@@ -122,14 +126,14 @@ func (self AccountController) SendActivateEmail(ctx echo.Context) error {
 			return fail(ctx, 1, "非法请求")
 		}
 
-		go logic.DefaultEmail.SendActivateMail(email, uuid)
+		go logic.DefaultEmail.SendActivateMail(email, uuid, isHttps)
 	} else {
 		user, ok := ctx.Get("user").(*model.Me)
 		if !ok {
 			return fail(ctx, 1, "非法请求")
 		}
 
-		go logic.DefaultEmail.SendActivateMail(user.Email, RegActivateCode.GenUUID(user.Email))
+		go logic.DefaultEmail.SendActivateMail(user.Email, RegActivateCode.GenUUID(user.Email), isHttps)
 	}
 
 	return success(ctx, nil)
@@ -243,7 +247,8 @@ func (self AccountController) Edit(ctx echo.Context) error {
 
 	email := ctx.FormValue("email")
 	if me.Email != email {
-		go logic.DefaultEmail.SendActivateMail(email, RegActivateCode.GenUUID(email))
+		isHttps := goutils.MustBool(ctx.Request().Header().Get("X-Https"))
+		go logic.DefaultEmail.SendActivateMail(email, RegActivateCode.GenUUID(email), isHttps)
 	}
 
 	return success(ctx, nil)
@@ -315,8 +320,10 @@ func (AccountController) ForgetPasswd(ctx echo.Context) error {
 			pos := strings.LastIndex(email, "@")
 			emailUrl = "http://mail." + email[pos+1:]
 		}
+
+		isHttps := goutils.MustBool(ctx.Request().Header().Get("X-Https"))
 		data["success"] = template.HTML(`一封包含了重设密码链接的邮件已经发送到您的注册邮箱，按照邮件中的提示，即可重设您的密码。<a href="` + emailUrl + `" target="_blank">立即前往邮箱</a>`)
-		go logic.DefaultEmail.SendResetpwdMail(email, uuid)
+		go logic.DefaultEmail.SendResetpwdMail(email, uuid, isHttps)
 	} else {
 		data["error"] = "该邮箱没有在本社区注册过！"
 	}

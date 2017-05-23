@@ -66,13 +66,17 @@ func (EmailLogic) SendMail(subject, content string, tos []string) (err error) {
 var regActivateCodeMap = map[string]string{}
 
 // SendActivateMail 发送激活邮件
-func (self EmailLogic) SendActivateMail(email, uuid string) {
+func (self EmailLogic) SendActivateMail(email, uuid string, isHttps ...bool) {
 	timestamp := time.Now().Unix()
 	sign := self.genActivateSign(email, uuid, timestamp)
-
 	param := goutils.Base64Encode(fmt.Sprintf("uuid=%s&timestamp=%d&sign=%s", uuid, timestamp, sign))
 
-	activeUrl := fmt.Sprintf("http://%s/account/activate?param=%s", WebsiteSetting.Domain, param)
+	domain := "http://" + WebsiteSetting.Domain
+	if len(isHttps) > 0 && isHttps[0] {
+		domain = "https://" + WebsiteSetting.Domain
+	}
+
+	activeUrl := fmt.Sprintf("%s/account/activate?param=%s", domain, param)
 
 	global.App.SetCopyright()
 
@@ -91,14 +95,17 @@ func (EmailLogic) genActivateSign(email, uuid string, ts int64) string {
 }
 
 // SendResetpwdMail 发重置密码邮件
-func (self EmailLogic) SendResetpwdMail(email, uuid string) {
+func (self EmailLogic) SendResetpwdMail(email, uuid string, isHttps ...bool) {
 	global.App.SetCopyright()
 
-	domain := WebsiteSetting.Domain
+	domain := "http://" + WebsiteSetting.Domain
+	if len(isHttps) > 0 && isHttps[0] {
+		domain = "https://" + WebsiteSetting.Domain
+	}
 	content := `您好，` + email + `,<br/><br/>
-&nbsp;&nbsp;&nbsp;&nbsp;我们的系统收到一个请求，说您希望通过电子邮件重新设置您在 <a href="http://` + domain + `">` + WebsiteSetting.Name + `</a> 的密码。您可以点击下面的链接重设密码：<br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;我们的系统收到一个请求，说您希望通过电子邮件重新设置您在 <a href="` + domain + `">` + WebsiteSetting.Name + `</a> 的密码。您可以点击下面的链接重设密码：<br/><br/>
 
-&nbsp;&nbsp;&nbsp;&nbsp;http://` + domain + `/account/resetpwd?code=` + uuid + ` <br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;` + domain + `/account/resetpwd?code=` + uuid + ` <br/><br/>
 
 如果这个请求不是由您发起的，那没问题，您不用担心，您可以安全地忽略这封邮件。<br/><br/>
 
