@@ -151,12 +151,16 @@ func (self EmailLogic) EmailNotice() {
 		logger.Errorln("find topic error:", err)
 	}
 
+	global.App.SetCopyright()
+
 	data := map[string]interface{}{
 		"readings":  readings,
 		"articles":  articles,
 		"topics":    topics,
 		"beginDate": beginDate,
 		"endDate":   endDate,
+		"setting":   WebsiteSetting,
+		"app":       global.App,
 	}
 
 	// 给所有用户发送邮件

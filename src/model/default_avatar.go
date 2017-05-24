@@ -11,5 +11,5 @@ import "time"
 type DefaultAvatar struct {
 	Id        int `json:"-" xorm:"pk autoincr"`
 	Filename  string
-	CreatedAt time.Time `json:"-" xorm:"created"`
+	CreatedAt time.Time `json:"-" xorm:"<-"`
 }

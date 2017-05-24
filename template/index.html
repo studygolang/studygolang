@@ -39,6 +39,15 @@
 				</ul>
 			</div>
 		</div>
+		
+		{{if .pos_ad.banner}}
+		<div class="row box_white" style="margin-top:20px;" id="ad-banner">
+			{{if eq .pos_ad.banner.AdType 0}}
+				{{noescape .pos_ad.banner.Code}}
+			{{end}}
+		</div>
+		{{end}}
+
 		<div class="row box_white article-list">
 			<div class="title">
 				<h3><a href="/articles">最新博文</a></h3>
@@ -328,4 +337,10 @@ SG.SIDE_BARS = [
 	"/friend/links"
 ];
 </script>
+{{if .pos_ad.banner}}
+	{{if eq .pos_ad.banner.AdType 1}}
+		{{noescape .pos_ad.banner.Code}}
+	{{end}}
+{{end}}
+
 {{end}}

@@ -428,19 +428,22 @@ CREATE TABLE `book` (
 
 CREATE TABLE IF NOT EXISTS `advertisement` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(20) NOT NULL DEFAULT '' COMMENT '广告名称',
-  `code` varchar(255) NOT NULL DEFAULT '' COMMENT '广告内容代码(html、js等)',
-  `source` varchar(20) NOT NULL DEFAULT '' COMMENT '广告来源，如 baidu_union，shiyanlou',
-  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `name` varchar(31) NOT NULL DEFAULT '' COMMENT '广告名称',
+  `ad_type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '广告类型：0-直接在html显示；1-js 操作 html',
+  `code` varchar(1022) NOT NULL DEFAULT '' COMMENT '广告内容代码(html、js等)',
+  `source` varchar(31) NOT NULL DEFAULT '' COMMENT '广告来源，如 百度联盟，阿里云',
+  `is_online` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否在线：0-下线；1-在线',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '广告表';
 
 CREATE TABLE IF NOT EXISTS `page_ad` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `ad_id` varchar(20) NOT NULL DEFAULT '' COMMENT '广告名称',
-  `code` varchar(255) NOT NULL DEFAULT '' COMMENT '广告内容代码(html、js等)',
-  `source` varchar(20) NOT NULL DEFAULT '' COMMENT '广告来源，如 baidu_union，shiyanlou',
-  `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `path` varchar(31) NOT NULL DEFAULT '' COMMENT '页面路径',
+  `ad_id` int unsigned NOT NULL DEFAULT 0 COMMENT '广告ID',
+  `position` varchar(15) NOT NULL DEFAULT '' COMMENT '广告在页面的位置，英文字符串',
+  `is_online` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否在线：0-下线；1-在线',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '页面广告管理表';
 

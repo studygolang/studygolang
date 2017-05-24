@@ -108,9 +108,13 @@
 			</div>
 		</div>
 
-		<div class="row box_white sidebar">
-			<a href="http://click.aliyun.com/m/2709/" target="_blank" title="学生机" class="ad"><img src="http://studygolang.qiniudn.com/ad/aliyun_right.jpg" alt="学生机" class="center-block"></a>
+		{{if .pos_ad.right1}}
+		<div class="row box_white sidebar" id="ad-right1">
+			{{if eq .pos_ad.right1.AdType 0}}
+				{{noescape .pos_ad.right1.Code}}
+			{{end}}
 		</div>
+		{{end}}
 
 		<div class="row box_white sidebar">
 			<div class="top">
@@ -137,14 +141,14 @@
 				</div>
 			</div>
 		</div>
-
-		<div class="row box_white sidebar">
-			<script type="text/javascript">
-			var cpro_id="u1996895";
-			(window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id]={at:"3",rsi0:"291",rsi1:"291",pat:"6",tn:"baiduCustNativeAD",rss1:"#FFFFFF",conBW:"0",adp:"1",ptt:"0",titFF:"%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91",titFS:"14",rss2:"#000000",titSU:"0",ptbg:"90",piw:"0",pih:"0",ptp:"0"}
-			</script>
-			<script src="//cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script>
+		
+		{{if .pos_ad.right2}}
+		<div class="row box_white sidebar" id="ad-right2">
+			{{if eq .pos_ad.right2.AdType 0}}
+				{{noescape .pos_ad.right2.Code}}
+			{{end}}
 		</div>
+		{{end}}
 		
 	</div>
 </div>
@@ -192,6 +196,19 @@ $(function(){
 	});
 });
 </script>
+
+{{if .pos_ad.right1}}
+	{{if eq .pos_ad.right1.AdType 1}}
+		{{noescape .pos_ad.right1.Code}}
+	{{end}}
+{{end}}
+
+{{if .pos_ad.right2}}
+	{{if eq .pos_ad.right2.AdType 1}}
+		{{noescape .pos_ad.right2.Code}}
+	{{end}}
+{{end}}
+
 <script type="text/javascript">
 /* 内文方式  创建于 2015-03-15*/
 var cpro_id = "u1989498";

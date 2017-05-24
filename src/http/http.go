@@ -120,6 +120,8 @@ func Render(ctx echo.Context, contentTpl string, data map[string]interface{}) er
 		return err
 	}
 
+	data["pos_ad"] = logic.DefaultAd.FindAll(ctx, ctx.Path())
+
 	return executeTpl(ctx, tpl, data)
 }
 
