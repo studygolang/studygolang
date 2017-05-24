@@ -224,15 +224,6 @@
 	<div id="sg-overlay"></div>
 	{{end}}
 	
-	<div style="display:none;">
-		<script type="text/javascript">
-		var isHttps = {{.is_https}},
-			cdnDomain = "{{.cdn_domain}}";
-
-		var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
-		document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F224c227cd9239761ec770bc8c1fb134c' type='text/javascript'%3E%3C/script%3E"));
-		</script>
-	</div>
 	<!--<script type="text/javascript"  src="//apps.bdimg.com/libs/jquery/1.11.1/jquery.min.js"></script>-->
 	<script type="text/javascript" src="/static/js/libs/jquery-1.11.1.min.js"></script>
 	<!--<script src="//apps.bdimg.com/libs/bootstrap/3.2.0/js/bootstrap.min.js"></script>-->
@@ -241,6 +232,8 @@
 	<script src="/static/js/libs/jquery.timeago.zh-CN.js"></script>
 	<script src="/static/js/libs/md5.js"></script>
 	<script type="text/javascript">
+	var isHttps = {{.is_https}},
+		cdnDomain = "{{.cdn_domain}}";
 	if (isHttps) {
 		var wsUrl = 'wss://{{.wshost}}/ws?uid={{.me.Uid}}';
 	} else {
