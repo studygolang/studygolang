@@ -18,7 +18,7 @@ import (
 	"github.com/polaris1119/logger"
 )
 
-// 话题/文章/资源的浏览数
+// 话题/文章/资源/图书等的浏览数
 // 避免每次写库，同时避免刷屏
 type view struct {
 	objtype int // 对象类型（model/comment 中的 type 常量）
@@ -59,6 +59,8 @@ func (this *view) flush() {
 	case model.TypeBook:
 		session.Incr("viewnum", this.num).Update(new(model.Book))
 	}
+
+	DefaultRank.GenDayRank(this.objtype, this.objid, this.num)
 
 	this.num = 0
 }

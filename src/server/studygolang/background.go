@@ -10,6 +10,7 @@ import (
 	"db"
 	"global"
 	"logic"
+	"model"
 	"time"
 
 	"github.com/polaris1119/logger"
@@ -33,6 +34,9 @@ func ServeBackGround() {
 
 	// 每天对非活跃用户降频
 	c.AddFunc("@daily", decrUserActiveWeight)
+
+	// 生成阅读排行榜
+	c.AddFunc("@daily", genViewRank)
 
 	// 两分钟刷一次浏览数（TODO：重启丢失问题？信号控制重启？）
 	c.AddFunc("@every 2m", logic.Views.Flush)
@@ -100,4 +104,19 @@ func decrUserActiveWeight() {
 	}
 
 	logger.Debugln("end decr user active weight...")
+}
+
+func genViewRank() {
+	needRankTypes := []int{
+		model.TypeTopic,
+		model.TypeResource,
+		model.TypeProject,
+		model.TypeArticle,
+		model.TypeBook,
+	}
+
+	for _, objtype := range needRankTypes {
+		logic.DefaultRank.GenWeekRank(objtype)
+		logic.DefaultRank.GenMonthRank(objtype)
+	}
 }
