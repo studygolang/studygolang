@@ -146,9 +146,9 @@ $(function(){
 				var avatar = user.avatar;
 				if (avatar == "") {
 					if (isHttps) {
-						avatar = 'https://secure.gravatar.com/avatar/'+md5(data[i].email)+"?s=48";
+						avatar = 'https://secure.gravatar.com/avatar/'+md5(user.email)+"?s=48";
 					} else {
-						avatar = 'http://gravatar.com/avatar/'+md5(data[i].email)+"?s=48";
+						avatar = 'http://gravatar.com/avatar/'+md5(user.email)+"?s=48";
 					}
 				} else {
 					avatar = cdnDomain+'avatar/'+avatar+'?imageView2/2/w/40';
