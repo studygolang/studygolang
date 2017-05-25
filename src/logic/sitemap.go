@@ -190,6 +190,37 @@ func GenSitemap() {
 	little = 1
 	large = little + step
 
+	// 图书
+	books := make([]*model.Book, 0)
+	for {
+		sitemapFile := "sitemap_book_" + strconv.Itoa(large) + ".xml"
+
+		err = MasterDB.Where("id BETWEEN ? AND ?", little, large).Select("id,mtime").Find(&books)
+		little, large = large+1, little+step
+
+		if err != nil {
+			continue
+		}
+
+		if len(books) == 0 {
+			break
+		}
+
+		data := map[string]interface{}{
+			"home":  home,
+			"books": books,
+		}
+
+		if err = output(sitemapFile, data); err == nil {
+			sitemapFiles = append(sitemapFiles, sitemapFile)
+		}
+
+		books = make([]*model.Book, 0)
+	}
+
+	little = 1
+	large = little + step
+
 	// wiki
 	wikis := make([]*model.Wiki, 0)
 	for {

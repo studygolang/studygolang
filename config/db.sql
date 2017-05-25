@@ -437,15 +437,16 @@ CREATE TABLE IF NOT EXISTS `advertisement` (
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '广告表';
 
-CREATE TABLE IF NOT EXISTS `page_ad` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
+CREATE TABLE `page_ad` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `path` varchar(31) NOT NULL DEFAULT '' COMMENT '页面路径',
-  `ad_id` int unsigned NOT NULL DEFAULT 0 COMMENT '广告ID',
+  `ad_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '广告ID',
   `position` varchar(15) NOT NULL DEFAULT '' COMMENT '广告在页面的位置，英文字符串',
-  `is_online` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否在线：0-下线；1-在线',
+  `is_online` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否在线：0-下线；1-在线',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '页面广告管理表';
+  PRIMARY KEY (`id`),
+  KEY `idx_path` (`path`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='页面广告管理表';
 
 CREATE TABLE IF NOT EXISTS `friend_link` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,

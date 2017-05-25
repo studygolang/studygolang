@@ -30,6 +30,12 @@
         <lastmod>{{time_format .Mtime}}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
+    </url>{{end}}{{range .books}}
+    <url>
+        <loc>{{$.home.loc}}/book/{{.Id}}</loc>
+        <lastmod>{{time_format .Mtime}}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
     </url>{{end}}{{range .wiki}}
     <url>
         <loc>{{$.home.loc}}/wiki/{{.Uri}}</loc>
