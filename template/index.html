@@ -50,11 +50,12 @@
 
 		<div class="row box_white article-list">
 			<ul class="nav nav-tabs" role="tablist" id="article-nav">
-				<li role="presentation" class="active"><a href="/">最新博文</a></li>
-				<li role="presentation" class="rank" data-type="today"><a href="#">今日热门</a></li>
-				<li role="presentation" class="rank" data-type="yesterday"><a href="#">昨日热门</a></li>
-				<li role="presentation" class="rank" data-type="week"><a href="#">一周热门</a></li>
+				<li role="presentation" class="active" data-type="newest"><a href="javascript:">最新博文</a></li>
+				<li role="presentation" data-type="today"><a href="javascript:">今日热门</a></li>
+				<li role="presentation" data-type="yesterday"><a href="javascript:">昨日热门</a></li>
+				<li role="presentation" data-type="week"><a href="javascript:">一周热门</a></li>
 			</ul>
+			<div id="article-list">
 			{{range .articles}}
 			<article class="article box_white">
 				<div class="row">
@@ -123,10 +124,13 @@
 				<div class="row">暂无博文，<a class="btn btn-default btn-sm" href="/articles/new">撰写文章</a></div>
 			</article>
 			{{end}}
+
 			{{if (len .articles) gt 0}}
 			{{$article := index .articles 0}}
 			<div class="pull-right article-bottom"><a href="/articles?lastid={{add $article.Id -10}}" title="查看更多">查看更多&gt;&gt;</a></div>
 			{{end}}
+
+			</div>
 		</div>
 		<div class="row box_white book-list">
 			<div class="title">
@@ -321,12 +325,58 @@
 		
 	</div>
 </div>
+
+<script type="text/x-jsrender" id="article-tpl">
+<article class="article box_white">
+	<div class="row">
+		[%if cover%]
+		<div class="pull-left">
+			<a href="/articles/[%:id%]" target="_blank" title="[%:title%]">
+				<img class="lazy" src="[%:cover%]" width="200" alt="[%:title%]" style="display: inline;">
+			</a>
+		</div>
+		<div style="margin-left:220px;">
+		[%else%]
+		<div>
+		[%/if%]
+			<h2><a href="/articles/[%:id%]" target="_blank" title="[%:title%]">
+				[%:title%]
+			</a></h2>
+			<p class="text">[%:txt%]<a href="/articles/[%:id%]" target="_blank" title="阅读全文">阅读全文</a></p>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-8 metatag">
+			<i class="glyphicon glyphicon-th"></i>
+			<span class="source" title="来源">[%:name%]</span>
+			<i class="glyphicon glyphicon-calendar"></i>
+			<span class="date" title="发布日期">[%:pub_date%]</span>
+			<i class="glyphicon glyphicon-user"></i>
+			<span class="author" title="作者">[%:author_txt%]</span>
+		</div>
+		<div class="col-md-4 metatag text-right">
+			<span class="view" title="阅读数">
+				<i class="glyphicon glyphicon-eye-open"></i>
+				阅读:<span>[%:rank_view%]</span>次
+			</span>
+		</div>
+	</div>
+</article>
+</script>
+
+<script type="text/x-jsrender" id="no-article-tpl">
+<article class="article box_white">
+	<div class="row">该排行榜暂无博文</div>
+</article>
+</script>
+
 {{end}}
 {{define "css"}}
 <link href="/static/css/index.css?v=0.4" rel="stylesheet"/>
 {{end}}
 {{define "js"}}
 <script type="text/javascript" src="/static/js/index.js?v=0.5"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jsrender/0.9.84/jsrender.min.js"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
@@ -339,8 +389,14 @@ SG.SIDE_BARS = [
 	"/friend/links"
 ];
 
+$.views.settings.delimiters("[%", "%]");
+// $.views.settings.debugMode(true);
+
 $(function() {
-	$('#article-nav .rank').on('click', function(evt) {
+
+	var newestArticleHtml = '';
+
+	$('#article-nav li').on('click', function(evt) {
 		evt.preventDefault();
 
 		$(this).parent().children().removeClass('active');
@@ -348,11 +404,25 @@ $(function() {
 
 		var type = $(this).data('type');
 
+		if (type != "newest" && newestArticleHtml == '') {
+			newestArticleHtml = $('#article-list').html();
+		} else {
+			if (type == "newest") {
+				$('#article-list').html(newestArticleHtml);
+				return;
+			}
+		}
+
 		var params = {objtype: 1, limit: 10, rank_type: type}
 		$.getJSON('/rank/view', params, function(result) {
 			if (result.ok) {
 				var data = result.data;
-				console.log(data);
+				if (data) {
+					var rankArticlesHtml = $.templates('#article-tpl').render(data);
+					$('#article-list').html(rankArticlesHtml);
+				} else {
+					$('#article-list').html($('#no-article-tpl').html());
+				}
 			}
 		});
 	});

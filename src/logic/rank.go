@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"model"
 	"time"
+	"util"
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/polaris1119/logger"
@@ -24,6 +25,7 @@ var DefaultRank = RankLogic{}
 
 func (self RankLogic) GenDayRank(objtype, objid, num int) {
 	redisClient := nosql.NewRedisClient()
+	defer redisClient.Close()
 	key := self.getDayRankKey(objtype, times.Format("ymd"))
 	err := redisClient.ZINCRBY(key, num, objid)
 	if err != nil {
@@ -35,6 +37,7 @@ func (self RankLogic) GenDayRank(objtype, objid, num int) {
 // GenWeekRank 过去 7 天排行榜
 func (self RankLogic) GenWeekRank(objtype int) {
 	redisClient := nosql.NewRedisClient()
+	defer redisClient.Close()
 	dest := self.getWeekRankKey(objtype)
 
 	keys := self.getMultiKey(objtype, 7)
@@ -48,6 +51,7 @@ func (self RankLogic) GenWeekRank(objtype int) {
 // GenMonthRank 过去 30 天排行榜
 func (self RankLogic) GenMonthRank(objtype int) {
 	redisClient := nosql.NewRedisClient()
+	defer redisClient.Close()
 	dest := self.getMonthRankKey(objtype)
 
 	keys := self.getMultiKey(objtype, 30)
@@ -64,6 +68,7 @@ func (self RankLogic) FindDayRank(ctx context.Context, objtype int, ymd string, 
 	redisClient := nosql.NewRedisClient()
 	key := self.getDayRankKey(objtype, ymd)
 	resultSlice, err := redisClient.ZREVRANGE(key, 0, num, true)
+	redisClient.Close()
 	if err != nil {
 		objLog.Errorln("FindDayRank ZREVRANGE error:", err)
 		return nil
@@ -78,6 +83,7 @@ func (self RankLogic) FindWeekRank(ctx context.Context, objtype, num int) (resul
 	redisClient := nosql.NewRedisClient()
 	key := self.getWeekRankKey(objtype)
 	resultSlice, err := redisClient.ZREVRANGE(key, 0, num, true)
+	redisClient.Close()
 	if err != nil {
 		objLog.Errorln("FindWeekRank ZREVRANGE error:", err)
 		return nil
@@ -92,6 +98,7 @@ func (self RankLogic) FindMonthRank(ctx context.Context, objtype, num int) (resu
 	redisClient := nosql.NewRedisClient()
 	key := self.getMonthRankKey(objtype)
 	resultSlice, err := redisClient.ZREVRANGE(key, 0, num, true)
+	redisClient.Close()
 	if err != nil {
 		objLog.Errorln("FindMonthRank ZREVRANGE error:", err)
 		return nil
@@ -136,6 +143,8 @@ func (RankLogic) findModelsByRank(resultSlice []interface{}, objtype, num int) (
 		articles := DefaultArticle.FindByIds(objids)
 		for i, article := range articles {
 			article.RankView = viewNums[i]
+			article.Txt = util.Substring(article.Txt, 220, "...")
+			article.AuthorTxt = util.Substring(article.AuthorTxt, 15, " 等")
 		}
 		result = articles
 	case model.TypeProject:
