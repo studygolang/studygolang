@@ -10,10 +10,12 @@ import (
 	"logic"
 	"model"
 	"strconv"
+	"time"
 
 	"github.com/labstack/echo"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/slices"
+	"github.com/polaris1119/times"
 )
 
 // 侧边栏的内容通过异步请求获取
@@ -33,6 +35,7 @@ func (self SidebarController) RegisterRoute(g *echo.Group) {
 	g.GET("/users/active", self.ActiveUser)
 	g.GET("/users/newest", self.NewestUser)
 	g.GET("/friend/links", self.FriendLinks)
+	g.GET("/rank/view", self.ViewRank)
 }
 
 // RecentReading 技术晨读
@@ -146,4 +149,26 @@ func (SidebarController) NewestUser(ctx echo.Context) error {
 func (SidebarController) FriendLinks(ctx echo.Context) error {
 	friendLinks := logic.DefaultFriendLink.FindAll(ctx)
 	return success(ctx, friendLinks)
+}
+
+// ViewRank 阅读排行榜
+func (SidebarController) ViewRank(ctx echo.Context) error {
+	objtype := goutils.MustInt(ctx.QueryParam("objtype"))
+	rankType := ctx.QueryParam("rank_type")
+	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
+
+	var result interface{}
+	switch rankType {
+	case "today":
+		result = logic.DefaultRank.FindDayRank(ctx, objtype, times.Format("ymd"), limit)
+	case "yesterday":
+		yesterday := time.Now().Add(-1 * 24 * time.Hour)
+		result = logic.DefaultRank.FindDayRank(ctx, objtype, times.Format("ymd", yesterday), limit)
+	case "week":
+		result = logic.DefaultRank.FindWeekRank(ctx, objtype, limit)
+	case "month":
+		result = logic.DefaultRank.FindMonthRank(ctx, objtype, limit)
+	}
+
+	return success(ctx, result)
 }

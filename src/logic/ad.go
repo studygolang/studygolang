@@ -34,6 +34,10 @@ func (AdLogic) FindAll(ctx context.Context, path string) map[string]*model.Adver
 		adIdSet.Add(pageAd.AdId)
 	}
 
+	if adIdSet.IsEmpty() {
+		return nil
+	}
+
 	adMap := make(map[int]*model.Advertisement)
 	err = MasterDB.In("id", set.IntSlice(adIdSet)).Find(&adMap)
 	if err != nil {

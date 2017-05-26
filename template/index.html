@@ -49,10 +49,12 @@
 		{{end}}
 
 		<div class="row box_white article-list">
-			<div class="title">
-				<h3><a href="/articles">最新博文</a></h3>
-				<a class="pull-right more" href="/articles">更多&gt;&gt;</a>
-			</div>
+			<ul class="nav nav-tabs" role="tablist" id="article-nav">
+				<li role="presentation" class="active"><a href="/">最新博文</a></li>
+				<li role="presentation" class="rank" data-type="today"><a href="#">今日热门</a></li>
+				<li role="presentation" class="rank" data-type="yesterday"><a href="#">昨日热门</a></li>
+				<li role="presentation" class="rank" data-type="week"><a href="#">一周热门</a></li>
+			</ul>
 			{{range .articles}}
 			<article class="article box_white">
 				<div class="row">
@@ -336,6 +338,26 @@ SG.SIDE_BARS = [
 	"/readings/recent",
 	"/friend/links"
 ];
+
+$(function() {
+	$('#article-nav .rank').on('click', function(evt) {
+		evt.preventDefault();
+
+		$(this).parent().children().removeClass('active');
+		$(this).addClass('active');
+
+		var type = $(this).data('type');
+
+		var params = {objtype: 1, limit: 10, rank_type: type}
+		$.getJSON('/rank/view', params, function(result) {
+			if (result.ok) {
+				var data = result.data;
+				console.log(data);
+			}
+		});
+	});
+});
+
 </script>
 {{if .pos_ad.banner}}
 	{{if eq .pos_ad.banner.AdType 1}}

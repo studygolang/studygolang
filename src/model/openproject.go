@@ -43,6 +43,9 @@ type OpenProject struct {
 	Status   int       `json:"status"`
 	Ctime    OftenTime `json:"ctime,omitempty" xorm:"created"`
 	Mtime    time.Time `json:"mtime,omitempty" xorm:"<-"`
+
+	// 排行榜阅读量
+	RankView int `json:"rank_view" xorm:"-"`
 }
 
 func (this *OpenProject) AfterSet(name string, cell xorm.Cell) {

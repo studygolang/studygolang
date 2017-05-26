@@ -7,7 +7,9 @@
 package logic
 
 import (
+	"context"
 	"fmt"
+	"model"
 	"time"
 
 	"github.com/polaris1119/logger"
@@ -53,6 +55,92 @@ func (self RankLogic) GenMonthRank(objtype int) {
 	if err != nil {
 		logger.Errorln("GenMonthRank ZUNIONSTORE error:", err)
 	}
+}
+
+func (self RankLogic) FindDayRank(ctx context.Context, objtype int, ymd string, num int) (result interface{}) {
+	objLog := GetLogger(ctx)
+
+	redisClient := nosql.NewRedisClient()
+	key := self.getDayRankKey(objtype, ymd)
+	resultSlice, err := redisClient.ZREVRANGE(key, 0, num, true)
+	if err != nil {
+		objLog.Errorln("FindDayRank ZREVRANGE error:", err)
+		return nil
+	}
+
+	return self.findModelsByRank(resultSlice, objtype, num)
+}
+
+func (self RankLogic) FindWeekRank(ctx context.Context, objtype, num int) (result interface{}) {
+	objLog := GetLogger(ctx)
+
+	redisClient := nosql.NewRedisClient()
+	key := self.getWeekRankKey(objtype)
+	resultSlice, err := redisClient.ZREVRANGE(key, 0, num, true)
+	if err != nil {
+		objLog.Errorln("FindWeekRank ZREVRANGE error:", err)
+		return nil
+	}
+
+	return self.findModelsByRank(resultSlice, objtype, num)
+}
+
+func (self RankLogic) FindMonthRank(ctx context.Context, objtype, num int) (result interface{}) {
+	objLog := GetLogger(ctx)
+
+	redisClient := nosql.NewRedisClient()
+	key := self.getMonthRankKey(objtype)
+	resultSlice, err := redisClient.ZREVRANGE(key, 0, num, true)
+	if err != nil {
+		objLog.Errorln("FindMonthRank ZREVRANGE error:", err)
+		return nil
+	}
+
+	return self.findModelsByRank(resultSlice, objtype, num)
+}
+
+func (RankLogic) findModelsByRank(resultSlice []interface{}, objtype, num int) (result interface{}) {
+	objids := make([]int, 0, num)
+	viewNums := make([]int, 0, num)
+	for i, length := 0, len(resultSlice); i < length; i += 2 {
+		objids = append(objids, resultSlice[i].(int))
+		viewNums = append(viewNums, resultSlice[i+1].(int))
+	}
+
+	switch objtype {
+	case model.TypeTopic:
+		topics := DefaultTopic.FindByTids(objids)
+		for i, topic := range topics {
+			topic.RankView = viewNums[i]
+		}
+		result = topics
+	case model.TypeResource:
+		resources := DefaultResource.FindByIds(objids)
+		for i, resource := range resources {
+			resource.RankView = viewNums[i]
+		}
+		result = resources
+	case model.TypeArticle:
+		articles := DefaultArticle.FindByIds(objids)
+		for i, article := range articles {
+			article.RankView = viewNums[i]
+		}
+		result = articles
+	case model.TypeProject:
+		projects := DefaultProject.FindByIds(objids)
+		for i, project := range projects {
+			project.RankView = viewNums[i]
+		}
+		result = projects
+	case model.TypeBook:
+		books := DefaultGoBook.FindByIds(objids)
+		for i, book := range books {
+			book.RankView = viewNums[i]
+		}
+		result = books
+	}
+
+	return
 }
 
 func (self RankLogic) getMultiKey(objtype, num int) []string {

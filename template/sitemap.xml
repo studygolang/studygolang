@@ -33,7 +33,7 @@
     </url>{{end}}{{range .books}}
     <url>
         <loc>{{$.home.loc}}/book/{{.Id}}</loc>
-        <lastmod>{{time_format .Mtime}}</lastmod>
+        <lastmod>{{time_format .UpdatedAt}}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
     </url>{{end}}{{range .wiki}}

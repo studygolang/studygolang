@@ -32,4 +32,7 @@ type Book struct {
 	Likenum     int       `json:"likenum"`
 	CreatedAt   OftenTime `json:"created_at" xorm:"created"`
 	UpdatedAt   OftenTime `json:"updated_at" xorm:"<-"`
+
+	// 排行榜阅读量
+	RankView int `json:"rank_view" xorm:"-"`
 }

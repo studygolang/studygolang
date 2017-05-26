@@ -32,6 +32,8 @@ type Topic struct {
 
 	// 为了方便，加上Node（节点名称，数据表没有）
 	Node string `xorm:"-"`
+	// 排行榜阅读量
+	RankView int `json:"rank_view" xorm:"-"`
 }
 
 func (*Topic) TableName() string {

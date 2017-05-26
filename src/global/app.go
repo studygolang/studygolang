@@ -65,7 +65,7 @@ type app struct {
 	locker sync.Mutex
 }
 
-var App = app{}
+var App = &app{}
 
 var showVersion = flag.Bool("version", false, "Print version of this binary")
 

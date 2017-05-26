@@ -25,6 +25,9 @@ type Resource struct {
 	CatName string    `json:"-" xorm:"-"`
 	Ctime   OftenTime `json:"ctime" xorm:"created"`
 	Mtime   time.Time `json:"mtime" xorm:"<-"`
+
+	// 排行榜阅读量
+	RankView int `json:"rank_view" xorm:"-"`
 }
 
 // 资源扩展（计数）信息

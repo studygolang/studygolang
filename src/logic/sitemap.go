@@ -195,7 +195,7 @@ func GenSitemap() {
 	for {
 		sitemapFile := "sitemap_book_" + strconv.Itoa(large) + ".xml"
 
-		err = MasterDB.Where("id BETWEEN ? AND ?", little, large).Select("id,mtime").Find(&books)
+		err = MasterDB.Where("id BETWEEN ? AND ?", little, large).Select("id,updated_at").Find(&books)
 		little, large = large+1, little+step
 
 		if err != nil {
