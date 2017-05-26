@@ -370,6 +370,12 @@
 </article>
 </script>
 
+<script type="text/x-jsrender" id="loading-tpl">
+<article class="article box_white" style="text-align: center; margin-top: 10px;">
+	<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+</article>
+</script>
+
 {{end}}
 {{define "css"}}
 <link href="/static/css/index.css?v=0.4" rel="stylesheet"/>
@@ -412,6 +418,8 @@ $(function() {
 				return;
 			}
 		}
+
+		$('#article-list').html($('#loading-tpl').html());
 
 		var params = {objtype: 1, limit: 10, rank_type: type}
 		$.getJSON('/rank/view', params, function(result) {
