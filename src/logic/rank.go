@@ -12,6 +12,7 @@ import (
 	"model"
 	"time"
 
+	"github.com/garyburd/redigo/redis"
 	"github.com/polaris1119/logger"
 	"github.com/polaris1119/nosql"
 	"github.com/polaris1119/times"
@@ -102,9 +103,20 @@ func (self RankLogic) FindMonthRank(ctx context.Context, objtype, num int) (resu
 func (RankLogic) findModelsByRank(resultSlice []interface{}, objtype, num int) (result interface{}) {
 	objids := make([]int, 0, num)
 	viewNums := make([]int, 0, num)
-	for i, length := 0, len(resultSlice); i < length; i += 2 {
-		objids = append(objids, resultSlice[i].(int))
-		viewNums = append(viewNums, resultSlice[i+1].(int))
+
+	for len(resultSlice) > 0 {
+		var (
+			objid, viewNum int
+			err            error
+		)
+		resultSlice, err = redis.Scan(resultSlice, &objid, &viewNum)
+		if err != nil {
+			logger.Errorln("findModelsByRank redis Scan error:", err)
+			return nil
+		}
+
+		objids = append(objids, objid)
+		viewNums = append(viewNums, viewNum)
 	}
 
 	switch objtype {
