@@ -17,6 +17,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/polaris1119/config"
@@ -118,8 +119,9 @@ func (self AutoCrawlLogic) crawlOneWebsite(autoCrawlConf *model.AutoCrawlRule, i
 			}
 			if err != nil {
 				logger.Errorln("parse article url", curUrl, "error:", err)
-				break
 			}
+
+			time.Sleep(30 * time.Second)
 		}
 	}
 }
