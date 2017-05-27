@@ -10,6 +10,7 @@ import (
 	. "db"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"model"
 	"net/http"
 	"net/url"
@@ -20,6 +21,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/logger"
+	"github.com/tidwall/gjson"
 	"golang.org/x/net/context"
 )
 
@@ -108,7 +110,13 @@ func (self AutoCrawlLogic) crawlOneWebsite(autoCrawlConf *model.AutoCrawlRule, i
 				curUrl = crawlUrl + keyword + page
 			}
 
-			if err := self.parseArticleList(curUrl, autoCrawlConf, true); err != nil {
+			var err error
+			if _, ok := autoCrawlConf.ExtMap["json_api"]; ok {
+				err = self.fetchArticleListFromApi(curUrl, autoCrawlConf, true)
+			} else {
+				err = self.parseArticleList(curUrl, autoCrawlConf, true)
+			}
+			if err != nil {
 				logger.Errorln("parse article url", curUrl, "error:", err)
 				break
 			}
@@ -122,15 +130,14 @@ func (self AutoCrawlLogic) parseArticleList(strUrl string, autoCrawlConf *model.
 
 	var doc *goquery.Document
 
-	extMap := autoCrawlConf.ParseExt()
-	if extMap == nil {
+	if autoCrawlConf.ExtMap == nil {
 		doc, err = goquery.NewDocument(strUrl)
 	} else {
 		req, err := http.NewRequest("GET", strUrl, nil)
 		if err != nil {
 			return err
 		}
-		if referer, ok := extMap["referer"]; ok {
+		if referer, ok := autoCrawlConf.ExtMap["referer"]; ok {
 			req.Header.Add("Referer", referer)
 		}
 
@@ -193,4 +200,56 @@ func (self AutoCrawlLogic) parseArticleList(strUrl string, autoCrawlConf *model.
 	}
 
 	return
+}
+
+func (self AutoCrawlLogic) fetchArticleListFromApi(strUrl string, autoCrawlConf *model.AutoCrawlRule, isSearch bool) error {
+	fmt.Println("url:", strUrl)
+
+	req, err := http.NewRequest("GET", strUrl, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Add("accept", "application/json")
+	req.Header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	u, err := url.Parse(autoCrawlConf.IncrUrl)
+	if err != nil {
+		logger.Errorln("parse incr_url error:", err)
+		return err
+	}
+	host := u.Scheme + "://" + u.Host
+
+	result := gjson.ParseBytes(body)
+	result = result.Get(autoCrawlConf.ListSelector)
+	result.ForEach(func(key, value gjson.Result) bool {
+		articleUrl := value.Get(autoCrawlConf.ResultSelector).String()
+
+		pos := strings.LastIndex(articleUrl, "?")
+		if pos != -1 {
+			articleUrl = articleUrl[:pos]
+		}
+
+		if strings.HasPrefix(articleUrl, "/") {
+			articleUrl = host + articleUrl
+		} else if !strings.HasPrefix(articleUrl, "http") {
+			// jianshu 写死
+			articleUrl = host + "/p/" + articleUrl
+		}
+		DefaultArticle.ParseArticle(context.Background(), articleUrl, isSearch)
+
+		return true
+	})
+
+	return nil
 }

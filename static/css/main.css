@@ -135,7 +135,7 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .page .tags .list-inline li a {padding: 4px 12px;color: #fff;font-family: "NSimSun";font-size: 12px;background: #9F9F9F;border-radius: 3px;}
 .page .tags .list-inline li a:hover {background: #ED5565;text-decoration: none;}
 .page .content {margin: 0 30px;}
-.page .content img, .page .content .container {max-width: 780px !important;}
+.page .content .container {max-width: 780px !important;}
 .page .orig-info {margin: 20px 30px 0 30px; border: 1px dashed #D5D5D5; padding: 10px; font-size: 13px; font-style: italic;}
 .page .active {border-bottom: 1px dotted #d8d8d8;padding-bottom: 20px;padding-top: 20px;margin: 0 30px;}
 .page .active .mark-like-btn .share-btn {height: 32px;-webkit-transition: background-color 0s;-moz-transition: background-color 0s;transition: background-color 0s;line-height: 32px;background: none;border: 1px solid;position: relative;color: #333;padding: 0px 16px 0px 30px;border-radius: 16px;font-family: "microsoft yahei";float: left;}

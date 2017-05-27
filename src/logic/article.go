@@ -134,7 +134,9 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 
 	// relative url -> abs url
 	contentSelection.Find("img").Each(func(i int, s *goquery.Selection) {
-		if v, ok := s.Attr("src"); ok {
+		if v, ok := s.Attr("data-original-src"); ok {
+			s.SetAttr("src", v)
+		} else if v, ok := s.Attr("src"); ok {
 			if !strings.HasPrefix(v, "http") {
 				s.SetAttr("src", domain+v)
 			}
@@ -157,7 +159,7 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 		return nil, errors.New("content is short")
 	}
 
-	if auto && strings.Count(txt, "http://") > 10 {
+	if auto && strings.Count(content, "<a") > 10 {
 		logger.Errorln(articleUrl, "content contains too many link!")
 		return nil, errors.New("content contains too many link")
 	}

@@ -352,6 +352,18 @@
 			"path": "/assert"
 		},
 		{
+			"importpath": "github.com/tidwall/gjson",
+			"repository": "https://github.com/tidwall/gjson",
+			"revision": "c784c417818f59d6597274642d8ac1d09efc9b01",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/tidwall/match",
+			"repository": "https://github.com/tidwall/match",
+			"revision": "173748da739a410c5b0b813b956f89ff94730b4c",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/twinj/uuid",
 			"repository": "https://github.com/twinj/uuid",
 			"revision": "89173bcdda19db0eb88aef1e1cb1cb2505561d31",

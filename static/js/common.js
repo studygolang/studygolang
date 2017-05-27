@@ -393,6 +393,9 @@ jQuery(document).ready(function($) {
 			$(that).parents('article').fadeOut();
 		});
 	});
+
+	// 图片响应式
+	$('.page .content img').addClass('img-responsive');
 	
 });
 

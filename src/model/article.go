@@ -114,19 +114,21 @@ type AutoCrawlRule struct {
 	Ext            string `json:"ext"`
 	OpUser         string `json:"op_user"`
 	Mtime          string `json:"mtime" xorm:"<-"`
+
+	ExtMap map[string]string `json:"-" xorm:"-"`
 }
 
-func (this *AutoCrawlRule) ParseExt() map[string]string {
-	if this.Ext == "" {
-		return nil
-	}
+func (this *AutoCrawlRule) AfterSet(name string, cell xorm.Cell) {
+	if name == "ext" {
+		if this.Ext == "" {
+			return
+		}
 
-	extMap := make(map[string]string)
-	err := json.Unmarshal([]byte(this.Ext), &extMap)
-	if err != nil {
-		logger.Errorln("parse auto crawl rule ext error:", err)
-		return nil
+		this.ExtMap = make(map[string]string)
+		err := json.Unmarshal([]byte(this.Ext), &this.ExtMap)
+		if err != nil {
+			logger.Errorln("parse auto crawl rule ext error:", err)
+			return
+		}
 	}
-
-	return extMap
 }
