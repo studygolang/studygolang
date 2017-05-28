@@ -22,7 +22,7 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 
 .container .form-horizontal {padding-top:15px; padding-bottom:15px;}
 
-.article { overflow: hidden; border-top: solid 2px #fff; margin-bottom: 31px; }
+.article { overflow: hidden; border-top: solid 2px #fff; margin-bottom: 11px; }
 .article:hover {border-top: solid 2px #DB6D4C;}
 .article:hover h2 a { color: #DB6D4C }
 .article:hover p.text { color: #343434; }
@@ -114,6 +114,13 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .sidebar .sb-content .node-list ul li {display: inline;}
 .sidebar .sb-content .node-list ul li a {display: inline-block;margin-right: 3px;margin-bottom: 6px;padding: 2px 10px;color: #778087;text-decoration: none;background-color: #f5f5f5;-moz-border-radius: 3px;-webkit-border-radius: 3px;border-radius: 3px;}
 .sidebar .sb-content .node-list ul li a:hover {background-color: #7A7A7A; color:#FFF;}
+
+.sidebar .sb-content .rank-list { margin: 15px 5px 10px 0px; }
+.sidebar .sb-content .rank-list ul { margin-left: 10px; }
+.sidebar .sb-content .rank-list ul li i{ float: left;width: 4px;height: 4px;background: #858585;margin-top: 13px;margin-right: 7px; }
+.sidebar .sb-content .rank-list ul li a { text-decoration: none; line-height: 30px;height: 30px;padding-bottom: 18px;width: 180px;font-size: 1.2rem;color: #666666; white-space: nowrap; }
+.sidebar .sb-content .rank-list ul li a:hover { color: #d54f4b; }
+.sidebar .sb-content .rank-list ul li em { display: inline-block; border-radius: 50%; width: 20px; height: 20px; font-size: 1.2rem; background-color: #ccd0d3; color: #fff; text-align: center; line-height: 20px; vertical-align: middle;}
 
 /* 详情页 */
 .page {}

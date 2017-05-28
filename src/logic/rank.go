@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"model"
 	"time"
-	"util"
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/polaris1119/logger"
@@ -143,8 +142,6 @@ func (RankLogic) findModelsByRank(resultSlice []interface{}, objtype, num int) (
 		articles := DefaultArticle.FindByIds(objids)
 		for i, article := range articles {
 			article.RankView = viewNums[i]
-			article.Txt = util.Substring(article.Txt, 220, "...")
-			article.AuthorTxt = util.Substring(article.AuthorTxt, 15, " 等")
 		}
 		result = articles
 	case model.TypeProject:

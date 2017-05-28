@@ -45,7 +45,7 @@ func (ProjectController) ReadList(ctx echo.Context) error {
 	num := len(projects)
 	if num == 0 {
 		if lastId == 0 {
-			return ctx.Redirect(http.StatusSeeOther, "/")
+			return render(ctx, "projects/list.html", map[string]interface{}{"projects": projects, "activeProjects": "active"})
 		} else {
 			return ctx.Redirect(http.StatusSeeOther, "/projects")
 		}

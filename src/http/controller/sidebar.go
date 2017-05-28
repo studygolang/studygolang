@@ -42,6 +42,12 @@ func (self SidebarController) RegisterRoute(g *echo.Group) {
 func (SidebarController) RecentReading(ctx echo.Context) error {
 	limit := goutils.MustInt(ctx.QueryParam("limit"), 7)
 	readings := logic.DefaultReading.FindBy(ctx, limit, model.RtypeGo)
+	if len(readings) == 1 {
+		// 首页，三天内的晨读才显示
+		if time.Time(readings[0].Ctime).Before(time.Now().Add(-3 * 24 * time.Hour)) {
+			readings = nil
+		}
+	}
 	return success(ctx, readings)
 }
 
@@ -157,18 +163,23 @@ func (SidebarController) ViewRank(ctx echo.Context) error {
 	rankType := ctx.QueryParam("rank_type")
 	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
 
-	var result interface{}
+	var result = map[string]interface{}{
+		"objtype":   objtype,
+		"rank_type": rankType,
+	}
 	switch rankType {
 	case "today":
-		result = logic.DefaultRank.FindDayRank(ctx, objtype, times.Format("ymd"), limit)
+		result["list"] = logic.DefaultRank.FindDayRank(ctx, objtype, times.Format("ymd"), limit)
 	case "yesterday":
 		yesterday := time.Now().Add(-1 * 24 * time.Hour)
-		result = logic.DefaultRank.FindDayRank(ctx, objtype, times.Format("ymd", yesterday), limit)
+		result["list"] = logic.DefaultRank.FindDayRank(ctx, objtype, times.Format("ymd", yesterday), limit)
 	case "week":
-		result = logic.DefaultRank.FindWeekRank(ctx, objtype, limit)
+		result["list"] = logic.DefaultRank.FindWeekRank(ctx, objtype, limit)
 	case "month":
-		result = logic.DefaultRank.FindMonthRank(ctx, objtype, limit)
+		result["list"] = logic.DefaultRank.FindMonthRank(ctx, objtype, limit)
 	}
+
+	result["path"] = model.PathUrlMap[objtype]
 
 	return success(ctx, result)
 }

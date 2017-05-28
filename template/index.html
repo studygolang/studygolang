@@ -13,11 +13,19 @@
 	<div class="col-lg-9 col-md-8 col-sm-7">
 		<div class="row box_white">
 			<div class="col-md-6 recent-list">
-				<div class="title">
+				<!-- <div class="title">
 					<h3><a href="/topics">最新主题</a></h3>
 					<a class="pull-right more" href="/topics">更多&gt;&gt;</a>
+				</div> -->
+				<div class="title" style="border-bottom: none;">
+					<ol class="nav nav-tabs" role="tablist" id="topic-nav">
+						<li role="presentation" class="active" data-type="newest"><a href="javascript:">最新主题</a></li>
+						<li role="presentation" data-type="today"><a href="javascript:">今日热门</a></li>
+						<li role="presentation" data-type="week"><a href="javascript:">一周热门</a></li>
+					</ol>
+					<a class="pull-right more" href="/topics" style="top: 5px;">更多&gt;&gt;</a>
 				</div>
-				<ul class="clearfix list-unstyled">
+				<ul class="clearfix list-unstyled" id="topic-list">
 					{{range .topics}}
 					<li><i></i>{{if .top}}<font color="red"><span class="glyphicon glyphicon-pushpin"></span></font> {{end}}<a href="/topics/{{.tid}}" title="{{.title}}">{{substring .title 35 "..."}}</a><span class="pull-right timeago" title="{{.ctime}}"></span></li>
 					{{else}}
@@ -26,11 +34,19 @@
 				</ul>
 			</div>
 			<div class="col-md-6 recent-list">
-				<div class="title">
+				<!-- <div class="title">
 					<h3><a href="/resources">最新资源</a></h3>
 					<a class="pull-right more" href="/resources">更多&gt;&gt;</a>
+				</div> -->
+				<div class="title" style="border-bottom: none;">
+					<ol class="nav nav-tabs" role="tablist" id="resource-nav">
+						<li role="presentation" class="active" data-type="newest"><a href="javascript:">最新资源</a></li>
+						<li role="presentation" data-type="today"><a href="javascript:">今日热门</a></li>
+						<li role="presentation" data-type="week"><a href="javascript:">一周热门</a></li>
+					</ol>
+					<a class="pull-right more" href="/resources" style="top: 5px;">更多&gt;&gt;</a>
 				</div>
-				<ul class="clearfix list-unstyled">
+				<ul class="clearfix list-unstyled" id="resource-list">
 					{{range .resources}}
 					<li><i></i><a href="/resources/{{.Id}}" title="{{.Title}}" target="_blank">{{substring .Title 45 "..."}}</a><span class="pull-right timeago" title="{{.Ctime}}"></span></li>
 					{{else}}
@@ -188,7 +204,7 @@
 	<div class="col-lg-3 col-md-4 col-sm-5">
 		<div class="row box_white sidebar">
 			{{if .me}}
-			<div class="box">
+			<!-- <div class="box">
 				<div class="avatar-area pull-left">
 					<span class="avatar"><a href="/account/edit#change-avatar"><img alt="个人首页" width="80" height="80" src="{{gravatar .me.Avatar .me.Email 80 .is_https}}" class="img-circle tool-tip" data-toggle="tooltip" data-placement="left" title="更换头像"></a></span>
 				</div>
@@ -197,6 +213,9 @@
 					<p class="user-name"><a href="/user/{{.me.Username}}">{{.me.Username}}</a></p>
 					<p><a href="/account/edit">个人资料设置</a></p>
 				</div>
+			</div> -->
+			<div class="box">
+				<p style="margin-top: 10.5px; text-align: center;">欢迎您，<a href="/user/{{.me.Username}}">{{.me.Username}}</a></p>
 			</div>
 			<div class="box" style="margin: 0 5px;">
 				<a class="btn btn-default btn-sm" href="/topics/new">发布主题</a>&nbsp;&nbsp;
@@ -246,7 +265,7 @@
 			</div>
 		</div>
 		
-		<div class="row box_white sidebar">
+		<!-- <div class="row box_white sidebar">
 			<div class="top">
 				<h3 class="title"><i class="glyphicon glyphicon-fire"></i>&nbsp;<a href="/projects" target="_blank" title="点击更多">开源项目</a></h3>
 			</div>
@@ -254,6 +273,31 @@
 				<div class="project-list" data-limit="10">
 					<ul class="list-unstyled">
 						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+			</div>
+		</div> -->
+		<div class="row box_white sidebar">
+			<div class="top">
+				<ul class="list-inline text-center">
+					<li class="first"><a href="/projects" target="_blank" title="点击更多" class="cur">开源项目</a>|</li>
+					<li class="second"><a href="javascript:;">今日热门</a>|</li>
+					<li class="last"><a href="javascript:;">一周热门</a>
+				</ul>
+				<p class="bar"></p>
+			</div>
+			<div class="sb-content">
+				<div class="project-list first" data-limit="10">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+				<div class="rank-list second hidden" data-objtype="4" data-limit="10" data-rank_type="today">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+				<div class="rank-list last hidden" data-objtype="4" data-limit="10" data-rank_type="week">
+					<ul class="list-unstyled">
 					</ul>
 				</div>
 			</div>
@@ -329,20 +373,20 @@
 <script type="text/x-jsrender" id="article-tpl">
 <article class="article box_white">
 	<div class="row">
-		[%if cover%]
+		[%if #index > 2%]
+		<div>
+		[%else%]
 		<div class="pull-left">
 			<a href="/articles/[%:id%]" target="_blank" title="[%:title%]">
-				<img class="lazy" src="[%:cover%]" width="200" alt="[%:title%]" style="display: inline;">
+				<img class="lazy img-responsive" src="/static/img/rank_num[%:#getIndex()+1%].png" width="90" alt="[%:title%]" style="display: inline;">
 			</a>
 		</div>
-		<div style="margin-left:220px;">
-		[%else%]
-		<div>
+		<div style="margin-left:110px;">
 		[%/if%]
 			<h2><a href="/articles/[%:id%]" target="_blank" title="[%:title%]">
 				[%:title%]
 			</a></h2>
-			<p class="text">[%:txt%]<a href="/articles/[%:id%]" target="_blank" title="阅读全文">阅读全文</a></p>
+			<p class="text">[%substring:txt 250%]<a href="/articles/[%:id%]" target="_blank" title="阅读全文">阅读全文</a></p>
 		</div>
 	</div>
 	<div class="row">
@@ -352,7 +396,7 @@
 			<i class="glyphicon glyphicon-calendar"></i>
 			<span class="date" title="发布日期">[%:pub_date%]</span>
 			<i class="glyphicon glyphicon-user"></i>
-			<span class="author" title="作者">[%:author_txt%]</span>
+			<span class="author" title="作者">[%substring:author_txt 15 ' 等'%]</span>
 		</div>
 		<div class="col-md-4 metatag text-right">
 			<span class="view" title="阅读数">
@@ -370,6 +414,22 @@
 </article>
 </script>
 
+<script type="text/x-jsrender" id="topic-tpl">
+<li>[%if #index > 2%]<em>[%:#getIndex()+1%]</em>[%else%]<img src="/static/img/rank_medal[%:#getIndex()+1%].png" width="15px">[%/if%]&nbsp;<a href="/topics/[%:tid%]" title="[%:title%]">[%substring:title 25%]</a><span class="pull-right" style="color: #bbb;"><span class="glyphicon glyphicon-eye-open"></span> [%:rank_view%]</span></li>
+</script>
+
+<script type="text/x-jsrender" id="no-topic-tpl">
+<li style="height: 40px; line-height: 40px; text-align: center;">该排行榜暂无主题</li>
+</script>
+
+<script type="text/x-jsrender" id="resource-tpl">
+<li>[%if #index > 2%]<em>[%:#getIndex()+1%]</em>[%else%]<img src="/static/img/rank_medal[%:#getIndex()+1%].png" width="15px">[%/if%]&nbsp;<a href="/resources/[%:tid%]" title="[%:title%]">[%substring:title 35%]</a><span class="pull-right" style="color: #bbb;"><span class="glyphicon glyphicon-eye-open"></span> [%:rank_view%]</span></li>
+</script>
+
+<script type="text/x-jsrender" id="no-resource-tpl">
+<li style="height: 40px; line-height: 40px; text-align: center;">该排行榜暂无资源</li>
+</script>
+
 <script type="text/x-jsrender" id="loading-tpl">
 <article class="article box_white" style="text-align: center; margin-top: 10px;">
 	<img src="/static/img/loaders/loader7.gif" alt="加载中" />
@@ -378,7 +438,10 @@
 
 {{end}}
 {{define "css"}}
-<link href="/static/css/index.css?v=0.4" rel="stylesheet"/>
+<link href="/static/css/index.css?v=0.5" rel="stylesheet"/>
+<style type="text/css">
+#topic-nav li a, #resource-nav li a { padding: 5px; }
+</style>
 {{end}}
 {{define "js"}}
 <script type="text/javascript" src="/static/js/index.js?v=0.5"></script>
@@ -392,47 +455,83 @@ SG.SIDE_BARS = [
 	"/users/newest",
 	"/websites/stat",
 	"/readings/recent",
-	"/friend/links"
+	"/friend/links",
+	"/rank/view"
 ];
 
 $.views.settings.delimiters("[%", "%]");
+$.views.converters("substring", function(val, len, suffix='...') {
+	if (val.length > len) {
+		val = val.substr(0, len)+suffix;
+	}
+	return val;
+});
 // $.views.settings.debugMode(true);
 
 $(function() {
 
-	var newestArticleHtml = '';
+	var newestArticleHtml = '',
+		newestTopicHtml = '',
+		newestResourceHtml = '';
+
+	function loadRank(that, listIdSelector, newestHtml, objtype, tplIdSelector, noTplIdSelector) {
+		$(that).parent().children().removeClass('active');
+		$(that).addClass('active');
+
+		var type = $(that).data('type');
+
+		if (type != "newest" && newestHtml == '') {
+			newestHtml = $(listIdSelector).html();
+		} else {
+			if (type == "newest") {
+				$(listIdSelector).html(newestHtml);
+				return "";
+			}
+		}
+
+		$(listIdSelector).html($('#loading-tpl').html());
+
+		var params = {objtype: objtype, limit: 10, rank_type: type}
+		$.getJSON('/rank/view', params, function(result) {
+			if (result.ok) {
+				var data = result.data.list;
+				if (data) {
+					var rankHtml = $.templates(tplIdSelector).render(data);
+					$(listIdSelector).html(rankHtml);
+				} else {
+					$(listIdSelector).html($(noTplIdSelector).html());
+				}
+			}
+		});
+
+		return newestHtml;
+	}
 
 	$('#article-nav li').on('click', function(evt) {
 		evt.preventDefault();
 
-		$(this).parent().children().removeClass('active');
-		$(this).addClass('active');
-
-		var type = $(this).data('type');
-
-		if (type != "newest" && newestArticleHtml == '') {
-			newestArticleHtml = $('#article-list').html();
-		} else {
-			if (type == "newest") {
-				$('#article-list').html(newestArticleHtml);
-				return;
-			}
+		var newestHtml = loadRank(this, '#article-list', newestArticleHtml, 1, '#article-tpl', '#no-article-tpl')
+		if (newestHtml != "") {
+			newestArticleHtml = newestHtml;
 		}
+	});
 
-		$('#article-list').html($('#loading-tpl').html());
+	$('#topic-nav li').on('click', function(evt) {
+		evt.preventDefault();
 
-		var params = {objtype: 1, limit: 10, rank_type: type}
-		$.getJSON('/rank/view', params, function(result) {
-			if (result.ok) {
-				var data = result.data;
-				if (data) {
-					var rankArticlesHtml = $.templates('#article-tpl').render(data);
-					$('#article-list').html(rankArticlesHtml);
-				} else {
-					$('#article-list').html($('#no-article-tpl').html());
-				}
-			}
-		});
+		var newestHtml = loadRank(this, '#topic-list', newestTopicHtml, 0, '#topic-tpl', '#no-topic-tpl')
+		if (newestHtml != "") {
+			newestTopicHtml = newestHtml;
+		}
+	});
+
+	$('#resource-nav li').on('click', function(evt) {
+		evt.preventDefault();
+
+		var newestHtml = loadRank(this, '#resource-list', newestResourceHtml, 2, '#resource-tpl', '#no-resource-tpl')
+		if (newestHtml != "") {
+			newestResourceHtml = newestHtml;
+		}
 	});
 });
 

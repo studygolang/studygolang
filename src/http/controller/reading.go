@@ -33,7 +33,7 @@ func (ReadingController) ReadingList(ctx echo.Context) error {
 	num := len(readings)
 	if num == 0 {
 		if lastId == 0 {
-			return ctx.Redirect(http.StatusSeeOther, "/")
+			return render(ctx, "readings/list.html", map[string]interface{}{"activeReadings": "active", "readings": readings, "rtype": rtype})
 		} else {
 			return ctx.Redirect(http.StatusSeeOther, "/readings")
 		}

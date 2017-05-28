@@ -48,6 +48,10 @@
 				</div>
 			</div>
 		</article>
+		{{else}}
+		<article class="article box_white">
+			<div class="row">暂无开源项目，<a class="btn btn-default btn-sm" href="/project/new">发布一个</a></div>
+		</article>
 		{{end}}
 		<ul class="pager">
 			{{if .page.has_prev}}

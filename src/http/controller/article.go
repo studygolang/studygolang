@@ -55,7 +55,7 @@ func (ArticleController) ReadList(ctx echo.Context) error {
 	num := len(articles)
 	if num == 0 {
 		if lastId == 0 {
-			return ctx.Redirect(http.StatusSeeOther, "/")
+			return render(ctx, "articles/list.html", map[string]interface{}{"articles": articles, "activeArticles": "active"})
 		}
 		return ctx.Redirect(http.StatusSeeOther, "/articles")
 	}

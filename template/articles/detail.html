@@ -117,6 +117,32 @@
 				<a href="/articles/new" class="btn btn-default">撰写文章</a>
 			</div>
 		</div>
+
+		<div class="row box_white sidebar">
+			<div class="top">
+				<ul class="list-inline text-center">
+					<li class="first"><a href="javascript:;" class="cur">今日热门</a>|</li>
+					<li class="second"><a href="javascript:;">昨日热门</a>|</li>
+					<li class="last"><a href="javascript:;">一周热门</a>
+				</ul>
+				<p class="bar"></p>
+			</div>
+			<div class="sb-content">
+				<div class="rank-list first" data-objtype="1" data-limit="10" data-rank_type="today">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+				<div class="rank-list second hidden" data-objtype="1" data-limit="10" data-rank_type="yesterday">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+				<div class="rank-list last hidden" data-objtype="1" data-limit="10" data-rank_type="week">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+			</div>
+		</div>
 		
 		<div class="row box_white sidebar">
 			<div class="top">
@@ -212,6 +238,7 @@ SG.SIDE_BARS = [
 	"/resources/recent",
 	"/comments/recent",
 	"/projects/recent",
+	"/rank/view",
 ];
 
 $(function(){

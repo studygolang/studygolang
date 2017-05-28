@@ -71,6 +71,10 @@
 				</div>
 			</div>
 		</article>
+		{{else}}
+		<article class="article box_white">
+			<div class="row">暂无博文，<a class="btn btn-default btn-sm" href="/articles/new">撰写文章</a></div>
+		</article>
 		{{end}}
 		<ul class="pager">
 			{{if .page.has_prev}}

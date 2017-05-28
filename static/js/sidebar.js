@@ -2,7 +2,7 @@ $(function(){
 	$('.sidebar .top ul li').on('mouseenter', function(evt){
 		
 		if (evt.target.tagName != 'LI') {
-			return;
+			// return;
 		}
 		$(this).parent().find('a').removeClass('cur');
 		$(this).children('a').addClass('cur');
@@ -36,7 +36,7 @@ $(function(){
 			var content = '';
 			for(var i in data) {
 				content += '<li class="truncate">'+
-						'<i></i><a href="/topics/'+data[i].tid+'" title="'+data[i].title+'">'+data[i].title+'</a>'+
+						'<i></i><a href="/topics/'+data[i].tid+'?fr=sidebar" title="'+data[i].title+'">'+data[i].title+'</a>'+
 						'</li>'
 			}
 			$('.sb-content .topic-list ul').html(content);
@@ -51,7 +51,7 @@ $(function(){
 			var content = '';
 			for(var i in data) {
 				content += '<li class="truncate">'+
-						'<i></i><a href="/articles/'+data[i].id+'" title="'+data[i].title+'">'+data[i].title+'</a>'+
+						'<i></i><a href="/articles/'+data[i].id+'?fr=sidebar" title="'+data[i].title+'">'+data[i].title+'</a>'+
 						'</li>'
 			}
 			$('.sb-content .article-list ul').html(content);
@@ -79,7 +79,7 @@ $(function(){
 					'</a>'+
 					'<div class="title">'+
 						'<h4>'+
-							'<a href="/p/'+uri+'" title="'+title+'">'+title+'</a>'+
+							'<a href="/p/'+uri+'?fr=sidebar" title="'+title+'">'+title+'</a>'+
 						'</h4>'+
 					'</div>'+
 				'</li>';
@@ -96,7 +96,7 @@ $(function(){
 			var content = '';
 			for(var i in data) {
 				content += '<li class="truncate">'+
-						'<i></i><a href="/resources/'+data[i].id+'" title="'+data[i].title+'">'+data[i].title+'</a>'+
+						'<i></i><a href="/resources/'+data[i].id+'?fr=sidebar" title="'+data[i].title+'">'+data[i].title+'</a>'+
 						'</li>'
 			}
 			$('.sb-content .resource-list ul').html(content);
@@ -231,6 +231,7 @@ $(function(){
 				'<li>评论数: <span>'+data.comment+'</span> 条</li>'+
 				'<li>资源数: <span>'+data.resource+'</span> 个</li>'+
 				'<li>项目数: <span>'+data.project+'</span> 个</li>';
+				'<li>图书数: <span>'+data.book+'</span> 本</li>';
 
 			$('.sb-content .stat-list ul').html(content);
 		}
@@ -239,6 +240,11 @@ $(function(){
 	var readingRecent = function(data) {
 		if (data.ok) {
 			data = data.data;
+
+			if (!data || data.length == 0) {
+				$('.sb-content .reading-list').parents('.sidebar').hide();
+				return;
+			}
 
 			var content = '';
 			if (data.length == 1) {
@@ -258,7 +264,7 @@ $(function(){
 					'</li>';
 				}
 			}
-			
+
 			$('.sb-content .reading-list ul').html(content);
 		}
 	}
@@ -272,7 +278,7 @@ $(function(){
 
 			var content = '';
 			for(var i in data) {
-				content += '<li><a href="/topics/node/'+data[i].nid+'" title="'+data[i].name+'">'+data[i].name+'</a></li>';
+				content += '<li><a href="/topics/node/'+data[i].nid+'?fr=sidebar" title="'+data[i].name+'">'+data[i].name+'</a></li>';
 			}
 			
 			$('.sb-content .node-list ul').html(content);
@@ -297,6 +303,49 @@ $(function(){
 		}
 	}
 
+	// 侧边栏——排行榜
+	var rankList = function(result, dataKeys){
+		if (result.ok) {
+			data = result.data;
+			var list = data.list;
+
+			var content = '';
+			for(var i in list) {
+				var path = data.path + list[i].id,
+					title = list[i].title;
+				switch (data.objtype) {
+				case 0:
+					path = data.path + list[i].tid;
+					break;
+				case 4:
+					title = list[i].category + list[i].name;
+					if (list[i].uri != '') {
+						path = data.path + list[i].uri;
+					}
+					break;
+				}
+				var pos = parseInt(i, 10) + 1;
+
+				var rankFlag = '';
+				if (pos < 4) {
+					rankFlag = '<img src="/static/img/rank_medal'+pos+'.png" width="20px">';
+				} else {
+					rankFlag = '<em>'+pos+'</em>';
+				}
+
+				content += '<li class="truncate">'+
+						rankFlag+'&nbsp;<a href="'+path+'?fr=sidebar" title="'+title+'">'+title+'</a>'+
+						'</li>'
+			}
+
+			$('.sb-content .rank-list').each(function(index) {
+				if ($(this).data('objtype') == data.objtype && $(this).data('rank_type') == data.rank_type) {
+					$(this).children().html(content);
+				}
+			});
+		}
+	}
+
 	var sidebar_callback = {
 		"/topics/recent": {"func": topicRecent, "class": ".topic-list"},
 		"/articles/recent": {"func": articleRecent, "class": ".article-list"},
@@ -309,19 +358,36 @@ $(function(){
 		"/readings/recent": {"func": readingRecent, "class": ".reading-list"},
 		"/nodes/hot": {"func": hotNodes, "class": ".node-list"},
 		"/friend/links": {"func": friendLinks, "class": ".friendslink-list"},
+		"/rank/view": {"func": rankList, "class": ".rank-list", data_keys:["objtype", "rank_type"]},
 	};
 	
 	if (typeof SG.SIDE_BARS != "undefined") {
 
 		for (var i in SG.SIDE_BARS) {
 			if (typeof sidebar_callback[SG.SIDE_BARS[i]] != "undefined") {
-				var sbObj = sidebar_callback[SG.SIDE_BARS[i]];
-				var limit = $('.sidebar .sb-content '+sbObj['class']).data('limit');
-				if (limit == "") {
-					limit = 10;
+				var sbObj = sidebar_callback[SG.SIDE_BARS[i]],
+					$dataSelector = $('.sidebar .sb-content '+sbObj['class']);
+
+				if (!sbObj.data_keys) {
+					var limit = $dataSelector.data('limit');
+					if (limit == "") {
+						limit = 10;
+					}
+					$.getJSON(SG.SIDE_BARS[i], {limit: limit}, sbObj['func']);
+					continue;
 				}
-				
-				$.getJSON(SG.SIDE_BARS[i], {limit: limit}, sbObj['func']);
+
+				$dataSelector.each(function(index) {
+					var limit = $(this).data('limit');
+					var params = {limit: limit};
+
+					for (var j in sbObj.data_keys) {
+						var k = sbObj.data_keys[j];
+						params[k] = $(this).data(k);
+					}
+					
+					$.getJSON(SG.SIDE_BARS[i], params, sbObj['func']);
+				});
 			}
 		}
 	}

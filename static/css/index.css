@@ -16,6 +16,7 @@
 .recent-list ul li i {float: left;width: 4px;height: 4px;background: #858585;margin-top: 10px;margin-right: 7px;}
 .recent-list ul li a {text-decoration: none;}
 .recent-list ul li a:hover {text-decoration: underline; color: #d54f4b;}
+.recent-list ul li em { display: inline-block; border-radius: 50%; width: 15px; height: 15px; background-color: #ccd0d3; color: #fff; text-align: center; line-height: 15px; }
 
 .article-list .title, .book-list .title {margin-left: 15px; margin-right: 15px;}
 .article-list .article-bottom { margin-bottom: 15px; margin-right: 15px; margin-top: -12px; font-size: 10pt;}
@@ -38,7 +39,7 @@
 .book-list .book-item .book-title { width: 160px; margin: 0 auto; text-align: center; overflow: hidden; white-space: nowrap; }
 
 .sidebar {margin-left: 0px;}
-.sidebar .box {padding: 10px;margin: 0 0 20px 0;-webkit-border-radius: 6px;-moz-border-radius: 6px;border-radius: 6px;-webkit-box-shadow: 0 0px 2px rgba(0,0,0,0.05);-moz-box-shadow: 0 0px 2px rgba(0,0,0,0.1);box-shadow: 0 0px 2px rgba(0,0,0,0.05); clear:both;}
+.sidebar .box {padding: 0 10px;-webkit-border-radius: 6px;-moz-border-radius: 6px;border-radius: 6px;-webkit-box-shadow: 0 0px 2px rgba(0,0,0,0.05);-moz-box-shadow: 0 0px 2px rgba(0,0,0,0.1);box-shadow: 0 0px 2px rgba(0,0,0,0.05); clear:both; overflow: hidden;}
 .sidebar .avatar-area, .sidebar .profile-show { margin-left: 20px; }
 
 .sidebar .sb-content .login .col-sm-10 {margin-left:10px;}
