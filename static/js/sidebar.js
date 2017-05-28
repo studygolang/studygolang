@@ -333,8 +333,8 @@ $(function(){
 					rankFlag = '<em>'+pos+'</em>';
 				}
 
-				content += '<li class="truncate">'+
-						rankFlag+'&nbsp;<a href="'+path+'?fr=sidebar" title="'+title+'">'+title+'</a>'+
+				content += '<li>'+
+						rankFlag+'<a href="'+path+'?fr=sidebar" title="'+title+'">'+title+'</a> - '+list[i].rank_view+' 阅读'+
 						'</li>'
 			}
 

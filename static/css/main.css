@@ -117,10 +117,11 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 
 .sidebar .sb-content .rank-list { margin: 15px 5px 10px 0px; }
 .sidebar .sb-content .rank-list ul { margin-left: 10px; }
-.sidebar .sb-content .rank-list ul li i{ float: left;width: 4px;height: 4px;background: #858585;margin-top: 13px;margin-right: 7px; }
-.sidebar .sb-content .rank-list ul li a { text-decoration: none; line-height: 30px;height: 30px;padding-bottom: 18px;width: 180px;font-size: 1.2rem;color: #666666; white-space: nowrap; }
+.sidebar .sb-content .rank-list ul li { font-size: 12px; color: #c1c1c1; position: relative; padding-left: 20px; }
+.sidebar .sb-content .rank-list ul li a { text-decoration: none; line-height: 30px;height: 30px;padding-bottom: 18px;width: 180px;font-size: 1.2rem;color: #666666; }
 .sidebar .sb-content .rank-list ul li a:hover { color: #d54f4b; }
-.sidebar .sb-content .rank-list ul li em { display: inline-block; border-radius: 50%; width: 20px; height: 20px; font-size: 1.2rem; background-color: #ccd0d3; color: #fff; text-align: center; line-height: 20px; vertical-align: middle;}
+.sidebar .sb-content .rank-list ul li em { position: absolute; top: 5px; left: -5px; display: inline-block; border-radius: 50%; width: 20px; height: 20px; font-size: 1.2rem; background-color: #ccd0d3; color: #fff; text-align: center; line-height: 20px; vertical-align: middle;}
+.sidebar .sb-content .rank-list ul li img { position: absolute; top: 0px; left: -5px; }
 
 /* 详情页 */
 .page {}
