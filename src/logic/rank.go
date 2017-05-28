@@ -66,7 +66,7 @@ func (self RankLogic) FindDayRank(ctx context.Context, objtype int, ymd string, 
 
 	redisClient := nosql.NewRedisClient()
 	key := self.getDayRankKey(objtype, ymd)
-	resultSlice, err := redisClient.ZREVRANGE(key, 0, num, true)
+	resultSlice, err := redisClient.ZREVRANGE(key, 0, num-1, true)
 	redisClient.Close()
 	if err != nil {
 		objLog.Errorln("FindDayRank ZREVRANGE error:", err)
@@ -81,7 +81,7 @@ func (self RankLogic) FindWeekRank(ctx context.Context, objtype, num int) (resul
 
 	redisClient := nosql.NewRedisClient()
 	key := self.getWeekRankKey(objtype)
-	resultSlice, err := redisClient.ZREVRANGE(key, 0, num, true)
+	resultSlice, err := redisClient.ZREVRANGE(key, 0, num-1, true)
 	redisClient.Close()
 	if err != nil {
 		objLog.Errorln("FindWeekRank ZREVRANGE error:", err)
@@ -96,7 +96,7 @@ func (self RankLogic) FindMonthRank(ctx context.Context, objtype, num int) (resu
 
 	redisClient := nosql.NewRedisClient()
 	key := self.getMonthRankKey(objtype)
-	resultSlice, err := redisClient.ZREVRANGE(key, 0, num, true)
+	resultSlice, err := redisClient.ZREVRANGE(key, 0, num-1, true)
 	redisClient.Close()
 	if err != nil {
 		objLog.Errorln("FindMonthRank ZREVRANGE error:", err)
