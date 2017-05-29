@@ -9,11 +9,13 @@ package logic
 import (
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 
 	. "db"
 	"model"
 
+	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 )
@@ -80,6 +82,14 @@ func newViews() *views {
 
 // TODO: 用户登录了，应该用用户标识，而不是IP
 func (this *views) Incr(req *http.Request, objtype, objid int) {
+	ua := req.UserAgent()
+	spiders := config.ConfigFile.MustValueArray("global", "spider", ",")
+	for _, spider := range spiders {
+		if strings.Contains(ua, spider) {
+			return
+		}
+	}
+
 	user := goutils.Ip2long(goutils.RemoteIp(req))
 
 	key := strconv.Itoa(objtype) + strconv.Itoa(objid)
