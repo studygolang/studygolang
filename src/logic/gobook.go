@@ -94,6 +94,15 @@ func (GoBookLogic) FindById(ctx context.Context, id string) (*model.Book, error)
 	return book, err
 }
 
+// Total 图书总数
+func (GoBookLogic) Total() int64 {
+	total, err := MasterDB.Count(new(model.Book))
+	if err != nil {
+		logger.Errorln("GoBookLogic Total error:", err)
+	}
+	return total
+}
+
 // 图书评论
 type BookComment struct{}
 

@@ -65,6 +65,7 @@ func (SidebarController) WebsiteStat(ctx echo.Context) error {
 	topicTotal := logic.DefaultTopic.Total()
 	cmtTotal := logic.DefaultComment.Total()
 	resourceTotal := logic.DefaultResource.Total()
+	bookTotal := logic.DefaultGoBook.Total()
 	userTotal := logic.DefaultUser.Total()
 
 	data := map[string]interface{}{
@@ -72,6 +73,7 @@ func (SidebarController) WebsiteStat(ctx echo.Context) error {
 		"project":  projectTotal,
 		"topic":    topicTotal,
 		"resource": resourceTotal,
+		"book":     bookTotal,
 		"comment":  cmtTotal,
 		"user":     userTotal,
 	}

@@ -230,7 +230,7 @@ $(function(){
 				'<li>话题数: <span>'+data.topic+'</span> 个</li>'+
 				'<li>评论数: <span>'+data.comment+'</span> 条</li>'+
 				'<li>资源数: <span>'+data.resource+'</span> 个</li>'+
-				'<li>项目数: <span>'+data.project+'</span> 个</li>';
+				'<li>项目数: <span>'+data.project+'</span> 个</li>'+
 				'<li>图书数: <span>'+data.book+'</span> 本</li>';
 
 			$('.sb-content .stat-list ul').html(content);

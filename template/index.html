@@ -423,7 +423,7 @@
 </script>
 
 <script type="text/x-jsrender" id="resource-tpl">
-<li>[%if #index > 2%]<em>[%:#getIndex()+1%]</em>[%else%]<img src="/static/img/rank_medal[%:#getIndex()+1%].png" width="15px">[%/if%]&nbsp;<a href="/resources/[%:tid%]" title="[%:title%]">[%substring:title 35%]</a><span class="pull-right" style="color: #bbb;"><span class="glyphicon glyphicon-eye-open"></span> [%:rank_view%]</span></li>
+<li>[%if #index > 2%]<em>[%:#getIndex()+1%]</em>[%else%]<img src="/static/img/rank_medal[%:#getIndex()+1%].png" width="15px">[%/if%]&nbsp;<a href="/resources/[%:id%]" title="[%:title%]">[%substring:title 35%]</a><span class="pull-right" style="color: #bbb;"><span class="glyphicon glyphicon-eye-open"></span> [%:rank_view%]</span></li>
 </script>
 
 <script type="text/x-jsrender" id="no-resource-tpl">
@@ -491,7 +491,7 @@ $(function() {
 
 		$(listIdSelector).html($('#loading-tpl').html());
 
-		var params = {objtype: objtype, limit: 10, rank_type: type}
+		var params = {objtype: objtype, limit: 10, rank_type: type, fr: "index"}
 		$.getJSON('/rank/view', params, function(result) {
 			if (result.ok) {
 				var data = result.data.list;
