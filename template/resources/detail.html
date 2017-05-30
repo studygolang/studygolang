@@ -16,10 +16,8 @@
 			<div class="title text-center">
 				<h1>
 					{{.resource.title}}
-					{{if .me}}
-						{{if or (eq .me.Username .resource.user.Username) .me.IsAdmin}}
-						<a class="edit" href="/resources/modify?id={{.resource.id}}" title="编辑"><i class="glyphicon glyphicon-pencil"></i> 编辑</a>
-						{{end}}
+					{{if canEdit .me .resource}}
+					<a class="btn btn-primary btn-xs" href="/resources/modify?id={{.resource.id}}" title="编辑">编辑</a>
 					{{end}}
 				</h1>
 			</div>

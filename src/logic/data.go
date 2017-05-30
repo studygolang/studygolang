@@ -39,6 +39,9 @@ var (
 	WebsiteSetting = model.WebsiteSetting
 
 	DefaultAvatars []string
+
+	userSettingLocker sync.RWMutex
+	UserSetting       map[string]int
 )
 
 // 将所有 权限 加载到内存中；后台修改权限时，重新加载一次
@@ -165,6 +168,27 @@ func LoadWebsiteSetting() error {
 	}
 
 	logger.Infoln("LoadWebsiteSetting successfully!")
+
+	return nil
+}
+
+func LoadUserSetting() error {
+	userSettings := make([]*model.UserSetting, 0)
+	err := MasterDB.Find(&userSettings)
+	if err != nil {
+		logger.Errorln("LoadUserSetting Find fail:", err)
+		return err
+	}
+
+	userSettingLocker.Lock()
+	defer userSettingLocker.Unlock()
+
+	UserSetting = make(map[string]int)
+	for _, userSetting := range userSettings {
+		UserSetting[userSetting.Key] = userSetting.Value
+	}
+
+	logger.Infoln("LoadUserSetting successfully!")
 
 	return nil
 }

@@ -460,8 +460,13 @@ SG.SIDE_BARS = [
 ];
 
 $.views.settings.delimiters("[%", "%]");
-$.views.converters("substring", function(val, len, suffix='...') {
+$.views.converters("substring", function(val, len) {
 	if (val.length > len) {
+		if (arguments.length >= 3) {
+			suffix = arguments[2];
+		} else {
+			suffix = '...';
+		}
 		val = val.substr(0, len)+suffix;
 	}
 	return val;

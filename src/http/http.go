@@ -92,6 +92,7 @@ var funcMap = template.FuncMap{
 		}
 		return time.Now().Unix()
 	},
+	"canEdit": logic.CanEdit,
 }
 
 const (

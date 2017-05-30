@@ -15,10 +15,8 @@
       <div class="title text-center">
         <h1>
           {{.wiki.Title}}
-          {{if .me}}
-            {{if or (eq .me.Uid .wiki.Uid) .me.IsAdmin}}
-            <a class="edit" href="/wiki/{{.wiki.Id}}" title="修改"><i class="glyphicon glyphicon-pencil"></i></a>
-            {{end}}
+          {{if canEdit .me .topic}}
+            <a class="btn btn-primary btn-xs" href="/wiki/modify?id={{.wiki.Id}}" title="编辑">编辑</a>
           {{end}}
         </h1>
       </div>
@@ -52,10 +50,8 @@
         </div>-->
         <h4>本页贡献者:</h4>
         <div>
-          {{with $root := .}}
           {{range .wiki.Users}}
-          <a href="/user/{{.Username}}" title="{{.Username}}"><img alt="{{.Username}}" class="uface" src="{{gravatar .Avatar .Email 32 $root.is_https}}" with="32" height="32"></a>
-          {{end}}
+          <a href="/user/{{.Username}}" title="{{.Username}}"><img alt="{{.Username}}" class="uface" src="{{gravatar .Avatar .Email 32 $.is_https}}" with="32" height="32"></a>
           {{end}}
         </div>
       </div>

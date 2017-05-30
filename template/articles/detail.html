@@ -15,10 +15,8 @@
 			<div class="title text-center">
 				<h1 id="title" data-id="{{.article.Id}}">
 					{{.article.Title}}
-					{{if .me}}
-						{{if or (eq .me.Username .article.Author) .me.IsRoot}}
+					{{if canEdit .me .article}}
 						<button id="edit" type="button" class="btn btn-primary btn-xs">编辑</button>
-						{{end}}
 					{{end}}
 				</h1>
 			</div>

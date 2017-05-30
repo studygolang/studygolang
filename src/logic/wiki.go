@@ -7,7 +7,9 @@
 package logic
 
 import (
+	"errors"
 	"net/url"
+	"strconv"
 	"strings"
 
 	. "db"
@@ -47,6 +49,46 @@ func (WikiLogic) Create(ctx context.Context, me *model.Me, form url.Values) erro
 	return nil
 }
 
+func (self WikiLogic) Modify(ctx context.Context, me *model.Me, form url.Values) error {
+	objLog := GetLogger(ctx)
+
+	id := goutils.MustInt(form.Get("id"))
+	wiki := self.FindById(ctx, id)
+	if !CanEdit(me, wiki) {
+		return errors.New("没有权限")
+	}
+
+	if wiki.Uid != me.Uid {
+		hasExists := false
+		cuids := strings.Split(wiki.Cuid, ",")
+		for _, cuid := range cuids {
+			if me.Uid == goutils.MustInt(cuid) {
+				hasExists = true
+				break
+			}
+		}
+
+		if !hasExists {
+			cuids = append(cuids, strconv.Itoa(me.Uid))
+			wiki.Cuid = strings.Join(cuids, ",")
+		}
+	}
+
+	wiki.Title = form.Get("title")
+	wiki.Content = form.Get("content")
+
+	_, err := MasterDB.Id(id).Update(wiki)
+	if err != nil {
+		objLog.Errorf("更新wiki 【%d】 信息失败：%s\n", id, err)
+		return err
+	}
+
+	// 修改wiki，活跃度+2
+	go DefaultUser.IncrUserWeight("uid", me.Uid, 2)
+
+	return nil
+}
+
 // FindBy 获取 wiki 列表（分页）
 func (WikiLogic) FindBy(ctx context.Context, limit int, lastIds ...int) []*model.Wiki {
 	objLog := GetLogger(ctx)
@@ -74,6 +116,18 @@ func (WikiLogic) FindBy(ctx context.Context, limit int, lastIds ...int) []*model
 	}
 
 	return wikis
+}
+
+// FindById 通过ID获取Wiki
+func (WikiLogic) FindById(ctx context.Context, id int) *model.Wiki {
+	objLog := GetLogger(ctx)
+
+	wiki := &model.Wiki{}
+	if _, err := MasterDB.Where("id=?", id).Get(wiki); err != nil {
+		objLog.Errorln("wiki logic FindById error:", err)
+		return nil
+	}
+	return wiki
 }
 
 // FindOne 某个wiki页面详细信息

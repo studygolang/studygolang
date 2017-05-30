@@ -31,6 +31,7 @@ type WikiController struct{}
 // 注册路由
 func (self WikiController) RegisterRoute(g *echo.Group) {
 	g.Match([]string{"GET", "POST"}, "/wiki/new", self.Create, middleware.NeedLogin(), middleware.Sensivite())
+	g.Match([]string{"GET", "POST"}, "/wiki/modify", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
 	g.GET("/wiki", self.ReadList)
 	g.GET("/wiki/:uri", self.Detail)
 }
@@ -45,6 +46,31 @@ func (WikiController) Create(ctx echo.Context) error {
 
 	me := ctx.Get("user").(*model.Me)
 	err := logic.DefaultWiki.Create(ctx, me, ctx.FormParams())
+	if err != nil {
+		return fail(ctx, 1, "内部服务错误")
+	}
+
+	return success(ctx, nil)
+}
+
+// Modify 修改 Wiki 页
+func (WikiController) Modify(ctx echo.Context) error {
+	id := goutils.MustInt(ctx.FormValue("id"))
+	if id == 0 {
+		return ctx.Redirect(http.StatusSeeOther, "/wiki")
+	}
+
+	if ctx.Request().Method() != "POST" {
+		wiki := logic.DefaultWiki.FindById(ctx, id)
+		if wiki.Id == 0 {
+			return ctx.Redirect(http.StatusSeeOther, "/wiki")
+		}
+
+		return render(ctx, "wiki/new.html", map[string]interface{}{"activeWiki": "active", "wiki": wiki})
+	}
+
+	me := ctx.Get("user").(*model.Me)
+	err := logic.DefaultWiki.Modify(ctx, me, ctx.FormParams())
 	if err != nil {
 		return fail(ctx, 1, "内部服务错误")
 	}

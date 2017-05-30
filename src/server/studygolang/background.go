@@ -60,6 +60,7 @@ func loadData() {
 	logic.LoadCategories()
 	logic.LoadWebsiteSetting()
 	logic.LoadDefaultAvatar()
+	logic.LoadUserSetting()
 
 	for {
 		select {
@@ -69,6 +70,8 @@ func loadData() {
 			logic.LoadRoles()
 		case <-global.RoleAuthChan:
 			logic.LoadRoleAuthorities()
+		case <-global.UserSettingChan:
+			logic.LoadUserSetting()
 		}
 	}
 }

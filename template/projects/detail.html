@@ -16,10 +16,8 @@
 				<h1>
 					{{if .project.Logo}}<img src="{{.project.Logo}}" alt="{{.project.Name}}" width="48px" />{{end}}
 					{{.project.Category}} <u>{{.project.Name}}</u>
-					{{if .me}}
-						{{if or (eq .me.Username .project.Username) .me.IsAdmin}}
-						<a class="edit" href="/project/modify?id={{.project.Id}}" title="修改"><i class="glyphicon glyphicon-pencil"></i></a>
-						{{end}}
+					{{if canEdit .me .project}}
+						<a class="btn btn-primary btn-xs" href="/project/modify?id={{.project.Id}}" title="编辑">编辑</a>
 					{{end}}
 				</h1>
 			</div>

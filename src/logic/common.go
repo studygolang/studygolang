@@ -9,8 +9,10 @@ package logic
 import (
 	"errors"
 	"fmt"
+	"model"
 	"os"
 	"regexp"
+	"time"
 
 	"github.com/gorilla/schema"
 	"github.com/polaris1119/logger"
@@ -52,4 +54,86 @@ func parseAtUser(ctx context.Context, content string) string {
 		}
 		return fmt.Sprintf(`<a href="/user/%s" title="%s">%s</a>`, username, matched, matched)
 	})
+}
+
+// CanEdit 判断能否编辑
+func CanEdit(me *model.Me, curModel interface{}) bool {
+	if me == nil {
+		return false
+	}
+
+	if me.IsAdmin {
+		return true
+	}
+
+	canEditTime := time.Duration(UserSetting["can_edit_time"]) * time.Second
+
+	switch entity := curModel.(type) {
+	case *model.Topic:
+		if time.Now().Sub(time.Time(entity.Ctime)) > canEditTime {
+			return false
+		}
+
+		if me.Uid == entity.Uid {
+			return true
+		}
+	case *model.Article:
+		if time.Now().Sub(time.Time(entity.Ctime)) > canEditTime {
+			return false
+		}
+
+		if me.Username == entity.Author {
+			return true
+		}
+	case *model.Resource:
+		if time.Now().Sub(time.Time(entity.Ctime)) > canEditTime {
+			return false
+		}
+
+		if me.Uid == entity.Uid {
+			return true
+		}
+	case *model.OpenProject:
+		if time.Now().Sub(time.Time(entity.Ctime)) > canEditTime {
+			return false
+		}
+
+		if me.Username == entity.Username {
+			return true
+		}
+	case *model.Wiki:
+		if time.Now().Sub(time.Time(entity.Ctime)) > canEditTime {
+			return false
+		}
+
+		if me.Uid == entity.Uid {
+			return true
+		}
+	case map[string]interface{}:
+		if ctime, ok := entity["ctime"]; ok {
+			if time.Now().Sub(time.Time(ctime.(model.OftenTime))) > canEditTime {
+				return false
+			}
+		}
+
+		if createdAt, ok := entity["created_at"]; ok {
+			if time.Now().Sub(time.Time(createdAt.(model.OftenTime))) > canEditTime {
+				return false
+			}
+		}
+
+		if uid, ok := entity["uid"]; ok {
+			if me.Uid == uid.(int) {
+				return true
+			}
+		}
+
+		if username, ok := entity["username"]; ok {
+			if me.Username == username.(string) {
+				return true
+			}
+		}
+	}
+
+	return false
 }

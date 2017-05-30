@@ -167,7 +167,7 @@ func (ArticleController) Modify(ctx echo.Context) error {
 	}
 
 	me := ctx.Get("user").(*model.Me)
-	if article.Author != me.Username && !me.IsRoot {
+	if !logic.CanEdit(me, article) {
 		return fail(ctx, 3, "没有修改权限")
 	}
 

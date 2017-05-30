@@ -16,10 +16,8 @@
 			<div class="title text-center">
 				<h1>
 					{{.topic.title}}
-					{{if .me}}
-						{{if or (eq .me.Username .topic.user.Username) .me.IsAdmin}}
-						<a class="btn btn-primary btn-xs" href="/topics/modify?tid={{.topic.tid}}" title="编辑">编辑</a>
-						{{end}}
+					{{if canEdit .me .topic}}
+					<a class="btn btn-primary btn-xs" href="/topics/modify?tid={{.topic.tid}}" title="编辑">编辑</a>
 					{{end}}
 				</h1>
 			</div>

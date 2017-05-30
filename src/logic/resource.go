@@ -39,7 +39,7 @@ func (ResourceLogic) Publish(ctx context.Context, me *model.Me, form url.Values)
 			return
 		}
 
-		if resource.Uid != uid && !me.IsAdmin {
+		if !CanEdit(me, resource) {
 			err = NotModifyAuthorityErr
 			return
 		}

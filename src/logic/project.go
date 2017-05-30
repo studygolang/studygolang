@@ -43,7 +43,8 @@ func (self ProjectLogic) Publish(ctx context.Context, user *model.Me, form url.V
 			objLog.Errorln("Publish Project find error:", err)
 			return
 		}
-		if project.Username != user.Username && !user.IsAdmin {
+
+		if !CanEdit(user, project) {
 			err = NotModifyAuthorityErr
 			return
 		}

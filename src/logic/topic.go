@@ -40,7 +40,7 @@ func (self TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Value
 			return
 		}
 
-		if topic.Uid != me.Uid && !me.IsAdmin {
+		if !CanEdit(me, topic) {
 			err = NotModifyAuthorityErr
 			return
 		}
