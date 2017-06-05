@@ -179,7 +179,8 @@ func (AccountController) Activate(ctx echo.Context) error {
 	// 自动登录
 	SetCookie(ctx, user.Username)
 
-	return render(ctx, contentTpl, data)
+	// return render(ctx, contentTpl, data)
+	return ctx.Redirect(http.StatusSeeOther, "/balance")
 }
 
 // Login 登录
