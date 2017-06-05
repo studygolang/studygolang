@@ -62,12 +62,12 @@ func (ResourceLogic) Publish(ctx context.Context, me *model.Me, form url.Values)
 		}
 		_, err = MasterDB.Id(id).Update(resource)
 		if err != nil {
-			objLog.Errorf("更新資源 【%s】 信息失败：%s\n", id, err)
+			objLog.Errorf("更新资源 【%s】 信息失败：%s\n", id, err)
 			return
 		}
 
-		// 修改資源，活跃度+2
-		go DefaultUser.IncrUserWeight("uid", uid, 2)
+		go modifyObservable.NotifyObservers(uid, model.TypeResource, resource.Id)
+
 	} else {
 
 		err = schemaDecoder.Decode(resource, form)
@@ -83,6 +83,7 @@ func (ResourceLogic) Publish(ctx context.Context, me *model.Me, form url.Values)
 
 		err = session.Begin()
 		if err != nil {
+			session.Rollback()
 			objLog.Errorln("Publish Resource begin tx error:", err)
 			return
 		}
@@ -107,6 +108,7 @@ func (ResourceLogic) Publish(ctx context.Context, me *model.Me, form url.Values)
 		err = session.Commit()
 		if err != nil {
 			objLog.Errorln("Publish Resource commit error:", err)
+			return
 		}
 
 		// 给 被@用户 发系统消息
@@ -118,8 +120,7 @@ func (ResourceLogic) Publish(ctx context.Context, me *model.Me, form url.Values)
 		}
 		go DefaultMessage.SendSysMsgAtUsernames(ctx, form.Get("usernames"), ext, 0)
 
-		// 发布主题，活跃度+10
-		go DefaultUser.IncrUserWeight("uid", uid, 10)
+		go publishObservable.NotifyObservers(uid, model.TypeResource, resource.Id)
 	}
 
 	return
@@ -275,6 +276,15 @@ func (ResourceLogic) FindByIds(ids []int) []*model.Resource {
 		return nil
 	}
 	return resources
+}
+
+func (ResourceLogic) findById(id int) *model.Resource {
+	resource := &model.Resource{}
+	_, err := MasterDB.Id(id).Get(resource)
+	if err != nil {
+		logger.Errorln("ResourceLogic findById error:", err)
+	}
+	return resource
 }
 
 // findByIds 获取多个资源详细信息 包内使用

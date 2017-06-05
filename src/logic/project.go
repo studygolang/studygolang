@@ -95,12 +95,11 @@ func (self ProjectLogic) Publish(ctx context.Context, user *model.Me, form url.V
 		return
 	}
 
-	// 发布项目，活跃度+10
-	weight := 10
 	if isModify {
-		weight = 2
+		go modifyObservable.NotifyObservers(user.Uid, model.TypeProject, project.Id)
+	} else {
+		go publishObservable.NotifyObservers(user.Uid, model.TypeProject, project.Id)
 	}
-	go DefaultUser.IncrUserWeight("uid", user.Uid, weight)
 
 	return
 }

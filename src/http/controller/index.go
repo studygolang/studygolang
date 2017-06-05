@@ -71,14 +71,22 @@ func (IndexController) Index(ctx echo.Context) error {
 	// 学习资料
 	materials := logic.DefaultLearningMaterial.FindAll(ctx)
 
+	hasLoginMisson := false
+	me, ok := ctx.Get("user").(*model.Me)
+	if ok {
+		// 每日登录奖励
+		hasLoginMisson = logic.DefaultMission.HasLoginMission(ctx, me)
+	}
+
 	return render(ctx, "index.html",
 		map[string]interface{}{
-			"topics":    topicsList,
-			"articles":  recentArticles,
-			"likeflags": likeFlags,
-			"resources": resources,
-			"books":     books,
-			"materials": materials,
+			"topics":        topicsList,
+			"articles":      recentArticles,
+			"likeflags":     likeFlags,
+			"resources":     resources,
+			"books":         books,
+			"materials":     materials,
+			"login_mission": hasLoginMisson,
 		})
 }
 

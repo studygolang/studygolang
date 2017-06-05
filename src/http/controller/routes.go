@@ -28,6 +28,8 @@ func RegisterRoutes(g *echo.Group) {
 	new(ImageController).RegisterRoute(g)
 	new(CaptchaController).RegisterRoute(g)
 	new(BookController).RegisterRoute(g)
+	new(MissionController).RegisterRoute(g)
+	new(UserRichController).RegisterRoute(g)
 	new(WebsocketController).RegisterRoute(g)
 
 	new(InstallController).RegisterRoute(g)

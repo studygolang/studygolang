@@ -1,0 +1,140 @@
+{{define "title"}}账户余额 {{end}}
+{{define "seo"}}<meta name="keywords" content="{{.setting.SeoKeywords}}">
+<meta name="description" content="{{.setting.SeoDescription}}">{{end}}
+{{define "content"}}
+<div class="row banner">
+</div>
+<div class="row">
+	<div class="col-lg-9 col-md-8 col-sm-7">
+		<ol class="breadcrumb">
+			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li class="active">账户余额</li>
+		</ol>
+		<div class="page box_white">
+			<div class="cell">
+				<p class="gray">当前账户余额</p>
+				<div class="balance_area" style="font-size: 24px; line-height: 24px;">
+					{{if .me.Gold}}
+					{{.me.Gold}} <img src="/static/img/gold_48.png" alt="" width="16px">
+					{{end}}
+					{{if .me.Silver}}
+					{{.me.Silver}} <img src="/static/img/silver_48.png" alt="" width="16px">
+					{{end}}
+					{{.me.Copper}} <img src="/static/img/copper_48.png" alt="" width="16px">
+				</div>
+			</div>
+			<div>
+				<table cellpadding="5" cellspacing="0" border="0" width="100%" class="data">
+					<tr>
+						<th width="130" class="h">时间</th>
+						<th width="100" class="h">类型</th>
+						<th width="60" class="h">数额</th>
+						<th width="60" class="h">余额</th>
+						<th width="auto" class="h" style="border-right: none;">描述</th>
+					</tr>
+					{{range .details}}
+					<tr>
+						<td class="d"><small class="gray">{{.CreatedAt}}</small></td>
+						<td class="d">{{.TypeShow}}</td>
+						<td class="d" style="text-align: right;">
+							<span class="{{if gt .Num 0}}positive{{else}}negative{{end}}"><strong>{{.Num}}</strong></span>
+						</td>
+						<td class="d" style="text-align: right;">{{.Balance}}</td>
+						<td class="d" style="border-right: none;"><span class="gray">{{noescape .Desc}}</span></td>
+					</tr>
+					{{end}}
+				</table>
+			</div>
+		</div>
+
+		{{if not .details}}
+		<div class="page box_white" style="margin-top: 20px;">
+			<div class="cell">
+				<div class="header">可完成的任务</div>
+				<div class="inner_content">
+					<h2>获得初始资本</h2>
+					欢迎来到 {{.setting.Name}}，这是一个关于分享和探索的社区。你在进入这里时，你会获得 2000 铜币。接下来你在社区内的一切行为，包括创建主题和回复等，都将会消耗铜币。而当你完成了一些有意义的事情时，你就会收获铜币，以及，好心情。
+					<div class="sep20"></div>
+					<strong>任务奖励</strong>
+					<div class="sep10"></div>
+					<div class="balance_area" style="">20 <img src="/static/img/silver_48.png" alt="" width="16px"> </div>
+					<div class="sep20"></div>
+					<a class="btn btn-default btn-sm" href="/mission/complete/1">完成任务</a>
+				</div>
+			</div>
+		</div>
+		{{end}}
+	</div>
+	<div class="col-lg-3 col-md-4 col-sm-5">
+		<div class="row box_white sidebar">
+			<div class="box">
+				<p style="margin-top: 10.5px; text-align: center;">欢迎您，<a href="/user/{{.me.Username}}">{{.me.Username}}</a></p>
+			</div>
+			<div class="box" style="margin: 0 5px;">
+				<a class="btn btn-default btn-sm" href="/topics/new">发布主题</a>&nbsp;&nbsp;
+				<a class="btn btn-default btn-sm" href="/articles/new">撰写文章</a>&nbsp;&nbsp;
+				<a class="btn btn-default btn-sm" href="/resources/new">分享资源</a>&nbsp;&nbsp;
+			</div>
+			<div class="inner" style="margin-top: 25px;">
+				<a href="/message/system">{{.me.MsgNum}} 条未读消息</a>
+				<div class="pull-right">
+					<a href="/balance" class="balance_area">
+						{{if .me.Gold}}
+						{{.me.Gold}} <img src="/static/img/gold_48.png" alt="" width="16px">
+						{{end}}
+						{{if .me.Silver}}
+						{{.me.Silver}} <img src="/static/img/silver_48.png" alt="" width="16px">
+						{{end}}
+						{{.me.Copper}} <img src="/static/img/copper_48.png" alt="" width="16px">
+					</a>
+				</div>
+			</div>
+			{{if not .details}}
+			<div class="dock_area">
+				<div class="inner_content"><span class="chevron">&nbsp;›&nbsp;</span> <a href="/balance">在你开始发帖之前，请先领取初始资本</a></div>
+			</div>
+			{{end}}
+		</div>
+
+	</div>
+</div>
+{{end}}
+{{define "css"}}
+<style type="text/css">
+table.data th.h {
+	text-align: left;
+	font-size: 13px;
+	font-weight: bold;
+	border-right: 1px solid #ccc;
+	border-bottom: 2px solid #ccc;
+	text-shadow: 0px 1px 0px #fff;
+
+	background: #f5f5f5;
+	background: -moz-linear-gradient(top, #f5f5f5 0%, #e2e2e2 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f5f5f5), color-stop(100%,#e2e2e2));
+	background: -webkit-linear-gradient(top, #f5f5f5 0%,#e2e2e2 100%);
+	background: -o-linear-gradient(top, #f5f5f5 0%,#e2e2e2 100%);
+	background: -ms-linear-gradient(top, #f5f5f5 0%,#e2e2e2 100%);
+	background: linear-gradient(top, #f5f5f5 0%,#e2e2e2 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f5f5f5', endColorstr='#e2e2e2',GradientType=0 );
+
+	padding: 5px;
+}
+
+table.data td.d {
+	text-align: left;
+	font-size: 13px;
+	font-weight: normal;
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	padding: 5px;
+}
+.positive { color: #0aa31c; }
+.negative { color: #ff3c00; }
+
+.header { padding: 10px; font-size: 14px; line-height: 120%; text-align: left; border-bottom: 1px solid #e2e2e2; overflow: auto; }
+
+</style>
+{{end}}
+{{define "js"}}
+{{end}}

@@ -9,4 +9,4 @@ package global
 var AuthorityChan = make(chan struct{}, 1)
 var RoleChan = make(chan struct{}, 1)
 var RoleAuthChan = make(chan struct{}, 1)
-var UserSetting = make(chan struct{}, 1)
+var UserSettingChan = make(chan struct{}, 1)

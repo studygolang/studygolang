@@ -64,6 +64,7 @@ type User struct {
 	Monlog      string    `json:"monlog"`
 	Introduce   string    `json:"introduce"`
 	Unsubscribe int       `json:"unsubscribe"`
+	Balance     int       `json:"balance"`
 	Status      int       `json:"status"`
 	IsRoot      bool      `json:"is_root"`
 	Ctime       OftenTime `json:"ctime" xorm:"created"`
@@ -97,6 +98,19 @@ type Me struct {
 	MsgNum   int    `json:"msgnum"`
 	IsAdmin  bool   `json:"isadmin"`
 	IsRoot   bool   `json:"is_root"`
+
+	Balance int `json:"balance"`
+	Gold    int `json:"gold"`
+	Silver  int `json:"silver"`
+	Copper  int `json:"copper"`
+}
+
+func (this *Me) SplitBalance() {
+	this.Gold = this.Balance / 10000
+	balance := this.Balance % 10000
+
+	this.Silver = balance / 100
+	this.Copper = balance % 100
 }
 
 // 活跃用户信息

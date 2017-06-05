@@ -93,8 +93,7 @@ func (self TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Value
 		}
 		go DefaultMessage.SendSysMsgAtUsernames(ctx, usernames, ext, 0)
 
-		// 发布主题，活跃度+10
-		go DefaultUser.IncrUserWeight("uid", me.Uid, 10)
+		go publishObservable.NotifyObservers(me.Uid, model.TypeTopic, topic.Tid)
 	}
 
 	return
@@ -122,8 +121,7 @@ func (TopicLogic) Modify(ctx context.Context, user *model.Me, form url.Values) (
 		return
 	}
 
-	// 修改主题，活跃度+2
-	go DefaultUser.IncrUserWeight("uid", user.Uid, 2)
+	go modifyObservable.NotifyObservers(user.Uid, model.TypeTopic, goutils.MustInt(tid))
 
 	return
 }
@@ -233,6 +231,15 @@ func (TopicLogic) FindByTids(tids []int) []*model.Topic {
 		return nil
 	}
 	return topics
+}
+
+func (TopicLogic) findByTid(tid int) *model.Topic {
+	topic := &model.Topic{}
+	_, err := MasterDB.Where("tid=?", tid).Get(topic)
+	if err != nil {
+		logger.Errorln("TopicLogic findByTid error:", err)
+	}
+	return topic
 }
 
 // findByTids 获取多个主题详细信息 包内用
@@ -386,20 +393,31 @@ type TopicComment struct{}
 // UpdateComment 更新该主题的回复信息
 // cid：评论id；objid：被评论对象id；uid：评论者；cmttime：评论时间
 func (self TopicComment) UpdateComment(cid, objid, uid int, cmttime time.Time) {
+	session := MasterDB.NewSession()
+	defer session.Close()
+
+	session.Begin()
+
 	// 更新最后回复信息
-	_, err := MasterDB.Table(new(model.Topic)).Id(objid).Update(map[string]interface{}{
+	_, err := session.Table(new(model.Topic)).Id(objid).Update(map[string]interface{}{
 		"lastreplyuid":  uid,
 		"lastreplytime": cmttime,
 	})
 	if err != nil {
 		logger.Errorln("更新主题最后回复人信息失败：", err)
+		session.Rollback()
+		return
 	}
 
 	// 更新回复数（TODO：暂时每次都更新表）
 	_, err = MasterDB.Id(objid).Incr("reply", 1).Update(new(model.TopicEx))
 	if err != nil {
 		logger.Errorln("更新主题回复数失败：", err)
+		session.Rollback()
+		return
 	}
+
+	session.Commit()
 }
 
 func (self TopicComment) String() string {

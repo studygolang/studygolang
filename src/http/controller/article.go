@@ -37,7 +37,7 @@ func (self ArticleController) RegisterRoute(g *echo.Group) {
 
 	g.Get("/articles/:id", self.Detail)
 
-	g.Match([]string{"GET", "POST"}, "/articles/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.PublishNotice())
+	g.Match([]string{"GET", "POST"}, "/articles/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice())
 	g.Post("/articles/modify", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
 }
 

@@ -310,7 +310,10 @@ func (self UserLogic) FindCurrentUser(ctx context.Context, username interface{})
 		Status:   user.Status,
 		IsRoot:   user.IsRoot,
 		MsgNum:   DefaultMessage.FindNotReadMsgNum(ctx, user.Uid),
+
+		Balance: user.Balance,
 	}
+	me.SplitBalance()
 
 	// TODO: 先每次都记录登录时间
 	go self.RecordLoginTime(user.Username)

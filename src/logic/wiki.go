@@ -43,8 +43,7 @@ func (WikiLogic) Create(ctx context.Context, me *model.Me, form url.Values) erro
 		return err
 	}
 
-	// 创建一个wiki页面，活跃度+10
-	go DefaultUser.IncrUserWeight("uid", me.Uid, 10)
+	go publishObservable.NotifyObservers(me.Uid, model.TypeWiki, wiki.Id)
 
 	return nil
 }
@@ -83,8 +82,7 @@ func (self WikiLogic) Modify(ctx context.Context, me *model.Me, form url.Values)
 		return err
 	}
 
-	// 修改wiki，活跃度+2
-	go DefaultUser.IncrUserWeight("uid", me.Uid, 2)
+	go modifyObservable.NotifyObservers(me.Uid, model.TypeWiki, wiki.Id)
 
 	return nil
 }

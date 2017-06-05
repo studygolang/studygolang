@@ -30,7 +30,7 @@ type WikiController struct{}
 
 // 注册路由
 func (self WikiController) RegisterRoute(g *echo.Group) {
-	g.Match([]string{"GET", "POST"}, "/wiki/new", self.Create, middleware.NeedLogin(), middleware.Sensivite())
+	g.Match([]string{"GET", "POST"}, "/wiki/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck())
 	g.Match([]string{"GET", "POST"}, "/wiki/modify", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
 	g.GET("/wiki", self.ReadList)
 	g.GET("/wiki/:uri", self.Detail)

@@ -22,7 +22,7 @@ type CommentController struct{}
 
 func (self CommentController) RegisterRoute(g *echo.Group) {
 	g.Get("/at/users", self.AtUsers)
-	g.Post("/comment/:objid", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.PublishNotice())
+	g.Post("/comment/:objid", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice())
 	g.Get("/object/comments", self.CommentList)
 }
 

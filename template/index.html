@@ -222,6 +222,25 @@
 				<a class="btn btn-default btn-sm" href="/articles/new">撰写文章</a>&nbsp;&nbsp;
 				<a class="btn btn-default btn-sm" href="/resources/new">分享资源</a>&nbsp;&nbsp;
 			</div>
+			<div class="inner">
+				<a href="/message/system">{{.me.MsgNum}} 条未读消息</a>
+				<div class="pull-right">
+					<a href="/balance" class="balance_area">
+						{{if .me.Gold}}
+						{{.me.Gold}} <img src="/static/img/gold_48.png" alt="" width="16px">
+						{{end}}
+						{{if .me.Silver}}
+						{{.me.Silver}} <img src="/static/img/silver_48.png" alt="" width="16px">
+						{{end}}
+						{{.me.Copper}} <img src="/static/img/copper_48.png" alt="" width="16px">
+					</a>
+				</div>
+			</div>
+				{{if not .me.Balance}}
+			<div class="dock_area">
+				<div class="inner_content"><span class="chevron">&nbsp;›&nbsp;</span> <a href="/balance">在你开始发帖之前，请先领取初始资本</a></div>
+			</div>
+				{{end}}
 			{{else}}
 			<div class="top">
 				<h3 class="title"><i class="glyphicon glyphicon-user"></i> 用户登录</h3>
@@ -252,6 +271,17 @@
 			</div>
 			{{end}}
 		</div>
+
+		{{if .login_mission}}
+		<div class="row box_white sidebar">
+			<div class="box" style="padding: 10px; font-size: 13px;">
+				<div class="pull-left">
+					<i class="glyphicon glyphicon-gift" style="color: #f90;"></i> <a href="/mission/daily">领取今日的登录奖励</a>
+				</div>
+			</div>
+		</div>
+		{{end}}
+
 		<div class="row box_white sidebar">
 			<div class="top">
 				<h3 class="title"><i class="glyphicon glyphicon-book"></i>&nbsp;<a href="/readings" target="_blank" title="点击更多">今日晨读</a></h3>

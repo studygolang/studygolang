@@ -84,7 +84,7 @@ func (GoBookLogic) FindByIds(ids []int) []*model.Book {
 }
 
 // FindById 获取一本图书信息
-func (GoBookLogic) FindById(ctx context.Context, id string) (*model.Book, error) {
+func (GoBookLogic) FindById(ctx context.Context, id interface{}) (*model.Book, error) {
 	book := &model.Book{}
 	_, err := MasterDB.Id(id).Get(book)
 	if err != nil {

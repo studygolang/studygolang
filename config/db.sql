@@ -119,6 +119,7 @@ CREATE TABLE IF NOT EXISTS `user_info` (
   `monlog` varchar(140) NOT NULL DEFAULT '' COMMENT '个人状态，签名，独白',
   `introduce` text NOT NULL COMMENT '个人简介',
   `unsubscribe` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否退订本站邮件，0-否；1-是',
+  `balance` int unsigned NOT NULL DEFAULT 0 COMMENT '财富余额（铜币）',
   `status` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '用户账号状态。0-默认；1-已审核；2-拒绝；3-冻结；4-停号',
   `is_root` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否超级用户，不受权限控制：1-是',
   `ctime` timestamp NOT NULL DEFAULT 0,
@@ -475,4 +476,50 @@ CREATE TABLE IF NOT EXISTS `default_avatar` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '默认头像';
+
+CREATE TABLE IF NOT EXISTS `user_setting` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `key` varchar(31) NOT NULL DEFAULT '' COMMENT '配置项名称',
+  `value` int NOT NULL DEFAULT 0 COMMENT '配置项值',
+  `remark` varchar(255) NOT NULL DEFAULT '' COMMENT '配置项说明',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE uniq_key(`key`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户行为信息设置';
+
+CREATE TABLE IF NOT EXISTS `user_balance_detail` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `uid` int unsigned NOT NULL DEFAULT 0 COMMENT '用户UID',
+  `type` tinyint unsigned NOT NULL DEFAULT 1 COMMENT '类型',
+  `num` int NOT NULL DEFAULT 0 COMMENT '数额，负数表示减少，正数表示增加',
+  `balance` int unsigned NOT NULL DEFAULT 0 COMMENT '余额（铜币）',
+  `desc` varchar(1022) NOT NULL DEFAULT '' COMMENT '具体原因，支持html格式',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX idx_uid(`uid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户余额明细';
+
+CREATE TABLE IF NOT EXISTS `mission` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(31) NOT NULL DEFAULT '' COMMENT '任务名，如每日登录奖励',
+  `type` tinyint unsigned NOT NULL DEFAULT 1 COMMENT '类型 1-每日登录奖励，2-初始资本，3-分享获得',
+  `fixed` int unsigned NOT NULl DEFAULT 0 COMMENT '固定奖励多少铜币',
+  `min` int unsigned NOT NULL DEFAULT 0 COMMENT '奖励最少铜币，连续型任务',
+  `max` int unsigned NOT NULL DEFAULT 0 COMMENT '奖励最多铜币，连续型任务',
+  `incr` int unsigned NOT NULL DEFAULT 0 COMMENT '连续登录增量，连续型任务',
+  `state` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '状态: 0-正常，未完成；1-已过期；2-已下线',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '任务表';
+
+CREATE TABLE IF NOT EXISTS `user_login_mission` (
+  `uid` int unsigned NOT NULL DEFAULT 0 COMMENT '用户UID',
+  `date` int unsigned NOT NULL DEFAULT 0 COMMENT '最新领取日期',
+  `award` int unsigned NOT NULL DEFAULT 0 COMMENT '最新领取的奖励（铜币）',
+  `days` int unsigned NOT NULL DEFAULT 0 COMMENT '连续登录领取天数',
+  `total_days` int unsigned NOT NULL DEFAULT 0 COMMENT '总登录领取天数',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
+  PRIMARY KEY (`uid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户登录任务';
+
 

@@ -61,6 +61,18 @@ func (self RankLogic) GenMonthRank(objtype int) {
 	}
 }
 
+// GenDAURank 生成日活跃用户排行
+func (self RankLogic) GenDAURank(uid, weight int) {
+	redisClient := nosql.NewRedisClient()
+	defer redisClient.Close()
+	key := self.getDAURankKey(times.Format("ymd"))
+	err := redisClient.ZINCRBY(key, weight, uid)
+	if err != nil {
+		logger.Errorln("dau redis ZINCRBY error:", err)
+	}
+	redisClient.EXPIRE(key, 2*30*86400)
+}
+
 func (self RankLogic) FindDayRank(ctx context.Context, objtype int, ymd string, num int) (result interface{}) {
 	objLog := GetLogger(ctx)
 
@@ -183,4 +195,8 @@ func (RankLogic) getWeekRankKey(objtype int) string {
 
 func (RankLogic) getMonthRankKey(objtype int) string {
 	return fmt.Sprintf("view:type-%d:rank:last-month", objtype)
+}
+
+func (RankLogic) getDAURankKey(ymd string) string {
+	return fmt.Sprintf("dau:rank:%s", ymd)
 }

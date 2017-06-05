@@ -7,8 +7,8 @@
 package middleware
 
 import (
-	"errors"
 	"logic"
+	"net/http"
 	"strings"
 
 	"model"
@@ -43,7 +43,7 @@ func Sensivite() echo.MiddlewareFunc {
 						// 把账号冻结
 						logic.DefaultUser.UpdateUserStatus(ctx, user.Uid, model.UserStatusFreeze)
 						logger.Infoln("user=", user.Uid, "publish ad, title=", title, ". freeze")
-						return errors.New("对不起，您的账号已被冻结！")
+						return ctx.String(http.StatusOK, `{"ok":0,"error":"对不起，您的账号已被冻结！"}`)
 					}
 				}
 			}
@@ -52,7 +52,7 @@ func Sensivite() echo.MiddlewareFunc {
 				// 把账号冻结
 				logic.DefaultUser.UpdateUserStatus(ctx, user.Uid, model.UserStatusFreeze)
 				logger.Infoln("user=", user.Uid, "publish ad, title=", title, ";content=", content, ". freeze")
-				return errors.New("对不起，您的账号已被冻结！")
+				return ctx.String(http.StatusOK, `{"ok":0,"error":"对不起，您的账号已被冻结！"}`)
 			}
 
 			if err := next(ctx); err != nil {

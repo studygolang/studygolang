@@ -182,8 +182,7 @@ func (self CommentLogic) Publish(ctx context.Context, uid, objid int, form url.V
 		go commenter.UpdateComment(comment.Cid, objid, uid, time.Now())
 	}
 
-	// 发评论，活跃度+5
-	go DefaultUser.IncrUserWeight("uid", uid, 5)
+	go commentObservable.NotifyObservers(uid, objtype, comment.Cid)
 
 	go self.sendSystemMsg(ctx, uid, objid, objtype, comment.Cid, form)
 
@@ -264,6 +263,16 @@ func (CommentLogic) findByIds(cids []int) map[int]*model.Comment {
 	}
 
 	return comments
+}
+
+func (CommentLogic) findById(cid int) *model.Comment {
+	comment := &model.Comment{}
+	_, err := MasterDB.Where("cid=?", cid).Get(comment)
+	if err != nil {
+		logger.Errorln("CommentLogic findById error:", err)
+	}
+
+	return comment
 }
 
 func (CommentLogic) decodeCmtContent(ctx context.Context, comment *model.Comment) string {

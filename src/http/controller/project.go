@@ -30,7 +30,7 @@ type ProjectController struct{}
 // 注册路由
 func (self ProjectController) RegisterRoute(g *echo.Group) {
 	g.GET("/projects", self.ReadList)
-	g.Match([]string{"GET", "POST"}, "/project/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.PublishNotice())
+	g.Match([]string{"GET", "POST"}, "/project/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice())
 	g.Match([]string{"GET", "POST"}, "/project/modify", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
 	g.GET("/p/:uri", self.Detail)
 	g.GET("/project/uri", self.CheckExist)

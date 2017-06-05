@@ -61,3 +61,13 @@ INSERT INTO `friend_link` (`id`, `name`, `url`, `seq`, `logo`, `created_at`)
 VALUES
 	(1, 'Go语言中文网', 'http://studygolang.com', 0, '', '2017-05-21 14:52:07');
 
+INSERT INTO `user_setting` (`id`, `key`, `value`, `remark`, `created_at`)
+VALUES
+	(1, 'new_user_wait', 0, '新用户注册多久能发布帖子，单位秒，0表示没限制', '2017-05-30 18:11:31'),
+	(2, 'can_edit_time', 300, '发布后多久内能够编辑，单位秒', '2017-05-30 18:12:53');
+
+INSERT INTO `mission` (`id`, `name`, `type`, `fixed`, `min`, `max`, `incr`, `state`, `created_at`)
+VALUES
+	(1, '初始资本', 2, 2000, 0, 0, 0, 0, '2017-06-03 22:44:59'),
+	(2, '每日登录任务', 1, 0, 25, 50, 5, 0, '2017-06-05 13:35:16');
+

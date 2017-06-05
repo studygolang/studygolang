@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	"github.com/polaris1119/times"
 	"golang.org/x/net/context"
@@ -251,6 +252,8 @@ func (self ArticleLogic) Publish(ctx context.Context, me *model.Me, form url.Val
 	}
 	MasterDB.Table(new(model.Article)).Id(article.Id).Update(change)
 
+	go publishObservable.NotifyObservers(me.Uid, model.TypeArticle, article.Id)
+
 	return nil
 }
 
@@ -454,6 +457,20 @@ func (ArticleLogic) FindByIdAndPreNext(ctx context.Context, id int) (curArticle 
 
 // Modify 修改文章信息
 func (ArticleLogic) Modify(ctx context.Context, user *model.Me, form url.Values) (errMsg string, err error) {
+	id := form.Get("id")
+
+	article := &model.Article{}
+	_, err = MasterDB.Id(id).Get(article)
+	if err != nil {
+		errMsg = "对不起，服务器内部错误，请稍后再试！"
+		return
+	}
+
+	if !CanEdit(user, article) {
+		err = NotModifyAuthorityErr
+		return
+	}
+
 	form.Set("op_user", user.Username)
 
 	fields := []string{
@@ -470,7 +487,6 @@ func (ArticleLogic) Modify(ctx context.Context, user *model.Me, form url.Values)
 		}
 	}
 
-	id := form.Get("id")
 	_, err = MasterDB.Table(new(model.Article)).Id(id).Update(change)
 	if err != nil {
 		logger.Errorf("更新文章 【%s】 信息失败：%s\n", id, err)
@@ -478,11 +494,13 @@ func (ArticleLogic) Modify(ctx context.Context, user *model.Me, form url.Values)
 		return
 	}
 
+	go modifyObservable.NotifyObservers(user.Uid, model.TypeArticle, goutils.MustInt(id))
+
 	return
 }
 
 // FindById 获取单条博文
-func (ArticleLogic) FindById(ctx context.Context, id string) (*model.Article, error) {
+func (ArticleLogic) FindById(ctx context.Context, id interface{}) (*model.Article, error) {
 	article := &model.Article{}
 	_, err := MasterDB.Id(id).Get(article)
 	if err != nil {

@@ -33,7 +33,7 @@ func (self ResourceController) RegisterRoute(g *echo.Group) {
 	g.GET("/resources", self.ReadList)
 	g.GET("/resources/cat/:catid", self.ReadCatResources)
 	g.GET("/resources/:id", self.Detail)
-	g.Match([]string{"GET", "POST"}, "/resources/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.PublishNotice())
+	g.Match([]string{"GET", "POST"}, "/resources/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice())
 	g.Match([]string{"GET", "POST"}, "/resources/modify", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
 }
 
