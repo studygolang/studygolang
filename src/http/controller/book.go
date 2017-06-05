@@ -69,9 +69,11 @@ func (BookController) Detail(ctx echo.Context) error {
 	if ok {
 		likeFlag = logic.DefaultLike.HadLike(ctx, me.Uid, book.Id, model.TypeBook)
 		hadCollect = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, book.Id, model.TypeBook)
-	}
 
-	logic.Views.Incr(Request(ctx), model.TypeBook, book.Id)
+		logic.Views.Incr(Request(ctx), model.TypeBook, book.Id, me.Uid)
+	} else {
+		logic.Views.Incr(Request(ctx), model.TypeBook, book.Id)
+	}
 
 	// 为了阅读数即时看到
 	book.Viewnum++

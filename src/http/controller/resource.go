@@ -72,9 +72,11 @@ func (ResourceController) Detail(ctx echo.Context) error {
 		id := resource["id"].(int)
 		likeFlag = logic.DefaultLike.HadLike(ctx, me.Uid, id, model.TypeResource)
 		hadCollect = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, id, model.TypeResource)
-	}
 
-	logic.Views.Incr(Request(ctx), model.TypeResource, id)
+		logic.Views.Incr(Request(ctx), model.TypeResource, id, me.Uid)
+	} else {
+		logic.Views.Incr(Request(ctx), model.TypeResource, id)
+	}
 
 	return render(ctx, "resources/detail.html,common/comment.html", map[string]interface{}{"activeResources": "active", "resource": resource, "comments": comments, "likeflag": likeFlag, "hadcollect": hadCollect})
 }

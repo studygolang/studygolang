@@ -101,14 +101,16 @@ func (TopicController) Detail(ctx echo.Context) error {
 
 	likeFlag := 0
 	hadCollect := 0
-	user, ok := ctx.Get("user").(*model.Me)
+	me, ok := ctx.Get("user").(*model.Me)
 	if ok {
 		tid := topic["tid"].(int)
-		likeFlag = logic.DefaultLike.HadLike(ctx, user.Uid, tid, model.TypeTopic)
-		hadCollect = logic.DefaultFavorite.HadFavorite(ctx, user.Uid, tid, model.TypeTopic)
-	}
+		likeFlag = logic.DefaultLike.HadLike(ctx, me.Uid, tid, model.TypeTopic)
+		hadCollect = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, tid, model.TypeTopic)
 
-	logic.Views.Incr(Request(ctx), model.TypeTopic, tid)
+		logic.Views.Incr(Request(ctx), model.TypeTopic, tid, me.Uid)
+	} else {
+		logic.Views.Incr(Request(ctx), model.TypeTopic, tid)
+	}
 
 	return render(ctx, "topics/detail.html,common/comment.html", map[string]interface{}{"activeTopics": "active", "topic": topic, "replies": replies, "likeflag": likeFlag, "hadcollect": hadCollect})
 }

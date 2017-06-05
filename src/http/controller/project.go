@@ -143,13 +143,15 @@ func (ProjectController) Detail(ctx echo.Context) error {
 
 	likeFlag := 0
 	hadCollect := 0
-	user, ok := ctx.Get("user").(*model.Me)
+	me, ok := ctx.Get("user").(*model.Me)
 	if ok {
-		likeFlag = logic.DefaultLike.HadLike(ctx, user.Uid, project.Id, model.TypeProject)
-		hadCollect = logic.DefaultFavorite.HadFavorite(ctx, user.Uid, project.Id, model.TypeProject)
-	}
+		likeFlag = logic.DefaultLike.HadLike(ctx, me.Uid, project.Id, model.TypeProject)
+		hadCollect = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, project.Id, model.TypeProject)
 
-	logic.Views.Incr(Request(ctx), model.TypeProject, project.Id)
+		logic.Views.Incr(Request(ctx), model.TypeProject, project.Id, me.Uid)
+	} else {
+		logic.Views.Incr(Request(ctx), model.TypeProject, project.Id)
+	}
 
 	// 为了阅读数即时看到
 	project.Viewnum++

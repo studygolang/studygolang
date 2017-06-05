@@ -126,9 +126,11 @@ func (ArticleController) Detail(ctx echo.Context) error {
 	if ok {
 		likeFlag = logic.DefaultLike.HadLike(ctx, me.Uid, article.Id, model.TypeArticle)
 		hadCollect = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, article.Id, model.TypeArticle)
-	}
 
-	logic.Views.Incr(Request(ctx), model.TypeArticle, article.Id)
+		logic.Views.Incr(Request(ctx), model.TypeArticle, article.Id, me.Uid)
+	} else {
+		logic.Views.Incr(Request(ctx), model.TypeArticle, article.Id)
+	}
 
 	// 为了阅读数即时看到
 	article.Viewnum++

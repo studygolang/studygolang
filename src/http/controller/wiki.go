@@ -86,12 +86,13 @@ func (WikiController) Detail(ctx echo.Context) error {
 	}
 
 	// likeFlag := 0
-	// me, ok := ctx.Get("user").(*model.Me)
-	// if ok {
-	// 	likeFlag = logic.DefaultLike.HadLike(ctx, me.Uid, wiki.Id, model.TypeWiki)
-	// }
-
-	logic.Views.Incr(Request(ctx), model.TypeWiki, wiki.Id)
+	me, ok := ctx.Get("user").(*model.Me)
+	if ok {
+		// 	likeFlag = logic.DefaultLike.HadLike(ctx, me.Uid, wiki.Id, model.TypeWiki)
+		logic.Views.Incr(Request(ctx), model.TypeWiki, wiki.Id, me.Uid)
+	} else {
+		logic.Views.Incr(Request(ctx), model.TypeWiki, wiki.Id)
+	}
 
 	// 为了阅读数即时看到
 	wiki.Viewnum++
