@@ -29,6 +29,10 @@ const (
 	MissionTypeAward = 80
 )
 
+const (
+	InitialMissionId = 1
+)
+
 type Mission struct {
 	Id        int       `json:"id" xorm:"pk autoincr"`
 	Name      string    `json:"name"`

@@ -7,6 +7,8 @@
 package logic
 
 import (
+	"errors"
+	"fmt"
 	"model"
 
 	. "db"
@@ -25,14 +27,37 @@ func (self UserRichLogic) Add(ctx context.Context) error {
 }
 
 // IncrUserRich 增加或减少用户财富
-func (UserRichLogic) IncrUserRich(user *model.User, typ, award int, desc string) {
+func (self UserRichLogic) IncrUserRich(user *model.User, typ, award int, desc string) {
+	var (
+		total int64 = -1
+		err   error
+	)
+
+	if award > 0 && typ == model.MissionTypeReplied {
+		// 老用户，因为之前的主题被人回复而增加财富，自动帮其领取初始资本
+		total, err = MasterDB.Where("uid=?", user.Uid).Count(new(model.UserBalanceDetail))
+		if err != nil {
+			logger.Errorln("IncrUserRich count error:", err)
+			return
+		}
+	}
+
 	session := MasterDB.NewSession()
 	defer session.Close()
-
 	session.Begin()
 
-	user.Balance += award
-	_, err := session.Where("uid=?", user.Uid).Cols("balance").Update(user)
+	var initialAward int
+	if total == 0 {
+		initialAward, err = self.autoCompleteInitial(session, user)
+		if err != nil {
+			logger.Errorln("IncrUserRich autoCompleteInitial error:", err)
+			session.Rollback()
+			return
+		}
+	}
+
+	user.Balance += initialAward + award
+	_, err = session.Where("uid=?", user.Uid).Cols("balance").Update(user)
 	if err != nil {
 		logger.Errorln("IncrUserRich update error:", err)
 		session.Rollback()
@@ -80,4 +105,26 @@ func (UserRichLogic) Total(ctx context.Context, uid int) int64 {
 func (UserRichLogic) add(session *xorm.Session, balanceDetail *model.UserBalanceDetail) error {
 	_, err := session.Insert(balanceDetail)
 	return err
+}
+
+func (UserRichLogic) autoCompleteInitial(session *xorm.Session, user *model.User) (int, error) {
+	mission := &model.Mission{}
+	_, err := session.Where("id=?", model.InitialMissionId).Get(mission)
+	if err != nil {
+		return 0, err
+	}
+	if mission.Id == 0 {
+		return 0, errors.New("初始资本任务不存在！")
+	}
+
+	balanceDetail := &model.UserBalanceDetail{
+		Uid:     user.Uid,
+		Type:    model.MissionTypeInitial,
+		Num:     mission.Fixed,
+		Balance: mission.Fixed,
+		Desc:    fmt.Sprintf("获得%s %d 铜币", model.BalanceTypeMap[mission.Type], mission.Fixed),
+	}
+	_, err = session.Insert(balanceDetail)
+
+	return mission.Fixed, err
 }
