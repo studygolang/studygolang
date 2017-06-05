@@ -212,7 +212,7 @@ func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interf
 	if ok {
 		data["me"] = curUser
 	} else {
-		data["me"] = nil
+		data["me"] = &model.Me{}
 	}
 
 	// websocket主机
