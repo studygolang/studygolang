@@ -109,7 +109,7 @@ func (self MissionLogic) RedeemLoginAward(ctx context.Context, me *model.Me) err
 		userLoginMission.Date = today
 		userLoginMission.TotalDays++
 
-		_, err := session.Update(userLoginMission)
+		_, err := session.Where("uid=?", userLoginMission.Uid).Update(userLoginMission)
 		if err != nil {
 			session.Rollback()
 			objLog.Errorln("update user_login_mission error:", err)
