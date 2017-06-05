@@ -312,6 +312,9 @@ a.balance_area img { vertical-align: bottom; }
 .inner_content h2 { font-size: 18px; font-weight: 500; line-height: 100%; margin: 15px 0px 15px 0px; padding: 0px 0px 8px 0px; border-bottom: 1px solid #e2e2e2; }
 .sep20 { height: 20px; }
 .sep10 { height: 10px; }
+.sep5 { height: 5px; }
+
+.f12 { font-size: 12px; }
 
 .dock_area {background-color: #edf3f5; background-image: url(/static/img/dock_shadow.png); background-repeat: repeat-x; padding: 0px; }
 .chevron {font-family: "Lucida Grande"; font-weight: 500; }

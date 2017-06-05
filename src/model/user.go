@@ -12,6 +12,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/go-xorm/xorm"
 	"github.com/polaris1119/goutils"
 )
 
@@ -73,6 +74,12 @@ type User struct {
 	// 非用户表中的信息，为了方便放在这里
 	Roleids   []int    `xorm:"-"`
 	Rolenames []string `xorm:"-"`
+
+	// 活跃度
+	Weight int `json:"weight" xorm:"-"`
+	Gold   int `json:"gold" xorm:"-"`
+	Silver int `json:"silver" xorm:"-"`
+	Copper int `json:"copper" xorm:"-"`
 }
 
 func (this *User) TableName() string {
@@ -84,6 +91,16 @@ func (this *User) String() string {
 	buffer.Append(this.Username).Append(this.Email).Append(this.Uid).Append(this.Mtime)
 
 	return buffer.String()
+}
+
+func (this *User) AfterSet(name string, cell xorm.Cell) {
+	if name == "balance" {
+		this.Gold = this.Balance / 10000
+		balance := this.Balance % 10000
+
+		this.Silver = balance / 100
+		this.Copper = balance % 100
+	}
 }
 
 // Me 代表当前用户
@@ -103,14 +120,6 @@ type Me struct {
 	Gold    int `json:"gold"`
 	Silver  int `json:"silver"`
 	Copper  int `json:"copper"`
-}
-
-func (this *Me) SplitBalance() {
-	this.Gold = this.Balance / 10000
-	balance := this.Balance % 10000
-
-	this.Silver = balance / 100
-	this.Copper = balance % 100
 }
 
 // 活跃用户信息

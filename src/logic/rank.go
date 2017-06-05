@@ -118,6 +118,64 @@ func (self RankLogic) FindMonthRank(ctx context.Context, objtype, num int) (resu
 	return self.findModelsByRank(resultSlice, objtype, num)
 }
 
+func (self RankLogic) FindDAURank(ctx context.Context, num int) []*model.User {
+	objLog := GetLogger(ctx)
+
+	redisClient := nosql.NewRedisClient()
+	key := self.getDAURankKey(times.Format("ymd"))
+	resultSlice, err := redisClient.ZREVRANGE(key, 0, num-1, true)
+	redisClient.Close()
+	if err != nil {
+		objLog.Errorln("FindDAURank ZREVRANGE error:", err)
+		return nil
+	}
+
+	uids := make([]int, 0, num)
+	weights := make([]int, 0, num)
+
+	for len(resultSlice) > 0 {
+		var (
+			uid, weight int
+			err         error
+		)
+		resultSlice, err = redis.Scan(resultSlice, &uid, &weight)
+		if err != nil {
+			logger.Errorln("FindDAURank redis Scan error:", err)
+			return nil
+		}
+
+		uids = append(uids, uid)
+		weights = append(weights, weight)
+	}
+
+	userMap := DefaultUser.FindDAUUsers(ctx, uids)
+	users := make([]*model.User, len(userMap))
+	for i, uid := range uids {
+		user := userMap[uid]
+		user.Weight = weights[i]
+		users[i] = user
+	}
+
+	return users
+}
+
+// TotalDAUUser 今日活跃用户数
+func (self RankLogic) TotalDAUUser(ctx context.Context) int {
+	redisClient := nosql.NewRedisClient()
+	defer redisClient.Close()
+
+	key := self.getDAURankKey(times.Format("ymd"))
+	return redisClient.ZCARD(key)
+}
+
+func (self RankLogic) UserDAURank(ctx context.Context, uid int) int {
+	redisClient := nosql.NewRedisClient()
+	defer redisClient.Close()
+
+	key := self.getDAURankKey(times.Format("ymd"))
+	return redisClient.ZREVRANK(key, uid)
+}
+
 func (RankLogic) findModelsByRank(resultSlice []interface{}, objtype, num int) (result interface{}) {
 	objids := make([]int, 0, num)
 	viewNums := make([]int, 0, num)

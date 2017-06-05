@@ -51,6 +51,24 @@
 						<label>注册时间:</label>
 						<span>{{.user.Ctime}}</span>
 					</li>
+					{{if gt .user.Weight 0}}
+					<li>
+						<label>今日活跃度排名:</label>
+						<span><a href="/top/dau">{{.user.Weight}}</a></span>
+					</li>
+					{{end}}
+					<li>
+						<label>财富:</label>
+						<span class="balance_area">
+						{{if .user.Gold}}
+						{{.user.Gold}} <img src="/static/img/gold_48.png" alt="" width="16px">
+						{{end}}
+						{{if .user.Silver}}
+						{{.user.Silver}} <img src="/static/img/silver_48.png" alt="" width="16px">
+						{{end}}
+						{{.user.Copper}} <img src="/static/img/copper_48.png" alt="" width="16px">
+						</span>
+					</li>
 				</ul>
 			</div>
 		</div>

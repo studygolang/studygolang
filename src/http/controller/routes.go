@@ -30,6 +30,7 @@ func RegisterRoutes(g *echo.Group) {
 	new(BookController).RegisterRoute(g)
 	new(MissionController).RegisterRoute(g)
 	new(UserRichController).RegisterRoute(g)
+	new(TopController).RegisterRoute(g)
 	new(WebsocketController).RegisterRoute(g)
 
 	new(InstallController).RegisterRoute(g)

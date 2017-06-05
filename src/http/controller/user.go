@@ -31,6 +31,8 @@ func (UserController) Home(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusSeeOther, "/users")
 	}
 
+	user.Weight = logic.DefaultRank.UserDAURank(ctx, user.Uid)
+
 	topics := logic.DefaultTopic.FindRecent(5, user.Uid)
 
 	resources := logic.DefaultResource.FindRecent(ctx, user.Uid)
@@ -47,7 +49,8 @@ func (UserController) Home(ctx echo.Context) error {
 // ReadList 会员列表
 func (UserController) ReadList(ctx echo.Context) error {
 	// 获取活跃会员
-	activeUsers := logic.DefaultUser.FindActiveUsers(ctx, 36)
+	// activeUsers := logic.DefaultUser.FindActiveUsers(ctx, 36)
+	activeUsers := logic.DefaultRank.FindDAURank(ctx, 36)
 	// 获取最新加入会员
 	newUsers := logic.DefaultUser.FindNewUsers(ctx, 36)
 	// 获取会员总数

@@ -143,7 +143,9 @@ func (SidebarController) HotNodes(ctx echo.Context) error {
 
 // ActiveUser 活跃会员
 func (SidebarController) ActiveUser(ctx echo.Context) error {
-	activeUsers := logic.DefaultUser.FindActiveUsers(ctx, 9)
+	// activeUsers := logic.DefaultUser.FindActiveUsers(ctx, 9)
+	// return success(ctx, activeUsers)
+	activeUsers := logic.DefaultRank.FindDAURank(ctx, 9)
 	return success(ctx, activeUsers)
 }
 

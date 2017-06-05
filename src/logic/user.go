@@ -312,8 +312,10 @@ func (self UserLogic) FindCurrentUser(ctx context.Context, username interface{})
 		MsgNum:   DefaultMessage.FindNotReadMsgNum(ctx, user.Uid),
 
 		Balance: user.Balance,
+		Gold:    user.Gold,
+		Silver:  user.Silver,
+		Copper:  user.Copper,
 	}
-	me.SplitBalance()
 
 	// TODO: 先每次都记录登录时间
 	go self.RecordLoginTime(user.Username)
@@ -517,6 +519,18 @@ func (UserLogic) FindActiveUsers(ctx context.Context, limit int, offset ...int) 
 		return nil
 	}
 	return activeUsers
+}
+
+func (UserLogic) FindDAUUsers(ctx context.Context, uids []int) map[int]*model.User {
+	objLog := GetLogger(ctx)
+
+	users := make(map[int]*model.User)
+	err := MasterDB.In("uid", uids).Find(&users)
+	if err != nil {
+		objLog.Errorln("UserLogic FindDAUUsers error:", err)
+		return nil
+	}
+	return users
 }
 
 // FindNewUsers 最新加入会员
