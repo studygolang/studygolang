@@ -7,6 +7,7 @@
 package logic
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -81,7 +82,7 @@ func newViews() *views {
 }
 
 // TODO: 用户登录了，应该用用户标识，而不是IP
-func (this *views) Incr(req *http.Request, objtype, objid int) {
+func (this *views) Incr(req *http.Request, objtype, objid int, uids ...int) {
 	ua := req.UserAgent()
 	spiders := config.ConfigFile.MustValueArray("global", "spider", ",")
 	for _, spider := range spiders {
@@ -90,21 +91,23 @@ func (this *views) Incr(req *http.Request, objtype, objid int) {
 		}
 	}
 
-	user := goutils.Ip2long(goutils.RemoteIp(req))
-
 	key := strconv.Itoa(objtype) + strconv.Itoa(objid)
+
+	var userKey string
+
+	if len(uids) > 0 {
+		userKey = fmt.Sprintf("%s_uid_%d", key, uids[0])
+	} else {
+		userKey = fmt.Sprintf("%s_ip_%d", key, goutils.Ip2long(goutils.RemoteIp(req)))
+	}
 
 	this.locker.Lock()
 	defer this.locker.Unlock()
 
-	if user != 0 {
-		userKey := key + strconv.FormatUint(uint64(user), 10)
-
-		if _, ok := this.users[userKey]; ok {
-			return
-		} else {
-			this.users[userKey] = true
-		}
+	if _, ok := this.users[userKey]; ok {
+		return
+	} else {
+		this.users[userKey] = true
 	}
 
 	if _, ok := this.data[key]; !ok {
@@ -112,6 +115,10 @@ func (this *views) Incr(req *http.Request, objtype, objid int) {
 	}
 
 	this.data[key].incr()
+
+	if len(uids) > 0 {
+		viewObservable.NotifyObservers(uids[0], objtype, objid)
+	}
 }
 
 func (this *views) Flush() {
