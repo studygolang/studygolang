@@ -65,7 +65,7 @@
 			<div id="hm_t_56958" style="margin:0 auto;max-width:790px;"></div>
 			
 			<!-- 评论 -->
-			<div class="page-comment" data-objid="{{.resource.id}}" data-objtype="2" {{if .me}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
+			<div class="page-comment" data-objid="{{.resource.id}}" data-objtype="2" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
 				<div class="words hide">
 					<h3><span class="cmtnum">{{.resource.cmtnum}}</span>条评论</h3>
 					<ul class="list-unstyled">
@@ -73,7 +73,7 @@
 				</div>
 				<div class="comment-title">
 					<h2>资源评论：</h2>
-					{{if .me}}
+					{{if .me.Uid}}
 					{{else}}
 					<span class="h2-tip">
 					（您需要 <a class="c-log" href="javascript:openPop('#login-pop');">登录</a> 后才能评论 <a href="/user/register" class="c-reg"> 没有账号</a> ？）</span>

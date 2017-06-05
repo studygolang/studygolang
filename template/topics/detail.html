@@ -65,7 +65,7 @@
 				</div>
 			</div>
 			<!-- 评论 -->
-			<div class="page-comment" data-objid="{{.topic.tid}}" data-objtype="0" {{if .me}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
+			<div class="page-comment" data-objid="{{.topic.tid}}" data-objtype="0" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
 				<div class="words hide">
 					<h3><span class="cmtnum">{{.topic.reply}}</span>条回复</h3>
 					<ul class="list-unstyled">
@@ -73,7 +73,7 @@
 				</div>
 				<div class="comment-title">
 					<h2>主题回复：</h2>
-					{{if .me}}
+					{{if .me.Uid}}
 					{{else}}
 					<span class="h2-tip">
 					（您需要 <a class="c-log" href="javascript:openPop('#login-pop');">登录</a> 后才能回复 <a href="/user/register" class="c-reg"> 没有账号</a> ？）</span>

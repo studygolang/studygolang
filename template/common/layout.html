@@ -90,7 +90,7 @@
 					<input type="text" name="q" class="form-control search-query" placeholder="搜索" value="{{if .q}}{{.q}}{{end}}">
 				</form>
 				<ul class="nav navbar-nav navbar-right" id="userbar">
-					{{if .me}}
+					{{if .me.Uid}}
 					<li>
 						<a href="/message/system" id="user_message_count"><span class="badge{{if .me.MsgNum}} badge-warning{{end}}">{{.me.MsgNum}}</span></a>
 					</li>
@@ -116,7 +116,7 @@
 	</header>
 	<div class="wrapper" id="wrapper">
 		<div class="container" role="main">
-		{{if .me}}
+		{{if .me.Uid}}
 			{{if eq .me.Status 0}}
 			<div class="row">
 				<div class="alert alert-warning text-center" role="alert" style="margin-bottom: 0px;">
@@ -163,7 +163,7 @@
 	</footer>
 	<div id="gotop"></div>
 
-	{{if .me}}
+	{{if .me.Uid}}
 	<input type="hidden" id="is_login_status" value="1" />
 	{{else}}
 	<input type="hidden" id="is_login_status" value="0" />
