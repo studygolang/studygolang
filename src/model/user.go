@@ -66,6 +66,7 @@ type User struct {
 	Introduce   string    `json:"introduce"`
 	Unsubscribe int       `json:"unsubscribe"`
 	Balance     int       `json:"balance"`
+	IsThird     int       `json:"is_third"`
 	Status      int       `json:"status"`
 	IsRoot      bool      `json:"is_root"`
 	Ctime       OftenTime `json:"ctime" xorm:"created"`
@@ -144,4 +145,23 @@ type UserRole struct {
 	Uid    int    `json:"uid"`
 	Roleid int    `json:"roleid"`
 	ctime  string `xorm:"-"`
+}
+
+const (
+	BindTypeGithub = iota
+)
+
+type BindUser struct {
+	Id           int       `json:"uid" xorm:"pk autoincr"`
+	Uid          int       `json:"uid"`
+	Type         int       `json:"type"`
+	Email        string    `json:"email"`
+	Tuid         int       `json:"tuid"`
+	Username     string    `json:"username"`
+	Name         string    `json:"name"`
+	AccessToken  string    `json:"access_token"`
+	RefreshToken string    `json:"refresh_token"`
+	Expire       int       `json:"expire"`
+	Avatar       string    `json:"avatar"`
+	CreatedAt    time.Time `json:"created_at" xorm:"<-"`
 }

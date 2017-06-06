@@ -416,6 +416,12 @@
 			"path": "/websocket"
 		},
 		{
+			"importpath": "golang.org/x/oauth2",
+			"repository": "https://github.com/golang/oauth2",
+			"revision": "f047394b6d14284165300fd82dad67edb3a4d7f6",
+			"branch": "master"
+		},
+		{
 			"importpath": "golang.org/x/text/encoding",
 			"repository": "https://github.com/golang/text",
 			"revision": "dafb3384ad25363d928a9e97ce4ad3a2f0667e34",

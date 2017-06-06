@@ -108,6 +108,7 @@ func (self MissionLogic) RedeemLoginAward(ctx context.Context, me *model.Me) err
 
 		userLoginMission.Date = today
 		userLoginMission.TotalDays++
+		userLoginMission.UpdatedAt = time.Now()
 
 		_, err := session.Where("uid=?", userLoginMission.Uid).Update(userLoginMission)
 		if err != nil {

@@ -234,9 +234,12 @@ func (self AccountController) Edit(ctx echo.Context) error {
 
 	if ctx.Request().Method() != "POST" {
 		user := logic.DefaultUser.FindOne(ctx, "uid", me.Uid)
+		bindUsers := logic.DefaultUser.FindBindUsers(ctx, me.Uid)
 		return render(ctx, "user/edit.html", map[string]interface{}{
 			"user":            user,
 			"default_avatars": logic.DefaultAvatars,
+			"has_passwd":      logic.DefaultUser.HasPasswd(ctx, me.Uid),
+			"bind_users":      bindUsers,
 		})
 	}
 

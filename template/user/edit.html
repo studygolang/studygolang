@@ -162,13 +162,15 @@
 		<div class="box_white">
 			<form class="form-horizontal validate-form" role="form" action="/account/changepwd">
 				<fieldset>
-					<legend>修改密码</legend>
+					<legend>{{if .has_passwd}}修改{{else}}设置{{end}}密码</legend>
+					{{if .has_passwd}}
 					<div class="form-group form-group-sm">
 						<label class="col-sm-3 control-label" for="cur_password">旧密码</label>
 						<div class="col-sm-6">
 							<input class="form-control required" type="password" id="cur_password" name="cur_passwd" placeholder="旧密码">
 						</div>
 					</div>
+					{{end}}
 					<div class="form-group form-group-sm">
 						<label class="col-sm-3 control-label" for="passwd">新密码</label>
 						<div class="col-sm-6">
@@ -189,33 +191,66 @@
 				</div>
 			</form>
 		</div>
+		<br>
+		<div class="box_white" id="connection">
+			<div class="card-block select-avatar">
+				<h4 class="title">账号关联</h4>
+				<p>您可以使用以下社交账户登录 {{.setting.Name}}。如果您删除了全部关联的社交账户，您仍可以使用<span class="text-danger">已验证的邮箱</span>或者以下用户名登录{{.setting.Name}}：</p>
+				<p>您的用户名为：<span class="text-danger">{{.user.Username}}</span></p>
+
+				<form method="post" action="/user/social/connections">
+					<fieldset>
+						<div>
+							{{range .bind_users}}
+							<label for="id_account_{{.Id}}">
+								<input id="id_account_{{.Id}}" type="radio" name="bind_id" value="{{.Id}}">
+								<span class="socialaccount_provider {{if eq .Type 0}}github{{end}}">{{if eq .Type 0}}GitHub{{end}}</span> {{.Name}}
+							</label>&nbsp;
+							{{end}}
+						</div>
+						{{if .bind_users}}
+						<div>
+							<button class="btn btn-danger btn-sm" type="submit">删除</button>
+						</div>
+						{{end}}
+					</fieldset>
+				</form>
+				<hr>
+				<h5 class="mb-3">添加一个第三方账号</h5>
+
+				<ul class="socialaccount_providers list-unstyled list-inline">
+					<li class="list-inline-item">
+					  <a class="btn btn-primary btn-sm" title="GitHub" href="/oauth/github/login?process=connect">GitHub</a>
+					</li>
+				</ul>
+			</div>
+		</div>
 	</div>
 	<div class="col-lg-3 col-md-4 col-sm-5">
 		
 		<div class="row box_white sidebar">
-			<div class="top">
-				<ul class="list-inline text-center">
-					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新主题</a>|</li>
-					<li class="second"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
-					<li class="last"><a href="javascript:;">最新评论</a></li>
-				</ul>
-				<p class="bar"></p>
-			</div>
-			<div class="sb-content">
-				<div class="topic-list first">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-				<div class="resource-list second hidden">
-					<ul class="list-unstyled">
-					</ul>
-				</div>
-				<div class="cmt-list last hidden">
-					<ul class="list-unstyled">
-					</ul>
-				</div>
-			</div>
+			<ul class="list-group mt-3">
+				<li class="list-group-item">
+					<a href="#setting">
+						<i class="fa fa-address-card-o mr-2" aria-hidden="true"></i> 资料设置
+					</a>
+				</li>
+				<li class="list-group-item">
+					<a href="#changeavatar">
+						<i class="fa fa-user-circle mr-2" aria-hidden="true"></i> 修改头像
+					</a>
+				</li>
+				<li class="list-group-item">
+					<a href="#changepwd">
+						<i class="fa fa-key mr-2" aria-hidden="true"></i> 修改密码
+					</a>
+				</li>
+				<li class="list-group-item">
+					<a href="#connection">
+						<i class="fa fa-cogs mr-2" aria-hidden="true"></i> 账号关联
+					</a>
+				</li>
+			</ul>
 		</div>
 	</div>
 </div>

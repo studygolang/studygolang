@@ -204,7 +204,7 @@
 	<div class="col-lg-3 col-md-4 col-sm-5">
 		<div class="row box_white sidebar">
 			{{if .me.Uid}}
-			<!-- <div class="box">
+			<div class="box">
 				<div class="avatar-area pull-left">
 					<span class="avatar"><a href="/account/edit#change-avatar"><img alt="个人首页" width="80" height="80" src="{{gravatar .me.Avatar .me.Email 80 .is_https}}" class="img-circle tool-tip" data-toggle="tooltip" data-placement="left" title="更换头像"></a></span>
 				</div>
@@ -213,10 +213,10 @@
 					<p class="user-name"><a href="/user/{{.me.Username}}">{{.me.Username}}</a></p>
 					<p><a href="/account/edit">个人资料设置</a></p>
 				</div>
-			</div> -->
-			<div class="box">
-				<p style="margin-top: 10.5px; text-align: center;">欢迎您，<a href="/user/{{.me.Username}}">{{.me.Username}}</a></p>
 			</div>
+			<!-- <div class="box">
+				<p style="margin-top: 10.5px; text-align: center;">欢迎您，<a href="/user/{{.me.Username}}">{{.me.Username}}</a></p>
+			</div> -->
 			<div class="box" style="margin: 0 5px;">
 				<a class="btn btn-default btn-sm" href="/topics/new">发布主题</a>&nbsp;&nbsp;
 				<a class="btn btn-default btn-sm" href="/articles/new">撰写文章</a>&nbsp;&nbsp;
@@ -245,8 +245,8 @@
 			<div class="top">
 				<h3 class="title"><i class="glyphicon glyphicon-user"></i> 用户登录</h3>
 			</div>
-			<div class="sb-content">
-				<form action="/account/login" method="post" class="form-horizontal login" role="form">
+			<div class="sb-content" style="padding-bottom: 0;">
+				<form action="/account/login" method="post" class="form-horizontal login" role="form" style="padding-top: 0; padding-bottom: 0;">
 					<div class="form-group">
 						<div class="col-sm-10">
 							<input type="text" class="form-control input-sm" id="username" name="username" placeholder="请填写用户名或邮箱">
@@ -265,6 +265,10 @@
 								</label>
 								<input class="btn btn-primary btn-sm" data-disable-with="正在登录" name="commit" type="submit" value="登录" />
 							</div>
+							<a href="/oauth/github/login" class="btn btn-default btn-sm">
+								<i class="fa fa-github" aria-hidden="true"></i>
+								GitHub 登录
+							</a>
 						</div>
 					</div>
 				</form>

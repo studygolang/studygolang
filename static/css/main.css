@@ -59,7 +59,7 @@ html, body { background: #F2F2F2; font-family: "Helvetica Neue", Helvetica, Aria
 .sidebar .avatar-area, .sidebar .profile-show { margin-left: 20px; }
 .sidebar .inner { margin: 0 20px 10px 15px; font-size: 12px; }
 
-.sidebar .sb-content { margin-bottom: 20px }
+.sidebar .sb-content { padding-bottom: 15px; }
 .sidebar .sb-content .topic-list { margin: 15px 5px 10px 0px; }
 .sidebar .sb-content .topic-list ul { margin-left: 12px; }
 .sidebar .sb-content .topic-list ul li i{ float: left;width: 4px;height: 4px;background: #858585;margin-top: 13px;margin-right: 7px; }

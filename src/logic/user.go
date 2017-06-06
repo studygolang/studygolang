@@ -16,6 +16,7 @@ import (
 	"util"
 
 	"github.com/go-validator/validator"
+	"github.com/go-xorm/xorm"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	"golang.org/x/net/context"
@@ -62,81 +63,23 @@ func (self UserLogic) CreateUser(ctx context.Context, form url.Values) (errMsg s
 		return
 	}
 
-	session := MasterDB.NewSession()
-	defer session.Close()
-
-	session.Begin()
-
-	if len(DefaultAvatars) > 0 {
-		// 随机给一个默认头像
-		user.Avatar = DefaultAvatars[rand.Intn(len(DefaultAvatars))]
-	}
-	user.Open = 1
-
 	if !user.IsRoot {
 		// 避免前端伪造，传递 status=1
 		user.Status = model.UserStatusNoAudit
 	}
-	_, err = session.Insert(user)
+
+	session := MasterDB.NewSession()
+	defer session.Close()
+	session.Begin()
+
+	err = self.doCreateUser(ctx, session, user)
 	if err != nil {
+		errMsg = "内部服务错误！"
 		session.Rollback()
-		errMsg = "内部服务器错误"
-		objLog.Errorln(errMsg, ":", err)
-		return
+		objLog.Errorln("create user error:", err)
+	} else {
+		session.Commit()
 	}
-
-	// 存用户登录信息
-	userLogin := &model.UserLogin{}
-	err = schemaDecoder.Decode(userLogin, form)
-	if err != nil {
-		session.Rollback()
-		errMsg = err.Error()
-		objLog.Errorln("CreateUser error:", err)
-		return
-	}
-	userLogin.Uid = user.Uid
-	err = userLogin.GenMd5Passwd()
-	if err != nil {
-		session.Rollback()
-		errMsg = err.Error()
-		return
-	}
-	if _, err = session.Insert(userLogin); err != nil {
-		session.Rollback()
-		errMsg = "内部服务器错误"
-		logger.Errorln(errMsg, ":", err)
-		return
-	}
-
-	if !user.IsRoot {
-		// 存用户角色信息
-		userRole := &model.UserRole{}
-		// 默认为初级会员
-		userRole.Roleid = Roles[len(Roles)-1].Roleid
-		userRole.Uid = user.Uid
-		if _, err = session.Insert(userRole); err != nil {
-			session.Rollback()
-			objLog.Errorln("userRole insert Error:", err)
-			errMsg = "内部服务器错误"
-			return
-		}
-	}
-
-	// 存用户活跃信息，初始活跃+2
-	userActive := &model.UserActive{}
-	userActive.Uid = user.Uid
-	userActive.Username = user.Username
-	userActive.Avatar = user.Avatar
-	userActive.Email = user.Email
-	userActive.Weight = 2
-	if _, err = session.Insert(userActive); err != nil {
-		objLog.Errorln("UserActive insert Error:", err)
-		session.Rollback()
-		errMsg = "内部服务器错误"
-		return
-	}
-
-	session.Commit()
 
 	return
 }
@@ -218,7 +161,7 @@ func (UserLogic) EmailOrUsernameExists(ctx context.Context, email, username stri
 
 	userLogin := &model.UserLogin{}
 	_, err := MasterDB.Where("email=?", email).Or("username=?", username).Get(userLogin)
-	if err != nil || userLogin.Uid != 0 {
+	if err != nil || userLogin.Uid == 0 {
 		if err != nil {
 			objLog.Errorln("user logic EmailOrUsernameExists error:", err)
 		}
@@ -403,12 +346,20 @@ func (self UserLogic) Login(ctx context.Context, username, passwd string) (*mode
 
 // UpdatePasswd 更新用户密码
 func (self UserLogic) UpdatePasswd(ctx context.Context, username, curPasswd, newPasswd string) (string, error) {
-	_, err := self.Login(ctx, username, curPasswd)
+	userLogin := &model.UserLogin{}
+	_, err := MasterDB.Where("username=?", username).Get(userLogin)
 	if err != nil {
-		return "原密码填写错误", err
+		return "用户不存在", err
 	}
 
-	userLogin := &model.UserLogin{
+	if userLogin.Passwd != "" {
+		_, err = self.Login(ctx, username, curPasswd)
+		if err != nil {
+			return "原密码填写错误", err
+		}
+	}
+
+	userLogin = &model.UserLogin{
 		Passwd: newPasswd,
 	}
 	err = userLogin.GenMd5Passwd()
@@ -417,7 +368,7 @@ func (self UserLogic) UpdatePasswd(ctx context.Context, username, curPasswd, new
 	}
 
 	changeData := map[string]interface{}{
-		"passwd":   newPasswd,
+		"passwd":   userLogin.Passwd,
 		"passcode": userLogin.Passcode,
 	}
 	_, err = MasterDB.Table(userLogin).Where("username=?", username).Update(changeData)
@@ -426,6 +377,16 @@ func (self UserLogic) UpdatePasswd(ctx context.Context, username, curPasswd, new
 		return "对不起，内部服务错误！", err
 	}
 	return "", nil
+}
+
+func (UserLogic) HasPasswd(ctx context.Context, uid int) bool {
+	userLogin := &model.UserLogin{}
+	_, err := MasterDB.Where("uid=?", uid).Get(userLogin)
+	if err != nil || userLogin.Passwd != "" {
+		return true
+	}
+
+	return false
 }
 
 func (self UserLogic) ResetPasswd(ctx context.Context, email, passwd string) (string, error) {
@@ -579,4 +540,69 @@ func (UserLogic) EmailSubscribe(ctx context.Context, uid, unsubscribe int) {
 	if err != nil {
 		logger.Errorln("user:", uid, "Email Subscribe Error:", err)
 	}
+}
+
+func (UserLogic) FindBindUsers(ctx context.Context, uid int) []*model.BindUser {
+	bindUsers := make([]*model.BindUser, 0)
+	err := MasterDB.Where("uid=?", uid).Find(&bindUsers)
+	if err != nil {
+		logger.Errorln("user:", uid, "FindBindUsers Error:", err)
+	}
+	return bindUsers
+}
+
+func (UserLogic) doCreateUser(ctx context.Context, session *xorm.Session, user *model.User) error {
+
+	if len(DefaultAvatars) > 0 {
+		// 随机给一个默认头像
+		user.Avatar = DefaultAvatars[rand.Intn(len(DefaultAvatars))]
+	}
+	user.Open = 0
+
+	_, err := session.Insert(user)
+	if err != nil {
+		return err
+	}
+
+	// 存用户登录信息
+	userLogin := &model.UserLogin{
+		Email:    user.Email,
+		Username: user.Username,
+		Uid:      user.Uid,
+	}
+
+	if user.Status != model.UserStatusAudit {
+		err = userLogin.GenMd5Passwd()
+		if err != nil {
+			return err
+		}
+	}
+	if _, err = session.Insert(userLogin); err != nil {
+		return err
+	}
+
+	if !user.IsRoot {
+		// 存用户角色信息
+		userRole := &model.UserRole{}
+		// 默认为初级会员
+		userRole.Roleid = Roles[len(Roles)-1].Roleid
+		userRole.Uid = user.Uid
+		if _, err = session.Insert(userRole); err != nil {
+			return err
+		}
+	}
+
+	// 存用户活跃信息，初始活跃+2
+	userActive := &model.UserActive{
+		Uid:      user.Uid,
+		Username: user.Username,
+		Avatar:   user.Avatar,
+		Email:    user.Email,
+		Weight:   2,
+	}
+	if _, err = session.Insert(userActive); err != nil {
+		return err
+	}
+
+	return nil
 }
