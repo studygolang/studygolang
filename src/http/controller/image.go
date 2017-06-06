@@ -134,7 +134,7 @@ func (ImageController) Upload(ctx echo.Context) error {
 		return fail(ctx, 5, "文件上传失败！")
 	}
 
-	return success(ctx, map[string]interface{}{"url": cdnDomain + path})
+	return success(ctx, map[string]interface{}{"url": cdnDomain + path, "uri": path})
 }
 
 // Transfer 转换图片：通过 url 从远程下载图片然后转存到七牛

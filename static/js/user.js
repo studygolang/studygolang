@@ -135,9 +135,6 @@
 		});
 
 		if (typeof plupload != "undefined") {
-			// 上传自定义头像
-			var QINIU_DOAMIN = 'http://studygolang.qiniudn.com/';
-			
 			// 实例化一个plupload上传对象
 			var uploader = new plupload.Uploader({
 				browse_button : 'upload-img', // 触发文件选择对话框的按钮，为那个元素id
@@ -174,7 +171,7 @@
 					var data = $.parseJSON(responseObject.response);
 					if (data.ok) {
 						var path = data.data.uri;
-						var url = QINIU_DOAMIN+path;
+						var url = data.data.url;
 						var $img = $('#img-preview').find('img');
 						$img.attr('src', url);
 						$img.attr('alt', file.name);
