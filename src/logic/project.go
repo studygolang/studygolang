@@ -345,6 +345,7 @@ func (ProjectLogic) ParseOneProject(projectUrl string) error {
 				project.Licence = "其他"
 			}
 		} else if i == 1 {
+			txt = liSelection.Find("span a:first-child").Text()
 			project.Lang = txt
 		} else if i == 2 {
 			project.Os = txt
