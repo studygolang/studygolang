@@ -42,6 +42,7 @@ func (self AccountController) RegisterRoute(g *echo.Group) {
 	g.Any("/account/forgetpwd", self.ForgetPasswd)
 	g.Any("/account/resetpwd", self.ResetPasswd)
 	g.Get("/account/logout", self.Logout, middleware.NeedLogin())
+	g.POST("/account/social/unbind", self.Unbind, middleware.NeedLogin())
 }
 
 func (self AccountController) Register(ctx echo.Context) error {
@@ -393,4 +394,13 @@ func (AccountController) Logout(ctx echo.Context) error {
 	session.Save(Request(ctx), ResponseWriter(ctx))
 	// 重定向得到登录页（TODO:重定向到什么页面比较好？）
 	return ctx.Redirect(http.StatusSeeOther, "/account/login")
+}
+
+// Unbind 第三方账号解绑
+func (AccountController) Unbind(ctx echo.Context) error {
+	bindId := ctx.FormValue("bind_id")
+	me := ctx.Get("user").(*model.Me)
+	logic.DefaultThirdUser.UnBindUser(ctx, bindId, me)
+
+	return ctx.Redirect(http.StatusSeeOther, "/account/edit#connection")
 }

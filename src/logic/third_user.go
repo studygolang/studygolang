@@ -190,6 +190,11 @@ func (self ThirdUserLogic) BindGithub(ctx context.Context, code string, me *mode
 	return nil
 }
 
+func (ThirdUserLogic) UnBindUser(ctx context.Context, bindId interface{}, me *model.Me) error {
+	_, err := MasterDB.Where("id=? AND uid=?", bindId, me.Uid).Delete(new(model.BindUser))
+	return err
+}
+
 func (ThirdUserLogic) githubTokenAndUser(ctx context.Context, code string) (*model.GithubUser, *oauth2.Token, error) {
 	token, err := githubConf.Exchange(ctx, code)
 	if err != nil {

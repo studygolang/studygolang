@@ -198,7 +198,7 @@
 				<p>您可以使用以下社交账户登录 {{.setting.Name}}。如果您删除了全部关联的社交账户，您仍可以使用<span class="text-danger">已验证的邮箱</span>或者以下用户名登录{{.setting.Name}}：</p>
 				<p>您的用户名为：<span class="text-danger">{{.user.Username}}</span></p>
 
-				<form method="post" action="/user/social/connections">
+				<form method="post" action="/account/social/unbind" id="unbind">
 					<fieldset>
 						<div>
 							{{range .bind_users}}
@@ -269,16 +269,15 @@
 <script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
 <script type="text/javascript" src="/static/js/user.js?v=1.1"></script>
 <script type="text/javascript">
-// 需要加载的侧边栏
-SG.SIDE_BARS = [
-	"/topics/recent",
-	"/resources/recent",
-	"/comments/recent",
-];
-
 $(function(){
 	// 文本框自动伸缩
 	$('.need-autogrow').autoGrow();
+
+	$('#unbind').submit(function(evt){
+		if ($('input[name=bind_id]:checked').length == 0) {
+			evt.preventDefault();
+		}
+	});
 });
 </script>
 {{end}}
