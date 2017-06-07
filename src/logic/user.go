@@ -72,7 +72,7 @@ func (self UserLogic) CreateUser(ctx context.Context, form url.Values) (errMsg s
 	defer session.Close()
 	session.Begin()
 
-	err = self.doCreateUser(ctx, session, user)
+	err = self.doCreateUser(ctx, session, user, form.Get("passwd"))
 	if err != nil {
 		errMsg = "内部服务错误！"
 		session.Rollback()
@@ -551,7 +551,7 @@ func (UserLogic) FindBindUsers(ctx context.Context, uid int) []*model.BindUser {
 	return bindUsers
 }
 
-func (UserLogic) doCreateUser(ctx context.Context, session *xorm.Session, user *model.User) error {
+func (UserLogic) doCreateUser(ctx context.Context, session *xorm.Session, user *model.User, passwd ...string) error {
 
 	if len(DefaultAvatars) > 0 {
 		// 随机给一个默认头像
@@ -569,6 +569,9 @@ func (UserLogic) doCreateUser(ctx context.Context, session *xorm.Session, user *
 		Email:    user.Email,
 		Username: user.Username,
 		Uid:      user.Uid,
+	}
+	if len(passwd) > 0 {
+		userLogin.Passwd = passwd[0]
 	}
 
 	if user.Status != model.UserStatusAudit {
