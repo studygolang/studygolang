@@ -27,8 +27,9 @@ type Topic struct {
 	Lastreplytime OftenTime `json:"lastreplytime"`
 	EditorUid     int       `json:"editor_uid"`
 	Top           uint8     `json:"top"`
+	Tags          string    `json:"tags"`
 	Ctime         OftenTime `json:"ctime" xorm:"created"`
-	Mtime         time.Time `json:"mtime" xorm:"<-"`
+	Mtime         OftenTime `json:"mtime" xorm:"<-"`
 
 	// 为了方便，加上Node（节点名称，数据表没有）
 	Node string `xorm:"-"`
@@ -38,6 +39,12 @@ type Topic struct {
 
 func (*Topic) TableName() string {
 	return "topics"
+}
+
+func (this *Topic) BeforeInsert() {
+	if this.Tags == "" {
+		this.Tags = AutoTag(this.Title, this.Content, 4)
+	}
 }
 
 // 社区主题扩展（计数）信息
@@ -66,7 +73,10 @@ func (*TopicInfo) TableName() string {
 type TopicNode struct {
 	Nid    int       `json:"nid" xorm:"pk autoincr"`
 	Parent int       `json:"parent"`
+	Logo   string    `json:"logo"`
 	Name   string    `json:"name"`
+	Ename  string    `json:"ename"`
+	Seq    int       `json:"seq"`
 	Intro  string    `json:"intro"`
 	Ctime  time.Time `json:"ctime" xorm:"<-"`
 }

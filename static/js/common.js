@@ -395,7 +395,9 @@ jQuery(document).ready(function($) {
 	});
 
 	// 图片响应式
-	$('.page .content img').addClass('img-responsive');
+	setTimeout(function(){
+		$('.page .content img').addClass('img-responsive');
+	}, 2000);
 	
 });
 

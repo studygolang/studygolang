@@ -1,4 +1,4 @@
-CREATE TABLE `website_setting` (
+CREATE TABLE IF NOT EXISTS `website_setting` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(63) NOT NULL DEFAULT '' COMMENT '网站名称',
   `domain` varchar(63) NOT NULL DEFAULT '' COMMENT '网站域名',
@@ -16,6 +16,7 @@ CREATE TABLE `website_setting` (
   `project_df_logo` varchar(255) NOT NULL DEFAULT '' COMMENT '开源项目默认logo',
   `seo_keywords` varchar(63) NOT NULL DEFAULT '' COMMENT '页面 seo 通用keywords',
   `seo_description` varchar(255) NOT NULL DEFAULT '' COMMENT '页面 seo 通用description',
+  `index_nav` varchar(2044) NOT NULL DEFAULT '' COMMENT '首页顶部导航，json 格式',
   `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '创建时间',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
   PRIMARY KEY (`id`)
@@ -32,12 +33,13 @@ CREATE TABLE IF NOT EXISTS `topics` (
   `flag` tinyint NOT NULL DEFAULT 0 COMMENT '审核标识,0-未审核;1-已审核;2-审核删除;3-用户自己删除',
   `editor_uid` int unsigned NOT NULL DEFAULT 0 COMMENT '最后编辑人',
   `top` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '置顶，0否，1置顶',
+  `tags` varchar(63) NOT NULL DEFAULT '' COMMENT 'tag，逗号分隔',
   `ctime` timestamp NOT NULL DEFAULT 0,
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`tid`),
   KEY `uid` (`uid`),
   KEY `nid` (`nid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '帖子内容表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '主题内容表';
 
 CREATE TABLE IF NOT EXISTS `topics_ex` (
   `tid` int unsigned NOT NULL,
@@ -46,15 +48,19 @@ CREATE TABLE IF NOT EXISTS `topics_ex` (
   `like` int unsigned NOT NULL DEFAULT 0 COMMENT '喜欢数',
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`tid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '帖子扩展表（计数）';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '主题扩展表（计数）';
 
 CREATE TABLE IF NOT EXISTS `topics_node` (
   `nid` int unsigned NOT NULL AUTO_INCREMENT,
   `parent` int unsigned NOT NULL DEFAULT 0 COMMENT '父节点id，无父节点为0',
-  `name` varchar(20) NOT NULL COMMENT '节点名',
-  `intro` varchar(50) NOT NULL DEFAULT '' COMMENT '节点简介',
+  `logo` varchar(127) NOT NULL DEFAULT '' COMMENT '节点logo',
+  `name` varchar(20) NOT NULL DEFAULT '' COMMENT '节点名',
+  `ename` varchar(15) NOT NULL DEFAULT '' COMMENT '节点英文名，用于导航',
+  `intro` varchar(127) NOT NULL DEFAULT '' COMMENT '节点简介',
+  `seq` smallint unsigned NOT NULL DEFAULT 0 COMMENT '节点排序，小的在前',
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`nid`)
+  PRIMARY KEY (`nid`),
+  INDEX `idx_ename` (`ename`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '帖子节点表';
 
 CREATE TABLE IF NOT EXISTS `comments` (
@@ -220,6 +226,7 @@ CREATE TABLE IF NOT EXISTS `wiki` (
   `uri` varchar(50) NOT NULL COMMENT 'uri',
   `uid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '作者',
   `cuid` varchar(100) NOT NULL DEFAULT '' COMMENT '贡献者uid,多个逗号分隔',
+  `tags` varchar(63) NOT NULL DEFAULT '' COMMENT 'tag，逗号分隔',
   `viewnum` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '浏览数',
   `ctime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -235,6 +242,9 @@ CREATE TABLE IF NOT EXISTS `resource` (
   `url` varchar(150) NOT NULL COMMENT '链接url',
   `uid` int unsigned NOT NULL COMMENT '作者',
   `catid` int unsigned NOT NULL COMMENT '所属类别',
+  `lastreplyuid` int unsigned NOT NULL DEFAULT 0 COMMENT '最后回复者',
+  `lastreplytime` timestamp NOT NULL DEFAULT 0 COMMENT '最后回复时间',
+  `tags` varchar(63) NOT NULL DEFAULT '' COMMENT 'tag，逗号分隔',
   `ctime` timestamp NOT NULL DEFAULT 0,
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -271,11 +281,13 @@ CREATE TABLE IF NOT EXISTS `articles` (
   `url` varchar(255) NOT NULL DEFAULT '' COMMENT '文章原始链接',
   `content` longtext NOT NULL COMMENT '正文(带html)',
   `txt` text NOT NULL COMMENT '正文(纯文本)',
-  `tags` varchar(50) NOT NULL DEFAULT '' COMMENT '文章tag，逗号分隔',
+  `tags` varchar(63) NOT NULL DEFAULT '' COMMENT '文章tag，逗号分隔',
   `css` varchar(255) NOT NULL DEFAULT '' COMMENT '需要额外引入的css样式',
   `viewnum` int unsigned NOT NULL DEFAULT 0 COMMENT '浏览数',
   `cmtnum` int unsigned NOT NULL DEFAULT 0 COMMENT '评论数',
   `likenum` int unsigned NOT NULL DEFAULT 0 COMMENT '赞数',
+  `lastreplyuid` int unsigned NOT NULL DEFAULT 0 COMMENT '最后回复者',
+  `lastreplytime` timestamp NOT NULL DEFAULT 0 COMMENT '最后回复时间',
   `top` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '置顶，0否，1置顶',
   `status` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '状态：0-初始抓取；1-已上线；2-下线(审核拒绝)',
   `op_user` varchar(20) NOT NULL DEFAULT '' COMMENT '操作人',
@@ -376,6 +388,8 @@ CREATE TABLE IF NOT EXISTS `open_project` (
   `viewnum` int unsigned NOT NULL DEFAULT 0 COMMENT '浏览数',
   `cmtnum` int unsigned NOT NULL DEFAULT 0 COMMENT '评论数',
   `likenum` int unsigned NOT NULL DEFAULT 0 COMMENT '赞数',
+  `lastreplyuid` int unsigned NOT NULL DEFAULT 0 COMMENT '最后回复者',
+  `lastreplytime` timestamp NOT NULL DEFAULT 0 COMMENT '最后回复时间',
   `status` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '状态：0-新建；1-已上线；2-下线(审核拒绝)',
   `ctime` timestamp NOT NULL DEFAULT 0 COMMENT '加入时间',
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -409,7 +423,7 @@ CREATE TABLE IF NOT EXISTS `image` (
   KEY `created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='图片表';
 
-CREATE TABLE `book` (
+CREATE TABLE IF NOT EXISTS `book` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(63) NOT NULL DEFAULT '' COMMENT '书名',
   `ename` varchar(63) NOT NULL DEFAULT '' COMMENT '英文书名',
@@ -420,6 +434,7 @@ CREATE TABLE `book` (
   `pub_date` varchar(10) NOT NULL DEFAULT '' COMMENT '出版日期，2017-04-01',
   `desc` varchar(2046) NOT NULL DEFAULT '' COMMENT '简介',
   `catalogue` text NOT NULL COMMENT '目录',
+  `tags` varchar(63) NOT NULL DEFAULT '' COMMENT 'tag，逗号分隔',
   `is_free` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否免费；0-否；1-是',
   `online_url` varchar(127) NOT NULL DEFAULT '' COMMENT '在线阅读url',
   `download_url` varchar(127) NOT NULL DEFAULT '' COMMENT '下载url',
@@ -446,7 +461,7 @@ CREATE TABLE IF NOT EXISTS `advertisement` (
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '广告表';
 
-CREATE TABLE `page_ad` (
+CREATE TABLE IF NOT EXISTS  `page_ad` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `path` varchar(31) NOT NULL DEFAULT '' COMMENT '页面路径',
   `ad_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '广告ID',
@@ -492,7 +507,7 @@ CREATE TABLE IF NOT EXISTS `user_setting` (
   `remark` varchar(255) NOT NULL DEFAULT '' COMMENT '配置项说明',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE uniq_key(`key`)
+  UNIQUE `uniq_key`(`key`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户行为信息设置';
 
 CREATE TABLE IF NOT EXISTS `user_balance_detail` (
@@ -504,7 +519,7 @@ CREATE TABLE IF NOT EXISTS `user_balance_detail` (
   `desc` varchar(1022) NOT NULL DEFAULT '' COMMENT '具体原因，支持html格式',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  INDEX idx_uid(`uid`)
+  INDEX `idx_uid`(`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户余额明细';
 
 CREATE TABLE IF NOT EXISTS `mission` (
@@ -530,4 +545,24 @@ CREATE TABLE IF NOT EXISTS `user_login_mission` (
   PRIMARY KEY (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户登录任务';
 
+CREATE TABLE IF NOT EXISTS `feed` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(127) NOT NULL DEFAULT '' COMMENT '标题',
+  `objid` int unsigned NOT NULL DEFAULT 0 COMMENT '对象id',
+  `objtype` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '类型,0-主题;1-文章;2-资源;3-wiki;4-project',
+  `uid` int unsigned NOT NULL DEFAULT 0 COMMENT '发布人UID',
+  `author` varchar(31) NOT NULL DEFAULT '' COMMENT '外站作者',
+  `nid` int unsigned NOT NULL DEFAULT 0 COMMENT '主题的nid或资源的catid',
+  `lastreplyuid` int unsigned NOT NULL DEFAULT 0 COMMENT '最后回复者',
+  `lastreplytime` timestamp NOT NULL DEFAULT 0 COMMENT '最后回复时间',
+  `tags` varchar(63) NOT NULL DEFAULT '' COMMENT 'tag，逗号分隔',
+  `cmtnum` int unsigned NOT NULL DEFAULT 0 COMMENT '评论数',
+  `top` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '置顶，0否，1置顶',
+  `state` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '状态：0-正常；1-下线',
+  `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_objid_type` (`objid`, `objtype`),
+  INDEX `idx_updated_at` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='网站关键资源动态表';
 

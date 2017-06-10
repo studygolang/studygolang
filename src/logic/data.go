@@ -125,7 +125,7 @@ func LoadRoles() error {
 // 将所有 节点信息 加载到内存中：后台修改节点时，重新加载一次
 func LoadNodes() error {
 	nodeList := make([]*model.TopicNode, 0)
-	err := MasterDB.Find(&nodeList)
+	err := MasterDB.Asc("seq").Find(&nodeList)
 	if err != nil {
 		logger.Errorln("LoadNodes node read fail:", err)
 		return err
@@ -149,7 +149,9 @@ func LoadNodes() error {
 			nodeMap["parent"] = tmpNodeList[node.Parent].Name
 		}
 		nodeMap["nid"] = node.Nid
+		nodeMap["logo"] = node.Logo
 		nodeMap["name"] = node.Name
+		nodeMap["ename"] = node.Ename
 		nodeMap["intro"] = node.Intro
 		nodeMap["ctime"] = node.Ctime
 		AllNode[i] = nodeMap
@@ -223,6 +225,30 @@ func GetNodeName(nid int) string {
 	return ""
 }
 
+// 通过 ename 获得单个节点
+func GetNodeByEname(ename string) map[string]interface{} {
+	nodeRWMutex.RLock()
+	defer nodeRWMutex.RUnlock()
+	for _, node := range AllNode {
+		if node["ename"].(string) == ename {
+			return node
+		}
+	}
+	return nil
+}
+
+// 通过 ename 获得 nid
+func GetNidByEname(ename string) int {
+	nodeRWMutex.RLock()
+	defer nodeRWMutex.RUnlock()
+	for _, node := range AllNode {
+		if node["ename"].(string) == ename {
+			return node["nid"].(int)
+		}
+	}
+	return 0
+}
+
 // 获得单个节点信息
 func GetNode(nid int) map[string]interface{} {
 	nodeRWMutex.RLock()
@@ -248,6 +274,40 @@ func GetNodesName(nids []int) map[int]string {
 		}
 	}
 	return nodes
+}
+
+// 获得多个节点
+func GetNodesByNids(nids []int) map[int]*model.TopicNode {
+	nodes := make(map[int]*model.TopicNode, len(nids))
+	nodeRWMutex.RLock()
+	defer nodeRWMutex.RUnlock()
+	for _, nid := range nids {
+		for _, node := range AllNode {
+			if node["nid"].(int) == nid {
+				nodes[nid] = &model.TopicNode{
+					Nid:   nid,
+					Name:  node["name"].(string),
+					Ename: node["ename"].(string),
+				}
+			}
+		}
+	}
+	return nodes
+}
+
+// GetChildrenNode 获取某个父节点下最多 num 个子节点
+func GetChildrenNode(parentId, num int) []interface{} {
+	nids := make([]interface{}, 0, num)
+	for _, node := range AllNode {
+		if node["pid"].(int) == parentId {
+			nids = append(nids, node["nid"])
+			if len(nids) == num {
+				break
+			}
+		}
+	}
+
+	return nids
 }
 
 // 将 node 组织成一定结构，方便前端展示
@@ -304,4 +364,13 @@ func GetCategoryName(catid int) string {
 		}
 	}
 	return ""
+}
+
+func GetCurIndexNav(tab string) *model.IndexNav {
+	for _, indexNav := range WebsiteSetting.IndexNavs {
+		if indexNav.Tab == tab {
+			return indexNav
+		}
+	}
+	return nil
 }

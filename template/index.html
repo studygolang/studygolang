@@ -2,16 +2,18 @@
 {{define "seo"}}<meta name="keywords" content="{{.setting.Name}},{{.setting.SeoKeywords}},社区,资源,文章,图书,开源项目">
 <meta name="description" content="{{.setting.SeoDescription}}">{{end}}
 {{define "content"}}
-<div class="row">
-	<div id="content" class="tip box_white">
-		<div id="top">
+<div class="row"><!-- 
+	<div id="content" class="tip">
+		<div id="top" class="box_white">
 			<ul class="list-unstyled">
 			</ul>
 		</div>
-		<div id="bottom"></div> 
+		<div id="bottom"></div>
+	</div> -->
+	<div class="row banner">
 	</div>
 	<div class="col-lg-9 col-md-8 col-sm-7">
-		<div class="row box_white">
+		<div class="box_white">
 			<div class="col-md-6 recent-list">
 				<!-- <div class="title">
 					<h3><a href="/topics">最新主题</a></h3>
@@ -57,14 +59,14 @@
 		</div>
 		
 		{{if .pos_ad.banner}}
-		<div class="row box_white" style="margin-top:20px;" id="ad-banner">
+		<div class="box_white" style="margin-top:20px;" id="ad-banner">
 			{{if eq .pos_ad.banner.AdType 0}}
 				{{noescape .pos_ad.banner.Code}}
 			{{end}}
 		</div>
 		{{end}}
 
-		<div class="row box_white article-list">
+		<div class="box_white article-list">
 			<ul class="nav nav-tabs" role="tablist" id="article-nav">
 				<li role="presentation" class="active" data-type="newest"><a href="javascript:">最新博文</a></li>
 				<li role="presentation" data-type="today"><a href="javascript:">今日热门</a></li>
@@ -148,7 +150,7 @@
 
 			</div>
 		</div>
-		<div class="row box_white book-list">
+		<div class="box_white book-list">
 			<div class="title">
 				<h3><a href="/books">图书</a></h3>
 				<a class="pull-right more" href="/books">更多&gt;&gt;</a>
@@ -158,7 +160,7 @@
 				<li class="book-item">
 					<div class="book-img">
 						<a href="/book/{{.Id}}" title="{{.Name}}">
-							<img src="{{if .Cover}}{{.Cover}}{{else}}http://studygolang.qiniudn.com/img/golang_default_cover.png{{end}}" width="180px" height="225px" alt="{{.Name}}">
+							<img src="{{if .Cover}}{{.Cover}}{{else}}http://studygolang.qiniudn.com/img/golang_default_cover.png{{end}}" width="172px" height="225px" alt="{{.Name}}">
 						</a>
 					</div>
 					<div class="book-title">
@@ -170,7 +172,7 @@
 		</div>
 		
 		{{if .materials}}
-		<div class="row box_white learn-info">
+		<div class="box_white learn-info">
 			<h3><a href="javascript:">学习资料</a></h3>
 			<div class="col-md-6 infolist">
 				<ul class="list-unstyled">
@@ -202,89 +204,7 @@
 		{{end}}
 	</div>
 	<div class="col-lg-3 col-md-4 col-sm-5">
-		<div class="row box_white sidebar">
-			{{if .me.Uid}}
-			<div class="box">
-				<div class="avatar-area pull-left">
-					<span class="avatar"><a href="/account/edit#change-avatar"><img alt="个人首页" width="80" height="80" src="{{gravatar .me.Avatar .me.Email 80 .is_https}}" class="img-circle tool-tip" data-toggle="tooltip" data-placement="left" title="更换头像"></a></span>
-				</div>
-				<div class="profile-show pull-left">
-					<p></p>
-					<p class="user-name"><a href="/user/{{.me.Username}}">{{.me.Username}}</a></p>
-					<p><a href="/account/edit">个人资料设置</a></p>
-				</div>
-			</div>
-			<!-- <div class="box">
-				<p style="margin-top: 10.5px; text-align: center;">欢迎您，<a href="/user/{{.me.Username}}">{{.me.Username}}</a></p>
-			</div> -->
-			<div class="box" style="margin: 0 5px;">
-				<a class="btn btn-default btn-sm" href="/topics/new">发布主题</a>&nbsp;&nbsp;
-				<a class="btn btn-default btn-sm" href="/articles/new">撰写文章</a>&nbsp;&nbsp;
-				<a class="btn btn-default btn-sm" href="/resources/new">分享资源</a>&nbsp;&nbsp;
-			</div>
-			<div class="inner">
-				<a href="/message/system">{{.me.MsgNum}} 条未读消息</a>
-				<div class="pull-right">
-					<a href="/balance" class="balance_area">
-						{{if .me.Gold}}
-						{{.me.Gold}} <img src="/static/img/gold_48.png" alt="" width="16px">
-						{{end}}
-						{{if .me.Silver}}
-						{{.me.Silver}} <img src="/static/img/silver_48.png" alt="" width="16px">
-						{{end}}
-						{{.me.Copper}} <img src="/static/img/copper_48.png" alt="" width="16px">
-					</a>
-				</div>
-			</div>
-				{{if not .me.Balance}}
-			<div class="dock_area">
-				<div class="inner_content"><span class="chevron">&nbsp;›&nbsp;</span> <a href="/balance">在你开始发帖之前，请先领取初始资本</a></div>
-			</div>
-				{{end}}
-			{{else}}
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-user"></i> 用户登录</h3>
-			</div>
-			<div class="sb-content" style="padding-bottom: 0;">
-				<form action="/account/login" method="post" class="form-horizontal login" role="form" style="padding-top: 0; padding-bottom: 0;">
-					<div class="form-group">
-						<div class="col-sm-10">
-							<input type="text" class="form-control input-sm" id="username" name="username" placeholder="请填写用户名或邮箱">
-						</div>
-					</div>
-					<div class="form-group">
-						<div class="col-sm-10">
-							<input type="password" class="form-control input-sm" id="passwd" name="passwd" placeholder="请填写密码">
-						</div>
-					</div>
-					<div class="form-group">
-						<div class="col-sm-10">
-							<div class="checkbox">
-								<label>
-									<input id="user_remember_me" name="remember_me" type="checkbox" value="1" checked="checked" />	记住登录状态
-								</label>
-								<input class="btn btn-primary btn-sm" data-disable-with="正在登录" name="commit" type="submit" value="登录" />
-							</div>
-							<a href="/oauth/github/login" class="btn btn-default btn-sm">
-								<i class="fa fa-github" aria-hidden="true"></i>
-								GitHub 登录
-							</a>
-						</div>
-					</div>
-				</form>
-			</div>
-			{{end}}
-		</div>
-
-		{{if .login_mission}}
-		<div class="row box_white sidebar">
-			<div class="box" style="padding: 10px; font-size: 13px;">
-				<div class="pull-left">
-					<i class="glyphicon glyphicon-gift" style="color: #f90;"></i> <a href="/mission/daily">领取今日的登录奖励</a>
-				</div>
-			</div>
-		</div>
-		{{end}}
+		{{include "common/my_info.html" .}}
 
 		<div class="row box_white sidebar">
 			<div class="top">
@@ -472,14 +392,13 @@
 
 {{end}}
 {{define "css"}}
-<link href="/static/css/index.css?v=0.5" rel="stylesheet"/>
+<link href="/static/css/index.css?v=0.8" rel="stylesheet"/>
 <style type="text/css">
 #topic-nav li a, #resource-nav li a { padding: 5px; }
 </style>
 {{end}}
 {{define "js"}}
 <script type="text/javascript" src="/static/js/index.js?v=0.6"></script>
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jsrender/0.9.84/jsrender.min.js"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
@@ -493,7 +412,6 @@ SG.SIDE_BARS = [
 	"/rank/view"
 ];
 
-$.views.settings.delimiters("[%", "%]");
 $.views.converters("substring", function(val, len) {
 	if (val.length > len) {
 		if (arguments.length >= 3) {
@@ -505,7 +423,6 @@ $.views.converters("substring", function(val, len) {
 	}
 	return val;
 });
-// $.views.settings.debugMode(true);
 
 $(function() {
 

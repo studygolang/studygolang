@@ -1,25 +1,230 @@
 {{define "comment"}}
-<div class="row clearfix md-toolbar">
-	<ul class="col-md-10 list-inline">
-		<li class="edit cur"><a href="#">编辑</a></li>
-		<li class="preview"><a href="#">预览</a></li>
-	</ul>
-	<div class="col-md-2 text-right">
-		<i id="upload-img" class="glyphicon glyphicon-picture upload-img tool-tip" data-toggle="tooltip" data-placement="top" title="上传图片"></i>
+<div class="sep10"></div>
+<div class="box_white page-comment">
+	<div class="cell">添加一条新回复
+	{{if not .me.Uid}}
+	<span class="h2-tip">
+	（您需要 <a class="c-log" href="javascript:openPop('#login-pop');">登录</a> 后才能回复 <a href="/user/register" class="c-reg"> 没有账号</a> ？）</span>
+	{{end}}
+	</div>
+	<div class="cell">
+		<div class="row clearfix md-toolbar">
+			<ul class="col-md-10 list-inline">
+				<li class="edit cur"><a href="#" class="op">编辑</a></li>
+				<li class="preview"><a href="#" class="op">预览</a></li>
+				<li>
+					<div class="nav reply-to dn" data-floor="" data-username="">
+						<i class="fa fa-mail-reply" title=""></i>
+						<a href="#reply" class="user" title=""></a>
+						<a href="#" class="close"><i class="fa fa-close"></i></a>
+					</div>
+				</li>
+			</ul>
+			<div class="col-md-2 text-right">
+				<i id="upload-img" class="glyphicon glyphicon-picture upload-img tool-tip" data-toggle="tooltip" data-placement="top" title="上传图片"></i>
+			</div>
+		</div>
+		<div class="submit" id="commentForm">
+			<div class="text">
+				<textarea name="content" class="main-textarea need-autogrow" rows="8"></textarea>
+			</div>
+			<div class="sub row">
+				<ul class="help-block col-md-10">
+					<li>请尽量让自己的回复能够对别人有帮助</li>
+					<li class="markdown_tip">支持 Markdown 格式, <strong>**粗体**</strong>、~~删除线~~、<code>`单行代码`</code></li>
+					<li>支持 @ 本站用户；支持表情（输入 : 提示），见 <a href="http://www.emoji-cheat-sheet.com/" target="_blank">Emoji cheat sheet</a></li>
+				</ul>
+				<div class="col-md-2 text-right"><button id="comment-submit" type="submit" title="提交" class="btn btn-default">提交</button></div>
+			</div>
+		</div>
+	</div>
+	<div class="content-preview cell"></div>
+</div>
+
+<style type="text/css">
+#replies { margin-bottom: 15px; }
+#replies .reply {
+	margin: 0 -15px;
+	padding: 15px 15px;
+	position: relative;
+	border-bottom: 1px solid #eee;
+	padding-left: 74px;
+}
+#replies .reply .avatar {
+	position: absolute;
+	top: 15px;
+	left: 15px;
+}
+.avatar-48 {
+	width: 48px;
+	height: 48px;
+	border-radius: 120px;
+}
+.media-object {
+	display: block;
+}
+.avatar-16 {
+	width: 16px;
+	height: 16px;
+	border-radius: 120px;
+}
+#replies .reply .reply-to-block .info .media-object {
+	display: inline-block;
+	margin-right: 5px;
+	vertical-align: top;
+}
+#replies .reply .reply-to-block .info {
+	margin: 0;
+}
+#replies .reply .reply-to-block .info .user-name {
+	font-weight: bold;
+}
+#replies .reply .reply-to-block {
+	padding: 8px 15px;
+	background: #f7f7f7;
+	border-radius: 3px;
+	margin-bottom: 10px;
+}
+.avatar .uface, .avatar .media-object {
+	border-radius: 120px;
+}
+#replies .reply .infos {
+	min-height: 48px;
+}
+#replies .reply .info {
+	color: #999;
+	margin-bottom: 6px;
+	font-size: 12px;
+}
+#replies .reply .info .name {
+	font-weight: bold;
+	font-size: 13px;
+}
+#replies .reply .info .name a {
+	color: #555;
+}
+#replies .reply .info .floor {
+	color: #7AA87A;
+}
+#replies .reply .info a.time {
+	color: #999;
+	border-bottom: 1px dashed #ccc;
+	text-decoration: none !important;
+	cursor: pointer;
+}
+abbr[title] {
+	border-bottom: 0px;
+	cursor: pointer;
+}
+.opts {
+	color: #666;
+}
+@media (min-width: 1026px) {
+	#replies .reply .hideable {
+		display: none;
+	}
+}
+#replies .reply .opts a {
+	display: inline-block;
+	vertical-align: baseline;
+	line-height: 22px;
+	padding: 2px 5px;
+	height: 22px;
+	min-width: 22px;
+	text-align: center;
+}
+#replies .info .opts a {
+	font-size: 13px;
+	margin-left: 5px;
+	color: #999;
+}
+#replies .info .opts a.edit {
+	display: none;
+}
+.markdown {
+	position: relative;
+	letter-spacing: .03em;
+	font-size: 15px;
+	text-overflow: ellipsis;
+	word-wrap: break-word;
+}
+.markdown img.twemoji {
+	width: 20px;
+}
+.markdown img {
+	vertical-align: top;
+	max-width: 100%;
+}
+.markdown p {
+	font-size: 14px;
+	line-height: 26px;
+	margin-bottom: 0;
+	color: #000;
+}
+.md-toolbar .reply-to {
+    padding-top: 3px;
+    padding-left: 8px;
+}
+.close {
+    float: right;
+    font-size: 21px;
+    font-weight: 700;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    filter: alpha(opacity=20);
+    opacity: .2;
+}
+a.close:hover {
+	background-color: #d0d0d0;
+    color: #666
+}
+.md-toolbar .reply-to .close {
+    font-size: 14px;
+    margin-left: 5px;
+    margin-top: 1px;
+}
+
+</style>
+
+<script type="text/x-jsrender" id="one-comment">
+<div class="reply [%if is_new%]light[%/if%]" id="reply-[%:comment.floor%]">
+	<div data-floor="[%:comment.floor%]">
+		<div class="avatar"><a title="[%:user.username%]" href="/user/[%:user.username%]"><img class="media-object avatar-48" src="[%:user.avatar%]" alt="[%:user.username%]"></a></div>
+			<div class="infos">
+				<div class="info">
+					<span class="name">
+						<a class="user-name" data-name="[%:user.name%]" href="/user/[%:user.username%]">[%:user.username%]</a>
+					</span> ·
+					<span class="floor">#[%:comment.floor%]</span> ·
+					<abbr class="timeago" title="[%:comment.ctime%]">[%:comment.cmt_time%]</abbr>
+					<span class="opts pull-right">
+						<span class="op-reply hideable">
+						  <a data-floor="[%:comment.floor%]" data-username="[%:user.username%]" title="回复此楼" class="btn-reply fa fa-mail-reply" href="#"></a>
+						</span>
+						<!-- <a title="赞" data-count="0" data-state="" data-type="Reply" data-id="323365" class="likeable " href="#"><i class="fa fa-heart"></i> <span></span></a> -->
+					</span>
+				</div>
+				[%if comment.reply_floor > 0%]
+				<div class="reply-to-block">
+					<div class="info reply_user">
+						对
+						<a data-remote="true" href="/user/[%:comment.reply_user.username%]">
+							<img class="media-object avatar-16" src="[%:comment.reply_user.avatar%]" alt="[%:comment.reply_user.username%]"><span class="user-name">[%:comment.reply_user.username%]</span>
+						</a>
+						<a href="#reply-[%:comment.reply_floor%]"><span class="reply-floor">#[%:comment.reply_floor%]</span></a> 回复
+					</div>
+					<div class="markdown dn">
+						<p>[%:comment.reply_content%]</p>
+					</div>
+				</div>
+				[%/if%]
+
+			<div class="markdown">
+				<p>[%:comment.content%]</p>
+			</div>
+		</div>
 	</div>
 </div>
-<div class="submit" id="commentForm">
-	<div class="text">
-		<textarea name="content" placeholder="我有话要说……" class="main-textarea need-autogrow"></textarea>
-	</div>
-	<div class="sub row">
-		<ul class="help-block col-md-10">
-			<li>请尽量让自己的回复能够对别人有帮助</li>
-			<li class="markdown_tip">支持 Markdown 格式, <strong>**粗体**</strong>、~~删除线~~、<code>`单行代码`</code></li>
-			<li>支持 @ 本站用户；支持表情（输入 : 提示），见 <a href="http://www.emoji-cheat-sheet.com/" target="_blank">Emoji cheat sheet</a></li>
-		</ul>
-		<div class="col-md-2 text-right"><button type="submit" title="提交" class="btn btn-danger">提交</button></div>
-	</div>
-</div>
-<div class="content-preview"></div>
+</script>
 {{end}}

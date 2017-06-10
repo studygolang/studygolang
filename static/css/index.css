@@ -1,4 +1,4 @@
-.tip { margin: 15px 0px; padding: 5px; text-align: center; height:28px;overflow:hidden; }
+.tip { margin: 15px 0 15px 13px; padding: 5px 0; text-align: center; height:28px;overflow:hidden; }
 .tip ul {margin: 0px; color: #d54f4b;}
 .tip ul li {height:28px;line-height:28px;}
 .tip ul li a { color: #db6d4c; }
@@ -21,7 +21,7 @@
 .article-list .title, .book-list .title {margin-left: 15px; margin-right: 15px;}
 .article-list .article-bottom { margin-bottom: 15px; margin-right: 15px; margin-top: -12px; font-size: 10pt;}
 
-.learn-info {}
+.learn-info { margin-bottom: 20px; }
 .learn-info h3 {line-height: 24px;font-size: 14px; font-weight: bold; margin-bottom: 6px; margin-top: 10px; border-bottom: 1px solid #ccc; margin-left: 15px; margin-right: 15px;}
 .learn-info h3 a {text-decoration: none;color: #666;}
 .learn-info .infolist ul li a.video {text-decoration: none;color: #3366CC;}
@@ -34,9 +34,8 @@
 .book-list { margin-bottom: 15px; }
 .book-list ul { overflow: hidden; }
 .book-list .book-item { margin: 10px 18px; float: left; }
-.book-list .book-item .book-img { width: 180px; margin: 0 auto; }
+.book-list .book-item .book-img { width: 172px; margin: 0 auto; }
 .book-list .book-item .book-img img { border: 1px solid #fff; box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.7); -webkit-box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7); -moz-box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); display: block; max-width: 100%; vertical-align: middle; }
 .book-list .book-item .book-title { width: 160px; margin: 0 auto; text-align: center; overflow: hidden; white-space: nowrap; }
 
-.sidebar { margin-left: 0; }
 .sidebar .sb-content .login .col-sm-10 {margin-left:10px;}

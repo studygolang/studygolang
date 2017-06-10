@@ -38,7 +38,7 @@
 <div class="row">
 	<div class="col-lg-9 col-md-8 col-sm-7 search-result">
 		<div class="box_white result-title">
-			<span class="website">Go语言中文网</span> 为您找到相关结果 <strong class="num">{{.respBody.NumFound}}</strong> 个
+			<span class="website">{{.setting.Name}}</span> 为您找到相关结果 <strong class="num">{{.respBody.NumFound}}</strong> 个
 		</div>
 		{{range .respBody.Docs}}
 		<article class="article box_white">

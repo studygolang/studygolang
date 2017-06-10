@@ -21,12 +21,22 @@ type Document struct {
 	Objtype int    `json:"objtype"`
 	Title   string `json:"title"`
 	Author  string `json:"author"`
+	Uid     int    `json:"uid"`
 	PubTime string `json:"pub_time"`
 	Content string `json:"content"`
 	Tags    string `json:"tags"`
 	Viewnum int    `json:"viewnum"`
 	Cmtnum  int    `json:"cmtnum"`
 	Likenum int    `json:"likenum"`
+
+	Lastreplyuid  int       `json:"lastreplyuid"`
+	Lastreplytime OftenTime `json:"lastreplytime"`
+
+	UpdatedAt OftenTime `json:"updated_at"`
+
+	Top uint8 `json:"top"`
+
+	Nid int `json:"nid"`
 
 	HlTitle   string `json:",omitempty"` // 高亮的标题
 	HlContent string `json:",omitempty"` // 高亮的内容
@@ -55,26 +65,46 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 			Objtype: TypeTopic,
 			Title:   objdoc.Title,
 			Author:  userLogin.Username,
+			Uid:     userLogin.Uid,
 			PubTime: objdoc.Ctime.String(),
 			Content: objdoc.Content,
-			Tags:    "",
+			Tags:    objdoc.Tags,
 			Viewnum: viewnum,
 			Cmtnum:  cmtnum,
 			Likenum: likenum,
+
+			Nid: objdoc.Nid,
+
+			Top:           objdoc.Top,
+			Lastreplyuid:  objdoc.Lastreplyuid,
+			Lastreplytime: objdoc.Lastreplytime,
+			UpdatedAt:     objdoc.Mtime,
 		}
 	case *Article:
+		var uid int
+		if objdoc.IsSelf {
+			userLogin := &UserLogin{}
+			db.MasterDB.Where("username=?", objdoc.AuthorTxt).Get(userLogin)
+			uid = userLogin.Uid
+		}
 		document = &Document{
 			Id:      fmt.Sprintf("%d%d", TypeArticle, objdoc.Id),
 			Objid:   objdoc.Id,
 			Objtype: TypeArticle,
-			Title:   filterTxt(objdoc.Title),
+			Title:   FilterTxt(objdoc.Title),
 			Author:  objdoc.AuthorTxt,
+			Uid:     uid,
 			PubTime: objdoc.PubDate,
-			Content: filterTxt(objdoc.Txt),
+			Content: FilterTxt(objdoc.Txt),
 			Tags:    objdoc.Tags,
 			Viewnum: objdoc.Viewnum,
 			Cmtnum:  objdoc.Cmtnum,
 			Likenum: objdoc.Likenum,
+
+			Top:           objdoc.Top,
+			Lastreplyuid:  objdoc.Lastreplyuid,
+			Lastreplytime: objdoc.Lastreplytime,
+			UpdatedAt:     objdoc.Mtime,
 		}
 	case *Resource:
 		viewnum, cmtnum, likenum := 0, 0, 0
@@ -94,26 +124,40 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 			Objtype: TypeResource,
 			Title:   objdoc.Title,
 			Author:  userLogin.Username,
+			Uid:     objdoc.Uid,
 			PubTime: objdoc.Ctime.String(),
 			Content: template.HTMLEscapeString(objdoc.Content),
-			Tags:    "",
+			Tags:    objdoc.Tags,
 			Viewnum: viewnum,
 			Cmtnum:  cmtnum,
 			Likenum: likenum,
+
+			Top:           0,
+			Lastreplyuid:  objdoc.Lastreplyuid,
+			Lastreplytime: objdoc.Lastreplytime,
+			UpdatedAt:     objdoc.Mtime,
 		}
 	case *OpenProject:
+		userLogin := &UserLogin{}
+		db.MasterDB.Where("username=?", objdoc.Username).Get(userLogin)
 		document = &Document{
 			Id:      fmt.Sprintf("%d%d", TypeProject, objdoc.Id),
 			Objid:   objdoc.Id,
 			Objtype: TypeProject,
 			Title:   objdoc.Category + objdoc.Name,
 			Author:  objdoc.Author,
+			Uid:     userLogin.Uid,
 			PubTime: objdoc.Ctime.String(),
 			Content: objdoc.Desc,
 			Tags:    objdoc.Tags,
 			Viewnum: objdoc.Viewnum,
 			Cmtnum:  objdoc.Cmtnum,
 			Likenum: objdoc.Likenum,
+
+			Top:           0,
+			Lastreplyuid:  objdoc.Lastreplyuid,
+			Lastreplytime: objdoc.Lastreplytime,
+			UpdatedAt:     objdoc.Mtime,
 		}
 	}
 
@@ -124,7 +168,7 @@ var docRe = regexp.MustCompile("[\r　\n  \t\v]+")
 var docSpaceRe = regexp.MustCompile("[ ]+")
 
 // 文本过滤（预处理）
-func filterTxt(txt string) string {
+func FilterTxt(txt string) string {
 	txt = strings.TrimSpace(strings.TrimPrefix(txt, "原"))
 	txt = strings.TrimSpace(strings.TrimPrefix(txt, "荐"))
 	txt = strings.TrimSpace(strings.TrimPrefix(txt, "顶"))

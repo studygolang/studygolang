@@ -13,6 +13,7 @@ import (
 	"logic"
 	"model"
 	"net/http"
+	"path/filepath"
 	"strings"
 	"time"
 	"util"
@@ -22,11 +23,12 @@ import (
 	"github.com/labstack/echo/engine/standard"
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
+	"github.com/polaris1119/logger"
 )
 
 var Store = sessions.NewCookieStore([]byte(config.ConfigFile.MustValue("global", "cookie_secret")))
 
-func SetCookie(ctx echo.Context, username string) {
+func SetLoginCookie(ctx echo.Context, username string) {
 	Store.Options.HttpOnly = true
 
 	session := GetCookieSession(ctx)
@@ -41,6 +43,25 @@ func SetCookie(ctx echo.Context, username string) {
 	req := Request(ctx)
 	resp := ResponseWriter(ctx)
 	session.Save(req, resp)
+}
+
+func SetCookie(ctx echo.Context, key, value string) {
+	Store.Options.HttpOnly = true
+
+	session := GetCookieSession(ctx)
+	session.Values[key] = value
+	req := Request(ctx)
+	resp := ResponseWriter(ctx)
+	session.Save(req, resp)
+}
+
+func GetFromCookie(ctx echo.Context, key string) string {
+	session := GetCookieSession(ctx)
+	val, ok := session.Values[key]
+	if ok {
+		return val.(string)
+	}
+	return ""
 }
 
 // 必须是 http.Request
@@ -92,7 +113,42 @@ var funcMap = template.FuncMap{
 		}
 		return time.Now().Unix()
 	},
+	"distanceDay": func(i interface{}) int {
+		var (
+			t   time.Time
+			err error
+		)
+		switch val := i.(type) {
+		case string:
+			t, err = time.ParseInLocation("2006-01-02 15:04:05", val, time.Local)
+			if err != nil {
+				return 0
+			}
+		case time.Time:
+			t = val
+		case model.OftenTime:
+			t = time.Time(val)
+		}
+
+		return int(time.Now().Sub(t).Hours() / 24)
+	},
 	"canEdit": logic.CanEdit,
+}
+
+func tplInclude(file string, dot map[string]interface{}) template.HTML {
+	var buffer = &bytes.Buffer{}
+	tpl, err := template.New(filepath.Base(file)).Funcs(funcMap).ParseFiles(config.TemplateDir + file)
+	// tpl, err := template.ParseFiles(config.TemplateDir + file)
+	if err != nil {
+		logger.Errorf("parse template file(%s) error:%v\n", file, err)
+		return ""
+	}
+	err = tpl.Execute(buffer, dot)
+	if err != nil {
+		logger.Errorf("template file(%s) syntax error:%v", file, err)
+		return ""
+	}
+	return template.HTML(buffer.String())
 }
 
 const (
@@ -115,13 +171,23 @@ func Render(ctx echo.Context, contentTpl string, data map[string]interface{}) er
 	for i, contentTpl := range htmlFiles {
 		htmlFiles[i] = config.TemplateDir + contentTpl
 	}
-	tpl, err := template.New("layout.html").Funcs(funcMap).ParseFiles(htmlFiles...)
+	tpl, err := template.New("layout.html").Funcs(funcMap).
+		Funcs(template.FuncMap{"include": tplInclude}).ParseFiles(htmlFiles...)
 	if err != nil {
 		objLog.Errorf("解析模板出错（ParseFiles）：[%q] %s\n", Request(ctx).RequestURI, err)
 		return err
 	}
 
 	data["pos_ad"] = logic.DefaultAd.FindAll(ctx, ctx.Path())
+
+	// TODO：每次查询有点影响性能
+	hasLoginMisson := false
+	me, ok := ctx.Get("user").(*model.Me)
+	if ok {
+		// 每日登录奖励
+		hasLoginMisson = logic.DefaultMission.HasLoginMission(ctx, me)
+	}
+	data["login_mission"] = hasLoginMisson
 
 	return executeTpl(ctx, tpl, data)
 }

@@ -39,9 +39,35 @@
 			</p>
 		</div>
 		<div class="contenttitle2">
+			<h3>首页顶部导航</h3>
+		</div>
+		<div class="index-nav" style="border:1px dashed;">
+			<p>
+				<label>首页 TAB 导航</label>
+				<span class="field">
+					<table class="index-nav-table">
+						<tr>
+							<th colspan="5"><button class="index-nav-add">增加</button></th>
+						</tr>
+						{{range .setting.IndexNavs}}
+						<tr class="index-one-nav">
+							<td>Tab:<input type="text" name="index_tab" value="{{.Tab}}"></td>
+							<td>名称:<input type="text" name="index_name" value="{{.Name}}"></td>
+							<td>数据来源:<input type="text" name="index_data_source" value="{{.DataSource}}"></td>
+							<td>子 Tab 数:{{len .Children}}
+							<a href="/admin/setting/index_tab/children?tab={{.Tab}}&name={{.Name}}" class="btn">管理子Tab</a>
+							</td>
+							<td><br><button class="index-nav-minus">删除</button></td>
+						</tr>
+						{{end}}
+					</table>
+				</span>
+			</p>
+		</div>
+		<div class="contenttitle2">
 			<h3>导航设置</h3>
 		</div>
-		<div class="footer-nav" style="border:1px dashed;">
+		<div class="index-nav" style="border:1px dashed;">
 			<p>
 				<label>底部导航</label>
 				<span class="field">
@@ -50,7 +76,7 @@
 							<th colspan="3"><button class="footer-nav-add">增加</button></th>
 						</tr>
 						{{range .setting.FooterNavs}}
-						<tr class="doc-one-menu">
+						<tr class="footer-one-nav">
 							<td>导航名:<input type="text" name="nav_name" value="{{.Name}}"></td>
 							<td>导航URL:<input type="text" name="nav_url" value="{{.Url}}"></td>
 							<td><br><button class="footer-nav-minus">删除</button></td>
@@ -123,6 +149,13 @@ $(function() {
 							'<td>菜单URL:<input type="text" name="doc_url"></td>'+
 							'<td><br><button class="doc-menu-minus">删除</button></td>'+
 						'</tr>';
+	var indexNavHtml = '<tr class="index-one-nav">'+
+							'<td>Tab:<input type="text" name="index_tab"></td>'+
+							'<td>名称:<input type="text" name="index_name"></td>'+
+							'<td>数据来源:<input type="text" name="index_data_source"></td>'
+							'<td></td>'+
+							'<td><br><button class="index-nav-minus">删除</button></td>'+
+						'</tr>';
 	var footerNavHtml = '<tr class="footer-one-nav">'+
 							'<td>导航名:<input type="text" name="nav_name"></td>'+
 							'<td>导航URL:<input type="text" name="nav_url"></td>'+
@@ -144,6 +177,16 @@ $(function() {
 	$('.doc-menu-table').on('click', '.doc-menu-minus', function(evt) {
 		evt.preventDefault();
 		$(this).parents('.doc-one-menu').remove();
+	});
+
+	$('.index-nav-add').on('click', function(evt) {
+		evt.preventDefault();
+		$('.index-nav-table').append(indexNavHtml);
+	});
+
+	$('.index-nav-table').on('click', '.index-nav-minus', function(evt) {
+		evt.preventDefault();
+		$(this).parents('.index-one-nav').remove();
 	});
 
 	$('.footer-nav-add').on('click', function(evt) {

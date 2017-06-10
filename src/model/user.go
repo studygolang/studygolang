@@ -152,7 +152,7 @@ const (
 )
 
 type BindUser struct {
-	Id           int       `json:"uid" xorm:"pk autoincr"`
+	Id           int       `json:"id" xorm:"pk autoincr"`
 	Uid          int       `json:"uid"`
 	Type         int       `json:"type"`
 	Email        string    `json:"email"`

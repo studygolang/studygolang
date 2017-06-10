@@ -73,7 +73,8 @@ func (self RankLogic) GenDAURank(uid, weight int) {
 	redisClient.EXPIRE(key, 2*30*86400)
 }
 
-func (self RankLogic) FindDayRank(ctx context.Context, objtype int, ymd string, num int) (result interface{}) {
+// FindDayRank needExt 是否需要扩展数据
+func (self RankLogic) FindDayRank(ctx context.Context, objtype int, ymd string, num int, needExt ...bool) (result interface{}) {
 	objLog := GetLogger(ctx)
 
 	redisClient := nosql.NewRedisClient()
@@ -85,10 +86,10 @@ func (self RankLogic) FindDayRank(ctx context.Context, objtype int, ymd string, 
 		return nil
 	}
 
-	return self.findModelsByRank(resultSlice, objtype, num)
+	return self.findModelsByRank(resultSlice, objtype, num, needExt...)
 }
 
-func (self RankLogic) FindWeekRank(ctx context.Context, objtype, num int) (result interface{}) {
+func (self RankLogic) FindWeekRank(ctx context.Context, objtype, num int, needExt ...bool) (result interface{}) {
 	objLog := GetLogger(ctx)
 
 	redisClient := nosql.NewRedisClient()
@@ -100,10 +101,10 @@ func (self RankLogic) FindWeekRank(ctx context.Context, objtype, num int) (resul
 		return nil
 	}
 
-	return self.findModelsByRank(resultSlice, objtype, num)
+	return self.findModelsByRank(resultSlice, objtype, num, needExt...)
 }
 
-func (self RankLogic) FindMonthRank(ctx context.Context, objtype, num int) (result interface{}) {
+func (self RankLogic) FindMonthRank(ctx context.Context, objtype, num int, needExt ...bool) (result interface{}) {
 	objLog := GetLogger(ctx)
 
 	redisClient := nosql.NewRedisClient()
@@ -115,7 +116,7 @@ func (self RankLogic) FindMonthRank(ctx context.Context, objtype, num int) (resu
 		return nil
 	}
 
-	return self.findModelsByRank(resultSlice, objtype, num)
+	return self.findModelsByRank(resultSlice, objtype, num, needExt...)
 }
 
 func (self RankLogic) FindDAURank(ctx context.Context, num int) []*model.User {
@@ -176,7 +177,7 @@ func (self RankLogic) UserDAURank(ctx context.Context, uid int) int {
 	return redisClient.ZREVRANK(key, uid)
 }
 
-func (RankLogic) findModelsByRank(resultSlice []interface{}, objtype, num int) (result interface{}) {
+func (RankLogic) findModelsByRank(resultSlice []interface{}, objtype, num int, needExt ...bool) (result interface{}) {
 	objids := make([]int, 0, num)
 	viewNums := make([]int, 0, num)
 
@@ -197,11 +198,19 @@ func (RankLogic) findModelsByRank(resultSlice []interface{}, objtype, num int) (
 
 	switch objtype {
 	case model.TypeTopic:
-		topics := DefaultTopic.FindByTids(objids)
-		for i, topic := range topics {
-			topic.RankView = viewNums[i]
+		if len(needExt) > 0 && needExt[0] {
+			topics := DefaultTopic.FindFullinfoByTids(objids)
+			for i, topic := range topics {
+				topic["rank_view"] = viewNums[i]
+			}
+			result = topics
+		} else {
+			topics := DefaultTopic.FindByTids(objids)
+			for i, topic := range topics {
+				topic.RankView = viewNums[i]
+			}
+			result = topics
 		}
-		result = topics
 	case model.TypeResource:
 		resources := DefaultResource.FindByIds(objids)
 		for i, resource := range resources {

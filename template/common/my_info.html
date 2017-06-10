@@ -1,0 +1,84 @@
+<div class="row box_white sidebar">
+	{{if .me.Uid}}
+	<div class="box">
+		<div class="avatar-area pull-left">
+			<span class="avatar"><a href="/account/edit#change-avatar"><img alt="个人首页" width="80" height="80" src="{{gravatar .me.Avatar .me.Email 80 .is_https}}" class="img-circle tool-tip" data-toggle="tooltip" data-placement="left" title="更换头像"></a></span>
+		</div>
+		<div class="profile-show pull-left">
+			<p></p>
+			<p class="user-name"><a href="/user/{{.me.Username}}">{{.me.Username}}</a></p>
+			<p><a href="/account/edit">个人资料设置</a></p>
+		</div>
+	</div>
+	<!-- <div class="box">
+		<p style="margin-top: 10.5px; text-align: center;">欢迎您，<a href="/user/{{.me.Username}}">{{.me.Username}}</a></p>
+	</div> -->
+	<div class="box" style="text-align: center;">
+		<a class="btn btn-default btn-sm" href="/topics/new">发布主题</a>&nbsp;&nbsp;
+		<a class="btn btn-default btn-sm" href="/articles/new">撰写文章</a>&nbsp;&nbsp;
+		<a class="btn btn-default btn-sm" href="/resources/new">分享资源</a>&nbsp;&nbsp;
+	</div>
+	<div class="inner_content">
+		<a class="pull-left" href="/message/system" style="margin-left: 10px">{{.me.MsgNum}} 条未读消息</a>
+		<div style="text-align: right; margin-right: 20px;">
+			<a href="/balance" class="balance_area">
+				{{if .me.Gold}}
+				{{.me.Gold}} <img src="/static/img/gold_48.png" alt="" width="16px">
+				{{end}}
+				{{if .me.Silver}}
+				{{.me.Silver}} <img src="/static/img/silver_48.png" alt="" width="16px">
+				{{end}}
+				{{.me.Copper}} <img src="/static/img/copper_48.png" alt="" width="16px">
+			</a>
+		</div>
+	</div>
+		{{if not .me.Balance}}
+	<div class="dock_area">
+		<div class="inner_content"><span class="chevron">&nbsp;›&nbsp;</span> <a href="/balance">在你开始发帖之前，请先领取初始资本</a></div>
+	</div>
+		{{end}}
+	{{else}}
+	<div class="top">
+		<h3 class="title"><i class="glyphicon glyphicon-user"></i> 用户登录</h3>
+	</div>
+	<div class="sb-content inner_content" style="padding-bottom: 0;">
+		<form action="/account/login" method="post" class="form-horizontal login" role="form" style="padding-top: 0; padding-bottom: 0;">
+			<div class="form-group">
+				<div class="col-sm-10">
+					<input type="text" class="form-control input-sm" id="username" name="username" placeholder="请填写用户名或邮箱">
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-10">
+					<input type="password" class="form-control input-sm" id="passwd" name="passwd" placeholder="请填写密码">
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-10">
+					<div class="checkbox">
+						<label>
+							<input id="user_remember_me" name="remember_me" type="checkbox" value="1" checked="checked" />	记住登录状态
+						</label>
+						<input class="btn btn-default btn-sm" data-disable-with="正在登录" name="commit" type="submit" value="登录" />
+					</div>
+					<div class="sep10"></div>
+					<a href="/oauth/github/login" class="btn btn-default btn-sm">
+						<i class="fa fa-github" aria-hidden="true"></i>
+						GitHub 登录
+					</a>
+				</div>
+			</div>
+		</form>
+	</div>
+	{{end}}
+</div>
+
+{{if .login_mission}}
+<div class="row box_white sidebar">
+	<div class="box" style="padding: 5px; font-size: 13px;">
+		<div class="pull-left">
+			<i class="glyphicon glyphicon-gift" style="color: #f90;"></i> <a href="/mission/daily">领取今日的登录奖励</a>
+		</div>
+	</div>
+</div>
+{{end}}

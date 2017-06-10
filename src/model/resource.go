@@ -6,8 +6,6 @@
 
 package model
 
-import "time"
-
 const (
 	LinkForm    = "只是链接"
 	ContentForm = "包括内容"
@@ -15,19 +13,30 @@ const (
 
 // 资源信息
 type Resource struct {
-	Id      int       `json:"id" xorm:"pk autoincr"`
-	Title   string    `json:"title"`
-	Form    string    `json:"form"`
-	Content string    `json:"content"`
-	Url     string    `json:"url"`
-	Uid     int       `json:"uid"`
-	Catid   int       `json:"catid"`
-	CatName string    `json:"-" xorm:"-"`
-	Ctime   OftenTime `json:"ctime" xorm:"created"`
-	Mtime   time.Time `json:"mtime" xorm:"<-"`
+	Id            int       `json:"id" xorm:"pk autoincr"`
+	Title         string    `json:"title"`
+	Form          string    `json:"form"`
+	Content       string    `json:"content"`
+	Url           string    `json:"url"`
+	Uid           int       `json:"uid"`
+	Catid         int       `json:"catid"`
+	CatName       string    `json:"-" xorm:"-"`
+	Lastreplyuid  int       `json:"lastreplyuid"`
+	Lastreplytime OftenTime `json:"lastreplytime"`
+	Tags          string    `json:"tags"`
+	Ctime         OftenTime `json:"ctime" xorm:"created"`
+	Mtime         OftenTime `json:"mtime" xorm:"<-"`
 
 	// 排行榜阅读量
 	RankView int `json:"rank_view" xorm:"-"`
+}
+
+func (this *Resource) BeforeInsert() {
+	if this.Tags == "" {
+		this.Tags = AutoTag(this.Title+this.CatName, this.Content, 4)
+	}
+
+	this.Lastreplytime = NewOftenTime()
 }
 
 // 资源扩展（计数）信息

@@ -178,7 +178,7 @@ func (AccountController) Activate(ctx echo.Context) error {
 	RegActivateCode.DelUUID(uuid)
 
 	// 自动登录
-	SetCookie(ctx, user.Username)
+	SetLoginCookie(ctx, user.Username)
 
 	// return render(ctx, contentTpl, data)
 	return ctx.Redirect(http.StatusSeeOther, "/balance")
@@ -220,7 +220,7 @@ func (AccountController) Login(ctx echo.Context) error {
 	}
 
 	// 登录成功，种cookie
-	SetCookie(ctx, userLogin.Username)
+	SetLoginCookie(ctx, userLogin.Username)
 
 	if util.IsAjax(ctx) {
 		return success(ctx, nil)

@@ -6,11 +6,7 @@
 
 package model
 
-import (
-	"time"
-
-	"github.com/go-xorm/xorm"
-)
+import "github.com/go-xorm/xorm"
 
 const (
 	ProjectStatusNew     = 0
@@ -20,32 +16,47 @@ const (
 
 // 开源项目信息
 type OpenProject struct {
-	Id       int       `json:"id" xorm:"pk autoincr"`
-	Name     string    `json:"name"`
-	Category string    `json:"category"`
-	Uri      string    `json:"uri"`
-	Home     string    `json:"home"`
-	Doc      string    `json:"doc"`
-	Download string    `json:"download"`
-	Src      string    `json:"src"`
-	Logo     string    `json:"logo"`
-	Desc     string    `json:"desc"`
-	Repo     string    `json:"repo"`
-	Author   string    `json:"author"`
-	Licence  string    `json:"licence"`
-	Lang     string    `json:"lang"`
-	Os       string    `json:"os"`
-	Tags     string    `json:"tags"`
-	Username string    `json:"username,omitempty"`
-	Viewnum  int       `json:"viewnum,omitempty"`
-	Cmtnum   int       `json:"cmtnum,omitempty"`
-	Likenum  int       `json:"likenum,omitempty"`
-	Status   int       `json:"status"`
-	Ctime    OftenTime `json:"ctime,omitempty" xorm:"created"`
-	Mtime    time.Time `json:"mtime,omitempty" xorm:"<-"`
+	Id            int       `json:"id" xorm:"pk autoincr"`
+	Name          string    `json:"name"`
+	Category      string    `json:"category"`
+	Uri           string    `json:"uri"`
+	Home          string    `json:"home"`
+	Doc           string    `json:"doc"`
+	Download      string    `json:"download"`
+	Src           string    `json:"src"`
+	Logo          string    `json:"logo"`
+	Desc          string    `json:"desc"`
+	Repo          string    `json:"repo"`
+	Author        string    `json:"author"`
+	Licence       string    `json:"licence"`
+	Lang          string    `json:"lang"`
+	Os            string    `json:"os"`
+	Tags          string    `json:"tags"`
+	Username      string    `json:"username,omitempty"`
+	Viewnum       int       `json:"viewnum,omitempty"`
+	Cmtnum        int       `json:"cmtnum,omitempty"`
+	Likenum       int       `json:"likenum,omitempty"`
+	Lastreplyuid  int       `json:"lastreplyuid"`
+	Lastreplytime OftenTime `json:"lastreplytime"`
+	Status        int       `json:"status"`
+	Ctime         OftenTime `json:"ctime,omitempty" xorm:"created"`
+	Mtime         OftenTime `json:"mtime,omitempty" xorm:"<-"`
 
+	User *User `json:"user" xorm:"-"`
 	// 排行榜阅读量
 	RankView int `json:"rank_view" xorm:"-"`
+}
+
+func (this *OpenProject) BeforeInsert() {
+	if this.Tags == "" {
+		this.Tags = AutoTag(this.Name+this.Category, this.Desc, 4)
+	}
+
+	this.Lastreplytime = NewOftenTime()
+}
+
+func (this *OpenProject) AfterInsert() {
+	PublishFeed(this, nil)
 }
 
 func (this *OpenProject) AfterSet(name string, cell xorm.Cell) {

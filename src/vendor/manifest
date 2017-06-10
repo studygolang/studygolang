@@ -14,6 +14,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/adamzy/cedar-go",
+			"repository": "https://github.com/adamzy/cedar-go",
+			"revision": "d348c21f72432c2b6d5f05f68759fde94f64b227",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/andybalholm/cascadia",
 			"repository": "https://github.com/andybalholm/cascadia",
 			"revision": "3ad29d1ad1c4f2023e355603324348cf1f4b2d48",
@@ -152,6 +158,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/huichen/sego",
+			"repository": "https://github.com/huichen/sego",
+			"revision": "d06fe1b3abe3877ab593b57e5e43daf6c4c25add",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/jmcvetta/randutil",
 			"repository": "https://github.com/jmcvetta/randutil",
 			"revision": "2bb1b664bcff821e02b2a0644cd29c7e824d54f8",
@@ -276,6 +288,12 @@
 			"importpath": "github.com/polaris1119/goutils",
 			"repository": "https://github.com/polaris1119/goutils",
 			"revision": "582c98b3184b83e1600833fb042b3ecc3070dcda",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/polaris1119/keyword",
+			"repository": "https://github.com/polaris1119/keyword",
+			"revision": "96ae6735f2f2ab2a3859ef65eb22ed53da502cd5",
 			"branch": "master"
 		},
 		{

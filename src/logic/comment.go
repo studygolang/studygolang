@@ -12,6 +12,7 @@ import (
 	"model"
 	"net/url"
 	"regexp"
+	"strings"
 	"time"
 
 	. "db"
@@ -68,13 +69,13 @@ func (self CommentLogic) FindObjectComments(ctx context.Context, objid, objtype 
 	objLog := GetLogger(ctx)
 
 	commentList = make([]*model.Comment, 0)
-	err = MasterDB.Where("objid=? AND objtype=?", objid, objtype).Find(&commentList)
+	err = MasterDB.Where("objid=? AND objtype=?", objid, objtype).Asc("cid").Find(&commentList)
 	if err != nil {
 		objLog.Errorln("comment logic FindObjectComments Error:", err)
 	}
 
 	for _, comment := range commentList {
-		self.decodeCmtContent(ctx, comment)
+		self.decodeCmtContentForShow(ctx, comment)
 	}
 
 	return
@@ -174,12 +175,16 @@ func (self CommentLogic) Publish(ctx context.Context, uid, objid int, form url.V
 		objLog.Errorln("post comment service error:", err)
 		return nil, err
 	}
-	self.decodeCmtContent(ctx, comment)
+	self.decodeCmtContentForShow(ctx, comment)
 
 	// 回调，不关心处理结果（有些对象可能不需要回调）
 	if commenter, ok := commenters[objtype]; ok {
+		now := time.Now()
+
 		objLog.Debugf("评论[objid:%d] [objtype:%d] [uid:%d] 成功，通知被评论者更新", objid, objtype, uid)
-		go commenter.UpdateComment(comment.Cid, objid, uid, time.Now())
+		go commenter.UpdateComment(comment.Cid, objid, uid, now)
+
+		DefaultFeed.updateComment(objid, objtype, uid, now)
 	}
 
 	go commentObservable.NotifyObservers(uid, objtype, comment.Cid)
@@ -289,6 +294,25 @@ func (CommentLogic) decodeCmtContent(ctx context.Context, comment *model.Comment
 	comment.Content = content
 
 	return content
+}
+
+// decodeCmtContentForShow 采用引用的方式显示对其他楼层的回复
+func (CommentLogic) decodeCmtContentForShow(ctx context.Context, comment *model.Comment) {
+	// 安全过滤
+	content := template.HTMLEscapeString(comment.Content)
+
+	// 回复某一楼层
+	reg := regexp.MustCompile(`#(\d+)楼 @([a-zA-Z0-9_]+)`)
+	matches := reg.FindStringSubmatch(content)
+	if len(matches) > 2 {
+		comment.ReplyFloor = goutils.MustInt(matches[1])
+		content = strings.TrimSpace(content[len(matches[0]):])
+	}
+
+	// @别人
+	content = parseAtUser(ctx, content)
+
+	comment.Content = content
 }
 
 // 填充 Comment 对象的 Objinfo 成员接口

@@ -211,6 +211,8 @@ func (this *RedditLogic) dealRedditOneResource(contentSelection *goquery.Selecti
 			return errors.New("insert into ResourceEx error:" + err.Error())
 		}
 		session.Commit()
+
+		DefaultFeed.publish(resource, resourceEx)
 	} else {
 		if _, err = MasterDB.Id(resource.Id).Update(resource); err != nil {
 			return errors.New("update resource:" + strconv.Itoa(resource.Id) + " error:" + err.Error())

@@ -225,13 +225,25 @@ $(function(){
 		if (data.ok) {
 			data = data.data;
 
-			var content = '<li>会员数: <span>'+data.user+'</span> 人</li>'+
-				'<li>博文数: <span>'+data.article+'</span> 篇</li>'+
-				'<li>话题数: <span>'+data.topic+'</span> 个</li>'+
-				'<li>评论数: <span>'+data.comment+'</span> 条</li>'+
-				'<li>资源数: <span>'+data.resource+'</span> 个</li>'+
-				'<li>项目数: <span>'+data.project+'</span> 个</li>'+
-				'<li>图书数: <span>'+data.book+'</span> 本</li>';
+			var content = '<li>会员数: <span>'+data.user+'</span> 人</li>';
+			if (data.topic > 0) {
+				'<li>主题数: <span>'+data.topic+'</span> 个</li>';
+			}
+			if (data.article > 0) {
+				content += '<li>文章数: <span>'+data.article+'</span> 篇</li>';
+			}
+			if (data.comment > 0) {
+				content += '<li>回复数: <span>'+data.comment+'</span> 条</li>';
+			}
+			if (data.resource > 0) {
+				content += '<li>资源数: <span>'+data.resource+'</span> 个</li>';
+			}
+			if (data.project > 0) {
+				content += '<li>项目数: <span>'+data.project+'</span> 个</li>';
+			}
+			if (data.book > 0) {
+				content += '<li>图书数: <span>'+data.book+'</span> 本</li>';
+			}
 
 			$('.sb-content .stat-list ul').html(content);
 		}

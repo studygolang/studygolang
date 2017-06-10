@@ -30,14 +30,32 @@ type TopicController struct{}
 
 // 注册路由
 func (self TopicController) RegisterRoute(g *echo.Group) {
-	g.GET("/topics", self.Topics)
+	g.GET("/topics", self.TopicList)
 	g.GET("/topics/no_reply", self.TopicsNoReply)
 	g.GET("/topics/last", self.TopicsLast)
 	g.GET("/topics/:tid", self.Detail)
 	g.GET("/topics/node/:nid", self.NodeTopics)
+	g.GET("/go/:node", self.GoNodeTopics)
 
 	g.Match([]string{"GET", "POST"}, "/topics/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice())
 	g.Match([]string{"GET", "POST"}, "/topics/modify", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
+}
+
+func (self TopicController) TopicList(ctx echo.Context) error {
+	tab := ctx.QueryParam("tab")
+	if tab == "" {
+		tab = GetFromCookie(ctx, "TOPIC_TAB")
+	}
+
+	if tab != "" && tab != "all" {
+		nid := logic.GetNidByEname(tab)
+		if nid > 0 {
+			SetCookie(ctx, "TOPIC_TAB", tab)
+			return self.topicList(ctx, tab, "topics.mtime DESC", "nid=? AND top!=1", nid)
+		}
+	}
+
+	return self.topicList(ctx, "all", "topics.mtime DESC", "top!=1")
 }
 
 func (self TopicController) Topics(ctx echo.Context) error {
@@ -52,19 +70,25 @@ func (self TopicController) TopicsLast(ctx echo.Context) error {
 	return self.topicList(ctx, "last", "ctime DESC", "")
 }
 
-func (TopicController) topicList(ctx echo.Context, view, orderBy, querystring string, args ...interface{}) error {
+func (TopicController) topicList(ctx echo.Context, tab, orderBy, querystring string, args ...interface{}) error {
 	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
 	paginator := logic.NewPaginator(curPage)
+
+	// 置顶的topic
+	topTopics := logic.DefaultTopic.FindAll(ctx, paginator, "ctime DESC", "top=1")
 
 	topics := logic.DefaultTopic.FindAll(ctx, paginator, orderBy, querystring, args...)
 	total := logic.DefaultTopic.Count(ctx, querystring, args...)
 	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
 
+	hotNodes := logic.DefaultTopic.FindHotNodes(ctx)
+
 	data := map[string]interface{}{
-		"topics":       topics,
+		"topics":       append(topTopics, topics...),
 		"activeTopics": "active",
 		"nodes":        logic.GenNodes(),
-		"view":         view,
+		"tab":          tab,
+		"tab_list":     hotNodes,
 		"page":         template.HTML(pageHtml),
 	}
 
@@ -87,16 +111,35 @@ func (TopicController) NodeTopics(ctx echo.Context) error {
 	return render(ctx, "topics/node.html", map[string]interface{}{"activeTopics": "active", "topics": topics, "page": template.HTML(pageHtml), "total": total, "node": node})
 }
 
+// GoNodeTopics 某节点下的主题列表，uri: /go/golang
+func (TopicController) GoNodeTopics(ctx echo.Context) error {
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	paginator := logic.NewPaginator(curPage)
+
+	ename := ctx.Param("node")
+	node := logic.GetNodeByEname(ename)
+	if node == nil {
+		return render(ctx, "notfound.html", nil)
+	}
+
+	querystring, nid := "nid=?", node["nid"].(int)
+	topics := logic.DefaultTopic.FindAll(ctx, paginator, "topics.mtime DESC", querystring, nid)
+	total := logic.DefaultTopic.Count(ctx, querystring, nid)
+	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
+
+	return render(ctx, "topics/node.html", map[string]interface{}{"activeTopics": "active", "topics": topics, "page": template.HTML(pageHtml), "total": total, "node": node})
+}
+
 // Detail 社区主题详细页
 func (TopicController) Detail(ctx echo.Context) error {
 	tid := goutils.MustInt(ctx.Param("tid"))
 	if tid == 0 {
-		return ctx.Redirect(http.StatusSeeOther, "/topics")
+		return render(ctx, "notfound.html", nil)
 	}
 
 	topic, replies, err := logic.DefaultTopic.FindByTid(ctx, tid)
 	if err != nil {
-		return ctx.Redirect(http.StatusSeeOther, "/topics")
+		return render(ctx, "notfound.html", nil)
 	}
 
 	likeFlag := 0
@@ -118,11 +161,12 @@ func (TopicController) Detail(ctx echo.Context) error {
 // Create 新建主题
 func (TopicController) Create(ctx echo.Context) error {
 	nodes := logic.GenNodes()
+	nid := goutils.MustInt(ctx.QueryParam("nid"))
 
 	title := ctx.FormValue("title")
 	// 请求新建主题页面
 	if title == "" || ctx.Request().Method() != "POST" {
-		return render(ctx, "topics/new.html", map[string]interface{}{"nodes": nodes, "activeTopics": "active"})
+		return render(ctx, "topics/new.html", map[string]interface{}{"nodes": nodes, "activeTopics": "active", "nid": nid})
 	}
 
 	me := ctx.Get("user").(*model.Me)

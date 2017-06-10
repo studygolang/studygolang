@@ -1,0 +1,90 @@
+{{define "content"}}
+<div class="pageheader notab">
+	<h1 class="pagetitle">站点全局信息设置</h1>
+	<span class="pagedesc">首页顶部Tab子Tab管理</span>
+</div><!--pageheader-->
+
+<div id="contentwraapper" class="contentwrapper">
+	<div id="tooltip" class="red"></div>
+	<form method="POST" action="/admin/setting/index_tab/children" class="stdform_q">
+		<input type="hidden" id="id" name="id" value="{{.setting.Id}}" />
+		<input type="hidden" id="tab" name="tab" value="{{.tab}}" />
+		<div class="contenttitle2">
+			<h3>首页 <span style="color:red;">{{.name}}</span> TAB 子 TAB 管理</h3>
+		</div>
+		<div class="index-nav" style="border:1px dashed;">
+			<p>
+				<label>子 TAB 管理</label>
+				<span class="field">
+					<table class="index-nav-table">
+						<tr>
+							<th colspan="3"><button class="index-nav-add">增加</button></th>
+						</tr>
+					{{range .setting.IndexNavs}}
+						{{if eq .Tab $.tab}}
+							{{range .Children}}
+							<tr class="index-one-nav">
+								<td>Uri:<input type="text" name="index_uri" value="{{.Uri}}"></td>
+								<td>名称:<input type="text" name="index_name" value="{{.Name}}"></td>
+								<td><br><button class="index-nav-minus">删除</button></td>
+							</tr>
+							{{end}}
+						{{end}}
+					{{end}}
+					</table>
+				</span>
+			</p>
+		</div>
+		
+		<div class="contenttitle2">
+			<h3>操作</h3>
+		</div>
+		<div>
+			<p>
+				<label>&nbsp;</label>
+				<input type="submit" class="submit radius2" value="提交" />
+			</p>
+		</div>
+	</form>
+	<img id="loaders" src="/static/img/loaders/loader7.gif" alt="" class="hide">
+	<div id="toast"></div>
+	<br/>
+	<br/>
+</div><!--contentwrapper-->
+{{end}}
+
+{{define "css"}}
+<link href="/static/css/jquery.cftoaster.1.0.1.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/Huploadify.css" media="screen" rel="stylesheet" type="text/css">
+{{end}}
+
+{{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.cftoaster.1.0.1.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.Huploadify.js"></script>
+<script	type="text/javascript" src="/static/js/admin/forms.js"></script>
+<script type="text/javascript" src="/static/js/upload.js?v=1.0"></script>
+<script type="text/javascript">
+$(function() {
+	window.formSuccCallback = function(data) {}
+
+	var indexNavHtml = '<tr class="index-one-nav">'+
+							'<td>Uri:<input type="text" name="index_uri"></td>'+
+							'<td>名称:<input type="text" name="index_name"></td>'+
+							'<td><br><button class="index-nav-minus">删除</button></td>'+
+						'</tr>';
+	
+	$('.index-nav-add').on('click', function(evt) {
+		evt.preventDefault();
+		$('.index-nav-table').append(indexNavHtml);
+	});
+
+	$('.index-nav-table').on('click', '.index-nav-minus', function(evt) {
+		evt.preventDefault();
+		$(this).parents('.index-one-nav').remove();
+	});
+});
+</script>
+{{end}}

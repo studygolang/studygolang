@@ -52,7 +52,7 @@ func (OAuthController) GithubCallback(ctx echo.Context) error {
 	}
 
 	// 登录成功，种cookie
-	SetCookie(ctx, user.Username)
+	SetLoginCookie(ctx, user.Username)
 
 	if user.Balance == 0 {
 		return ctx.Redirect(http.StatusSeeOther, "/balance")

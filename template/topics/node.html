@@ -5,20 +5,24 @@
 <div class="row">
 	<div class="col-lg-9 col-md-8 col-sm-7">
 		<ol class="breadcrumb">
-			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
-			<li><a href="/topics">社区</a></li>
+			<li><a href="/">首页</a></li>
+			<li><a href="/topics">主题</a></li>
 			<li class="active">{{.node.name}}</li>
 		</ol>
 		<div class="box_white">
 			<div class="node-info">
-        <div class="title">
-          <h2>{{.node.name}}</h2>
-          <span class="total">共有 {{.total}} 个讨论主题</span>
-        </div>
-        <div class="desc">
-          <p>{{.node.intro}}</p>
-        </div>
-      </div>
+				{{if .node.logo}}
+				<div style="float: left; display: inline-block; margin-right: 10px; margin-bottom: initial!important;"><img src="{{.cdn_domain}}/{{.node.logo}}?imageView2/2/w/50" border="0" align="default" width="50"></div>
+				{{end}}
+				<div style="float: right; margin-top: 10px;"><a href="/topics/new?nid={{.node.nid}}" class="btn btn-default btn-sm">发布新主题</a></div>
+				<div class="title">
+					<h2>{{.node.name}}</h2>
+					<span class="total">共有 {{.total}} 个主题</span>
+				</div>
+				<div class="desc">
+					<p>{{.node.intro}}</p>
+				</div>
+			</div>
 			<dl class="topics dl-horizontal">
 			{{with $root := .}}
 			{{range .topics}}
@@ -31,7 +35,7 @@
 							<a href="/topics/{{.tid}}" title="{{.title}}">{{substring .title 60 "..."}}</a>
 						</div>
 						<div class="meta">
-							<a href="/topics/node/{{.nid}}" class="node" title="{{.node}}">{{.node}}</a>
+							<a href="/go/{{$.node.ename}}" class="node" title="{{.node}}">{{.node}}</a>
 							•
 							<a href="/user/{{.user.Username}}" title="{{.user.Username}}" class="author"><strong>{{.user.Username}}</strong></a>
 							{{if .lastreplyuid}}
@@ -61,19 +65,12 @@
 			{{end}}
 			</dl>
 			{{if .page}}
-      <nav class="text-center"><ul class="pagination pagination-sm">{{.page}}</ul></nav>
-      {{end}}
+			<nav class="text-center"><ul class="pagination pagination-sm">{{.page}}</ul></nav>
+			{{end}}
 		</div>
 	</div>
 	<div class="col-lg-3 col-md-4 col-sm-5">
-		<div class="row box_white sidebar">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-edit"></i>&nbsp;{{.node.name}}</h3>
-			</div>
-			<div class="sb-content text-center" style="padding-bottom: 15px;">
-				<a href="/topics/new?nid={{.node.nid}}" class="btn btn-default">发布主题</a>
-			</div>
-		</div>
+		{{include "common/my_info.html" .}}
 
 		{{if .pos_ad.right1}}
 		<div class="row box_white sidebar" id="ad-right1">
@@ -139,7 +136,7 @@
 </div>
 {{end}}
 {{define "css"}}
-<link href="/static/css/topics.css?v=1.0" rel="stylesheet" type="text/css" />
+<link href="/static/css/topics.css?v=1.1" rel="stylesheet" type="text/css" />
 {{end}}
 {{define "js"}}
 <script type="text/javascript">

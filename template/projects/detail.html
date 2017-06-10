@@ -7,139 +7,90 @@
 <div class="row">
 	<div class="col-lg-9 col-md-8 col-sm-7">
 		<ol class="breadcrumb">
-			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/">首页</a></li>
 			<li><a href="/projects">开源项目</a></li>
-			<li class="active">{{.project.Name}}</li>
 		</ol>
-		<div class="page box_white">
-			<div class="title text-center">
-				<h1>
-					{{if .project.Logo}}<img src="{{.project.Logo}}" alt="{{.project.Name}}" width="48px" />{{end}}
-					{{.project.Category}} <u>{{.project.Name}}</u>
-					{{if canEdit .me .project}}
-						<a class="btn btn-primary btn-xs" href="/project/modify?id={{.project.Id}}" title="编辑">编辑</a>
-					{{end}}
-				</h1>
-			</div>
-			<div class="meta">
-				<div class="p-author">
-					<i class="glyphicon glyphicon-calendar"></i>
-					<span class="timeago" title="{{.project.Ctime}}"></span>&nbsp;
-					{{if .project.Author}}
-					<i class="glyphicon glyphicon-user"></i>
-					{{.project.Author}}
-					{{end}}
+		<div class="page">
+			<div class="box_white">
+				<div class="title">
+					<div class="pull-right">
+						<a href="/user/{{.project.User.Username}}" title="{{.project.User.Username}}">
+							<img src="{{gravatar .project.User.Avatar .project.User.Email 62 .is_https}}" alt="{{if .project.User.Name}}{{.project.User.Name}}{{else}}{{.project.User.Username}}{{end}}" width="62px" height="62px">
+						</a>
+					</div>
+					<h1>
+						{{if .project.Logo}}<img src="{{.project.Logo}}" alt="{{.project.Name}}" width="80px" />{{end}}
+						{{.project.Category}} <u>{{.project.Name}}</u>
+					</h1>
+					<small class="gray">
+						<a href="/user/{{.project.Username}}">{{.project.Username}}</a> • <span title="{{.project.Ctime}}" class="timeago"></span> • {{.project.Viewnum}} 次点击 &nbsp; &nbsp;
+						{{if canEdit .me .project}}
+						<a class="op" href="/project/modify?id={{.project.Id}}" title="编辑">编辑</a>
+						{{end}}
+					</small>
 				</div>
-				<!-- p-author END -->
+				{{if gt (distanceDay .project.Ctime) 100 }}
+				<div class="outdated">这是一个分享于 <span title="{{.project.Ctime}}" class="timeago"></span> 的项目，其中的信息可能已经有所发展或是发生改变。</div>
+				{{end}}
+				<div class="cell">
+					<div class="content project">
+						<div class="desc">{{.project.Desc}}</div>
+						{{if .project.Repo}}
+						<div class="github-widget" data-repo="{{.project.Repo}}"></div>
+						{{end}}
+						<dl class="dl-horizontal attrs">
+							<dt>授权协议：</dt><dd><a>{{.project.Licence}}</a></dd>
+							<dt>开发语言：</dt><dd><a>{{.project.Lang}}</a>&nbsp;<a href="{{.project.Src}}" title="{{.project.Name}} 源码" target="_blank">查看源码»</a></dd>
+							{{if .project.Os}}
+							<dt>操作系统：</dt><dd><a>{{.project.Os}}</a></dd>
+							{{end}}
+						</dl>
+						<ul class="urls list-inline text-center">
+							<li><a href="{{.project.Home}}" title="{{.project.Name}} 网站" class="btn btn-default btn-sm" target="_blank">项目首页</a></li>
+							<li><a href="{{.project.Doc}}" title="{{.project.Name}} 文档" class="btn btn-default btn-sm" target="_blank">项目文档</a></li>
+							{{if .project.Download}}
+							<li><a href="{{.project.Download}}" title="下载 {{.project.Name}}" class="btn btn-default btn-sm" target="_blank">软件下载</a></li>
+							{{end}}
+						</ul>
+					</div>
+				</div>
 				
-				<div class="p-comment text-right">
-					<span class="view" title="阅读数">
-						<i class="glyphicon glyphicon-eye-open"></i>
-						阅读 <span>{{.project.Viewnum}}</span> 次&nbsp;
-					</span>
-					<span class="like" title="喜欢人数">
-						<i class="glyphicon glyphicon-heart"></i>
-						<span class="likenum">{{.project.Likenum}}</span> 人喜欢&nbsp;
-					</span>
-					<a href="/p/{{if .project.Uri}}{{.project.Uri}}{{else}}{{.project.Id}}{{end}}#commentForm" title="我要评论"><i class="glyphicon glyphicon-comment"></i> <span class="cmtnum">{{.project.Cmtnum}}</span> 条评论</a>
+				<div class="content-buttons">
+					<div class="pull-right gray f11" style="line-height: 12px; padding-top: 3px; text-shadow: 0px 1px 0px #fff;">{{.project.Viewnum}} 次点击 &nbsp;{{if .project.Likenum}}∙&nbsp; {{.project.Likenum}} 赞 &nbsp; {{end}}</div>
+					<a class="tb" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}" data-objid="{{.project.Id}}" data-objtype="4" data-collect="{{.hadcollect}}">{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}</a> &nbsp;
+					<div id="content-thank">
+						<a class="tb" href="javascript:;" title="{{if .likeflag}}取消赞{{else}}赞{{end}}" data-objid="{{.project.Id}}" data-objtype="4" data-flag="{{.likeflag}}">{{if .likeflag}}取消赞{{else}}赞{{end}}</a>
+					</div>
 				</div>
-				<!-- p-comment END -->
 			</div>
-			<div class="tags">
-				{{if .project.Tags}}
-				{{$tags := explode .project.Tags ","}}
-				<ul class="list-inline">
-					{{range $tag := $tags}}
-					<li><a href="/search?q={{$tag}}&f=tag" title="{{$tag}}">{{$tag}}</a></li>
-					{{end}}
-				</ul>
-				{{end}}
-			</div>
-			<!-- tags -->
-			<div class="content project">
-				<div class="desc">{{.project.Desc}}</div>
-				{{if .project.Repo}}
-				<div class="github-widget" data-repo="{{.project.Repo}}"></div>
-				{{end}}
-				<dl class="dl-horizontal attrs">
-					<dt>授权协议：</dt><dd><a>{{.project.Licence}}</a></dd>
-					<dt>开发语言：</dt><dd><a>{{.project.Lang}}</a>&nbsp;<a href="{{.project.Src}}" title="{{.project.Name}} 源码" target="_blank">查看源码»</a></dd>
-					{{if .project.Os}}
-					<dt>操作系统：</dt><dd><a>{{.project.Os}}</a></dd>
-					{{end}}
-				</dl>
-				<ul class="urls list-inline text-center">
-					<li><a href="{{.project.Home}}" title="{{.project.Name}} 网站" class="btn btn-default btn-sm" target="_blank">项目首页</a></li>
-					<li><a href="{{.project.Doc}}" title="{{.project.Name}} 文档" class="btn btn-default btn-sm" target="_blank">项目文档</a></li>
-					{{if .project.Download}}
-					<li><a href="{{.project.Download}}" title="下载 {{.project.Name}}" class="btn btn-default btn-sm" target="_blank">软件下载</a></li>
-					{{end}}
-				</ul>
-			</div>
-			<div class="line"></div>
 			<!-- content END -->
-			<div class="active row">
-				<div class="mark-like-btn col-md-8">
-					<a class="share-btn like-btn {{if .likeflag}}hadlike{{end}}" href="javascript:;" title="{{if .likeflag}}取消喜欢{{else}}我喜欢{{end}}" data-objid="{{.project.Id}}" data-objtype="4" data-flag="{{.likeflag}}">
-						<i class="glyphicon glyphicon-heart-empty"></i><span class="likenum">{{.project.Likenum}}</span>人喜欢
-					</a>
-					<a class="share-btn collect {{if .hadcollect}}hadlike{{end}}" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}稍后再读{{end}}" data-objid="{{.project.Id}}" data-objtype="4" data-collect="{{.hadcollect}}">
-						<i class="glyphicon glyphicon-star-empty"></i>收藏
-					</a>
-				</div>
-			</div>
-			<!-- 评论 -->
-			<div class="page-comment" data-objid="{{.project.Id}}" data-objtype="4" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
-				<div class="words hide">
-					<h3><span class="cmtnum">{{.project.Cmtnum}}</span>条评论</h3>
-					<ul class="list-unstyled">
-					</ul>
-				</div>
-				<div class="comment-title">
-					<h2>项目点评：</h2>
-					{{if .me.Uid}}
-					{{else}}
-					<span class="h2-tip">
-					（您需要 <a class="c-log" href="javascript:openPop('#login-pop');">登录</a> 后才能评论 <a href="/user/register" class="c-reg"> 没有账号</a> ？）</span>
+			<div class="sep20"></div>
+
+			<!-- 评论列表 -->
+			<div id="replies" class="box_white">
+				<div class="cell">
+					<div class="pull-right" style="margin: -3px -5px 0px 0px;">
+					{{if .project.Tags}}
+						{{$tags := explode .project.Tags ","}}
+						{{range $tags}}
+						<a href="/tag/{{.}}" class="tag"><li class="fa fa-tag"></li> {{.}}</a>
+						{{end}}
 					{{end}}
+					</div>
+					<span class="gray"><span class="cmtnum">{{.project.Cmtnum}}</span> 回复 {{if .project.Cmtnum}}&nbsp;<strong class="snow">|</strong> &nbsp;直到 {{end}}</span>
 				</div>
-				{{template "comment" .}}
+				<div class="comment-list cell" data-objid="{{.project.Id}}" data-objtype="4" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
+					<div class="words hide"><div class="text-center">暂无回复</div></div>
+				</div>
 			</div>
-			<!-- 评论 -->
+
+			<!-- 评论框 -->
+			{{template "comment" .}}
+			
 		</div>
 	</div>
 	<div class="col-lg-3 col-md-4 col-sm-5">
-		<div class="row box_white sidebar">
-			<div class="sb-content text-center" style="padding: 15px 0;">
-				<a href="/project/new" class="btn btn-default">发布项目</a>
-			</div>
-		</div>
-
-		<div class="row box_white sidebar">
-			<div class="top">
-				<ul class="list-inline text-center">
-					<li class="first"><a href="/articles" target="_blank" class="cur" title="点击更多">最新博文</a>|</li>
-					<li class="second"><a href="/topics" target="_blank" title="点击更多">最新主题</a>|</li>
-					<li class="last"><a href="javascript:;">最新评论</a></li>
-				</ul>
-				<p class="bar"></p>
-			</div>
-			<div class="sb-content">
-				<div class="article-list first">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-				<div class="topic-list second hidden">
-					<ul class="list-unstyled">
-					</ul>
-				</div>
-				<div class="cmt-list last hidden">
-					<ul class="list-unstyled">
-					</ul>
-				</div>
-			</div>
-		</div>
+		{{include "common/my_info.html" .}}
 
 		{{if .pos_ad.right1}}
 		<div class="row box_white sidebar" id="ad-right1">
@@ -149,6 +100,40 @@
 		</div>
 		{{end}}
 
+		<div class="row box_white sidebar">
+			<div class="top">
+				<ul class="list-inline text-center">
+					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新主题</a>|</li>
+					<li class="second"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
+					<li class="last"><a href="/articles" target="_blank" title="点击更多">最新博文</a></li>
+				</ul>
+				<p class="bar"></p>
+			</div>
+			<div class="sb-content">
+				<div class="topic-list first">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+				<div class="resource-list second hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+				<div class="article-list last hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+		{{if .pos_ad.right2}}
+		<div class="row box_white sidebar" id="ad-right2">
+			{{if eq .pos_ad.right2.AdType 0}}
+				{{noescape .pos_ad.right2.Code}}
+			{{end}}
+		</div>
+		{{end}}
+		
 	</div>
 </div>
 {{end}}
@@ -157,8 +142,8 @@
 <link href="/static/css/jquery.atwho.min.css" media="screen" rel="stylesheet" type="text/css">
 <style type="text/css">
 .project .attrs {background: #f6f6f6;border: 1px solid #eee;padding: 5px 10px;margin: 15px 0;font-weight: bold;line-height: 22px;}
-.project .attrs a {font-weight: normal;}
-.project .attrs a:hover {color: #C00; text-decoration: none;}
+.project .attrs a {font-weight: normal; color: #778088; text-decoration: none;}
+.project .attrs a:hover {color: #474747; text-decoration: none;}
 </style>
 {{end}}
 {{define "js"}}

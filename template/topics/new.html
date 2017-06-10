@@ -3,9 +3,9 @@
 <div class="row">
 	<div class="col-lg-9 col-md-8 col-sm-7">
 		<ol class="breadcrumb">
-			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
-			<li><a href="/topics">社区</a></li>
-			<li class="active">{{if .topic.Tid}}修改{{else}}发布{{end}}主题</li>
+			<li><a href="/">首页</a></li>
+			<li><a href="/topics">主题</a></li>
+			<li class="active">{{if .topic.Tid}}编辑{{else}}发布{{end}}</li>
 		</ol>
 		<div class="page box_white">
 			<form class="form-horizontal validate-form" role="form" action="{{if .topic.Tid}}/topics/modify{{else}}/topics/new{{end}}" data-redirect="/topics{{if .topic.Tid}}/{{.topic.Tid}}?r={{timestamp}}{{end}}">
@@ -17,48 +17,48 @@
 				<div class="form-group form-group-sm">
 					<label class="col-sm-2 control-label" for="title"><abbr>*</abbr>标题</label>
 					<div class="col-sm-9">
-						<div class="row">
-							<span class="col-sm-3">
-								<select name="nid" class="form-control required">
-									{{if .topic.Tid}}{{else}}<option value="">选择节点</option>{{end}}
-									{{range .nodes}}
-										{{range $parent, $children := .}}
-										<optgroup label="{{$parent}}">
-											{{range $children}}
-											<option value="{{.nid}}"{{if $.topic.Tid}}{{if eq $.topic.Nid .nid}} selected{{end}}{{end}}>{{.name}}</option>
-											{{end}}
-										</optgroup>
-										{{end}}
-									{{end}}
-								</select>
-							</span>
-							<span class="col-sm-9">
-								<input class="form-control required" type="text" id="title" name="title" placeholder="标题" value="{{.topic.Title}}">
-							</span>
-						</div>
+						<textarea class="form-control required" style="resize: none;" rows="1" maxlength="120" name="title" autofocus="autofocus" placeholder="请输入主题标题(最多120个字），如果标题能够表达完整内容，则正文可以为空">{{.topic.Title}}</textarea>
 					</div>
 				</div>
 				<div class="form-group form-group-sm">
-					<label class="col-sm-2 control-label" for="content"><abbr>*</abbr>正文</label>
+					<label class="col-sm-2 control-label" for="content">正文</label>
 					<div class="col-sm-9">
 						<div class="row clearfix md-toolbar">
 							<ul class="col-md-10 list-inline">
-								<li class="edit cur"><a href="#"><i class="glyphicon glyphicon-edit"></i> 编辑</a></li>
-								<li class="preview"><a href="#" title="预览"><i class="glyphicon glyphicon-eye-open preview"></i> 预览</a></li>
-								<li class="wide"><a href="/wide/playground" target="_blank" title="通过Wide编辑代码"><i class="glyphicon glyphicon-cloud"></i> Wide</a></li>
+								<li class="edit cur"><a href="#" tabindex="-1"><i class="glyphicon glyphicon-edit"></i> 编辑</a></li>
+								<li class="preview"><a href="#" title="预览" tabindex="-1"><i class="glyphicon glyphicon-eye-open preview"></i> 预览</a></li>
+								<li class="wide"><a href="/wide/playground" tabindex="-1" target="_blank" title="通过Wide编辑代码"><i class="glyphicon glyphicon-cloud"></i> Wide</a></li>
 							</ul>
 							<div class="col-md-2 text-right">
 								<i id="upload-img" class="glyphicon glyphicon-picture upload-img tool-tip" data-toggle="tooltip" data-placement="top" title="上传图片"></i>
 							</div>
 						</div>
-						<textarea class="form-control need-autogrow required main-textarea" id="content" name="content" rows="15">{{.topic.Content}}</textarea>
+						<textarea class="form-control need-autogrow main-textarea" id="content" name="content" rows="15" tabindex="0">{{.topic.Content}}</textarea>
 						<div class="content-preview"></div>
 					</div>
 				</div>
+	
+				<div class="form-group form-group-sm">
+					<label class="col-sm-2 control-label" for="title"><abbr>*</abbr>节点</label>
+					<div class="col-sm-9">
+						<select id="nid" name="nid" class="form-control required">
+							{{range .nodes}}
+								{{range $parent, $children := .}}
+								<optgroup label="{{$parent}}">
+									{{range $children}}
+									<option value="{{.nid}}"{{if $.topic.Tid}}{{if eq $.topic.Nid .nid}} selected{{end}}{{else if eq $.nid .nid}}selected{{end}}>{{.name}}/{{.ename}}</option>
+									{{end}}
+								</optgroup>
+								{{end}}
+							{{end}}
+						</select>
+					</div>
+				</div>
+
 				<div class="form-group form-group-sm">
 					<label class="col-sm-5 control-label">&nbsp;</label>
 					<div class="col-sm-6">
-						<button type="submit" class="btn btn-default btn-sm" id="submit">{{if .topic.Tid}}提交修改{{else}}发布主题{{end}}</button> (Ctrl+Enter)
+						<button type="submit" class="btn btn-default btn-sm" id="submit">{{if .topic.Tid}}提交修改{{else}}发布主题{{end}}</button> (Ctrl/Command+Enter)
 					</div>
 				</div>
 			</form>
@@ -89,11 +89,13 @@
 </div>
 {{end}}
 {{define "css"}}
+<link href="//cdn.bootcss.com/select2/4.0.3/css/select2.min.css" rel="stylesheet">
 <link href="/static/css/jquery.atwho.min.css" rel="stylesheet">
 <link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
 <link href="/static/css/md_toolbar.css" media="screen" rel="stylesheet" type="text/css">
 {{end}}
 {{define "js"}}
+<script type="text/javascript" src="//cdn.bootcss.com/select2/4.0.3/js/select2.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
@@ -115,6 +117,7 @@ SG.SIDE_BARS = [];
 $(function(){
 	// 文本框自动伸缩
 	$('.need-autogrow').autoGrow();
+	$('#nid').select2();
 });
 </script>
 {{end}}

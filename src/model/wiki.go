@@ -16,8 +16,15 @@ type Wiki struct {
 	Uid     int       `json:"uid"`
 	Cuid    string    `json:"cuid"`
 	Viewnum int       `json:"viewnum"`
+	Tags    string    `json:"tags"`
 	Ctime   OftenTime `json:"ctime" xorm:"created"`
 	Mtime   time.Time `json:"mtime" xorm:"<-"`
 
 	Users map[int]*User `xorm:"-"`
+}
+
+func (this *Wiki) BeforeInsert() {
+	if this.Tags == "" {
+		this.Tags = AutoTag(this.Title, this.Content, 4)
+	}
 }

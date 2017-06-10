@@ -16,6 +16,8 @@ import (
 	"net/url"
 	"strings"
 
+	. "http"
+
 	"github.com/labstack/echo"
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/logger"
@@ -25,9 +27,25 @@ type IndexController struct{}
 
 // 注册路由
 func (self IndexController) RegisterRoute(g *echo.Group) {
-	g.GET("/", self.Index)
+	g.GET("/", self.NewIndex)
 	g.GET("/wr", self.WrapUrl)
 	g.GET("/pkgdoc", self.Pkgdoc)
+}
+
+func (IndexController) NewIndex(ctx echo.Context) error {
+	tab := ctx.QueryParam("tab")
+	if tab == "" {
+		tab = GetFromCookie(ctx, "INDEX_TAB")
+	}
+
+	if tab == "" {
+		tab = logic.WebsiteSetting.IndexNavs[0].Tab
+	}
+	SetCookie(ctx, "INDEX_TAB", tab)
+
+	data := logic.DefaultIndex.FindData(ctx, tab)
+
+	return render(ctx, "new_index.html", data)
 }
 
 // Index 首页
@@ -71,22 +89,14 @@ func (IndexController) Index(ctx echo.Context) error {
 	// 学习资料
 	materials := logic.DefaultLearningMaterial.FindAll(ctx)
 
-	hasLoginMisson := false
-	me, ok := ctx.Get("user").(*model.Me)
-	if ok {
-		// 每日登录奖励
-		hasLoginMisson = logic.DefaultMission.HasLoginMission(ctx, me)
-	}
-
 	return render(ctx, "index.html",
 		map[string]interface{}{
-			"topics":        topicsList,
-			"articles":      recentArticles,
-			"likeflags":     likeFlags,
-			"resources":     resources,
-			"books":         books,
-			"materials":     materials,
-			"login_mission": hasLoginMisson,
+			"topics":    topicsList,
+			"articles":  recentArticles,
+			"likeflags": likeFlags,
+			"resources": resources,
+			"books":     books,
+			"materials": materials,
 		})
 }
 

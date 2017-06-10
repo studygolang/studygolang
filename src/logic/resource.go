@@ -111,6 +111,9 @@ func (ResourceLogic) Publish(ctx context.Context, me *model.Me, form url.Values)
 			return
 		}
 
+		// 发布动态
+		DefaultFeed.publish(resource, resourceEx)
+
 		// 给 被@用户 发系统消息
 		ext := map[string]interface{}{
 			"objid":   resource.Id,
@@ -381,11 +384,31 @@ type ResourceComment struct{}
 // 更新该资源的评论信息
 // cid：评论id；objid：被评论对象id；uid：评论者；cmttime：评论时间
 func (self ResourceComment) UpdateComment(cid, objid, uid int, cmttime time.Time) {
+	session := MasterDB.NewSession()
+	defer session.Close()
+
+	session.Begin()
+
+	// 更新最后回复信息
+	_, err := session.Table(new(model.Resource)).Id(objid).Update(map[string]interface{}{
+		"lastreplyuid":  uid,
+		"lastreplytime": cmttime,
+	})
+	if err != nil {
+		logger.Errorln("更新最后回复人信息失败：", err)
+		session.Rollback()
+		return
+	}
+
 	// 更新评论数（TODO：暂时每次都更新表）
-	_, err := MasterDB.Id(objid).Incr("cmtnum", 1).Update(new(model.ResourceEx))
+	_, err = session.Id(objid).Incr("cmtnum", 1).Update(new(model.ResourceEx))
 	if err != nil {
 		logger.Errorln("更新资源评论数失败：", err)
+		session.Rollback()
+		return
 	}
+
+	session.Commit()
 }
 
 func (self ResourceComment) String() string {

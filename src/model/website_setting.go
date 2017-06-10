@@ -34,6 +34,18 @@ type FooterNav struct {
 	OuterSite bool   `json:"outer_site"`
 }
 
+type IndexNav struct {
+	Tab        string           `json:"tab"`
+	Name       string           `json:"name"`
+	DataSource string           `json:"data_source"`
+	Children   []*IndexNavChild `json:"children"`
+}
+
+type IndexNavChild struct {
+	Uri  string `json:"uri"`
+	Name string `json:"name"`
+}
+
 type websiteSetting struct {
 	Id             int `xorm:"pk autoincr"`
 	Name           string
@@ -52,12 +64,14 @@ type websiteSetting struct {
 	ProjectDfLogo  string
 	SeoKeywords    string
 	SeoDescription string
+	IndexNav       string
 	CreatedAt      time.Time `xorm:"created"`
 	UpdatedAt      time.Time `xorm:"<-"`
 
 	DocMenus    []*DocMenu    `xorm:"-"`
 	FriendLogos []*FriendLogo `xorm:"-"`
 	FooterNavs  []*FooterNav  `xorm:"-"`
+	IndexNavs   []*IndexNav   `xorm:"-"`
 }
 
 var WebsiteSetting = &websiteSetting{}
@@ -73,6 +87,8 @@ func (this *websiteSetting) AfterSet(name string, cell xorm.Cell) {
 		this.FriendLogos = this.unmarshalFriendsLogo()
 	} else if name == "footer_nav" {
 		this.FooterNavs = this.unmarshalFooterNav()
+	} else if name == "index_nav" {
+		this.IndexNavs = this.unmarshalIndexNav()
 	}
 }
 
@@ -123,4 +139,15 @@ func (this *websiteSetting) unmarshalFooterNav() []*FooterNav {
 	}
 
 	return footerNavs
+}
+
+func (this *websiteSetting) unmarshalIndexNav() []*IndexNav {
+	var indexNavs = []*IndexNav{}
+	err := json.Unmarshal([]byte(this.IndexNav), &indexNavs)
+	if err != nil {
+		fmt.Println("unmarshal index nav error:", err)
+		return nil
+	}
+
+	return indexNavs
 }

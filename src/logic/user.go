@@ -572,14 +572,12 @@ func (UserLogic) doCreateUser(ctx context.Context, session *xorm.Session, user *
 	}
 	if len(passwd) > 0 {
 		userLogin.Passwd = passwd[0]
-	}
-
-	if user.Status != model.UserStatusAudit {
 		err = userLogin.GenMd5Passwd()
 		if err != nil {
 			return err
 		}
 	}
+
 	if _, err = session.Insert(userLogin); err != nil {
 		return err
 	}
