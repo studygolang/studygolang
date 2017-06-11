@@ -28,7 +28,9 @@
 				<a class="btn btn-default btn-sm" href="/mission/daily/redeem">领取 X 铜币</a>
 			</div>
 			{{end}}
+			{{if .login_mission}}
 			<div class="cell">已连续登录领取 {{.login_mission.Days}} 天，总登录领取 {{.login_mission.TotalDays}} 天</div>
+			{{end}}
 		</div>
 	</div>
 	<div class="col-md-3 col-sm-6">

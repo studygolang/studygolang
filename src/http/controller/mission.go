@@ -29,8 +29,10 @@ func (self MissionController) RegisterRoute(g *echo.Group) {
 func (MissionController) Daily(ctx echo.Context) error {
 	me := ctx.Get("user").(*model.Me)
 	userLoginMission := logic.DefaultMission.FindLoginMission(ctx, me)
+	userLoginMission.Uid = me.Uid
 
 	data := map[string]interface{}{"login_mission": userLoginMission}
+
 	if userLoginMission != nil && times.Format("Ymd") == strconv.Itoa(userLoginMission.Date) {
 		data["had_redeem"] = true
 	} else {

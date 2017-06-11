@@ -187,7 +187,7 @@ func Render(ctx echo.Context, contentTpl string, data map[string]interface{}) er
 		// 每日登录奖励
 		hasLoginMisson = logic.DefaultMission.HasLoginMission(ctx, me)
 	}
-	data["login_mission"] = hasLoginMisson
+	data["has_login_misson"] = hasLoginMisson
 
 	return executeTpl(ctx, tpl, data)
 }
