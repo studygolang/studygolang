@@ -6,7 +6,11 @@
 
 package model
 
-import "github.com/go-xorm/xorm"
+import (
+	"time"
+
+	"github.com/go-xorm/xorm"
+)
 
 const (
 	ProjectStatusNew     = 0
@@ -56,7 +60,16 @@ func (this *OpenProject) BeforeInsert() {
 }
 
 func (this *OpenProject) AfterInsert() {
-	PublishFeed(this, nil)
+	go func() {
+		// AfterInsert 时，自增 ID 还未赋值，这里 sleep 一会，确保自增 ID 有值
+		for {
+			if this.Id > 0 {
+				PublishFeed(this, nil)
+				return
+			}
+			time.Sleep(100 * time.Millisecond)
+		}
+	}()
 }
 
 func (this *OpenProject) AfterSet(name string, cell xorm.Cell) {

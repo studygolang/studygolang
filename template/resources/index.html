@@ -1,9 +1,9 @@
 {{define "title"}}资源索引 {{end}}
 {{define "content"}}
-<div class="row banner">
-</div>
 <div class="row">
-	<div class="col-lg-9 col-md-8 col-sm-7">
+	<div class="col-md-9 col-sm-6">
+		<div class="sep20"></div>
+
 		<ol class="breadcrumb">
 			<li><a href="/">首页</a></li>
 			<li class="active">资源索引</li>
@@ -50,22 +50,20 @@
 			{{end}}
 		</div>
 	</div>
-	<div class="col-lg-3 col-md-4 col-sm-5">
-		<div class="row box_white sidebar">
-			<div class="sb-content text-center" style="padding: 15px 0;">
-				<a href="/resources/new" class="btn btn-default">分享资源</a>
-			</div>
-		</div>
+	<div class="col-md-3 col-sm-6">
+		<div class="sep20"></div>
+
+		{{include "common/my_info.html" .}}
 
 		{{if .pos_ad.right1}}
-		<div class="row box_white sidebar" id="ad-right1">
+		<div class="box_white sidebar" id="ad-right1">
 			{{if eq .pos_ad.right1.AdType 0}}
 				{{noescape .pos_ad.right1.Code}}
 			{{end}}
 		</div>
 		{{end}}
 		
-		<div class="row box_white sidebar">
+		<div class="box_white sidebar">
 			<div class="top">
 				<ul class="list-inline text-center">
 					<li class="first"><a href="javascript:;" class="cur">最新评论</a>|</li>
@@ -90,19 +88,6 @@
 				</div>
 			</div>
 		</div>
-
-		<div class="row box_white sidebar">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-stats"></i>&nbsp;&nbsp;统计信息</h3>
-			</div>
-			<div class="sb-content">
-				<div class="stat-list">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-			</div>
-		</div>
 		
 	</div>
 </div>
@@ -117,7 +102,6 @@ SG.SIDE_BARS = [
 	"/comments/recent",
 	"/articles/recent",
 	"/topics/recent",
-	"/nodes/hot",
 	"/websites/stat"
 ];
 

@@ -1,9 +1,8 @@
 {{define "title"}}文章 {{end}}
 {{define "content"}}
-<div class="row banner">
-</div>
 <div class="row">
-	<div class="col-lg-9 col-md-8 col-sm-7">
+	<div class="col-md-9 col-sm-6">
+		<div class="sep20"></div>
 		<ol class="breadcrumb">
 			<li><a href="/">首页</a></li>
 			<li class="active">文章</li>
@@ -85,13 +84,11 @@
 			{{end}}
 		</ul>
 	</div>
-	<div class="col-lg-3 col-md-4 col-sm-5">
-		<div class="row box_white sidebar">
-			<div class="sb-content text-center" style="padding: 15px 0;">
-				<a href="/articles/new" class="btn btn-default">撰写文章</a>
-			</div>
-		</div>
-		<div class="row box_white sidebar">
+	<div class="col-md-3 col-sm-6">
+		<div class="sep20"></div>
+		{{include "common/my_info.html" .}}
+
+		<div class="box_white sidebar">
 			<div class="top">
 				<ul class="list-inline text-center">
 					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新主题</a>|</li>
@@ -118,7 +115,7 @@
 		</div>
 
 		{{if .pos_ad.right1}}
-		<div class="row box_white sidebar" id="ad-right1">
+		<div class="box_white sidebar" id="ad-right1">
 			{{if eq .pos_ad.right1.AdType 0}}
 				{{noescape .pos_ad.right1.Code}}
 			{{end}}

@@ -3,7 +3,7 @@
 <meta name="description" content="{{.setting.SeoDescription}}">{{end}}
 {{define "content"}}
 <div class="row">
-	<div class="col-lg-9 col-md-8 col-sm-7">
+	<div class="col-md-9 col-sm-6">
 		<div class="sep20"></div>
 		<div class="box_white">
 			<div class="inner_content" style="border-top-left-radius: 3px; border-top-right-radius: 3px;" id="tabs">
@@ -31,6 +31,9 @@
 						<span class="item_title"><a href="{{.Uri}}" class="noul">{{.Title}}</a></span>
 						<div class="sep5"></div>
 						<span class="small cc">
+							{{if .Top}}
+							<span style="color: #ff7700; border: 1px solid #ff7700;">置顶</span> • 
+							{{end}}
 							{{if eq .Objtype 0}}
 							<a class="node" href="/go/{{.Node.ename}}">{{.Node.name}}</a>
 							{{else if eq .Objtype 1}}
@@ -76,6 +79,9 @@
 						<span class="item_title"><a href="/topics/{{.tid}}" class="noul">{{.title}}</a></span>
 						<div class="sep5"></div>
 						<span class="small cc">
+							{{if .top}}
+							<span style="color: #ff7700; border: 1px solid #ff7700;">置顶</span> • 
+							{{end}}
 							<a class="node" href="/go/{{.node.Ename}}">{{.node.Name}}</a> &nbsp;•&nbsp;
 							<strong><a href="/user/{{.user.Username}}" class="noul">{{.user.Username}}</a></strong> &nbsp;•&nbsp;
 							{{if .lastreplyuid}}
@@ -96,87 +102,22 @@
 
 		</div>
 	</div>
-	<div class="col-lg-3 col-md-4 col-sm-5">
+	<div class="col-md-3 col-sm-6">
 		<div class="sep20"></div>
 
 		{{include "common/my_info.html" .}}
 
-		<div class="row box_white sidebar">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-book"></i>&nbsp;<a href="/readings" target="_blank" title="点击更多">今日晨读</a></h3>
-			</div>
-			<div class="sb-content">
-				<div class="reading-list" data-limit="1">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-			</div>
-		</div>
+		{{include "sidebar/reading.html" .}}
 
-		<div class="row box_white sidebar">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-comment"></i>&nbsp;最新评论</h3>
-			</div>
-			<div class="sb-content">
-				<div class="cmt-list" data-limit="5">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-			</div>
-		</div>
+		{{include "sidebar/comment.html" .}}
 
-		<div class="row box_white sidebar">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-user"></i>&nbsp;<a href="/users" target="_blank" title="点击更多">新会员</a></h3>
-			</div>
-			<div class="sb-content">
-				<div id="newest-list" class="user-list" data-limit="9">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-			</div>
-		</div>
+		{{include "sidebar/new_user.html" .}}
 		
-		<div class="row box_white sidebar">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-user"></i>&nbsp;<a href="/users" target="_blank" title="点击更多">活跃会员</a></h3>
-			</div>
-			<div class="sb-content">
-				<div id="active-list" class="user-list" data-limit="9">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-			</div>
-		</div>
-		<div class="row box_white sidebar">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-stats"></i>&nbsp;&nbsp;统计信息</h3>
-			</div>
-			<div class="sb-content">
-				<div class="stat-list">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-			</div>
-		</div>
+		{{include "sidebar/active_user.html" .}}
 
-		<div class="row box_white sidebar">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-link"></i>&nbsp;友情链接</h3>
-			</div>
-			<div class="sb-content">
-				<div class="friendslink-list">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-			</div>
-		</div>
+		{{include "sidebar/stat.html" .}}
+
+		{{include "sidebar/friend_link.html" .}}
 		
 	</div>
 </div>

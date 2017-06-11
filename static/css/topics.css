@@ -27,3 +27,18 @@
 .node-info h2 {line-height: 100%;display: inline;font-size: 16px;margin-right: 10px;font-weight: bold;}
 .node-info .title span {font-size: 13px;}
 .node-info .desc {color: #999;margin: 10px 0;font-size: 13px;}
+@media (max-width: 768px) {
+    .dl-horizontal dt {
+        float:left;
+        width: 160px;
+        clear: left;
+        text-align: right;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap
+    }
+
+    .dl-horizontal dd {
+        margin-left: 180px
+    }
+}

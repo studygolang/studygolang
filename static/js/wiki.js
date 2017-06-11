@@ -2,14 +2,14 @@
 	SG.Wiki = function() {}
 	SG.Wiki.prototype = new SG.Publisher();
 	SG.Wiki.prototype.parseDesc = function(){
-		var markdownString = $('.wiki .desc').text();
+		var markdownString = $('.page .content').text();
 		// 配置 marked 语法高亮
 		marked = SG.markSetting();
 
 		var contentHtml = marked(markdownString);
 		contentHtml = SG.replaceCodeChar(contentHtml);
 
-		$('.wiki .desc').html(contentHtml);
+		$('.page .content').html(contentHtml);
 	}
 
 	jQuery(document).ready(function($) {

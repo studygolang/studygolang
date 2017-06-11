@@ -1,4 +1,4 @@
-<div class="row box_white sidebar">
+<div class="box_white sidebar">
 	{{if .me.Uid}}
 	<div class="box">
 		<div class="avatar-area pull-left">
@@ -14,9 +14,9 @@
 		<p style="margin-top: 10.5px; text-align: center;">欢迎您，<a href="/user/{{.me.Username}}">{{.me.Username}}</a></p>
 	</div> -->
 	<div class="box" style="text-align: center;">
-		<a class="btn btn-default btn-sm" href="/topics/new">发布主题</a>&nbsp;&nbsp;
-		<a class="btn btn-default btn-sm" href="/articles/new">撰写文章</a>&nbsp;&nbsp;
-		<a class="btn btn-default btn-sm" href="/resources/new">分享资源</a>&nbsp;&nbsp;
+		<a class="btn btn-default btn-sm" href="/topics/new">发布主题</a>&nbsp;
+		<a class="btn btn-default btn-sm" href="/articles/new">撰写文章</a>&nbsp;
+		<a class="btn btn-default btn-sm" href="/resources/new">分享资源</a>&nbsp;
 	</div>
 	<div class="inner_content">
 		<a class="pull-left" href="/message/system" style="margin-left: 10px">{{.me.MsgNum}} 条未读消息</a>

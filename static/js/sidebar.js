@@ -172,7 +172,7 @@ $(function(){
 							'<span title="'+comments[i].ctime+'">'+cmtTime+'</span>'+
 						'</div>'+
 						'<div class="w-page">'+
-							'<span>在<a href="'+url+'#commentForm" title="'+comments[i].objinfo.title+'">'+comments[i].objinfo.title+'  </a>中评论</span>'+
+							'<span>在 <a href="'+url+'#commentForm" title="'+comments[i].objinfo.title+'">'+comments[i].objinfo.title+'</a> 中评论</span>'+
 						'</div>'+
 						'<div class="w-comment">'+
 							'<span>'+comments[i].content+'</span>'+
@@ -306,7 +306,7 @@ $(function(){
 
 			var content = '';
 			for(var i in data) {
-				content += '<li style="margin-left:5px; margin-bottom:5px;">'+
+				content += '<li style="margin-left:15px; margin-bottom:5px;">'+
 							'<a href="'+data[i].url+'" target="_blank" title="'+data[i].name+'">'+data[i].name+'</a>'+
 						'</li>';
 			}
@@ -379,6 +379,10 @@ $(function(){
 			if (typeof sidebar_callback[SG.SIDE_BARS[i]] != "undefined") {
 				var sbObj = sidebar_callback[SG.SIDE_BARS[i]],
 					$dataSelector = $('.sidebar .sb-content '+sbObj['class']);
+
+				if ($dataSelector.length == 0) {
+					continue;
+				}
 
 				if (!sbObj.data_keys) {
 					var limit = $dataSelector.data('limit');

@@ -41,12 +41,12 @@ a.tab_current:hover {background-color: #445; color: #fff; text-decoration: none;
 
 .wrapper {margin-top: 52px;}
 
-.box_white { background: #FFF; clear: both; overflow: hidden; }
+.box_white { background: #FFF; clear: both; overflow: hidden; margin-left: -5px; margin-right: -5px; }
 
 .container .header_title { height: 60px; }
 .container .banner { height: 20px; }
 
-.breadcrumb {background-color: #fAfAfA; margin-bottom: 0px;}
+.breadcrumb {background-color: #fAfAfA; margin-bottom: 0px; margin-left: -5px; margin-right: -5px;}
 
 .container .form-horizontal {padding-top:15px; padding-bottom:15px;}
 
@@ -75,8 +75,6 @@ a.tab_current:hover {background-color: #445; color: #fff; text-decoration: none;
 .sidebar {margin-bottom: 12px; border-bottom: 1px solid #e2e2e2;}
 .sidebar .top { height: 38px; line-height: 38px; border-bottom: solid 1px #EAEAEA; position: relative; margin-bottom: 15px; }
 .sidebar .top .title { line-height: 24px;font-size: 14px;font-weight: bold;display: inline-block;margin-bottom: 4px;margin-top: 10px; margin-left: 10px;}
-.sidebar .top .title a {color: #666; font-family: "NSimSun"; font-size: 14px; font-size: 1.4rem; padding: 10px 10px; text-decoration: none;}
-.sidebar .top .title a:hover {color: #DD7657;}
 .sidebar .top .list-inline { }
 .sidebar .top .list-inline li { color: #EAEAEA; }
 .sidebar .top .list-inline li a { color: #c1c1c1; font-family: "NSimSun"; font-size: 14px; font-size: 1.4rem; padding: 10px 10px; text-decoration: none;}
@@ -117,20 +115,17 @@ a.tab_current:hover {background-color: #445; color: #fff; text-decoration: none;
 .sidebar .sb-content .resource-list ul li a:hover { color: #d54f4b; }
 
 .sidebar .sb-content .cmt-list {}
-.sidebar .sb-content .cmt-list ul { margin: 2px 15px; }
-.sidebar .sb-content .cmt-list ul li { height: auto;padding: 5px 8px;border-bottom: solid 1px #EAEAEA; }
+.sidebar .sb-content .cmt-list ul { margin: 2px 15px; position: relative; }
+.sidebar .sb-content .cmt-list ul li { height: auto;border-bottom: solid 1px #EAEAEA; margin-bottom: 5px; }
 .sidebar .sb-content .cmt-list ul li:after { display: block;visibility: hidden;height: 0; content: '\0020'; clear: both; }
-.sidebar .sb-content .cmt-list ul li .pic { float: left;width: 45px;height: 54px;margin-top: 6px; }
-.sidebar .sb-content .cmt-list ul li .word { float: left;margin-top: 2px;margin-left: 8px;width: 170px; }
-.sidebar .sb-content .cmt-list ul li .word { float: left;margin-top: 2px;margin-left: 8px;width: 170px; }
+.sidebar .sb-content .cmt-list ul li .pic { width: 45px; height: 45px; overflow: hidden; position: absolute; margin-top: 10px; }
+.sidebar .sb-content .cmt-list ul li .pic img { border-radius: 4px; }
+.sidebar .sb-content .cmt-list ul li .word { margin-left: 53px; }
 .sidebar .sb-content .cmt-list ul li .word .w-name { color: #949494;font-size: 12px;font-size: 1.2rem;font-family: "simsun";height: 20px;line-height: 20px; }
-.sidebar .sb-content .cmt-list ul li .word .w-name a { color: #949494;font-weight: bold;float: left;max-width: 80px;/* margin-right: 10px; */overflow: hidden;height: 20px;width: 80px; }
-.sidebar .sb-content .cmt-list ul li .word .w-name a:hover { text-decoration: none; color: #DB6D4C; }
+.sidebar .sb-content .cmt-list ul li .word .w-name a { font-weight: bold;max-width: 80px;overflow: hidden;height: 20px; padding-right: 5px; }
 .sidebar .sb-content .cmt-list ul li .word .w-page { padding-top: 2px;font-family: "simsun";font-size: 12px;font-size: 1.2rem;color: #c1c1c1; }
-.sidebar .sb-content .cmt-list ul li .word .w-page a { color: #5f5e5e;margin-left: 5px;margin-right: 5px; }
-.sidebar .sb-content .cmt-list ul li .word .w-page a:hover { text-decoration: none; color: #F2733C; }
 .sidebar .sb-content .cmt-list ul li .word .w-comment { line-height: 18px;max-height: 54px;_height: 54px;color: #db6d4c;font-family: "simsun";font-size: 12px;font-size: 1.2rem;overflow: hidden;padding-top: 2px; }
-.sidebar .sb-content .user-list ul li {width: 92px;text-align: center;margin-bottom: 8px;}
+.sidebar .sb-content .user-list ul li {width: 90px;text-align: center;margin-bottom: 8px;}
 .sidebar .sb-content .user-list ul li .name {text-overflow: clip;}
 
 .sidebar .sb-content .stat-list ul { margin: 2px 15px; }

@@ -9,6 +9,7 @@ package model
 import (
 	"encoding/json"
 	"strconv"
+	"time"
 
 	"github.com/go-xorm/xorm"
 	"github.com/polaris1119/logger"
@@ -70,7 +71,16 @@ func (this *Article) BeforeInsert() {
 }
 
 func (this *Article) AfterInsert() {
-	go PublishFeed(this, nil)
+	go func() {
+		// AfterInsert 时，自增 ID 还未赋值，这里 sleep 一会，确保自增 ID 有值
+		for {
+			if this.Id > 0 {
+				PublishFeed(this, nil)
+				return
+			}
+			time.Sleep(100 * time.Millisecond)
+		}
+	}()
 }
 
 func (*Article) TableName() string {

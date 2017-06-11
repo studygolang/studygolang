@@ -8,7 +8,6 @@ package model
 
 import (
 	"db"
-	"strconv"
 
 	"github.com/polaris1119/logger"
 )
@@ -67,7 +66,7 @@ func PublishFeed(object interface{}, objectExt interface{}) {
 		}
 	case *Article:
 		var uid int
-		if strconv.Itoa(objdoc.Id) == objdoc.Url {
+		if objdoc.Domain == WebsiteSetting.Domain {
 			userLogin := &UserLogin{}
 			db.MasterDB.Where("username=?", objdoc.AuthorTxt).Get(userLogin)
 			uid = userLogin.Uid

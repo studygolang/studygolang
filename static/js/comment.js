@@ -241,7 +241,7 @@
 						$cmtNumObj.text(cmtNum);
 						
 						setTimeout(function(){
-							$('.page-comment .words .reply').removeClass('light');
+							$('.comment-list .words .reply').removeClass('light');
 						}, 2000);
 						callback();
 					}else{
