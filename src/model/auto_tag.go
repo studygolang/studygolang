@@ -9,13 +9,8 @@ package model
 import (
 	"strings"
 
-	"github.com/polaris1119/config"
 	"github.com/polaris1119/keyword"
 )
-
-func init() {
-	go keyword.Extractor.Init(keyword.DefaultProps, true, config.ROOT+"/data/programming.txt,"+config.ROOT+"/data/dictionary.txt")
-}
 
 // AutoTag 自动生成 tag
 func AutoTag(title, content string, num int) string {

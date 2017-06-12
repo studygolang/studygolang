@@ -26,6 +26,7 @@ import (
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
 	mw "github.com/labstack/echo/middleware"
+	"github.com/polaris1119/keyword"
 	"github.com/polaris1119/logger"
 	thirdmw "github.com/polaris1119/middleware"
 )
@@ -44,6 +45,8 @@ func main() {
 	savePid()
 
 	logger.Init(ROOT+"/log", ConfigFile.MustValue("global", "log_level", "DEBUG"))
+
+	go keyword.Extractor.Init(keyword.DefaultProps, true, ROOT+"/data/programming.txt,"+ROOT+"/data/dictionary.txt")
 
 	go ServeBackGround()
 
