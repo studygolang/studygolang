@@ -17,6 +17,7 @@ import (
 
 	"github.com/go-validator/validator"
 	"github.com/go-xorm/xorm"
+	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	"golang.org/x/net/context"
@@ -63,9 +64,13 @@ func (self UserLogic) CreateUser(ctx context.Context, form url.Values) (errMsg s
 		return
 	}
 
-	if !user.IsRoot {
-		// 避免前端伪造，传递 status=1
-		user.Status = model.UserStatusNoAudit
+	if config.ConfigFile.MustBool("account", "verify_email", true) {
+		if !user.IsRoot {
+			// 避免前端伪造，传递 status=1
+			user.Status = model.UserStatusNoAudit
+		}
+	} else {
+		user.Status = model.UserStatusAudit
 	}
 
 	session := MasterDB.NewSession()

@@ -23,6 +23,7 @@ import (
 	"github.com/dchest/captcha"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo"
+	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	guuid "github.com/twinj/uuid"
@@ -62,6 +63,15 @@ func (self AccountController) Register(ctx echo.Context) error {
 		"email":     ctx.FormValue("email"),
 		"captchaId": captcha.NewLen(4),
 	}
+
+	disallowUsers := config.ConfigFile.MustValueArray("account", "disallow_user", ",")
+	for _, disallowUser := range disallowUsers {
+		if disallowUser == username {
+			data["error"] = username + " 被禁止使用，请换一个"
+			return render(ctx, registerTpl, data)
+		}
+	}
+
 	// 校验验证码
 	if !captcha.VerifyString(ctx.FormValue("captchaid"), ctx.FormValue("captchaSolution")) {
 		data["error"] = "验证码错误"
@@ -109,9 +119,11 @@ func (self AccountController) Register(ctx echo.Context) error {
 			</div>`),
 	}
 
-	isHttps := goutils.MustBool(ctx.Request().Header().Get("X-Https"))
-	// 需要检验邮箱的正确性
-	go logic.DefaultEmail.SendActivateMail(email, uuid, isHttps)
+	if config.ConfigFile.MustBool("account", "verify_email", true) {
+		isHttps := goutils.MustBool(ctx.Request().Header().Get("X-Https"))
+		// 需要检验邮箱的正确性
+		go logic.DefaultEmail.SendActivateMail(email, uuid, isHttps)
+	}
 
 	return render(ctx, registerTpl, data)
 }
