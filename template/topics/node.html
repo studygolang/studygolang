@@ -35,10 +35,10 @@
 							<a href="/topics/{{.tid}}" title="{{.title}}">{{substring .title 60 "..."}}</a>
 						</div>
 						<div class="meta">
-							<a href="/go/{{$.node.ename}}" class="node" title="{{.node}}">{{.node}}</a>
+							<a href="/go/{{$.node.ename}}" class="node" title="{{$.node.name}}">{{$.node.name}}</a>
 							•
 							<a href="/user/{{.user.Username}}" title="{{.user.Username}}" class="author"><strong>{{.user.Username}}</strong></a>
-							{{if .lastreplyuid}}
+							{{if .lastreplyusername}}
 							<span>
 							•
 								最后由 <a href="/user/{{.lastreplyusername}}" title="{{.lastreplyusername}}" class="author">{{.lastreplyusername}}</a> 于<abbr class="timeago" title="{{.lastreplytime}}"></abbr>回复
@@ -60,7 +60,7 @@
 					</dd>
 				</div>
 			{{else}}
-			<p class="text-center">暂时没有任何帖子</p>
+			<p class="text-center">暂时没有任何主题</p>
 			{{end}}
 			{{end}}
 			</dl>

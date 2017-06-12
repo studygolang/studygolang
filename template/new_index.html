@@ -23,8 +23,11 @@
 			<div class="cell item">
 				<table cellpadding="0" cellspacing="0" border="0" width="100%">
 					<tbody><tr>
-						
+						{{if .User}}
 						<td width="48" valign="top" align="center"><a href="/user/{{.User.Username}}"><img src="{{gravatar .User.Avatar .User.Email 48 $.is_https}}" class="avatar"></a></td>
+						{{else}}
+						<td></td>
+						{{end}}
 						<td width="10"></td>
 						
 						<td width="auto" valign="middle">
