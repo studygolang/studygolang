@@ -55,6 +55,7 @@ var DefaultUploader = &UploaderLogic{}
 func (this *UploaderLogic) InitQiniu() {
 	conf.ACCESS_KEY = config.ConfigFile.MustValue("qiniu", "access_key")
 	conf.SECRET_KEY = config.ConfigFile.MustValue("qiniu", "secret_key")
+	conf.UP_HOST = config.ConfigFile.MustValue("qiniu", "up_host", conf.UP_HOST)
 	this.bucketName = config.ConfigFile.MustValue("qiniu", "bucket_name")
 }
 

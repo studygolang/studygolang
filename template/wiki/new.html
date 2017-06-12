@@ -1,4 +1,4 @@
-{{define "title"}}新建Wiki页 {{end}}
+{{define "title"}}{{if .wiki.Id}}编辑{{else}}新建{{end}}Wiki页 {{end}}
 {{define "content"}}
 <div class="row">
   <div class="col-md-9 col-sm-6">
