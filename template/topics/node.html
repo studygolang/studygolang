@@ -12,7 +12,7 @@
 		<div class="box_white">
 			<div class="node-info">
 				{{if .node.logo}}
-				<div style="float: left; display: inline-block; margin-right: 10px; margin-bottom: initial!important;"><img src="{{.cdn_domain}}/{{.node.logo}}?imageView2/2/w/50" border="0" align="default" width="50"></div>
+				<div style="float: left; display: inline-block; margin-right: 10px; margin-bottom: initial!important;"><img src="{{if hasPrefix .node.logo "http"}}{{.node.logo}}{{else}}{{.cdn_domain}}/{{.node.logo}}{{end}}?imageView2/2/w/50" border="0" align="default" width="50"></div>
 				{{end}}
 				<div style="float: right; margin-top: 10px;"><a href="/topics/new?nid={{.node.nid}}" class="btn btn-default btn-sm">发布新主题</a></div>
 				<div class="title">

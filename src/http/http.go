@@ -91,6 +91,12 @@ var funcMap = template.FuncMap{
 		t, _ := time.Parse("2006-01-02 15:04:05", ctime)
 		return t.Format(time.RFC3339) + "+08:00"
 	},
+	"hasPrefix": func(s, prefix string) bool {
+		if strings.HasPrefix(s, prefix) {
+			return true
+		}
+		return false
+	},
 	"substring": util.Substring,
 	"add": func(nums ...interface{}) int {
 		total := 0
