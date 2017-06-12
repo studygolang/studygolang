@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	. "http"
 
@@ -128,6 +129,9 @@ func (ImageController) Upload(ctx echo.Context) error {
 	if goutils.MustBool(ctx.Request().Header().Get("X-Https")) {
 		cdnDomain = global.App.CDNHttps
 	}
+	if !strings.HasSuffix(cdnDomain, "/") {
+		cdnDomain += "/"
+	}
 
 	path, err := logic.DefaultUploader.UploadImage(ctx, file, imgDir, buf, filepath.Ext(fileHeader.Filename))
 	if err != nil {
@@ -152,6 +156,9 @@ func (ImageController) Transfer(ctx echo.Context) error {
 	cdnDomain := global.App.CDNHttp
 	if goutils.MustBool(ctx.Request().Header().Get("X-Https")) {
 		cdnDomain = global.App.CDNHttps
+	}
+	if !strings.HasSuffix(cdnDomain, "/") {
+		cdnDomain += "/"
 	}
 
 	return success(ctx, map[string]interface{}{"url": cdnDomain + path})
