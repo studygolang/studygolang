@@ -44,6 +44,7 @@ func (IndexController) NewIndex(ctx echo.Context) error {
 	SetCookie(ctx, "INDEX_TAB", tab)
 
 	data := logic.DefaultIndex.FindData(ctx, tab)
+	data["nodes"] = logic.GenNodes()
 
 	return render(ctx, "new_index.html", data)
 }
