@@ -37,7 +37,7 @@ func AutoLogin() echo.MiddlewareFunc {
 						ctx.Set("user", user)
 
 						if !util.IsAjax(ctx) {
-							logic.ViewObservable.NotifyObservers(user.Uid, 0, 0)
+							go logic.ViewObservable.NotifyObservers(user.Uid, 0, 0)
 						}
 					}
 				}
