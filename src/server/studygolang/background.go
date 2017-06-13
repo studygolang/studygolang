@@ -13,6 +13,7 @@ import (
 	"model"
 	"time"
 
+	"github.com/polaris1119/config"
 	"github.com/polaris1119/logger"
 	"github.com/robfig/cron"
 )
@@ -32,22 +33,24 @@ func ServeBackGround() {
 
 	c := cron.New()
 
-	// 每天对非活跃用户降频
-	c.AddFunc("@daily", decrUserActiveWeight)
+	if config.ConfigFile.MustBool("global", "is_master", true) {
+		// 每天对非活跃用户降频
+		c.AddFunc("@daily", decrUserActiveWeight)
 
-	// 生成阅读排行榜
-	c.AddFunc("@daily", genViewRank)
+		// 生成阅读排行榜
+		c.AddFunc("@daily", genViewRank)
+
+		if global.OnlineEnv() {
+			// 每天生成 sitemap 文件
+			c.AddFunc("@daily", logic.GenSitemap)
+
+			// 给用户发邮件，如通知网站最近的动态，每周的晨读汇总等
+			c.AddFunc("0 0 4 * * 1", logic.DefaultEmail.EmailNotice)
+		}
+	}
 
 	// 两分钟刷一次浏览数（TODO：重启丢失问题？信号控制重启？）
 	c.AddFunc("@every 2m", logic.Views.Flush)
-
-	if global.OnlineEnv() {
-		// 每天生成 sitemap 文件
-		c.AddFunc("@daily", logic.GenSitemap)
-
-		// 给用户发邮件，如通知网站最近的动态，每周的晨读汇总等
-		c.AddFunc("0 0 4 * * 1", logic.DefaultEmail.EmailNotice)
-	}
 
 	c.Start()
 }

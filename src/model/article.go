@@ -52,9 +52,10 @@ type Article struct {
 	Mtime         OftenTime `json:"mtime" xorm:"<-"`
 
 	IsSelf bool  `json:"is_self" xorm:"-"`
-	User   *User `json:"user" xorm:"-"`
+	User   *User `json:"-" xorm:"-"`
 	// 排行榜阅读量
-	RankView int `json:"rank_view" xorm:"-"`
+	RankView      int   `json:"rank_view" xorm:"-"`
+	LastReplyUser *User `json:"-" xorm:"-"`
 }
 
 func (this *Article) AfterSet(name string, cell xorm.Cell) {

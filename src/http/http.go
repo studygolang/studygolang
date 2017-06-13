@@ -289,7 +289,7 @@ func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interf
 
 	// websocket主机
 	if global.OnlineEnv() {
-		data["wshost"] = logic.WebsiteSetting.Domain
+		data["wshost"] = config.ConfigFile.MustValue("global", "domain", logic.WebsiteSetting.Domain)
 	} else {
 		data["wshost"] = global.App.Host + ":" + global.App.Port
 	}

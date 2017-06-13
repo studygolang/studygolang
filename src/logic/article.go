@@ -19,6 +19,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
+	"github.com/polaris1119/set"
 	"github.com/polaris1119/times"
 	"golang.org/x/net/context"
 	"golang.org/x/text/encoding/simplifiedchinese"
@@ -326,7 +327,7 @@ func (ArticleLogic) Total() int64 {
 }
 
 // FindBy 获取抓取的文章列表（分页）
-func (ArticleLogic) FindBy(ctx context.Context, limit int, lastIds ...int) []*model.Article {
+func (self ArticleLogic) FindBy(ctx context.Context, limit int, lastIds ...int) []*model.Article {
 	objLog := GetLogger(ctx)
 
 	dbSession := MasterDB.Where("status IN(?,?)", model.ArticleStatusNew, model.ArticleStatusOnline)
@@ -351,6 +352,8 @@ func (ArticleLogic) FindBy(ctx context.Context, limit int, lastIds ...int) []*mo
 	if len(topArticles) > 0 {
 		articles = append(topArticles, articles...)
 	}
+
+	self.fillUser(articles)
 
 	return articles
 }
@@ -386,7 +389,7 @@ func (ArticleLogic) FindArticleByPage(ctx context.Context, conds map[string]stri
 }
 
 // FindByIds 获取多个文章详细信息
-func (ArticleLogic) FindByIds(ids []int) []*model.Article {
+func (self ArticleLogic) FindByIds(ids []int) []*model.Article {
 	if len(ids) == 0 {
 		return nil
 	}
@@ -396,7 +399,50 @@ func (ArticleLogic) FindByIds(ids []int) []*model.Article {
 		logger.Errorln("ArticleLogic FindByIds error:", err)
 		return nil
 	}
+
+	self.fillUser(articles)
+
 	return articles
+}
+
+func (ArticleLogic) fillUser(articles []*model.Article) {
+	usernameSet := set.New(set.NonThreadSafe)
+	uidSet := set.New(set.NonThreadSafe)
+	for _, article := range articles {
+		if article.IsSelf {
+			usernameSet.Add(article.Author)
+		}
+
+		if article.Lastreplyuid != 0 {
+			uidSet.Add(article.Lastreplyuid)
+		}
+	}
+	if !usernameSet.IsEmpty() {
+		userMap := DefaultUser.FindUserInfos(nil, set.StringSlice(usernameSet))
+		for _, article := range articles {
+			if !article.IsSelf {
+				continue
+			}
+
+			for _, user := range userMap {
+				if article.Author == user.Username {
+					article.User = user
+					break
+				}
+			}
+		}
+	}
+
+	if !uidSet.IsEmpty() {
+		replyUserMap := DefaultUser.FindUserInfos(nil, set.IntSlice(uidSet))
+		for _, article := range articles {
+			if article.Lastreplyuid == 0 {
+				continue
+			}
+
+			article.LastReplyUser = replyUserMap[article.Lastreplyuid]
+		}
+	}
 }
 
 // findByIds 获取多个文章详细信息 包内使用

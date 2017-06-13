@@ -63,7 +63,13 @@ func (IndexLogic) FindData(ctx context.Context, tab string) map[string]interface
 		paginator := NewPaginator(1)
 		data["topics"] = DefaultTopic.FindAll(ctx, paginator, "topics.mtime DESC", querystring, nids...)
 	case indexNav.DataSource == "rank":
-		data["topics"] = DefaultRank.FindDayRank(ctx, model.TypeTopic, times.Format("ymd"), 50, true)
+		articles := DefaultRank.FindDayRank(ctx, model.TypeArticle, times.Format("ymd"), 25)
+		articleNum := 0
+		if articles != nil {
+			articleNum = len(articles.([]*model.Article))
+		}
+		data["articles"] = articles
+		data["topics"] = DefaultRank.FindDayRank(ctx, model.TypeTopic, times.Format("ymd"), 50-articleNum, true)
 
 		newIndexNav := &model.IndexNav{
 			Tab:        indexNav.Tab,
@@ -81,6 +87,8 @@ func (IndexLogic) FindData(ctx context.Context, tab string) map[string]interface
 		}
 
 		data["cur_nav"] = newIndexNav
+	case indexNav.DataSource == "article":
+		data["articles"] = DefaultArticle.FindBy(ctx, 50)
 	}
 
 	return data

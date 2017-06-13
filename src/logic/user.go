@@ -175,14 +175,24 @@ func (UserLogic) EmailOrUsernameExists(ctx context.Context, email, username stri
 	return true
 }
 
-func (self UserLogic) FindUserInfos(ctx context.Context, uids []int) map[int]*model.User {
+// FindUserInfos 获得用户信息，uniq 可能是 uid slice 或 username slice
+func (self UserLogic) FindUserInfos(ctx context.Context, uniq interface{}) map[int]*model.User {
 	objLog := GetLogger(ctx)
-	if len(uids) == 0 {
-		return nil
+
+	field := "uid"
+	if uids, ok := uniq.([]int); ok {
+		if len(uids) == 0 {
+			return nil
+		}
+	} else if usernames, ok := uniq.([]string); ok {
+		if len(usernames) == 0 {
+			return nil
+		}
+		field = "username"
 	}
 
 	usersMap := make(map[int]*model.User)
-	if err := MasterDB.In("uid", uids).Find(&usersMap); err != nil {
+	if err := MasterDB.In(field, uniq).Find(&usersMap); err != nil {
 		objLog.Errorln("user logic FindUserInfos not record found:", err)
 		return nil
 	}

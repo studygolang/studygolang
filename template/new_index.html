@@ -18,8 +18,10 @@
 				{{end}}
 			</div>
 			{{end}}
+
+		{{with or .feeds .topics .articles}}
 		
-			{{range .feeds}}
+			{{range $.feeds}}
 			<div class="cell item">
 				<table cellpadding="0" cellspacing="0" border="0" width="100%">
 					<tbody><tr>
@@ -69,16 +71,9 @@
 					</tr>
 				</tbody></table>
 			</div>
-			{{else}}
-				{{if not .topics}}
-				<div class="cell item">
-					<div class="pull-right"><a href="/topics/new">我来发布</a> <i class="fa fa-caret-right gray"></i></div>
-					<span class="text-center" style="display: inherit">暂无主题</span>
-				</div>
-				{{end}}
 			{{end}}
 
-			{{range .topics}}
+			{{range $.topics}}
 			<div class="cell item">
 				<table cellpadding="0" cellspacing="0" border="0" width="100%">
 					<tbody><tr>
@@ -110,6 +105,56 @@
 				</tbody></table>
 			</div>
 			{{end}}
+
+			{{range $.articles}}
+			<div class="cell item">
+				<table cellpadding="0" cellspacing="0" border="0" width="100%">
+					<tbody><tr>
+						
+						{{if .User}}
+						<td width="48" valign="top" align="center"><a href="/user/{{.User.Username}}"><img src="{{gravatar .User.Avatar .User.Email 48 $.is_https}}" class="avatar"></a></td>
+						{{else}}
+						<td></td>
+						{{end}}
+						<td width="10"></td>
+						
+						<td width="auto" valign="middle">
+						<span class="item_title"><a href="/articles/{{.Id}}" class="noul">{{.Title}}</a></span>
+						<div class="sep5"></div>
+						<span class="small cc">
+							{{if .Top}}
+							<span style="color: #ff7700; border: 1px solid #ff7700;">置顶</span> • 
+							{{end}}
+							<a class="node" href="/articles">文章</a> &nbsp;•&nbsp;
+							{{if .IsSelf}}
+							<strong><a href="/user/{{.User.Username}}" class="noul">{{.User.Username}}</a></strong>
+							{{else}}
+							<span>{{.AuthorTxt}}</span>
+							{{end}}
+							&nbsp;•&nbsp;
+							{{if .Lastreplyuid}}
+							<span title="{{.Lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp;最后回复来自 <strong><a href="/user/{{.LastReplyUser.Username}}" class="noul">{{.LastReplyUser.Username}}</a></strong>
+							{{else}}
+							<span title="{{.Ctime}}" class="timeago"></span>发布
+							{{end}}
+						</td>
+						{{if .Cmtnum}}
+						<td width="70" align="right" valign="middle">
+							<a href="/articles/{{.Id}}" class="count_livid" title="{{.Cmtnum}}">{{.Cmtnum}}</a>
+						</td>
+						{{end}}
+					</tr>
+				</tbody></table>
+			</div>
+			{{end}}
+
+		{{else}}
+
+			<div class="cell item">
+				<div class="pull-right"><a href="/topics/new">我来发布</a> <i class="fa fa-caret-right gray"></i></div>
+				<span class="text-center" style="display: inherit">暂无主题</span>
+			</div>
+		{{end}}
 		
 		</div>
 	
