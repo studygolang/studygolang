@@ -16,7 +16,7 @@ var (
 	publishObservable Observable
 	modifyObservable  Observable
 	commentObservable Observable
-	viewObservable    Observable
+	ViewObservable    Observable
 )
 
 func init() {
@@ -35,9 +35,9 @@ func init() {
 	commentObservable.AddObserver(&TodayActiveObserver{})
 	commentObservable.AddObserver(&UserRichObserver{})
 
-	viewObservable = NewConcreteObservable(actionView)
-	viewObservable.AddObserver(&UserWeightObserver{})
-	viewObservable.AddObserver(&TodayActiveObserver{})
+	ViewObservable = NewConcreteObservable(actionView)
+	ViewObservable.AddObserver(&UserWeightObserver{})
+	ViewObservable.AddObserver(&TodayActiveObserver{})
 }
 
 type Observer interface {

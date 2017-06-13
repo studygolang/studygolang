@@ -35,6 +35,10 @@ func AutoLogin() echo.MiddlewareFunc {
 					user := logic.DefaultUser.FindCurrentUser(ctx, usernameOrId)
 					if user.Uid != 0 {
 						ctx.Set("user", user)
+
+						if !util.IsAjax(ctx) {
+							logic.ViewObservable.NotifyObservers(user.Uid, 0, 0)
+						}
 					}
 				}
 			}

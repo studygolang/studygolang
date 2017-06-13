@@ -117,7 +117,7 @@ func (this *views) Incr(req *http.Request, objtype, objid int, uids ...int) {
 	this.data[key].incr()
 
 	if len(uids) > 0 {
-		viewObservable.NotifyObservers(uids[0], objtype, objid)
+		ViewObservable.NotifyObservers(uids[0], objtype, objid)
 	}
 }
 
