@@ -134,7 +134,12 @@
 							{{if .Top}}
 							<span style="color: #ff7700; border: 1px solid #ff7700;">置顶</span> • 
 							{{end}}
-							<a class="node" href="/articles">文章</a> &nbsp;•&nbsp;
+							{{if .Tags}}
+								{{$tags := explode .Tags ","}}
+								<a class="node" href="/tag/{{index $tags 0}}">{{index $tags 0}}</a>
+							{{else}}
+								<a class="node" href="/articles">文章</a> &nbsp;•&nbsp;
+							{{end}}
 							{{if .IsSelf}}
 							<strong><a href="/user/{{.User.Username}}" class="noul">{{.User.Username}}</a></strong>
 							{{else}}
