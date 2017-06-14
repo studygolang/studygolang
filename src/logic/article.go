@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	"github.com/polaris1119/set"
@@ -161,7 +162,7 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 		return nil, errors.New("content is short")
 	}
 
-	if auto && strings.Count(content, "<a") > 10 {
+	if auto && strings.Count(content, "<a") > config.ConfigFile.MustInt("crawl", "contain_link", 10) {
 		logger.Errorln(articleUrl, "content contains too many link!")
 		return nil, errors.New("content contains too many link")
 	}
