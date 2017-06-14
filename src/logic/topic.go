@@ -455,7 +455,7 @@ func (self TopicComment) UpdateComment(cid, objid, uid int, cmttime time.Time) {
 	}
 
 	// 更新回复数（TODO：暂时每次都更新表）
-	_, err = MasterDB.Where("tid", objid).Incr("reply", 1).Update(new(model.TopicEx))
+	_, err = MasterDB.Id(objid).Incr("reply", 1).Update(new(model.TopicUpEx))
 	if err != nil {
 		logger.Errorln("更新主题回复数失败：", err)
 		session.Rollback()
@@ -496,7 +496,7 @@ type TopicLike struct{}
 // objid：被喜欢对象id；num: 喜欢数(负数表示取消喜欢)
 func (self TopicLike) UpdateLike(objid, num int) {
 	// 更新喜欢数（TODO：暂时每次都更新表）
-	_, err := MasterDB.Where("tid=?", objid).Incr("like", num).Update(new(model.TopicEx))
+	_, err := MasterDB.Where("tid=?", objid).Incr("like", num).Update(new(model.TopicUpEx))
 	if err != nil {
 		logger.Errorln("更新主题喜欢数失败：", err)
 	}

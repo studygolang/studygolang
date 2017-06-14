@@ -50,7 +50,7 @@ func (this *view) flush() {
 	session := MasterDB.Id(this.objid)
 	switch this.objtype {
 	case model.TypeTopic:
-		session.Where("tid", this.objid).Incr("view", this.num).Update(new(model.TopicEx))
+		session.Incr("view", this.num).Update(new(model.TopicUpEx))
 	case model.TypeArticle:
 		session.Incr("viewnum", this.num).Update(new(model.Article))
 	case model.TypeResource:
