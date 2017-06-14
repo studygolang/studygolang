@@ -378,7 +378,8 @@ func (this *SearcherLogic) SearchByField(field, value string, start, rows int) (
 		"fl":    []string{"objid,objtype,title,author,uid,pub_time,tags,viewnum,cmtnum,likenum,lastreplyuid,lastreplytime,updated_at,top,nid"},
 	}
 
-	values.Add("q", field+":"+value)
+	values.Add("q", value)
+	values.Add("df", field)
 
 	logger.Infoln(selectUrl + values.Encode())
 
