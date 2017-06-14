@@ -29,10 +29,10 @@ type TopicLogic struct{}
 var DefaultTopic = TopicLogic{}
 
 // Publish 发布主题。入topics和topics_ex库
-func (self TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Values) (err error) {
+func (self TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Values) (tid int, err error) {
 	objLog := GetLogger(ctx)
 
-	tid := goutils.MustInt(form.Get("tid"))
+	tid = goutils.MustInt(form.Get("tid"))
 	if tid != 0 {
 		topic := &model.Topic{}
 		_, err = MasterDB.Id(tid).Get(topic)
@@ -98,6 +98,8 @@ func (self TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Value
 		go DefaultMessage.SendSysMsgAtUsernames(ctx, usernames, ext, 0)
 
 		go publishObservable.NotifyObservers(me.Uid, model.TypeTopic, topic.Tid)
+
+		tid = topic.Tid
 	}
 
 	return
@@ -203,13 +205,21 @@ func (TopicLogic) FindByTids(tids []int) []*model.Topic {
 }
 
 func (self TopicLogic) FindFullinfoByTids(tids []int) []map[string]interface{} {
-	topicInfos := make([]*model.TopicInfo, 0)
+	topicInfoMap := make(map[int]*model.TopicInfo, 0)
 
-	err := MasterDB.Join("INNER", "topics_ex", "topics.tid=topics_ex.tid").In("topics.tid", tids).Find(&topicInfos)
+	err := MasterDB.Join("INNER", "topics_ex", "topics.tid=topics_ex.tid").In("topics.tid", tids).Find(&topicInfoMap)
 	if err != nil {
 		logger.Errorln("TopicLogic FindFullinfoByTids error:", err)
 		return nil
 	}
+
+	topicInfos := make([]*model.TopicInfo, 0, len(topicInfoMap))
+	for _, tid := range tids {
+		if topicInfo, ok := topicInfoMap[tid]; ok {
+			topicInfos = append(topicInfos, topicInfo)
+		}
+	}
+
 	return self.fillDataForTopicInfo(topicInfos)
 }
 

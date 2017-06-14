@@ -170,12 +170,12 @@ func (TopicController) Create(ctx echo.Context) error {
 	}
 
 	me := ctx.Get("user").(*model.Me)
-	err := logic.DefaultTopic.Publish(ctx, me, ctx.FormParams())
+	tid, err := logic.DefaultTopic.Publish(ctx, me, ctx.FormParams())
 	if err != nil {
 		return fail(ctx, 1, "内部服务错误")
 	}
 
-	return success(ctx, nil)
+	return success(ctx, map[string]interface{}{"tid": tid})
 }
 
 // Modify 修改主题
@@ -197,7 +197,7 @@ func (TopicController) Modify(ctx echo.Context) error {
 	}
 
 	me := ctx.Get("user").(*model.Me)
-	err := logic.DefaultTopic.Publish(ctx, me, ctx.FormParams())
+	_, err := logic.DefaultTopic.Publish(ctx, me, ctx.FormParams())
 	if err != nil {
 		if err == logic.NotModifyAuthorityErr {
 			return fail(ctx, 1, "没有权限操作")
@@ -205,5 +205,5 @@ func (TopicController) Modify(ctx echo.Context) error {
 
 		return fail(ctx, 2, "服务错误，请稍后重试！")
 	}
-	return success(ctx, nil)
+	return success(ctx, map[string]interface{}{"tid": tid})
 }

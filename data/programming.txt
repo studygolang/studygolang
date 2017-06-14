@@ -50,6 +50,7 @@ etcd 3 n
 consul 3 n
 git 3 n
 svn 3 n
+ngrok 3 n
 groupcache 3 n
 python 3 n
 php 3 n

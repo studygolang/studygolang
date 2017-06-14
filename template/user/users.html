@@ -16,7 +16,7 @@
 				{{range .actives}}
 				<div class="item text-center col-md-1">
 					<div class="avatar"><a href="/user/{{.Username}}" title="{{.Username}}"><img alt="{{.Username}}" class="uface" src="{{gravatar .Avatar .Email 48 $root.is_https}}" width="48px" height="48px"></a></div>
-					<div class="name"><a href="/user/{{.Username}}" data-name="{{.Username}}">{{.Username}}</a></div>
+					<div class="name"><a class="nobreak" href="/user/{{.Username}}" data-name="{{.Username}}">{{.Username}}</a></div>
 				</div>
 				{{end}}
 				{{end}}
@@ -32,7 +32,7 @@
 				{{range .news}}
 				<div class="item text-center col-md-1">
 					<div class="avatar"><a href="/user/{{.Username}}" title="{{.Username}}"><img alt="{{.Username}}" class="uface" src="{{gravatar .Avatar .Email 48 $root.is_https}}" style="width:48px;height:48px;"></a></div>
-					<div class="name"><a href="/user/{{.Username}}" data-name="{{.Username}}">{{.Username}}</a></div>
+					<div class="name"><a class="nobreak" href="/user/{{.Username}}" data-name="{{.Username}}">{{.Username}}</a></div>
 				</div>
 				{{end}}
 				{{end}}

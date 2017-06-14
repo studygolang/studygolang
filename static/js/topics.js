@@ -43,7 +43,15 @@
 			}
 
 			var topics = new SG.Topics();
-			topics.publish(this);
+			topics.publish(this, function(data) {
+				setTimeout(function(){
+					if (data.tid) {
+						window.location.href = '/topics/'+data.tid;
+					} else {
+						window.location.href = '/topics';
+					}
+				}, 2000);
+			});
 		});
 
 		$(document).keypress(function(evt){

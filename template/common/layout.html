@@ -124,6 +124,7 @@
 			</div>
 			{{end}}
 		{{end}}
+
 			{{template "content" .}}
 		</div>
 	</div>
@@ -144,7 +145,7 @@
 				<div class="sep5"></div>
 				Powered by StudyGolang(Golang + MySQL) &nbsp;<span class="snow">•</span>&nbsp;服务器由 <a href="http://www.ucai.cn" class="dark" target="_blank">优才学院</a> 赞助 &nbsp;<span class="snow">·</span>&nbsp;CDN 由 <a href="https://portal.qiniu.com/signup?code=3lfz4at7pxfma" title="七牛云" class="dark" target="_blank">七牛云</a> 赞助
 				<div class="sep20"></div>
-				<span class="small cc">VERSION: {{.app.Version}}</span>
+				<span class="small cc">VERSION: {{.app.Version}} &nbsp;&nbsp; <strong>为了更好的体验，本站推荐使用 Chrome 或 Firefox 浏览器</strong></span>
 				<div class="sep20"></div>
 				<span class="f12 gray"><a href="http://www.miibeian.gov.cn/" target="_blank" rel="nofollow">{{.setting.Beian}}</a></span>
 				<div class="sep10"></div>
@@ -251,7 +252,7 @@
 	}
 	var GLaunchTime = {{timestamp .app.LaunchTime}}*1000;
 	</script>
-	<script src="/static/js/common.js?v=1.0"></script>
+	<script src="/static/js/common.js?v=1.1"></script>
 	{{template "js" .}}
 	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jsrender/0.9.84/jsrender.min.js"></script>
 	<script type="text/javascript">

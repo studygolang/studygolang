@@ -17,7 +17,7 @@ function goTop()
 // 通用的发布功能
 SG.Publisher = function(){}
 SG.Publisher.prototype = {
-	publish: function(that) {
+	publish: function(that, callback) {
 		var btnTxt = $(that).text();
 		$(that).text("稍等").addClass("disabled").attr({"title":'稍等',"disabled":"disabled"});
 
@@ -39,6 +39,11 @@ SG.Publisher.prototype = {
 					} else {
 						comTip("发布成功！");
 					}
+
+					if (typeof callback != "undefined") {
+						callback(data);
+						return;
+					}
 					
 					setTimeout(function(){
 						var redirect = $form.data('redirect');
@@ -46,7 +51,7 @@ SG.Publisher.prototype = {
 							window.location.href = redirect;
 						}
 					}, 1000);
-				}else{
+				} else {
 					comTip(data.error);
 				}
 			},

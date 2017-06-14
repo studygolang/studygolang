@@ -49,7 +49,7 @@ func (this *Topic) BeforeInsert() {
 
 // 社区主题扩展（计数）信息
 type TopicEx struct {
-	Tid   int       `json:"-" xorm:"pk"`
+	Tid   int       `json:"-"`
 	View  int       `json:"view"`
 	Reply int       `json:"reply"`
 	Like  int       `json:"like"`
