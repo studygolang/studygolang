@@ -66,6 +66,8 @@ func (self SearcherLogic) IndexingArticle(isAll bool) {
 			}
 
 			for _, article := range articleList {
+				logger.Infoln("deal article_id:", article.Id)
+
 				if id < article.Id {
 					id = article.Id
 				}
@@ -127,6 +129,8 @@ func (self SearcherLogic) IndexingTopic(isAll bool) {
 			}
 
 			for _, topic := range topicList {
+				logger.Infoln("deal topic_id:", topic.Tid)
+
 				if id < topic.Tid {
 					id = topic.Tid
 				}
@@ -187,6 +191,8 @@ func (self SearcherLogic) IndexingResource(isAll bool) {
 			}
 
 			for _, resource := range resourceList {
+				logger.Infoln("deal resource_id:", resource.Id)
+
 				if id < resource.Id {
 					id = resource.Id
 				}
@@ -236,6 +242,8 @@ func (self SearcherLogic) IndexingOpenProject(isAll bool) {
 			}
 
 			for _, project := range projectList {
+				logger.Infoln("deal project_id:", project.Id)
+
 				if id < project.Id {
 					id = project.Id
 				}
