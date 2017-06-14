@@ -455,7 +455,7 @@ func (self TopicComment) UpdateComment(cid, objid, uid int, cmttime time.Time) {
 	}
 
 	// 更新回复数（TODO：暂时每次都更新表）
-	_, err = MasterDB.Id(objid).Incr("reply", 1).Update(new(model.TopicEx))
+	_, err = MasterDB.Where("tid", objid).Incr("reply", 1).Update(new(model.TopicEx))
 	if err != nil {
 		logger.Errorln("更新主题回复数失败：", err)
 		session.Rollback()
