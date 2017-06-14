@@ -31,8 +31,6 @@ revel 3 n
 xorm 3 n
 net 3 n
 io 3 n
-http 3 n
-https 3 n
 nginx 3 n
 redis 3 n
 mongodb 3 n

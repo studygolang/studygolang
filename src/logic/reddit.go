@@ -43,6 +43,9 @@ func newRedditLogic() *RedditLogic {
 func (this *RedditLogic) Parse(redditUrl string) error {
 	redditUrl = strings.TrimSpace(redditUrl)
 	if redditUrl == "" {
+		if this.path == "" {
+			return nil
+		}
 		redditUrl = this.domain + this.path
 	} else if !strings.HasPrefix(redditUrl, "https") {
 		redditUrl = "https://" + redditUrl

@@ -7,18 +7,14 @@
 package main
 
 import (
-	"flag"
 	"math/rand"
+	"server"
 	"time"
 
-	"logic"
-
-	. "github.com/polaris1119/config"
+	"github.com/polaris1119/config"
+	"github.com/polaris1119/keyword"
 	"github.com/polaris1119/logger"
-	"github.com/robfig/cron"
 )
-
-var manualIndex = flag.Bool("manual", false, "do manual index once or not")
 
 func init() {
 	// 设置随机数种子
@@ -26,35 +22,10 @@ func init() {
 }
 
 func main() {
-	if !flag.Parsed() {
-		flag.Parse()
-	}
+	logger.Init(config.ROOT+"/log", config.ConfigFile.MustValue("global", "log_level", "DEBUG"))
+	go keyword.Extractor.Init(keyword.DefaultProps, true, config.ROOT+"/data/programming.txt,"+config.ROOT+"/data/dictionary.txt")
 
-	logger.Init(ROOT+"/log", ConfigFile.MustValue("global", "log_level", "DEBUG"))
-
-	if *manualIndex {
-		indexing(true)
-	}
-
-	c := cron.New()
-	// 构建 solr 需要的索引数据
-	// 一天一次全量
-	c.AddFunc("@daily", func() {
-		indexing(true)
-	})
-
-	c.Start()
+	server.IndexingServer()
 
 	select {}
-}
-
-func indexing(isAll bool) {
-	logger.Infoln("indexing start...")
-
-	start := time.Now()
-	defer func() {
-		logger.Infoln("indexing spend time:", time.Now().Sub(start))
-	}()
-
-	logic.DefaultSearcher.Indexing(isAll)
 }
