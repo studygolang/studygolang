@@ -54,14 +54,43 @@ func (IndexLogic) FindData(ctx context.Context, tab string) map[string]interface
 		}
 	case strings.Contains(indexNav.DataSource, ","):
 		dsSlice := strings.Split(indexNav.DataSource, ",")
-		nids := make([]interface{}, len(dsSlice))
-		for i, nid := range dsSlice {
-			nids[i] = nid
+		nids := make([]interface{}, 0, len(dsSlice))
+		tags := make([]string, 0, len(dsSlice))
+		for _, d := range dsSlice {
+			if nid, err := strconv.Atoi(d); err == nil {
+				nids = append(nids, nid)
+			} else {
+				// 是 tag
+				tags = append(tags, d)
+			}
 		}
-		questions := strings.TrimSuffix(strings.Repeat("?,", len(nids)), ",")
-		querystring := "nid in(" + questions + ")"
-		paginator := NewPaginator(1)
-		data["topics"] = DefaultTopic.FindAll(ctx, paginator, "topics.mtime DESC", querystring, nids...)
+
+		hasData := false
+		if len(nids) > 0 {
+			questions := strings.TrimSuffix(strings.Repeat("?,", len(nids)), ",")
+			querystring := "nid in(" + questions + ")"
+			paginator := NewPaginator(1)
+			topics := DefaultTopic.FindAll(ctx, paginator, "topics.mtime DESC", querystring, nids...)
+			if len(topics) > 0 {
+				hasData = true
+			}
+			data["topics"] = topics
+		}
+
+		if !hasData && len(tags) > 0 {
+			respBody, err := DefaultSearcher.SearchByField("title", strings.Join(tags, " "), 0, 50)
+			if err != nil {
+				break
+			}
+			users, nodes := DefaultSearcher.FillNodeAndUser(ctx, respBody)
+			if respBody.NumFound == 0 {
+				break
+			}
+
+			data["docs"] = respBody.Docs
+			data["users"] = users
+			data["nodes"] = nodes
+		}
 	case indexNav.DataSource == "rank":
 		articles := DefaultRank.FindDayRank(ctx, model.TypeArticle, times.Format("ymd"), 25)
 		articleNum := 0

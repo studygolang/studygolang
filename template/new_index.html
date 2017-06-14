@@ -19,17 +19,22 @@
 			</div>
 			{{end}}
 
-		{{with or .feeds .topics .articles}}
+		{{with or .feeds .topics .articles .docs}}
 		
-			{{range $.feeds}}
+			{{range $i, $feed := $.feeds}}
 			<div class="cell item">
 				<table cellpadding="0" cellspacing="0" border="0" width="100%">
 					<tbody><tr>
+						
+						<td width="48" valign="top" align="center">
 						{{if .User}}
-						<td width="48" valign="top" align="center"><a href="/user/{{.User.Username}}"><img src="{{gravatar .User.Avatar .User.Email 48 $.is_https}}" class="avatar"></a></td>
+						<a href="/user/{{.User.Username}}"><img src="{{gravatar .User.Avatar .User.Email 48 $.is_https}}" class="avatar"></a>
 						{{else}}
-						<td></td>
+						<a href="javascript:">
+							<img src="https://secure.gravatar.com/avatar/3bf6178897766ebadaa830073e87374d?s=48">
+						</a>
 						{{end}}
+						</td>
 						<td width="10"></td>
 						
 						<td width="auto" valign="middle">
@@ -111,11 +116,15 @@
 				<table cellpadding="0" cellspacing="0" border="0" width="100%">
 					<tbody><tr>
 						
+						<td width="48" valign="top" align="center">
 						{{if .User}}
-						<td width="48" valign="top" align="center"><a href="/user/{{.User.Username}}"><img src="{{gravatar .User.Avatar .User.Email 48 $.is_https}}" class="avatar"></a></td>
+						<a href="/user/{{.User.Username}}"><img src="{{gravatar .User.Avatar .User.Email 48 $.is_https}}" class="avatar"></a>
 						{{else}}
-						<td></td>
+						<a href="javascript:">
+							<img src="https://secure.gravatar.com/avatar/3bf6178897766ebadaa830073e87374d?s=48">
+						</a>
 						{{end}}
+						</td>
 						<td width="10"></td>
 						
 						<td width="auto" valign="middle">
@@ -143,6 +152,74 @@
 							<a href="/articles/{{.Id}}" class="count_livid" title="{{.Cmtnum}}">{{.Cmtnum}}</a>
 						</td>
 						{{end}}
+					</tr>
+				</tbody></table>
+			</div>
+			{{end}}
+
+			{{range $.docs}}
+			<div class="cell item" style="">
+				<table cellpadding="0" cellspacing="0" border="0" width="100%">
+					<tbody><tr>
+						<td width="48" valign="top" align="center">
+						{{if .Uid}}
+						{{$user := index $.users .Uid}}
+						<a href="/user/{{$user.Username}}"><img src="{{gravatar $user.Avatar $user.Email 48 $.is_https}}" class="avatar"></a>
+						{{else}}
+						<a href="javascript:">
+							<img src="https://secure.gravatar.com/avatar/3bf6178897766ebadaa830073e87374d?s=48">
+						</a>
+						{{end}}
+						</td>
+						<td width="10"></td>
+						
+						<td width="auto" valign="middle">
+							<span class="item_title">
+								<a class="title noul" href="/{{if eq .Objtype 0}}topics{{else if eq .Objtype 1}}articles{{else if eq .Objtype 2}}resources{{else if eq .Objtype 4}}p{{else}}wiki{{end}}/{{.Objid}}" title="{{.Title}}">{{.Title}}</a>
+							</span>
+							<div class="sep5"></div>
+							<span class="small c9">
+							{{if .Nid}}
+								{{$node := index $.nodes .Nid}}
+								<a class="node" href="/go/{{$node.Ename}}">{{$node.Name}}</a>
+							{{else}}
+								{{if .Tags}}
+									{{$tags := explode .Tags ","}}
+									<a class="node" href="/tag/{{index $tags 0}}">{{index $tags 0}}</a>
+								{{else}}
+									{{if eq .Objtype 1}}
+									<a class="node" href="/articles">文章</a>
+									{{else if eq .Objtype 2}}
+									<a class="node" href="/resources">分享发现</a>
+									{{else if eq .Objtype 3}}
+									<a class="node" href="/wiki">WIKI</a>
+									{{else if eq .Objtype 4}}
+									<a class="node" href="/projects">开源项目</a>
+									{{end}}
+								{{end}}
+							{{end}}
+								&nbsp;•&nbsp; 
+								{{if .Uid}}
+								{{$user := index $.users .Uid}}
+								 <strong><a href="/user/{{$user.Username}}" class="noul">{{$user.Username}}</a></strong>
+								{{else}}
+								<span>{{.PubTime}}</span>
+								{{end}}
+								&nbsp;•&nbsp; 
+								{{if .Lastreplyuid}}
+								{{$user := index $.users .Lastreplyuid}}
+								<span title="{{.Lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp; 最后回复来自 <strong><a href="/user/{{$user.Username}}" class="noul">{{$user.Username}}</a></strong>
+								{{else}}
+								<span>{{.Viewnum}} 点击</span>
+								{{end}}
+							</span>
+						</td>
+						{{if .Cmtnum}}
+						<td width="70" align="right" valign="middle">
+							<a href="/{{if eq .Objtype 0}}topics{{else if eq .Objtype 1}}articles{{else if eq .Objtype 2}}resources{{else if eq .Objtype 4}}p{{else}}wiki{{end}}/{{.Objid}}" class="count_livid" title="{{.Cmtnum}}">{{.Cmtnum}}</a>
+						</td>
+						{{end}}
+
 					</tr>
 				</tbody></table>
 			</div>

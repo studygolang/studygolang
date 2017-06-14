@@ -249,15 +249,15 @@ jQuery(document).ready(function($) {
 	$('#login-pop .login-form form').on('submit', function(evt){
 		evt.preventDefault();
 
-		var username = $('#username').val(),
-			passwd = $('#passwd').val();
+		var username = $('#form_username').val(),
+			passwd = $('#form_passwd').val();
 
 		if (username == "") {
-			$('#username').parent().addClass('has-error');
+			$('#form_username').parent().addClass('has-error');
 			return;
 		}
 		if (passwd == "") {
-			$('#passwd').parent().addClass('has-error');
+			$('#form_passwd').parent().addClass('has-error');
 			return;
 		}
 		
@@ -297,12 +297,12 @@ jQuery(document).ready(function($) {
 				var likeNum = parseInt($(that).children('.likenum').text(), 10);
 				// 已喜欢
 				if (likeFlag) {
-					comTip("感谢喜欢！");
-					$(that).addClass('hadlike').attr('title', '取消喜欢');
+					comTip("感谢赞！");
+					$(that).attr('title', '取消赞').text('取消赞');
 					likeNum++;
 				} else {
-					comTip("已取消喜欢！");
-					$(that).removeClass('hadlike').attr('title', '我喜欢');
+					comTip("已取消赞！");
+					$(that).attr('title', '赞').text('赞');
 					likeNum--;
 				}
 
@@ -316,12 +316,12 @@ jQuery(document).ready(function($) {
 	}
 	
 	// 详情页喜欢(取消喜欢)
-	$('.page .like-btn').on('click', function(evt){
+	$('.page #content-thank a').on('click', function(evt){
 		evt.preventDefault();
 
 		var that = this;
 		postLike(that, function(likeNum, likeFlag){
-			$('.page .meta .p-comment .like .likenum').text(likeNum);
+			// $('.page .meta .p-comment .like .likenum').text(likeNum);
 		});
 	});
 
@@ -376,9 +376,9 @@ jQuery(document).ready(function($) {
 			
 			if (hadCollect) {
 				comTip("感谢收藏！");
-				$('.page .collect').addClass('hadlike').attr('title', '取消收藏');
+				$('.page .collect').attr('title', '取消收藏').text('取消收藏');
 			} else {
-				$('.page .collect').removeClass('hadlike').attr('title', '稍后再读');
+				$('.page .collect').attr('title', '稍后再读').text('加入收藏');
 				comTip("已取消收藏！");
 			}
 		});
@@ -452,4 +452,19 @@ $(function(){
 			adImg.src = url;
 		});
 	}
+
+	$(window).scroll(function() {
+		// 滚动条所在位置的高度
+		var totalheight = parseFloat($(window).height()) + parseFloat($(window).scrollTop());
+		// 当前文档高度   小于或等于   滚动条所在位置高度  则是页面底部
+		if(($(document).height()) <= totalheight) {
+			if($("#is_login_status").val() != 1){
+				openPop("#login-pop");
+			}
+		}
+	});
+
+	$('#login-pop .close').on('click', function() {
+		closePop();
+	});
 });

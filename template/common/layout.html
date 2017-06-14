@@ -16,7 +16,7 @@
 	<!--<link href="http://studygolang.qiniudn.com/cosmo_bootstrap.min.css" rel="stylesheet">-->
 	<!--<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">-->
 	<link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
-	<link href="/static/css/main.css?v=1.16" rel="stylesheet"/>
+	<link href="/static/css/main.css?v=1.0" rel="stylesheet"/>
 	{{template "css" .}}
 	<style type="text/css">
 	#bottom .nav-content {
@@ -187,34 +187,21 @@
 	{{else}}
 	<input type="hidden" id="is_login_status" value="0" />
 	<div class="pop login-pop" id="login-pop">
-		<!--
-		<div class="thirdparty">
-			<h5>第三方账号登录</h5>
-			<div class="thirdparty-btns">
-				<a class="btn-qq btn" href="#">
-					<i></i>
-					<span>Q&nbsp;Q&nbsp;登&nbsp;录</span>
-				</a>
-				<a class="btn-weibo btn" href="#">
-					<i></i>
-					<span>微&nbsp;博&nbsp;登&nbsp;录</span>
-				</a>
-			</div>
-		</div>
-		-->
+		<div style="position: relative;"><span class="close" style="position: absolute; right: -15px; top: -15px; cursor: pointer; color: #000; font-size: 13px;">X</span></div>
 		<div class="login-form">
 			<div class="error text-center"></div>
+			<div class="text-center" style="margin-bottom: 5px;">登录和大家一起探讨吧</div>
 			<form action="#" method="post" class="form-horizontal" role="form">
 				<div class="form-group">
 					<label for="username" class="col-sm-3 control-label">用户名</label>
 					<div class="col-sm-9 form-input">
-						<input type="text" class="form-control" id="username" name="username" placeholder="请填写用户名或邮箱">
+						<input type="text" class="form-control" id="form_username" name="username" placeholder="请填写用户名或邮箱">
 					</div>
 				</div>
 				<div class="form-group">
 					<label for="passwd" class="col-sm-3 control-label">密码</label>
 					<div class="col-sm-9 form-input">
-						<input type="password" class="form-control" id="passwd" name="passwd" placeholder="密码">
+						<input type="password" class="form-control" id="form_passwd" name="passwd" placeholder="密码">
 					</div>
 				</div>
 				<div class="form-group">
@@ -223,12 +210,16 @@
 							<label>
 								<input id="user_remember_me" name="remember_me" type="checkbox" value="1" checked="checked" />	记住登录状态
 							</label>
+							<button type="submit" id="login-btn" class="btn btn-default btn-sm">登录</button>
 						</div>
 					</div>
 				</div>
 				<div class="form-group">
 					<div class="col-sm-offset-2 col-sm-10">
-						<button type="submit" id="login-btn" class="btn btn-default pull-left">登录</button>
+						<a id="login-github" href="/oauth/github/login" class="btn btn-default btn-sm pull-left">
+							<i class="fa fa-github" aria-hidden="true"></i>
+							GitHub 登录
+						</a>
 						<div class="forget">
 							<a href="/account/forgetpwd" title="点击找回密码">忘记密码？</a>
 						</div>
@@ -260,7 +251,7 @@
 	}
 	var GLaunchTime = {{timestamp .app.LaunchTime}}*1000;
 	</script>
-	<script src="/static/js/common.js?v=1.22"></script>
+	<script src="/static/js/common.js?v=1.0"></script>
 	{{template "js" .}}
 	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jsrender/0.9.84/jsrender.min.js"></script>
 	<script type="text/javascript">

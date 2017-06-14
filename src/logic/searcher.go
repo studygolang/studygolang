@@ -73,7 +73,9 @@ func (self SearcherLogic) IndexingArticle(isAll bool) {
 				if article.Tags == "" {
 					// 自动生成
 					article.Tags = model.AutoTag(article.Title, article.Txt, 4)
-					MasterDB.Id(article.Id).Cols("tags").Update(article)
+					if article.Tags != "" {
+						MasterDB.Id(article.Id).Cols("tags").Update(article)
+					}
 				}
 
 				document := model.NewDocument(article, nil)
@@ -132,7 +134,9 @@ func (self SearcherLogic) IndexingTopic(isAll bool) {
 				if topic.Tags == "" {
 					// 自动生成
 					topic.Tags = model.AutoTag(topic.Title, topic.Content, 4)
-					MasterDB.Id(topic.Tid).Cols("tags").Update(topic)
+					if topic.Tags != "" {
+						MasterDB.Id(topic.Tid).Cols("tags").Update(topic)
+					}
 				}
 
 				topicEx := topicExList[topic.Tid]
@@ -190,7 +194,9 @@ func (self SearcherLogic) IndexingResource(isAll bool) {
 				if resource.Tags == "" {
 					// 自动生成
 					resource.Tags = model.AutoTag(resource.Title+resource.CatName, resource.Content, 4)
-					MasterDB.Id(resource.Id).Cols("tags").Update(resource)
+					if resource.Tags != "" {
+						MasterDB.Id(resource.Id).Cols("tags").Update(resource)
+					}
 				}
 
 				resourceEx := resourceExList[resource.Id]
@@ -237,7 +243,9 @@ func (self SearcherLogic) IndexingOpenProject(isAll bool) {
 				if project.Tags == "" {
 					// 自动生成
 					project.Tags = model.AutoTag(project.Name+project.Category, project.Desc, 4)
-					MasterDB.Id(project.Id).Cols("tags").Update(project)
+					if project.Tags != "" {
+						MasterDB.Id(project.Id).Cols("tags").Update(project)
+					}
 				}
 
 				document := model.NewDocument(project, nil)
@@ -349,6 +357,44 @@ func (this *SearcherLogic) DoSearch(q, field string, start, rows int) (*model.Re
 			doc.HlContent += "..."
 		}
 
+	}
+
+	if searchResponse.RespBody == nil {
+		searchResponse.RespBody = &model.ResponseBody{}
+	}
+
+	return searchResponse.RespBody, nil
+}
+
+// DoSearch 搜索
+func (this *SearcherLogic) SearchByField(field, value string, start, rows int) (*model.ResponseBody, error) {
+	selectUrl := this.engineUrl + "/select?"
+
+	var values = url.Values{
+		"wt":    []string{"json"},
+		"start": []string{strconv.Itoa(start)},
+		"rows":  []string{strconv.Itoa(rows)},
+		"sort":  []string{"viewnum desc"},
+		"fl":    []string{"objid,objtype,title,author,uid,pub_time,tags,viewnum,cmtnum,likenum,lastreplyuid,lastreplytime,updated_at,top,nid"},
+	}
+
+	values.Add("q", field+":"+value)
+
+	logger.Infoln(selectUrl + values.Encode())
+
+	resp, err := http.Get(selectUrl + values.Encode())
+	if err != nil {
+		logger.Errorln("search error:", err)
+		return &model.ResponseBody{}, err
+	}
+
+	defer resp.Body.Close()
+
+	var searchResponse model.SearchResponse
+	err = json.NewDecoder(resp.Body).Decode(&searchResponse)
+	if err != nil {
+		logger.Errorln("parse response error:", err)
+		return &model.ResponseBody{}, err
 	}
 
 	if searchResponse.RespBody == nil {

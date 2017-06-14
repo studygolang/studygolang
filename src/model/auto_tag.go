@@ -14,5 +14,8 @@ import (
 
 // AutoTag 自动生成 tag
 func AutoTag(title, content string, num int) string {
+	defer func() {
+		recover()
+	}()
 	return strings.Join(keyword.ExtractWithTitle(title, content, num), ",")
 }

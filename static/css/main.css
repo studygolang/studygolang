@@ -213,15 +213,13 @@ footer#bottom { border-top: 1px solid rgba(0, 0, 0, 0.22); background-color: #ff
 .truncate {-o-text-overflow: ellipsis;-moz-text-overflow: ellipsis; -webkit-text-overflow: ellipsis;text-overflow: ellipsis; overflow: hidden; white-space: nowrap;}
 
 /* 弹窗登录框 */
-.login-pop {font-family: "microsoft yahei";display: none;top: 0;width: 455px;height: 380px;padding: 30px 40px 30px 15px;background: #fff;position: absolute;z-index: 1001;border-radius: 3px;}
-.login-pop .thirdparty {border-bottom: dashed 1px #D5D5D5;}
-.login-pop .thirdparty h5 {font-size: 15px;color: #333333;}
-.login-pop .login-form {padding-top: 32px;}
+.login-pop {font-family: "microsoft yahei";display: none;top: 0;width: 405px;height: 300px;padding: 30px 40px 30px 5px;background: #fff;position: absolute;z-index: 1001;border-radius: 3px;}
+.login-pop .login-form {}
 .login-pop .login-form .error {color:red; display:none;}
 .login-pop .login-form .form-input {padding-left:0px;}
-.login-pop .login-form #login-btn {margin-right: 20px;}
-.login-pop .login-form .forget a, .login-pop .login-form .register a {font-size: 14px;color: #cc6666;letter-spacing: 1px;}
-.login-pop .login-form .register span {color: #333333;font-size: 14px;margin-right: 5px;}
+.login-pop .login-form #login-github {margin-right: 20px;}
+.login-pop .login-form .forget a, .login-pop .login-form .register a {font-size: 13px;color: #cc6666;letter-spacing: 1px;}
+.login-pop .login-form .register span {color: #333333;font-size: 13px;margin-right: 5px;}
 
 #sg-overlay {position: absolute;display: none;background: #000;filter: Alpha(opacity=70);opacity: 0.7;top: 0;left: 0;z-index: 1000;}
 

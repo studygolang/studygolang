@@ -13,6 +13,9 @@
 标准库 3 n
 连接池 3 n
 伪代码 3 n
+切片 3 n
+测试 3 n
+slice 3 n
 goroutine 3 n
 channel 3 n
 rpc 3 n
@@ -44,6 +47,7 @@ docker 3 n
 dockerfile 3 n
 goroot 3 n
 etcd 3 n
+consul 3 n
 git 3 n
 svn 3 n
 groupcache 3 n
