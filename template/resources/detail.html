@@ -37,9 +37,9 @@
 				
 				<div class="content-buttons">
 					<div class="pull-right gray f11" style="line-height: 12px; padding-top: 3px; text-shadow: 0px 1px 0px #fff;">{{add .resource.viewnum 1}} 次点击 &nbsp;{{if .resource.likenum}}∙&nbsp; {{.resource.likenum}} 赞 &nbsp; {{end}}</div>
-					<a class="tb collect" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}" data-objid="{{.resource.id}}" data-objtype="3" data-collect="{{.hadcollect}}">{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}</a> &nbsp;
+					<a class="tb collect" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}" data-objid="{{.resource.id}}" data-objtype="2" data-collect="{{.hadcollect}}">{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}</a> &nbsp;
 					<div id="content-thank">
-						<a class="tb" href="javascript:;" title="{{if .likeflag}}取消赞{{else}}赞{{end}}" data-objid="{{.resource.id}}" data-objtype="3" data-flag="{{.likeflag}}">{{if .likeflag}}取消赞{{else}}赞{{end}}</a>
+						<a class="tb" href="javascript:;" title="{{if .likeflag}}取消赞{{else}}赞{{end}}" data-objid="{{.resource.id}}" data-objtype="2" data-flag="{{.likeflag}}">{{if .likeflag}}取消赞{{else}}赞{{end}}</a>
 					</div>
 				</div>
 			</div>
@@ -59,7 +59,7 @@
 					</div>
 					<span class="gray"><span class="cmtnum">{{.resource.cmtnum}}</span> 回复 {{if .resource.cmtnum}}&nbsp;<strong class="snow">|</strong> &nbsp;直到 {{end}}</span>
 				</div>
-				<div class="comment-list cell" data-objid="{{.resource.id}}" data-objtype="3" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
+				<div class="comment-list cell" data-objid="{{.resource.id}}" data-objtype="2" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
 					<div class="words hide"><div class="text-center">暂无回复</div></div>
 				</div>
 			</div>
