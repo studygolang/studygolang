@@ -239,8 +239,8 @@
 	<script type="text/javascript" src="/static/js/libs/jquery-1.11.1.min.js"></script>
 	<!--<script src="//apps.bdimg.com/libs/bootstrap/3.2.0/js/bootstrap.min.js"></script>-->
 	<script type="text/javascript" src="/static/js/libs/bootstrap-3.2.0.min.js"></script>
-	<script src="/static/js/libs/jquery.timeago.js"></script>
-	<script src="/static/js/libs/jquery.timeago.zh-CN.js"></script>
+	<script src="/static/js/libs/jquery.timeago.js?v=1.5.4"></script>
+	<script src="/static/js/libs/jquery.timeago.zh-CN.js?v=1.5.4"></script>
 	<script src="/static/js/libs/md5.js"></script>
 	<script type="text/javascript">
 	var isHttps = {{.is_https}},
@@ -252,7 +252,7 @@
 	}
 	var GLaunchTime = {{timestamp .app.LaunchTime}}*1000;
 	</script>
-	<script src="/static/js/common.js?v=1.1"></script>
+	<script src="/static/js/common.js?v=1.2"></script>
 	{{template "js" .}}
 	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jsrender/0.9.84/jsrender.min.js"></script>
 	<script type="text/javascript">

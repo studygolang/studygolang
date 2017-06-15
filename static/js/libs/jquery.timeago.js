@@ -3,7 +3,7 @@
  * updating fuzzy timestamps (e.g. "4 minutes ago" or "about 1 day ago").
  *
  * @name timeago
- * @version 1.1.0
+ * @version 1.5.4
  * @requires jQuery v1.2.3+
  * @author Ryan McGeary
  * @license MIT License - http://www.opensource.org/licenses/mit-license.php
@@ -11,13 +11,15 @@
  * For usage and examples, visit:
  * http://timeago.yarp.com/
  *
- * Copyright (c) 2008-2013, Ryan McGeary (ryan -[at]- mcgeary [*dot*] org)
+ * Copyright (c) 2008-2017, Ryan McGeary (ryan -[at]- mcgeary [*dot*] org)
  */
 
 (function (factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
     define(['jquery'], factory);
+  } else if (typeof module === 'object' && typeof module.exports === 'object') {
+    factory(require('jquery'));
   } else {
     // Browser globals
     factory(jQuery);
@@ -39,12 +41,17 @@
   $.extend($.timeago, {
     settings: {
       refreshMillis: 60000,
+      allowPast: true,
       allowFuture: false,
+      localeTitle: false,
+      cutoff: 0,
+      autoDispose: true,
       strings: {
         prefixAgo: null,
         prefixFromNow: null,
         suffixAgo: "ago",
         suffixFromNow: "from now",
+        inPast: 'any moment now',
         seconds: "less than a minute",
         minute: "about a minute",
         minutes: "%d minutes",
@@ -60,7 +67,12 @@
         numbers: []
       }
     },
+
     inWords: function(distanceMillis) {
+      if (!this.settings.allowPast && ! this.settings.allowFuture) {
+          throw 'timeago allowPast and allowFuture settings can not both be set to false.';
+      }
+
       var $l = this.settings.strings;
       var prefix = $l.prefixAgo;
       var suffix = $l.suffixAgo;
@@ -69,6 +81,10 @@
           prefix = $l.prefixFromNow;
           suffix = $l.suffixFromNow;
         }
+      }
+
+      if (!this.settings.allowPast && distanceMillis >= 0) {
+        return this.settings.strings.inPast;
       }
 
       var seconds = Math.abs(distanceMillis) / 1000;
@@ -99,12 +115,14 @@
       if ($l.wordSeparator === undefined) { separator = " "; }
       return $.trim([prefix, words, suffix].join(separator));
     },
+
     parse: function(iso8601) {
       var s = $.trim(iso8601);
       s = s.replace(/\.\d+/,""); // remove milliseconds
       s = s.replace(/-/,"/").replace(/-/,"/");
       s = s.replace(/T/," ").replace(/Z/," UTC");
       s = s.replace(/([\+\-]\d\d)\:?(\d\d)/," $1$2"); // -04:00 -> -0400
+      s = s.replace(/([\+\-]\d\d)$/," $100"); // +09 -> +0900
       return new Date(s);
     },
     datetime: function(elem) {
@@ -121,36 +139,67 @@
   // init is default when no action is given
   // functions are called with context of a single element
   var functions = {
-    init: function(){
+    init: function() {
+      functions.dispose.call(this);
       var refresh_el = $.proxy(refresh, this);
       refresh_el();
       var $s = $t.settings;
       if ($s.refreshMillis > 0) {
-        setInterval(refresh_el, $s.refreshMillis);
+        this._timeagoInterval = setInterval(refresh_el, $s.refreshMillis);
       }
     },
-    update: function(time){
-      $(this).data('timeago', { datetime: $t.parse(time) });
+    update: function(timestamp) {
+      var date = (timestamp instanceof Date) ? timestamp : $t.parse(timestamp);
+      $(this).data('timeago', { datetime: date });
+      if ($t.settings.localeTitle) {
+        $(this).attr("title", date.toLocaleString());
+      }
       refresh.apply(this);
+    },
+    updateFromDOM: function() {
+      $(this).data('timeago', { datetime: $t.parse( $t.isTime(this) ? $(this).attr("datetime") : $(this).attr("title") ) });
+      refresh.apply(this);
+    },
+    dispose: function () {
+      if (this._timeagoInterval) {
+        window.clearInterval(this._timeagoInterval);
+        this._timeagoInterval = null;
+      }
     }
   };
 
   $.fn.timeago = function(action, options) {
     var fn = action ? functions[action] : functions.init;
-    if(!fn){
+    if (!fn) {
       throw new Error("Unknown function name '"+ action +"' for timeago");
     }
     // each over objects here and call the requested function
-    this.each(function(){
+    this.each(function() {
       fn.call(this, options);
     });
     return this;
   };
 
   function refresh() {
+    var $s = $t.settings;
+
+    //check if it's still visible
+    if ($s.autoDispose && !$.contains(document.documentElement,this)) {
+      //stop if it has been removed
+      $(this).timeago("dispose");
+      return this;
+    }
+
     var data = prepareData(this);
+
     if (!isNaN(data.datetime)) {
-      $(this).text(inWords(data.datetime));
+      if ( $s.cutoff === 0 || Math.abs(distance(data.datetime)) < $s.cutoff) {
+        $(this).text(inWords(data.datetime));
+      } else {
+        if ($(this).attr('title').length > 0) {
+            $(this).text($(this).attr('title'));
+        }
+      }
     }
     return this;
   }
@@ -160,7 +209,9 @@
     if (!element.data("timeago")) {
       element.data("timeago", { datetime: $t.datetime(element) });
       var text = $.trim(element.text());
-      if (text.length > 0 && !($t.isTime(element) && element.attr("title"))) {
+      if ($t.settings.localeTitle) {
+        element.attr("title", element.data('timeago').datetime.toLocaleString());
+      } else if (text.length > 0 && !($t.isTime(element) && element.attr("title"))) {
         element.attr("title", text);
       }
     }

@@ -173,17 +173,12 @@ SG.registerAtEvent = function(isAt, isEmoji, selector) {
 }
 
 jQuery(document).ready(function($) {
-	// timeago：3 天之内才显示 timeago
+	// timeago：100 天之内才显示 timeago
+	$.timeago.settings.cutoff = 1000*60*60*24*100;
 
+	// 历史原因，其他 js 使用了。（当时版本 timeago 不支持 cutoff）
 	// time 的格式 2014-10-02 11:40:01
 	SG.timeago = function(time) {
-		var ago = new Date(time),
-			now = new Date();
-
-		if (now - ago > 3 * 86400 * 1000) {
-			return time;
-		}
-
 		return $.timeago(time);
 	};
 
