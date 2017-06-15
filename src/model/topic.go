@@ -69,6 +69,10 @@ type TopicUpEx struct {
 	Mtime time.Time `json:"mtime" xorm:"<-"`
 }
 
+func (*TopicUpEx) TableName() string {
+	return "topics_ex"
+}
+
 type TopicInfo struct {
 	Topic   `xorm:"extends"`
 	TopicEx `xorm:"extends"`
