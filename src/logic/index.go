@@ -82,10 +82,11 @@ func (IndexLogic) FindData(ctx context.Context, tab string) map[string]interface
 			if err != nil {
 				break
 			}
-			users, nodes := DefaultSearcher.FillNodeAndUser(ctx, respBody)
 			if respBody.NumFound == 0 {
 				break
 			}
+
+			users, nodes := DefaultSearcher.FillNodeAndUser(ctx, respBody)
 
 			data["docs"] = respBody.Docs
 			data["users"] = users

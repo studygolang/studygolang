@@ -39,6 +39,14 @@ cli 3 n
 pprof 3 n
 runtime 3 n
 context 3 n
+liteide 3 n
+sublime  3 n
+atom 3 n
+goland 3 n
+eclipse 3 n
+vim 3 n
+vimgo 3 n
+gosublime 3 n
 vscode 3 n
 eclipse 3 n
 docker 3 n
@@ -54,3 +62,8 @@ python 3 n
 php 3 n
 ruby 3 n
 java 3 n
+mysql 3 n
+linux 3 n
+apache 3 n
+ai 3 n
+vr 3 n
