@@ -62,8 +62,8 @@ func (*TopicEx) TableName() string {
 
 // 社区主题扩展（计数）信息，用于 incr 更新
 type TopicUpEx struct {
-	Tid int `json:"-" xorm:"pk"`
-	*TopicEx
+	Tid     int `json:"-" xorm:"pk"`
+	TopicEx `json:"-" xorm:"-"`
 }
 
 type TopicInfo struct {
