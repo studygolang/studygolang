@@ -204,19 +204,19 @@
 								{{end}}
 							{{end}}
 								&nbsp;•&nbsp; 
-								{{if .Uid}}
+							{{if .Uid}}
 								{{$user := index $.users .Uid}}
 								 <strong><a href="/user/{{$user.Username}}" class="noul">{{$user.Username}}</a></strong>
-								{{else}}
-								<span>{{.PubTime}}</span>
-								{{end}}
+							{{else}}
+								<span>{{.Author}}</span>
+							{{end}}
 								&nbsp;•&nbsp; 
-								{{if .Lastreplyuid}}
+							{{if .Lastreplyuid}}
 								{{$user := index $.users .Lastreplyuid}}
 								<span title="{{.Lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp; 最后回复来自 <strong><a href="/user/{{$user.Username}}" class="noul">{{$user.Username}}</a></strong>
-								{{else}}
-								<span>{{.Viewnum}} 点击</span>
-								{{end}}
+							{{else}}
+								<span title="{{.PubTime}}" class="timeago"></span>发布
+							{{end}}
 							</span>
 						</td>
 						{{if .Cmtnum}}
