@@ -143,9 +143,10 @@
    <field name="likenum" type="int" indexed="true" stored="true" />
    <field name="nid" type="int" indexed="false" stored="true" />
    <field name="lastreplyuid" type="int" indexed="false" stored="true" />
-   <field name="lastreplytime" type="string" indexed="false" stored="true" />
+   <field name="lastreplytime" type="string" indexed="true" stored="true" />
    <field name="top" type="int" indexed="true" stored="true" />
-   <field name="updated_at" type="string" indexed="false" stored="true" />
+   <field name="updated_at" type="string" indexed="true" stored="true" />
+   <field name="sort_time" type="string" indexed="true" stored="false" />
 
    <!-- catchall field, containing all other searchable text fields (implemented
                 via copyField further on in this schema  -->

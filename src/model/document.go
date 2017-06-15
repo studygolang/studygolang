@@ -34,6 +34,9 @@ type Document struct {
 
 	UpdatedAt OftenTime `json:"updated_at"`
 
+	// 排序用的时间
+	SortTime OftenTime `json:"sort_time"`
+
 	Top uint8 `json:"top"`
 
 	Nid int `json:"nid"`
@@ -49,12 +52,19 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 		viewnum, cmtnum, likenum := 0, 0, 0
 		if objectExt != nil {
 			// 传递过来的是一个 *TopicEx 对象，类型是有的，即时值是 nil，这里也和 nil 是不等
-			topicEx := objectExt.(*TopicEx)
+			topicEx := objectExt.(*TopicUpEx)
 			if topicEx != nil {
 				viewnum = topicEx.View
 				cmtnum = topicEx.Reply
 				likenum = topicEx.Like
 			}
+		}
+
+		var sortTime = NewOftenTime()
+		if objdoc.Lastreplyuid != 0 {
+			sortTime = objdoc.Lastreplytime
+		} else {
+			sortTime = objdoc.Ctime
 		}
 
 		userLogin := &UserLogin{}
@@ -79,6 +89,7 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 			Lastreplyuid:  objdoc.Lastreplyuid,
 			Lastreplytime: objdoc.Lastreplytime,
 			UpdatedAt:     objdoc.Mtime,
+			SortTime:      sortTime,
 		}
 	case *Article:
 		var uid int
@@ -87,6 +98,14 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 			db.MasterDB.Where("username=?", objdoc.AuthorTxt).Get(userLogin)
 			uid = userLogin.Uid
 		}
+
+		var sortTime = NewOftenTime()
+		if objdoc.Lastreplyuid != 0 {
+			sortTime = objdoc.Lastreplytime
+		} else {
+			sortTime = objdoc.Ctime
+		}
+
 		document = &Document{
 			Id:      fmt.Sprintf("%d%d", TypeArticle, objdoc.Id),
 			Objid:   objdoc.Id,
@@ -105,6 +124,7 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 			Lastreplyuid:  objdoc.Lastreplyuid,
 			Lastreplytime: objdoc.Lastreplytime,
 			UpdatedAt:     objdoc.Mtime,
+			SortTime:      sortTime,
 		}
 	case *Resource:
 		viewnum, cmtnum, likenum := 0, 0, 0
@@ -114,6 +134,13 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 				viewnum = resourceEx.Viewnum
 				cmtnum = resourceEx.Cmtnum
 			}
+		}
+
+		var sortTime = NewOftenTime()
+		if objdoc.Lastreplyuid != 0 {
+			sortTime = objdoc.Lastreplytime
+		} else {
+			sortTime = objdoc.Ctime
 		}
 
 		userLogin := &UserLogin{}
@@ -136,10 +163,19 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 			Lastreplyuid:  objdoc.Lastreplyuid,
 			Lastreplytime: objdoc.Lastreplytime,
 			UpdatedAt:     objdoc.Mtime,
+			SortTime:      sortTime,
 		}
 	case *OpenProject:
 		userLogin := &UserLogin{}
 		db.MasterDB.Where("username=?", objdoc.Username).Get(userLogin)
+
+		var sortTime = NewOftenTime()
+		if objdoc.Lastreplyuid != 0 {
+			sortTime = objdoc.Lastreplytime
+		} else {
+			sortTime = objdoc.Ctime
+		}
+
 		document = &Document{
 			Id:      fmt.Sprintf("%d%d", TypeProject, objdoc.Id),
 			Objid:   objdoc.Id,
@@ -158,6 +194,7 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 			Lastreplyuid:  objdoc.Lastreplyuid,
 			Lastreplytime: objdoc.Lastreplytime,
 			UpdatedAt:     objdoc.Mtime,
+			SortTime:      sortTime,
 		}
 	}
 

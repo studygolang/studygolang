@@ -36,10 +36,10 @@ var DefaultSearcher = SearcherLogic{maxRows: 100, engineUrl: config.ConfigFile.M
 // 准备索引数据，post 给 solr
 // isAll: 是否全量
 func (self SearcherLogic) Indexing(isAll bool) {
+	go self.IndexingOpenProject(isAll)
+	go self.IndexingTopic(isAll)
+	go self.IndexingResource(isAll)
 	self.IndexingArticle(isAll)
-	self.IndexingTopic(isAll)
-	self.IndexingResource(isAll)
-	self.IndexingOpenProject(isAll)
 }
 
 // IndexingArticle 索引博文
@@ -99,7 +99,7 @@ func (self SearcherLogic) IndexingTopic(isAll bool) {
 
 	var (
 		topicList   []*model.Topic
-		topicExList map[int]*model.TopicEx
+		topicExList map[int]*model.TopicUpEx
 
 		err error
 	)
@@ -108,7 +108,7 @@ func (self SearcherLogic) IndexingTopic(isAll bool) {
 		id := 0
 		for {
 			topicList = make([]*model.Topic, 0)
-			topicExList = make(map[int]*model.TopicEx)
+			topicExList = make(map[int]*model.TopicUpEx)
 
 			err = MasterDB.Where("tid>?", id).OrderBy("tid ASC").Limit(self.maxRows).Find(&topicList)
 			if err != nil {
@@ -375,14 +375,18 @@ func (this *SearcherLogic) DoSearch(q, field string, start, rows int) (*model.Re
 }
 
 // DoSearch 搜索
-func (this *SearcherLogic) SearchByField(field, value string, start, rows int) (*model.ResponseBody, error) {
+func (this *SearcherLogic) SearchByField(field, value string, start, rows int, sorts ...string) (*model.ResponseBody, error) {
 	selectUrl := this.engineUrl + "/select?"
 
+	sort := "sort_time desc,cmtnum desc,viewnum desc"
+	if len(sorts) > 0 {
+		sort = sorts[0]
+	}
 	var values = url.Values{
 		"wt":    []string{"json"},
 		"start": []string{strconv.Itoa(start)},
 		"rows":  []string{strconv.Itoa(rows)},
-		"sort":  []string{"viewnum desc"},
+		"sort":  []string{sort},
 		"fl":    []string{"objid,objtype,title,author,uid,pub_time,tags,viewnum,cmtnum,likenum,lastreplyuid,lastreplytime,updated_at,top,nid"},
 	}
 

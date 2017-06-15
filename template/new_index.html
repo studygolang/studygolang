@@ -98,7 +98,7 @@
 							{{if .lastreplyuid}}
 							<span title="{{.lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp;最后回复来自 <strong><a href="/user/{{.lastreplyusername}}" class="noul">{{.lastreplyusername}}</a></strong>
 							{{else}}
-							<span title="{{.ctime}}" class="timeago"></span>发布
+							<span title="{{.ctime}}" class="timeago"></span> 发布
 							{{end}}
 						</td>
 						{{if .reply}}
@@ -149,7 +149,7 @@
 							{{if .Lastreplyuid}}
 							<span title="{{.Lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp;最后回复来自 <strong><a href="/user/{{.LastReplyUser.Username}}" class="noul">{{.LastReplyUser.Username}}</a></strong>
 							{{else}}
-							<span title="{{.Ctime}}" class="timeago"></span>发布
+							<span title="{{.Ctime}}" class="timeago"></span> 发布
 							{{end}}
 						</td>
 						{{if .Cmtnum}}
@@ -215,7 +215,7 @@
 								{{$user := index $.users .Lastreplyuid}}
 								<span title="{{.Lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp; 最后回复来自 <strong><a href="/user/{{$user.Username}}" class="noul">{{$user.Username}}</a></strong>
 							{{else}}
-								<span title="{{.PubTime}}" class="timeago"></span>发布
+								<span title="{{.PubTime}}" class="timeago"></span> 发布
 							{{end}}
 							</span>
 						</td>
