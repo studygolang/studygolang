@@ -44,6 +44,7 @@
 					<label class="col-sm-2 control-label" for="title"><abbr>*</abbr>节点</label>
 					<div class="col-sm-9">
 						<select id="nid" name="nid" class="form-control required">
+							<option value="">请选择一个节点</option>
 							{{range .nodes}}
 								{{range $parent, $children := .}}
 								<optgroup label="{{$parent}}">
