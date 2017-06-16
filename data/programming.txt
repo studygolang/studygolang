@@ -68,3 +68,5 @@ linux 3 n
 apache 3 n
 ai 3 n
 vr 3 n
+gogs 3 n
+gitea 3 n
