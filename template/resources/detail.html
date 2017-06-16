@@ -32,7 +32,7 @@
 				<div class="outdated">这是一个分享于 <span title="{{.resource.ctime}}" class="timeago"></span> 的资源，其中的信息可能已经有所发展或是发生改变。</div>
 				{{end}}
 				<div class="cell">
-					<div class="content">{{if eq .resource.form "只是链接"}}传送门： {{.resource.url}}{{else}}{{.resource.content}}{{end}}</div>
+					<div class="content">{{if eq .resource.form "只是链接"}}传送门： {{if hasPrefix .resource.url "/r/golang/"}}https://reddit.com{{end}}{{.resource.url}}{{else}}{{.resource.content}}{{end}}</div>
 				</div>
 				
 				<div class="content-buttons">

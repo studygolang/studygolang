@@ -59,6 +59,9 @@ func ServeBackGround() {
 			// 给用户发邮件，如通知网站最近的动态，每周的晨读汇总等
 			c.AddFunc("0 0 4 * * 1", logic.DefaultEmail.EmailNotice)
 		}
+
+		// 每天对活跃用户奖励铜币
+		c.AddFunc("@daily", logic.DefaultUserRich.AwardCooper)
 	}
 
 	// 两分钟刷一次浏览数（TODO：重启丢失问题？信号控制重启？）

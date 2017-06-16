@@ -10,20 +10,80 @@ import (
 	"errors"
 	"fmt"
 	"model"
+	"time"
+	"util"
 
 	. "db"
 
+	"github.com/garyburd/redigo/redis"
 	"github.com/go-xorm/xorm"
 	"github.com/polaris1119/logger"
+	"github.com/polaris1119/nosql"
+	"github.com/polaris1119/times"
 	"golang.org/x/net/context"
+)
+
+var (
+	beginAwardWeight = 50
 )
 
 type UserRichLogic struct{}
 
 var DefaultUserRich = UserRichLogic{}
 
-func (self UserRichLogic) Add(ctx context.Context) error {
-	return nil
+func (self UserRichLogic) AwardCooper() {
+	redisClient := nosql.NewRedisClient()
+	defer redisClient.Close()
+	ymd := times.Format("ymd", time.Now().Add(-86400*time.Second))
+	key := DefaultRank.getDAURankKey(ymd)
+
+	var (
+		cursor      uint64
+		err         error
+		resultSlice []interface{}
+		count       = 20
+	)
+
+	for {
+		cursor, resultSlice, err = redisClient.ZSCAN(key, cursor, "COUNT", count)
+		if err != nil {
+			logger.Errorln("AwardCooper ZSCAN error:", err)
+			break
+		}
+
+		for len(resultSlice) > 0 {
+			var (
+				uid, weight int
+				err         error
+			)
+			resultSlice, err = redis.Scan(resultSlice, &uid, &weight)
+			if err != nil {
+				logger.Errorln("AwardCooper redis Scan error:", err)
+				continue
+			}
+
+			if weight < beginAwardWeight {
+				continue
+			}
+
+			award := util.Max((weight-500)*5, 0) +
+				util.UMin((weight-400), 100)*4 +
+				util.UMin((weight-300), 100)*3 +
+				util.UMin((weight-200), 100)*2 +
+				util.UMin((weight-100), 100) +
+				int(float64(util.UMin((weight-beginAwardWeight), beginAwardWeight))*0.5)
+
+			userRank := redisClient.ZREVRANK(key, uid)
+			desc := fmt.Sprintf("%s 的活跃度为 %d，排名第 %d，奖励 %d 铜币", ymd, weight, userRank, award)
+			fmt.Println(uid, desc)
+			user := DefaultUser.FindOne(nil, "uid", uid)
+			self.IncrUserRich(user, model.MissionTypeActive, award, desc)
+		}
+
+		if cursor == 0 {
+			break
+		}
+	}
 }
 
 // IncrUserRich 增加或减少用户财富
@@ -33,8 +93,9 @@ func (self UserRichLogic) IncrUserRich(user *model.User, typ, award int, desc st
 		err   error
 	)
 
-	if award > 0 && typ == model.MissionTypeReplied {
+	if award > 0 && (typ == model.MissionTypeReplied || typ == model.MissionTypeActive) {
 		// 老用户，因为之前的主题被人回复而增加财富，自动帮其领取初始资本
+		// 因为活跃奖励铜币，自动帮其领取初始资本
 		total, err = MasterDB.Where("uid=?", user.Uid).Count(new(model.UserBalanceDetail))
 		if err != nil {
 			logger.Errorln("IncrUserRich count error:", err)

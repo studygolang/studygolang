@@ -119,11 +119,17 @@ func (self RankLogic) FindMonthRank(ctx context.Context, objtype, num int, needE
 	return self.findModelsByRank(resultSlice, objtype, num, needExt...)
 }
 
-func (self RankLogic) FindDAURank(ctx context.Context, num int) []*model.User {
+// FindDAURank DAU 排名，默认获取当天的
+func (self RankLogic) FindDAURank(ctx context.Context, num int, ymds ...string) []*model.User {
 	objLog := GetLogger(ctx)
 
+	ymd := times.Format("ymd")
+	if len(ymds) > 0 {
+		ymd = ymds[0]
+	}
+
 	redisClient := nosql.NewRedisClient()
-	key := self.getDAURankKey(times.Format("ymd"))
+	key := self.getDAURankKey(ymd)
 	resultSlice, err := redisClient.ZREVRANGE(key, 0, num-1, true)
 	redisClient.Close()
 	if err != nil {

@@ -51,6 +51,7 @@ vscode 3 n
 eclipse 3 n
 docker 3 n
 dockerfile 3 n
+kubernetes 3 n
 goroot 3 n
 etcd 3 n
 consul 3 n

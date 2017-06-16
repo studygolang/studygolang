@@ -5,8 +5,9 @@
 			<span class="avatar"><a href="/account/edit#change-avatar"><img alt="个人首页" width="80" height="80" src="{{gravatar .me.Avatar .me.Email 80 .is_https}}" class="img-circle tool-tip" data-toggle="tooltip" data-placement="left" title="更换头像"></a></span>
 		</div>
 		<div class="profile-show pull-left">
-			<p></p>
-			<p class="user-name"><a href="/user/{{.me.Username}}">{{.me.Username}}</a></p>
+			<div class="user-name"><a href="/user/{{.me.Username}}">{{.me.Username}}</a></div>
+			<small class="f12 cc">{{.me.Monlog}}</small>
+			<div class="sep5"></div>
 			<p><a href="/account/edit">个人资料设置</a></p>
 		</div>
 	</div>
@@ -19,7 +20,13 @@
 		<a class="btn btn-default btn-sm" href="/resources/new">分享资源</a>&nbsp;
 	</div>
 	<div class="inner_content">
-		<a class="pull-left" href="/message/system" style="margin-left: 10px">{{.me.MsgNum}} 条未读消息</a>
+		<a class="pull-left" href="/message/system" style="margin-left: 10px">
+			{{if .me.MsgNum}}
+			<strong>{{.me.MsgNum}} 条未读消息</strong>
+			{{else}}
+			{{.me.MsgNum}} 条未读消息
+			{{end}}
+		</a>
 		<div style="text-align: right; margin-right: 20px;">
 			<a href="/balance" class="balance_area">
 				{{if .me.Gold}}

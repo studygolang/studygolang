@@ -27,6 +27,8 @@ const (
 	MissionTypeReplied = 70
 	// 额外奖励
 	MissionTypeAward = 80
+	// 活跃奖励
+	MissionTypeActive = 81
 )
 
 const (
