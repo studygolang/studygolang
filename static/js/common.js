@@ -41,7 +41,7 @@ SG.Publisher.prototype = {
 					}
 
 					if (typeof callback != "undefined") {
-						callback(data);
+						callback(data.data);
 						return;
 					}
 					

@@ -50,7 +50,7 @@
 					} else {
 						window.location.href = '/topics';
 					}
-				}, 2000);
+				}, 1000);
 			});
 		});
 
