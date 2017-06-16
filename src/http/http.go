@@ -24,6 +24,7 @@ import (
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
+	"github.com/polaris1119/times"
 )
 
 var Store = sessions.NewCookieStore([]byte(config.ConfigFile.MustValue("global", "cookie_secret")))
@@ -185,6 +186,7 @@ func Render(ctx echo.Context, contentTpl string, data map[string]interface{}) er
 	}
 
 	data["pos_ad"] = logic.DefaultAd.FindAll(ctx, ctx.Path())
+	data["cur_time"] = times.Format("Y-m-d H:i:s")
 
 	// TODO：每次查询有点影响性能
 	hasLoginMisson := false

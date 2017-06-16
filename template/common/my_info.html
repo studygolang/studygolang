@@ -5,9 +5,14 @@
 			<span class="avatar"><a href="/account/edit#change-avatar"><img alt="个人首页" width="80" height="80" src="{{gravatar .me.Avatar .me.Email 80 .is_https}}" class="img-circle tool-tip" data-toggle="tooltip" data-placement="left" title="更换头像"></a></span>
 		</div>
 		<div class="profile-show pull-left">
+			{{if .me.Monlog}}
 			<div class="user-name"><a href="/user/{{.me.Username}}">{{.me.Username}}</a></div>
 			<small class="f12 cc">{{.me.Monlog}}</small>
 			<div class="sep5"></div>
+			{{else}}
+			<p></p>
+			<p class="user-name"><a href="/user/{{.me.Username}}">{{.me.Username}}</a></p>
+			{{end}}
 			<p><a href="/account/edit">个人资料设置</a></p>
 		</div>
 	</div>

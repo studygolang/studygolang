@@ -33,6 +33,7 @@
 						<a id="edit" class="op" href="javascript:" title="编辑">编辑</a>
 						{{end}}
 					</small>
+					<small class="gray" style="margin-left: 20px;"><span class="timeago" title="{{.cur_time}}"></span> 开始浏览</small>
 				</div>
 				{{if gt (distanceDay .article.Ctime) 100 }}
 				<div class="outdated">这是一个创建于 <span title="{{.article.Ctime}}" class="timeago"></span> 的文章，其中的信息可能已经有所发展或是发生改变。</div>
