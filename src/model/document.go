@@ -113,7 +113,7 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 			Title:   FilterTxt(objdoc.Title),
 			Author:  objdoc.AuthorTxt,
 			Uid:     uid,
-			PubTime: objdoc.PubDate,
+			PubTime: objdoc.Ctime.String(),
 			Content: FilterTxt(objdoc.Txt),
 			Tags:    objdoc.Tags,
 			Viewnum: objdoc.Viewnum,
