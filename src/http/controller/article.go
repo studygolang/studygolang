@@ -134,7 +134,7 @@ func (ArticleController) Detail(ctx echo.Context) error {
 
 		logic.Views.Incr(Request(ctx), model.TypeArticle, article.Id, me.Uid)
 
-		if article.IsSelf && me.Uid != article.User.Uid {
+		if !article.IsSelf || me.Uid != article.User.Uid {
 			go logic.DefaultViewRecord.Record(article.Id, model.TypeArticle, me.Uid)
 		}
 
