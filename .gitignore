@@ -42,3 +42,4 @@ welcome.png
 *.json
 
 .DS_Store
+/env.ini

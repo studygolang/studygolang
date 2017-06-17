@@ -57,7 +57,7 @@ func ServeBackGround() {
 			c.AddFunc("@daily", logic.GenSitemap)
 
 			// 给用户发邮件，如通知网站最近的动态，每周的晨读汇总等
-			c.AddFunc("0 0 4 * * 1", logic.DefaultEmail.EmailNotice)
+			c.AddFunc("0 0 0 * * *", logic.DefaultEmail.EmailNotice)
 		}
 
 		// 每天对活跃用户奖励铜币

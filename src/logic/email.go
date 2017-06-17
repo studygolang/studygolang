@@ -170,6 +170,9 @@ func (self EmailLogic) EmailNotice() {
 		users   = make([]*model.User, 0)
 	)
 
+	day := time.Now().Day()
+	monthDayNum := util.MonthDayNum(time.Now())
+
 	for {
 		err = MasterDB.Where("uid>?", lastUid).Asc("uid").Limit(limit).Find(&users)
 		if err != nil {
@@ -184,6 +187,10 @@ func (self EmailLogic) EmailNotice() {
 		for _, user := range users {
 			if lastUid < user.Uid {
 				lastUid = user.Uid
+			}
+
+			if user.Uid%monthDayNum != day {
+				continue
 			}
 
 			if user.Unsubscribe == 1 {
@@ -208,7 +215,7 @@ func (self EmailLogic) EmailNotice() {
 			self.SendMail("每周精选", content, []string{user.Email})
 
 			// 控制发信速度
-			time.Sleep(2 * time.Second)
+			time.Sleep(60 * time.Second)
 		}
 
 		users = make([]*model.User, 0)
