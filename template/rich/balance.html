@@ -12,7 +12,7 @@
 		</ol>
 		<div class="page box_white">
 			<div class="cell">
-				<p class="gray">当前账户余额</p>
+				<p class="c9">当前账户余额</p>
 				<div class="balance_area" style="font-size: 24px; line-height: 24px;">
 					{{if .me.Gold}}
 					{{.me.Gold}} <img src="/static/img/gold_48.png" alt="" width="16px">
@@ -34,13 +34,13 @@
 					</tr>
 					{{range .details}}
 					<tr>
-						<td class="d"><small class="gray">{{.CreatedAt}}</small></td>
+						<td class="d"><small class="c9">{{.CreatedAt}}</small></td>
 						<td class="d">{{.TypeShow}}</td>
 						<td class="d" style="text-align: right;">
 							<span class="{{if gt .Num 0}}positive{{else}}negative{{end}}"><strong>{{.Num}}</strong></span>
 						</td>
 						<td class="d" style="text-align: right;">{{.Balance}}</td>
-						<td class="d" style="border-right: none;"><span class="gray">{{noescape .Desc}}</span></td>
+						<td class="d" style="border-right: none;"><span class="c9">{{noescape .Desc}}</span></td>
 					</tr>
 					{{end}}
 				</table>

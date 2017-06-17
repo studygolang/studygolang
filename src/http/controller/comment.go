@@ -40,9 +40,12 @@ func (CommentController) Create(ctx echo.Context) error {
 
 	// 入库
 	objid := goutils.MustInt(ctx.Param("objid"))
+	if objid == 0 {
+		return fail(ctx, 1, "参数有误，请刷新后重试！")
+	}
 	comment, err := logic.DefaultComment.Publish(ctx, user.Uid, objid, ctx.FormParams())
 	if err != nil {
-		return fail(ctx, 1, "服务器内部错误")
+		return fail(ctx, 2, "服务器内部错误")
 	}
 
 	return success(ctx, comment)

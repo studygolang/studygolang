@@ -252,7 +252,6 @@ label.error {color:red;}
 /*form required flag*/
 .control-label abbr {color: #c00;}
 
-.gray { color: #999; }
 .snow { color: #e2e2e2; }
 .cc { color: #ccc; }
 .c3 { color: #333; }
@@ -343,37 +342,37 @@ a.balance_area img { vertical-align: bottom; }
 
 
 .content-buttons {
-	padding: 5px;
-	font-size: 14px;
-	line-height: 120%;
+    padding: 5px;
+    font-size: 14px;
+    line-height: 120%;
 
-	background: #eeeeee;
-	background: -moz-linear-gradient(top, #eeeeee 0%, #cccccc 100%);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eeeeee), color-stop(100%,#cccccc));
-	background: -webkit-linear-gradient(top, #eeeeee 0%,#cccccc 100%);
-	background: -o-linear-gradient(top, #eeeeee 0%,#cccccc 100%);
-	background: -ms-linear-gradient(top, #eeeeee 0%,#cccccc 100%);
-	background: linear-gradient(to bottom, #eeeeee 0%,#cccccc 100%);
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#cccccc',GradientType=0 );
+    background: #eeeeee;
+    background: -moz-linear-gradient(top, #eeeeee 0%, #cccccc 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eeeeee), color-stop(100%,#cccccc));
+    background: -webkit-linear-gradient(top, #eeeeee 0%,#cccccc 100%);
+    background: -o-linear-gradient(top, #eeeeee 0%,#cccccc 100%);
+    background: -ms-linear-gradient(top, #eeeeee 0%,#cccccc 100%);
+    background: linear-gradient(to bottom, #eeeeee 0%,#cccccc 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#cccccc',GradientType=0 );
 
-	border-radius: 0px 0px 3px 3px;
-	text-align: left;
+    border-radius: 0px 0px 3px 3px;
+    text-align: left;
 }
 #content-thank {
-	display: inline-block;
+    display: inline-block;
 }
 
 .item {
-	background-position: 0 bottom;
-	background-repeat: repeat-x;
+    background-position: 0 bottom;
+    background-repeat: repeat-x;
 }
 .item_title {
-	font-size: 16px;
-	line-height: 130%;
-	text-shadow: 0px 1px 0px #fff;
-	word-wrap: break-word;
-	hyphens: auto;
-	font-weight: 500;
+    font-size: 16px;
+    line-height: 130%;
+    text-shadow: 0px 1px 0px #fff;
+    word-wrap: break-word;
+    hyphens: auto;
+    font-weight: 500;
 }
 .item_title a.title { text-decoration: none; }
 .item_title a.title:hover { text-decoration: underline; }
@@ -385,3 +384,49 @@ a.balance_area img { vertical-align: bottom; }
 img.avatar { -moz-border-radius: 4px; border-radius: 4px; }
 
 .nobreak { word-break: normal; }
+
+.line-state {
+    font-size: 10px;
+    line-height: 10px;
+    font-weight: 500;
+    padding: 2px 5px 2px 5px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+.online {
+    color: #fff;
+    background: #52bf1c;
+    background: -moz-linear-gradient(top, #52bf1c 0%, #438906 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#52bf1c), color-stop(100%,#438906));
+    background: -webkit-linear-gradient(top, #52bf1c 0%,#438906 100%);
+    background: -o-linear-gradient(top, #52bf1c 0%,#438906 100%);
+    background: -ms-linear-gradient(top, #52bf1c 0%,#438906 100%);
+    background: linear-gradient(top, #52bf1c 0%,#438906 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#52bf1c', endColorstr='#438906',GradientType=0 );
+}
+
+.offline {
+    color: #ccc;
+    background: #999;
+    background: -moz-linear-gradient(top, #999 0%, #666 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#999), color-stop(100%,#666));
+    background: -webkit-linear-gradient(top, #999 0%,#666 100%);
+    background: -o-linear-gradient(top, #999 0%,#666 100%);
+    background: -ms-linear-gradient(top, #999 0%,#666 100%);
+    background: linear-gradient(top, #999 0%,#666 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#999', endColorstr='#666',GradientType=0 );
+}
+
+.gray {
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    
+    filter: grayscale(100%);
+    
+    filter: gray;
+}

@@ -43,7 +43,16 @@ func (UserController) Home(ctx echo.Context) error {
 	projects := logic.DefaultProject.FindRecent(ctx, user.Username)
 	comments := logic.DefaultComment.FindRecent(ctx, user.Uid, -1, 5)
 
-	return render(ctx, "user/profile.html", map[string]interface{}{"activeUsers": "active", "topics": topics, "resources": resources, "projects": projects, "comments": comments, "user": user})
+	user.IsOnline = logic.Book.RegUserIsOnline(user.Uid)
+
+	return render(ctx, "user/profile.html", map[string]interface{}{
+		"activeUsers": "active",
+		"topics":      topics,
+		"resources":   resources,
+		"projects":    projects,
+		"comments":    comments,
+		"user":        user,
+	})
 }
 
 // ReadList 会员列表

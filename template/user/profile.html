@@ -12,7 +12,7 @@
 		<div class="box_white">
 			<div class="userinfo">
 				<div class="pull-right">
-					<a href="/user/{{.user.Username}}" title="{{.user.Username}}"><img alt="{{.user.Username}}" src="{{gravatar .user.Avatar .user.Email 80 .is_https}}" width="80px" height="80px" class="img-rounded"></a>
+					<a href="/user/{{.user.Username}}" title="{{.user.Username}}"><img alt="{{.user.Username}}" src="{{gravatar .user.Avatar .user.Email 80 .is_https}}" width="80px" height="80px" class="img-rounded{{if not .user.IsOnline}} gray{{end}}"></a>
 					{{if .me.Username}}
 					{{if ne .user.Username .me.Username}}
 					<a class="btn btn-success btn-sm" href="/favorites/{{.user.Username}}">TA的收藏</a>
@@ -57,6 +57,14 @@
 						<span><a href="/top/dau">{{.user.Weight}}</a></span>
 					</li>
 					{{end}}
+					<li>
+						<label>是否在线:</label>
+						{{if .user.IsOnline}}
+						<span class="line-state online">Online</span>
+						{{else}}
+						<span class="line-state offline">Offline</span>
+						{{end}}
+					</li>
 					<li>
 						<label>财富:</label>
 						<span class="balance_area">

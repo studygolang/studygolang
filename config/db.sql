@@ -566,3 +566,13 @@ CREATE TABLE IF NOT EXISTS `feed` (
   INDEX `idx_updated_at` (`updated_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='网站关键资源动态表';
 
+CREATE TABLE `view_record` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `objid` int(10) unsigned NOT NULL COMMENT '对象id，属主',
+  `objtype` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '类型,0-帖子;1-博客;2-资源;3-wiki;4-项目;5-图书',
+  `uid` int unsigned NOT NULL DEFAULT 0 COMMENT '浏览人UID',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_obj_uid` (`objid`,`objtype`,`uid`),
+  INDEX `idx_uid` (`uid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户浏览记录表';

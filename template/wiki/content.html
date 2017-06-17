@@ -15,7 +15,7 @@
           <h1>
             {{.wiki.Title}}
           </h1>
-          <small class="gray">
+          <small class="c9">
             {{$user := index .wiki.Users .wiki.Uid}}
             <a href="/user/{{$user.Username}}">{{$user.Username}}</a>
              · <span title="{{.wiki.Ctime}}" class="timeago"></span> · {{.wiki.Viewnum}} 次点击 &nbsp; &nbsp;

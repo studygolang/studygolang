@@ -142,20 +142,30 @@ func (TopicController) Detail(ctx echo.Context) error {
 		return render(ctx, "notfound.html", nil)
 	}
 
-	likeFlag := 0
-	hadCollect := 0
+	data := map[string]interface{}{
+		"activeTopics": "active",
+		"topic":        topic,
+		"replies":      replies,
+	}
+
 	me, ok := ctx.Get("user").(*model.Me)
 	if ok {
 		tid := topic["tid"].(int)
-		likeFlag = logic.DefaultLike.HadLike(ctx, me.Uid, tid, model.TypeTopic)
-		hadCollect = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, tid, model.TypeTopic)
+		data["likeflag"] = logic.DefaultLike.HadLike(ctx, me.Uid, tid, model.TypeTopic)
+		data["hadcollect"] = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, tid, model.TypeTopic)
 
 		logic.Views.Incr(Request(ctx), model.TypeTopic, tid, me.Uid)
+
+		if me.Uid != topic["uid"].(int) {
+			go logic.DefaultViewRecord.Record(tid, model.TypeTopic, me.Uid)
+		} else {
+			data["view_user_num"] = logic.DefaultViewRecord.FindUserNum(ctx, tid, model.TypeTopic)
+		}
 	} else {
 		logic.Views.Incr(Request(ctx), model.TypeTopic, tid)
 	}
 
-	return render(ctx, "topics/detail.html,common/comment.html", map[string]interface{}{"activeTopics": "active", "topic": topic, "replies": replies, "likeflag": likeFlag, "hadcollect": hadCollect})
+	return render(ctx, "topics/detail.html,common/comment.html", data)
 }
 
 // Create 新建主题

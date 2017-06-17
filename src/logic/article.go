@@ -561,6 +561,22 @@ func (ArticleLogic) FindById(ctx context.Context, id interface{}) (*model.Articl
 	return article, err
 }
 
+// getOwner 通过objid获得 article 的所有者
+func (ArticleLogic) getOwner(id int) int {
+	article := &model.Article{}
+	_, err := MasterDB.Id(id).Get(article)
+	if err != nil {
+		logger.Errorln("article logic getOwner Error:", err)
+		return 0
+	}
+
+	if article.IsSelf {
+		user := DefaultUser.FindOne(nil, "username", article.Author)
+		return user.Uid
+	}
+	return 0
+}
+
 // 博文评论
 type ArticleComment struct{}
 

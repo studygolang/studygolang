@@ -65,20 +65,30 @@ func (ResourceController) Detail(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusSeeOther, "/resources/cat/1")
 	}
 
-	likeFlag := 0
-	hadCollect := 0
+	data := map[string]interface{}{
+		"activeResources": "active",
+		"resource":        resource,
+		"comments":        comments,
+	}
+
 	me, ok := ctx.Get("user").(*model.Me)
 	if ok {
 		id := resource["id"].(int)
-		likeFlag = logic.DefaultLike.HadLike(ctx, me.Uid, id, model.TypeResource)
-		hadCollect = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, id, model.TypeResource)
+		data["likeflag"] = logic.DefaultLike.HadLike(ctx, me.Uid, id, model.TypeResource)
+		data["hadcollect"] = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, id, model.TypeResource)
 
 		logic.Views.Incr(Request(ctx), model.TypeResource, id, me.Uid)
+
+		if me.Uid != resource["uid"].(int) {
+			go logic.DefaultViewRecord.Record(id, model.TypeResource, me.Uid)
+		} else {
+			data["view_user_num"] = logic.DefaultViewRecord.FindUserNum(ctx, id, model.TypeResource)
+		}
 	} else {
 		logic.Views.Incr(Request(ctx), model.TypeResource, id)
 	}
 
-	return render(ctx, "resources/detail.html,common/comment.html", map[string]interface{}{"activeResources": "active", "resource": resource, "comments": comments, "likeflag": likeFlag, "hadcollect": hadCollect})
+	return render(ctx, "resources/detail.html,common/comment.html", data)
 }
 
 // Create 发布新资源

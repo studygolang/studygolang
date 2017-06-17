@@ -141,14 +141,25 @@ func (ProjectController) Detail(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusSeeOther, "/projects")
 	}
 
-	likeFlag := 0
-	hadCollect := 0
+	data := map[string]interface{}{
+		"activeProjects": "active",
+		"project":        project,
+	}
+
 	me, ok := ctx.Get("user").(*model.Me)
 	if ok {
-		likeFlag = logic.DefaultLike.HadLike(ctx, me.Uid, project.Id, model.TypeProject)
-		hadCollect = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, project.Id, model.TypeProject)
+		data["likeflag"] = logic.DefaultLike.HadLike(ctx, me.Uid, project.Id, model.TypeProject)
+		data["hadcollect"] = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, project.Id, model.TypeProject)
 
 		logic.Views.Incr(Request(ctx), model.TypeProject, project.Id, me.Uid)
+
+		if me.Uid != project.User.Uid {
+			go logic.DefaultViewRecord.Record(project.Id, model.TypeProject, me.Uid)
+		}
+
+		if me.IsRoot || me.Uid == project.User.Uid {
+			data["view_user_num"] = logic.DefaultViewRecord.FindUserNum(ctx, project.Id, model.TypeProject)
+		}
 	} else {
 		logic.Views.Incr(Request(ctx), model.TypeProject, project.Id)
 	}
@@ -156,7 +167,7 @@ func (ProjectController) Detail(ctx echo.Context) error {
 	// 为了阅读数即时看到
 	project.Viewnum++
 
-	return render(ctx, "projects/detail.html,common/comment.html", map[string]interface{}{"activeProjects": "active", "project": project, "likeflag": likeFlag, "hadcollect": hadCollect})
+	return render(ctx, "projects/detail.html,common/comment.html", data)
 }
 
 // CheckExist 检测 uri 对应的项目是否存在(验证，true表示不存在；false表示存在)

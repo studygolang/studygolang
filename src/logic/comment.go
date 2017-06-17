@@ -208,6 +208,7 @@ func (CommentLogic) sendSystemMsg(ctx context.Context, uid, objid, objtype, cid 
 	case model.TypeTopic:
 		to = DefaultTopic.getOwner(objid)
 	case model.TypeArticle:
+		to = DefaultArticle.getOwner(objid)
 	case model.TypeResource:
 		to = DefaultResource.getOwner(objid)
 	case model.TypeWiki:

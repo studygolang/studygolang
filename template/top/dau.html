@@ -20,12 +20,12 @@
 							<a href="/user/{{.Username}}"><img src="{{gravatar .Avatar .Email 48 $.is_https}}" class="avatar" border="0" align="default"></a>
 						</td>
 						<td width="auto" align="left">
-							<h2 style="margin-bottom: 0px; margin-top: 0px; border-bottom: none;"><span class="gray">{{add $i 1}}.</span> <a class="nobreak noul" href="/user/{{.Username}}">{{.Username}}</a></h2>
+							<h2 style="margin-bottom: 0px; margin-top: 0px; border-bottom: none;"><span class="c9">{{add $i 1}}.</span> <a class="nobreak noul" href="/user/{{.Username}}">{{.Username}}</a></h2>
 							
-							<span class="gray f12">{{.Monlog}}</span>
+							<span class="c9 f12">{{.Monlog}}</span>
 							<div class="sep5"></div>
 							
-							<span class="gray f12"><a href="{{.Website}}" target="_blank">{{.Website}}</a></span>
+							<span class="c9 f12"><a href="{{.Website}}" target="_blank">{{.Website}}</a></span>
 							<div class="sep5"></div>
 							
 							<span style="color: #ccc;">第 {{.Uid}} 号会员</span>
@@ -41,7 +41,7 @@
 					{{end}}
 					
 					<tr>
-						<td colspan="3" align="center"><div><span class="gray">{{.active_num}}</span></div></td>
+						<td colspan="3" align="center"><div><span class="c9">{{.active_num}}</span></div></td>
 					</tr>
 				</tbody></table>
 			</div>

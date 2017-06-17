@@ -81,6 +81,8 @@ type User struct {
 	Gold   int `json:"gold" xorm:"-"`
 	Silver int `json:"silver" xorm:"-"`
 	Copper int `json:"copper" xorm:"-"`
+
+	IsOnline bool `json:"is_online" xorm:"-"`
 }
 
 func (this *User) TableName() string {
