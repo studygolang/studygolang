@@ -89,6 +89,10 @@ func (self ThirdUserLogic) LoginFromGithub(ctx context.Context, code string) (*m
 	defer session.Close()
 	session.Begin()
 
+	// 有可能获取不到 email？加上 @github.com做邮箱后缀
+	if githubUser.Email == "" {
+		githubUser.Email = githubUser.Login + "@github.com"
+	}
 	// 生成本站用户
 	user := &model.User{
 		Email:    githubUser.Email,
