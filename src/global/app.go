@@ -36,7 +36,7 @@ import (
 
 const (
 	DefaultCDNHttp  = "http://studygolang.qiniudn.com/"
-	DefaultCDNHttps = "https://dn-studygolang.qbox.me/"
+	DefaultCDNHttps = "https://static.studygolang.com/"
 )
 
 var Build string
