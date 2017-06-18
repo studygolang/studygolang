@@ -1,0 +1,186 @@
+{{define "title"}}{{if .book.Id}}修改{{else}}发布{{end}}图书 {{end}}
+{{define "content"}}
+<div class="row">
+	<div class="col-md-9 col-sm-6">
+		<div class="sep20"></div>
+		<ol class="breadcrumb">
+			<li><a href="/">首页</a></li>
+			<li><a href="/books">图书</a></li>
+			<li class="active">{{if .book.Id}}修改{{else}}发布{{end}}图书</li>
+		</ol>
+		<div class="page box_white">
+			<form class="form-horizontal validate-form" role="form" action="{{if .book.Id}}/book/modify{{else}}/book/new{{end}}" data-redirect="/books">
+				{{if .book.Id}}
+				<input type="hidden" name="id" value="{{.book.Id}}" />
+				{{end}}
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="name"><abbr>*</abbr>书名</label>
+					<div class="col-sm-6">
+						<input class="form-control required" type="text" id="name" name="name" placeholder="书名" value="{{.book.Name}}">
+					</div>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="lang"><abbr>*</abbr>语言</label>
+					<div class="col-sm-6">
+						<select name="lang" class="form-control">
+							<option value="0" {{if not .book.Lang}}selected{{end}}>中文</option>
+							<option value="1" {{if .book.Lang}}selected{{end}}>英文</option>
+						</select>
+					</div>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="ename">英文书名</label>
+					<div class="col-sm-6">
+						<input class="form-control" type="text" id="ename" name="ename" placeholder="英文书名" value="{{.book.Ename}}">
+					</div>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="author"><abbr>*</abbr>作者</label>
+					<div class="col-sm-6">
+						<input class="form-control required" type="text" id="author" name="author" placeholder="作者" value="{{.book.Author}}">
+					</div>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="translator">译者</label>
+					<div class="col-sm-6">
+						<input class="form-control" type="text" id="translator" name="translator" placeholder="译者" value="{{.book.Translator}}">
+					</div>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="cover">封面</label>
+					<div class="col-sm-6">
+						<input class="form-control img_url {url:true}" type="url" id="cover" name="cover" placeholder="图书封面" value="{{.book.Cover}}">
+					</div>
+					<span class="help-block upload_img_single"></span>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="pub_date"><abbr>*</abbr>出版日期</label>
+					<div class="col-sm-6">
+						<input class="form-control required" type="text" id="pub_date" name="pub_date" placeholder="出版日期" value="{{.book.PubDate}}">
+					</div>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="is_free">是否免费</label>
+					<div class="col-sm-6">
+						<select name="is_free" class="form-control">
+							<option value="0" {{if not .book.IsFree}}selected{{end}}>否</option>
+							<option value="1" {{if .book.IsFree}}selected{{end}}>是</option>
+						</select>
+					</div>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="online_url">在线阅读URL</label>
+					<div class="col-sm-6">
+						<input class="form-control" type="text" id="online_url" name="online_url" placeholder="在线阅读URL" value="{{.book.OnlineUrl}}">
+					</div>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="download_url">下载URL</label>
+					<div class="col-sm-6">
+						<input class="form-control" type="text" id="download_url" name="download_url" placeholder="下载URL" value="{{.book.DownloadUrl}}">
+					</div>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="buy_url">购买URL</label>
+					<div class="col-sm-6">
+						<input class="form-control" type="text" id="buy_url" name="buy_url" placeholder="购买URL" value="{{.book.BuyUrl}}">
+					</div>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="price">参考价格</label>
+					<div class="col-sm-6">
+						<input class="form-control" type="text" id="price" name="price" placeholder="参考价格" value="{{.book.Price}}">
+					</div>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="tags">tags</label>
+					<div class="col-sm-6">
+						<input class="form-control" type="text" id="tags" name="tags" placeholder="标签" value="{{.book.Tags}}">
+					</div>
+					<span class="help-block">多个逗号分隔</span>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-3 control-label" for="catalogue">图书目录</label>
+					<div class="col-sm-7">
+						<textarea class="form-control need-autogrow" id="catalogue" name="catalogue" rows="15">{{.book.Catalogue}}</textarea>
+					</div>
+				</div>
+				<div class="form-group form-group-sm desc">
+					<label class="col-sm-3 control-label" for="desc"><abbr>*</abbr>图书简介</label>
+					<div class="col-sm-7" id="desc-div">
+						<textarea class="form-control need-autogrow required" id="desc" name="desc" rows="15">{{.book.Desc}}</textarea>
+						<div class="preview-div" style="display:none;"></div>
+					</div>
+					<i class="glyphicon glyphicon-eye-open preview" title="预览" style="cursor:pointer;"></i><span class="help-block">支持Markdowm</span>
+				</div>
+				<div class="form-group form-group-sm">
+					<label class="col-sm-5 control-label">&nbsp;</label>
+					<div class="col-sm-6">
+						<button type="submit" class="btn btn-default btn-sm" id="submit">{{if .book.Id}}提交修改{{else}}发布图书{{end}}</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	<div class="col-md-3 col-sm-6">
+		<div class="sep20"></div>
+
+		<div class="box_white sidebar">
+			<div class="top">
+				<ul class="list-inline text-center">
+					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新主题</a>|</li>
+					<li class="second"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
+					<li class="last"><a href="javascript:;">最新评论</a></li>
+				</ul>
+				<p class="bar"></p>
+			</div>
+			<div class="sb-content">
+				<div class="topic-list first">
+					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
+					</ul>
+				</div>
+				<div class="resource-list second hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+				<div class="cmt-list last hidden">
+					<ul class="list-unstyled">
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{{end}}
+{{define "css"}}
+<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/Huploadify.css?v=0.1" media="screen" rel="stylesheet" type="text/css">
+<style type="text/css">
+.uploadify-button {margin:0px;}
+</style>
+{{end}}
+{{define "js"}}
+<script	type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.Huploadify.js"></script>
+<script type="text/javascript" src="/static/js/upload.js?v=1.0"></script>
+<script type="text/javascript" src="/static/js/books.js?v=1.0"></script>
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/topics/recent",
+	"/resources/recent",
+	"/comments/recent",
+];
+
+$(function(){
+	// 文本框自动伸缩
+	$('.need-autogrow').autoGrow();
+});
+</script>
+{{end}}

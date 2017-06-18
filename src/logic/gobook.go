@@ -9,6 +9,7 @@ package logic
 import (
 	. "db"
 	"model"
+	"net/url"
 	"time"
 
 	"github.com/polaris1119/logger"
@@ -18,6 +19,67 @@ import (
 type GoBookLogic struct{}
 
 var DefaultGoBook = GoBookLogic{}
+
+func (self GoBookLogic) Publish(ctx context.Context, user *model.Me, form url.Values) (err error) {
+	objLog := GetLogger(ctx)
+
+	id := form.Get("id")
+	isModify := id != ""
+
+	book := &model.Book{}
+
+	if isModify {
+		_, err = MasterDB.Id(id).Get(book)
+		if err != nil {
+			objLog.Errorln("Publish Book find error:", err)
+			return
+		}
+
+		if !CanEdit(user, book) {
+			err = NotModifyAuthorityErr
+			return
+		}
+
+		err = schemaDecoder.Decode(book, form)
+		if err != nil {
+			objLog.Errorln("Publish Book schema decode error:", err)
+			return
+		}
+	} else {
+		err = schemaDecoder.Decode(book, form)
+		if err != nil {
+			objLog.Errorln("Publish Book schema decode error:", err)
+			return
+		}
+
+		book.Lastreplytime = model.NewOftenTime()
+		book.Uid = user.Uid
+	}
+
+	var affected int64
+	if !isModify {
+		affected, err = MasterDB.Insert(book)
+	} else {
+		affected, err = MasterDB.Update(book)
+	}
+
+	if err != nil {
+		objLog.Errorln("Publish Book error:", err)
+		return
+	}
+
+	if affected == 0 {
+		return
+	}
+
+	if isModify {
+		go modifyObservable.NotifyObservers(user.Uid, model.TypeBook, book.Id)
+	} else {
+		go publishObservable.NotifyObservers(user.Uid, model.TypeBook, book.Id)
+	}
+
+	return
+}
 
 // FindBy 获取图书列表（分页）
 func (GoBookLogic) FindBy(ctx context.Context, limit int, lastIds ...int) []*model.Book {
@@ -110,7 +172,10 @@ type BookComment struct{}
 // cid：评论id；objid：被评论对象id；uid：评论者；cmttime：评论时间
 func (self BookComment) UpdateComment(cid, objid, uid int, cmttime time.Time) {
 	// 更新评论数（TODO：暂时每次都更新表）
-	_, err := MasterDB.Id(objid).Incr("cmtnum", 1).Update(new(model.Article))
+	_, err := MasterDB.Table(new(model.Book)).Id(objid).Incr("cmtnum", 1).Update(map[string]interface{}{
+		"lastreplyuid":  uid,
+		"lastreplytime": cmttime,
+	})
 	if err != nil {
 		logger.Errorln("更新图书评论数失败：", err)
 	}

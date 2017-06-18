@@ -136,6 +136,7 @@ func (self CommentLogic) FindRecent(ctx context.Context, uid, objtype, limit int
 		model.TypeResource: ResourceComment{},
 		model.TypeWiki:     nil,
 		model.TypeProject:  ProjectComment{},
+		model.TypeBook:     BookComment{},
 	}
 	for cmtType, cmts := range cmtMap {
 		self.fillObjinfos(cmts, cmtObjs[cmtType])

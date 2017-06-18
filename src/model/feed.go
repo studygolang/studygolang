@@ -120,6 +120,18 @@ func PublishFeed(object interface{}, objectExt interface{}) {
 			Lastreplytime: objdoc.Lastreplytime,
 			UpdatedAt:     objdoc.Mtime,
 		}
+	case *Book:
+		feed = &Feed{
+			Objid:         objdoc.Id,
+			Objtype:       TypeBook,
+			Title:         "分享一本图书《" + objdoc.Name + "》",
+			Uid:           objdoc.Uid,
+			Tags:          objdoc.Tags,
+			Cmtnum:        objdoc.Cmtnum,
+			Lastreplyuid:  objdoc.Lastreplyuid,
+			Lastreplytime: objdoc.Lastreplytime,
+			UpdatedAt:     objdoc.UpdatedAt,
+		}
 	}
 
 	_, err := db.MasterDB.Insert(feed)
