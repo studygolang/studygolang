@@ -50,7 +50,6 @@ vim 3 n
 vimgo 3 n
 gosublime 3 n
 vscode 3 n
-eclipse 3 n
 docker 3 n
 dockerfile 3 n
 kubernetes 3 n
@@ -65,6 +64,7 @@ python 3 n
 php 3 n
 ruby 3 n
 java 3 n
+swift 3 n
 mysql 3 n
 linux 3 n
 apache 3 n
@@ -72,3 +72,15 @@ ai 3 n
 vr 3 n
 gogs 3 n
 gitea 3 n
+android 3 n
+ios 3 n
+iphone 3 n
+prometheus 3 n
+statsd 3 n
+graphite 3 n
+prometheus 3 n
+telegraf 3 n
+influxdb 3 n
+chronograf 3 n
+grafana 3 n
+
