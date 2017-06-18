@@ -14,6 +14,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 	"util"
 
 	. "http"
@@ -28,6 +29,8 @@ func AutoLogin() echo.MiddlewareFunc {
 		return func(ctx echo.Context) error {
 			// github.com/gorilla/sessions 要求必须 Clear
 			defer context.Clear(Request(ctx))
+
+			ctx.Set("req_start_time", time.Now())
 
 			var getCurrentUser = func(usernameOrId interface{}) {
 				if db.MasterDB != nil {

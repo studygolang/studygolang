@@ -7,6 +7,7 @@
 package logic
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -18,6 +19,7 @@ import (
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
+	"github.com/polaris1119/times"
 )
 
 const (
@@ -84,6 +86,23 @@ func (this *UserData) SendMessage(message *Message) {
 			logger.Infoln("server_id:", serverId, "had close")
 		}
 	}
+}
+
+// 用于 expvar 统计信息
+type LoginUser struct {
+	Uid            int    `json:"uid"`
+	LastAccessTime string `json:"last_access_time"`
+	OnlineDuartion string `json:"online_duration"`
+}
+type LoginUserSlice []*LoginUser
+
+func (self LoginUserSlice) String() string {
+	b, err := json.Marshal(self)
+	if err != nil {
+		return "[]"
+	}
+
+	return string(b)
 }
 
 var Book = &book{users: make(map[int]*UserData), uids: make(map[int]struct{})}
@@ -185,6 +204,23 @@ func (this *book) LoginLen() int {
 	this.rwMutex.RLock()
 	defer this.rwMutex.RUnlock()
 	return len(this.uids)
+}
+
+func (this *book) LoginUserData() LoginUserSlice {
+	this.rwMutex.RLock()
+	defer this.rwMutex.RUnlock()
+
+	loginUserData := LoginUserSlice(make([]*LoginUser, 0, len(this.uids)))
+	for uid := range this.uids {
+		user := this.users[uid]
+		loginUserData = append(loginUserData, &LoginUser{
+			Uid:            uid,
+			LastAccessTime: times.Format("Y-m-d H:i:s", user.lastAccessTime),
+			OnlineDuartion: user.onlineDuartion.String(),
+		})
+	}
+
+	return loginUserData
 }
 
 // 给某个用户发送一条消息

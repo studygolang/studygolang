@@ -208,7 +208,7 @@ $(function(){
 	});
 
 	var len = '{{.article.Txt}}'.length;
-	var readTime = Math.round(len / 1200);
+	var readTime = Math.round(len / 900);
 	if (readTime >= 1) {
 		$('.read-time').text('预计阅读时间 '+readTime+' 分钟');
 	} else {

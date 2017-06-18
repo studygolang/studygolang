@@ -311,6 +311,9 @@ func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interf
 
 	data["setting"] = logic.WebsiteSetting
 
+	// 记录处理时间
+	data["resp_time"] = time.Since(ctx.Get("req_start_time").(time.Time))
+
 	buf := new(bytes.Buffer)
 	err := tpl.Execute(buf, data)
 	if err != nil {

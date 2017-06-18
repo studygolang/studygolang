@@ -203,6 +203,11 @@ func (self EmailLogic) EmailNotice() {
 				continue
 			}
 
+			if user.IsThird == 1 && strings.HasSuffix(user.Email, "github.com") {
+				logger.Infoln("the email is not exists:", user)
+				continue
+			}
+
 			data["email"] = user.Email
 			data["token"] = self.GenUnsubscribeToken(user)
 

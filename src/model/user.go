@@ -91,7 +91,10 @@ func (this *User) TableName() string {
 
 func (this *User) String() string {
 	buffer := goutils.NewBuffer()
-	buffer.Append(this.Username).Append(this.Email).Append(this.Uid).Append(this.Mtime)
+	buffer.Append(this.Username).Append(" ").
+		Append(this.Email).Append(" ").
+		Append(this.Uid).Append(" ").
+		Append(this.Mtime)
 
 	return buffer.String()
 }
