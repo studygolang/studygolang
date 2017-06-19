@@ -75,7 +75,7 @@ func (self UserRichLogic) AwardCooper() {
 
 			userRank := redisClient.ZREVRANK(key, uid)
 			desc := fmt.Sprintf("%s 的活跃度为 %d，排名第 %d，奖励 %d 铜币", ymd, weight, userRank, award)
-			fmt.Println(uid, desc)
+
 			user := DefaultUser.FindOne(nil, "uid", uid)
 			self.IncrUserRich(user, model.MissionTypeActive, award, desc)
 		}
