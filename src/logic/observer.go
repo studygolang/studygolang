@@ -312,6 +312,10 @@ func (UserRichObserver) Update(action string, uid, objtype, objid int) {
 					utf8.RuneCountInString(comment.Content),
 					book.Id,
 					book.Name)
+			} else {
+				desc = fmt.Sprintf(`分享一本图书 › <a href="/book/%d">%s</a>`,
+					book.Id,
+					book.Name)
 			}
 		}
 	} else if action == actionModify {
