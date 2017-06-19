@@ -317,6 +317,7 @@ func (UserRichObserver) Update(action string, uid, objtype, objid int) {
 	} else if action == actionModify {
 		// TODO：修改暂时不消耗铜币
 		// DefaultUserRich.IncrUserRich(uid, model.MissionTypeModify, -2, desc)
+		return
 	} else if action == actionView {
 		return
 	}

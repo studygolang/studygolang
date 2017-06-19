@@ -88,6 +88,11 @@ func (self UserRichLogic) AwardCooper() {
 
 // IncrUserRich 增加或减少用户财富
 func (self UserRichLogic) IncrUserRich(user *model.User, typ, award int, desc string) {
+	if award == 0 {
+		logger.Errorln("IncrUserRich, but award is empty!")
+		return
+	}
+
 	var (
 		total int64 = -1
 		err   error
