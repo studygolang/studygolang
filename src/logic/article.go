@@ -259,6 +259,39 @@ func (self ArticleLogic) Publish(ctx context.Context, me *model.Me, form url.Val
 	return nil
 }
 
+func (self ArticleLogic) PublishFromAdmin(ctx context.Context, me *model.Me, form url.Values) error {
+	objLog := GetLogger(ctx)
+
+	articleUrl := form.Get("url")
+	netUrl, err := url.Parse(articleUrl)
+	if err != nil {
+		objLog.Errorln("url is illegal:", netUrl)
+		return err
+	}
+
+	article := &model.Article{
+		Domain:    netUrl.Host,
+		Name:      form.Get("name"),
+		Url:       articleUrl,
+		Author:    form.Get("author"),
+		AuthorTxt: form.Get("author"),
+		Title:     form.Get("title"),
+		Content:   form.Get("content"),
+		Txt:       form.Get("txt"),
+		PubDate:   form.Get("pub_date"),
+		Lang:      goutils.MustInt(form.Get("lang")),
+		Cover:     form.Get("cover"),
+	}
+
+	_, err = MasterDB.Insert(article)
+	if err != nil {
+		objLog.Errorln("insert article error:", err)
+		return err
+	}
+
+	return nil
+}
+
 func (ArticleLogic) cleanUrl(articleUrl string, auto bool) string {
 	pos := strings.LastIndex(articleUrl, "#")
 	if pos > 0 {

@@ -16,6 +16,11 @@
 微服务 3 n
 切片 3 n
 测试 3 n
+机器学习 3 n
+人工智能 3 n
+深度学习 3 n
+大数据 3 n
+云计算 3 n
 microservice 3 n
 slice 3 n
 goroutine 3 n

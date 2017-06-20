@@ -23,6 +23,7 @@ func (self ArticleController) RegisterRoute(g *echo.Group) {
 	g.GET("/crawl/article/list", self.ArticleList)
 	g.POST("/crawl/article/query.html", self.ArticleQuery)
 	g.Match([]string{"GET", "POST"}, "/crawl/article/new", self.CrawlArticle)
+	g.Match([]string{"GET", "POST"}, "/crawl/article/publish", self.Publish)
 	g.Match([]string{"GET", "POST"}, "/crawl/article/modify", self.Modify)
 }
 
@@ -107,6 +108,25 @@ func (ArticleController) CrawlArticle(ctx echo.Context) error {
 	return render(ctx, "article/new.html", data)
 }
 
+// Publish
+func (self ArticleController) Publish(ctx echo.Context) error {
+	var data = make(map[string]interface{})
+
+	if ctx.FormValue("submit") == "1" {
+		user := ctx.Get("user").(*model.Me)
+		err := logic.DefaultArticle.PublishFromAdmin(ctx, user, ctx.FormParams())
+		if err != nil {
+			return fail(ctx, 1, err.Error())
+		}
+		return success(ctx, nil)
+	}
+
+	data["statusSlice"] = model.ArticleStatusSlice
+	data["langSlice"] = model.LangSlice
+
+	return render(ctx, "article/publish.html", data)
+}
+
 // Modify
 func (self ArticleController) Modify(ctx echo.Context) error {
 	var data = make(map[string]interface{})
@@ -129,7 +149,6 @@ func (self ArticleController) Modify(ctx echo.Context) error {
 	data["langSlice"] = model.LangSlice
 
 	return render(ctx, "article/modify.html", data)
-
 }
 
 // /crawl/article/del
