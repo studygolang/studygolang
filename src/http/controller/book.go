@@ -8,6 +8,7 @@ package controller
 
 import (
 	"html/template"
+	"http/middleware"
 	"logic"
 	"net/http"
 
@@ -32,6 +33,8 @@ func (self BookController) RegisterRoute(g *echo.Group) {
 	g.Get("/books", self.ReadList)
 
 	g.Get("/book/:id", self.Detail)
+
+	g.Match([]string{"GET", "POST"}, "/book/new", self.Create, middleware.NeedLogin(), middleware.BalanceCheck(), middleware.PublishNotice())
 }
 
 // ReadList 图书列表页
@@ -50,6 +53,23 @@ func (BookController) ReadList(ctx echo.Context) error {
 	}
 
 	return render(ctx, "books/list.html", data)
+}
+
+// Create 发布新书
+func (BookController) Create(ctx echo.Context) error {
+	name := ctx.FormValue("name")
+	// 请求新建图书页面
+	if name == "" || ctx.Request().Method() != "POST" {
+		book := &model.Book{}
+		return render(ctx, "books/new.html", map[string]interface{}{"book": book, "activeBooks": "active"})
+	}
+
+	user := ctx.Get("user").(*model.Me)
+	err := logic.DefaultGoBook.Publish(ctx, user, ctx.FormParams())
+	if err != nil {
+		return fail(ctx, 1, "内部服务错误！")
+	}
+	return success(ctx, nil)
 }
 
 // Detail 图书详细页

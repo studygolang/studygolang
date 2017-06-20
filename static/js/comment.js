@@ -39,6 +39,41 @@
 			$('.page-comment .content-preview').show();
 		});
 
+		$('#replies').on('mouseenter', '.reply', function(evt) {
+			$(this).find('.op-reply').removeClass('hideable');
+		});
+		$('#replies').on('mouseleave', '.reply', function(evt) {
+			$(this).find('.op-reply').addClass('hideable');
+		});
+
+		$('#replies').on('click', '.reply_user', function(evt) {
+			if ($(evt.target).hasClass('reply_user')) {
+				$(this).parents('.reply-to-block').find('.markdown').toggleClass('dn');
+			}
+		});
+
+		$('#replies').on('click', '.btn-reply', function(evt) {
+			evt.preventDefault();
+
+			var floor = $(this).data('floor'),
+				username = $(this).data('username');
+			var $replyTo = $('.md-toolbar .reply-to');
+
+			$replyTo.data('floor', floor).data('username', username);
+
+			var title = '回复#'+floor+'楼';
+			$replyTo.children('.fa-mail-reply').attr('title', title);
+			$replyTo.children('.user').attr('title', title).attr('href', '#reply'+floor).text(username+' #'+floor);
+			$replyTo.removeClass('dn');
+
+			$('#commentForm textarea').focus();
+		});
+
+		$('.md-toolbar .reply-to .close').on('click', function(evt) {
+			evt.preventDefault();
+			$(this).parents('.reply-to').addClass('dn').data('floor', '').data('username', '');
+		});
+
 		emojify.setConfig({
 			// emojify_tag_type : 'span',
 			only_crawl_id    : null,
@@ -54,8 +89,8 @@
 
 		// 异步加载 评论
 		window.loadComments = function() {
-			var objid = $('.page-comment').data('objid'),
-				objtype = $('.page-comment').data('objtype');
+			var objid = $('.comment-list').data('objid'),
+				objtype = $('.comment-list').data('objtype');
 			
 			var params = {
 				'objid': objid,
@@ -74,54 +109,51 @@
 						var avatar = user.avatar;
 						if (avatar == "") {
 							if (isHttps) {
-								avatar = 'http://gravatar.com/avatar/'+md5(user.email)+"?s=48";
+								user.avatar = 'http://gravatar.com/avatar/'+md5(user.email)+"?s=48";
 							} else {
-								avatar = 'https://secure.gravatar.com/avatar/'+md5(user.email)+"?s=48";
+								user.avatar = 'https://secure.gravatar.com/avatar/'+md5(user.email)+"?s=48";
 							}
-						} else {
-							avatar = cdnDomain+'avatar/'+avatar+'?imageView2/2/w/40';
+						} else if (avatar.indexOf('http') === -1) {
+							user.avatar = cdnDomain+'avatar/'+avatar+'?imageView2/2/w/48';
 						}
-						
-						var cmtTime = SG.timeago(comments[i].ctime);
-						if (cmtTime == comments[i].ctime) {
+
+						var cmtTime = SG.timeago(comment.ctime);
+						if (cmtTime == comment.ctime) {
 							var cmtTimes = cmtTime.split(" ");
-							cmtTime = cmtTimes[0];
+							comment.cmt_time = cmtTimes[0];
+						} else {
+							comment.cmt_time = cmtTime;
 						}
-						content += contructOneCmt(comment.floor, user.uid, user.username, avatar, comment.content, comment.ctime, cmtTime);
+
+						if (comment.reply_floor > 0) {
+							var replyComment = comments[comment.reply_floor-1]
+							comment.reply_user = data[replyComment.uid];
+							comment.reply_content = replyComment.content;
+						}
+
+						comment.content = parseCmtContent(comment.content);
+
+						content += $.templates('#one-comment').render({comment: comment, user: user});
 					}
 
-					if (content != "") {
-						$('.page-comment .words ul').html(content);
-						$('.page-comment .words').removeClass('hide');
+					if (content != '') {
+						$('.comment-list .words').html(content);
 					}
+					$('.comment-list .words').removeClass('hide');
 
 					// emoji 表情解析
-					emojify.run($('.page-comment .words ul').get(0));
-					// twitter emoji 表情解析
-					/*
-					var result = twemoji.parse($('.page-comment .words ul').get(0), {
-						callback: function(icon, options, variant) {
-							return ''.concat(options.base, options.size, '/', icon, options.ext);
-						},
-						size: 16
-					});
-					*/
+					emojify.run($('.comment-list .words').get(0));
 
 					if ($("#is_login_status").val() == 1) {
 						SG.registerAtEvent(true, true, $('.page-comment textarea'));
 					}
 				} else {
-					comTip("评论加载失败");
+					comTip("回复加载失败");
 				}
 			});
 		}
 
-		var contructOneCmt = function(floor, uid, username, avatar, content, ctime, cmtTime, needLight) {
-			var oneCmt = '<li id="comment'+floor+'">';
-			if (typeof needLight !== "undefined") {
-				oneCmt = '<li id="comment'+floor+'" class="light">';
-			}
-			
+		var parseCmtContent = function(content) {
 			// 配置 marked 语法高亮
 			marked.setOptions({
 				highlight: function (code) {
@@ -134,116 +166,26 @@
 				}
 			});
 			content = marked(content);
-			content = SG.replaceCodeChar(content);
-			return oneCmt+
-				'<div class="pull-left face">'+
-					'<a href="/user/'+username+'" target="_blank"><img src="'+avatar+'" width="48px" height="48px" alt="'+username+'"></a>'+
-				'</div>'+
-				'<div class="cmt-body">'+
-					'<div class="cmt-content">'+
-						'<a href="/user/'+username+'" class="name replyName" target="_blank" data-floor="'+floor+'楼" data-uid="'+uid+'">'+username+'</a>：'+
-						'<span>'+content+'</span>'+
-						'<!--'+
-						'<span>'+
-							'<a href="" onclick="return confirm(\'确定删除该条评论?\');" title="删除">删除</a>'+
-						'</span>'+
-						'-->'+
-					'</div>'+
-					'<div class="cmt-meta">'+
-						floor+'楼, <span title="'+ctime+'">'+cmtTime+'</span>'+
-						'<a href="#" class="small_reply" data-floor="'+floor+'" title="回复此楼"><i class="glyphicon glyphicon-comment"></i> 回复</a>'+
-					'</div>'+
+			return SG.replaceCodeChar(content);
+		};
 
-					'<!--回复开始-->'+
-					'<div class="respond-submit">'+
-						'<div class="text">'+
-							'<textarea class="need-autogrow reply-content" name="content"></textarea>'+
-							'<div class="tip"></div>'+
-						'</div>'+
-						'<div class="sub clr">'+
-							'<button>提交</button>'+
-						'</div>'+
-					'</div>'+
-				'</div>'+
-			'</li>';
-		}
+		// 回复提交
+		$('#comment-submit').on('click', function(){
+			var content = $('#commentForm textarea').val();
 
-		var tipLength = function(thiss, callback){// 先输入文本 宽度计算完成 回调
-			var $reply = thiss.parent(".cmt-meta").prev(".cmt-content").children(".replyName");
-			var	replyName =	'#'+$reply.data('floor')+' @'+$reply.text()+' ';
-
-			var $tip = thiss.parents(".cmt-body").find(".respond-submit .text .tip");
-			$tip.text(replyName);
-			var	timer =	setInterval(function(){
-				if($tip.outerWidth()){
-					callback();
-					clearInterval(timer);
+			if(content == ""){
+				alert("其实你想说点什么...");
+			} else {
+				var floor = $('.md-toolbar .reply-to').data('floor');
+				if (parseInt(floor, 10) > 0) {
+					var username = $('.md-toolbar .reply-to').data('username');
+					content = '#'+floor+'楼 @'+username+' '+content;
 				}
-			},100)
-		}
-
-		// 回复交互表单
-		$(".page-comment").on('click', '.small_reply', function(event){
-			event.preventDefault();
-			
-			var thiss = $(this);
-			if($("#is_login_status").val() == 1){// 如果登录
-				// 隐藏所有回复表单，
-				$(".page-comment .respond-submit").hide(10); 
-				// 设置回复框的样式并默认选中
-				var $cmtBody = thiss.parents(".cmt-body");
-				tipLength(thiss, function(){
-					var tipWid = $cmtBody.find(".respond-submit .text .tip").outerWidth();
-					var cbWid = $cmtBody.width();
-					$cmtBody.find(".respond-submit .reply-content").css({'width':cbWid,'padding-left':tipWid+12, 'padding-top':10});
-					$cmtBody.find(".respond-submit .reply-content").focus();
-				})
-
-				// 显示当前表单
-				setTimeout(function(){
-					$cmtBody.find(".respond-submit").slideDown(300);
-					// 文本框自动伸缩
-					$('.need-autogrow').autoGrow();
-				},150)
-
-			} else {//未登录
-				openPop("#login-pop");
-			}
-			event.stopPropagation();
-		});
-
-		// 点击其他地方收起回复框
-		$(".page-comment").on('click', '.respond-submit', function(event){event.stopPropagation();});
-		$(document).click(function(){$(".respond-submit").slideUp(200);});
-
-		// 评论提交
-		$('.page-comment #commentForm .sub button').on('click', function(){
-			var content = $('.page-comment #commentForm textarea').val();
-
-			if(content == ""){
-				alert("其实你想说点什么...");
-			} else {
 				postComment($(this), content, function(comment){
-					comTip("评论成功！");
-					$('#commentForm textarea').val('');
-				});
-			}
-		});
-		// 回复表单提交
-		$(".page-comment").on('click', '.cmt-body .sub button', function(){
-			var $text = $(this).parent(".sub").prev(".text");
-			var replyTo = $text.children('.tip').text();
-			var	content	= $text.children(".reply-content").val();
-			
-			if(content == ""){
-				alert("其实你想说点什么...");
-			} else {
-				var that = $(this)
-				content = replyTo + content;
-				postComment(that, content, function(){
 					comTip("回复成功！");
-					that.parent(".sub").prev(".text").children(".reply-content").val("");
-					that.parents(".respond-submit").slideUp(200);
+					$('#commentForm textarea').val('');
+
+					$('.md-toolbar .reply-to .close').click();
 				});
 			}
 		});
@@ -251,8 +193,8 @@
 		var postComment = function(thiss, content, callback){
 			thiss.text("稍等").addClass("disabled").attr({"title":'稍等',"disabled":"disabled"});
 
-			var objid = $('.page-comment').data('objid'),
-				objtype = $('.page-comment').data('objtype');
+			var objid = $('.comment-list').data('objid'),
+				objtype = $('.comment-list').data('objtype');
 
 			var usernames = SG.analyzeAt(content);
 			
@@ -260,43 +202,46 @@
 				type:"post",
 				url: '/comment/'+objid,
 				data: {
-					"objtype":objtype,
-					"content":content,
+					"objtype": objtype,
+					"content": content,
 					"usernames": usernames.join(',')
 				},
 				dataType: 'json',
 				success: function(data){
 					if(data.ok){
 						var comment = data.data;
-						var $pageComment = $('.page-comment'),
-						username = $pageComment.data('username'),
-						uid = $pageComment.data('uid'),
-						avatar = $pageComment.data('avatar'),
-						cmtTime = SG.timeago(comment.ctime);
-						var oneCmt = contructOneCmt(comment.floor, uid, username, avatar, comment.content, comment.ctime, cmtTime, true);
 
-						$('.page-comment .words ul').append(oneCmt);
-						$('.page-comment .words').removeClass('hide');
+						var $pageComment = $('.comment-list'),
+							user = {};
+						
+						user.username = $pageComment.data('username'),
+						user.uid = $pageComment.data('uid'),
+						user.avatar = $pageComment.data('avatar'),
+						comment.cmt_time = SG.timeago(comment.ctime);
+						comment.reply_floor = 0;
+
+						var oneCmt = $.templates('#one-comment').render({comment: comment, user: user, is_new: true});
+
+						var $cmtNumObj = $('#replies .cmtnum'),
+							cmtNum = parseInt($cmtNumObj.text(), 10);
+						if (cmtNum == 0) {
+							$('.comment-list .words').html('');
+						}
+
+						$('.comment-list .words').append(oneCmt).removeClass('hide');
 
 						// emoji 表情解析
-						emojify.run($('.page-comment .words ul li:last').get(0));
-
-						// twitter emoji 表情解析
-						/*
-						twemoji.parse($('.page-comment .words ul li:last').get(0));
-						*/
+						emojify.run($('.comment-list .words .reply:last').get(0));
 						
 						// 注册@
 						SG.registerAtEvent(true, true, $('.page-comment textarea'));
 
-						var $cmtNumObj = $('.page-comment .words h3 .cmtnum'),
-							cmtNum = parseInt($cmtNumObj.text(), 10) + 1;
+						cmtNum++;
 
 						$cmtNumObj.text(cmtNum);
-						$('.page .meta .p-comment .cmtnum').text(cmtNum);
 						
 						setTimeout(function(){
-							$('.page-comment .words ul li').removeClass('light');
+							$('.comment-list .words .reply').removeClass('light');
 						}, 2000);
 						callback();
 					}else{

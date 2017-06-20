@@ -2,17 +2,17 @@
 {{define "seo"}}<meta name="keywords" content="{{.setting.SeoKeywords}}">
 <meta name="description" content="{{.setting.SeoDescription}}">{{end}}
 {{define "content"}}
-<div class="row banner">
-</div>
 <div class="row">
-	<div class="col-lg-9 col-md-8 col-sm-7">
+	<div class="col-md-9 col-sm-6">
+		<div class="sep20"></div>
+
 		<ol class="breadcrumb">
-			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/">首页</a></li>
 			<li class="active">今日最活跃会员</li>
 			<li class="active">{{.today}}</li>
 		</ol>
 		<div class="page box_white">
-			<div class="inner_content">
+			<div class="inner_content cell">
 				<table cellpadding="5" cellspacing="0" border="0" width="100%"><tbody>
 					{{range $i, $user := .users}}
 					<tr>
@@ -20,18 +20,18 @@
 							<a href="/user/{{.Username}}"><img src="{{gravatar .Avatar .Email 48 $.is_https}}" class="avatar" border="0" align="default"></a>
 						</td>
 						<td width="auto" align="left">
-							<h2 style="margin-bottom: 0px; margin-top: 0px; border-bottom: none;"><span class="gray">{{add $i 1}}.</span> <a href="/member/{{.Username}}">{{.Username}}</a></h2>
+							<h2 style="margin-bottom: 0px; margin-top: 0px; border-bottom: none;"><span class="c9">{{add $i 1}}.</span> <a class="nobreak noul" href="/user/{{.Username}}">{{.Username}}</a></h2>
 							
-							<span class="gray f12">{{.Monlog}}</span>
+							<span class="c9 f12">{{.Monlog}}</span>
 							<div class="sep5"></div>
 							
-							<span class="gray f12"><a href="{{.Website}}" target="_blank">{{.Website}}</a></span>
+							<span class="c9 f12"><a href="{{.Website}}" target="_blank">{{.Website}}</a></span>
 							<div class="sep5"></div>
 							
 							<span style="color: #ccc;">第 {{.Uid}} 号会员</span>
 							
 						</td>
-						<td width="200" align="center">
+						<td width="150" align="center">
 							<div class="balance_area" style="font-size: 24px; line-height: 24px;">&nbsp;{{.Weight}}&nbsp;</div>
 						</td>
 					</tr>
@@ -41,69 +41,16 @@
 					{{end}}
 					
 					<tr>
-						<td colspan="3" align="center"><div><span class="gray">{{.active_num}}</span></div></td>
+						<td colspan="3" align="center"><div><span class="c9">{{.active_num}}</span></div></td>
 					</tr>
 				</tbody></table>
 			</div>
 		</div>
 
 	</div>
-	<div class="col-lg-3 col-md-4 col-sm-5">
-		<div class="row box_white sidebar">
-			{{if .me.Uid}}
-			<div class="box">
-				<p style="margin-top: 10.5px; text-align: center;">欢迎您，<a href="/user/{{.me.Username}}">{{.me.Username}}</a></p>
-			</div>
-			<div class="box" style="margin: 0 5px;">
-				<a class="btn btn-default btn-sm" href="/topics/new">发布主题</a>&nbsp;&nbsp;
-				<a class="btn btn-default btn-sm" href="/articles/new">撰写文章</a>&nbsp;&nbsp;
-				<a class="btn btn-default btn-sm" href="/resources/new">分享资源</a>&nbsp;&nbsp;
-			</div>
-			<div class="inner" style="margin-top: 25px;">
-				<a href="/message/system">{{.me.MsgNum}} 条未读消息</a>
-				<div class="pull-right">
-					<a href="/balance" class="balance_area">
-						{{if .me.Gold}}
-						{{.me.Gold}} <img src="/static/img/gold_48.png" alt="" width="16px">
-						{{end}}
-						{{if .me.Silver}}
-						{{.me.Silver}} <img src="/static/img/silver_48.png" alt="" width="16px">
-						{{end}}
-						{{.me.Copper}} <img src="/static/img/copper_48.png" alt="" width="16px">
-					</a>
-				</div>
-			</div>
-
-			{{else}}
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-user"></i> 用户登录</h3>
-			</div>
-			<div class="sb-content">
-				<form action="/account/login" method="post" class="form-horizontal login" role="form">
-					<div class="form-group">
-						<div class="col-sm-10">
-							<input type="text" class="form-control input-sm" id="username" name="username" placeholder="请填写用户名或邮箱">
-						</div>
-					</div>
-					<div class="form-group">
-						<div class="col-sm-10">
-							<input type="password" class="form-control input-sm" id="passwd" name="passwd" placeholder="请填写密码">
-						</div>
-					</div>
-					<div class="form-group">
-						<div class="col-sm-10">
-							<div class="checkbox">
-								<label>
-									<input id="user_remember_me" name="remember_me" type="checkbox" value="1" checked="checked" />  记住登录状态
-								</label>
-								<input class="btn btn-primary btn-sm" data-disable-with="正在登录" name="commit" type="submit" value="登录" />
-							</div>
-						</div>
-					</div>
-				</form>
-			</div>
-			{{end}}
-		</div>
+	<div class="col-md-3 col-sm-6">
+		<div class="sep20"></div>
+		{{include "common/my_info.html" .}}
 
 	</div>
 </div>

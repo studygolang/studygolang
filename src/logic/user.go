@@ -17,6 +17,7 @@ import (
 
 	"github.com/go-validator/validator"
 	"github.com/go-xorm/xorm"
+	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	"golang.org/x/net/context"
@@ -63,9 +64,13 @@ func (self UserLogic) CreateUser(ctx context.Context, form url.Values) (errMsg s
 		return
 	}
 
-	if !user.IsRoot {
-		// 避免前端伪造，传递 status=1
-		user.Status = model.UserStatusNoAudit
+	if config.ConfigFile.MustBool("account", "verify_email", true) {
+		if !user.IsRoot {
+			// 避免前端伪造，传递 status=1
+			user.Status = model.UserStatusNoAudit
+		}
+	} else {
+		user.Status = model.UserStatusAudit
 	}
 
 	session := MasterDB.NewSession()
@@ -170,14 +175,24 @@ func (UserLogic) EmailOrUsernameExists(ctx context.Context, email, username stri
 	return true
 }
 
-func (self UserLogic) FindUserInfos(ctx context.Context, uids []int) map[int]*model.User {
+// FindUserInfos 获得用户信息，uniq 可能是 uid slice 或 username slice
+func (self UserLogic) FindUserInfos(ctx context.Context, uniq interface{}) map[int]*model.User {
 	objLog := GetLogger(ctx)
-	if len(uids) == 0 {
-		return nil
+
+	field := "uid"
+	if uids, ok := uniq.([]int); ok {
+		if len(uids) == 0 {
+			return nil
+		}
+	} else if usernames, ok := uniq.([]string); ok {
+		if len(usernames) == 0 {
+			return nil
+		}
+		field = "username"
 	}
 
 	usersMap := make(map[int]*model.User)
-	if err := MasterDB.In("uid", uids).Find(&usersMap); err != nil {
+	if err := MasterDB.In(field, uniq).Find(&usersMap); err != nil {
 		objLog.Errorln("user logic FindUserInfos not record found:", err)
 		return nil
 	}
@@ -572,14 +587,12 @@ func (UserLogic) doCreateUser(ctx context.Context, session *xorm.Session, user *
 	}
 	if len(passwd) > 0 {
 		userLogin.Passwd = passwd[0]
-	}
-
-	if user.Status != model.UserStatusAudit {
 		err = userLogin.GenMd5Passwd()
 		if err != nil {
 			return err
 		}
 	}
+
 	if _, err = session.Insert(userLogin); err != nil {
 		return err
 	}

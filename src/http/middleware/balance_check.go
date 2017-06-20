@@ -28,11 +28,11 @@ func BalanceCheck() echo.MiddlewareFunc {
 				if ctx.Request().Method() == "POST" && (title != "" || content != "") {
 					if ctx.Path() == "/comment/:objid" {
 						if curUser.Balance < 5 {
-							return ctx.String(http.StatusOK, `{"ok":0,"error":"对不起，您的账号余额不足！"}`)
+							return ctx.String(http.StatusOK, `{"ok":0,"error":"对不起，您的账号余额不足，可以领取初始资本！"}`)
 						}
 					} else {
 						if curUser.Balance < 20 {
-							return ctx.String(http.StatusOK, `{"ok":0,"error":"对不起，您的账号余额不足！"}`)
+							return ctx.String(http.StatusOK, `{"ok":0,"error":"对不起，您的账号余额不足，可以领取初始资本！"}`)
 						}
 					}
 				}

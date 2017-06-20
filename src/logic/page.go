@@ -13,7 +13,7 @@ import (
 )
 
 // 每页显示多少条
-const PerPage = 15
+const PerPage = 50
 
 // Paginator 分页器
 type Paginator struct {

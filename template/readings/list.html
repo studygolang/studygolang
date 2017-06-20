@@ -1,11 +1,10 @@
 {{define "title"}}技术晨读 {{end}}
 {{define "content"}}
-<div class="row banner">
-</div>
 <div class="row">
-	<div class="col-lg-9 col-md-8 col-sm-7">
+	<div class="col-md-9 col-sm-6">
+		<div class="sep20"></div>
 		<ol class="breadcrumb">
-			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/">首页</a></li>
 			<li class="active">技术晨读</li>
 			<li class="active">{{if eq .rtype 0}}Go晨读{{else}}综合晨读{{end}}</li>
 		</ol>
@@ -56,8 +55,10 @@
 			{{end}}
 		</ul>
 	</div>
-	<div class="col-lg-3 col-md-4 col-sm-5">
-		<div class="row box_white sidebar">
+	<div class="col-md-3 col-sm-6">
+		<div class="sep20"></div>
+
+		<div class="box_white sidebar">
 			<div class="top">
 				<h3 class="title"><i class="glyphicon glyphicon-qrcode"></i>&nbsp;&nbsp;关注我们(微信/微博)</h3>
 			</div>
@@ -71,20 +72,9 @@
 			</div>
 		</div>
 		
-		<div class="row box_white sidebar">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-list"></i>&nbsp;<a href="/articles" target="_blank" title="点击更多">最新博文</a></h3>
-			</div>
-			<div class="sb-content">
-				<div class="article-list" data-limit="10">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-			</div>
-		</div>
+		{{include "sidebar/article.html" .}}
 		
-		<div class="row box_white sidebar">
+		<div class="box_white sidebar">
 			<div class="top">
 				<ul class="list-inline text-center">
 					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新主题</a>|</li>
@@ -111,7 +101,7 @@
 		</div>
 
 		{{if .pos_ad.right1}}
-		<div class="row box_white sidebar" id="ad-right1">
+		<div class="box_white sidebar" id="ad-right1">
 			{{if eq .pos_ad.right1.AdType 0}}
 				{{noescape .pos_ad.right1.Code}}
 			{{end}}

@@ -109,6 +109,14 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 		if me.Uid == entity.Uid {
 			return true
 		}
+	case *model.Book:
+		if time.Now().Sub(time.Time(entity.CreatedAt)) > canEditTime {
+			return false
+		}
+
+		if me.Uid == entity.Uid {
+			return true
+		}
 	case map[string]interface{}:
 		if ctime, ok := entity["ctime"]; ok {
 			if time.Now().Sub(time.Time(ctime.(model.OftenTime))) > canEditTime {

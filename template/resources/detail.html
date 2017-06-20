@@ -2,123 +2,100 @@
 {{define "seo"}}<meta name="keywords" content="{{.setting.SeoKeywords}}">
 <meta name="description" content="{{substring .resource.content 200 ""}}">{{end}}
 {{define "content"}}
-<div class="row banner">
-</div>
 <div class="row">
-	<div class="col-lg-9 col-md-8 col-sm-7">
+	<div class="col-md-9 col-sm-6">
+		<div class="sep20"></div>
 		<ol class="breadcrumb">
-			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/">首页</a></li>
 			<li><a href="/resources">资源</a></li>
 			<li><a href="/resources/cat/{{.resource.catid}}">{{.resource.catname}}</a></li>
-			<li class="active">{{.resource.title}}</li>
 		</ol>
-		<div class="page box_white">
-			<div class="title text-center">
-				<h1>
-					{{.resource.title}}
-					{{if canEdit .me .resource}}
-					<a class="btn btn-primary btn-xs" href="/resources/modify?id={{.resource.id}}" title="编辑">编辑</a>
-					{{end}}
-				</h1>
-			</div>
-			<div class="meta">
-				<div class="p-author">
-					<i class="glyphicon glyphicon-calendar"></i>
-					<span title="{{.resource.ctime}}" class="timeago"></span>&nbsp;
-					<i class="glyphicon glyphicon-user"></i>
-					<a href="/user/{{.resource.user.Username}}" title="{{if .resource.user.Name}}{{.resource.user.Name}}{{else}}{{.resource.user.Username}}{{end}}">{{if .resource.user.Name}}{{.resource.user.Name}}({{.resource.user.Username}}){{else}}{{.resource.user.Username}}{{end}}</a>
+		<div class="page">
+			<div class="box_white">
+				<div class="title">
+					<div class="pull-right">
+						<a href="/user/{{.resource.user.Username}}" title="{{.resource.user.Username}}">
+							<img src="{{gravatar .resource.user.Avatar .resource.user.Email 62 .is_https}}" alt="{{if .resource.user.Name}}{{.resource.user.Name}}{{else}}{{.resource.user.Username}}{{end}}" width="62px" height="62px">
+						</a>
+					</div>
+					<h1>
+						{{.resource.title}}
+					</h1>
+					<small class="c9">
+						<a href="/user/{{.resource.user.Username}}">{{.resource.user.Username}}</a> · <span title="{{.resource.ctime}}" class="timeago"></span> · {{add .resource.viewnum 1}} 次点击 &nbsp; &nbsp;
+						{{if canEdit .me .resource}}
+						<a class="op" href="/resources/modify?tid={{.resource.id}}" title="编辑">编辑</a>
+						{{end}}
+					</small>
 				</div>
-				<!-- p-author END -->
+				{{if gt (distanceDay .resource.ctime) 100 }}
+				<div class="outdated">这是一个分享于 <span title="{{.resource.ctime}}" class="timeago"></span> 的资源，其中的信息可能已经有所发展或是发生改变。</div>
+				{{end}}
+				<div class="cell">
+					<div class="content">{{if eq .resource.form "只是链接"}}传送门： {{if hasPrefix .resource.url "/r/golang/"}}https://reddit.com{{end}}{{.resource.url}}{{else}}{{.resource.content}}{{end}}</div>
+				</div>
 				
-				<div class="p-comment text-right">
-					<span class="view" title="阅读数">
-						<i class="glyphicon glyphicon-eye-open"></i>
-						阅读 <span>{{add .resource.viewnum 1}}</span> 次&nbsp;
-					</span>
-					<span class="like" title="喜欢人数">
-						<i class="glyphicon glyphicon-heart"></i>
-						<span class="likenum">{{.resource.likenum}}</span> 人喜欢&nbsp;
-					</span>
-					<a href="/resources/{{.resource.id}}#commentForm" title="我要评论"><i class="glyphicon glyphicon-comment"></i> <span class="cmtnum">{{.resource.cmtnum}}</span> 条评论</a>
+				<div class="content-buttons">
+					<div class="pull-right c9 f11" style="line-height: 12px; padding-top: 3px; text-shadow: 0px 1px 0px #fff;">{{add .resource.viewnum 1}} 次点击 &nbsp;{{if .resource.likenum}}∙&nbsp; {{.resource.likenum}} 赞 &nbsp; {{end}}</div>
+					<a class="tb collect" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}" data-objid="{{.resource.id}}" data-objtype="2" data-collect="{{.hadcollect}}">{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}</a> &nbsp;
+					<div id="content-thank">
+						<a class="tb" href="javascript:;" title="{{if .likeflag}}取消赞{{else}}赞{{end}}" data-objid="{{.resource.id}}" data-objtype="2" data-flag="{{.likeflag}}">{{if .likeflag}}取消赞{{else}}赞{{end}}</a>
+					</div>
 				</div>
-				<!-- p-comment END -->
 			</div>
-			<div class="tags">
-				<ul class="list-inline"></ul>
-			</div>
-			<!-- tags -->
-
-			<div class="content">{{if eq .resource.form "只是链接"}}资源链接 {{.resource.url}}{{else}}{{.resource.content}}{{end}}</div>
 			<!-- content END -->
-			<div class="active row">
-				<div class="mark-like-btn col-md-8">
-					<a class="share-btn like-btn {{if .likeflag}}hadlike{{end}}" href="javascript:;" title="{{if .likeflag}}取消喜欢{{else}}我喜欢{{end}}" data-objid="{{.resource.id}}" data-objtype="2" data-flag="{{.likeflag}}">
-						<i class="glyphicon glyphicon-heart-empty"></i><span class="likenum">{{.resource.likenum}}</span>人喜欢
-					</a>
-					<a class="share-btn collect {{if .hadcollect}}hadlike{{end}}" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}稍后再读{{end}}" data-objid="{{.resource.id}}" data-objtype="2" data-collect="{{.hadcollect}}">
-						<i class="glyphicon glyphicon-star-empty"></i>收藏
-					</a>
+			<div class="sep20"></div>
+
+			<!-- 评论列表 -->
+			<div id="replies" class="box_white">
+				<div class="cell">
+					<div class="pull-right" style="margin: -3px -5px 0px 0px;">
+					{{if .resource.tags}}
+						{{$tags := explode .resource.tags ","}}
+						{{range $tags}}
+						<a href="/tag/{{.}}" class="tag"><li class="fa fa-tag"></li> {{.}}</a>
+						{{end}}
+					{{end}}
+					</div>
+					<span class="c9"><span class="cmtnum">{{.resource.cmtnum}}</span> 回复 {{if .resource.cmtnum}}&nbsp;<strong class="snow">|</strong> &nbsp;直到 {{end}}</span>
+				</div>
+				<div class="comment-list cell" data-objid="{{.resource.id}}" data-objtype="2" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
+					<div class="words hide"><div class="text-center">暂无回复</div></div>
 				</div>
 			</div>
 
-			<!--百度推荐-->
-			<div id="hm_t_56958" style="margin:0 auto;max-width:790px;"></div>
+			<!-- 评论框 -->
+			{{template "comment" .}}
 			
-			<!-- 评论 -->
-			<div class="page-comment" data-objid="{{.resource.id}}" data-objtype="2" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
-				<div class="words hide">
-					<h3><span class="cmtnum">{{.resource.cmtnum}}</span>条评论</h3>
-					<ul class="list-unstyled">
-					</ul>
+			{{if .view_user_num}}
+			<div class="sep20"></div>
+			<div class="box_white">
+				<div class="cell">统计信息</div>
+				<div class="cell">
+					<span class="c9">目前已有 <strong>{{.view_user_num}}</strong> 位注册会员查看了本资源</span>
 				</div>
-				<div class="comment-title">
-					<h2>资源评论：</h2>
-					{{if .me.Uid}}
-					{{else}}
-					<span class="h2-tip">
-					（您需要 <a class="c-log" href="javascript:openPop('#login-pop');">登录</a> 后才能评论 <a href="/user/register" class="c-reg"> 没有账号</a> ？）</span>
-					{{end}}
-				</div>
-				{{template "comment" .}}
 			</div>
-			<!-- 评论 -->
+			{{end}}
 		</div>
 	</div>
-	<div class="col-lg-3 col-md-4 col-sm-5">
-		<div class="row box_white sidebar sb-author">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-user"></i>&nbsp;作者</h3>
-			</div>
-			<div class="sb-content">
-				<a href="/user/{{.resource.user.Username}}" class="pull-left avatar" title="{{.resource.user.Username}}">
-					<img src="{{gravatar .resource.user.Avatar .resource.user.Email 48 .is_https}}" alt="{{if .resource.user.Name}}{{.resource.user.Name}}{{else}}{{.resource.user.Username}}{{end}}" width="48px" height="48px">
-				</a>
-				<h4>
-					<a href="/user/{{.resource.user.Username}}" title="{{if .resource.user.Name}}{{.resource.user.Name}}{{else}}{{.resource.user.Username}}{{end}}">{{if .resource.user.Name}}{{.resource.user.Name}}({{.resource.user.Username}}){{else}}{{.resource.user.Username}}{{end}}</a>
-					<p>{{.resource.user.Monlog}}</p>
-				</h4>
-			</div>
-		</div>
+	<div class="col-md-3 col-sm-6">
+		<div class="sep20"></div>
 
-		<div class="row box_white sidebar">
-			<div class="sb-content text-center" style="padding: 15px 0;">
-				<a href="/resources/new" class="btn btn-default">分享资源</a>
-			</div>
-		</div>
+		{{include "common/my_info.html" .}}
 
 		{{if .pos_ad.right1}}
-		<div class="row box_white sidebar" id="ad-right1">
+		<div class="box_white sidebar" id="ad-right1">
 			{{if eq .pos_ad.right1.AdType 0}}
 				{{noescape .pos_ad.right1.Code}}
 			{{end}}
 		</div>
 		{{end}}
 
-		<div class="row box_white sidebar">
+		<div class="box_white sidebar">
 			<div class="top">
 				<ul class="list-inline text-center">
-					<li class="first"><a href="/resources" target="_blank" class="cur" title="点击更多">最新资源</a>|</li>
-					<li class="second"><a href="/topics" target="_blank" title="点击更多">最新主题</a>|</li>
+					<li class="first"><a href="/resources" target="_blank" class="cur" title="点击更多">最新主题</a>|</li>
+					<li class="second"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
 					<li class="last"><a href="/articles" target="_blank" title="点击更多">最新博文</a></li>
 				</ul>
 				<p class="bar"></p>
@@ -126,11 +103,11 @@
 			<div class="sb-content">
 				<div class="resource-list first">
 					<ul class="list-unstyled">
+						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
 					</ul>
 				</div>
-				<div class="topic-list second hidden">
+				<div class="resource-list second hidden">
 					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
 					</ul>
 				</div>
 				<div class="article-list last hidden">
@@ -139,9 +116,9 @@
 				</div>
 			</div>
 		</div>
-
+		
 		{{if .pos_ad.right2}}
-		<div class="row box_white sidebar" id="ad-right2">
+		<div class="box_white sidebar" id="ad-right2">
 			{{if eq .pos_ad.right2.AdType 0}}
 				{{noescape .pos_ad.right2.Code}}
 			{{end}}
@@ -169,12 +146,12 @@
 <script type="text/javascript" src="/static/js/libs/emojis.js"></script>
 <script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
 <script type="text/javascript" src="/static/js/resources.js?v=1.1"></script>
-<script type="text/javascript" src="/static/js/comment.js?v=1.1"></script>
+<script type="text/javascript" src="/static/js/comment.js?v=1.2"></script>
 <script type="text/javascript" src="/static/js/puploader.js?v=1.1"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
-	"/topics/recent",
+	"/resources/recent",
 	"/articles/recent",
 	"/resources/recent"
 ];
@@ -207,9 +184,4 @@ $(function(){
 	{{end}}
 {{end}}
 
-<script type="text/javascript">
-/* 内文方式  创建于 2015-03-15*/
-var cpro_id = "u1989498";
-</script>
-<script src="//cpro.baidustatic.com/cpro/ui/cnw.js" type="text/javascript"></script>
 {{end}}

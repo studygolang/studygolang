@@ -5,7 +5,7 @@
 <div class="row">
 	<div class="col-lg-9 col-md-8 col-sm-7">
 		<ol class="breadcrumb">
-			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/">首页</a></li>
 			<li><a href="/user/{{.user.Username}}">个人信息</a></li>
 			<li class="active">编辑</li>
 		</ol>
@@ -100,17 +100,20 @@
 		<div class="box_white" id="change-avatar">
 			<div class="select-avatar">
 				<h4 class="title">头像</h4>
-				<p>本站使用<a href="http://www.qiniu.com/" target="_blank">七牛云存储</a>来提供头像服务.</p>
+				<p>本站使用 <a href="http://www.qiniu.com/" target="_blank">七牛云存储</a> 来提供头像服务.</p>
 				<p>
-					当前头像<img class="img-rounded" src="{{gravatar .user.Avatar .user.Email 120 .is_https}}">
+					当前头像 <img class="img-rounded" src="{{gravatar .user.Avatar .user.Email 120 .is_https}}">
 				</p>
 				<p><a href="/account/change_avatar" class="btn btn-default btn-gravatar">使用Gravatar头像</a></p>
 				<ul class="nav nav-tabs" id="avatar-tab" role="tablist" style="margin-bottom: 15px;">
-					<li role="presentation" class="active"><a href="#default" role="tab" data-toggle="tab">选择默认头像</a></li>
-					<li role="presentation"><a href="#upload" role="tab" data-toggle="tab">上传头像</a></li>
+					{{if .default_avatars}}
+					<li role="presentation"><a href="#default" role="tab" data-toggle="tab">选择默认头像</a></li>
+					{{end}}
+					<li role="presentation" class="active"><a href="#upload" role="tab" data-toggle="tab">上传头像</a></li>
 				</ul>
 				<div class="tab-content">
-					<div id="default" class="tab-pane fade row-fluid active in" role="tabpanel">
+					{{if .default_avatars}}
+					<div id="default" class="tab-pane fade" role="tabpanel">
 						<form action="/account/change_avatar" method="post" class="validate-form" role="form" >
 							<div class="form-group">
 								<ul class="list-inline">
@@ -127,19 +130,20 @@
 								</ul>
 							<div class="control-group">
 								<div class="controls text-center">
-									<button type="submit" class="btn btn-success btn-sm submit">保存</button>
+									<button type="submit" class="btn btn-default btn-sm submit">保存</button>
 								</div>
 							</div>
 							</div>
 						</form>
 					</div>
-					<div id="upload" class="tab-pane fade">
+					{{end}}
+					<div id="upload" class="tab-pane fade row-fluid active in" role="tabpanel">
 					<form action="/account/change_avatar" method="post" enctype="multipart/form-data" class="form-horizontal validate-form">
 						<input type="hidden" name="avatar" id="upload-avatar">
 						<div class="form-group">
 							<label class="control-label col-md-2" for="upload-img">选择图片文件</label>
 							<div class="col-md-2">
-								<button id="upload-img" class="btn btn-primary btn-sm">选择文件</button>
+								<button id="upload-img" class="btn btn-default btn-sm">选择文件</button>
 							</div>
 							<span class="help-block">支持500K以内的jpg/png文件</span>
 						</div>
@@ -150,7 +154,7 @@
 						</div>
 						<div class="form-group">
 							<div class="col-md-offset-2 col-md-10">
-								<button type="submit" id="upload-btn" class="btn btn-success btn-sm submit" disabled>保存新头像</button>
+								<button type="submit" id="upload-btn" class="btn btn-default btn-sm submit" disabled>保存新头像</button>
 							</div>
 						</div>
 					</form>
@@ -220,7 +224,7 @@
 
 				<ul class="socialaccount_providers list-unstyled list-inline">
 					<li class="list-inline-item">
-					  <a class="btn btn-primary btn-sm" title="GitHub" href="/oauth/github/login?process=connect">GitHub</a>
+					  <a class="btn btn-default btn-sm" title="GitHub" href="/oauth/github/login?process=connect">GitHub</a>
 					</li>
 				</ul>
 			</div>

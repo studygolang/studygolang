@@ -2,12 +2,12 @@
 {{define "seo"}}<meta name="keywords" content="{{.setting.SeoKeywords}}">
 <meta name="description" content="{{.setting.SeoDescription}}">{{end}}
 {{define "content"}}
-<div class="row banner">
-</div>
 <div class="row">
-	<div class="col-lg-9 col-md-8 col-sm-7">
+	<div class="col-md-9 col-sm-6">
+		<div class="sep20"></div>
+
 		<ol class="breadcrumb">
-			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/">首页</a></li>
 			<li class="active">日常任务</li>
 		</ol>
 		<div class="page box_white">
@@ -19,7 +19,7 @@
 			</div>
 				{{end}}
 			<div class="cell">
-				<p class="gray">每日登录奖励已领取</p>
+				<p class="c9">每日登录奖励已领取</p>
 				<a class="btn btn-default btn-sm" href="/balance">查看我的账户余额</a>
 			</div>
 			{{else}}
@@ -28,34 +28,15 @@
 				<a class="btn btn-default btn-sm" href="/mission/daily/redeem">领取 X 铜币</a>
 			</div>
 			{{end}}
+			{{if .login_mission}}
 			<div class="cell">已连续登录领取 {{.login_mission.Days}} 天，总登录领取 {{.login_mission.TotalDays}} 天</div>
+			{{end}}
 		</div>
 	</div>
-	<div class="col-lg-3 col-md-4 col-sm-5">
-		<div class="row box_white sidebar">
-			<div class="box">
-				<p style="margin-top: 10.5px; text-align: center;">欢迎您，<a href="/user/{{.me.Username}}">{{.me.Username}}</a></p>
-			</div>
-			<div class="box" style="margin: 0 5px;">
-				<a class="btn btn-default btn-sm" href="/topics/new">发布主题</a>&nbsp;&nbsp;
-				<a class="btn btn-default btn-sm" href="/articles/new">撰写文章</a>&nbsp;&nbsp;
-				<a class="btn btn-default btn-sm" href="/resources/new">分享资源</a>&nbsp;&nbsp;
-			</div>
-			<div class="inner" style="margin-top: 25px;">
-				<a href="/message/system">{{.me.MsgNum}} 条未读消息</a>
-				<div class="pull-right">
-					<a href="/balance" class="balance_area">
-						{{if .me.Gold}}
-						{{.me.Gold}} <img src="/static/img/gold_48.png" alt="" width="16px">
-						{{end}}
-						{{if .me.Silver}}
-						{{.me.Silver}} <img src="/static/img/silver_48.png" alt="" width="16px">
-						{{end}}
-						{{.me.Copper}} <img src="/static/img/copper_48.png" alt="" width="16px">
-					</a>
-				</div>
-			</div>
-		</div>
+	<div class="col-md-3 col-sm-6">
+		<div class="sep20"></div>
+		
+		{{include "common/my_info.html" .}}
 
 	</div>
 </div>

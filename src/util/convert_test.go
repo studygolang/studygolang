@@ -18,8 +18,8 @@ type model struct {
 
 func TestModels2Intslice(t *testing.T) {
 	models := []*model{
-		&model{12, "polaris"},
-		&model{13, "xuxinhua"},
+		{12, "polaris"},
+		{13, "xuxinhua"},
 	}
 
 	actualResult := Models2Intslice(models, "Id")

@@ -16,7 +16,7 @@ var (
 	publishObservable Observable
 	modifyObservable  Observable
 	commentObservable Observable
-	viewObservable    Observable
+	ViewObservable    Observable
 )
 
 func init() {
@@ -35,9 +35,9 @@ func init() {
 	commentObservable.AddObserver(&TodayActiveObserver{})
 	commentObservable.AddObserver(&UserRichObserver{})
 
-	viewObservable = NewConcreteObservable(actionView)
-	viewObservable.AddObserver(&UserWeightObserver{})
-	viewObservable.AddObserver(&TodayActiveObserver{})
+	ViewObservable = NewConcreteObservable(actionView)
+	ViewObservable.AddObserver(&UserWeightObserver{})
+	ViewObservable.AddObserver(&TodayActiveObserver{})
 }
 
 type Observer interface {
@@ -312,11 +312,16 @@ func (UserRichObserver) Update(action string, uid, objtype, objid int) {
 					utf8.RuneCountInString(comment.Content),
 					book.Id,
 					book.Name)
+			} else {
+				desc = fmt.Sprintf(`分享一本图书 › <a href="/book/%d">%s</a>`,
+					book.Id,
+					book.Name)
 			}
 		}
 	} else if action == actionModify {
 		// TODO：修改暂时不消耗铜币
 		// DefaultUserRich.IncrUserRich(uid, model.MissionTypeModify, -2, desc)
+		return
 	} else if action == actionView {
 		return
 	}

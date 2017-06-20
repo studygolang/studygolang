@@ -8,14 +8,20 @@ package main
 
 import (
 	"db"
+	"flag"
 	"global"
 	"logic"
 	"model"
+	"server"
 	"time"
 
+	"github.com/polaris1119/config"
 	"github.com/polaris1119/logger"
 	"github.com/robfig/cron"
 )
+
+var embedIndexing = flag.Bool("embed_indexing", false, "是否嵌入 indexer 的功能，默认否")
+var embedCrawler = flag.Bool("embed_crawler", false, "是否嵌入 crawler 的功能，默认否")
 
 // 后台运行的任务
 func ServeBackGround() {
@@ -27,27 +33,39 @@ func ServeBackGround() {
 	// 初始化 七牛云存储
 	logic.DefaultUploader.InitQiniu()
 
+	if *embedIndexing {
+		server.IndexingServer()
+	}
+	if *embedCrawler {
+		server.CrawlServer()
+	}
+
 	// 常驻内存的数据
 	go loadData()
 
 	c := cron.New()
 
-	// 每天对非活跃用户降频
-	c.AddFunc("@daily", decrUserActiveWeight)
+	if config.ConfigFile.MustBool("global", "is_master", true) {
+		// 每天对非活跃用户降频
+		c.AddFunc("@daily", decrUserActiveWeight)
 
-	// 生成阅读排行榜
-	c.AddFunc("@daily", genViewRank)
+		// 生成阅读排行榜
+		c.AddFunc("@daily", genViewRank)
+
+		if global.OnlineEnv() {
+			// 每天生成 sitemap 文件
+			c.AddFunc("@daily", logic.GenSitemap)
+
+			// 给用户发邮件，如通知网站最近的动态，每周的晨读汇总等
+			c.AddFunc("0 0 0 * * *", logic.DefaultEmail.EmailNotice)
+		}
+
+		// 每天对活跃用户奖励铜币
+		c.AddFunc("@daily", logic.DefaultUserRich.AwardCooper)
+	}
 
 	// 两分钟刷一次浏览数（TODO：重启丢失问题？信号控制重启？）
 	c.AddFunc("@every 2m", logic.Views.Flush)
-
-	if global.OnlineEnv() {
-		// 每天生成 sitemap 文件
-		c.AddFunc("@daily", logic.GenSitemap)
-
-		// 给用户发邮件，如通知网站最近的动态，每周的晨读汇总等
-		c.AddFunc("0 0 4 * * 1", logic.DefaultEmail.EmailNotice)
-	}
 
 	c.Start()
 }

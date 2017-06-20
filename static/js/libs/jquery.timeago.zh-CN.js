@@ -1,21 +1,20 @@
 // Simplified Chinese
 jQuery.timeago.settings.strings = {
   prefixAgo: null,
-  prefixFromNow: null,
-  suffixAgo: "前",
-  suffixFromNow: "刚刚",
+  prefixFromNow: "从现在开始",
+  suffixAgo: "之前",
+  suffixFromNow: null,
   seconds: "不到1分钟",
-  minute: "约1分钟",
+  minute: "大约1分钟",
   minutes: "%d分钟",
-  hour: "约1小时",
-  hours: "约%d小时",
+  hour: "大约1小时",
+  hours: "大约%d小时",
   day: "1天",
   days: "%d天",
-  month: "约1个月",
+  month: "大约1个月",
   months: "%d月",
-  year: "约1年",
+  year: "大约1年",
   years: "%d年",
   numbers: [],
-  wordSeparator: "",
-  formatter: function(prefix, words, suffix) { return [prefix, words, suffix].join(""); }
+  wordSeparator: ""
 };

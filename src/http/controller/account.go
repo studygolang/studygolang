@@ -23,6 +23,7 @@ import (
 	"github.com/dchest/captcha"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo"
+	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	guuid "github.com/twinj/uuid"
@@ -62,6 +63,15 @@ func (self AccountController) Register(ctx echo.Context) error {
 		"email":     ctx.FormValue("email"),
 		"captchaId": captcha.NewLen(4),
 	}
+
+	disallowUsers := config.ConfigFile.MustValueArray("account", "disallow_user", ",")
+	for _, disallowUser := range disallowUsers {
+		if disallowUser == username {
+			data["error"] = username + " 被禁止使用，请换一个"
+			return render(ctx, registerTpl, data)
+		}
+	}
+
 	// 校验验证码
 	if !captcha.VerifyString(ctx.FormValue("captchaid"), ctx.FormValue("captchaSolution")) {
 		data["error"] = "验证码错误"
@@ -100,20 +110,29 @@ func (self AccountController) Register(ctx echo.Context) error {
 		pos := strings.LastIndex(email, "@")
 		emailUrl = "http://mail." + email[pos+1:]
 	}
-	data = map[string]interface{}{
-		"success": template.HTML(`
-			<div style="padding:30px 30px 50px 30px;">
- 				<div style="color:#339502;font-size:22px;line-height: 2.5;">恭喜您注册成功！</div>
- 				我们已经发送一封邮件到 ` + email + `，请您根据提示信息完成邮箱验证.<br><br>
- 				<a href="` + emailUrl + `" target="_blank"><button type="button" class="btn btn-success">立即验证</button></a>&nbsp;&nbsp;<button type="button" class="btn btn-link" data-uuid="` + uuid + `" id="resend_email">未收到？再发一次</button>
-			</div>`),
+
+	if config.ConfigFile.MustBool("account", "verify_email", true) {
+		data = map[string]interface{}{
+			"success": template.HTML(`
+				<div style="padding:30px 30px 50px 30px;">
+	 				<div style="color:#339502;font-size:22px;line-height: 2.5;">恭喜您注册成功！</div>
+	 				我们已经发送一封邮件到 ` + email + `，请您根据提示信息完成邮箱验证.<br><br>
+	 				<a href="` + emailUrl + `" target="_blank"><button type="button" class="btn btn-success">立即验证</button></a>&nbsp;&nbsp;<button type="button" class="btn btn-link" data-uuid="` + uuid + `" id="resend_email">未收到？再发一次</button>
+				</div>`),
+		}
+
+		isHttps := goutils.MustBool(ctx.Request().Header().Get("X-Https"))
+		// 需要检验邮箱的正确性
+		go logic.DefaultEmail.SendActivateMail(email, uuid, isHttps)
+
+		return render(ctx, registerTpl, data)
 	}
 
-	isHttps := goutils.MustBool(ctx.Request().Header().Get("X-Https"))
-	// 需要检验邮箱的正确性
-	go logic.DefaultEmail.SendActivateMail(email, uuid, isHttps)
+	// 不验证邮箱，注册完成直接登录
+	// 自动登录
+	SetLoginCookie(ctx, username)
 
-	return render(ctx, registerTpl, data)
+	return ctx.Redirect(http.StatusSeeOther, "/balance")
 }
 
 // SendActivateEmail 发送注册激活邮件
@@ -178,7 +197,7 @@ func (AccountController) Activate(ctx echo.Context) error {
 	RegActivateCode.DelUUID(uuid)
 
 	// 自动登录
-	SetCookie(ctx, user.Username)
+	SetLoginCookie(ctx, user.Username)
 
 	// return render(ctx, contentTpl, data)
 	return ctx.Redirect(http.StatusSeeOther, "/balance")
@@ -220,7 +239,7 @@ func (AccountController) Login(ctx echo.Context) error {
 	}
 
 	// 登录成功，种cookie
-	SetCookie(ctx, userLogin.Username)
+	SetLoginCookie(ctx, userLogin.Username)
 
 	if util.IsAjax(ctx) {
 		return success(ctx, nil)

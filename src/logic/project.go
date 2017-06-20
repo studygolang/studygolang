@@ -192,6 +192,8 @@ func (ProjectLogic) FindOne(ctx context.Context, val interface{}) *model.OpenPro
 		return nil
 	}
 
+	project.User = DefaultUser.FindOne(ctx, "username", project.Username)
+
 	return project
 }
 
@@ -401,9 +403,13 @@ type ProjectComment struct{}
 // cid：评论id；objid：被评论对象id；uid：评论者；cmttime：评论时间
 func (self ProjectComment) UpdateComment(cid, objid, uid int, cmttime time.Time) {
 	// 更新评论数（TODO：暂时每次都更新表）
-	_, err := MasterDB.Id(objid).Incr("cmtnum", 1).Update(new(model.OpenProject))
+	_, err := MasterDB.Table(new(model.OpenProject)).Id(objid).Incr("cmtnum", 1).Update(map[string]interface{}{
+		"lastreplyuid":  uid,
+		"lastreplytime": cmttime,
+	})
 	if err != nil {
 		logger.Errorln("更新项目评论数失败：", err)
+		return
 	}
 }
 

@@ -15,6 +15,8 @@ if [ ! -d log ]; then
 	mkdir log
 fi
 
+gofmt -w -s src
+
 BUILD="`git symbolic-ref HEAD | cut -b 12-`-`git rev-parse HEAD`"
 
 go install -ldflags "-X global.Build="$BUILD server/studygolang

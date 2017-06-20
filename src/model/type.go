@@ -33,6 +33,9 @@ func (self OftenTime) MarshalBinary() ([]byte, error) {
 func (self OftenTime) MarshalJSON() ([]byte, error) {
 	t := time.Time(self)
 	if y := t.Year(); y < 0 || y >= 10000 {
+		if y < 2000 {
+			return []byte(`"2000-01-01 00:00:00"`), nil
+		}
 		return nil, errors.New("Time.MarshalJSON: year outside of range [0,9999]")
 	}
 	return []byte(t.Format(`"2006-01-02 15:04:05"`)), nil
@@ -48,8 +51,23 @@ func (this *OftenTime) UnmarshalBinary(data []byte) error {
 }
 
 func (this *OftenTime) UnmarshalJSON(data []byte) (err error) {
-	t := time.Time(*this)
-	return t.UnmarshalJSON(data)
+	str := string(data)
+	if str == "null" {
+		return nil
+	}
+
+	if str == `"0001-01-01 08:00:00"` {
+
+		ft := NewOftenTime()
+		this = &ft
+		return nil
+	}
+
+	var t time.Time
+	t, err = time.ParseInLocation(`"2006-01-02 15:04:05"`, str, time.Local)
+	*this = OftenTime(t)
+
+	return
 }
 
 func (this *OftenTime) UnmarshalText(data []byte) (err error) {

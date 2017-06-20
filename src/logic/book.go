@@ -7,6 +7,7 @@
 package logic
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -18,6 +19,7 @@ import (
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
+	"github.com/polaris1119/times"
 )
 
 const (
@@ -86,16 +88,35 @@ func (this *UserData) SendMessage(message *Message) {
 	}
 }
 
-var Book = &book{users: make(map[int]*UserData)}
+// 用于 expvar 统计信息
+type LoginUser struct {
+	Uid            int    `json:"uid"`
+	LastAccessTime string `json:"last_access_time"`
+	OnlineDuartion string `json:"online_duration"`
+}
+type LoginUserSlice []*LoginUser
+
+func (self LoginUserSlice) String() string {
+	b, err := json.Marshal(self)
+	if err != nil {
+		return "[]"
+	}
+
+	return string(b)
+}
+
+var Book = &book{users: make(map[int]*UserData), uids: make(map[int]struct{})}
 
 type book struct {
-	users   map[int]*UserData
+	users map[int]*UserData
+	// 登录用户
+	uids    map[int]struct{}
 	rwMutex sync.RWMutex
 }
 
 // 增加一个用户到book中（有可能是用户的另一个请求）
 // user为UID或IP地址的int表示
-func (this *book) AddUser(user, serverId int) *UserData {
+func (this *book) AddUser(user, serverId int, isUid bool) *UserData {
 	var userData *UserData
 	var ok bool
 	this.rwMutex.Lock()
@@ -111,6 +132,9 @@ func (this *book) AddUser(user, serverId int) *UserData {
 			lastAccessTime: time.Now(),
 		}
 		this.users[user] = userData
+		if isUid {
+			this.uids[user] = struct{}{}
+		}
 		length := len(this.users)
 
 		this.rwMutex.Unlock()
@@ -133,23 +157,36 @@ func (this *book) AddUser(user, serverId int) *UserData {
 }
 
 // 删除用户
-func (this *book) DelUser(user, serverId int) {
+func (this *book) DelUser(user, serverId int, isUid bool) {
 	this.rwMutex.Lock()
 	defer this.rwMutex.Unlock()
 
 	// 自己只有一个页面建立websocket连接
 	if this.users[user].Len() == 1 {
 		delete(this.users, user)
+		if isUid {
+			delete(this.uids, user)
+		}
 	} else {
 		this.users[user].Remove(serverId)
 	}
 }
 
-// 判断用户是否还在线
+// 判断用户是否还在线（user 有可能是IP）
 func (this *book) UserIsOnline(user int) bool {
 	this.rwMutex.RLock()
 	defer this.rwMutex.RUnlock()
 	if _, ok := this.users[user]; ok {
+		return true
+	}
+	return false
+}
+
+// 判断注册用户是否还在线（user 有可能是IP）
+func (this *book) RegUserIsOnline(uid int) bool {
+	this.rwMutex.RLock()
+	defer this.rwMutex.RUnlock()
+	if _, ok := this.uids[uid]; ok {
 		return true
 	}
 	return false
@@ -160,6 +197,30 @@ func (this *book) Len() int {
 	this.rwMutex.RLock()
 	defer this.rwMutex.RUnlock()
 	return len(this.users)
+}
+
+// 在线注册会员数
+func (this *book) LoginLen() int {
+	this.rwMutex.RLock()
+	defer this.rwMutex.RUnlock()
+	return len(this.uids)
+}
+
+func (this *book) LoginUserData() LoginUserSlice {
+	this.rwMutex.RLock()
+	defer this.rwMutex.RUnlock()
+
+	loginUserData := LoginUserSlice(make([]*LoginUser, 0, len(this.uids)))
+	for uid := range this.uids {
+		user := this.users[uid]
+		loginUserData = append(loginUserData, &LoginUser{
+			Uid:            uid,
+			LastAccessTime: times.Format("Y-m-d H:i:s", user.lastAccessTime),
+			OnlineDuartion: user.onlineDuartion.String(),
+		})
+	}
+
+	return loginUserData
 }
 
 // 给某个用户发送一条消息

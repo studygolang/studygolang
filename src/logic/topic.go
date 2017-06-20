@@ -11,6 +11,7 @@ import (
 	"html/template"
 	"model"
 	"net/url"
+	"sync"
 	"time"
 	"util"
 
@@ -28,10 +29,10 @@ type TopicLogic struct{}
 var DefaultTopic = TopicLogic{}
 
 // Publish 发布主题。入topics和topics_ex库
-func (self TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Values) (err error) {
+func (self TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Values) (tid int, err error) {
 	objLog := GetLogger(ctx)
 
-	tid := goutils.MustInt(form.Get("tid"))
+	tid = goutils.MustInt(form.Get("tid"))
 	if tid != 0 {
 		topic := &model.Topic{}
 		_, err = MasterDB.Id(tid).Get(topic)
@@ -84,6 +85,9 @@ func (self TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Value
 			return
 		}
 
+		// 发布动态
+		DefaultFeed.publish(topic, topicEx)
+
 		// 给 被@用户 发系统消息
 		ext := map[string]interface{}{
 			"objid":   topic.Tid,
@@ -94,6 +98,8 @@ func (self TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Value
 		go DefaultMessage.SendSysMsgAtUsernames(ctx, usernames, ext, 0)
 
 		go publishObservable.NotifyObservers(me.Uid, model.TypeTopic, topic.Tid)
+
+		tid = topic.Tid
 	}
 
 	return
@@ -127,7 +133,7 @@ func (TopicLogic) Modify(ctx context.Context, user *model.Me, form url.Values) (
 }
 
 // FindAll 支持多页翻看
-func (TopicLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy string, querystring string, args ...interface{}) []map[string]interface{} {
+func (self TopicLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy string, querystring string, args ...interface{}) []map[string]interface{} {
 	objLog := GetLogger(ctx)
 
 	topicInfos := make([]*model.TopicInfo, 0)
@@ -142,42 +148,7 @@ func (TopicLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy str
 		return nil
 	}
 
-	uidSet := set.New(set.NonThreadSafe)
-	nidSet := set.New(set.NonThreadSafe)
-	for _, topicInfo := range topicInfos {
-		uidSet.Add(topicInfo.Uid)
-		if topicInfo.Lastreplyuid != 0 {
-			uidSet.Add(topicInfo.Lastreplyuid)
-		}
-		nidSet.Add(topicInfo.Nid)
-	}
-
-	usersMap := DefaultUser.FindUserInfos(ctx, set.IntSlice(uidSet))
-	// 获取节点信息
-	nodes := GetNodesName(set.IntSlice(nidSet))
-
-	data := make([]map[string]interface{}, len(topicInfos))
-
-	for i, topicInfo := range topicInfos {
-		dest := make(map[string]interface{})
-
-		// 有人回复
-		if topicInfo.Lastreplyuid != 0 {
-			if user, ok := usersMap[topicInfo.Lastreplyuid]; ok {
-				dest["lastreplyusername"] = user.Username
-			}
-		}
-
-		structs.FillMap(topicInfo.Topic, dest)
-		structs.FillMap(topicInfo.TopicEx, dest)
-
-		dest["user"] = usersMap[topicInfo.Uid]
-		dest["node"] = nodes[topicInfo.Nid]
-
-		data[i] = dest
-	}
-
-	return data
+	return self.fillDataForTopicInfo(topicInfos)
 }
 
 func (TopicLogic) FindLastList(beginTime string, limit int) ([]*model.Topic, error) {
@@ -233,28 +204,23 @@ func (TopicLogic) FindByTids(tids []int) []*model.Topic {
 	return topics
 }
 
-func (TopicLogic) findByTid(tid int) *model.Topic {
-	topic := &model.Topic{}
-	_, err := MasterDB.Where("tid=?", tid).Get(topic)
-	if err != nil {
-		logger.Errorln("TopicLogic findByTid error:", err)
-	}
-	return topic
-}
+func (self TopicLogic) FindFullinfoByTids(tids []int) []map[string]interface{} {
+	topicInfoMap := make(map[int]*model.TopicInfo, 0)
 
-// findByTids 获取多个主题详细信息 包内用
-func (TopicLogic) findByTids(tids []int) map[int]*model.Topic {
-	if len(tids) == 0 {
+	err := MasterDB.Join("INNER", "topics_ex", "topics.tid=topics_ex.tid").In("topics.tid", tids).Find(&topicInfoMap)
+	if err != nil {
+		logger.Errorln("TopicLogic FindFullinfoByTids error:", err)
 		return nil
 	}
 
-	topics := make(map[int]*model.Topic)
-	err := MasterDB.In("tid", tids).Find(&topics)
-	if err != nil {
-		logger.Errorln("TopicLogic findByTids error:", err)
-		return nil
+	topicInfos := make([]*model.TopicInfo, 0, len(topicInfoMap))
+	for _, tid := range tids {
+		if topicInfo, ok := topicInfoMap[tid]; ok {
+			topicInfos = append(topicInfos, topicInfo)
+		}
 	}
-	return topics
+
+	return self.fillDataForTopicInfo(topicInfos)
 }
 
 // FindByTid 获得主题详细信息（包括详细回复）
@@ -283,8 +249,8 @@ func (self TopicLogic) FindByTid(ctx context.Context, tid int) (topicMap map[str
 	// 解析内容中的 @
 	topicMap["content"] = self.decodeTopicContent(ctx, topic)
 
-	// 节点名字
-	topicMap["node"] = GetNodeName(topic.Nid)
+	// 节点
+	topicMap["node"] = GetNode(topic.Nid)
 
 	// 回复信息（评论）
 	replies, owerUser, lastReplyUser := DefaultComment.FindObjComments(ctx, topic.Tid, model.TypeTopic, topic.Uid, topic.Lastreplyuid)
@@ -302,8 +268,83 @@ func (self TopicLogic) FindByTid(ctx context.Context, tid int) (topicMap map[str
 	return
 }
 
+func (TopicLogic) findByTid(tid int) *model.Topic {
+	topic := &model.Topic{}
+	_, err := MasterDB.Where("tid=?", tid).Get(topic)
+	if err != nil {
+		logger.Errorln("TopicLogic findByTid error:", err)
+	}
+	return topic
+}
+
+// findByTids 获取多个主题详细信息 包内用
+func (TopicLogic) findByTids(tids []int) map[int]*model.Topic {
+	if len(tids) == 0 {
+		return nil
+	}
+
+	topics := make(map[int]*model.Topic)
+	err := MasterDB.In("tid", tids).Find(&topics)
+	if err != nil {
+		logger.Errorln("TopicLogic findByTids error:", err)
+		return nil
+	}
+	return topics
+}
+
+func (TopicLogic) fillDataForTopicInfo(topicInfos []*model.TopicInfo) []map[string]interface{} {
+	uidSet := set.New(set.NonThreadSafe)
+	nidSet := set.New(set.NonThreadSafe)
+	for _, topicInfo := range topicInfos {
+		uidSet.Add(topicInfo.Uid)
+		if topicInfo.Lastreplyuid != 0 {
+			uidSet.Add(topicInfo.Lastreplyuid)
+		}
+		nidSet.Add(topicInfo.Nid)
+	}
+
+	usersMap := DefaultUser.FindUserInfos(nil, set.IntSlice(uidSet))
+	// 获取节点信息
+	nodes := GetNodesByNids(set.IntSlice(nidSet))
+
+	data := make([]map[string]interface{}, len(topicInfos))
+
+	for i, topicInfo := range topicInfos {
+		dest := make(map[string]interface{})
+
+		// 有人回复
+		if topicInfo.Lastreplyuid != 0 {
+			if user, ok := usersMap[topicInfo.Lastreplyuid]; ok {
+				dest["lastreplyusername"] = user.Username
+			}
+		}
+
+		structs.FillMap(topicInfo.Topic, dest)
+		structs.FillMap(topicInfo.TopicEx, dest)
+
+		dest["user"] = usersMap[topicInfo.Uid]
+		dest["node"] = nodes[topicInfo.Nid]
+
+		data[i] = dest
+	}
+
+	return data
+}
+
+var (
+	hotNodesCache  []map[string]interface{}
+	hotNodesBegin  time.Time
+	hotNodesLocker sync.Mutex
+)
+
 // FindHotNodes 获得热门节点
 func (TopicLogic) FindHotNodes(ctx context.Context) []map[string]interface{} {
+	hotNodesLocker.Lock()
+	defer hotNodesLocker.Unlock()
+	if !hotNodesBegin.IsZero() && hotNodesBegin.Add(1*time.Hour).Before(time.Now()) {
+		return hotNodesCache
+	}
+
 	objLog := GetLogger(ctx)
 
 	strSql := "SELECT nid, COUNT(1) AS topicnum FROM topics GROUP BY nid ORDER BY topicnum DESC LIMIT 10"
@@ -320,13 +361,17 @@ func (TopicLogic) FindHotNodes(ctx context.Context) []map[string]interface{} {
 			objLog.Errorln("rows.Scan error:", err)
 			continue
 		}
-		name := GetNodeName(nid)
+		nodeInfo := GetNode(nid)
 		node := map[string]interface{}{
-			"name": name,
-			"nid":  nid,
+			"name":  nodeInfo["name"].(string),
+			"ename": nodeInfo["ename"].(string),
+			"nid":   nid,
 		}
 		nodes = append(nodes, node)
 	}
+	hotNodesCache = nodes
+	hotNodesBegin = time.Now()
+
 	return nodes
 }
 
@@ -410,7 +455,7 @@ func (self TopicComment) UpdateComment(cid, objid, uid int, cmttime time.Time) {
 	}
 
 	// 更新回复数（TODO：暂时每次都更新表）
-	_, err = MasterDB.Id(objid).Incr("reply", 1).Update(new(model.TopicEx))
+	_, err = MasterDB.Id(objid).Incr("reply", 1).Update(new(model.TopicUpEx))
 	if err != nil {
 		logger.Errorln("更新主题回复数失败：", err)
 		session.Rollback()
@@ -451,7 +496,7 @@ type TopicLike struct{}
 // objid：被喜欢对象id；num: 喜欢数(负数表示取消喜欢)
 func (self TopicLike) UpdateLike(objid, num int) {
 	// 更新喜欢数（TODO：暂时每次都更新表）
-	_, err := MasterDB.Where("tid=?", objid).Incr("like", num).Update(new(model.TopicEx))
+	_, err := MasterDB.Where("tid=?", objid).Incr("like", num).Update(new(model.TopicUpEx))
 	if err != nil {
 		logger.Errorln("更新主题喜欢数失败：", err)
 	}

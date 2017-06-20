@@ -10,14 +10,19 @@
 	{{template "seo" .}}
 	<meta name="author" content="polaris <polaris@studygolang.com>">
 	<!--<link href="http://studygolang.qiniudn.com/fonts_googleapi.css" rel="stylesheet">-->
+	<!-- <link href="//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"> -->
 	<link href="/static/css/fonts_googleapi.css" rel="stylesheet">
-	<!--<link href="http://apps.bdimg.com/libs/bootswatch/3/cosmo/bootstrap.min.css" rel="stylesheet">-->
 	<link href="/static/css/cosmo_bootstrap.min.css" rel="stylesheet">
 	<!--<link href="http://studygolang.qiniudn.com/cosmo_bootstrap.min.css" rel="stylesheet">-->
 	<!--<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">-->
 	<link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
-	<link href="/static/css/main.css?v=1.2" rel="stylesheet"/>
+	<link href="/static/css/main.css?v=1.0" rel="stylesheet"/>
 	{{template "css" .}}
+	<style type="text/css">
+	#bottom .nav-content {
+		margin: 0px auto 0px auto;
+	}
+	</style>
 
 	<!--[if lt IE 9]-->
 	<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -39,18 +44,10 @@
 			<div class="navbar-collapse collapse" id="navbar-main">
 				<ul class="nav navbar-nav">
 					<li class="{{.activeTopics}}">
-						<a href="/topics">社区</a>
+						<a href="/topics">主题</a>
 					</li>
-					<li class="dropdown {{.activeArticles}}">
-						{{if .setting.BlogUrl}}
-						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="articles">精彩文章 <span class="caret"></span></a>
-						<ul class="dropdown-menu" aria-labelledby="articles">
-							<li><a href="/articles">网友博文</a></li>
-							<li><a href="{{.setting.BlogUrl}}" target="_blank">本站博客</a></li>
-						</ul>
-						{{else}}
-						<a href="/articles">精彩文章</a>
-						{{end}}
+					<li class="{{.activeArticles}}">
+						<a href="/articles">文章</a>
 					</li>
 					<li class="{{.activeProjects}}">
 						<a href="/projects">开源项目</a>
@@ -101,6 +98,7 @@
 							<li class="first"><a href="/user/{{.me.Username}}">我的主页</a></li>
 							<li><a href="/account/edit">个人资料设置</a></li>
 							<li><a href="/favorites/{{.me.Username}}">我的收藏</a></li>
+							<li><a href="/balance">我的财富</a></li>
 							<li role="presentation" class="divider"></li>
 							{{if .me.IsAdmin}}
 							<li><a href="/admin" target="_blank">管理后台</a></li>
@@ -127,10 +125,36 @@
 			</div>
 			{{end}}
 		{{end}}
+
 			{{template "content" .}}
 		</div>
 	</div>
-	<footer class="footer">
+	<div class="sep10"></div>
+	<footer id="bottom">
+		<div class="container nav-content">
+			<div class="inner_content">
+				<div class="sep10"></div>   
+				<strong>
+					{{range $i, $el := .setting.FooterNavs}}
+					<a href="{{.Url}}" class="dark">{{.Name}}</a> &nbsp; <span class="snow">•</span> &nbsp; 
+					{{end}}
+					<span id="onlineusers">{{.online_users.online}}</span> 人在线
+				</strong>
+				&nbsp;<span class="cc">最高记录 <span id="maxonline">{{.online_users.maxonline}}</span></span>
+				<div class="sep20"></div>
+				&copy;{{.app.Copyright}} {{.setting.Slogan}}
+				<div class="sep5"></div>
+				Powered by <a href="https://github.com/studygolang/studygolang">StudyGolang(Golang + MySQL)</a> &nbsp;<span class="snow">•</span>&nbsp;服务器由 <a href="http://www.ucai.cn" class="dark" target="_blank">优才学院</a> 赞助 &nbsp;<span class="snow">·</span>&nbsp;CDN 由 <a href="https://portal.qiniu.com/signup?code=3lfz4at7pxfma" title="七牛云" class="dark" target="_blank">七牛云</a> 赞助
+				<div class="sep20"></div>
+				<span class="small cc">VERSION: {{.app.Version}}&nbsp;<span class="snow">·</span>&nbsp;{{.resp_time}}&nbsp;<span class="snow">·</span>&nbsp;<strong>为了更好的体验，本站推荐使用 Chrome 或 Firefox 浏览器</strong></span>
+				<div class="sep20"></div>
+				<span class="f12 c9"><a href="http://www.miibeian.gov.cn/" target="_blank" rel="nofollow">{{.setting.Beian}}</a></span>
+				<div class="sep10"></div>
+			</div>
+		</div>
+	</footer>
+
+	<!-- <footer class="footer">
 		<div class="container">
 			<div>
 				<div class="pull-left" style="margin-right:10px;">
@@ -154,14 +178,10 @@
 					{{range .setting.FriendLogos}}
 					<a href="{{.Url}}" title="{{.Name}}" target="_blank"><img src="{{.Image}}" alt="{{.Name}}" width="{{.Width}}" height="{{.Height}}" /></a>
 					{{end}}
-					<!--<a href="https://www.jpush.cn" title="极光push" target="_blank"><img src="http://studygolang.qiniudn.com/jpush_logo.png" alt="极光push" width="290px" height="45px" /></a>-->
-					<!--
-					<a href="https://mos.meituan.com" title="美团云" target="_blank"><img src="http://studygolang.qiniudn.com/ad/meituan_logo.png" alt="美团云" height="60px" /></a>
-					-->
 				</p>
 			</div>
 		</div>
-	</footer>
+	</footer> -->
 	<div id="gotop"></div>
 
 	{{if .me.Uid}}
@@ -169,34 +189,21 @@
 	{{else}}
 	<input type="hidden" id="is_login_status" value="0" />
 	<div class="pop login-pop" id="login-pop">
-		<!--
-		<div class="thirdparty">
-			<h5>第三方账号登录</h5>
-			<div class="thirdparty-btns">
-				<a class="btn-qq btn" href="#">
-					<i></i>
-					<span>Q&nbsp;Q&nbsp;登&nbsp;录</span>
-				</a>
-				<a class="btn-weibo btn" href="#">
-					<i></i>
-					<span>微&nbsp;博&nbsp;登&nbsp;录</span>
-				</a>
-			</div>
-		</div>
-		-->
+		<div style="position: relative;"><span class="close" style="position: absolute; right: -15px; top: -15px; cursor: pointer; color: #000; font-size: 13px;">X</span></div>
 		<div class="login-form">
 			<div class="error text-center"></div>
+			<div class="text-center" style="margin-bottom: 5px;">登录和大家一起探讨吧</div>
 			<form action="#" method="post" class="form-horizontal" role="form">
 				<div class="form-group">
 					<label for="username" class="col-sm-3 control-label">用户名</label>
 					<div class="col-sm-9 form-input">
-						<input type="text" class="form-control" id="username" name="username" placeholder="请填写用户名或邮箱">
+						<input type="text" class="form-control" id="form_username" name="username" placeholder="请填写用户名或邮箱">
 					</div>
 				</div>
 				<div class="form-group">
 					<label for="passwd" class="col-sm-3 control-label">密码</label>
 					<div class="col-sm-9 form-input">
-						<input type="password" class="form-control" id="passwd" name="passwd" placeholder="密码">
+						<input type="password" class="form-control" id="form_passwd" name="passwd" placeholder="密码">
 					</div>
 				</div>
 				<div class="form-group">
@@ -205,12 +212,16 @@
 							<label>
 								<input id="user_remember_me" name="remember_me" type="checkbox" value="1" checked="checked" />	记住登录状态
 							</label>
+							<button type="submit" id="login-btn" class="btn btn-default btn-sm">登录</button>
 						</div>
 					</div>
 				</div>
 				<div class="form-group">
 					<div class="col-sm-offset-2 col-sm-10">
-						<button type="submit" id="login-btn" class="btn btn-default pull-left">登录</button>
+						<a id="login-github" href="/oauth/github/login" class="btn btn-default btn-sm pull-left">
+							<i class="fa fa-github" aria-hidden="true"></i>
+							GitHub 登录
+						</a>
 						<div class="forget">
 							<a href="/account/forgetpwd" title="点击找回密码">忘记密码？</a>
 						</div>
@@ -229,8 +240,8 @@
 	<script type="text/javascript" src="/static/js/libs/jquery-1.11.1.min.js"></script>
 	<!--<script src="//apps.bdimg.com/libs/bootstrap/3.2.0/js/bootstrap.min.js"></script>-->
 	<script type="text/javascript" src="/static/js/libs/bootstrap-3.2.0.min.js"></script>
-	<script src="/static/js/libs/jquery.timeago.js"></script>
-	<script src="/static/js/libs/jquery.timeago.zh-CN.js"></script>
+	<script src="/static/js/libs/jquery.timeago.js?v=1.5.4"></script>
+	<script src="/static/js/libs/jquery.timeago.zh-CN.js?v=1.5.4"></script>
 	<script src="/static/js/libs/md5.js"></script>
 	<script type="text/javascript">
 	var isHttps = {{.is_https}},
@@ -242,9 +253,14 @@
 	}
 	var GLaunchTime = {{timestamp .app.LaunchTime}}*1000;
 	</script>
-	<script src="/static/js/common.js?v=1.21"></script>
+	<script src="/static/js/common.js?v=1.3"></script>
 	{{template "js" .}}
+	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jsrender/0.9.84/jsrender.min.js"></script>
+	<script type="text/javascript">
+	$.views.settings.delimiters("[%", "%]");
+	// $.views.settings.debugMode(true);
+	</script>
 	<script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
-	<script type="text/javascript" src="/static/js/sidebar.js?v=1.5"></script>
+	<script type="text/javascript" src="/static/js/sidebar.js?v=1.9"></script>
 </body>
 </html>

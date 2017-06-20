@@ -2,146 +2,100 @@
 {{define "seo"}}<meta name="keywords" content="{{.setting.SeoKeywords}}">
 <meta name="description" content="{{substring .topic.content 200 ""}}">{{end}}
 {{define "content"}}
-<div class="row banner">
-</div>
 <div class="row">
-	<div class="col-lg-9 col-md-8 col-sm-7">
+	<div class="col-md-9 col-sm-6">
+		<div class="sep20"></div>
+
 		<ol class="breadcrumb">
-			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
-			<li><a href="/topics">社区</a></li>
-			<li><a href="/topics/node/{{.topic.nid}}">{{.topic.node}}</a></li>
-			<li class="active">{{.topic.title}}</li>
+			<li><a href="/">首页</a></li>
+			<li><a href="/topics">主题</a></li>
+			<li><a href="{{if .topic.node.ename}}/go/{{.topic.node.ename}}{{else}}/topics/node/{{.topic.node.nid}}{{end}}">{{.topic.node.name}}</a></li>
 		</ol>
-		<div class="page box_white">
-			<div class="title text-center">
-				<h1>
-					{{.topic.title}}
-					{{if canEdit .me .topic}}
-					<a class="btn btn-primary btn-xs" href="/topics/modify?tid={{.topic.tid}}" title="编辑">编辑</a>
-					{{end}}
-				</h1>
-			</div>
-			<div class="meta">
-				<div class="p-author">
-					<i class="glyphicon glyphicon-calendar"></i>
-					<span title="{{.topic.ctime}}" class="timeago"></span>&nbsp;
-					<i class="glyphicon glyphicon-user"></i>
-					<a href="/user/{{.topic.user.Username}}" title="{{if .topic.user.Name}}{{.topic.user.Name}}{{else}}{{.topic.user.Username}}{{end}}">{{if .topic.user.Name}}{{.topic.user.Name}}({{.topic.user.Username}}){{else}}{{.topic.user.Username}}{{end}}</a>
+		<div class="page">
+			<div class="box_white">
+				<div class="title">
+					<div class="pull-right">
+						<a href="/user/{{.topic.user.Username}}" title="{{.topic.user.Username}}">
+							<img src="{{gravatar .topic.user.Avatar .topic.user.Email 62 .is_https}}" alt="{{if .topic.user.Name}}{{.topic.user.Name}}{{else}}{{.topic.user.Username}}{{end}}" width="62px" height="62px">
+						</a>
+					</div>
+					<h1>
+						{{.topic.title}}
+					</h1>
+					<small class="c9">
+						<a href="/user/{{.topic.user.Username}}">{{.topic.user.Username}}</a> · <span title="{{.topic.ctime}}" class="timeago"></span> · {{add .topic.view 1}} 次点击 · 
+						<span class="timeago" title="{{.cur_time}}"></span> 开始浏览&nbsp; &nbsp;
+						{{if canEdit .me .topic}}
+						<a class="op" href="/topics/modify?tid={{.topic.tid}}" title="编辑">编辑</a>
+						{{end}}
+					</small>
 				</div>
-				<!-- p-author END -->
+				{{if gt (distanceDay .topic.ctime) 100 }}
+				<div class="outdated">这是一个创建于 <span title="{{.topic.ctime}}" class="timeago"></span> 的主题，其中的信息可能已经有所发展或是发生改变。</div>
+				{{end}}
+				<div class="cell">
+					<div class="content">{{.topic.content | html}}</div>
+				</div>
 				
-				<div class="p-comment text-right">
-					<span class="view" title="阅读数">
-						<i class="glyphicon glyphicon-eye-open"></i>
-						阅读 <span>{{add .topic.view 1}}</span> 次&nbsp;
-					</span>
-					<span class="like" title="喜欢人数">
-						<i class="glyphicon glyphicon-heart"></i>
-						<span class="likenum">{{.topic.like}}</span> 人喜欢&nbsp;
-					</span>
-					<a href="/topics/{{.topic.tid}}#commentForm" title="我要评论"><i class="glyphicon glyphicon-comment"></i> <span class="cmtnum">{{.topic.reply}}</span> 条评论</a>
+				<div class="content-buttons">
+					<div class="pull-right c9 f11" style="line-height: 12px; padding-top: 3px; text-shadow: 0px 1px 0px #fff;">{{add .topic.view 1}} 次点击 &nbsp;{{if .topic.like}}∙&nbsp; {{.topic.like}} 赞 &nbsp; {{end}}</div>
+					<a class="tb collect" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}" data-objid="{{.topic.tid}}" data-objtype="0" data-collect="{{.hadcollect}}">{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}</a> &nbsp;
+					<div id="content-thank">
+						<a class="tb" href="javascript:;" title="{{if .likeflag}}取消赞{{else}}赞{{end}}" data-objid="{{.topic.tid}}" data-objtype="0" data-flag="{{.likeflag}}">{{if .likeflag}}取消赞{{else}}赞{{end}}</a>
+					</div>
 				</div>
-				<!-- p-comment END -->
 			</div>
-			<div class="tags">
-				<ul class="list-inline">
-					<li><a href="/topics/node/{{.topic.nid}}" title="{{.topic.node}}">{{.topic.node}}</a></li>
-				</ul>
-			</div>
-			<!-- tags -->
-			<div class="content">{{.topic.content | html}}</div>
-			{{if .topic.editor_username}}
-			<div class="alert alert-success edit-info" role="alert">{{.topic.editor_username}}于 {{.topic.mtime}} 修改了本主题</div>
-			{{end}}
 			<!-- content END -->
-			<div class="active row">
-				<div class="mark-like-btn col-md-8">
-					<a class="share-btn like-btn {{if .likeflag}}hadlike{{end}}" href="javascript:;" title="{{if .likeflag}}取消喜欢{{else}}我喜欢{{end}}" data-objid="{{.topic.tid}}" data-objtype="0" data-flag="{{.likeflag}}">
-						<i class="glyphicon glyphicon-heart-empty"></i><span class="likenum">{{.topic.like}}</span>人喜欢
-					</a>
-					<a class="share-btn collect {{if .hadcollect}}hadlike{{end}}" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}稍后再读{{end}}" data-objid="{{.topic.tid}}" data-objtype="0" data-collect="{{.hadcollect}}">
-						<i class="glyphicon glyphicon-star-empty"></i>收藏
-					</a>
-				</div>
-			</div>
-			<!-- 评论 -->
-			<div class="page-comment" data-objid="{{.topic.tid}}" data-objtype="0" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
-				<div class="words hide">
-					<h3><span class="cmtnum">{{.topic.reply}}</span>条回复</h3>
-					<ul class="list-unstyled">
-					</ul>
-				</div>
-				<div class="comment-title">
-					<h2>主题回复：</h2>
-					{{if .me.Uid}}
-					{{else}}
-					<span class="h2-tip">
-					（您需要 <a class="c-log" href="javascript:openPop('#login-pop');">登录</a> 后才能回复 <a href="/user/register" class="c-reg"> 没有账号</a> ？）</span>
+			<div class="sep20"></div>
+
+			<!-- 评论列表 -->
+			<div id="replies" class="box_white">
+				<div class="cell">
+					<div class="pull-right" style="margin: -3px -5px 0px 0px;">
+					{{if .topic.tags}}
+						{{$tags := explode .topic.tags ","}}
+						{{range $tags}}
+						<a href="/tag/{{.}}" class="tag"><li class="fa fa-tag"></li> {{.}}</a>
+						{{end}}
 					{{end}}
+					</div>
+					<span class="c9"><span class="cmtnum">{{.topic.reply}}</span> 回复 {{if .topic.reply}}&nbsp;<strong class="snow">|</strong> &nbsp;直到 {{.topic.lastreplytime}}{{end}}</span>
 				</div>
-				{{template "comment" .}}
+				<div class="comment-list cell" data-objid="{{.topic.tid}}" data-objtype="0" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
+					<div class="words hide"><div class="text-center">暂无回复</div></div>
+				</div>
 			</div>
-			<!-- 评论 -->
+
+			<!-- 评论框 -->
+			{{template "comment" .}}
+
+			{{if .view_user_num}}
+			<div class="sep20"></div>
+			<div class="box_white">
+				<div class="cell">统计信息</div>
+				<div class="cell">
+					<span class="c9">目前已有 <strong>{{.view_user_num}}</strong> 位注册会员查看了本主题</span>
+				</div>
+			</div>
+			{{end}}
+			
 		</div>
 	</div>
-	<div class="col-lg-3 col-md-4 col-sm-5">
-		<div class="row box_white sidebar sb-author">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-user"></i>&nbsp;作者</h3>
-			</div>
-			<div class="sb-content">
-				<a href="/user/{{.topic.user.Username}}" class="pull-left avatar" title="{{.topic.user.Username}}">
-					<img src="{{gravatar .topic.user.Avatar .topic.user.Email 48 .is_https}}" alt="{{if .topic.user.Name}}{{.topic.user.Name}}{{else}}{{.topic.user.Username}}{{end}}" width="48px" height="48px">
-				</a>
-				<h4>
-					<a href="/user/{{.topic.user.Username}}" title="{{if .topic.user.Name}}{{.topic.user.Name}}{{else}}{{.topic.user.Username}}{{end}}">{{if .topic.user.Name}}{{.topic.user.Name}}({{.topic.user.Username}}){{else}}{{.topic.user.Username}}{{end}}</a>
-					<p>{{.topic.user.Monlog}}</p>
-				</h4>
-			</div>
-		</div>
+	<div class="col-md-3 col-sm-6">
+		<div class="sep20"></div>
 
-		<div class="row box_white sidebar">
-			<div class="sb-content text-center" style="padding: 15px 0;">
-				<a href="/topics/new" class="btn btn-default">发布主题</a>
-			</div>
-		</div>
+		{{include "common/my_info.html" .}}
 
 		{{if .pos_ad.right1}}
-		<div class="row box_white sidebar" id="ad-right1">
+		<div class="box_white sidebar" id="ad-right1">
 			{{if eq .pos_ad.right1.AdType 0}}
 				{{noescape .pos_ad.right1.Code}}
 			{{end}}
 		</div>
 		{{end}}
-
-		<div class="row box_white sidebar">
-			<div class="top">
-				<ul class="list-inline text-center">
-					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新主题</a>|</li>
-					<li class="second"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
-					<li class="last"><a href="/articles" target="_blank" title="点击更多">最新博文</a></li>
-				</ul>
-				<p class="bar"></p>
-			</div>
-			<div class="sb-content">
-				<div class="topic-list first">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-				<div class="resource-list second hidden">
-					<ul class="list-unstyled">
-					</ul>
-				</div>
-				<div class="article-list last hidden">
-					<ul class="list-unstyled">
-					</ul>
-				</div>
-			</div>
-		</div>
 		
 		{{if .pos_ad.right2}}
-		<div class="row box_white sidebar" id="ad-right2">
+		<div class="box_white sidebar" id="ad-right2">
 			{{if eq .pos_ad.right2.AdType 0}}
 				{{noescape .pos_ad.right2.Code}}
 			{{end}}
@@ -157,6 +111,7 @@
 <style type="text/css">
 .sb-author .sb-content .avatar {margin: 0 10px 10px;}
 .edit-info {color: #3c763d;background-color: #dff0d8;border-color: #d6e9c6; margin:0 10px;}
+
 </style>
 {{end}}
 {{define "js"}}
@@ -169,7 +124,7 @@
 <script type="text/javascript" src="/static/js/libs/emojis.js"></script>
 <script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
 <script type="text/javascript" src="/static/js/topics.js?v=1.2"></script>
-<script type="text/javascript" src="/static/js/comment.js?v=1.1"></script>
+<script type="text/javascript" src="/static/js/comment.js?v=1.22"></script>
 <script type="text/javascript" src="/static/js/puploader.js?v=1.1"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏
@@ -207,9 +162,4 @@ $(function(){
 	{{end}}
 {{end}}
 
-<script type="text/javascript">
-/* 内文方式  创建于 2015-03-15*/
-var cpro_id = "u1989498";
-</script>
-<script src="//cpro.baidustatic.com/cpro/ui/cnw.js" type="text/javascript"></script>
 {{end}}

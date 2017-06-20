@@ -17,7 +17,7 @@ function goTop()
 // 通用的发布功能
 SG.Publisher = function(){}
 SG.Publisher.prototype = {
-	publish: function(that) {
+	publish: function(that, callback) {
 		var btnTxt = $(that).text();
 		$(that).text("稍等").addClass("disabled").attr({"title":'稍等',"disabled":"disabled"});
 
@@ -39,6 +39,11 @@ SG.Publisher.prototype = {
 					} else {
 						comTip("发布成功！");
 					}
+
+					if (typeof callback != "undefined") {
+						callback(data.data);
+						return;
+					}
 					
 					setTimeout(function(){
 						var redirect = $form.data('redirect');
@@ -46,7 +51,7 @@ SG.Publisher.prototype = {
 							window.location.href = redirect;
 						}
 					}, 1000);
-				}else{
+				} else {
 					comTip(data.error);
 				}
 			},
@@ -168,17 +173,12 @@ SG.registerAtEvent = function(isAt, isEmoji, selector) {
 }
 
 jQuery(document).ready(function($) {
-	// timeago：3 天之内才显示 timeago
+	// timeago：100 天之内才显示 timeago
+	$.timeago.settings.cutoff = 1000*60*60*24*100;
 
+	// 历史原因，其他 js 使用了。（当时版本 timeago 不支持 cutoff）
 	// time 的格式 2014-10-02 11:40:01
 	SG.timeago = function(time) {
-		var ago = new Date(time),
-			now = new Date();
-
-		if (now - ago > 3 * 86400 * 1000) {
-			return time;
-		}
-
 		return $.timeago(time);
 	};
 
@@ -249,15 +249,15 @@ jQuery(document).ready(function($) {
 	$('#login-pop .login-form form').on('submit', function(evt){
 		evt.preventDefault();
 
-		var username = $('#username').val(),
-			passwd = $('#passwd').val();
+		var username = $('#form_username').val(),
+			passwd = $('#form_passwd').val();
 
 		if (username == "") {
-			$('#username').parent().addClass('has-error');
+			$('#form_username').parent().addClass('has-error');
 			return;
 		}
 		if (passwd == "") {
-			$('#passwd').parent().addClass('has-error');
+			$('#form_passwd').parent().addClass('has-error');
 			return;
 		}
 		
@@ -297,12 +297,12 @@ jQuery(document).ready(function($) {
 				var likeNum = parseInt($(that).children('.likenum').text(), 10);
 				// 已喜欢
 				if (likeFlag) {
-					comTip("感谢喜欢！");
-					$(that).addClass('hadlike').attr('title', '取消喜欢');
+					comTip("感谢赞！");
+					$(that).attr('title', '取消赞').text('取消赞');
 					likeNum++;
 				} else {
-					comTip("已取消喜欢！");
-					$(that).removeClass('hadlike').attr('title', '我喜欢');
+					comTip("已取消赞！");
+					$(that).attr('title', '赞').text('赞');
 					likeNum--;
 				}
 
@@ -316,12 +316,12 @@ jQuery(document).ready(function($) {
 	}
 	
 	// 详情页喜欢(取消喜欢)
-	$('.page .like-btn').on('click', function(evt){
+	$('.page #content-thank a').on('click', function(evt){
 		evt.preventDefault();
 
 		var that = this;
 		postLike(that, function(likeNum, likeFlag){
-			$('.page .meta .p-comment .like .likenum').text(likeNum);
+			// $('.page .meta .p-comment .like .likenum').text(likeNum);
 		});
 	});
 
@@ -376,9 +376,9 @@ jQuery(document).ready(function($) {
 			
 			if (hadCollect) {
 				comTip("感谢收藏！");
-				$('.page .collect').addClass('hadlike').attr('title', '取消收藏');
+				$('.page .collect').attr('title', '取消收藏').text('取消收藏');
 			} else {
-				$('.page .collect').removeClass('hadlike').attr('title', '稍后再读');
+				$('.page .collect').attr('title', '稍后再读').text('加入收藏');
 				comTip("已取消收藏！");
 			}
 		});
@@ -395,7 +395,9 @@ jQuery(document).ready(function($) {
 	});
 
 	// 图片响应式
-	$('.page .content img').addClass('img-responsive');
+	setTimeout(function(){
+		$('.page .content img').addClass('img-responsive');
+	}, 2000);
 	
 });
 
@@ -450,4 +452,19 @@ $(function(){
 			adImg.src = url;
 		});
 	}
+
+	$(window).scroll(function() {
+		// 滚动条所在位置的高度
+		var totalheight = parseFloat($(window).height()) + parseFloat($(window).scrollTop());
+		// 当前文档高度   小于或等于   滚动条所在位置高度  则是页面底部
+		if(($(document).height()) <= totalheight) {
+			if($("#is_login_status").val() != 1){
+				openPop("#login-pop");
+			}
+		}
+	});
+
+	$('#login-pop .close').on('click', function() {
+		closePop();
+	});
 });

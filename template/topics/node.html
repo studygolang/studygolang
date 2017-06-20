@@ -1,24 +1,28 @@
 {{define "title"}}社区主题 - {{.node.name}} {{end}}
 {{define "content"}}
-<div class="row banner">
-</div>
 <div class="row">
-	<div class="col-lg-9 col-md-8 col-sm-7">
+	<div class="col-md-9 col-sm-6">
+		<div class="sep20"></div>
+
 		<ol class="breadcrumb">
-			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
-			<li><a href="/topics">社区</a></li>
+			<li><a href="/">首页</a></li>
+			<li><a href="/topics">主题</a></li>
 			<li class="active">{{.node.name}}</li>
 		</ol>
 		<div class="box_white">
 			<div class="node-info">
-        <div class="title">
-          <h2>{{.node.name}}</h2>
-          <span class="total">共有 {{.total}} 个讨论主题</span>
-        </div>
-        <div class="desc">
-          <p>{{.node.intro}}</p>
-        </div>
-      </div>
+				{{if .node.logo}}
+				<div style="float: left; display: inline-block; margin-right: 10px; margin-bottom: initial!important;"><img src="{{if hasPrefix .node.logo "http"}}{{.node.logo}}{{else}}{{.cdn_domain}}/{{.node.logo}}{{end}}?imageView2/2/w/50" border="0" align="default" width="50"></div>
+				{{end}}
+				<div style="float: right; margin-top: 10px;"><a href="/topics/new?nid={{.node.nid}}" class="btn btn-default btn-sm">发布新主题</a></div>
+				<div class="title">
+					<h2>{{.node.name}}</h2>
+					<span class="total">共有 {{.total}} 个主题</span>
+				</div>
+				<div class="desc">
+					<p>{{.node.intro}}</p>
+				</div>
+			</div>
 			<dl class="topics dl-horizontal">
 			{{with $root := .}}
 			{{range .topics}}
@@ -31,10 +35,10 @@
 							<a href="/topics/{{.tid}}" title="{{.title}}">{{substring .title 60 "..."}}</a>
 						</div>
 						<div class="meta">
-							<a href="/topics/node/{{.nid}}" class="node" title="{{.node}}">{{.node}}</a>
+							<a href="/go/{{$.node.ename}}" class="node" title="{{$.node.name}}">{{$.node.name}}</a>
 							•
 							<a href="/user/{{.user.Username}}" title="{{.user.Username}}" class="author"><strong>{{.user.Username}}</strong></a>
-							{{if .lastreplyuid}}
+							{{if .lastreplyusername}}
 							<span>
 							•
 								最后由 <a href="/user/{{.lastreplyusername}}" title="{{.lastreplyusername}}" class="author">{{.lastreplyusername}}</a> 于<abbr class="timeago" title="{{.lastreplytime}}"></abbr>回复
@@ -56,90 +60,37 @@
 					</dd>
 				</div>
 			{{else}}
-			<p class="text-center">暂时没有任何帖子</p>
+			<p class="text-center">暂时没有任何主题</p>
 			{{end}}
 			{{end}}
 			</dl>
 			{{if .page}}
-      <nav class="text-center"><ul class="pagination pagination-sm">{{.page}}</ul></nav>
-      {{end}}
+			<nav class="text-center"><ul class="pagination pagination-sm">{{.page}}</ul></nav>
+			{{end}}
 		</div>
 	</div>
-	<div class="col-lg-3 col-md-4 col-sm-5">
-		<div class="row box_white sidebar">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-edit"></i>&nbsp;{{.node.name}}</h3>
-			</div>
-			<div class="sb-content text-center" style="padding-bottom: 15px;">
-				<a href="/topics/new?nid={{.node.nid}}" class="btn btn-default">发布主题</a>
-			</div>
-		</div>
+	<div class="col-md-3 col-sm-6">
+		<div class="sep20"></div>
+
+		{{include "common/my_info.html" .}}
 
 		{{if .pos_ad.right1}}
-		<div class="row box_white sidebar" id="ad-right1">
+		<div class="box_white sidebar" id="ad-right1">
 			{{if eq .pos_ad.right1.AdType 0}}
 				{{noescape .pos_ad.right1.Code}}
 			{{end}}
 		</div>
 		{{end}}
 		
-		<div class="row box_white sidebar">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-th"></i>&nbsp;热门节点</h3>
-			</div>
-			<div class="sb-content">
-				<div class="node-list" data-limit="10">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-			</div>
-		</div>
+		{{include "sidebar/hot_node.html" .}}
 		
-		<div class="row box_white sidebar">
-			<div class="top">
-				<ul class="list-inline text-center">
-					<li class="first"><a href="javascript:;" class="cur">最新评论</a>|</li>
-					<li class="second"><a href="/articles" target="_blank" title="点击更多">最新博文</a>|</li>
-					<li class="last"><a href="/resources" target="_blank" title="点击更多">最新资源</a></li>
-				</ul>
-				<p class="bar"></p>
-			</div>
-			<div class="sb-content">
-				<div class="cmt-list first" data-limit="5">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-				<div class="article-list second hidden">
-					<ul class="list-unstyled">
-					</ul>
-				</div>
-				<div class="resource-list last hidden">
-					<ul class="list-unstyled">
-					</ul>
-				</div>
-			</div>
-		</div>
-
-		<div class="row box_white sidebar">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-stats"></i>&nbsp;&nbsp;统计信息</h3>
-			</div>
-			<div class="sb-content">
-				<div class="stat-list">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-			</div>
-		</div>
+		{{include "sidebar/stat.html" .}}
 		
 	</div>
 </div>
 {{end}}
 {{define "css"}}
-<link href="/static/css/topics.css?v=1.0" rel="stylesheet" type="text/css" />
+<link href="/static/css/topics.css?v=1.1" rel="stylesheet" type="text/css" />
 {{end}}
 {{define "js"}}
 <script type="text/javascript">

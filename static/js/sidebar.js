@@ -172,7 +172,7 @@ $(function(){
 							'<span title="'+comments[i].ctime+'">'+cmtTime+'</span>'+
 						'</div>'+
 						'<div class="w-page">'+
-							'<span>在<a href="'+url+'#commentForm" title="'+comments[i].objinfo.title+'">'+comments[i].objinfo.title+'  </a>中评论</span>'+
+							'<span>在 <a href="'+url+'#commentForm" title="'+comments[i].objinfo.title+'">'+comments[i].objinfo.title+'</a> 中评论</span>'+
 						'</div>'+
 						'<div class="w-comment">'+
 							'<span>'+comments[i].content+'</span>'+
@@ -214,7 +214,7 @@ $(function(){
 					'<div class="avatar">'+
 					'<a href="/user/'+data[i].username+'" title="'+data[i].username+'"><img alt="'+data[i].username+'" class="img-circle" src="'+avatar+'" width="48px" height="48px"></a>'+
 					'</div>'+
-		  			'<div class="name"><a href="/user/'+data[i].username+'" title="'+data[i].username+'">'+data[i].username+'</a></div>'+
+		  			'<div class="name" style="white-space: nowrap;"><a style="word-break: normal;" href="/user/'+data[i].username+'" title="'+data[i].username+'">'+data[i].username+'</a></div>'+
 		  		'</li>';
 			}
 			$('.sb-content '+id+' ul').html(content);
@@ -225,13 +225,25 @@ $(function(){
 		if (data.ok) {
 			data = data.data;
 
-			var content = '<li>会员数: <span>'+data.user+'</span> 人</li>'+
-				'<li>博文数: <span>'+data.article+'</span> 篇</li>'+
-				'<li>话题数: <span>'+data.topic+'</span> 个</li>'+
-				'<li>评论数: <span>'+data.comment+'</span> 条</li>'+
-				'<li>资源数: <span>'+data.resource+'</span> 个</li>'+
-				'<li>项目数: <span>'+data.project+'</span> 个</li>'+
-				'<li>图书数: <span>'+data.book+'</span> 本</li>';
+			var content = '<li>会员数: <span>'+data.user+'</span> 人</li>';
+			if (data.topic > 0) {
+				content += '<li>主题数: <span>'+data.topic+'</span> 个</li>';
+			}
+			if (data.article > 0) {
+				content += '<li>文章数: <span>'+data.article+'</span> 篇</li>';
+			}
+			if (data.comment > 0) {
+				content += '<li>回复数: <span>'+data.comment+'</span> 条</li>';
+			}
+			if (data.resource > 0) {
+				content += '<li>资源数: <span>'+data.resource+'</span> 个</li>';
+			}
+			if (data.project > 0) {
+				content += '<li>项目数: <span>'+data.project+'</span> 个</li>';
+			}
+			if (data.book > 0) {
+				content += '<li>图书数: <span>'+data.book+'</span> 本</li>';
+			}
 
 			$('.sb-content .stat-list ul').html(content);
 		}
@@ -294,7 +306,7 @@ $(function(){
 
 			var content = '';
 			for(var i in data) {
-				content += '<li style="margin-left:5px; margin-bottom:5px;">'+
+				content += '<li style="margin-left:15px; margin-bottom:5px;">'+
 							'<a href="'+data[i].url+'" target="_blank" title="'+data[i].name+'">'+data[i].name+'</a>'+
 						'</li>';
 			}
@@ -367,6 +379,10 @@ $(function(){
 			if (typeof sidebar_callback[SG.SIDE_BARS[i]] != "undefined") {
 				var sbObj = sidebar_callback[SG.SIDE_BARS[i]],
 					$dataSelector = $('.sidebar .sb-content '+sbObj['class']);
+
+				if ($dataSelector.length == 0) {
+					continue;
+				}
 
 				if (!sbObj.data_keys) {
 					var limit = $dataSelector.data('limit');

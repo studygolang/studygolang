@@ -36,7 +36,7 @@ import (
 
 const (
 	DefaultCDNHttp  = "http://studygolang.qiniudn.com/"
-	DefaultCDNHttps = "https://dn-studygolang.qbox.me/"
+	DefaultCDNHttps = "https://static.studygolang.com/"
 )
 
 var Build string
@@ -77,7 +77,7 @@ const (
 
 func init() {
 	App.Name = os.Args[0]
-	App.Version = "V2.0.0"
+	App.Version = "V3.0.0"
 	App.Build = Build
 	App.LaunchTime = time.Now()
 

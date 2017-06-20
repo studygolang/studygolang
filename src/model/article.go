@@ -9,6 +9,7 @@ package model
 import (
 	"encoding/json"
 	"strconv"
+	"time"
 
 	"github.com/go-xorm/xorm"
 	"github.com/polaris1119/logger"
@@ -25,38 +26,62 @@ var ArticleStatusSlice = []string{"未上线", "已上线", "已下线"}
 
 // 抓取的文章信息
 type Article struct {
-	Id        int       `json:"id" xorm:"pk autoincr"`
-	Domain    string    `json:"domain"`
-	Name      string    `json:"name"`
-	Title     string    `json:"title"`
-	Cover     string    `json:"cover"`
-	Author    string    `json:"author"`
-	AuthorTxt string    `json:"author_txt"`
-	Lang      int       `json:"lang"`
-	PubDate   string    `json:"pub_date"`
-	Url       string    `json:"url"`
-	Content   string    `json:"content"`
-	Txt       string    `json:"txt"`
-	Tags      string    `json:"tags"`
-	Css       string    `json:"css"`
-	Viewnum   int       `json:"viewnum"`
-	Cmtnum    int       `json:"cmtnum"`
-	Likenum   int       `json:"likenum"`
-	Top       uint8     `json:"top"`
-	Status    int       `json:"status"`
-	OpUser    string    `json:"op_user"`
-	Ctime     OftenTime `json:"ctime" xorm:"created"`
-	Mtime     OftenTime `json:"mtime" xorm:"<-"`
+	Id            int       `json:"id" xorm:"pk autoincr"`
+	Domain        string    `json:"domain"`
+	Name          string    `json:"name"`
+	Title         string    `json:"title"`
+	Cover         string    `json:"cover"`
+	Author        string    `json:"author"`
+	AuthorTxt     string    `json:"author_txt"`
+	Lang          int       `json:"lang"`
+	PubDate       string    `json:"pub_date"`
+	Url           string    `json:"url"`
+	Content       string    `json:"content"`
+	Txt           string    `json:"txt"`
+	Tags          string    `json:"tags"`
+	Css           string    `json:"css"`
+	Viewnum       int       `json:"viewnum"`
+	Cmtnum        int       `json:"cmtnum"`
+	Likenum       int       `json:"likenum"`
+	Lastreplyuid  int       `json:"lastreplyuid"`
+	Lastreplytime OftenTime `json:"lastreplytime"`
+	Top           uint8     `json:"top"`
+	Status        int       `json:"status"`
+	OpUser        string    `json:"op_user"`
+	Ctime         OftenTime `json:"ctime" xorm:"created"`
+	Mtime         OftenTime `json:"mtime" xorm:"<-"`
 
-	IsSelf bool `json:"is_self" xorm:"-"`
+	IsSelf bool  `json:"is_self" xorm:"-"`
+	User   *User `json:"-" xorm:"-"`
 	// 排行榜阅读量
-	RankView int `json:"rank_view" xorm:"-"`
+	RankView      int   `json:"rank_view" xorm:"-"`
+	LastReplyUser *User `json:"-" xorm:"-"`
 }
 
 func (this *Article) AfterSet(name string, cell xorm.Cell) {
 	if name == "id" {
 		this.IsSelf = strconv.Itoa(this.Id) == this.Url
 	}
+}
+
+func (this *Article) BeforeInsert() {
+	if this.Tags == "" {
+		this.Tags = AutoTag(this.Title, this.Txt, 4)
+	}
+	this.Lastreplytime = NewOftenTime()
+}
+
+func (this *Article) AfterInsert() {
+	go func() {
+		// AfterInsert 时，自增 ID 还未赋值，这里 sleep 一会，确保自增 ID 有值
+		for {
+			if this.Id > 0 {
+				PublishFeed(this, nil)
+				return
+			}
+			time.Sleep(100 * time.Millisecond)
+		}
+	}()
 }
 
 func (*Article) TableName() string {

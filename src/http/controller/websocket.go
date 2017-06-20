@@ -37,12 +37,15 @@ func (this *WebsocketController) Ws(wsConn *websocket.Conn) {
 	this.ServerId++
 	serverId := this.ServerId
 	this.mutex.Unlock()
+
+	isUid := true
 	req := wsConn.Request()
 	user := goutils.MustInt(req.FormValue("uid"))
 	if user == 0 {
 		user = int(goutils.Ip2long(goutils.RemoteIp(req)))
+		isUid = false
 	}
-	userData := logic.Book.AddUser(user, serverId)
+	userData := logic.Book.AddUser(user, serverId, isUid)
 	// 给自己发送消息，告诉当前在线用户数、历史最高在线人数
 	onlineInfo := map[string]int{"online": logic.Book.Len(), "maxonline": logic.MaxOnlineNum()}
 	message := logic.NewMessage(logic.WsMsgOnline, onlineInfo)
@@ -64,7 +67,7 @@ func (this *WebsocketController) Ws(wsConn *websocket.Conn) {
 			}
 		}
 		if clientClosed {
-			logic.Book.DelUser(user, serverId)
+			logic.Book.DelUser(user, serverId, isUid)
 			logger.Infoln("user:", user, "client close")
 			break
 		}

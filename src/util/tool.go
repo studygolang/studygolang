@@ -9,6 +9,7 @@ package util
 import (
 	"fmt"
 	"global"
+	"math"
 	"regexp"
 	"strings"
 
@@ -32,6 +33,18 @@ func Gravatar(avatar string, emailI interface{}, size uint16, isHttps bool) stri
 		return fmt.Sprintf("%savatar/gopher28.png?imageView2/2/w/%d", cdnDomain, size)
 	}
 	return fmt.Sprintf("%s/avatar/%s?s=%d", gravatarDomain, goutils.Md5(email), size)
+}
+
+func Max(x, y int) int {
+	return int(math.Max(float64(x), float64(y)))
+}
+
+// 最小值，但不会小于0
+func UMin(x, y int) int {
+	if x < 0 || y < 0 {
+		return 0
+	}
+	return int(math.Min(float64(x), float64(y)))
 }
 
 // 内嵌 Wide iframe 版

@@ -81,6 +81,8 @@ type User struct {
 	Gold   int `json:"gold" xorm:"-"`
 	Silver int `json:"silver" xorm:"-"`
 	Copper int `json:"copper" xorm:"-"`
+
+	IsOnline bool `json:"is_online" xorm:"-"`
 }
 
 func (this *User) TableName() string {
@@ -89,7 +91,10 @@ func (this *User) TableName() string {
 
 func (this *User) String() string {
 	buffer := goutils.NewBuffer()
-	buffer.Append(this.Username).Append(this.Email).Append(this.Uid).Append(this.Mtime)
+	buffer.Append(this.Username).Append(" ").
+		Append(this.Email).Append(" ").
+		Append(this.Uid).Append(" ").
+		Append(this.Mtime)
 
 	return buffer.String()
 }
@@ -152,7 +157,7 @@ const (
 )
 
 type BindUser struct {
-	Id           int       `json:"uid" xorm:"pk autoincr"`
+	Id           int       `json:"id" xorm:"pk autoincr"`
 	Uid          int       `json:"uid"`
 	Type         int       `json:"type"`
 	Email        string    `json:"email"`

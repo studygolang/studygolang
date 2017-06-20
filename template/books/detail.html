@@ -2,18 +2,16 @@
 {{define "seo"}}<meta name="keywords" content="{{.book.Name}},{{.setting.SeoKeywords}}">
 <meta name="description" content="{{substring .book.Desc 200 ""}}">{{end}}
 {{define "content"}}
-<div class="row banner">
-</div>
 <div class="row">
-	<div class="col-lg-9 col-md-8 col-sm-7">
+	<div class="col-md-9 col-sm-6">
+		<div class="sep20"></div>
 		<ol class="breadcrumb">
-			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/">首页</a></li>
 			<li><a href="/books">图书</a></li>
-			<li class="active">{{.book.Name}}</li>
 		</ol>
-		<div class="page box_white">
-			<div class="row book">
-				<div class="col-lg-2 col-md-2">
+		<div class="page">
+			<div class="box_white book">
+				<div class="col-md-2">
 					<div class="book-cover-col">
 						<div class="book-cover-box wide">
 							<a href="{{if .book.Cover}}{{.book.Cover}}{{else}}http://studygolang.qiniudn.com/img/golang_default_cover.png{{end}}" style="float: none;">
@@ -34,7 +32,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="col-lg-10 col-md-10">
+				<div class="col-md-10">
 					<div class="book-header">
 						<h3>{{.book.Name}}<span class="lang">({{if .book.Lang}}英文版{{else}}中文版{{end}})</span></h3>
 						{{if .book.Ename}}
@@ -88,30 +86,35 @@
 				</div>
 			</div>
 
-			<hr class="dashed">
+			<div class="sep20"></div>
 
-			<!-- 评论 -->
-			<div class="page-comment" data-objid="{{.book.Id}}" data-objtype="1" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
-				<div class="words hide">
-					<h3><span class="cmtnum">{{.book.Cmtnum}}</span>条评论</h3>
-					<ul class="list-unstyled">
-					</ul>
-				</div>
-				<div class="comment-title">
-					<h2>文章点评：</h2>
-					{{if .me.Uid}}
-					{{else}}
-					<span class="h2-tip">
-					（您需要 <a class="c-log" href="javascript:openPop('#login-pop');">登录</a> 后才能评论 <a href="/user/register" class="c-reg"> 没有账号</a> ？）</span>
+			<!-- 评论列表 -->
+			<div id="replies" class="box_white">
+				<div class="cell">
+					<div class="pull-right" style="margin: -3px -5px 0px 0px;">
+					{{if .book.Tags}}
+						{{$tags := explode .book.Tags ","}}
+						{{range $tags}}
+						<a href="/tag/{{.}}" class="tag"><li class="fa fa-tag"></li> {{.}}</a>
+						{{end}}
 					{{end}}
+					</div>
+					<span class="c9"><span class="cmtnum">{{.book.Cmtnum}}</span> 回复 {{if .book.Cmtnum}}&nbsp;<strong class="snow">|</strong> &nbsp;直到 {{end}}</span>
 				</div>
-				{{template "comment" .}}
+				<div class="comment-list cell" data-objid="{{.book.Id}}" data-objtype="5" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
+					<div class="words hide"><div class="text-center">暂无回复</div></div>
+				</div>
 			</div>
-			<!-- 评论 -->
+
+			<!-- 评论框 -->
+			{{template "comment" .}}
+
 		</div>
 	</div>
-	<div class="col-lg-3 col-md-4 col-sm-5">
-		<div class="row box_white sidebar">
+	<div class="col-md-3 col-sm-6">
+		<div class="sep20"></div>
+
+		<div class="box_white sidebar">
 			<div class="top">
 				<ul class="list-inline text-center">
 					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新主题</a>|</li>
@@ -138,25 +141,14 @@
 		</div>
 
 		{{if .pos_ad.right1}}
-		<div class="row box_white sidebar" id="ad-right1">
+		<div class="box_white sidebar" id="ad-right1">
 			{{if eq .pos_ad.right1.AdType 0}}
 				{{noescape .pos_ad.right1.Code}}
 			{{end}}
 		</div>
 		{{end}}
 
-		<div class="row box_white sidebar">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-fire"></i>&nbsp;<a href="/projects" target="_blank" title="点击更多">开源项目</a></h3>
-			</div>
-			<div class="sb-content">
-				<div class="project-list" data-limit="5">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-			</div>
-		</div>
+		{{include "sidebar/project.html" .}}
 	</div>
 	
 </div>

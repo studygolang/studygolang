@@ -2,152 +2,119 @@
 {{define "seo"}}<meta name="keywords" content="{{.setting.SeoKeywords}}">
 <meta name="description" content="{{substring .article.Txt 200 ""}}">{{end}}
 {{define "content"}}
-<div class="row banner">
-</div>
 <div class="row">
-	<div class="col-lg-9 col-md-8 col-sm-7">
+	<div class="col-md-9 col-sm-6">
+		<div class="sep20"></div>
 		<ol class="breadcrumb">
-			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
-			<li><a href="/articles">网友博文</a></li>
-			<li class="active">{{.article.Title}}</li>
+			<li><a href="/">首页</a></li>
+			<li><a href="/articles">文章</a></li>
 		</ol>
-		<div class="page box_white">
-			<div class="title text-center">
-				<h1 id="title" data-id="{{.article.Id}}">
-					{{.article.Title}}
-					{{if canEdit .me .article}}
-						<button id="edit" type="button" class="btn btn-primary btn-xs">编辑</button>
-					{{end}}
-				</h1>
-			</div>
-			<div class="meta">
-				<div class="p-author">
-					<i class="glyphicon glyphicon-calendar"></i>
-					<span title="发布日期">{{.article.PubDate}}</span>&nbsp;
-					<i class="glyphicon glyphicon-user"></i>
+		<div class="page">
+			<div class="box_white">
+				<div class="title">
 					{{if .article.IsSelf}}
-					<a href="/user/{{.article.Author}}">{{.article.Author}}</a>
-					{{else}}
-					{{noescape .article.Author}}
+					<div class="pull-right">
+						<a href="/user/{{.article.User.Username}}" title="{{.article.User.Username}}">
+							<img src="{{gravatar .article.User.Avatar .article.User.Email 62 .is_https}}" alt="{{if .article.User.Name}}{{.article.User.Name}}{{else}}{{.article.User.Username}}{{end}}" width="62px" height="62px">
+						</a>
+					</div>
 					{{end}}
+					<h1>
+						{{.article.Title}}
+					</h1>
+					<small class="c9">
+						{{if .article.IsSelf}}
+						<a href="/user/{{.article.User.Username}}">{{.article.User.Username}}</a>
+						{{else}}
+						<span>{{.article.AuthorTxt}}</span>
+						{{end}}
+						 · <span title="{{.article.Ctime}}" class="timeago"></span> · {{.article.Viewnum}} 次点击 · 
+						<span class="read-time"></span> · 
+						<span class="timeago" title="{{.cur_time}}"></span> 开始浏览 &nbsp; &nbsp;
+						{{if canEdit .me .article}}
+						<a id="edit" class="op" href="javascript:" title="编辑">编辑</a>
+						{{end}}
+					</small>
 				</div>
-				<!-- p-author END -->
-				
-				<div class="p-comment text-right">
-					<span class="view" title="阅读数">
-						<i class="glyphicon glyphicon-eye-open"></i>
-						阅读 <span>{{.article.Viewnum}}</span> 次&nbsp;
-					</span>
-					<span class="like" title="喜欢人数">
-						<i class="glyphicon glyphicon-heart"></i>
-						<span class="likenum">{{.article.Likenum}}</span> 人喜欢&nbsp;
-					</span>
-					<a href="/articles/{{.article.Id}}#commentForm" title="我要评论"><i class="glyphicon glyphicon-comment"></i> <span class="cmtnum">{{.article.Cmtnum}}</span> 条评论</a>&nbsp;
-					<a class="favorite collect {{if .hadcollect}}hadlike{{end}}" href="#" title="{{if .hadcollect}}取消收藏{{else}}稍后再读{{end}}" data-objid="{{.article.Id}}" data-objtype="1" data-collect="{{.hadcollect}}">
-						<i class="glyphicon glyphicon-star{{if eq .hadcollect 0}}-empty{{end}}"></i> 收藏
-					</a>
-				</div>
-				<!-- p-comment END -->
-			</div>
-			<div class="tags">
-				{{if .article.Tags}}
-				{{$tags := explode .article.Tags ","}}
-				<ul class="list-inline">
-					{{range $tag := $tags}}
-					<li><a href="/search?q={{$tag}}&f=tag" title="{{$tag}}">{{$tag}}</a></li>
-					{{end}}
-				</ul>
+				{{if gt (distanceDay .article.Ctime) 100 }}
+				<div class="outdated">这是一个创建于 <span title="{{.article.Ctime}}" class="timeago"></span> 的文章，其中的信息可能已经有所发展或是发生改变。</div>
 				{{end}}
-			</div>
-			<!-- tags END -->
-			<div id="myeditor" class="content article-entry">
-				{{noescape .article.Content}}
+				<div class="cell">
+					<div id="myeditor" class="content article-entry">
+						{{noescape .article.Content}}
+					</div>
+
+					{{if not .article.IsSelf}}
+					<div class="row orig-info">
+						<p>本文来自：<a href="/wr?u=http://{{.article.Domain}}" target="_blank" title="{{.article.Name}}">{{.article.Name}}</a></p>
+						<p>感谢作者：{{noescape .article.AuthorTxt}}</p>
+						<p>查看原文：<a href="/wr?u={{.article.Url}}" target="_blank" title="{{.article.Title}}">{{.article.Title}}</a></p>
+					</div>
+					{{end}}
+				</div>
+				
+				<div class="content-buttons">
+					<div class="pull-right c9 f11" style="line-height: 12px; padding-top: 3px; text-shadow: 0px 1px 0px #fff;">{{.article.Viewnum}} 次点击 &nbsp;{{if .article.Likenum}}∙&nbsp; {{.article.Likenum}} 赞 &nbsp; {{end}}</div>
+					<a class="tb collect" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}" data-objid="{{.article.Id}}" data-objtype="1" data-collect="{{.hadcollect}}">{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}</a> &nbsp;
+					<div id="content-thank">
+						<a class="tb" href="javascript:;" title="{{if .likeflag}}取消赞{{else}}赞{{end}}" data-objid="{{.article.Id}}" data-objtype="1" data-flag="{{.likeflag}}">{{if .likeflag}}取消赞{{else}}赞{{end}}</a>
+					</div>
+				</div>
 			</div>
 			<!-- content END -->
-			{{if not .article.IsSelf}}
-			<div class="row orig-info">
-				<p>本文来自：<a href="/wr?u=http://{{.article.Domain}}" target="_blank" title="{{.article.Name}}">{{.article.Name}}</a></p>
-				<p>感谢作者：{{noescape .article.Author}}</p>
-				<p>查看原文：<a href="/wr?u={{.article.Url}}" target="_blank" title="{{.article.Title}}">{{.article.Title}}</a></p>
+			<div class="sep20"></div>
+
+			<!-- 评论列表 -->
+			<div id="replies" class="box_white">
+				<div class="cell">
+					<div class="pull-right" style="margin: -3px -5px 0px 0px;">
+					{{if .article.Tags}}
+						{{$tags := explode .article.Tags ","}}
+						{{range $tags}}
+						<a href="/tag/{{.}}" class="tag"><li class="fa fa-tag"></li> {{.}}</a>
+						{{end}}
+					{{end}}
+					</div>
+					<span class="c9"><span class="cmtnum">{{.article.Cmtnum}}</span> 回复 {{if .article.Cmtnum}}&nbsp;<strong class="snow">|</strong> &nbsp;直到 {{end}}</span>
+				</div>
+				<div class="comment-list cell" data-objid="{{.article.Id}}" data-objtype="1" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
+					<div class="words hide"><div class="text-center">暂无回复</div></div>
+				</div>
+			</div>
+
+			<!-- 评论框 -->
+			{{template "comment" .}}
+
+			{{if .view_user_num}}
+			<div class="sep20"></div>
+			<div class="box_white">
+				<div class="cell">统计信息</div>
+				<div class="cell">
+					<span class="c9">目前已有 <strong>{{.view_user_num}}</strong> 位注册会员查看了本文</span>
+				</div>
 			</div>
 			{{end}}
-			<div class="active row">
-				<div class="mark-like-btn col-md-8">
-					<a class="share-btn like-btn {{if .likeflag}}hadlike{{end}}" href="javascript:;" title="{{if .likeflag}}取消喜欢{{else}}我喜欢{{end}}" data-objid="{{.article.Id}}" data-objtype="1" data-flag="{{.likeflag}}">
-						<i class="glyphicon glyphicon-heart-empty"></i><span class="likenum">{{.article.Likenum}}</span>人喜欢
-					</a>
-					<a class="share-btn collect {{if .hadcollect}}hadlike{{end}}" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}稍后再读{{end}}" data-objid="{{.article.Id}}" data-objtype="1" data-collect="{{.hadcollect}}">
-						<i class="glyphicon glyphicon-star-empty"></i>收藏
-					</a>
-				</div>
-			</div>
 			
-			<!--百度推荐-->
-			<div id="hm_t_45501" style="margin:0 auto;max-width:790px;"></div>
-
-			<div class="row prev-next">
-				{{if .prev}}<div><a href="/articles/{{.prev.Id}}" title="{{.prev.Title}}">« </a>上一篇: <a href="/articles/{{.prev.Id}}" title="{{.prev.Title}}">{{.prev.Title}}</a></div>{{end}}
-				{{if .next}}<div><a href="/articles/{{.next.Id}}" title="{{.next.Title}}">» </a>下一篇: <a href="/articles/{{.next.Id}}" title="{{.next.Title}}">{{.next.Title}}</a></div>{{end}}
-			</div>
-			<!-- 评论 -->
-			<div class="page-comment" data-objid="{{.article.Id}}" data-objtype="1" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
-				<div class="words hide">
-					<h3><span class="cmtnum">{{.article.Cmtnum}}</span>条评论</h3>
-					<ul class="list-unstyled">
-					</ul>
-				</div>
-				<div class="comment-title">
-					<h2>文章点评：</h2>
-					{{if .me.Uid}}
-					{{else}}
-					<span class="h2-tip">
-					（您需要 <a class="c-log" href="javascript:openPop('#login-pop');">登录</a> 后才能评论 <a href="/user/register" class="c-reg"> 没有账号</a> ？）</span>
-					{{end}}
-				</div>
-				{{template "comment" .}}
-			</div>
-			<!-- 评论 -->
 		</div>
 	</div>
-	<div class="col-lg-3 col-md-4 col-sm-5">
-		<div class="row box_white sidebar">
-			<div class="sb-content text-center" style="padding: 15px 0;">
-				<a href="/articles/new" class="btn btn-default">撰写文章</a>
-			</div>
-		</div>
+	<div class="col-md-3 col-sm-6">
+		<div class="sep20"></div>
+		{{include "common/my_info.html" .}}
 
-		<div class="row box_white sidebar">
-			<div class="top">
-				<ul class="list-inline text-center">
-					<li class="first"><a href="javascript:;" class="cur">今日热门</a>|</li>
-					<li class="second"><a href="javascript:;">昨日热门</a>|</li>
-					<li class="last"><a href="javascript:;">一周热门</a>
-				</ul>
-				<p class="bar"></p>
-			</div>
-			<div class="sb-content">
-				<div class="rank-list first" data-objtype="1" data-limit="10" data-rank_type="today">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-				<div class="rank-list second hidden" data-objtype="1" data-limit="10" data-rank_type="yesterday">
-					<ul class="list-unstyled">
-					</ul>
-				</div>
-				<div class="rank-list last hidden" data-objtype="1" data-limit="10" data-rank_type="week">
-					<ul class="list-unstyled">
-					</ul>
-				</div>
-			</div>
+		{{if .pos_ad.right1}}
+		<div class="box_white sidebar" id="ad-right1">
+			{{if eq .pos_ad.right1.AdType 0}}
+				{{noescape .pos_ad.right1.Code}}
+			{{end}}
 		</div>
-		
-		<div class="row box_white sidebar">
+		{{end}}
+
+		<div class="box_white sidebar">
 			<div class="top">
 				<ul class="list-inline text-center">
 					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新主题</a>|</li>
 					<li class="second"><a href="/resources" target="_blank" title="点击更多">最新资源</a>|</li>
-					<li class="last"><a href="javascript:;">最新评论</a></li>
+					<li class="last"><a href="/articles" target="_blank" title="点击更多">最新博文</a></li>
 				</ul>
 				<p class="bar"></p>
 			</div>
@@ -161,35 +128,22 @@
 					<ul class="list-unstyled">
 					</ul>
 				</div>
-				<div class="cmt-list last hidden">
+				<div class="article-list last hidden">
 					<ul class="list-unstyled">
 					</ul>
 				</div>
 			</div>
 		</div>
-
-		{{if .pos_ad.right1}}
-		<div class="row box_white sidebar" id="ad-right1">
-			{{if eq .pos_ad.right1.AdType 0}}
-				{{noescape .pos_ad.right1.Code}}
+		
+		{{if .pos_ad.right2}}
+		<div class="box_white sidebar" id="ad-right2">
+			{{if eq .pos_ad.right2.AdType 0}}
+				{{noescape .pos_ad.right2.Code}}
 			{{end}}
 		</div>
 		{{end}}
-
-		<div class="row box_white sidebar">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-fire"></i>&nbsp;<a href="/projects" target="_blank" title="点击更多">开源项目</a></h3>
-			</div>
-			<div class="sb-content">
-				<div class="project-list" data-limit="5">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-			</div>
-		</div>
+		
 	</div>
-	
 </div>
 
 <template id="content_tpl">
@@ -221,7 +175,7 @@
 <!-- <script type="text/javascript" src="//twemoji.maxcdn.com/twemoji.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/twemojis.js"></script> -->
 <script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
-<script type="text/javascript" src="/static/js/comment.js?v=1.1"></script>
+<script type="text/javascript" src="/static/js/comment.js?v=1.3"></script>
 <script type="text/javascript" src="/static/js/puploader.js?v=1.1"></script>
 {{if .article.IsSelf}}
 <script type="text/javascript">
@@ -252,6 +206,14 @@ $(function(){
 		$(this).attr('href', url);
 		$(this).attr('target', '_blank');
 	});
+
+	var len = '{{.article.Txt}}'.length;
+	var readTime = Math.round(len / 900);
+	if (readTime >= 1) {
+		$('.read-time').text('预计阅读时间 '+readTime+' 分钟');
+	} else {
+		$('.read-time').text('预计阅读时间不到 1 分钟');
+	}
 });
 </script>
 <script type="text/javascript" src="/static/ckeditor/config.js"></script>
@@ -348,9 +310,4 @@ noLogo:true,
 };
 </script>
 <script src="//cpro.baidustatic.com/cpro/ui/i.js"></script>
-<script type="text/javascript">
-/* 内文方式  创建于 2015-03-15*/
-var cpro_id = "u1989498";
-</script>
-<script src="//cpro.baidustatic.com/cpro/ui/cnw.js" type="text/javascript"></script>
 {{end}}

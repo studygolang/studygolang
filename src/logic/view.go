@@ -50,7 +50,7 @@ func (this *view) flush() {
 	session := MasterDB.Id(this.objid)
 	switch this.objtype {
 	case model.TypeTopic:
-		session.Incr("view", this.num).Update(new(model.TopicEx))
+		session.Incr("view", this.num).Update(new(model.TopicUpEx))
 	case model.TypeArticle:
 		session.Incr("viewnum", this.num).Update(new(model.Article))
 	case model.TypeResource:
@@ -117,7 +117,7 @@ func (this *views) Incr(req *http.Request, objtype, objid int, uids ...int) {
 	this.data[key].incr()
 
 	if len(uids) > 0 {
-		viewObservable.NotifyObservers(uids[0], objtype, objid)
+		ViewObservable.NotifyObservers(uids[0], objtype, objid)
 	}
 }
 

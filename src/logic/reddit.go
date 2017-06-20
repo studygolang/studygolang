@@ -43,6 +43,9 @@ func newRedditLogic() *RedditLogic {
 func (this *RedditLogic) Parse(redditUrl string) error {
 	redditUrl = strings.TrimSpace(redditUrl)
 	if redditUrl == "" {
+		if this.path == "" {
+			return nil
+		}
 		redditUrl = this.domain + this.path
 	} else if !strings.HasPrefix(redditUrl, "https") {
 		redditUrl = "https://" + redditUrl
@@ -211,6 +214,8 @@ func (this *RedditLogic) dealRedditOneResource(contentSelection *goquery.Selecti
 			return errors.New("insert into ResourceEx error:" + err.Error())
 		}
 		session.Commit()
+
+		DefaultFeed.publish(resource, resourceEx)
 	} else {
 		if _, err = MasterDB.Id(resource.Id).Update(resource); err != nil {
 			return errors.New("update resource:" + strconv.Itoa(resource.Id) + " error:" + err.Error())

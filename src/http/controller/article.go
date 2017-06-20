@@ -120,14 +120,27 @@ func (ArticleController) Detail(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusSeeOther, "/articles")
 	}
 
-	likeFlag := 0
-	hadCollect := 0
+	data := map[string]interface{}{
+		"activeArticles": "active",
+		"article":        article,
+		"prev":           prevNext[0],
+		"next":           prevNext[1],
+	}
+
 	me, ok := ctx.Get("user").(*model.Me)
 	if ok {
-		likeFlag = logic.DefaultLike.HadLike(ctx, me.Uid, article.Id, model.TypeArticle)
-		hadCollect = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, article.Id, model.TypeArticle)
+		data["likeflag"] = logic.DefaultLike.HadLike(ctx, me.Uid, article.Id, model.TypeArticle)
+		data["hadcollect"] = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, article.Id, model.TypeArticle)
 
 		logic.Views.Incr(Request(ctx), model.TypeArticle, article.Id, me.Uid)
+
+		if !article.IsSelf || me.Uid != article.User.Uid {
+			go logic.DefaultViewRecord.Record(article.Id, model.TypeArticle, me.Uid)
+		}
+
+		if me.IsRoot || (article.IsSelf && me.Uid == article.User.Uid) {
+			data["view_user_num"] = logic.DefaultViewRecord.FindUserNum(ctx, article.Id, model.TypeArticle)
+		}
 	} else {
 		logic.Views.Incr(Request(ctx), model.TypeArticle, article.Id)
 	}
@@ -135,7 +148,7 @@ func (ArticleController) Detail(ctx echo.Context) error {
 	// 为了阅读数即时看到
 	article.Viewnum++
 
-	return render(ctx, "articles/detail.html,common/comment.html", map[string]interface{}{"activeArticles": "active", "article": article, "prev": prevNext[0], "next": prevNext[1], "likeflag": likeFlag, "hadcollect": hadCollect})
+	return render(ctx, "articles/detail.html,common/comment.html", data)
 }
 
 // Create 发布新文章

@@ -14,6 +14,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 	"util"
 
 	. "http"
@@ -29,12 +30,18 @@ func AutoLogin() echo.MiddlewareFunc {
 			// github.com/gorilla/sessions 要求必须 Clear
 			defer context.Clear(Request(ctx))
 
+			ctx.Set("req_start_time", time.Now())
+
 			var getCurrentUser = func(usernameOrId interface{}) {
 				if db.MasterDB != nil {
 					// TODO: 考虑缓存，或延迟查询，避免每次都查询
 					user := logic.DefaultUser.FindCurrentUser(ctx, usernameOrId)
 					if user.Uid != 0 {
 						ctx.Set("user", user)
+
+						if !util.IsAjax(ctx) && ctx.Path() != "/ws" {
+							go logic.ViewObservable.NotifyObservers(user.Uid, 0, 0)
+						}
 					}
 				}
 			}

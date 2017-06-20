@@ -7,6 +7,7 @@
 package logic
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -19,6 +20,7 @@ import (
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
+	"github.com/polaris1119/set"
 
 	"model"
 )
@@ -34,10 +36,10 @@ var DefaultSearcher = SearcherLogic{maxRows: 100, engineUrl: config.ConfigFile.M
 // 准备索引数据，post 给 solr
 // isAll: 是否全量
 func (self SearcherLogic) Indexing(isAll bool) {
+	go self.IndexingOpenProject(isAll)
+	go self.IndexingTopic(isAll)
+	go self.IndexingResource(isAll)
 	self.IndexingArticle(isAll)
-	self.IndexingTopic(isAll)
-	self.IndexingResource(isAll)
-	self.IndexingOpenProject(isAll)
 }
 
 // IndexingArticle 索引博文
@@ -64,8 +66,18 @@ func (self SearcherLogic) IndexingArticle(isAll bool) {
 			}
 
 			for _, article := range articleList {
+				logger.Infoln("deal article_id:", article.Id)
+
 				if id < article.Id {
 					id = article.Id
+				}
+
+				if article.Tags == "" {
+					// 自动生成
+					article.Tags = model.AutoTag(article.Title, article.Txt, 4)
+					if article.Tags != "" {
+						MasterDB.Id(article.Id).Cols("tags").Update(article)
+					}
 				}
 
 				document := model.NewDocument(article, nil)
@@ -87,7 +99,7 @@ func (self SearcherLogic) IndexingTopic(isAll bool) {
 
 	var (
 		topicList   []*model.Topic
-		topicExList map[int]*model.TopicEx
+		topicExList map[int]*model.TopicUpEx
 
 		err error
 	)
@@ -96,7 +108,7 @@ func (self SearcherLogic) IndexingTopic(isAll bool) {
 		id := 0
 		for {
 			topicList = make([]*model.Topic, 0)
-			topicExList = make(map[int]*model.TopicEx)
+			topicExList = make(map[int]*model.TopicUpEx)
 
 			err = MasterDB.Where("tid>?", id).OrderBy("tid ASC").Limit(self.maxRows).Find(&topicList)
 			if err != nil {
@@ -117,8 +129,18 @@ func (self SearcherLogic) IndexingTopic(isAll bool) {
 			}
 
 			for _, topic := range topicList {
+				logger.Infoln("deal topic_id:", topic.Tid)
+
 				if id < topic.Tid {
 					id = topic.Tid
+				}
+
+				if topic.Tags == "" {
+					// 自动生成
+					topic.Tags = model.AutoTag(topic.Title, topic.Content, 4)
+					if topic.Tags != "" {
+						MasterDB.Id(topic.Tid).Cols("tags").Update(topic)
+					}
 				}
 
 				topicEx := topicExList[topic.Tid]
@@ -169,8 +191,18 @@ func (self SearcherLogic) IndexingResource(isAll bool) {
 			}
 
 			for _, resource := range resourceList {
+				logger.Infoln("deal resource_id:", resource.Id)
+
 				if id < resource.Id {
 					id = resource.Id
+				}
+
+				if resource.Tags == "" {
+					// 自动生成
+					resource.Tags = model.AutoTag(resource.Title+resource.CatName, resource.Content, 4)
+					if resource.Tags != "" {
+						MasterDB.Id(resource.Id).Cols("tags").Update(resource)
+					}
 				}
 
 				resourceEx := resourceExList[resource.Id]
@@ -210,8 +242,18 @@ func (self SearcherLogic) IndexingOpenProject(isAll bool) {
 			}
 
 			for _, project := range projectList {
+				logger.Infoln("deal project_id:", project.Id)
+
 				if id < project.Id {
 					id = project.Id
+				}
+
+				if project.Tags == "" {
+					// 自动生成
+					project.Tags = model.AutoTag(project.Name+project.Category, project.Desc, 4)
+					if project.Tags != "" {
+						MasterDB.Id(project.Id).Cols("tags").Update(project)
+					}
 				}
 
 				document := model.NewDocument(project, nil)
@@ -230,8 +272,8 @@ func (self SearcherLogic) IndexingOpenProject(isAll bool) {
 const searchContentLen = 350
 
 // DoSearch 搜索
-func (self SearcherLogic) DoSearch(q, field string, start, rows int) (*model.ResponseBody, error) {
-	selectUrl := self.engineUrl + "/select?"
+func (this *SearcherLogic) DoSearch(q, field string, start, rows int) (*model.ResponseBody, error) {
+	selectUrl := this.engineUrl + "/select?"
 
 	var values = url.Values{
 		"wt":             []string{"json"},
@@ -246,6 +288,12 @@ func (self SearcherLogic) DoSearch(q, field string, start, rows int) (*model.Res
 
 	if q == "" {
 		values.Add("q", "*:*")
+	} else if field == "tag" {
+		values.Add("q", "*:*")
+		values.Add("fq", "tags:"+q)
+		values.Add("sort", "viewnum desc")
+		q = ""
+		field = ""
 	} else {
 		searchStat := &model.SearchStat{}
 		MasterDB.Where("keyword=?", q).Get(searchStat)
@@ -261,15 +309,6 @@ func (self SearcherLogic) DoSearch(q, field string, start, rows int) (*model.Res
 		}
 	}
 
-	isTag := false
-	// TODO: 目前大部分都没有tag，因此，对tag特殊处理
-	if field == "text" || field == "tag" {
-		if field == "tag" {
-			isTag = true
-		}
-		field = ""
-	}
-
 	if field != "" {
 		values.Add("df", field)
 		if q != "" {
@@ -278,14 +317,10 @@ func (self SearcherLogic) DoSearch(q, field string, start, rows int) (*model.Res
 	} else {
 		// 全文检索
 		if q != "" {
-			if isTag {
-				values.Add("q", "title:"+q+"^2"+" OR tags:"+q+"^4 OR content:"+q+"^0.2")
-			} else {
-				values.Add("q", "title:"+q+"^2"+" OR content:"+q+"^0.2")
-			}
+			values.Add("q", "title:"+q+"^2"+" OR content:"+q+"^0.2")
 		}
 	}
-
+	logger.Infoln(selectUrl + values.Encode())
 	resp, err := http.Get(selectUrl + values.Encode())
 	if err != nil {
 		logger.Errorln("search error:", err)
@@ -329,6 +364,7 @@ func (self SearcherLogic) DoSearch(q, field string, start, rows int) (*model.Res
 
 			doc.HlContent += "..."
 		}
+
 	}
 
 	if searchResponse.RespBody == nil {
@@ -336,6 +372,76 @@ func (self SearcherLogic) DoSearch(q, field string, start, rows int) (*model.Res
 	}
 
 	return searchResponse.RespBody, nil
+}
+
+// DoSearch 搜索
+func (this *SearcherLogic) SearchByField(field, value string, start, rows int, sorts ...string) (*model.ResponseBody, error) {
+	selectUrl := this.engineUrl + "/select?"
+
+	sort := "sort_time desc,cmtnum desc,viewnum desc"
+	if len(sorts) > 0 {
+		sort = sorts[0]
+	}
+	var values = url.Values{
+		"wt":    []string{"json"},
+		"start": []string{strconv.Itoa(start)},
+		"rows":  []string{strconv.Itoa(rows)},
+		"sort":  []string{sort},
+		"fl":    []string{"objid,objtype,title,author,uid,pub_time,tags,viewnum,cmtnum,likenum,lastreplyuid,lastreplytime,updated_at,top,nid"},
+	}
+
+	values.Add("q", value)
+	values.Add("df", field)
+
+	logger.Infoln(selectUrl + values.Encode())
+
+	resp, err := http.Get(selectUrl + values.Encode())
+	if err != nil {
+		logger.Errorln("search error:", err)
+		return &model.ResponseBody{}, err
+	}
+
+	defer resp.Body.Close()
+
+	var searchResponse model.SearchResponse
+	err = json.NewDecoder(resp.Body).Decode(&searchResponse)
+	if err != nil {
+		logger.Errorln("parse response error:", err)
+		return &model.ResponseBody{}, err
+	}
+
+	if searchResponse.RespBody == nil {
+		searchResponse.RespBody = &model.ResponseBody{}
+	}
+
+	return searchResponse.RespBody, nil
+}
+
+func (this *SearcherLogic) FillNodeAndUser(ctx context.Context, respBody *model.ResponseBody) (map[int]*model.User, map[int]*model.TopicNode) {
+	if respBody.NumFound == 0 {
+		return nil, nil
+	}
+
+	uidSet := set.New(set.NonThreadSafe)
+	nidSet := set.New(set.NonThreadSafe)
+
+	for _, doc := range respBody.Docs {
+		if doc.Uid > 0 {
+			uidSet.Add(doc.Uid)
+		}
+		if doc.Lastreplyuid > 0 {
+			uidSet.Add(doc.Lastreplyuid)
+		}
+		if doc.Nid > 0 {
+			nidSet.Add(doc.Nid)
+		}
+	}
+
+	users := DefaultUser.FindUserInfos(nil, set.IntSlice(uidSet))
+	// 获取节点信息
+	nodes := GetNodesByNids(set.IntSlice(nidSet))
+
+	return users, nodes
 }
 
 type SolrClient struct {

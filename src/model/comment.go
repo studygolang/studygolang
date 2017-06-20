@@ -45,9 +45,10 @@ type Comment struct {
 	Flag    int       `json:"flag"`
 	Ctime   OftenTime `json:"ctime" xorm:"created"`
 
-	Objinfo map[string]interface{} `json:"objinfo" xorm:"-"`
+	Objinfo    map[string]interface{} `json:"objinfo" xorm:"-"`
+	ReplyFloor int                    `json:"reply_floor" xorm:"-"` // 回复某一楼层
 }
 
-func (Comment) TableName() string {
+func (*Comment) TableName() string {
 	return "comments"
 }

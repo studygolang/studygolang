@@ -1,11 +1,10 @@
 {{define "title"}}{{if .project.Id}}修改{{else}}发布{{end}}项目 {{end}}
 {{define "content"}}
-<div class="row banner">
-</div>
 <div class="row">
-	<div class="col-lg-9 col-md-8 col-sm-7">
+	<div class="col-md-9 col-sm-6">
+		<div class="sep20"></div>
 		<ol class="breadcrumb">
-			<li><a href="/"><i class="glyphicon glyphicon-home"></i> 首页</a></li>
+			<li><a href="/">首页</a></li>
 			<li><a href="/projects">开源项目</a></li>
 			<li class="active">{{if .project.Id}}修改{{else}}添加{{end}}项目</li>
 		</ol>
@@ -126,9 +125,10 @@
 			</form>
 		</div>
 	</div>
-	<div class="col-lg-3 col-md-4 col-sm-5">
+	<div class="col-md-3 col-sm-6">
+		<div class="sep20"></div>
 
-		<div class="row box_white sidebar">
+		<div class="box_white sidebar">
 			<div class="top">
 				<ul class="list-inline text-center">
 					<li class="first"><a href="/topics" target="_blank" class="cur" title="点击更多">最新主题</a>|</li>
@@ -158,7 +158,7 @@
 {{end}}
 {{define "css"}}
 <link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
-<link href="/static/css/Huploadify.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/Huploadify.css?v=0.1" media="screen" rel="stylesheet" type="text/css">
 <style type="text/css">
 .uploadify-button {margin:0px;}
 </style>

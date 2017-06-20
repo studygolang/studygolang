@@ -13,7 +13,7 @@ set GOPATH=%~dp0
 
 if not exist log mkdir log
 
-gofmt -w src
+gofmt -w -s src
 
 go install server/studygolang
 go install server/indexer

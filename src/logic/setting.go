@@ -9,6 +9,7 @@ package logic
 import (
 	. "db"
 	"encoding/json"
+	"errors"
 	"net/url"
 	"strings"
 
@@ -87,6 +88,35 @@ func (SettingLogic) Update(ctx context.Context, form url.Values) error {
 		WebsiteSetting.DocsMenu = string(docMenusBytes)
 	}
 
+	if indexTabSlice, ok := form["index_tab"]; ok {
+		indexNameSlice := form["index_name"]
+		indexDataSourceSlice := form["index_data_source"]
+
+		indexNavs := make([]*model.IndexNav, len(indexTabSlice))
+		for i, indexTab := range indexTabSlice {
+			indexNavs[i] = &model.IndexNav{
+				Tab:        indexTab,
+				Name:       indexNameSlice[i],
+				DataSource: indexDataSourceSlice[i],
+			}
+
+			// 原来的子 tab 得保留
+			oldIndexNav := GetCurIndexNav(indexTab)
+			if oldIndexNav != nil {
+				indexNavs[i].Children = oldIndexNav.Children
+			}
+		}
+
+		indexNavsBytes, err := json.Marshal(indexNavs)
+		if err != nil {
+			objLog.Errorln("marshal index tab nav error:", err)
+			return err
+		}
+
+		WebsiteSetting.IndexNavs = indexNavs
+		WebsiteSetting.IndexNav = string(indexNavsBytes)
+	}
+
 	if navNameSlice, ok := form["nav_name"]; ok {
 		navUrlSlice := form["nav_url"]
 
@@ -141,6 +171,48 @@ func (SettingLogic) Update(ctx context.Context, form url.Values) error {
 	_, err := MasterDB.Update(WebsiteSetting)
 	if err != nil {
 		objLog.Errorln("Update setting error:", err)
+		return err
+	}
+
+	return nil
+}
+
+func (SettingLogic) UpdateIndexTabChildren(ctx context.Context, form url.Values) error {
+	objLog := GetLogger(ctx)
+
+	if _, ok := form["tab"]; !ok {
+		return errors.New("父 tab 没有指定")
+	}
+
+	for _, indexTab := range WebsiteSetting.IndexNavs {
+		if indexTab.Tab == form.Get("tab") {
+
+			if indexUriSlice, ok := form["index_uri"]; ok {
+				indexTab.Children = make([]*model.IndexNavChild, len(indexUriSlice))
+
+				indexNameSlice := form["index_name"]
+
+				for i, indexUri := range indexUriSlice {
+					indexTab.Children[i] = &model.IndexNavChild{
+						Uri:  indexUri,
+						Name: indexNameSlice[i],
+					}
+				}
+			}
+		}
+	}
+
+	indexNavsBytes, err := json.Marshal(WebsiteSetting.IndexNavs)
+	if err != nil {
+		objLog.Errorln("marshal index child tab nav error:", err)
+		return err
+	}
+
+	WebsiteSetting.IndexNav = string(indexNavsBytes)
+
+	_, err = MasterDB.Update(WebsiteSetting)
+	if err != nil {
+		objLog.Errorln("Update index child tab error:", err)
 		return err
 	}
 
