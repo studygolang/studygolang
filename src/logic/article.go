@@ -141,7 +141,7 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 			s.SetAttr("src", v)
 		} else if v, ok := s.Attr("src"); ok {
 			if !strings.HasPrefix(v, "http") {
-				s.SetAttr("src", domain+v)
+				s.SetAttr("src", "http://"+domain+"/"+v)
 			}
 		}
 	})
