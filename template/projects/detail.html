@@ -58,7 +58,8 @@
 				
 				<div class="content-buttons">
 					<div class="pull-right c9 f11" style="line-height: 12px; padding-top: 3px; text-shadow: 0px 1px 0px #fff;">{{.project.Viewnum}} 次点击 &nbsp;{{if .project.Likenum}}∙&nbsp; {{.project.Likenum}} 赞 &nbsp; {{end}}</div>
-					<a class="tb collect" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}" data-objid="{{.project.Id}}" data-objtype="4" data-collect="{{.hadcollect}}">{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}</a> &nbsp;
+					<a class="tb collect" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}" data-objid="{{.project.Id}}" data-objtype="4" data-collect="{{.hadcollect}}">{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}</a> 
+					<a href="javascript:" onclick="window.open('http://service.weibo.com/share/share.php?url=http{{if .is_https}}s{{end}}://{{.setting.Domain}}/p/{{if .project.Uri}}{{.project.Uri}}{{else}}{{.project.Id}}{{end}}&title={{.setting.Name}} - {{.project.Category}} {{.project.Name}}', '_blank', 'width=550,height=370');" class="tb">微博</a>
 					<div id="content-thank">
 						<a class="tb" href="javascript:;" title="{{if .likeflag}}取消赞{{else}}赞{{end}}" data-objid="{{.project.Id}}" data-objtype="4" data-flag="{{.likeflag}}">{{if .likeflag}}取消赞{{else}}赞{{end}}</a>
 					</div>

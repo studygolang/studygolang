@@ -497,6 +497,11 @@ func (ArticleLogic) findByIds(ids []int) map[int]*model.Article {
 func (ArticleLogic) FindByIdAndPreNext(ctx context.Context, id int) (curArticle *model.Article, prevNext []*model.Article, err error) {
 	objLog := GetLogger(ctx)
 
+	if id == 0 {
+		err = errors.New("id 不能为0")
+		return
+	}
+
 	articles := make([]*model.Article, 0)
 
 	err = MasterDB.Where("id BETWEEN ? AND ? AND status!=?", id-5, id+5, model.ArticleStatusOffline).Find(&articles)
