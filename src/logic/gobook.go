@@ -194,7 +194,7 @@ func (self BookComment) SetObjinfo(ids []int, commentMap map[int][]*model.Commen
 
 	for _, book := range books {
 		objinfo := make(map[string]interface{})
-		objinfo["name"] = book.Name
+		objinfo["title"] = book.Name
 		objinfo["uri"] = model.PathUrlMap[model.TypeBook]
 		objinfo["type_name"] = model.TypeNameMap[model.TypeBook]
 
