@@ -143,7 +143,8 @@ func (self AutoCrawlLogic) parseArticleList(strUrl string, autoCrawlConf *model.
 			req.Header.Add("Referer", referer)
 		}
 
-		resp, err := http.DefaultClient.Do(req)
+		var resp *http.Response
+		resp, err = http.DefaultClient.Do(req)
 		if err != nil {
 			return err
 		}
