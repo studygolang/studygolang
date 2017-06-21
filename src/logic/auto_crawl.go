@@ -135,7 +135,8 @@ func (self AutoCrawlLogic) parseArticleList(strUrl string, autoCrawlConf *model.
 	if autoCrawlConf.ExtMap == nil {
 		doc, err = goquery.NewDocument(strUrl)
 	} else {
-		req, err := http.NewRequest("GET", strUrl, nil)
+		var req *http.Request
+		req, err = http.NewRequest("GET", strUrl, nil)
 		if err != nil {
 			return err
 		}
