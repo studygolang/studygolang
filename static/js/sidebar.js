@@ -124,22 +124,7 @@ $(function(){
 
 			var content = '';
 			for(var i in comments) {
-				var url = '';
-				switch(comments[i].objtype) {
-				case 0:
-					url = '/topics/';
-					break;
-				case 1:
-					url = '/articles/';
-					break;
-				case 2:
-					url = '/resources/';
-					break;
-				case 4:
-					url = '/p/';
-					break;
-				}
-				url += comments[i].objid;
+				var url = comments[i].objinfo.uri+comments[i].objid;
 
 				var user = data[comments[i].uid];
 

@@ -78,6 +78,15 @@
 					</tr>
 				</tbody></table>
 			</div>
+			{{if eq $i 4}}
+				{{if $.pos_ad.banner}}
+				<div id="ad-banner">
+					{{if eq $.pos_ad.banner.AdType 0}}
+						{{noescape $.pos_ad.banner.Code}}
+					{{end}}
+				</div>
+				{{end}}
+			{{end}}
 			{{end}}
 
 			{{range $.topics}}
