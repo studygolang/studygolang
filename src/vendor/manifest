@@ -164,6 +164,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/jaytaylor/html2text",
+			"repository": "https://github.com/jaytaylor/html2text",
+			"revision": "7c7a33a7a158a5ce395c803d2b6a209b2bbc14c8",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/jmcvetta/randutil",
 			"repository": "https://github.com/jmcvetta/randutil",
 			"revision": "2bb1b664bcff821e02b2a0644cd29c7e824d54f8",
@@ -254,9 +260,21 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/mattn/go-runewidth",
+			"repository": "https://github.com/mattn/go-runewidth",
+			"revision": "97311d9f7767e3d6f422ea06661bc2c7a19e8a5d",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/mattn/go-sqlite3",
 			"repository": "https://github.com/mattn/go-sqlite3",
 			"revision": "37aa7c6f5bc95b7264de70cd1f0ca1d39228ebd6",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/olekukonko/tablewriter",
+			"repository": "https://github.com/olekukonko/tablewriter",
+			"revision": "febf2d34b54a69ce7530036c7503b1c9fbfdf0bb",
 			"branch": "master"
 		},
 		{
@@ -360,6 +378,12 @@
 			"importpath": "github.com/robfig/cron",
 			"repository": "https://github.com/robfig/cron",
 			"revision": "0f39cf7ebc65a602f45692f9894bd6a193faf8fa",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/ssor/bom",
+			"repository": "https://github.com/ssor/bom",
+			"revision": "6ed919a936d5ab554e4b40bc51f7c522488122c6",
 			"branch": "master"
 		},
 		{

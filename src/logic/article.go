@@ -17,11 +17,13 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/jaytaylor/html2text"
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	"github.com/polaris1119/set"
 	"github.com/polaris1119/times"
+	"github.com/tidwall/gjson"
 	"golang.org/x/net/context"
 	"golang.org/x/text/encoding/simplifiedchinese"
 )
@@ -74,6 +76,11 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 	if rule.Id == 0 {
 		logger.Errorln("domain:", domain, "not exists!")
 		return nil, errors.New("domain not exists")
+	}
+
+	// 知乎特殊处理
+	if domain == "zhuanlan.zhihu.com" {
+		return self.ParseZhihuArticle(ctx, articleUrl, rule)
 	}
 
 	var doc *goquery.Document
@@ -206,6 +213,64 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	_, err = MasterDB.Insert(article)
+	if err != nil {
+		logger.Errorln("insert article error:", err)
+		return nil, err
+	}
+
+	return article, nil
+}
+
+func (self ArticleLogic) ParseZhihuArticle(ctx context.Context, articleUrl string, rule *model.CrawlRule) (*model.Article, error) {
+	var (
+		doc *goquery.Document
+		err error
+	)
+	if doc, err = goquery.NewDocument(articleUrl); err != nil {
+		logger.Errorln("goquery newdocument error:", err)
+		return nil, err
+	}
+
+	var (
+		jsonContentKey string
+		ok             bool
+	)
+
+	extMap := rule.ParseExt()
+	if jsonContentKey, ok = extMap["json_content"]; !ok {
+		return nil, errors.New("zhihu config error, not json_content key")
+	}
+
+	jsonContent := doc.Find(jsonContentKey).Text()
+	if jsonContent == "" {
+		return nil, errors.New("zhihu json content is empty")
+	}
+
+	pos := strings.LastIndex(articleUrl, "/")
+	articleId := articleUrl[pos+1:]
+
+	result := gjson.Parse(jsonContent)
+	database := result.Get("database")
+	post := database.Get("Post").Get(articleId)
+	author := database.Get("User").Get(post.Get("author").String()).Get("name").String()
+	content := post.Get("content").String()
+	txt, _ := html2text.FromString(content)
+	pubDate, _ := time.Parse("2006-01-02T15:04:05+08:00", post.Get("publishedTime").String())
+
+	article := &model.Article{
+		Domain:    rule.Domain,
+		Name:      rule.Name,
+		Author:    author,
+		AuthorTxt: author,
+		Title:     post.Get("title").String(),
+		Content:   content,
+		Txt:       txt,
+		PubDate:   times.Format("Y-m-d H:i:s", pubDate),
+		Url:       articleUrl,
+		Lang:      rule.Lang,
 	}
 
 	_, err = MasterDB.Insert(article)
