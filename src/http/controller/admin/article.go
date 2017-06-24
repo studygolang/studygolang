@@ -150,28 +150,3 @@ func (self ArticleController) Modify(ctx echo.Context) error {
 
 	return render(ctx, "article/modify.html", data)
 }
-
-// /crawl/article/del
-// func DelArticleHandler(rw http.ResponseWriter, req *http.Request) {
-// 	var data = make(map[string]interface{})
-
-// 	id := req.FormValue("id")
-
-// 	if _, err := strconv.Atoi(id); err != nil {
-// 		data["ok"] = 0
-// 		data["error"] = "id不是整型"
-
-// 		filter.SetData(req, data)
-// 		return
-// 	}
-
-// 	if err := service.DelArticle(id); err != nil {
-// 		data["ok"] = 0
-// 		data["error"] = "删除失败！"
-// 	} else {
-// 		data["ok"] = 1
-// 		data["msg"] = "删除成功！"
-// 	}
-
-// 	filter.SetData(req, data)
-// }
