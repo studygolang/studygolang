@@ -594,6 +594,11 @@ func (ArticleLogic) FindByIdAndPreNext(ctx context.Context, id int) (curArticle 
 		}
 	}
 
+	if curArticle == nil {
+		objLog.Errorln("ArticleLogic FindByIdAndPreNext not find current article, id:", id)
+		return
+	}
+
 	if prevId == id {
 		prevNext[0] = nil
 	}

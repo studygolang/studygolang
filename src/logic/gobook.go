@@ -145,6 +145,21 @@ func (GoBookLogic) FindByIds(ids []int) []*model.Book {
 	return books
 }
 
+// findByIds 获取多个图书详细信息 包内使用
+func (GoBookLogic) findByIds(ids []int) map[int]*model.Book {
+	if len(ids) == 0 {
+		return nil
+	}
+
+	books := make(map[int]*model.Book)
+	err := MasterDB.In("id", ids).Find(&books)
+	if err != nil {
+		logger.Errorln("GoBookLogic findByIds error:", err)
+		return nil
+	}
+	return books
+}
+
 // FindById 获取一本图书信息
 func (GoBookLogic) FindById(ctx context.Context, id interface{}) (*model.Book, error) {
 	book := &model.Book{}

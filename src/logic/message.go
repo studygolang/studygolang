@@ -192,6 +192,7 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginato
 	resIdSet := set.New(set.NonThreadSafe)
 	wikiIdSet := set.New(set.NonThreadSafe)
 	pidSet := set.New(set.NonThreadSafe)
+	bookIdSet := set.New(set.NonThreadSafe)
 	// 评论ID
 	cidSet := set.New(set.NonThreadSafe)
 	uidSet := set.New(set.NonThreadSafe)
@@ -228,6 +229,8 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginato
 				wikiIdSet.Add(objid)
 			case model.TypeProject:
 				pidSet.Add(objid)
+			case model.TypeBook:
+				bookIdSet.Add(objid)
 			}
 		}
 		if val, ok := ext["cid"]; ok {
@@ -247,6 +250,7 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginato
 	resourceMap := DefaultResource.findByIds(set.IntSlice(resIdSet))
 	wikiMap := DefaultWiki.findByIds(set.IntSlice(wikiIdSet))
 	projectMap := DefaultProject.findByIds(set.IntSlice(pidSet))
+	bookMap := DefaultGoBook.findByIds(set.IntSlice(bookIdSet))
 
 	result := make([]map[string]interface{}, len(messages))
 	for i, message := range messages {
@@ -315,6 +319,11 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginato
 					}
 					objUrl += "#commentForm"
 					title += "项目："
+				case model.TypeBook:
+					book := bookMap[objid]
+					objTitle = book.Name
+					objUrl = "/book/" + strconv.Itoa(book.Id) + "#commentForm"
+					title += "图书："
 				}
 
 			case model.MsgtypePublishAtMe:
