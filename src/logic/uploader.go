@@ -114,7 +114,7 @@ func (this *UploaderLogic) uploadLocalFile(localFile, key string) (err error) {
 	return
 }
 
-func (this *UploaderLogic) uploadMemoryFile(r gio.Reader, key string) (err error) {
+func (this *UploaderLogic) uploadMemoryFile(r gio.Reader, key string, size int) (err error) {
 	this.genUpToken()
 
 	var ret io.PutRet
@@ -130,7 +130,7 @@ func (this *UploaderLogic) uploadMemoryFile(r gio.Reader, key string) (err error
 	// key       为文件存储的标识
 	// r         为io.Reader类型，用于从其读取数据
 	// extra     为上传文件的额外信息,可为空， 详情见 io.PutExtra, 可选
-	err = io.Put(nil, &ret, this.uptoken, key, r, extra)
+	err = io.Put2(nil, &ret, this.uptoken, key, r, int64(size), extra)
 
 	// 上传产生错误
 	if err != nil {
@@ -172,7 +172,7 @@ func (this *UploaderLogic) UploadImage(ctx context.Context, reader gio.Reader, i
 	}
 
 	path := imgDir + "/" + md5 + ext
-	if err = this.uploadMemoryFile(reader, path); err != nil {
+	if err = this.uploadMemoryFile(reader, path, len(buf)); err != nil {
 		return "", err
 	}
 
@@ -226,7 +226,7 @@ func (this *UploaderLogic) TransferUrl(ctx context.Context, origUrl string, pref
 		return origUrl, errors.New("文件太大")
 	}
 
-	err = this.uploadMemoryFile(reader, path)
+	err = this.uploadMemoryFile(reader, path, len(buf))
 	if err != nil {
 		return origUrl, err
 	}

@@ -9,6 +9,7 @@ package controller
 import (
 	"encoding/json"
 	"global"
+	"io"
 	"io/ioutil"
 	"logic"
 	"net/http"
@@ -59,6 +60,7 @@ func (self ImageController) QuickUpload(ctx echo.Context) error {
 
 	fileName := goutils.Md5Buf(buf) + filepath.Ext(fileHeader.Filename)
 	imgDir := times.Format("ymd")
+	file.Seek(0, io.SeekStart)
 	path, err := logic.DefaultUploader.UploadImage(ctx, file, imgDir, buf, filepath.Ext(fileHeader.Filename))
 	if err != nil {
 		return self.quickUploadFail(ctx, "文件上传失败！")
@@ -133,6 +135,7 @@ func (ImageController) Upload(ctx echo.Context) error {
 		cdnDomain += "/"
 	}
 
+	file.Seek(0, io.SeekStart)
 	path, err := logic.DefaultUploader.UploadImage(ctx, file, imgDir, buf, filepath.Ext(fileHeader.Filename))
 	if err != nil {
 		return fail(ctx, 5, "文件上传失败！")
