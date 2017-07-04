@@ -102,6 +102,7 @@ func (self ThirdUserLogic) LoginFromGithub(ctx context.Context, code string) (*m
 		Company:  githubUser.Company,
 		Github:   githubUser.Login,
 		Website:  githubUser.Blog,
+		Avatar:   githubUser.AvatarUrl,
 		IsThird:  1,
 		Status:   model.UserStatusAudit,
 	}

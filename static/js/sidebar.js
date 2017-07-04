@@ -28,6 +28,24 @@ $(function(){
 		$(this).parents('.top').children('.bar').animate({left: left}, "fast");
 	});
 
+	var gravatar = function(avatar, email, size) {
+		if (avatar == "") {
+			if (isHttps) {
+				avatar = 'https://secure.gravatar.com/avatar/'+md5(email)+"?s="+size;
+			} else {
+				avatar = 'http://gravatar.com/avatar/'+md5(email)+"?s="+size;
+			}
+		} else {
+			if (avatar.indexOf('http') == 0) {
+				avatar += '&s='+size;
+			} else {
+				avatar = cdnDomain+'avatar/'+avatar+'?imageView2/2/w/'+size;
+			}
+		}
+
+		return avatar;
+	}
+
 	// 侧边栏——最新帖子
 	var topicRecent = function(data) {
 		if (data.ok) {
@@ -127,17 +145,7 @@ $(function(){
 				var url = comments[i].objinfo.uri+comments[i].objid;
 
 				var user = data[comments[i].uid];
-
-				var avatar = user.avatar;
-				if (avatar == "") {
-					if (isHttps) {
-						avatar = 'https://secure.gravatar.com/avatar/'+md5(user.email)+"?s=48";
-					} else {
-						avatar = 'http://gravatar.com/avatar/'+md5(user.email)+"?s=48";
-					}
-				} else {
-					avatar = cdnDomain+'avatar/'+avatar+'?imageView2/2/w/40';
-				}
+				var avatar = gravatar(user.avatar, user.email, 40);
 				
 				var cmtTime = SG.timeago(comments[i].ctime);
 				if (cmtTime == comments[i].ctime) {
@@ -184,16 +192,7 @@ $(function(){
 
 			var content = '';
 			for(var	i in data) {
-				var avatar = data[i].avatar;
-				if (avatar == "") {
-					if (isHttps) {
-						avatar = 'https://secure.gravatar.com/avatar/'+md5(data[i].email)+"?s=48";
-					} else {
-						avatar = 'http://gravatar.com/avatar/'+md5(data[i].email)+"?s=48";
-					}
-				} else {
-					avatar = cdnDomain+'avatar/'+avatar+'?imageView2/2/w/40';
-				}
+				var avatar = gravatar(data[i].avatar, data[i].email, 48);
 				
 				content	+= '<li	class="pull-left">'+
 					'<div class="avatar">'+

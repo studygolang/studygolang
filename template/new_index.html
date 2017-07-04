@@ -28,7 +28,7 @@
 						
 						<td width="48" valign="top" align="center">
 						{{if .User}}
-						<a href="/user/{{.User.Username}}"><img src="{{gravatar .User.Avatar .User.Email 48 $.is_https}}" class="avatar"></a>
+						<a href="/user/{{.User.Username}}"><img src="{{gravatar .User.Avatar .User.Email 48 $.is_https}}" class="avatar" width="48px"></a>
 						{{else}}
 						<a href="javascript:">
 							<img src="https://secure.gravatar.com/avatar/3bf6178897766ebadaa830073e87374d?s=48">
@@ -94,7 +94,7 @@
 				<table cellpadding="0" cellspacing="0" border="0" width="100%">
 					<tbody><tr>
 						
-						<td width="48" valign="top" align="center"><a href="/user/{{.user.Username}}"><img src="{{gravatar .user.Avatar .user.Email 48 $.is_https}}" class="avatar"></a></td>
+						<td width="48" valign="top" align="center"><a href="/user/{{.user.Username}}"><img src="{{gravatar .user.Avatar .user.Email 48 $.is_https}}" class="avatar" width="48px"></a></td>
 						<td width="10"></td>
 						
 						<td width="auto" valign="middle">
@@ -129,7 +129,7 @@
 						
 						<td width="48" valign="top" align="center">
 						{{if .User}}
-						<a href="/user/{{.User.Username}}"><img src="{{gravatar .User.Avatar .User.Email 48 $.is_https}}" class="avatar"></a>
+						<a href="/user/{{.User.Username}}"><img src="{{gravatar .User.Avatar .User.Email 48 $.is_https}}" class="avatar" width="48px"></a>
 						{{else}}
 						<a href="javascript:">
 							<img src="https://secure.gravatar.com/avatar/3bf6178897766ebadaa830073e87374d?s=48">
@@ -180,7 +180,7 @@
 						<td width="48" valign="top" align="center">
 						{{if .Uid}}
 						{{$user := index $.users .Uid}}
-						<a href="/user/{{$user.Username}}"><img src="{{gravatar $user.Avatar $user.Email 48 $.is_https}}" class="avatar"></a>
+						<a href="/user/{{$user.Username}}"><img src="{{gravatar $user.Avatar $user.Email 48 $.is_https}}" class="avatar" width="48px"></a>
 						{{else}}
 						<a href="javascript:">
 							<img src="https://secure.gravatar.com/avatar/3bf6178897766ebadaa830073e87374d?s=48">

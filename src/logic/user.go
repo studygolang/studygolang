@@ -568,7 +568,7 @@ func (UserLogic) FindBindUsers(ctx context.Context, uid int) []*model.BindUser {
 
 func (UserLogic) doCreateUser(ctx context.Context, session *xorm.Session, user *model.User, passwd ...string) error {
 
-	if len(DefaultAvatars) > 0 {
+	if user.Avatar == "" && len(DefaultAvatars) > 0 {
 		// 随机给一个默认头像
 		user.Avatar = DefaultAvatars[rand.Intn(len(DefaultAvatars))]
 	}

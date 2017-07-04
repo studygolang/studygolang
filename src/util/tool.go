@@ -25,6 +25,9 @@ func Gravatar(avatar string, emailI interface{}, size uint16, isHttps bool) stri
 		gravatarDomain = "https://secure.gravatar.com"
 	}
 	if avatar != "" {
+		if strings.HasPrefix(avatar, "http") {
+			return fmt.Sprintf("%s&s=%d", avatar, size)
+		}
 		return fmt.Sprintf("%savatar/%s?imageView2/2/w/%d", cdnDomain, avatar, size)
 	}
 
