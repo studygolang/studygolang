@@ -64,6 +64,7 @@ figure.highlight,
   figure.highlight .line,
   .codeblock .line {
     height: 1.3em;
+    line-height: 1.3em;
     font-size: 13px; }
 
 .gist .line,
