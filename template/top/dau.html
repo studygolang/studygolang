@@ -17,7 +17,7 @@
 					{{range $i, $user := .users}}
 					<tr>
 						<td width="53" valign="top" align="center">
-							<a href="/user/{{.Username}}"><img src="{{gravatar .Avatar .Email 48 $.is_https}}" class="avatar" border="0" align="default"></a>
+							<a href="/user/{{.Username}}"><img src="{{gravatar .Avatar .Email 48 $.is_https}}" class="avatar" border="0" align="default" width="48px"></a>
 						</td>
 						<td width="auto" align="left">
 							<h2 style="margin-bottom: 0px; margin-top: 0px; border-bottom: none;"><span class="c9">{{add $i 1}}.</span> <a class="nobreak noul" href="/user/{{.Username}}">{{.Username}}</a></h2>
