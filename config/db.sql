@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS `website_setting` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(63) NOT NULL DEFAULT '' COMMENT '网站名称',
   `domain` varchar(63) NOT NULL DEFAULT '' COMMENT '网站域名',
+  `only_https` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否只支持HTTPS',
   `title_suffix` varchar(63) NOT NULL DEFAULT '' COMMENT '标题后缀',
   `favicon` varchar(127) NOT NULL DEFAULT '' COMMENT '自定义favicon',
   `logo` varchar(127) NOT NULL DEFAULT '' COMMENT '自定义logo',

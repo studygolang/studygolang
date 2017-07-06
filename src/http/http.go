@@ -299,6 +299,10 @@ func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interf
 	global.App.SetCopyright()
 
 	isHttps := goutils.MustBool(ctx.Request().Header().Get("X-Https"))
+	if logic.WebsiteSetting.OnlyHttps {
+		isHttps = true
+	}
+
 	cdnDomain := global.App.CDNHttp
 	if isHttps {
 		cdnDomain = global.App.CDNHttps

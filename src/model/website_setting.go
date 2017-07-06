@@ -50,6 +50,7 @@ type websiteSetting struct {
 	Id             int `xorm:"pk autoincr"`
 	Name           string
 	Domain         string
+	OnlyHttps      bool
 	TitleSuffix    string
 	Favicon        string
 	Logo           string

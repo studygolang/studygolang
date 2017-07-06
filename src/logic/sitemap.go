@@ -49,9 +49,13 @@ func init() {
 func GenSitemap() {
 	sitemapFiles := []string{}
 
+	loc := "http://" + WebsiteSetting.Domain
+	if WebsiteSetting.OnlyHttps {
+		loc = "https://" + WebsiteSetting.Domain
+	}
 	// 首页
 	home := map[string]string{
-		"loc":      "http://" + WebsiteSetting.Domain,
+		"loc":      loc,
 		"lastmode": time.Now().Format(time.RFC3339),
 	}
 
