@@ -11,10 +11,7 @@ $(function(){
 			prevent_duplicates : true // 不允许选取重复文件
 		},
 		multi_selection: false,
-		file_data_name: 'img',
-		resize: {
-			width: 600
-		}
+		file_data_name: 'img'
 	});
 
 	// 在实例对象上调用init()方法进行初始化
