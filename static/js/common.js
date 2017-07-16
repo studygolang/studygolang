@@ -398,6 +398,11 @@ jQuery(document).ready(function($) {
 	setTimeout(function(){
 		$('.page .content img').addClass('img-responsive');
 	}, 2000);
+
+	// 表格响应式
+	setTimeout(function() {
+		$('.page .content table').addClass('table').wrap('<div class="table-responsive"></div>');
+	}, 2000);
 	
 });
 

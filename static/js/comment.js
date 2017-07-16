@@ -138,6 +138,12 @@
 
 					if (content != '') {
 						$('.comment-list .words').html(content);
+
+						// 链接，add target=_blank
+						$('.comment-list .words .markdown').on('mousedown', 'a', function(evt){
+							var url = $(this).attr('href');
+							$(this).attr('target', '_blank');
+						});
 					}
 					$('.comment-list .words').removeClass('hide');
 
@@ -165,6 +171,7 @@
 					return hljs.highlightAuto(code).value;
 				}
 			});
+			content = SG.preProcess(content);
 			content = marked(content);
 			return SG.replaceCodeChar(content);
 		};
