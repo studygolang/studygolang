@@ -127,8 +127,8 @@ func (self WechatLogic) searchContent(ctx context.Context, wechatMsg *model.Wech
 
 func (self WechatLogic) wechatResponse(ctx context.Context, respContent string, wechatMsg *model.WechatMsg) (*model.WechatReply, error) {
 	wechatReply := &model.WechatReply{
-		ToUserName:   &model.CData{wechatMsg.ToUserName},
-		FromUserName: &model.CData{wechatMsg.FromUserName},
+		ToUserName:   &model.CData{wechatMsg.FromUserName},
+		FromUserName: &model.CData{wechatMsg.ToUserName},
 		MsgType:      &model.CData{wechatMsg.MsgType},
 		CreateTime:   time.Now().Unix(),
 	}
