@@ -7,7 +7,6 @@
 package controller
 
 import (
-	"fmt"
 	"io/ioutil"
 	"logic"
 	"net/http"
@@ -23,9 +22,6 @@ func (self WechatController) RegisterRoute(g *echo.Group) {
 }
 
 func (self WechatController) AutoReply(ctx echo.Context) error {
-	fmt.Printf("form values:%+v\n", ctx.FormParams())
-	fmt.Printf("query values:%+v\n", ctx.QueryParams())
-
 	// 配置微信（不校验，直接返回成功）
 	if ctx.QueryParam("echostr") != "" {
 		return ctx.String(http.StatusOK, ctx.QueryParam("echostr"))
