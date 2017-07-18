@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"model"
 	"strings"
+	"time"
 
 	"golang.org/x/net/context"
 
@@ -21,14 +22,14 @@ type WechatLogic struct{}
 
 var DefaultWechat = WechatLogic{}
 
-func (self WechatLogic) AutoReply(ctx context.Context, reqData []byte) (string, error) {
+func (self WechatLogic) AutoReply(ctx context.Context, reqData []byte) (*model.WechatReply, error) {
 	objLog := GetLogger(ctx)
 
 	wechatMsg := &model.WechatMsg{}
 	err := xml.Unmarshal(reqData, wechatMsg)
 	if err != nil {
 		objLog.Errorln("wechat autoreply xml unmarshal error:", err)
-		return "", err
+		return nil, err
 	}
 
 	switch wechatMsg.MsgType {
@@ -41,14 +42,14 @@ func (self WechatLogic) AutoReply(ctx context.Context, reqData []byte) (string, 
 	case model.WeMsgTypeEvent:
 		switch wechatMsg.Event {
 		case model.WeEventSubscribe:
-			return config.ConfigFile.MustValue("wechat", "subscribe"), nil
+			return self.wechatResponse(ctx, config.ConfigFile.MustValue("wechat", "subscribe"), wechatMsg)
 		}
 	}
 
-	return "", nil
+	return self.wechatResponse(ctx, "success", wechatMsg)
 }
 
-func (self WechatLogic) readingContent(ctx context.Context, wechatMsg *model.WechatMsg) (string, error) {
+func (self WechatLogic) readingContent(ctx context.Context, wechatMsg *model.WechatMsg) (*model.WechatReply, error) {
 
 	var formatContent = func(reading *model.MorningReading) string {
 		if reading.Inner == 0 {
@@ -66,10 +67,10 @@ func (self WechatLogic) readingContent(ctx context.Context, wechatMsg *model.Wec
 	if wechatMsg.Content == "最新晨读" {
 		readings = DefaultReading.FindBy(ctx, 1, model.RtypeGo)
 		if len(readings) == 0 {
-			return "没有找到您要的内容", nil
+			return self.wechatResponse(ctx, "没有找到您要的内容", wechatMsg)
 		}
 
-		return formatContent(readings[0]), nil
+		return self.wechatResponse(ctx, formatContent(readings[0]), wechatMsg)
 	}
 
 	readings = DefaultReading.FindBy(ctx, 5, model.RtypeGo)
@@ -79,20 +80,20 @@ func (self WechatLogic) readingContent(ctx context.Context, wechatMsg *model.Wec
 		respContentSlice[i] = formatContent(reading)
 	}
 
-	return strings.Join(respContentSlice, "\n\n"), nil
+	return self.wechatResponse(ctx, strings.Join(respContentSlice, "\n\n"), wechatMsg)
 }
 
-func (self WechatLogic) searchContent(ctx context.Context, wechatMsg *model.WechatMsg) (string, error) {
+func (self WechatLogic) searchContent(ctx context.Context, wechatMsg *model.WechatMsg) (*model.WechatReply, error) {
 	objLog := GetLogger(ctx)
 
 	respBody, err := DefaultSearcher.SearchByField("title", wechatMsg.Content, 0, 5)
 	if err != nil {
 		objLog.Errorln("wechat search by field error:", err)
-		return "", err
+		return nil, err
 	}
 
 	if respBody.NumFound == 0 {
-		return "没有找到您要的内容", nil
+		return self.wechatResponse(ctx, "没有找到您要的内容", wechatMsg)
 	}
 
 	host := WebsiteSetting.Domain
@@ -121,5 +122,22 @@ func (self WechatLogic) searchContent(ctx context.Context, wechatMsg *model.Wech
 		respContentSlice[i] = fmt.Sprintf("《%s》 %s", doc.Title, url)
 	}
 
-	return strings.Join(respContentSlice, "\n"), nil
+	return self.wechatResponse(ctx, strings.Join(respContentSlice, "\n"), wechatMsg)
+}
+
+func (self WechatLogic) wechatResponse(ctx context.Context, respContent string, wechatMsg *model.WechatMsg) (*model.WechatReply, error) {
+	wechatReply := &model.WechatReply{
+		ToUserName:   &model.CData{wechatMsg.ToUserName},
+		FromUserName: &model.CData{wechatMsg.FromUserName},
+		MsgType:      &model.CData{wechatMsg.MsgType},
+		CreateTime:   time.Now().Unix(),
+	}
+	switch wechatMsg.MsgType {
+	case model.WeMsgTypeText:
+		wechatReply.Content = &model.CData{respContent}
+	default:
+		wechatReply.Content = &model.CData{"没有找到您要的内容"}
+	}
+
+	return wechatReply, nil
 }

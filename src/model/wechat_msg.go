@@ -6,6 +6,8 @@
 
 package model
 
+import "encoding/xml"
+
 const (
 	WeMsgTypeText       = "text"
 	WeMsgTypeImage      = "image"
@@ -23,7 +25,7 @@ const (
 type WechatMsg struct {
 	ToUserName   string
 	FromUserName string
-	CreateTime   int
+	CreateTime   int64
 	MsgType      string
 	Content      string
 	MsgId        int64
@@ -51,4 +53,17 @@ type WechatMsg struct {
 
 	// 事件
 	Event string
+}
+
+type CData struct {
+	Val string `xml:",cdata"`
+}
+
+type WechatReply struct {
+	XMLName      xml.Name `xml:"xml"`
+	ToUserName   *CData
+	FromUserName *CData
+	CreateTime   int64
+	MsgType      *CData
+	Content      *CData `xml:",omitempty"`
 }

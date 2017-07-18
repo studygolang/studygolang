@@ -29,17 +29,17 @@ func (self WechatController) AutoReply(ctx echo.Context) error {
 
 	body, err := ioutil.ReadAll(ctx.Request().Body())
 	if err != nil {
-		return ctx.String(http.StatusOK, "failure")
+		return ctx.String(http.StatusOK, "")
 	}
 
 	if len(body) == 0 {
-		return ctx.String(http.StatusOK, "没有获取到消息内容")
+		return ctx.String(http.StatusOK, "")
 	}
 
-	respContent, err := logic.DefaultWechat.AutoReply(ctx, body)
+	wechatReply, err := logic.DefaultWechat.AutoReply(ctx, body)
 	if err != nil {
-		return ctx.String(http.StatusOK, "对不起服务错误！")
+		return ctx.String(http.StatusOK, "")
 	}
 
-	return ctx.String(http.StatusOK, respContent)
+	return ctx.XML(http.StatusOK, wechatReply)
 }
