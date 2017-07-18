@@ -155,6 +155,10 @@ func (self RankLogic) FindDAURank(ctx context.Context, num int, ymds ...string) 
 		weights = append(weights, weight)
 	}
 
+	if len(uids) == 0 {
+		return nil
+	}
+
 	userMap := DefaultUser.FindDAUUsers(ctx, uids)
 	users := make([]*model.User, len(userMap))
 	for i, uid := range uids {
