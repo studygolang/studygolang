@@ -42,6 +42,7 @@ func (self WechatLogic) AutoReply(ctx context.Context, reqData []byte) (*model.W
 	case model.WeMsgTypeEvent:
 		switch wechatMsg.Event {
 		case model.WeEventSubscribe:
+			wechatMsg.MsgType = model.WeMsgTypeText
 			return self.wechatResponse(ctx, config.ConfigFile.MustValue("wechat", "subscribe"), wechatMsg)
 		}
 	}
