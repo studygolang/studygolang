@@ -140,7 +140,7 @@ func (self WechatLogic) readingContent(ctx context.Context, wechatMsg *model.Wec
 		return self.wechatResponse(ctx, formatContent(readings[0]), wechatMsg)
 	}
 
-	readings = DefaultReading.FindBy(ctx, 5, model.RtypeGo)
+	readings = DefaultReading.FindBy(ctx, 3, model.RtypeGo)
 
 	respContentSlice := make([]string, len(readings))
 	for i, reading := range readings {
