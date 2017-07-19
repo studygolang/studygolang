@@ -36,6 +36,16 @@ func (self WechatLogic) AutoReply(ctx context.Context, reqData []byte) (*model.W
 	case model.WeMsgTypeText:
 		if strings.Contains(wechatMsg.Content, "晨读") {
 			return self.readingContent(ctx, wechatMsg)
+		} else if strings.Contains(wechatMsg.Content, "主题") || strings.Contains(wechatMsg.Content, "帖子") {
+			return self.topicContent(ctx, wechatMsg)
+		} else if strings.Contains(wechatMsg.Content, "文章") {
+			return self.articleContent(ctx, wechatMsg)
+		} else if strings.Contains(wechatMsg.Content, "资源") {
+			return self.resourceContent(ctx, wechatMsg)
+		} else if strings.Contains(wechatMsg.Content, "项目") {
+			return self.projectContent(ctx, wechatMsg)
+		} else if strings.Contains(wechatMsg.Content, "图书") || strings.Contains(wechatMsg.Content, "book") {
+			return self.bookContent(ctx, wechatMsg)
 		} else {
 			return self.searchContent(ctx, wechatMsg)
 		}
@@ -50,6 +60,66 @@ func (self WechatLogic) AutoReply(ctx context.Context, reqData []byte) (*model.W
 	return self.wechatResponse(ctx, "success", wechatMsg)
 }
 
+func (self WechatLogic) topicContent(ctx context.Context, wechatMsg *model.WechatMsg) (*model.WechatReply, error) {
+
+	topics := DefaultTopic.FindRecent(5)
+
+	respContentSlice := make([]string, len(topics))
+	for i, topic := range topics {
+		respContentSlice[i] = fmt.Sprintf("《%s》 %s/topics/%d", topic.Title, website(), topic.Tid)
+	}
+
+	return self.wechatResponse(ctx, strings.Join(respContentSlice, "\n\n"), wechatMsg)
+}
+
+func (self WechatLogic) articleContent(ctx context.Context, wechatMsg *model.WechatMsg) (*model.WechatReply, error) {
+
+	articles := DefaultArticle.FindBy(ctx, 5)
+
+	respContentSlice := make([]string, len(articles))
+	for i, article := range articles {
+		respContentSlice[i] = fmt.Sprintf("《%s》 %s/articles/%d", article.Title, website(), article.Id)
+	}
+
+	return self.wechatResponse(ctx, strings.Join(respContentSlice, "\n\n"), wechatMsg)
+}
+
+func (self WechatLogic) resourceContent(ctx context.Context, wechatMsg *model.WechatMsg) (*model.WechatReply, error) {
+
+	resources := DefaultResource.FindBy(ctx, 5)
+
+	respContentSlice := make([]string, len(resources))
+	for i, resource := range resources {
+		respContentSlice[i] = fmt.Sprintf("《%s》 %s/resources/%d", resource.Title, website(), resource.Id)
+	}
+
+	return self.wechatResponse(ctx, strings.Join(respContentSlice, "\n\n"), wechatMsg)
+}
+
+func (self WechatLogic) projectContent(ctx context.Context, wechatMsg *model.WechatMsg) (*model.WechatReply, error) {
+
+	projects := DefaultProject.FindBy(ctx, 5)
+
+	respContentSlice := make([]string, len(projects))
+	for i, project := range projects {
+		respContentSlice[i] = fmt.Sprintf("《%s%s》 %s/p/%d", project.Category, project.Name, website(), project.Id)
+	}
+
+	return self.wechatResponse(ctx, strings.Join(respContentSlice, "\n\n"), wechatMsg)
+}
+
+func (self WechatLogic) bookContent(ctx context.Context, wechatMsg *model.WechatMsg) (*model.WechatReply, error) {
+
+	books := DefaultGoBook.FindBy(ctx, 5)
+
+	respContentSlice := make([]string, len(books))
+	for i, book := range books {
+		respContentSlice[i] = fmt.Sprintf("《%s》 %s/book/%d", book.Name, website(), book.Id)
+	}
+
+	return self.wechatResponse(ctx, strings.Join(respContentSlice, "\n\n"), wechatMsg)
+}
+
 func (self WechatLogic) readingContent(ctx context.Context, wechatMsg *model.WechatMsg) (*model.WechatReply, error) {
 
 	var formatContent = func(reading *model.MorningReading) string {
@@ -57,18 +127,14 @@ func (self WechatLogic) readingContent(ctx context.Context, wechatMsg *model.Wec
 			return fmt.Sprintf("%s\n%s", reading.Content, reading.Url)
 		}
 
-		host := "http://"
-		if WebsiteSetting.OnlyHttps {
-			host = "https://"
-		}
-		return fmt.Sprintf("%s\n%s%s/articles/%d", reading.Content, host, WebsiteSetting.Domain, reading.Inner)
+		return fmt.Sprintf("%s\n%s/articles/%d", reading.Content, website(), reading.Inner)
 	}
 
 	var readings []*model.MorningReading
 	if wechatMsg.Content == "最新晨读" {
 		readings = DefaultReading.FindBy(ctx, 1, model.RtypeGo)
 		if len(readings) == 0 {
-			return self.wechatResponse(ctx, "没有找到您要的内容", wechatMsg)
+			return self.wechatResponse(ctx, config.ConfigFile.MustValue("wechat", "not_found"), wechatMsg)
 		}
 
 		return self.wechatResponse(ctx, formatContent(readings[0]), wechatMsg)
@@ -94,7 +160,7 @@ func (self WechatLogic) searchContent(ctx context.Context, wechatMsg *model.Wech
 	}
 
 	if respBody.NumFound == 0 {
-		return self.wechatResponse(ctx, "没有找到您要的内容", wechatMsg)
+		return self.wechatResponse(ctx, config.ConfigFile.MustValue("wechat", "not_found"), wechatMsg)
 	}
 
 	host := WebsiteSetting.Domain
@@ -113,6 +179,8 @@ func (self WechatLogic) searchContent(ctx context.Context, wechatMsg *model.Wech
 			url = fmt.Sprintf("%s/topics/%d", host, doc.Objid)
 		case model.TypeArticle:
 			url = fmt.Sprintf("%s/articles/%d", host, doc.Objid)
+		case model.TypeResource:
+			url = fmt.Sprintf("%s/resources/%d", host, doc.Objid)
 		case model.TypeProject:
 			url = fmt.Sprintf("%s/p/%d", host, doc.Objid)
 		case model.TypeWiki:
@@ -128,16 +196,16 @@ func (self WechatLogic) searchContent(ctx context.Context, wechatMsg *model.Wech
 
 func (self WechatLogic) wechatResponse(ctx context.Context, respContent string, wechatMsg *model.WechatMsg) (*model.WechatReply, error) {
 	wechatReply := &model.WechatReply{
-		ToUserName:   &model.CData{wechatMsg.FromUserName},
-		FromUserName: &model.CData{wechatMsg.ToUserName},
-		MsgType:      &model.CData{wechatMsg.MsgType},
+		ToUserName:   &model.CData{Val: wechatMsg.FromUserName},
+		FromUserName: &model.CData{Val: wechatMsg.ToUserName},
+		MsgType:      &model.CData{Val: wechatMsg.MsgType},
 		CreateTime:   time.Now().Unix(),
 	}
 	switch wechatMsg.MsgType {
 	case model.WeMsgTypeText:
-		wechatReply.Content = &model.CData{respContent}
+		wechatReply.Content = &model.CData{Val: respContent}
 	default:
-		wechatReply.Content = &model.CData{"没有找到您要的内容"}
+		wechatReply.Content = &model.CData{Val: config.ConfigFile.MustValue("wechat", "not_found")}
 	}
 
 	return wechatReply, nil

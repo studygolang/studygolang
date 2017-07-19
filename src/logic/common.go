@@ -145,3 +145,11 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 
 	return false
 }
+
+func website() string {
+	host := "http://"
+	if WebsiteSetting.OnlyHttps {
+		host = "https://"
+	}
+	return host + WebsiteSetting.Domain
+}
