@@ -66,10 +66,10 @@ func (self WechatLogic) topicContent(ctx context.Context, wechatMsg *model.Wecha
 
 	respContentSlice := make([]string, len(topics))
 	for i, topic := range topics {
-		respContentSlice[i] = fmt.Sprintf("《%s》 %s/topics/%d", topic.Title, website(), topic.Tid)
+		respContentSlice[i] = fmt.Sprintf("%d.《%s》 %s/topics/%d", i+1, topic.Title, website(), topic.Tid)
 	}
 
-	return self.wechatResponse(ctx, strings.Join(respContentSlice, "\n\n"), wechatMsg)
+	return self.wechatResponse(ctx, strings.Join(respContentSlice, "\n"), wechatMsg)
 }
 
 func (self WechatLogic) articleContent(ctx context.Context, wechatMsg *model.WechatMsg) (*model.WechatReply, error) {
@@ -78,10 +78,10 @@ func (self WechatLogic) articleContent(ctx context.Context, wechatMsg *model.Wec
 
 	respContentSlice := make([]string, len(articles))
 	for i, article := range articles {
-		respContentSlice[i] = fmt.Sprintf("《%s》 %s/articles/%d", article.Title, website(), article.Id)
+		respContentSlice[i] = fmt.Sprintf("%d.《%s》 %s/articles/%d", i+1, article.Title, website(), article.Id)
 	}
 
-	return self.wechatResponse(ctx, strings.Join(respContentSlice, "\n\n"), wechatMsg)
+	return self.wechatResponse(ctx, strings.Join(respContentSlice, "\n"), wechatMsg)
 }
 
 func (self WechatLogic) resourceContent(ctx context.Context, wechatMsg *model.WechatMsg) (*model.WechatReply, error) {
@@ -90,10 +90,10 @@ func (self WechatLogic) resourceContent(ctx context.Context, wechatMsg *model.We
 
 	respContentSlice := make([]string, len(resources))
 	for i, resource := range resources {
-		respContentSlice[i] = fmt.Sprintf("《%s》 %s/resources/%d", resource.Title, website(), resource.Id)
+		respContentSlice[i] = fmt.Sprintf("%d.《%s》 %s/resources/%d", i+1, resource.Title, website(), resource.Id)
 	}
 
-	return self.wechatResponse(ctx, strings.Join(respContentSlice, "\n\n"), wechatMsg)
+	return self.wechatResponse(ctx, strings.Join(respContentSlice, "\n"), wechatMsg)
 }
 
 func (self WechatLogic) projectContent(ctx context.Context, wechatMsg *model.WechatMsg) (*model.WechatReply, error) {
@@ -102,10 +102,10 @@ func (self WechatLogic) projectContent(ctx context.Context, wechatMsg *model.Wec
 
 	respContentSlice := make([]string, len(projects))
 	for i, project := range projects {
-		respContentSlice[i] = fmt.Sprintf("《%s%s》 %s/p/%d", project.Category, project.Name, website(), project.Id)
+		respContentSlice[i] = fmt.Sprintf("%d.《%s%s》 %s/p/%d", i+1, project.Category, project.Name, website(), project.Id)
 	}
 
-	return self.wechatResponse(ctx, strings.Join(respContentSlice, "\n\n"), wechatMsg)
+	return self.wechatResponse(ctx, strings.Join(respContentSlice, "\n"), wechatMsg)
 }
 
 func (self WechatLogic) bookContent(ctx context.Context, wechatMsg *model.WechatMsg) (*model.WechatReply, error) {
@@ -114,10 +114,10 @@ func (self WechatLogic) bookContent(ctx context.Context, wechatMsg *model.Wechat
 
 	respContentSlice := make([]string, len(books))
 	for i, book := range books {
-		respContentSlice[i] = fmt.Sprintf("《%s》 %s/book/%d", book.Name, website(), book.Id)
+		respContentSlice[i] = fmt.Sprintf("%d.《%s》 %s/book/%d", i+1, book.Name, website(), book.Id)
 	}
 
-	return self.wechatResponse(ctx, strings.Join(respContentSlice, "\n\n"), wechatMsg)
+	return self.wechatResponse(ctx, strings.Join(respContentSlice, "\n"), wechatMsg)
 }
 
 func (self WechatLogic) readingContent(ctx context.Context, wechatMsg *model.WechatMsg) (*model.WechatReply, error) {
@@ -144,7 +144,7 @@ func (self WechatLogic) readingContent(ctx context.Context, wechatMsg *model.Wec
 
 	respContentSlice := make([]string, len(readings))
 	for i, reading := range readings {
-		respContentSlice[i] = formatContent(reading)
+		respContentSlice[i] = fmt.Sprintf("%d. %s", i+1, formatContent(reading))
 	}
 
 	return self.wechatResponse(ctx, strings.Join(respContentSlice, "\n\n"), wechatMsg)
@@ -188,7 +188,7 @@ func (self WechatLogic) searchContent(ctx context.Context, wechatMsg *model.Wech
 		case model.TypeBook:
 			url = fmt.Sprintf("%s/book/%d", host, doc.Objid)
 		}
-		respContentSlice[i] = fmt.Sprintf("《%s》 %s", doc.Title, url)
+		respContentSlice[i] = fmt.Sprintf("%d.《%s》 %s", i+1, doc.Title, url)
 	}
 
 	return self.wechatResponse(ctx, strings.Join(respContentSlice, "\n"), wechatMsg)
