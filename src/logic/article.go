@@ -9,6 +9,7 @@ package logic
 import (
 	. "db"
 	"errors"
+	"global"
 	"model"
 	"net/url"
 	"regexp"
@@ -142,15 +143,18 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 
 	contentSelection := doc.Find(rule.Content)
 
+	// 对方图片是否禁止访问
+	imgDeny := false
+	extMap := rule.ParseExt()
+	if extMap != nil {
+		if deny, ok := extMap["img_deny"]; ok {
+			imgDeny = goutils.MustBool(deny)
+		}
+	}
+
 	// relative url -> abs url
 	contentSelection.Find("img").Each(func(i int, s *goquery.Selection) {
-		if v, ok := s.Attr("data-original-src"); ok {
-			s.SetAttr("src", v)
-		} else if v, ok := s.Attr("src"); ok {
-			if !strings.HasPrefix(v, "http") {
-				s.SetAttr("src", "http://"+domain+"/"+v)
-			}
-		}
+		self.transferImage(ctx, s, imgDeny, domain)
 	})
 
 	content, err := contentSelection.Html()
@@ -207,7 +211,6 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 		Lang:      rule.Lang,
 	}
 
-	extMap := rule.ParseExt()
 	if extMap != nil {
 		err = self.convertByExt(extMap, article)
 		if err != nil {
@@ -502,6 +505,31 @@ func (self ArticleLogic) FindByIds(ids []int) []*model.Article {
 	self.fillUser(articles)
 
 	return articles
+}
+
+func (self ArticleLogic) transferImage(ctx context.Context, s *goquery.Selection, imgDeny bool, domain string) {
+	if v, ok := s.Attr("data-original-src"); ok {
+		self.setImgSrc(ctx, v, imgDeny, s)
+	} else if v, ok := s.Attr("src"); ok {
+		if !strings.HasPrefix(v, "http") {
+			v = "http://" + domain + "/" + v
+		}
+
+		self.setImgSrc(ctx, v, imgDeny, s)
+	}
+}
+
+func (self ArticleLogic) setImgSrc(ctx context.Context, v string, imgDeny bool, s *goquery.Selection) {
+	if imgDeny {
+		path, err := DefaultUploader.TransferUrl(ctx, v)
+		if err != nil {
+			s.SetAttr("src", global.App.CDNHttp+path)
+		} else {
+			s.SetAttr("src", v)
+		}
+	} else {
+		s.SetAttr("src", v)
+	}
 }
 
 func (ArticleLogic) fillUser(articles []*model.Article) {
