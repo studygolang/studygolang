@@ -510,6 +510,8 @@ func (self ArticleLogic) FindByIds(ids []int) []*model.Article {
 func (self ArticleLogic) transferImage(ctx context.Context, s *goquery.Selection, imgDeny bool, domain string) {
 	if v, ok := s.Attr("data-original-src"); ok {
 		self.setImgSrc(ctx, v, imgDeny, s)
+	} else if v, ok := s.Attr("data-src"); ok {
+		self.setImgSrc(ctx, v, imgDeny, s)
 	} else if v, ok := s.Attr("src"); ok {
 		if !strings.HasPrefix(v, "http") {
 			v = "http://" + domain + "/" + v
@@ -522,7 +524,7 @@ func (self ArticleLogic) transferImage(ctx context.Context, s *goquery.Selection
 func (self ArticleLogic) setImgSrc(ctx context.Context, v string, imgDeny bool, s *goquery.Selection) {
 	if imgDeny {
 		path, err := DefaultUploader.TransferUrl(ctx, v)
-		if err != nil {
+		if err == nil {
 			s.SetAttr("src", global.App.CDNHttp+path)
 		} else {
 			s.SetAttr("src", v)
