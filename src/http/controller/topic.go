@@ -182,7 +182,7 @@ func (TopicController) Create(ctx echo.Context) error {
 	me := ctx.Get("user").(*model.Me)
 	tid, err := logic.DefaultTopic.Publish(ctx, me, ctx.FormParams())
 	if err != nil {
-		return fail(ctx, 1, "内部服务错误")
+		return fail(ctx, 1, "内部服务错误:"+err.Error())
 	}
 
 	return success(ctx, map[string]interface{}{"tid": tid})
