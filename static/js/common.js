@@ -78,8 +78,22 @@ SG.replaceSpecialChar = function(str) {
 }
 
 SG.markSetting = function() {
-	// 配置 marked 语法高亮
+	var renderer = new marked.Renderer();
+
+	// 对 html 进行处理
+	renderer.html = function(html) {
+		if (html.indexOf('<video') == 0) {
+			return html;
+		} else if (html.indexOf('<table') == 0) {
+			return html;
+		} else {
+			return html.replace(/</g, '&lt;');
+		}
+	};
+
 	marked.setOptions({
+		renderer: renderer,
+		// 配置 marked 语法高亮
 		highlight: function (code) {
 			code = SG.replaceSpecialChar(code);
 			return hljs.highlightAuto(code).value;
