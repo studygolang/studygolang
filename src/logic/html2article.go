@@ -50,13 +50,15 @@ func (self ArticleLogic) ParseArticleByAccuracy(articleUrl string) (*model.Artic
 		pubDate = time.Unix(htmlArticle.Publishtime, 0).UTC().Format("2006-02-01 15:04")
 	}
 	article := &model.Article{
-		Domain:  urlTyp.Hostname(),
-		Name:    name,
-		Title:   title,
-		Content: htmlArticle.Html,
-		Txt:     htmlArticle.Content,
-		PubDate: pubDate,
-		Url:     articleUrl,
+		Domain:    urlTyp.Hostname(),
+		Name:      name,
+		Title:     title,
+		Author:    name,
+		AuthorTxt: name,
+		Content:   htmlArticle.Html,
+		Txt:       htmlArticle.Content,
+		PubDate:   pubDate,
+		Url:       articleUrl,
 	}
 
 	_, err = MasterDB.Insert(article)
