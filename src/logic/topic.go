@@ -52,6 +52,11 @@ func (self TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Value
 			objLog.Errorln("Publish Topic modif error:", err)
 			return
 		}
+
+		nid := goutils.MustInt(form.Get("nid"))
+		if nid != topic.Nid {
+			DefaultFeed.modifyTopicNode(tid, nid)
+		}
 	} else {
 		usernames := form.Get("usernames")
 		form.Del("usernames")

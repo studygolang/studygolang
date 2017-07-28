@@ -209,7 +209,14 @@ func (TopicController) Modify(ctx echo.Context) error {
 			return ctx.Redirect(http.StatusSeeOther, "/topics")
 		}
 
-		return render(ctx, "topics/new.html", map[string]interface{}{"nodes": nodes, "topic": topics[0], "activeTopics": "active"})
+		hotNodes := logic.DefaultTopic.FindHotNodes(ctx)
+
+		return render(ctx, "topics/new.html", map[string]interface{}{
+			"nodes":        nodes,
+			"topic":        topics[0],
+			"activeTopics": "active",
+			"tab_list":     hotNodes,
+		})
 	}
 
 	me := ctx.Get("user").(*model.Me)

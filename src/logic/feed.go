@@ -107,3 +107,12 @@ func (FeedLogic) updateComment(objid, objtype, uid int, cmttime time.Time) {
 		})
 	}()
 }
+
+func (self FeedLogic) modifyTopicNode(tid, nid int) {
+	go func() {
+		MasterDB.Table(new(model.Feed)).Where("objid=? AND objtype=?", tid, model.TypeTopic).
+			Update(map[string]interface{}{
+				"nid": nid,
+			})
+	}()
+}
