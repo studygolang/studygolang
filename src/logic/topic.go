@@ -8,6 +8,7 @@ package logic
 
 import (
 	"errors"
+	"fmt"
 	"html/template"
 	"model"
 	"net/url"
@@ -347,7 +348,8 @@ func (TopicLogic) FindHotNodes(ctx context.Context) []map[string]interface{} {
 
 	objLog := GetLogger(ctx)
 
-	strSql := "SELECT nid, COUNT(1) AS topicnum FROM topics GROUP BY nid ORDER BY topicnum DESC LIMIT 10"
+	lastWeek := time.Now().Add(-7 * 24 * time.Hour).Format("2006-01-02 15:04:05")
+	strSql := fmt.Sprintf("SELECT nid, COUNT(1) AS topicnum FROM topics WHERE ctime>='%s' GROUP BY nid ORDER BY topicnum DESC LIMIT 10", lastWeek)
 	rows, err := MasterDB.DB().DB.Query(strSql)
 	if err != nil {
 		objLog.Errorln("TopicLogic FindHotNodes error:", err)

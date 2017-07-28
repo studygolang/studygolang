@@ -82,12 +82,16 @@ SG.markSetting = function() {
 
 	// 对 html 进行处理
 	renderer.html = function(html) {
-		if (html.indexOf('<video') == 0) {
-			return html;
-		} else if (html.indexOf('<table') == 0) {
-			return html;
-		} else {
+		if (html.indexOf('<script') != -1) {
 			return html.replace(/</g, '&lt;');
+		} else if (html.indexOf('<input') != -1) {
+			return html.replace(/</g, '&lt;');
+		} else if (html.indexOf('<select') != -1) {
+			return html.replace(/</g, '&lt;');
+		} else if (html.indexOf('<textarea') != -1) {
+			return html.replace(/</g, '&lt;');
+		} else {
+			return html;
 		}
 	};
 

@@ -31,7 +31,7 @@ else
 	"github.com/robfig/cron" "github.com/gorilla/sessions" "github.com/polaris1119/echoutils"
 	"golang.org/x/net/websocket" "github.com/polaris1119/slices" "github.com/qiniu/api.v6"
 	"github.com/polaris1119/times" "github.com/PuerkitoBio/goquery" "github.com/go-validator/validator"
-	"github.com/polaris1119/email" "github.com/jaytaylor/html2text"
+	"github.com/polaris1119/email" "github.com/jaytaylor/html2text" "github.com/sundy-li/html2article"
 	"github.com/gorilla/schema" "github.com/facebookgo/grace/gracehttp")
 
 	for pkg in "${pkgs[@]}"; do

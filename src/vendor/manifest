@@ -394,6 +394,12 @@
 			"path": "/assert"
 		},
 		{
+			"importpath": "github.com/sundy-li/html2article",
+			"repository": "https://github.com/sundy-li/html2article",
+			"revision": "d0b6c083441f7bc1af7280decd6523b196035a7e",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/tidwall/gjson",
 			"repository": "https://github.com/tidwall/gjson",
 			"revision": "c784c417818f59d6597274642d8ac1d09efc9b01",

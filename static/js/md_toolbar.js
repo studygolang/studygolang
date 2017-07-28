@@ -30,5 +30,23 @@
 			$contentPreview.html(marked(content));
 			$contentPreview.show();
 		});
+
+		$('form .preview_btn').on('click', function(evt) {
+			evt.preventDefault();
+
+			// 配置 marked 语法高亮
+			marked = SG.markSetting();
+
+			var $mdToobar = $('form .md-toolbar');
+			$mdToobar.find('.preview').addClass('cur');
+			$mdToobar.find('.edit').removeClass('cur');
+
+			var $textarea = $mdToobar.next();
+			$textarea.hide();
+			var content = $textarea.val();
+			var $contentPreview = $mdToobar.nextAll('.content-preview');
+			$contentPreview.html(marked(content));
+			$contentPreview.show();
+		});
 	});
 }).call(this)

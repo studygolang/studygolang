@@ -170,13 +170,19 @@ func (TopicController) Detail(ctx echo.Context) error {
 
 // Create 新建主题
 func (TopicController) Create(ctx echo.Context) error {
-	nodes := logic.GenNodes()
 	nid := goutils.MustInt(ctx.QueryParam("nid"))
 
 	title := ctx.FormValue("title")
 	// 请求新建主题页面
 	if title == "" || ctx.Request().Method() != "POST" {
-		return render(ctx, "topics/new.html", map[string]interface{}{"nodes": nodes, "activeTopics": "active", "nid": nid})
+		hotNodes := logic.DefaultTopic.FindHotNodes(ctx)
+
+		return render(ctx, "topics/new.html", map[string]interface{}{
+			"nodes":        logic.GenNodes(),
+			"activeTopics": "active",
+			"nid":          nid,
+			"tab_list":     hotNodes,
+		})
 	}
 
 	me := ctx.Get("user").(*model.Me)

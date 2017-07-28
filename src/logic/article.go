@@ -75,8 +75,7 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 	}
 
 	if rule.Id == 0 {
-		logger.Errorln("domain:", domain, "not exists!")
-		return nil, errors.New("domain not exists")
+		return self.ParseArticleByAccuracy(articleUrl)
 	}
 
 	// 知乎特殊处理
