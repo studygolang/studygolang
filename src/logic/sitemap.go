@@ -106,7 +106,8 @@ func GenSitemap() {
 		sitemapFile := "sitemap_topic_" + strconv.Itoa(large) + ".xml"
 
 		err = MasterDB.Where("tid BETWEEN ? AND ? AND flag IN(?,?)", little, large, 0, 1).Select("tid,mtime").Find(&topics)
-		little, large = large+1, little+step
+		little = large + 1
+		large = little + step
 
 		if err != nil {
 			continue
@@ -137,7 +138,8 @@ func GenSitemap() {
 		sitemapFile := "sitemap_resource_" + strconv.Itoa(large) + ".xml"
 
 		err = MasterDB.Where("id BETWEEN ? AND ?", little, large).Select("id,mtime").Find(&resources)
-		little, large = large+1, little+step
+		little = large + 1
+		large = little + step
 
 		if err != nil {
 			logger.Errorln("sitemap resource find error:", err)
@@ -169,7 +171,8 @@ func GenSitemap() {
 		sitemapFile := "sitemap_project_" + strconv.Itoa(large) + ".xml"
 
 		err = MasterDB.Where("id BETWEEN ? AND ?", little, large).Select("id,uri,mtime").Find(&projects)
-		little, large = large+1, little+step
+		little = large + 1
+		large = little + step
 
 		if err != nil {
 			continue
@@ -200,7 +203,8 @@ func GenSitemap() {
 		sitemapFile := "sitemap_book_" + strconv.Itoa(large) + ".xml"
 
 		err = MasterDB.Where("id BETWEEN ? AND ?", little, large).Select("id,updated_at").Find(&books)
-		little, large = large+1, little+step
+		little = large + 1
+		large = little + step
 
 		if err != nil {
 			continue
@@ -231,7 +235,8 @@ func GenSitemap() {
 		sitemapFile := "sitemap_wiki_" + strconv.Itoa(large) + ".xml"
 
 		err = MasterDB.Where("id BETWEEN ? AND ?", little, large).Select("id,uri,mtime").Find(&wikis)
-		little, large = large+1, little+step
+		little = large + 1
+		large = little + step
 
 		if err != nil {
 			continue
