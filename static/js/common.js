@@ -245,7 +245,11 @@ jQuery(document).ready(function($) {
 	// 弹层
 	window.openPop = function(popid)
 	{
-		closePop();
+		if (hadPop) {
+			return;
+		}
+
+		hadPop = true;
 		var pop = $(popid);
 		var l = ($(window).width() - pop.outerWidth())/2;
 		var t = ($(window).height() - pop.outerHeight())/2;
@@ -257,6 +261,7 @@ jQuery(document).ready(function($) {
 	// 关闭弹层
 	window.closePop = function()
 	{
+		hadPop = false;
 		$(".pop").hide();
 		$("#sg-overlay").fadeOut(300);
 	}
@@ -465,6 +470,8 @@ if (window.WebSocket) {
 		// console.log(evt);
 	}
 }
+
+var hadPop = false;
 
 $(function(){
 	if (Math.random()*50 <= 1) {
