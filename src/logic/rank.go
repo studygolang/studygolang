@@ -12,6 +12,8 @@ import (
 	"model"
 	"time"
 
+	. "db"
+
 	"github.com/garyburd/redigo/redis"
 	"github.com/polaris1119/logger"
 	"github.com/polaris1119/nosql"
@@ -185,6 +187,20 @@ func (self RankLogic) UserDAURank(ctx context.Context, uid int) int {
 
 	key := self.getDAURankKey(times.Format("ymd"))
 	return redisClient.ZREVRANK(key, uid)
+}
+
+// FindRichRank 社区财富排行榜
+func (self RankLogic) FindRichRank(ctx context.Context) []*model.User {
+	objLog := GetLogger(ctx)
+
+	userList := make([]*model.User, 0)
+	err := MasterDB.Where("balance>?", 0).Desc("balance").Limit(25).Find(&userList)
+	if err != nil {
+		objLog.Errorln("find rich rank error:", err)
+		return nil
+	}
+
+	return userList
 }
 
 func (RankLogic) findModelsByRank(resultSlice []interface{}, objtype, num int, needExt ...bool) (result interface{}) {

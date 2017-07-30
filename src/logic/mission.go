@@ -16,6 +16,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-xorm/xorm"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/times"
 	"golang.org/x/net/context"
@@ -118,25 +119,12 @@ func (self MissionLogic) RedeemLoginAward(ctx context.Context, me *model.Me) err
 		}
 	}
 
-	_, err := session.Where("uid=?", me.Uid).Incr("balance", userLoginMission.Award).Update(new(model.User))
+	desc := times.Format("Ymd") + " 的每日登录奖励 " + strconv.Itoa(userLoginMission.Award) + " 铜币"
+	err := self.changeUserBalance(session, me, model.MissionTypeLogin, userLoginMission.Award, desc)
 	if err != nil {
 		session.Rollback()
-		objLog.Errorln("update user balance error:", err)
+		objLog.Errorln("changeUserBalance error:", err)
 		return errors.New("服务内部错误")
-	}
-
-	balanceDetail := &model.UserBalanceDetail{
-		Uid:     me.Uid,
-		Type:    model.MissionTypeLogin,
-		Num:     userLoginMission.Award,
-		Balance: me.Balance + userLoginMission.Award,
-		Desc:    times.Format("Ymd") + " 的每日登录奖励 " + strconv.Itoa(userLoginMission.Award) + " 铜币",
-	}
-	err = DefaultUserRich.add(session, balanceDetail)
-	if err != nil {
-		session.Rollback()
-		objLog.Errorln("rich add error:", err)
-		return err
 	}
 
 	session.Commit()
@@ -183,4 +171,20 @@ func (MissionLogic) findMission(ctx context.Context, typ int) *model.Mission {
 	mission := &model.Mission{}
 	MasterDB.Where("type=?", typ).Get(mission)
 	return mission
+}
+
+func (self MissionLogic) changeUserBalance(session *xorm.Session, me *model.Me, typ, award int, desc string) error {
+	_, err := session.Where("uid=?", me.Uid).Incr("balance", award).Update(new(model.User))
+	if err != nil {
+		return errors.New("服务内部错误")
+	}
+
+	balanceDetail := &model.UserBalanceDetail{
+		Uid:     me.Uid,
+		Type:    typ,
+		Num:     award,
+		Balance: me.Balance + award,
+		Desc:    desc,
+	}
+	return DefaultUserRich.add(session, balanceDetail)
 }

@@ -16,6 +16,7 @@ var BalanceTypeMap = map[int]string{
 	MissionTypeLogin:    "每日登录奖励",
 	MissionTypeInitial:  "初始资本",
 	MissionTypeShare:    "分享获得",
+	MissionTypeAdd:      "充值获得",
 	MissionTypeReply:    "创建回复",
 	MissionTypeTopic:    "创建主题",
 	MissionTypeArticle:  "发表文章",
@@ -25,6 +26,7 @@ var BalanceTypeMap = map[int]string{
 	MissionTypeBook:     "分享图书",
 	MissionTypeReplied:  "回复收益",
 	MissionTypeActive:   "活跃奖励",
+	MissionTypeGift:     "兑换物品",
 }
 
 type UserBalanceDetail struct {

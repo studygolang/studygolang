@@ -147,11 +147,16 @@ func (self UserRichLogic) IncrUserRich(user *model.User, typ, award int, desc st
 	session.Commit()
 }
 
-func (UserRichLogic) FindBalanceDetail(ctx context.Context, me *model.Me) []*model.UserBalanceDetail {
+func (UserRichLogic) FindBalanceDetail(ctx context.Context, me *model.Me, types ...int) []*model.UserBalanceDetail {
 	objLog := GetLogger(ctx)
 
 	balanceDetails := make([]*model.UserBalanceDetail, 0)
-	err := MasterDB.Where("uid=?", me.Uid).Desc("id").Find(&balanceDetails)
+	session := MasterDB.Where("uid=?", me.Uid)
+	if len(types) > 0 {
+		session.And("type=?", types[0])
+	}
+
+	err := session.Desc("id").Find(&balanceDetails)
 	if err != nil {
 		objLog.Errorln("UserRichLogic FindBalanceDetail error:", err)
 		return nil

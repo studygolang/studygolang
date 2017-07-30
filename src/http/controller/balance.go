@@ -19,6 +19,7 @@ type UserRichController struct{}
 // 注册路由
 func (self UserRichController) RegisterRoute(g *echo.Group) {
 	g.Get("/balance", self.MyBalance, middleware.NeedLogin())
+	g.Get("/balance/add", self.Add, middleware.NeedLogin())
 }
 
 func (UserRichController) MyBalance(ctx echo.Context) error {
@@ -29,4 +30,14 @@ func (UserRichController) MyBalance(ctx echo.Context) error {
 		"details": balanceDetails,
 	}
 	return render(ctx, "rich/balance.html", data)
+}
+
+func (UserRichController) Add(ctx echo.Context) error {
+	me := ctx.Get("user").(*model.Me)
+	balanceDetails := logic.DefaultUserRich.FindBalanceDetail(ctx, me, model.MissionTypeAdd)
+
+	data := map[string]interface{}{
+		"details": balanceDetails,
+	}
+	return render(ctx, "rich/add.html", data)
 }

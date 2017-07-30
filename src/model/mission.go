@@ -9,12 +9,12 @@ package model
 import "time"
 
 const (
-	// 手动领取
 	MissionTypeLogin   = 1
 	MissionTypeInitial = 2
+	MissionTypeShare   = 3
+	MissionTypeAdd     = 4
 
-	// 自动
-	MissionTypeShare = 50
+	// 回复
 	MissionTypeReply = 51
 	// 创建
 	MissionTypeTopic    = 52
@@ -29,6 +29,9 @@ const (
 	MissionTypeAward = 80
 	// 活跃奖励
 	MissionTypeActive = 81
+
+	// 物品兑换
+	MissionTypeGift = 100
 )
 
 const (

@@ -1,0 +1,69 @@
+{{define "title"}}我的兑换记录 {{end}}
+{{define "seo"}}<meta name="keywords" content="{{.setting.SeoKeywords}}">
+<meta name="description" content="{{.setting.SeoDescription}}">{{end}}
+{{define "content"}}
+<div class="row">
+    <div class="col-md-9 col-sm-6">
+        <div class="sep20"></div>
+        
+        <div style="border-bottom: 1px solid #e2e2e2;">
+            <div class="pull-right" style="margin-top: 8px;">
+                <a href="/top/rich" class="tab">社区财富排行榜</a>
+                <a href="/gift" class="tab">物品兑换</a>
+                <a href="/balance/add" class="tab">充值</a>
+            </div>
+            <ol class="breadcrumb">
+                <li><a href="/">首页</a></li>
+                <li class="active">我的兑换记录</li>
+            </ol>
+        </div>
+
+        <div class="page box_white">
+            {{if .me.Uid}}
+            <div class="cell">
+                <p class="c9">当前账户余额</p>
+                <div class="balance_area" style="font-size: 24px; line-height: 24px;">
+                    {{if .me.Gold}}
+                    {{.me.Gold}} <img src="/static/img/gold_48.png" alt="" width="16px">
+                    {{end}}
+                    {{if .me.Silver}}
+                    {{.me.Silver}} <img src="/static/img/silver_48.png" alt="" width="16px">
+                    {{end}}
+                    {{.me.Copper}} <img src="/static/img/copper_48.png" alt="" width="16px">
+                </div>
+            </div>
+            {{end}}
+            <div>
+                <table cellpadding="5" cellspacing="0" border="0" width="100%" class="data table-hover">
+                    <tr>
+                        <th width="50" class="h">序号</th>
+                        <th width="80" class="h">物品编号</th>
+                        <th width="150" class="h">兑换时间</th>
+                        <th width="150" class="h">详情</th>
+                        <th width="auto" class="h" style="border-right: none;">过期时间</th>
+                    </tr>
+                {{range .records}}
+                    <tr>
+                        <td class="d" style="text-align: center;"><small class="c9">{{.Id}}</small></td>
+                        <td class="d" style="text-align: center;">{{.GiftId}}</td>
+                        <td class="d">{{.CreatedAt}}</td>
+                        <td class="d">{{.Remark}}</td>
+                        <td class="d" style="border-right: none;">{{.ExpireTime}}</td>
+                    </tr>
+                {{end}}
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="sep20"></div>
+        
+        {{include "common/my_info.html" .}}
+    </div>
+</div>
+{{end}}
+{{define "css"}}
+<link rel="stylesheet" type="text/css" href="/static/css/table_data.css">
+{{end}}
+{{define "js"}}
+{{end}}

@@ -45,9 +45,9 @@ func (self ArticleLogic) ParseArticleByAccuracy(articleUrl string) (*model.Artic
 		name = strings.TrimSpace(htmlArticle.Title[pos+1:])
 	}
 
-	pubDate := time.Now().Format("2006-02-01 15:04")
+	pubDate := time.Now().Format("2006-01-02 15:04")
 	if htmlArticle.Publishtime > 0 {
-		pubDate = time.Unix(htmlArticle.Publishtime, 0).UTC().Format("2006-02-01 15:04")
+		pubDate = time.Unix(htmlArticle.Publishtime, 0).UTC().Format("2006-01-02 15:04")
 	}
 	article := &model.Article{
 		Domain:    urlTyp.Hostname(),

@@ -1,4 +1,4 @@
-{{define "title"}}账户余额 {{end}}
+{{define "title"}}充值 {{end}}
 {{define "seo"}}<meta name="keywords" content="{{.setting.SeoKeywords}}">
 <meta name="description" content="{{.setting.SeoDescription}}">{{end}}
 {{define "content"}}
@@ -9,16 +9,58 @@
         <div style="border-bottom: 1px solid #e2e2e2;">
             <div class="pull-right" style="margin-top: 8px;">
                 <a href="/top/rich" class="tab">社区财富排行榜</a>
-                <a href="/gift" class="tab">物品兑换</a>
                 <a href="/balance/add" class="tab">充值</a>
             </div>
             <ol class="breadcrumb">
                 <li><a href="/">首页</a></li>
-                <li class="active">账户余额</li>
+                <li><a href="/balance">账户余额</a></li>
+                <li class="active">充值</li>
             </ol>
         </div>
 
         <div class="page box_white">
+            <div class="cell" style="font-size: 14px">
+                你可以通过支付宝或微信转账方式向我们充值。目前的实现方式是手工的，我们在收到你的充值之后，就会尽快向你的账户发放铜币及开通充值会员的额外功能。<strong>请在支付宝或微信的付款说明中填入你的 {{.setting.Name}} 用户名。</strong>充值金额越大，获得的铜币、银币甚至金币就会越多。
+                <div class="sep10"></div>
+                如果你在扫码支付的过程中，忘记了或者没有机会填入你的 {{.setting.Name}} 用户名的话，你可以在支付结束后联系我们，并且附上交易尾号的末 4 位。
+                <div class="sep10"></div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h3>支付宝</h3>
+                        <div><img src="http://studygolang.qiniudn.com/170605/9d11b43988fbbb42a5da9f970a0f6818.png" alt="" width="220px"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <h3>微信</h3>
+                        <div><img src="http://studygolang.qiniudn.com/img/wxpay.png" alt="" width="220px"></div>
+                    </div>
+                </div>
+                <div class="sep10"></div>
+                并且，充值会员还可以使用以下额外功能：
+                <div class="sep10"></div>
+                <ul>
+                    <li>置顶自己的主题或文章 1 天 / <span class="c9">每次消耗 200 铜币</span></li>
+                    <!--<li>可关闭 {{.setting.Name}} 侧栏广告</li>-->
+                </ul>
+            </div>
+
+            <div class="cell" style="font-size: 16px;">
+                充值 5 元获得 2,000 铜币
+            </div>
+            <div class="cell" style="font-size: 16px;">
+                充值 10 元获得 5,000 铜币
+            </div>
+            <div class="cell" style="font-size: 16px;">
+                充值 20 元获得 12,000 铜币
+            </div>
+            <div class="cell" style="font-size: 16px;">
+                充值 30 元获得 16,000 铜币
+            </div>
+            <div class="cell" style="font-size: 16px;">
+                充值 50 元获得 30,000 铜币
+            </div>
+            <div class="cell" style="text-align: center;">
+                <span class="c9 f12">历史充值金额总计 ￥0</span>
+            </div>
             <div class="cell">
                 <p class="c9">当前账户余额</p>
                 <div class="balance_area" style="font-size: 24px; line-height: 24px;">
@@ -54,24 +96,6 @@
                 </table>
             </div>
         </div>
-
-        {{if not .details}}
-        <div class="page box_white" style="margin-top: 20px;">
-            <div class="cell">
-                <div class="header">可完成的任务</div>
-                <div class="inner_content">
-                    <h2>获得初始资本</h2>
-                    欢迎来到 {{.setting.Name}}，这是一个关于分享和探索的社区。你在进入这里时，你会获得 2000 铜币。接下来你在社区内的一切行为，包括创建主题和回复等，都将会消耗铜币。而当你完成了一些有意义的事情时，你就会收获铜币，以及，好心情。
-                    <div class="sep20"></div>
-                    <strong>任务奖励</strong>
-                    <div class="sep10"></div>
-                    <div class="balance_area" style="">20 <img src="/static/img/silver_48.png" alt="" width="16px"> </div>
-                    <div class="sep20"></div>
-                    <a class="btn btn-default btn-sm" href="/mission/complete/1">完成任务</a>
-                </div>
-            </div>
-        </div>
-        {{end}}
     </div>
     <div class="col-md-3 col-sm-6">
         <div class="sep20"></div>

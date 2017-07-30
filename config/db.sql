@@ -580,3 +580,42 @@ CREATE TABLE `view_record` (
   UNIQUE KEY `uniq_obj_uid` (`objid`,`objtype`,`uid`),
   INDEX `idx_uid` (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户浏览记录表';
+
+
+CREATE TABLE `gift` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(63) NOT NULL DEFAULT '' COMMENT '物品名称',
+  `price` int unsigned NOT NULL DEFAULT 0 COMMENT '价格（铜币数）',
+  `total_num` int unsigned NOT NULL DEFAULT 0 COMMENT '总数量',
+  `remain_num` int unsigned NOT NULL DEFAULT 0 COMMENT '剩余数量',
+  `expire_time` int unsigned NOT NULL DEFAULT 0 COMMENT '有效期',
+  `supplier` varchar(31) NOT NULL DEFAULT '' COMMENT '合作供应商',
+  `buy_limit` int unsigned NOT NULL DEFAULT 0 COMMENT '兑换数量限制',
+  `typ` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '类型：0-兑换码；1-折扣',
+  `state` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '状态,0-未上线;1-已上线;2-已下线;3-过期',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '物品表';
+
+CREATE TABLE `gift_redeem` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `gift_id` int unsigned NOT NULL DEFAULT 0 COMMENT '物品ID',
+  `code` varchar(15) NOT NULL DEFAULT '' COMMENT '兑换码',
+  `exchange` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否已兑换：0-否；1-是',
+  `uid` int unsigned NOT NULL DEFAULT 0 COMMENT '兑换者UID',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '物品兑换码';
+
+CREATE TABLE `user_exchange_record` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `gift_id` int unsigned NOT NULL DEFAULT 0 COMMENT '物品ID',
+  `uid` int unsigned NOT NULL DEFAULT 0 COMMENT '兑换者UID',
+  `remark` varchar(63) NOT NULL DEFAULT '' COMMENT '物品说明',
+  `expire_time` int unsigned NOT NULL DEFAULT 0 COMMENT '过期时间',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_gid` (`gift_id`),
+  INDEX `idx_uid` (`uid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '物品用户兑换记录';
+
