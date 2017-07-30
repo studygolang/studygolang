@@ -45,12 +45,13 @@ func (self TopicController) TopicList(ctx echo.Context) error {
 	tab := ctx.QueryParam("tab")
 	if tab == "" {
 		tab = GetFromCookie(ctx, "TOPIC_TAB")
+	} else {
+		SetCookie(ctx, "TOPIC_TAB", tab)
 	}
 
 	if tab != "" && tab != "all" {
 		nid := logic.GetNidByEname(tab)
 		if nid > 0 {
-			SetCookie(ctx, "TOPIC_TAB", tab)
 			return self.topicList(ctx, tab, "topics.mtime DESC", "nid=? AND top!=1", nid)
 		}
 	}

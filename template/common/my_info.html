@@ -7,7 +7,7 @@
 		<div class="profile-show pull-left">
 			{{if .me.Monlog}}
 			<div class="user-name"><a href="/user/{{.me.Username}}">{{.me.Username}}</a></div>
-			<small class="f12 cc">{{.me.Monlog}}</small>
+			<div class="f12 cc" style="word-wrap: break-word; word-break: normal; max-width: 140px;">{{.me.Monlog}}</div>
 			<div class="sep5"></div>
 			{{else}}
 			<p></p>
