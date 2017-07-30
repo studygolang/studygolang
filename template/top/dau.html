@@ -3,62 +3,70 @@
 <meta name="description" content="{{.setting.SeoDescription}}">{{end}}
 {{define "content"}}
 <div class="row">
-	<div class="col-md-9 col-sm-6">
-		<div class="sep20"></div>
+    <div class="col-md-9 col-sm-6">
+        <div class="sep20"></div>
+        
+        <div style="border-bottom: 1px solid #e2e2e2;">
+            <div class="pull-right" style="margin-top: 8px;">
+                <a href="/top/rich" class="tab">社区财富排行榜</a>
+                <a href="/gift" class="tab">物品兑换</a>
+                <a href="/balance/add" class="tab">充值</a>
+            </div>
+            <ol class="breadcrumb">
+                <li><a href="/">首页</a></li>
+                <li class="active">今日最活跃会员</li>
+                <li class="active">{{.today}}</li>
+            </ol>
+        </div>
 
-		<ol class="breadcrumb">
-			<li><a href="/">首页</a></li>
-			<li class="active">今日最活跃会员</li>
-			<li class="active">{{.today}}</li>
-		</ol>
-		<div class="page box_white">
-			<div class="inner_content cell">
-				<table cellpadding="5" cellspacing="0" border="0" width="100%"><tbody>
-					{{range $i, $user := .users}}
-					<tr>
-						<td width="53" valign="top" align="center">
-							<a href="/user/{{.Username}}"><img src="{{gravatar .Avatar .Email 48 $.is_https}}" class="avatar" border="0" align="default" width="48px"></a>
-						</td>
-						<td width="auto" align="left">
-							<h2 style="margin-bottom: 0px; margin-top: 0px; border-bottom: none;"><span class="c9">{{add $i 1}}.</span> <a class="nobreak noul" href="/user/{{.Username}}">{{.Username}}</a></h2>
-							
-							<span class="c9 f12">{{.Monlog}}</span>
-							<div class="sep5"></div>
-							
-							<span class="c9 f12"><a href="{{.Website}}"  class="nobreak noul" target="_blank">{{.Website}}</a></span>
-							<div class="sep5"></div>
-							
-							<span style="color: #ccc;">第 {{.Uid}} 号会员</span>
-							
-						</td>
-						<td width="150" align="center">
-							<div class="balance_area" style="font-size: 24px; line-height: 24px;">&nbsp;{{.Weight}}&nbsp;</div>
-						</td>
-					</tr>
-					<tr>
-						<td colspan="3"><div style="height: 1px; background-color: #f0f0f0; border-bottom: 1px solid #eee;"></div></td>
-					</tr>
-					{{end}}
-					
-					<tr>
-						<td colspan="3" align="center"><div><span class="c9">{{.active_num}}</span></div></td>
-					</tr>
-				</tbody></table>
-			</div>
-		</div>
+        <div class="page box_white">
+            <div class="inner_content cell">
+                <table cellpadding="5" cellspacing="0" border="0" width="100%"><tbody>
+                    {{range $i, $user := .users}}
+                    <tr>
+                        <td width="53" valign="top" align="center">
+                            <a href="/user/{{.Username}}"><img src="{{gravatar .Avatar .Email 48 $.is_https}}" class="avatar" border="0" align="default" width="48px"></a>
+                        </td>
+                        <td width="auto" align="left">
+                            <h2 style="margin-bottom: 0px; margin-top: 0px; border-bottom: none;"><span class="c9">{{add $i 1}}.</span> <a class="nobreak noul" href="/user/{{.Username}}">{{.Username}}</a></h2>
+                            
+                            <span class="c9 f12">{{.Monlog}}</span>
+                            <div class="sep5"></div>
+                            
+                            <span class="c9 f12"><a href="{{.Website}}"  class="nobreak noul" target="_blank">{{.Website}}</a></span>
+                            <div class="sep5"></div>
+                            
+                            <span style="color: #ccc;">第 {{.Uid}} 号会员</span>
+                            
+                        </td>
+                        <td width="150" align="center">
+                            <div class="balance_area" style="font-size: 24px; line-height: 24px;">&nbsp;{{.Weight}}&nbsp;</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"><div style="height: 1px; background-color: #f0f0f0; border-bottom: 1px solid #eee;"></div></td>
+                    </tr>
+                    {{end}}
+                    
+                    <tr>
+                        <td colspan="3" align="center"><div><span class="c9">{{.active_num}}</span></div></td>
+                    </tr>
+                </tbody></table>
+            </div>
+        </div>
 
-	</div>
-	<div class="col-md-3 col-sm-6">
-		<div class="sep20"></div>
-		{{include "common/my_info.html" .}}
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="sep20"></div>
+        {{include "common/my_info.html" .}}
 
-	</div>
+    </div>
 </div>
 {{end}}
 {{define "css"}}
 <style type="text/css">
 table td {
-	padding: 5px;
+    padding: 5px;
 }
 img.avatar {
     -moz-border-radius: 4px;

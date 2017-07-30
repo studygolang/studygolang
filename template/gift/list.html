@@ -38,17 +38,19 @@
                     <tr>
                         <th width="50" class="h">编号</th>
                         <th width="120" class="h">名称</th>
-                        <th width="100" class="h">类型</th>
-                        <th width="150" class="h">合作提供方</th>
-                        <th width="90" class="h">价格</th>
-                        <th width="90" class="h">剩余</th>
-                        <th width="auto" class="h" style="border-right: none;">操作</th>
+                        <th width="auto" class="h">说明</th>
+                        <th width="80" class="h">类型</th>
+                        <th width="80" class="h">合作提供方</th>
+                        <th width="70" class="h">价格</th>
+                        <th width="70" class="h">剩余</th>
+                        <th width="150" class="h" style="border-right: none;">操作</th>
                     </tr>
                 {{range .gifts}}
                     {{if eq .State 1}}
                     <tr>
                         <td class="d" style="text-align: center;"><small class="c9">{{.Id}}</small></td>
                         <td class="d">{{.Name}}</td>
+                        <td class="d">{{noescape .Description}}</td>
                         <td class="d">{{.TypShow}}</td>
                         <td class="d">{{.Supplier}}</td>
                         <td class="d" style="text-align: right;">{{.Price}} 铜币</td>

@@ -26,17 +26,18 @@ var GiftTypeMap = map[int]string{
 }
 
 type Gift struct {
-	Id         int `json:"id" xorm:"pk autoincr"`
-	Name       string
-	Price      int
-	TotalNum   int
-	RemainNum  int
-	ExpireTime time.Time `xorm:"int"`
-	Supplier   string
-	BuyLimit   int
-	Typ        int
-	State      int
-	CreatedAt  OftenTime `xorm:"<-"`
+	Id          int `json:"id" xorm:"pk autoincr"`
+	Name        string
+	Description string
+	Price       int
+	TotalNum    int
+	RemainNum   int
+	ExpireTime  time.Time `xorm:"int"`
+	Supplier    string
+	BuyLimit    int
+	Typ         int
+	State       int
+	CreatedAt   OftenTime `xorm:"<-"`
 
 	TypShow string `xorm:"-"`
 }

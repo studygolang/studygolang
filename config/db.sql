@@ -585,6 +585,7 @@ CREATE TABLE `view_record` (
 CREATE TABLE `gift` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(63) NOT NULL DEFAULT '' COMMENT '物品名称',
+  `description` varchar(255) NOT NULL DEFAULT '' COMMENT '详细描述',
   `price` int unsigned NOT NULL DEFAULT 0 COMMENT '价格（铜币数）',
   `total_num` int unsigned NOT NULL DEFAULT 0 COMMENT '总数量',
   `remain_num` int unsigned NOT NULL DEFAULT 0 COMMENT '剩余数量',
