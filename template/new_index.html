@@ -151,7 +151,7 @@
 							{{else}}
 								<a class="node" href="/articles">文章</a> &nbsp;•&nbsp;
 							{{end}}
-							{{if .IsSelf}}
+							{{if and .IsSelf .User}}
 							<strong><a href="/user/{{.User.Username}}" class="noul">{{.User.Username}}</a></strong>
 							{{else}}
 							<span>{{.AuthorTxt}}</span>

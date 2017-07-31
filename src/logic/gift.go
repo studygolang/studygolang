@@ -140,6 +140,10 @@ func (self GiftLogic) exchangeDiscount(gift *model.Gift, me *model.Me) error {
 }
 
 func (self GiftLogic) doExchange(gift *model.Gift, me *model.Me, remark string, moreOp func(session *xorm.Session) error) error {
+	if me.Balance < gift.Price {
+		return errors.New("兑换失败：铜币不够！")
+	}
+
 	session := MasterDB.NewSession()
 	defer session.Close()
 
@@ -172,7 +176,7 @@ func (self GiftLogic) doExchange(gift *model.Gift, me *model.Me, remark string, 
 	}
 
 	desc := fmt.Sprintf("兑换 %s 消费 %d 铜币", gift.Name, gift.Price)
-	err = DefaultMission.changeUserBalance(session, me, model.MissionTypeGift, gift.Price, desc)
+	err = DefaultMission.changeUserBalance(session, me, model.MissionTypeGift, -gift.Price, desc)
 	if err != nil {
 		session.Rollback()
 		return err
