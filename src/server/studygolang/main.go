@@ -60,7 +60,9 @@ func main() {
 	e.Use(pwm.HTTPError())
 	e.Use(pwm.AutoLogin())
 
-	frontG := e.Group("", thirdmw.EchoCache())
+	// 评论后不会立马显示出来，暂时缓存去掉
+	// frontG := e.Group("", thirdmw.EchoCache())
+	frontG := e.Group("")
 	controller.RegisterRoutes(frontG)
 
 	frontG.GET("/admin", echo.HandlerFunc(admin.AdminIndex), pwm.NeedLogin(), pwm.AdminAuth())
