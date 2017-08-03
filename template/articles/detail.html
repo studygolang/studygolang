@@ -40,9 +40,13 @@
 				<div class="outdated">这是一个创建于 <span title="{{.article.Ctime}}" class="timeago"></span> 的文章，其中的信息可能已经有所发展或是发生改变。</div>
 				{{end}}
 				<div class="cell">
+					{{if .article.Markdown}}
+					<div class="content">{{.article.Content}}</div>
+					{{else}}
 					<div id="myeditor" class="content article-entry">
 						{{noescape .article.Content}}
 					</div>
+					{{end}}
 
 					{{if not .article.IsSelf}}
 					<div class="row orig-info">
@@ -183,6 +187,7 @@
 $('code[class*="language-"]').parent('pre').addClass('line-numbers');
 </script>
 <script type="text/javascript" src="/static/js/prism.js"></script>
+<script type="text/javascript" src="/static/js/articles.js"></script>
 {{end}}
 <script type="text/javascript">
 // 需要加载的侧边栏
@@ -195,6 +200,8 @@ SG.SIDE_BARS = [
 ];
 
 $(function(){
+	new SG.Articles().parseContent($('.page .content'));
+
 	// 文本框自动伸缩
 	$('.need-autogrow').autoGrow();
 	

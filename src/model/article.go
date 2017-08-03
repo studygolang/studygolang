@@ -46,6 +46,7 @@ type Article struct {
 	Lastreplyuid  int       `json:"lastreplyuid"`
 	Lastreplytime OftenTime `json:"lastreplytime"`
 	Top           uint8     `json:"top"`
+	Markdown      bool      `json:"markdown"`
 	Status        int       `json:"status"`
 	OpUser        string    `json:"op_user"`
 	Ctime         OftenTime `json:"ctime" xorm:"created"`
