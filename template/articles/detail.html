@@ -187,6 +187,8 @@
 $('code[class*="language-"]').parent('pre').addClass('line-numbers');
 </script>
 <script type="text/javascript" src="/static/js/prism.js"></script>
+{{end}}
+{{if .article.Markdown}}
 <script type="text/javascript" src="/static/js/articles.js"></script>
 {{end}}
 <script type="text/javascript">
@@ -200,8 +202,10 @@ SG.SIDE_BARS = [
 ];
 
 $(function(){
+	{{if .article.Markdown}}
 	new SG.Articles().parseContent($('.page .content'));
-
+	{{end}}
+	
 	// 文本框自动伸缩
 	$('.need-autogrow').autoGrow();
 	
