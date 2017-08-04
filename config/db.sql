@@ -290,6 +290,7 @@ CREATE TABLE IF NOT EXISTS `articles` (
   `lastreplyuid` int unsigned NOT NULL DEFAULT 0 COMMENT '最后回复者',
   `lastreplytime` timestamp NOT NULL DEFAULT 0 COMMENT '最后回复时间',
   `top` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '置顶，0否，1置顶',
+  `markdown` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否是markwon格式：0-否，1-是',
   `status` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '状态：0-初始抓取；1-已上线；2-下线(审核拒绝)',
   `op_user` varchar(20) NOT NULL DEFAULT '' COMMENT '操作人',
   `ctime` timestamp NOT NULL DEFAULT 0,
