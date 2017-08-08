@@ -1,78 +1,122 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1"/>
+	<meta name="renderer" content="webkit"/>
 	<title>{{template "title" .}} {{.setting.TitleSuffix}}</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
-	<meta charset="utf-8">
 	<link rel="shortcut icon" href="{{.setting.Favicon}}">
 	<link rel="apple-touch-icon" type="image/png" href="/static/img/logo2.png">
 	{{template "seo" .}}
 	<meta name="author" content="polaris <polaris@studygolang.com>">
-	<!--<link href="http://studygolang.qiniudn.com/fonts_googleapi.css" rel="stylesheet">-->
-	<!-- <link href="//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"> -->
-	<link href="/static/css/fonts_googleapi.css" rel="stylesheet">
-	<link href="/static/css/cosmo_bootstrap.min.css" rel="stylesheet">
-	<!--<link href="http://studygolang.qiniudn.com/cosmo_bootstrap.min.css" rel="stylesheet">-->
-	<!--<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">-->
-	<link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
-	<link href="/static/css/main.css?v=1.0" rel="stylesheet"/>
-	{{template "css" .}}
-	<style type="text/css">
-	#bottom .nav-content {
-		margin: 0px auto 0px auto;
-	}
-	</style>
-
+	<link rel="stylesheet" href="/static/style/css/global.css"/>
+	<link rel="stylesheet" href="/static/style/css/qa.css"/>
+	<link rel="stylesheet" href="/static/style/css/responsive.css"/>
 	<!--[if lt IE 9]-->
 	<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
 	<script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
 	<!--[endif]-->
 </head>
-<body>
-	<header class="navbar navbar-default navbar-fixed-top" role="navigation">
-		<div class="container">
-			<!-- Brand and toggle get grouped for better mobile display -->
-			<div class="navbar-header">
-				<a href="/" class="navbar-brand" title="{{.setting.Name}}"><img alt="{{.setting.Name}}" src="{{.setting.Logo}}" style="margin-top: -7px; height: 45px;"></a>
-				<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
+<body data-mod="qa" class="qa-index ">
+	<div class="global-nav sf-header sf-header--index">
+	<nav class="container nav">
+	<div class="visible-xs header-response">
+		<a href="/search" style="display:block"><i class="fa fa-search" aria-hidden="true"></i></a>
+		<div class="sf-header__logo sf-header__logo--response">
+			<h1><a href="/" style="height:24px; background-size: auto 24px;"></a></h1>
+		</div>
+		<div class="opts">
+			<li class="opts__item user dropdown hoverDropdown"><a class="dropdownBtn user-avatar" data-toggle="dropdown" style="background-image: url('https://sfault-avatar.b0.upaiyun.com/261/346/261346744-56cef4608a250_big64');" href="/u/liberxue"></a>
+			<ul class="dropdown-menu dropdown-menu-right">
+				<li class="divider visible-xs"></li>
+				<li><a href="/user/{{.me.Username}}">我的主页</a></li>
+					<li><a href="/account/edit">个人资料设置</a></li>
+					<li><a href="/favorites/{{.me.Username}}">我的收藏</a></li>
+					<li><a href="/balance">我的财富</a></li>
+					<li role="presentation" class="divider"></li>
+					{{if .me.IsAdmin}}
+					<li><a href="/admin" target="_blank">管理后台</a></li>
+							{{end}}
+					<li class="last"><a href="/account/logout">退出</a></li>
+				<li><a href="/">返回主页</a></li>
+			</ul>
+			</li>
+			<li class="opts__item dropdown hoverDropdown write-btns mt0"><a class="dropdownBtn" data-toggle="dropdown" href="/ask"><i class="fa fa-plus" aria-hidden="true" style="margin-top: 7px"></i></a>
+			<ul class="dropdown-menu dropdown-menu-right ">
+				<li><a href="/ask">提问题</a></li>
+				<li><a href="/submit">发头条</a></li>
+				<li><a href="/write">写文章</a></li>
+				<li><a href="/record">记笔记</a></li>
+				<li class="divider"></li>
+				<li><a href="/user/draft">草稿箱</a></li>
+			</ul>
+			</li>
+		</div>
+		<div class="bottom-nav">
+			<div class="opts">
+				<a class="opts-group active" href="/topics">
+					<i class="fa fa-comments" aria-hidden="true"></i>
+					<span>主题</span></a>
+				    <a class="opts-group " href="/articles"><i class="fa fa-newspaper-o" aria-hidden="true"></i>
+					<span>文章</span></a><a class="opts-group " href="/projects"><i class="fa fa-pencil-square" aria-hidden="true"></i>
+					<span>开源项目</span></a><a class="opts-group " href="/resources"><i class="fa fa-play-circle" aria-hidden="true"></i>
+					<span>资源</span></a>
+				<div class="opts-group">
+					<div class="btn-group dropup">
+						<i class="fa fa-bars dropdown hoverDropdown" data-toggle="dropdown" aria-hidden="true"><span>更多</span></i>
+						<ul class="dropdown-menu">
+							<li><a href="/jobs">职位</a></li>
+							<li><a href="/events">活动</a></li>
+							<li><a href="/tags">标签</a></li>
+							<li><a href="/badges">徽章</a></li>
+						</ul>
+					</div>
+				</div>
 			</div>
-			<div class="navbar-collapse collapse" id="navbar-main">
-				<ul class="nav navbar-nav">
-					<li class="{{.activeTopics}}">
-						<a href="/topics">主题</a>
-					</li>
-					<li class="{{.activeArticles}}">
-						<a href="/articles">文章</a>
-					</li>
-					<li class="{{.activeProjects}}">
-						<a href="/projects">开源项目</a>
-					</li>
-					<li class="{{.activeResources}}">
-						<a href="/resources">资源</a>
-					</li>
-					<li class="{{.activeBooks}}">
-						<a href="/books">图书<i class="newfuture"></i></a>
-					</li>
-					<li class="dropdown {{.activeReadings}}">
-						{{if .setting.ReadingMenu}}
-						<a href="/readings">{{.setting.ReadingMenu}}</a>
-						{{else}}
-						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="readings">技术晨读 <span class="caret"></span></a>
-						<ul class="dropdown-menu" aria-labelledby="readings">
+		</div>
+	</div>
+	<div class="row hidden-xs">
+		<div class="col-sm-8 col-md-9 col-lg-9">
+			<div class="sf-header__logo">
+				<h1>				<a href="/" class="navbar-brand" title="{{.setting.Name}}"><img alt="{{.setting.Name}}" src="{{.setting.Logo}}" style="margin-top: -7px; height: 45px;"></a>
+</h1>
+			</div>
+			<div>
+				<ul class="menu list-inline pull-left hidden-xs">
+					<li class="menu__item"><a href="/topics" class="active-nav">主题</a></li>
+					<li class="menu__item"><a href="/articles" class="">文章</a></li>
+					<li class="menu__item"><a href="/projects">开源项目</a></li>
+					<li class="menu__item"><a href="/resources">资源</a></li>
+					<li class="menu__item"><a href="/books">图书</a></li>
+					<li class="menu__item visible-sm-inline-block"><a href="/search"><span class="glyphicon glyphicon-search" style="vertical-align: middle;"></span></a></li>
+				</ul>
+				<form action="/search" class="header-search hidden-sm hidden-xs pull-right">
+					<button class="btn btn-link"><span class="sr-only">搜索</span><span class="glyphicon glyphicon-search"></span></button><input id="searchBox" name="q" type="text" placeholder="搜索问题或关键字" class="form-control" value="">
+				</form>
+			</div>
+		</div>
+		
+		<div class="col-sm-4 col-md-3 col-lg-3 text-right">
+			<ul class="opts list-inline hidden-xs">
+								<li class="opts__item dropdown hoverDropdown write-btns visible-lg-inline-block">
+				<div class="btn-group">
+					<button type="button" class="btn btn-primary " id="shuldGoTo" data-type="qa">
+                                                                                        晨读
+					</button><button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span><span class="sr-only">显示下拉菜单</span></button>
+					<ul class="dropdown-menu">
 							<li><a href="/readings">Go晨读</a></li>
 							<li><a href="/readings?rtype=1">综合晨读</a></li>
-						</ul>
-						{{end}}
-					</li>
-					<li class="dropdown {{.activeDoc}}">
-						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="docs">官方文档 <span class="caret"></span></a>
-						<ul class="dropdown-menu" aria-labelledby="docs">
-						{{range .setting.DocMenus}}
+					</ul>
+				</div>
+				</li>
+				<li class="opts__item dropdown hoverDropdown write-btns visible-lg-inline-block">
+				<div class="btn-group">
+					<button type="button" class="btn btn-primary " id="shuldGoTo" data-type="qa">
+                                                                                        官方文档
+					</button><button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span><span class="sr-only">显示下拉菜单</span></button>
+					<ul class="dropdown-menu">
+					{{range .setting.DocMenus}}
 							<li><a href="{{.Url}}" target="_blank">{{.Name}}</a></li>
 						{{else}}
 							<li><a href="http://docs.studygolang.com" target="_blank">英文文档</a></li>
@@ -81,38 +125,30 @@
 							<li role="presentation" class="divider"></li>
 							<li><a href="http://tour.studygolang.com" target="_blank">Go指南</a></li>
 						{{end}}
-						</ul>
-					</li>
-				</ul>
-				<form class="navbar-form navbar-left" action="/search" role="search" target="_blank">
-					<input type="text" name="q" class="form-control search-query" placeholder="搜索" value="{{if .q}}{{.q}}{{end}}">
-				</form>
-				<ul class="nav navbar-nav navbar-right" id="userbar">
-					{{if .me.Uid}}
-					<li>
-						<a href="/message/system" id="user_message_count"><span class="badge{{if .me.MsgNum}} badge-warning{{end}}">{{.me.MsgNum}}</span></a>
-					</li>
-					<li class="dropdown" id="user_menu">
-						<a href="#user_menu" class="dropdown-toggle" data-toggle="dropdown">{{.me.Username}} <b class="caret"></b></a>
-						<ul class="dropdown-menu">
-							<li class="first"><a href="/user/{{.me.Username}}">我的主页</a></li>
-							<li><a href="/account/edit">个人资料设置</a></li>
-							<li><a href="/favorites/{{.me.Username}}">我的收藏</a></li>
-							<li><a href="/balance">我的财富</a></li>
-							<li role="presentation" class="divider"></li>
-							{{if .me.IsAdmin}}
-							<li><a href="/admin" target="_blank">管理后台</a></li>
-							{{end}}
-							<li class="last"><a href="/account/logout">退出</a></li>
-						</ul>
-					</li>
-					{{else}}
-					<li class="first"><a href="/account/register">注册</a></li><li class="last"><a href="/account/login">登录</a></li>
+					</ul>
+				</div>
+				</li>
+				<li class="opts__item user dropdown hoverDropdown ml0"><a class="dropdownBtn user-avatar" data-toggle="dropdown" style="background-image: url('https://sfault-avatar.b0.upaiyun.com/261/346/261346744-56cef4608a250_big64')" href="/u/liberxue"></a>
+				<ul class="dropdown-menu dropdown-menu-right">
+					<li class="divider visible-xs"></li>
+					<li class="first"><a href="/user/{{.me.Username}}">我的主页</a></li>
+					<li><a href="/account/edit">个人资料设置</a></li>
+					<li><a href="/favorites/{{.me.Username}}">我的收藏</a></li>
+					<li><a href="/balance">我的财富</a></li>
+					<li role="presentation" class="divider"></li>
+					{{if .me.IsAdmin}}
+					<li><a href="/admin" target="_blank">管理后台</a></li>
 					{{end}}
+					<li class="last"><a href="/account/logout">退出</a></li>
 				</ul>
-			</div>
+				</li>
+			</ul>
 		</div>
-	</header>
+	</div>
+	
+	</nav>
+</div>
+	
 	<div class="wrapper" id="wrapper">
 		<div class="container" role="main">
 		{{if .me.Uid}}

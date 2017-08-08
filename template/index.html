@@ -2,19 +2,11 @@
 {{define "seo"}}<meta name="keywords" content="{{.setting.Name}},{{.setting.SeoKeywords}},社区,资源,文章,图书,开源项目">
 <meta name="description" content="{{.setting.SeoDescription}}">{{end}}
 {{define "content"}}
-<div class="row"><!-- 
-	<div id="content" class="tip">
-		<div id="top" class="box_white">
-			<ul class="list-unstyled">
-			</ul>
-		</div>
-		<div id="bottom"></div>
-	</div> -->
-	<div class="row banner">
-	</div>
-	<div class="col-lg-9 col-md-8 col-sm-7">
-		<div class="box_white">
-			<div class="col-md-6 recent-list">
+<div class="wrap">
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-12 col-md-9 main">
+				<ul class="nav nav-tabs mb10 mt30 visible-xs">
 				<!-- <div class="title">
 					<h3><a href="/topics">最新主题</a></h3>
 					<a class="pull-right more" href="/topics">更多&gt;&gt;</a>
