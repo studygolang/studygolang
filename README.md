@@ -1,3 +1,22 @@
+目前正在重构中 业余时间 。。。。
+
+计划使用 angularjs/moonjs 
+
+自适应  修复 json 数据泄露和搜索过滤 已经文章/开源软件/等评论 问题。。。
+
+
+> UI在liberxue-UI 
+
+go分支修复版本在liberxue中
+
+----
+#### by liberxue  
+
+
+
+
+
+---
 studygolang
 ===========
 [Go语言中文网 - Golang中文社区](http://studygolang.com "Go语言中文网 - Golang中文社区") 源码
