@@ -22,6 +22,7 @@ import (
 	"github.com/lunny/html2md"
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/logger"
+	"github.com/polaris1119/set"
 	"golang.org/x/net/context"
 )
 
@@ -206,6 +207,80 @@ func (ProjectLogic) FindRecent(ctx context.Context, username string) []*model.Op
 		return nil
 	}
 	return projectList
+}
+
+// FindAll 支持多页翻看
+func (self ProjectLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy string, querystring string, args ...interface{}) []*model.OpenProject {
+	objLog := GetLogger(ctx)
+
+	projects := make([]*model.OpenProject, 0)
+	session := MasterDB.OrderBy(orderBy)
+	if querystring != "" {
+		session.Where(querystring, args...)
+	}
+	err := session.Limit(paginator.PerPage(), paginator.Offset()).Find(&projects)
+	if err != nil {
+		objLog.Errorln("ProjectLogic FindAll error:", err)
+		return nil
+	}
+
+	self.fillUser(projects)
+
+	return projects
+}
+
+func (ProjectLogic) Count(ctx context.Context, querystring string, args ...interface{}) int64 {
+	objLog := GetLogger(ctx)
+
+	var (
+		total int64
+		err   error
+	)
+	if querystring == "" {
+		total, err = MasterDB.Count(new(model.OpenProject))
+	} else {
+		total, err = MasterDB.Where(querystring, args...).Count(new(model.OpenProject))
+	}
+
+	if err != nil {
+		objLog.Errorln("ProjectLogic Count error:", err)
+	}
+
+	return total
+}
+
+func (ProjectLogic) fillUser(projects []*model.OpenProject) {
+	usernameSet := set.New(set.NonThreadSafe)
+	uidSet := set.New(set.NonThreadSafe)
+	for _, project := range projects {
+		usernameSet.Add(project.Username)
+
+		if project.Lastreplyuid != 0 {
+			uidSet.Add(project.Lastreplyuid)
+		}
+	}
+	if !usernameSet.IsEmpty() {
+		userMap := DefaultUser.FindUserInfos(nil, set.StringSlice(usernameSet))
+		for _, project := range projects {
+			for _, user := range userMap {
+				if project.Username == user.Username {
+					project.User = user
+					break
+				}
+			}
+		}
+	}
+
+	if !uidSet.IsEmpty() {
+		replyUserMap := DefaultUser.FindUserInfos(nil, set.IntSlice(uidSet))
+		for _, project := range projects {
+			if project.Lastreplyuid == 0 {
+				continue
+			}
+
+			project.LastReplyUser = replyUserMap[project.Lastreplyuid]
+		}
+	}
 }
 
 // getOwner 通过objid获得 project 的所有者

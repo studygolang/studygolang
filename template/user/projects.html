@@ -1,0 +1,99 @@
+{{define "title"}}{{.user.Username}} 在 {{.setting.Name}} 分享的开源项目 {{end}}
+{{define "content"}}
+<div class="row">
+	<div class="col-md-9 col-sm-6">
+		<div class="sep20"></div>
+		<ol class="breadcrumb">
+			<li><a href="/">首页</a></li>
+			<li><a href="/user/{{.user.Username}}">{{.user.Username}}</a></li>
+			<li class="active">全部项目</li>
+		</ol>
+		{{range .projects}}
+		<article class="article box_white">
+			<div class="row">
+				<div>
+					<h2>
+						{{if .Logo}}<img src="{{.Logo}}" alt="{{.Name}}" width="36px" />{{end}}
+						<a href="/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}" target="_blank" title="{{.Name}}">{{.Category}} <em>{{.Name}}</em></a>
+					</h2>
+					<p class="text">{{substring .Desc 250 "..."}}<a href="/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}" target="_blank" title="阅读全文">阅读全文</a></p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-8 metatag">
+					<i class="glyphicon glyphicon-calendar"></i>
+					<span class="date" title="发布日期">{{.Ctime}}</span>
+					<i class="glyphicon glyphicon-user"></i>
+					<span class="author" title="作者">{{.Author}}</span>
+				</div>
+				<div class="col-md-4 metatag text-right">
+					<span class="view" title="阅读数">
+						<i class="glyphicon glyphicon-eye-open"></i>
+						阅读:<span>{{.Viewnum}}</span>次
+					</span>
+					<a href="/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}#commentForm" class="cmt" target="_blank" title="评论数">
+						<i class="glyphicon glyphicon-comment"></i>
+						评论:<span>{{.Cmtnum}}</span>条
+					</a>
+					{{if $.likeflags}}
+					{{$likeFlag := index $.likeflags .Id}}
+					<a href="#" class="like{{if $likeFlag}} hadlike{{end}}" title="{{if $likeFlag}}取消喜欢{{else}}我喜欢{{end}}" data-objid="{{.Id}}" data-objtype="1" data-flag="{{if $likeFlag}}{{$likeFlag}}{{else}}0{{end}}">
+						<i class="glyphicon glyphicon-heart{{if not $likeFlag}}-empty{{end}}"></i>
+					{{else}}
+					<a href="#" class="like" title="我喜欢" data-objid="{{.Id}}" data-objtype="1" data-flag="0">
+						<i class="glyphicon glyphicon-heart-empty"></i>
+					{{end}}
+						<span class="likenum">{{.Likenum}}</span>人喜欢
+					</a>
+				</div>
+			</div>
+		</article>
+		{{else}}
+		<article class="article box_white">
+			<div class="row">暂无开源项目，<a class="btn btn-default btn-sm" href="/project/new">发布一个</a></div>
+		</article>
+		{{end}}
+		<div class="sep20"></div>
+		{{if .page}}
+		<div class="box_white">
+			<div class="inner_content">
+				<nav class="text-center"><ul class="pagination pagination-sm" style="margin: 1px 0;">{{.page}}</ul></nav>
+			</div>
+		</div>
+		{{end}}
+	</div>
+	<div class="col-md-3 col-sm-6">
+		<div class="sep20"></div>
+
+		{{include "common/my_info.html" .}}
+
+		<div class="box_white sidebar">
+			<div class="sb-content text-center" style="padding: 15px 0;">
+				<a href="/project/new" class="btn btn-default">发布项目</a>
+			</div>
+		</div>
+	
+		<div class="box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-list"></i>&nbsp;&nbsp;{{.user.Username}} 分享的内容</h3>
+			</div>
+			<div class="sb-content">
+				<div class="">
+					<ul class="list-unstyled">
+						<li style="margin-left:15px; margin-bottom:5px;"><a href="/user/{{.user.Username}}/topics">{{.user.Username}} 的全部主题</a></li>
+						<li style="margin-left:15px; margin-bottom:5px;"><a href="/user/{{.user.Username}}/articles">{{.user.Username}} 的全部文章</a></li>
+						<li style="margin-left:15px; margin-bottom:5px;"><a href="/user/{{.user.Username}}/resources">{{.user.Username}} 的全部资源</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{{end}}
+{{define "js"}}
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [];
+</script>
+
+{{end}}

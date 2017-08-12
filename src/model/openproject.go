@@ -48,7 +48,8 @@ type OpenProject struct {
 
 	User *User `json:"user" xorm:"-"`
 	// 排行榜阅读量
-	RankView int `json:"rank_view" xorm:"-"`
+	RankView      int   `json:"rank_view" xorm:"-"`
+	LastReplyUser *User `json:"-" xorm:"-"`
 }
 
 func (this *OpenProject) BeforeInsert() {

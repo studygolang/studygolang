@@ -38,7 +38,7 @@
 						<td width="10"></td>
 						
 						<td width="auto" valign="middle">
-						<span class="item_title"><a href="{{.Uri}}" class="noul">{{.Title}}</a></span>
+						<span class="item_title"><a href="{{.Uri}}#reply{{.Cmtnum}}" class="noul">{{.Title}}</a></span>
 						<div class="sep5"></div>
 						<span class="small cc">
 							{{if .Top}}
@@ -72,7 +72,7 @@
 						</td>
 						{{if .Cmtnum}}
 						<td width="70" align="right" valign="middle">
-							<a href="{{.Uri}}" class="count_livid" title="{{.Cmtnum}}">{{.Cmtnum}}</a>
+							<a href="{{.Uri}}#reply{{.Cmtnum}}" class="count_livid" title="{{.Cmtnum}}">{{.Cmtnum}}</a>
 						</td>
 						{{end}}
 					</tr>
@@ -98,7 +98,7 @@
 						<td width="10"></td>
 						
 						<td width="auto" valign="middle">
-						<span class="item_title"><a href="/topics/{{.tid}}" class="noul">{{.title}}</a></span>
+						<span class="item_title"><a href="/topics/{{.tid}}{{if .reply}}#reply{{.reply}}{{end}}" class="noul">{{.title}}</a></span>
 						<div class="sep5"></div>
 						<span class="small cc">
 							{{if .top}}
@@ -114,7 +114,7 @@
 						</td>
 						{{if .reply}}
 						<td width="70" align="right" valign="middle">
-							<a href="/topics/{{.tid}}" class="count_livid" title="{{.reply}}">{{.reply}}</a>
+							<a href="/topics/{{.tid}}#reply{{.reply}}" class="count_livid" title="{{.reply}}">{{.reply}}</a>
 						</td>
 						{{end}}
 					</tr>
@@ -165,7 +165,7 @@
 						</td>
 						{{if .Cmtnum}}
 						<td width="70" align="right" valign="middle">
-							<a href="/articles/{{.Id}}" class="count_livid" title="{{.Cmtnum}}">{{.Cmtnum}}</a>
+							<a href="/articles/{{.Id}}#reply{{.Cmtnum}}" class="count_livid" title="{{.Cmtnum}}">{{.Cmtnum}}</a>
 						</td>
 						{{end}}
 					</tr>
@@ -191,7 +191,7 @@
 						
 						<td width="auto" valign="middle">
 							<span class="item_title">
-								<a class="title noul" href="/{{if eq .Objtype 0}}topics{{else if eq .Objtype 1}}articles{{else if eq .Objtype 2}}resources{{else if eq .Objtype 4}}p{{else}}wiki{{end}}/{{.Objid}}" title="{{.Title}}">{{.Title}}</a>
+								<a class="title noul" href="/{{if eq .Objtype 0}}topics{{else if eq .Objtype 1}}articles{{else if eq .Objtype 2}}resources{{else if eq .Objtype 4}}p{{else}}wiki{{end}}/{{.Objid}}{{if .Cmtnum}}#reply{{.Cmtnum}}{{end}}" title="{{.Title}}">{{.Title}}</a>
 							</span>
 							<div class="sep5"></div>
 							<span class="small c9">
@@ -232,7 +232,7 @@
 						</td>
 						{{if .Cmtnum}}
 						<td width="70" align="right" valign="middle">
-							<a href="/{{if eq .Objtype 0}}topics{{else if eq .Objtype 1}}articles{{else if eq .Objtype 2}}resources{{else if eq .Objtype 4}}p{{else}}wiki{{end}}/{{.Objid}}" class="count_livid" title="{{.Cmtnum}}">{{.Cmtnum}}</a>
+							<a href="/{{if eq .Objtype 0}}topics{{else if eq .Objtype 1}}articles{{else if eq .Objtype 2}}resources{{else if eq .Objtype 4}}p{{else}}wiki{{end}}/{{.Objid}}#reply{{.Cmtnum}}" class="count_livid" title="{{.Cmtnum}}">{{.Cmtnum}}</a>
 						</td>
 						{{end}}
 

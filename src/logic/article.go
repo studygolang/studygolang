@@ -284,7 +284,7 @@ func (self ArticleLogic) ParseZhihuArticle(ctx context.Context, articleUrl strin
 	return article, nil
 }
 
-func (self ArticleLogic) Publish(ctx context.Context, me *model.Me, form url.Values) error {
+func (self ArticleLogic) Publish(ctx context.Context, me *model.Me, form url.Values) (int, error) {
 	objLog := GetLogger(ctx)
 
 	article := &model.Article{
@@ -295,7 +295,12 @@ func (self ArticleLogic) Publish(ctx context.Context, me *model.Me, form url.Val
 		Title:     form.Get("title"),
 		Content:   form.Get("content"),
 		Txt:       form.Get("txt"),
+		Markdown:  goutils.MustBool(form.Get("markdown"), false),
 		PubDate:   times.Format("Y-m-d H:i:s"),
+	}
+
+	if article.Txt == "" {
+		article.Txt = article.Content
 	}
 
 	requestIdInter := ctx.Value("request_id")
@@ -307,13 +312,13 @@ func (self ArticleLogic) Publish(ctx context.Context, me *model.Me, form url.Val
 	if article.Url == "" {
 		objLog.Errorln("request_id is empty!")
 		// 理论上不会执行
-		return errors.New("request_id is empty!")
+		return 0, errors.New("request_id is empty!")
 	}
 
 	_, err := MasterDB.Insert(article)
 	if err != nil {
 		objLog.Errorln("insert article error:", err)
-		return err
+		return 0, err
 	}
 
 	change := map[string]interface{}{
@@ -323,7 +328,7 @@ func (self ArticleLogic) Publish(ctx context.Context, me *model.Me, form url.Val
 
 	go publishObservable.NotifyObservers(me.Uid, model.TypeArticle, article.Id)
 
-	return nil
+	return article.Id, nil
 }
 
 func (self ArticleLogic) PublishFromAdmin(ctx context.Context, me *model.Me, form url.Values) error {
@@ -457,6 +462,59 @@ func (self ArticleLogic) FindBy(ctx context.Context, limit int, lastIds ...int) 
 	self.fillUser(articles)
 
 	return articles
+}
+
+func (self ArticleLogic) FindByUser(ctx context.Context, username string, limit int) []*model.Article {
+	objLog := GetLogger(ctx)
+
+	articles := make([]*model.Article, 0)
+	err := MasterDB.Where("author_txt=?", username).OrderBy("id DESC").Limit(limit).Find(&articles)
+	if err != nil {
+		objLog.Errorln("ArticleLogic FindByUser Error:", err)
+		return nil
+	}
+
+	return articles
+}
+
+// FindAll 支持多页翻看
+func (self ArticleLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy string, querystring string, args ...interface{}) []*model.Article {
+	objLog := GetLogger(ctx)
+
+	articles := make([]*model.Article, 0)
+	session := MasterDB.OrderBy(orderBy)
+	if querystring != "" {
+		session.Where(querystring, args...)
+	}
+	err := session.Limit(paginator.PerPage(), paginator.Offset()).Find(&articles)
+	if err != nil {
+		objLog.Errorln("ArticleLogic FindAll error:", err)
+		return nil
+	}
+
+	self.fillUser(articles)
+
+	return articles
+}
+
+func (ArticleLogic) Count(ctx context.Context, querystring string, args ...interface{}) int64 {
+	objLog := GetLogger(ctx)
+
+	var (
+		total int64
+		err   error
+	)
+	if querystring == "" {
+		total, err = MasterDB.Count(new(model.Article))
+	} else {
+		total, err = MasterDB.Where(querystring, args...).Count(new(model.Article))
+	}
+
+	if err != nil {
+		objLog.Errorln("ArticleLogic Count error:", err)
+	}
+
+	return total
 }
 
 // 获取抓取的文章列表（分页）：后台用

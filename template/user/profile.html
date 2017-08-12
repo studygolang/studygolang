@@ -80,8 +80,11 @@
 				</ul>
 			</div>
 		</div>
+		<div class="sep20"></div>
 		<div class="box_white recent recent-topics">
-			<h2 class="title">最近发布的主题</h2>
+			<div>
+				<div class="pull-right title"><a href="/user/{{.user.Username}}/topics">更多>></a></div><h2 class="title">最近发布的主题</h2>
+			</div>
 			<ul class="list-unstyled">
 				{{range .topics}}
 				<li>
@@ -94,8 +97,27 @@
 				{{end}}
 			</ul>
 		</div>
+		<div class="sep20"></div>
 		<div class="box_white recent recent-topics">
-			<h2 class="title">最近分享的资源</h2>
+			<div>
+				<div class="pull-right title"><a href="/user/{{.user.Username}}/articles">更多>></a></div><h2 class="title">最近发布的文章</h2>
+			</div>
+			<ul class="list-unstyled">
+				{{range .articles}}
+				<li>
+					<a href="/articles/{{.Id}}" title="{{.Title}}">{{substring .Title 60 "..."}}</a>
+					<span class="info">at <abbr class="timeago" title="{{.Ctime}}"></abbr></span>
+				</li>
+				{{else}}
+				<p class="no-record text-center">暂无</p>
+				{{end}}
+			</ul>
+		</div>
+		<div class="sep20"></div>
+		<div class="box_white recent recent-topics">
+			<div>
+				<div class="pull-right title"><a href="/user/{{.user.Username}}/resources">更多>></a></div><h2 class="title">最近分享的资源</h2>
+			</div>
 			<ul class="list-unstyled">
 				{{range .resources}}
 				<li>
@@ -108,8 +130,11 @@
 				{{end}}
 			</ul>
 		</div>
+		<div class="sep20"></div>
 		<div class="box_white recent recent-projects">
-			<h2 class="title">最近发布的项目</h2>
+			<div>
+				<div class="pull-right title"><a href="/user/{{.user.Username}}/projects">更多>></a></div><h2 class="title">最近发布的项目</h2>
+			</div>
 			<ul class="list-unstyled">
 				{{range .projects}}
 				<li>
@@ -121,6 +146,7 @@
 				{{end}}
 			</ul>
 		</div>
+		<div class="sep20"></div>
 		<div class="box_white recent recent-comments">
 			<h2 class="title">最近的评论</h2>
 			<ul class="list-unstyled">
@@ -169,7 +195,7 @@
 {{end}}
 {{define "css"}}
 <link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
-<link href="/static/css/user.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/user.css?v=0.1" media="screen" rel="stylesheet" type="text/css">
 {{end}}
 {{define "js"}}
 <script	type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>

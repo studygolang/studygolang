@@ -365,6 +365,8 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginato
 			}
 			tmpMap["objtitle"] = objTitle
 			tmpMap["objurl"] = objUrl
+			tmpMap["objid"] = objid
+			tmpMap["objtype"] = ext["objtype"]
 		}
 		tmpMap["ctime"] = message.Ctime
 		tmpMap["id"] = message.Id
@@ -387,6 +389,22 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginato
 func (MessageLogic) SysMsgCount(ctx context.Context, uid int) int64 {
 	total, _ := MasterDB.Where("`to`=?", uid).Count(new(model.SystemMessage))
 	return total
+}
+
+func (MessageLogic) FindMsgById(ctx context.Context, id string) *model.Message {
+	if id == "" {
+		return nil
+	}
+
+	objLog := GetLogger(ctx)
+	message := &model.Message{}
+	_, err := MasterDB.Id(id).Get(message)
+	if err != nil {
+		objLog.Errorln("message logic FindMsgById Error:", err)
+		return nil
+	}
+
+	return message
 }
 
 // 获得发给某人的短消息（收件箱）

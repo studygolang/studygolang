@@ -15,28 +15,40 @@
 			<li role="presentation"{{if eq .msgtype "outbox"}}class="active"{{end}}><a href="/message/outbox">发件箱</a></li>
 		</ul>
 		<ul class="list-unstyled data">
-		{{with $root := .}}
 		{{range .messages}}
 			<li>
 				<h3>
-					<a href="/user/{{.user.Username}}" title="{{.user.Username}}"><img src="{{gravatar .user.Avatar .user.Email 48 $root.is_https}}" width="48" height="48" alt="{{.user.Username}}"></a>
+					<a href="/user/{{.user.Username}}" title="{{.user.Username}}"><img src="{{gravatar .user.Avatar .user.Email 48 $.is_https}}" width="48" height="48" alt="{{.user.Username}}"></a>
 					<span class="user">{{if eq $.msgtype "outbox"}}你对 {{end}}<a href="/user/{{.user.Username}}" title="{{.user.Username}}">{{.user.Username}}</a> {{if eq $.msgtype "outbox"}}说:{{else}}{{.title}}{{end}}</span>
 					{{if .objtitle}}<a href="{{.objurl}}" title="{{.objtitle}}">{{.objtitle}}</a>{{end}}
 					{{if eq .hasread "未读"}}
-					{{if eq $.msgtype "outbox"}}
-					<span class="label label-warning">对方未查看</span>
-					{{else}}
-					<span class="label label-warning">新</span>
-					{{end}}
+						{{if eq $.msgtype "outbox"}}
+						<span class="label label-warning">对方未查看</span>
+						{{else}}
+						<span class="label label-warning">新</span>
+						{{end}}
 					{{end}}
 					<span style="margin-left:10px;">（{{.ctime}}）</span>
 				</h3>
-				<div class="info">{{.content}}</div>
-				<p class="cmd"><a href="/message/delete" data-type="{{$.msgtype}}" data-id="{{.id}}" data-cmd="delete" class="label label-default delete">删除</a></p>
+				<div class="info">{{.content}}&nbsp;
+				{{if eq $.msgtype "inbox"}}
+				<a href="/message/send?username={{.user.Username}}&id={{.id}}" target="_blank" class="label label-default reply dn">回复</a>
+				{{else if eq $.msgtype "system"}}
+				<a href="/comment" class="label label-default reply system-reply dn">回复</a>
+				{{end}}
+				<p class="cmd">
+					<a href="/message/delete" data-type="{{$.msgtype}}" data-id="{{.id}}" data-cmd="delete" class="label label-default delete">删除</a>
+				</p>
+
+				<div class="replywrap dn">
+					<textarea rows="3" cols="70"></textarea>
+					<div style="text-align: center;">
+						<button class="btn btn-default btn-sm submit" data-username="{{.user.Username}}" data-objid={{.objid}} data-objtype={{.objtype}}>提交</button>
+					</div>
+				</div>
 			</li>
 		{{else}}
 			<li class="alert alert-info text-center">暂无消息</li>
-		{{end}}
 		{{end}}
 		</ul>
 		{{if .page}}
@@ -46,7 +58,7 @@
 </div>
 {{end}}
 {{define "css"}}
-<link href="/static/css/message.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/message.css?v=0.1" media="screen" rel="stylesheet" type="text/css">
 {{end}}
 {{define "js"}}
 <script type="text/javascript">
@@ -66,6 +78,46 @@ jQuery(document).ready(function(){
 			}
 		});
 		return false;
+	});
+
+	$('.message .data li').on('mouseenter', function() {
+		$(this).find('.reply').show();
+	});
+	$('.message .data li').on('mouseleave', function() {
+		$(this).find('.reply').hide();
+	});
+
+	$('.message .system-reply').on('click', function(evt) {
+		evt.preventDefault();
+		var $replywrap = $(this).parent().find('.replywrap');
+		$replywrap.slideDown();
+		$replywrap.children('textarea').focus();
+
+		return false;
+	});
+
+	$('.message .replywrap .submit').on('click', function(evt) {
+		evt.preventDefault();
+
+		var $replywrap = $(this).parents('.replywrap'),
+			content = $replywrap.children('textarea').val();
+
+		var objid = $(this).data('objid'),
+			objtype = $(this).data('objtype'),
+			username = $(this).data('username');
+
+		content = '@'+username + ' ' + content;
+
+		$.post('/comment/'+objid, {objtype: objtype, content: content, usernames: username}, function(result) {
+			if(result.ok) {
+				comTip('回复成功！');
+				setTimeout(function() {
+					$replywrap.slideUp();
+				}, 1000);
+			} else {
+				alert(result.error);
+			}
+		});
 	});
 });
 </script>

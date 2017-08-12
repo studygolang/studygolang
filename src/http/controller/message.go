@@ -38,6 +38,8 @@ func (self MessageController) RegisterRoute(g *echo.Group) {
 
 // Send 发短消息
 func (MessageController) Send(ctx echo.Context) error {
+	me := ctx.Get("user").(*model.Me)
+
 	content := ctx.FormValue("content")
 	// 请求发送消息页面
 	if content == "" || ctx.Request().Method() != "POST" {
@@ -45,13 +47,22 @@ func (MessageController) Send(ctx echo.Context) error {
 		if username == "" {
 			return ctx.Redirect(http.StatusSeeOther, "/")
 		}
+
+		message := logic.DefaultMessage.FindMsgById(ctx, ctx.FormValue("id"))
 		user := logic.DefaultUser.FindOne(ctx, "username", username)
-		return render(ctx, "messages/send.html", map[string]interface{}{"user": user})
+
+		if message.To != me.Uid || message.From != user.Uid {
+			message = nil
+		}
+
+		return render(ctx, "messages/send.html", map[string]interface{}{
+			"user":    user,
+			"message": message,
+		})
 	}
 
-	user := ctx.Get("user").(*model.Me)
 	to := goutils.MustInt(ctx.FormValue("to"))
-	ok := logic.DefaultMessage.SendMessageTo(ctx, user.Uid, to, content)
+	ok := logic.DefaultMessage.SendMessageTo(ctx, me.Uid, to, content)
 	if !ok {
 		return fail(ctx, 1, "对不起，发送失败，请稍候再试！")
 	}

@@ -12,10 +12,15 @@
 		<form class="form-horizontal validate-form" role="form" action="/message/send" data-redirect="/message/outbox" method="post">
 			<input type="hidden" name="to" value="{{.user.Uid}}" />
 			<div class="form-group form-group-sm">
-				<label class="col-lg-2 col-md-3 col-sm-4 control-label" for="title"><abbr>*</abbr>发给</label>
+				<label class="col-lg-2 col-md-3 col-sm-4 control-label" for="title"><abbr>*</abbr>{{if .message}}回复{{else}}发给{{end}}</label>
 				<div class="col-lg-10 col-md-9 col-sm-8">
 					<div class="row" style="margin-top:5px;">
-						<div class="col-sm-10"><a href="/user/{{.user.Username}}" title="{{.user.Username}}" target="_blank">{{.user.Username}}{{if .user.Name}}({{.user.Name}}){{end}}</a></div>
+						<div class="col-sm-10">
+							<a href="/user/{{.user.Username}}" title="{{.user.Username}}" target="_blank">{{.user.Username}}{{if .user.Name}}({{.user.Name}}){{end}}</a>
+							{{if .message}}
+								：{{.message.Content}}
+							{{end}}
+						</div>
 					</div>
 				</div>
 			</div>

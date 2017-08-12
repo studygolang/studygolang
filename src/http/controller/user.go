@@ -7,6 +7,7 @@
 package controller
 
 import (
+	"html/template"
 	"logic"
 	"net/http"
 
@@ -19,6 +20,10 @@ type UserController struct{}
 // 注册路由
 func (self UserController) RegisterRoute(g *echo.Group) {
 	g.GET("/user/:username", self.Home)
+	g.GET("/user/:username/topics", self.Topics)
+	g.GET("/user/:username/articles", self.Articles)
+	g.GET("/user/:username/resources", self.Resources)
+	g.GET("/user/:username/projects", self.Projects)
 	g.GET("/users", self.ReadList)
 	g.Match([]string{"GET", "POST"}, "/user/email/unsubscribe", self.EmailUnsub)
 }
@@ -35,6 +40,8 @@ func (UserController) Home(ctx echo.Context) error {
 
 	topics := logic.DefaultTopic.FindRecent(5, user.Uid)
 
+	articles := logic.DefaultArticle.FindByUser(ctx, user.Username, 5)
+
 	resources := logic.DefaultResource.FindRecent(ctx, user.Uid)
 	for _, resource := range resources {
 		resource.CatName = logic.GetCategoryName(resource.Catid)
@@ -48,6 +55,7 @@ func (UserController) Home(ctx echo.Context) error {
 	return render(ctx, "user/profile.html", map[string]interface{}{
 		"activeUsers": "active",
 		"topics":      topics,
+		"articles":    articles,
 		"resources":   resources,
 		"projects":    projects,
 		"comments":    comments,
@@ -100,4 +108,99 @@ func (UserController) EmailUnsub(ctx echo.Context) error {
 	logic.DefaultUser.EmailSubscribe(ctx, user.Uid, goutils.MustInt(ctx.FormValue("unsubscribe")))
 
 	return success(ctx, nil)
+}
+
+func (UserController) Topics(ctx echo.Context) error {
+	username := ctx.Param("username")
+	user := logic.DefaultUser.FindOne(ctx, "username", username)
+	if user == nil || user.Uid == 0 {
+		return ctx.Redirect(http.StatusSeeOther, "/users")
+	}
+
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	paginator := logic.NewPaginator(curPage)
+
+	querystring := "uid=?"
+	topics := logic.DefaultTopic.FindAll(ctx, paginator, "topics.tid DESC", querystring, user.Uid)
+	total := logic.DefaultTopic.Count(ctx, querystring, user.Uid)
+	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
+
+	return render(ctx, "user/topics.html", map[string]interface{}{
+		"user":         user,
+		"activeTopics": "active",
+		"topics":       topics,
+		"page":         template.HTML(pageHtml),
+		"total":        total,
+	})
+}
+
+func (UserController) Articles(ctx echo.Context) error {
+	username := ctx.Param("username")
+	user := logic.DefaultUser.FindOne(ctx, "username", username)
+	if user == nil || user.Uid == 0 {
+		return ctx.Redirect(http.StatusSeeOther, "/users")
+	}
+
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	paginator := logic.NewPaginator(curPage)
+
+	querystring := "author_txt=?"
+	articles := logic.DefaultArticle.FindAll(ctx, paginator, "id DESC", querystring, user.Username)
+	total := logic.DefaultArticle.Count(ctx, querystring, user.Username)
+	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
+
+	return render(ctx, "user/articles.html", map[string]interface{}{
+		"user":           user,
+		"activeArticles": "active",
+		"articles":       articles,
+		"page":           template.HTML(pageHtml),
+		"total":          total,
+	})
+}
+
+func (UserController) Resources(ctx echo.Context) error {
+	username := ctx.Param("username")
+	user := logic.DefaultUser.FindOne(ctx, "username", username)
+	if user == nil || user.Uid == 0 {
+		return ctx.Redirect(http.StatusSeeOther, "/users")
+	}
+
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	paginator := logic.NewPaginator(curPage)
+
+	querystring := "uid=?"
+	resources, total := logic.DefaultResource.FindAll(ctx, paginator, "resource.id DESC", querystring, user.Uid)
+	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
+
+	return render(ctx, "user/resources.html", map[string]interface{}{
+		"user":            user,
+		"activeResources": "active",
+		"resources":       resources,
+		"page":            template.HTML(pageHtml),
+		"total":           total,
+	})
+}
+
+func (UserController) Projects(ctx echo.Context) error {
+	username := ctx.Param("username")
+	user := logic.DefaultUser.FindOne(ctx, "username", username)
+	if user == nil || user.Uid == 0 {
+		return ctx.Redirect(http.StatusSeeOther, "/users")
+	}
+
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	paginator := logic.NewPaginator(curPage)
+
+	querystring := "username=?"
+	projects := logic.DefaultProject.FindAll(ctx, paginator, "id DESC", querystring, user.Username)
+	total := logic.DefaultProject.Count(ctx, querystring, user.Username)
+	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
+
+	return render(ctx, "user/projects.html", map[string]interface{}{
+		"user":           user,
+		"activeProjects": "active",
+		"projects":       projects,
+		"page":           template.HTML(pageHtml),
+		"total":          total,
+	})
 }

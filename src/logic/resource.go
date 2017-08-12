@@ -158,7 +158,7 @@ func (ResourceLogic) FindBy(ctx context.Context, limit int, lastIds ...int) []*m
 }
 
 // FindAll 获得资源列表（完整信息），分页
-func (ResourceLogic) FindAll(ctx context.Context, paginator *Paginator) (resources []map[string]interface{}, total int64) {
+func (ResourceLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy, querystring string, args ...interface{}) (resources []map[string]interface{}, total int64) {
 	objLog := GetLogger(ctx)
 
 	var (
@@ -166,8 +166,11 @@ func (ResourceLogic) FindAll(ctx context.Context, paginator *Paginator) (resourc
 		resourceInfos = make([]*model.ResourceInfo, 0)
 	)
 
-	err := MasterDB.Join("INNER", "resource_ex", "resource.id=resource_ex.id").
-		Desc("resource.mtime").Limit(count, paginator.Offset()).Find(&resourceInfos)
+	session := MasterDB.Join("INNER", "resource_ex", "resource.id=resource_ex.id")
+	if querystring != "" {
+		session.Where(querystring, args...)
+	}
+	err := session.OrderBy(orderBy).Limit(count, paginator.Offset()).Find(&resourceInfos)
 	if err != nil {
 		objLog.Errorln("ResourceLogic FindAll error:", err)
 		return

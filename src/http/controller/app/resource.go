@@ -29,7 +29,7 @@ func (ResourceController) ReadList(ctx echo.Context) error {
 	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
 	paginator := logic.NewPaginator(curPage)
 
-	resources, total := logic.DefaultResource.FindAll(ctx, paginator)
+	resources, total := logic.DefaultResource.FindAll(ctx, paginator, "resource.mtime", "")
 	hasMore := paginator.SetTotal(total).HasMorePage()
 
 	data := map[string]interface{}{

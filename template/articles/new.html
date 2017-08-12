@@ -1,4 +1,4 @@
-{{define "title"}}发布文章 {{end}}
+{{define "title"}}{{if .article.Id}}修改{{else}}发布{{end}}文章 {{end}}
 {{define "content"}}
 <div class="row">
     <div class="col-md-9 col-sm-6">
@@ -6,22 +6,59 @@
         <ol class="breadcrumb">
             <li><a href="/">首页</a></li>
             <li><a href="/articles">文章</a></li>
-            <li class="active">写文章</li>
+            <li class="active">{{if .article.Id}}编辑{{else}}写{{end}}文章</li>
         </ol>
         <div class="page box_white">
-            <form class="form-horizontal validate-form" role="form" action="/articles/new" data-redirect="/articles?r={{timestamp}}">
+            <form class="form-horizontal validate-form" role="form" action="{{if .article.Id}}/articles/modify{{else}}/articles/new{{end}}" data-redirect="/articles{{if .article.Id}}/{{.article.Id}}?r={{timestamp}}{{end}}">
+                {{if .article.Id}}
+                <input type="hidden" name="id" value="{{.article.Id}}" />
+                {{end}}
                 <textarea id="txt" name="txt" style="display: none;"></textarea>
                 <div class="form-group form-group-sm">
-                    <label class="col-sm-2 control-label" for="title"><abbr>*</abbr>标题</label>
-                    <div class="col-sm-9">
-                        <input class="form-control required" type="text" id="title" name="title" placeholder="标题" value="">
+                    <label class="col-sm-1 control-label" for="title"><abbr>*</abbr>标题</label>
+                    <div class="col-sm-10">
+                        <input class="form-control required" type="text" id="title" name="title" placeholder="标题" value="{{.article.Title}}">
                     </div>
                 </div>
-                <textarea id="myeditor" name="content" cols="102" rows="22" style="margin-left: 5px;"></textarea>
+                <div class="form-group form-group-sm">
+                    <label class="col-sm-1 control-label"><abbr>*</abbr>格式</label>
+                    <div class="col-sm-10">
+                        <label class="radio-inline">
+                            <input type="radio" name="markdown" value="1" checked>
+                            Markdown
+                        </label>
+                        {{if not .article.Id}}
+                        <label class="radio-inline">
+                            <input type="radio" name="markdown" value="0" class="required">
+                            富文本编辑
+                        </label>
+                        {{end}}
+                    </div>
+                </div>
+                <div class="form-group form-group-sm" id="markdown-editor">
+                    <label class="col-sm-1 control-label" for="content">正文</label>
+                    <div class="col-sm-10">
+                        <div class="row clearfix md-toolbar">
+                            <ul class="col-md-10 list-inline">
+                                <li class="edit cur"><a href="#" tabindex="-1"><i class="glyphicon glyphicon-edit"></i> 编辑</a></li>
+                                <li class="preview"><a href="#" title="预览" tabindex="-1"><i class="glyphicon glyphicon-eye-open preview"></i> 预览</a></li>
+                                <li class="wide"><a href="/wide/playground" tabindex="-1" target="_blank" title="通过Wide编辑代码"><i class="glyphicon glyphicon-cloud"></i> Wide</a></li>
+                            </ul>
+                            <div class="col-md-2 text-right">
+                                <i id="upload-img" class="glyphicon glyphicon-picture upload-img tool-tip" data-toggle="tooltip" data-placement="top" title="上传图片"></i>
+                            </div>
+                        </div>
+                        <textarea class="form-control need-autogrow main-textarea" id="content" name="content" rows="15" tabindex="0">{{.article.Content}}</textarea>
+                        <div class="content-preview"></div>
+                    </div>
+                </div>
+                {{if not .article.Id}}
+                <textarea id="myeditor" name="content" cols="102" rows="22" style="margin-left: 5px;display: none;"></textarea>
+                {{end}}
                 <div class="form-group form-group-sm">
                     <label class="col-sm-5 control-label">&nbsp;</label>
                     <div class="col-sm-6">
-                        <button type="submit" class="btn btn-default btn-sm" id="submit">发布文章</button> (Ctrl+Enter)
+                        <button type="submit" class="btn btn-default btn-sm" id="submit">{{if .article.Id}}提交修改{{else}}发布文章{{end}}</button> (Ctrl+Enter)
                     </div>
                 </div>
             </form>
@@ -59,22 +96,59 @@
 <script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
 <script type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
 <script type="text/javascript" src="/static/ckeditor/config.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.caret.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.atwho.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/emojis.js"></script>
+<script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
+<script type="text/javascript" src="/static/js/md_toolbar.js?v=0.1"></script>
+<script type="text/javascript" src="/static/js/puploader.js?v=1.2"></script>
 <script>
-CKEDITOR.plugins.addExternal('autosave', '/static/ckeditor/plugins/autosave/', 'plugin.js');
-CKEDITOR.plugins.addExternal('prism', '/static/ckeditor/plugins/prism/', 'plugin.js');
 
-MyEditorConfig.extraPlugins = MyEditorExtraPlugins+',preview,prism,autosave';
-MyEditorConfig.toolbar = [
-    { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'RemoveFormat' ] },
-    { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight' ] },
-    { name: 'clipboard', items: [ 'Undo', 'Redo' ] },
-    { name: 'links', items: [ 'Link', 'Unlink' ] },
-    { name: 'insert', items: [ 'CodeSnippet', 'Image' ] },
-    { name: 'styles', items: [ 'Format' ] },
-    { name: 'document', items: [ 'Source', 'Preview' ] },
-    { name: 'tools', items: [ 'Maximize' ] }
-];
-CKEDITOR.replace( 'myeditor', MyEditorConfig );
+var hadInit = false;
+
+function init() {
+    if (hadInit) {
+        return;
+    }
+
+    hadInit = true;
+
+    CKEDITOR.plugins.addExternal('autosave', '/static/ckeditor/plugins/autosave/', 'plugin.js');
+    CKEDITOR.plugins.addExternal('prism', '/static/ckeditor/plugins/prism/', 'plugin.js');
+
+    MyEditorConfig.extraPlugins = MyEditorExtraPlugins+',preview,prism,autosave';
+    MyEditorConfig.toolbar = [
+        { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'RemoveFormat' ] },
+        { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight' ] },
+        { name: 'clipboard', items: [ 'Undo', 'Redo' ] },
+        { name: 'links', items: [ 'Link', 'Unlink' ] },
+        { name: 'insert', items: [ 'CodeSnippet', 'Image' ] },
+        { name: 'styles', items: [ 'Format' ] },
+        { name: 'document', items: [ 'Source', 'Preview' ] },
+        { name: 'tools', items: [ 'Maximize' ] }
+    ];
+    CKEDITOR.replace( 'myeditor', MyEditorConfig );
+}
+
+$(function() {
+    // 文本框自动伸缩
+    $('.need-autogrow').autoGrow();
+
+    $('input[type=radio]').on('click', function() {
+        if ($(this).val() == 0) {
+            init();
+            $('#cke_myeditor').show();
+            $('#markdown-editor').hide();
+        } else {
+            $('#cke_myeditor').hide();
+            $('#markdown-editor').show();
+        }
+    });
+});
 </script>
-<script type="text/javascript" src="/static/js/articles.js"></script>
+<script type="text/javascript" src="/static/js/articles.js?v=0.1"></script>
 {{end}}

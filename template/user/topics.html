@@ -1,0 +1,46 @@
+{{define "title"}}{{.user.Username}} 在 {{.setting.Name}} 创建的主题 {{end}}
+{{define "content"}}
+<div class="row">
+	<div class="col-md-9 col-sm-6">
+		<div class="sep20"></div>
+
+		<ol class="breadcrumb">
+			<li><a href="/">首页</a></li>
+			<li><a href="/user/{{.user.Username}}">{{.user.Username}}</a></li>
+			<li class="active">全部主题</li>
+		</ol>
+		{{include "topics/common_list.html" .}}
+	</div>
+	<div class="col-md-3 col-sm-6">
+		<div class="sep20"></div>
+
+		{{include "common/my_info.html" .}}
+
+		<div class="box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-list"></i>&nbsp;&nbsp;{{.user.Username}} 分享的内容</h3>
+			</div>
+			<div class="sb-content">
+				<div class="">
+					<ul class="list-unstyled">
+						<li style="margin-left:15px; margin-bottom:5px;"><a href="/user/{{.user.Username}}/articles">{{.user.Username}} 的全部文章</a></li>
+						<li style="margin-left:15px; margin-bottom:5px;"><a href="/user/{{.user.Username}}/resources">{{.user.Username}} 的全部资源</a></li>
+						<li style="margin-left:15px; margin-bottom:5px;"><a href="/user/{{.user.Username}}/projects">{{.user.Username}} 的全部项目</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+</div>
+{{end}}
+{{define "css"}}
+<link href="/static/css/topics.css?v=1.1" rel="stylesheet" type="text/css" />
+{{end}}
+{{define "js"}}
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [];
+</script>
+
+{{end}}

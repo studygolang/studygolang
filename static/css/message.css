@@ -6,3 +6,8 @@
 .message .data li h3 a img {float: left; margin-right: 10px;}
 .message .data li .info {line-height:18px;min-height:18px;}
 .message .data li .cmd {position: absolute;right: 0;top: 0;}
+
+.message .data a.label:link,.message .data a.label:visited,.message .data a.label:active { color: #ccc; }
+.message .data a.label:hover { color: #fff; }
+
+.message .replywrap { background-color: #f2f2f5; margin-top: 10px; padding: 20px; text-align: center; }

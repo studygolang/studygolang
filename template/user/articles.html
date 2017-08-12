@@ -1,0 +1,89 @@
+{{define "title"}}{{.user.Username}} 在 {{.setting.Name}} 发布的文章{{end}}
+{{define "content"}}
+<div class="row">
+	<div class="col-md-9 col-sm-6">
+		<div class="sep20"></div>
+		<ol class="breadcrumb">
+			<li><a href="/">首页</a></li>
+			<li><a href="/user/{{.user.Username}}">{{.user.Username}}</a></li>
+			<li class="active">全部文章</li>
+		</ol>
+		<div class="box_white">
+		{{range .articles}}
+			<div class="cell item">
+				<table cellpadding="0" cellspacing="0" border="0" width="100%">
+					<tbody><tr>
+						<td width="auto" valign="middle">
+						<span class="item_title"><a href="/articles/{{.Id}}" class="noul">{{.Title}}</a></span>
+						<div class="sep5"></div>
+						<span class="small cc">
+							{{if .Top}}
+							<span style="color: #ff7700; border: 1px solid #ff7700;">置顶</span> • 
+							{{end}}
+							{{if .Tags}}
+								{{$tags := explode .Tags ","}}
+								<a class="node" href="/tag/{{index $tags 0}}">{{index $tags 0}}</a> • 
+							{{end}}
+							<strong><a href="/user/{{.AuthorTxt}}" class="noul">{{.AuthorTxt}}</a></strong>
+							&nbsp;•&nbsp;
+							{{if .Lastreplyuid}}
+							<span title="{{.Lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp;最后回复来自 <strong><a href="/user/{{.LastReplyUser.Username}}" class="noul">{{.LastReplyUser.Username}}</a></strong>
+							{{else}}
+							<span title="{{.Ctime}}" class="timeago"></span> 发布
+							{{end}}
+							 • <span>{{.Viewnum}} 点击</span>
+						</td>
+						{{if .Cmtnum}}
+						<td width="70" align="right" valign="middle">
+							<a href="/articles/{{.Id}}#reply{{.Cmtnum}}" class="count_livid" title="{{.Cmtnum}}">{{.Cmtnum}}</a>
+						</td>
+						{{end}}
+					</tr>
+				</tbody></table>
+			</div>
+			{{else}}
+				<p class="text-center">暂时没有发布任何文章</p>
+			{{end}}
+		
+		</div>
+		<div class="sep20"></div>
+		{{if .page}}
+		<div class="box_white">
+			<div class="inner_content">
+				<nav class="text-center"><ul class="pagination pagination-sm" style="margin: 1px 0;">{{.page}}</ul></nav>
+			</div>
+		</div>
+		{{end}}
+	
+	</div>
+	<div class="col-md-3 col-sm-6">
+		<div class="sep20"></div>
+
+		{{include "common/my_info.html" .}}
+
+		<div class="box_white sidebar">
+			<div class="top">
+				<h3 class="title"><i class="glyphicon glyphicon-list"></i>&nbsp;&nbsp;{{.user.Username}} 分享的内容</h3>
+			</div>
+			<div class="sb-content">
+				<div class="">
+					<ul class="list-unstyled">
+						<li style="margin-left:15px; margin-bottom:5px;"><a href="/user/{{.user.Username}}/topics">{{.user.Username}} 的全部主题</a></li>
+						<li style="margin-left:15px; margin-bottom:5px;"><a href="/user/{{.user.Username}}/resources">{{.user.Username}} 的全部资源</a></li>
+						<li style="margin-left:15px; margin-bottom:5px;"><a href="/user/{{.user.Username}}/projects">{{.user.Username}} 的全部项目</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+</div>
+
+{{end}}
+{{define "js"}}
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [];
+
+</script>
+{{end}}

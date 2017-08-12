@@ -78,7 +78,8 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 			return true
 		}
 	case *model.Article:
-		if time.Now().Sub(time.Time(entity.Ctime)) > canEditTime {
+		// 文章的能编辑时间是15天
+		if time.Now().Sub(time.Time(entity.Ctime)) > 15*86400*time.Second {
 			return false
 		}
 
@@ -94,7 +95,8 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 			return true
 		}
 	case *model.OpenProject:
-		if time.Now().Sub(time.Time(entity.Ctime)) > canEditTime {
+		// 开源项目的能编辑时间是30天
+		if time.Now().Sub(time.Time(entity.Ctime)) > 30*86400*time.Second {
 			return false
 		}
 

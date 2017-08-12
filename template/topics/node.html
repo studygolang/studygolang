@@ -23,51 +23,8 @@
 					<p>{{.node.intro}}</p>
 				</div>
 			</div>
-			<dl class="topics dl-horizontal">
-			{{with $root := .}}
-			{{range .topics}}
-				<div class="topic">
-					<dt class="avatar">
-						<a href="/user/{{.user.Username}}" title="{{.user.Username}}"><img alt="{{.user.Username}}" class="img-rounded" src="{{gravatar .user.Avatar .user.Email 48 $root.is_https}}" width="48px" height="48px"></a>
-					</dt>
-					<dd class="right-info">
-						<div class="title">
-							<a href="/topics/{{.tid}}" title="{{.title}}">{{substring .title 60 "..."}}</a>
-						</div>
-						<div class="meta">
-							<a href="/go/{{$.node.ename}}" class="node" title="{{$.node.name}}">{{$.node.name}}</a>
-							•
-							<a href="/user/{{.user.Username}}" title="{{.user.Username}}" class="author"><strong>{{.user.Username}}</strong></a>
-							{{if .lastreplyusername}}
-							<span>
-							•
-								最后由 <a href="/user/{{.lastreplyusername}}" title="{{.lastreplyusername}}" class="author">{{.lastreplyusername}}</a> 于<abbr class="timeago" title="{{.lastreplytime}}"></abbr>回复
-							</span>
-							{{else}}
-							<span>
-							•
-								于<abbr class="timeago" title="{{.ctime}}"></abbr>发布
-							</span>
-							{{end}}
-							<div class="pull-right num">
-								{{if .reply}}
-								<a href="/topics/{{.tid}}#commentForm" title="查看评论">{{.reply}} <span class="glyphicon glyphicon-comment"></span></a>
-								{{end}}
-								{{if .like}}{{.like}} <span class="glyphicon glyphicon-heart"></span>{{end}}
-								{{.view}} <span class="glyphicon glyphicon-eye-open"></span>
-							</div>
-						</div>
-					</dd>
-				</div>
-			{{else}}
-			<p class="text-center">暂时没有任何主题</p>
-			{{end}}
-			{{end}}
-			</dl>
-			{{if .page}}
-			<nav class="text-center"><ul class="pagination pagination-sm">{{.page}}</ul></nav>
-			{{end}}
 		</div>
+		{{include "topics/common_list.html" .}}
 	</div>
 	<div class="col-md-3 col-sm-6">
 		<div class="sep20"></div>

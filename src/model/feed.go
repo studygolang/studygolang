@@ -111,7 +111,7 @@ func PublishFeed(object interface{}, objectExt interface{}) {
 		feed = &Feed{
 			Objid:         objdoc.Id,
 			Objtype:       TypeProject,
-			Title:         objdoc.Category + objdoc.Name,
+			Title:         objdoc.Category + " " + objdoc.Name,
 			Author:        objdoc.Author,
 			Uid:           userLogin.Uid,
 			Tags:          objdoc.Tags,

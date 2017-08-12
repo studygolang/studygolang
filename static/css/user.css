@@ -5,7 +5,7 @@
 .userinfo ul li {font-size: 14px;line-height: 180%;border-bottom: 1px dashed #eee;}
 .userinfo ul li label {color: #999;font-size: 12px;margin-right: 8px;display: inline-block;width: 100px;text-align: right;}
 
-.recent .title {font-size: 12px;padding: 10px;margin-bottom: 8px;color: #999;line-height: 100%;border-bottom: 1px solid #ddd;padding-bottom: 8px;}
+.recent .title {margin-top: 0px;font-size: 14px; padding: 10px;margin-bottom: 8px;line-height: 24px; font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 8px;}
 
 .recent-topics {}
 .recent-topics ul {margin: 0; padding: 0 10px 10px 10px;}
