@@ -198,7 +198,7 @@ $(function(){
 					'<a href="/user/'+data[i].username+'" title="'+data[i].username+'"><img alt="'+data[i].username+'" class="img-circle" src="'+avatar+'" width="48px" height="48px"></a>'+
 					'</div>'+
 		  			'<div class="name" style="white-space: nowrap;"><a style="word-break: normal;" href="/user/'+data[i].username+'" title="'+data[i].username+'">'+data[i].username+'</a></div>'+
-		  		'</li>';
+		  		'</li>'+'</div>';
 			}
 			$('.sb-content '+id+' ul').html(content);
 		}

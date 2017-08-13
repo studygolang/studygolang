@@ -2,10 +2,6 @@
 {{define "seo"}}<meta name="keywords" content="{{.setting.Name}},{{.setting.SeoKeywords}},主题,资源,文章,图书,开源项目">
 <meta name="description" content="{{.setting.SeoDescription}}">{{end}}
 {{define "content"}}	
-			</div>
-		
-<div class="wrap">
-    <div class="container">
         <div class="row">
             <div class="col-xs-12 col-md-9 main">
           <ul class="nav nav-tabs mb10 mt30 visible-xs">          
@@ -35,7 +31,7 @@
                 <ul class="nav nav-tabs mb10 mt30 hidden-xs">
                     <!-- <li class="active"><a href="?tab=all">全部</a></li> -->
                      {{range .index_navs}}
-                    <li ><a href="/?tab={{.Tab}}">{{.Name}}</a>
+                    <li class="active"><a href="/?tab={{.Tab}}">{{.Name}}</a>
                     </li>{{end}}
                 </ul>
          <div class="stream-list question-stream">

@@ -21,6 +21,11 @@ var DefaultIndex = IndexLogic{}
 
 func (IndexLogic) FindData(ctx context.Context, tab string) map[string]interface{} {
 	indexNav := GetCurIndexNav(tab)
+	if indexNav == nil {
+		indexNav = WebsiteSetting.IndexNavs[0]
+		tab = indexNav.Tab
+	}
+
 	data := map[string]interface{}{
 		"tab":        tab,
 		"index_navs": WebsiteSetting.IndexNavs,
