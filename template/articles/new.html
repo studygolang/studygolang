@@ -14,6 +14,7 @@
                 <input type="hidden" name="id" value="{{.article.Id}}" />
                 {{end}}
                 <textarea id="txt" name="txt" style="display: none;"></textarea>
+                <textarea id="content" name="content" style="display: none;"></textarea>
                 <div class="form-group form-group-sm">
                     <label class="col-sm-1 control-label" for="title"><abbr>*</abbr>标题</label>
                     <div class="col-sm-10">
@@ -48,12 +49,12 @@
                                 <i id="upload-img" class="glyphicon glyphicon-picture upload-img tool-tip" data-toggle="tooltip" data-placement="top" title="上传图片"></i>
                             </div>
                         </div>
-                        <textarea class="form-control need-autogrow main-textarea" id="content" name="content" rows="15" tabindex="0">{{.article.Content}}</textarea>
+                        <textarea class="form-control need-autogrow main-textarea" id="markdown-content" name="markdown-content" rows="15" tabindex="0">{{.article.Content}}</textarea>
                         <div class="content-preview"></div>
                     </div>
                 </div>
                 {{if not .article.Id}}
-                <textarea id="myeditor" name="content" cols="102" rows="22" style="margin-left: 5px;display: none;"></textarea>
+                <textarea id="myeditor" name="ckeditor-content" cols="102" rows="22" style="margin-left: 5px;display: none;"></textarea>
                 {{end}}
                 <div class="form-group form-group-sm">
                     <label class="col-sm-5 control-label">&nbsp;</label>
@@ -73,7 +74,17 @@
             </div>
             <div class="sb-content">
                 <span class="help-block">
-                    <ul>
+                    <ul class="markdown-help">
+                        <li>支持 Markdown 格式, <strong>**粗体**</strong>、~~删除线~~、<code>`单行代码`</code></li>
+                        <li>http://example.org 自动加链接</li>
+                        <li>代码支持高亮，如：```go func main() {}``` 则是Go语法高亮</li>
+                        <li><strong>@name</strong> 会链接到用户页面，并会通知他</li>
+                        <li>![alt 文本](http://foo.com/bar.jpg) 显示图片</li>
+                        <li>:smile: 支持 <strong>emoji 表情</strong>，见<a href="http://www.emoji-cheat-sheet.com/" target="_blank">Emoji cheat sheet</a></li>
+                        <li>完整 Markdwon 语法说明：<a href="http://wowubuntu.com/markdown/" target="_blank">语法说明 (简体中文版)</a></li>
+                        <li>支持嵌入 Wide 的Playground 代码直接运行</li>
+                    </ul>
+                    <ul class="ckeditor-help dn">
                         <li>富文本编辑器使用的是 <a href="http://ckeditor.com" target="_blank">ckeditor</a></li>
                         <li>代码请通过工具栏代码按钮撰写，支持高亮</li>
                         <li>支持截图后直接粘贴上传图片</li>
@@ -86,6 +97,7 @@
 </div>
 {{end}}
 {{define "css"}}
+<link href="/static/css/md_toolbar.css" media="screen" rel="stylesheet" type="text/css">
 <style type="text/css">
 #cke_myeditor { margin: 0 auto 8px; }
 </style>
@@ -143,12 +155,18 @@ $(function() {
             init();
             $('#cke_myeditor').show();
             $('#markdown-editor').hide();
+
+            $('.markdown-help').hide();
+            $('.ckeditor-help').show();
         } else {
             $('#cke_myeditor').hide();
             $('#markdown-editor').show();
+
+            $('.markdown-help').show();
+            $('.ckeditor-help').hide();
         }
     });
 });
 </script>
-<script type="text/javascript" src="/static/js/articles.js?v=0.1"></script>
+<script type="text/javascript" src="/static/js/articles.js?v=0.3"></script>
 {{end}}

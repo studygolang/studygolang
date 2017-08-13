@@ -25,12 +25,14 @@
 			}
 
 			if ($('input[type=radio]:checked').val() == 0) {
-				$('#myeditor').text(CKEDITOR.instances.myeditor.getData());
+				$('#content').val(CKEDITOR.instances.myeditor.getData());
 				if (window.localStorage) {
 					localStorage.removeItem('autosaveKey');
 				}
 
-				$('#txt').text(CKEDITOR.instances.myeditor.document.getBody().getText());
+				$('#txt').val(CKEDITOR.instances.myeditor.document.getBody().getText());
+			} else {
+				$('#content').val($('#markdown-content').val());
 			}
 
 			var articles = new SG.Articles();
