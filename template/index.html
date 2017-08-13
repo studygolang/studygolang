@@ -75,7 +75,7 @@
 			</ul>
 			<div id="article-list">
 			{{range .articles}}
-			<article class="article box_white">
+			<article class="stream-list__item">
 				<div class="row">
 					{{if .Cover}}
 					<div class="pull-left">
@@ -95,16 +95,16 @@
 				</div>
 				<div class="row">
 					<div class="col-md-8 metatag">
-						<i class="glyphicon glyphicon-th"></i>
+						<i class="fa fa-th-large mr4"></i>
 						<span class="source" title="来源">{{.Name}}</span>
-						<i class="glyphicon glyphicon-calendar"></i>
+						<i class="fa fa-calendar mr4"></i>
 						<span class="date" title="发布日期">{{.PubDate}}</span>
-						<i class="glyphicon glyphicon-user"></i>
+						<i class="fa fa-user mr4"></i>
 						<span class="author" title="作者">{{substring .AuthorTxt 15 " 等"}}</span>
 						{{if .Tags}}
 						{{$tags := explode .Tags ","}}
 						<ul class="list-inline">
-							<i class="glyphicon glyphicon-tags"></i>
+							<i class="fa fa-tag"></i>
 							{{range $tag := $tags}}
 							<li>
 								<a href="/search?q={{$tag}}&f=tag" title="{{$tag}}" target="_blank">
@@ -117,11 +117,11 @@
 					</div>
 					<div class="col-md-4 metatag text-right">
 						<span class="view" title="阅读数">
-							<i class="glyphicon glyphicon-eye-open"></i>
+							<i class="fa fa-eye"></i>
 							阅读:<span>{{.Viewnum}}</span>次
 						</span>
 						<a href="/articles/{{.Id}}#commentForm" class="cmt" target="_blank" title="评论数">
-							<i class="glyphicon glyphicon-comment"></i>
+							<i class="fa fa-commenting mr4"></i>
 							评论:<span>{{.Cmtnum}}</span>条
 						</a>
 						{{if $.likeflags}}
@@ -130,7 +130,7 @@
 							<i class="glyphicon glyphicon-heart{{if not $likeFlag}}-empty{{end}}"></i>
 						{{else}}
 						<a href="#" class="like" title="我喜欢" data-objid="{{.Id}}" data-objtype="1" data-flag="0">
-							<i class="glyphicon glyphicon-heart-empty"></i>
+							<i class="fa fa-heart mr4"></i>
 						{{end}}
 							<span class="likenum">{{.Likenum}}</span>人喜欢
 						</a>
@@ -138,7 +138,7 @@
 				</div>
 			</article>
 			{{else}}
-			<article class="article box_white">
+			<article class="stream-list__item">
 				<div class="row">暂无博文，<a class="btn btn-default btn-sm" href="/articles/new">撰写文章</a></div>
 			</article>
 			{{end}}
@@ -259,7 +259,7 @@
 		
 		<div class="row box_white sidebar">
 			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-comment"></i>&nbsp;最新评论</h3>
+				<h3 class="title"><i class="fa fa-commenting mr4"></i>&nbsp;最新评论</h3>
 			</div>
 			<div class="sb-content">
 				<div class="cmt-list" data-limit="5">
@@ -272,7 +272,7 @@
 
 		<div class="row box_white sidebar">
 			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-user"></i>&nbsp;<a href="/users" target="_blank" title="点击更多">新会员</a></h3>
+				<h3 class="title"><i class="fa fa-user mr4"></i>&nbsp;<a href="/users" target="_blank" title="点击更多">新会员</a></h3>
 			</div>
 			<div class="sb-content">
 				<div id="newest-list" class="user-list" data-limit="9">
@@ -285,7 +285,7 @@
 		
 		<div class="row box_white sidebar">
 			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-user"></i>&nbsp;<a href="/users" target="_blank" title="点击更多">活跃会员</a></h3>
+				<h3 class="title"><i class="fa fa-user mr4"></i>&nbsp;<a href="/users" target="_blank" title="点击更多">活跃会员</a></h3>
 			</div>
 			<div class="sb-content">
 				<div id="active-list" class="user-list" data-limit="9">
@@ -297,7 +297,7 @@
 		</div>
 		<div class="row box_white sidebar">
 			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-stats"></i>&nbsp;&nbsp;统计信息</h3>
+				<h3 class="title"><i class="fa fa-bar-chart mr4"></i>&nbsp;&nbsp;统计信息</h3>
 			</div>
 			<div class="sb-content">
 				<div class="stat-list">
@@ -310,7 +310,7 @@
 
 		<div class="row box_white sidebar">
 			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-link"></i>&nbsp;友情链接</h3>
+				<h3 class="title"><i class="fa fa-link mr4"></i>&nbsp;友情链接</h3>
 			</div>
 			<div class="sb-content">
 				<div class="friendslink-list">
@@ -325,7 +325,7 @@
 </div>
 
 <script type="text/x-jsrender" id="article-tpl">
-<article class="article box_white">
+<article class="stream-list__item">
 	<div class="row">
 		[%if #index > 2%]
 		<div>
@@ -345,16 +345,16 @@
 	</div>
 	<div class="row">
 		<div class="col-md-8 metatag">
-			<i class="glyphicon glyphicon-th"></i>
+			<i class="fa fa-th-large mr4"></i>
 			<span class="source" title="来源">[%:name%]</span>
-			<i class="glyphicon glyphicon-calendar"></i>
+			<i class="fa fa-calendar mr4"></i>
 			<span class="date" title="发布日期">[%:pub_date%]</span>
-			<i class="glyphicon glyphicon-user"></i>
+			<i class="fa fa-user mr4"></i>
 			<span class="author" title="作者">[%substring:author_txt 15 ' 等'%]</span>
 		</div>
 		<div class="col-md-4 metatag text-right">
 			<span class="view" title="阅读数">
-				<i class="glyphicon glyphicon-eye-open"></i>
+				<i class="fa fa-eye"></i>
 				阅读:<span>[%:rank_view%]</span>次
 			</span>
 		</div>
@@ -363,13 +363,13 @@
 </script>
 
 <script type="text/x-jsrender" id="no-article-tpl">
-<article class="article box_white">
+<article class="stream-list__item">
 	<div class="row">该排行榜暂无博文</div>
 </article>
 </script>
 
 <script type="text/x-jsrender" id="topic-tpl">
-<li>[%if #index > 2%]<em>[%:#getIndex()+1%]</em>[%else%]<img src="/static/img/rank_medal[%:#getIndex()+1%].png" width="15px">[%/if%]&nbsp;<a href="/topics/[%:tid%]" title="[%:title%]">[%substring:title 25%]</a><span class="pull-right" style="color: #bbb;"><span class="glyphicon glyphicon-eye-open"></span> [%:rank_view%]</span></li>
+<li>[%if #index > 2%]<em>[%:#getIndex()+1%]</em>[%else%]<img src="/static/img/rank_medal[%:#getIndex()+1%].png" width="15px">[%/if%]&nbsp;<a href="/topics/[%:tid%]" title="[%:title%]">[%substring:title 25%]</a><span class="pull-right" style="color: #bbb;"><span class="fa fa-eye"></span> [%:rank_view%]</span></li>
 </script>
 
 <script type="text/x-jsrender" id="no-topic-tpl">
@@ -377,7 +377,7 @@
 </script>
 
 <script type="text/x-jsrender" id="resource-tpl">
-<li>[%if #index > 2%]<em>[%:#getIndex()+1%]</em>[%else%]<img src="/static/img/rank_medal[%:#getIndex()+1%].png" width="15px">[%/if%]&nbsp;<a href="/resources/[%:id%]" title="[%:title%]">[%substring:title 35%]</a><span class="pull-right" style="color: #bbb;"><span class="glyphicon glyphicon-eye-open"></span> [%:rank_view%]</span></li>
+<li>[%if #index > 2%]<em>[%:#getIndex()+1%]</em>[%else%]<img src="/static/img/rank_medal[%:#getIndex()+1%].png" width="15px">[%/if%]&nbsp;<a href="/resources/[%:id%]" title="[%:title%]">[%substring:title 35%]</a><span class="pull-right" style="color: #bbb;"><span class="fa fa-eye"></span> [%:rank_view%]</span></li>
 </script>
 
 <script type="text/x-jsrender" id="no-resource-tpl">
@@ -385,7 +385,7 @@
 </script>
 
 <script type="text/x-jsrender" id="loading-tpl">
-<article class="article box_white" style="text-align: center; margin-top: 10px;">
+<article class="stream-list__item" style="text-align: center; margin-top: 10px;">
 	<img src="/static/img/loaders/loader7.gif" alt="加载中" />
 </article>
 </script>

@@ -40,9 +40,9 @@
 					</div>
 					<div class="meta" style="margin: 0;">
 						<div class="p-author">
-							<i class="glyphicon glyphicon-calendar"></i>
+							<i class="fa fa-calendar mr4"></i>
 							<span title="发布日期">{{.book.PubDate}}</span>&nbsp;
-							<i class="glyphicon glyphicon-user"></i>
+							<i class="fa fa-user mr4"></i>
 							{{.book.Author}} (作者) 　
 							{{if .book.Translator}}
 								{{.book.Translator}} (译者)
@@ -52,10 +52,10 @@
 
 						<div class="p-comment text-right">
 							<span class="view" title="阅读数">
-								<i class="glyphicon glyphicon-eye-open"></i>
+								<i class="fa fa-eye"></i>
 								阅读 <span>{{.book.Viewnum}}</span> 次&nbsp;
 							</span>
-							<a href="/book/{{.book.Id}}#commentForm" title="我要评论"><i class="glyphicon glyphicon-comment"></i> <span class="cmtnum">{{.book.Cmtnum}}</span> 条评论</a>
+							<a href="/book/{{.book.Id}}#commentForm" title="我要评论"><i class="fa fa-commenting mr4"></i> <span class="cmtnum">{{.book.Cmtnum}}</span> 条评论</a>
 						</div>
 						<!-- p-comment END -->
 					</div>

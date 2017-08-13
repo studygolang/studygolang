@@ -10,10 +10,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-
-	. "github.com/polaris1119/config"
-
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/polaris1119/config"
+    "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/core"
 	"github.com/go-xorm/xorm"
 )

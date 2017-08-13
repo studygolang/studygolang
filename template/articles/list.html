@@ -1,14 +1,5 @@
 {{define "title"}}文章 {{end}}
 {{define "content"}}
-<div class="wrap">
-<div class="container">
-<div class="row mb20">
-<div class="col-xs-12 col-md-9 main">
-<ul class="nav nav-tabs mt30">
-	<li role="presentation" class="active">
-		<a href="/news">热门头条</a></li>
-		<li role="presentation" class="">
-			<a href="/news/newest">最新头条</a></li></ul>
 <div class="row">
 	<div class="col-md-9 col-sm-6">
 		<div class="sep20"></div>
@@ -17,7 +8,7 @@
 			<li class="active">文章</li>
 		</ol>
 		{{range .articles}}
-		<article class="article box_white">
+		<article class="stream-list__item">
 			<div class="row">
 				{{if .Cover}}
 				<div class="pull-left">
@@ -29,24 +20,24 @@
 				{{else}}
 				<div>
 				{{end}}
-					<h2><a href="/articles/{{.Id}}" target="_blank" title="{{.Title}}">
+					<h3 class="title"><a href="/articles/{{.Id}}" target="_blank" title="{{.Title}}">
 						{{if .Top}}<font color="red">[置顶]</font>{{end}}{{.Title}}
-					</a></h2>
+					</a></h3>
 					<p class="text">{{substring .Txt 250 "..."}}<a href="/articles/{{.Id}}" target="_blank" title="阅读全文">阅读全文</a></p>
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-md-8 metatag">
-					<i class="glyphicon glyphicon-th"></i>
+					<i class="fa fa-th-large mr4"></i>
 					<span class="source" title="来源">{{.Name}}</span>
-					<i class="glyphicon glyphicon-calendar"></i>
+					<i class="fa fa-calendar mr4"></i>
 					<span class="date" title="发布日期">{{.PubDate}}</span>
-					<i class="glyphicon glyphicon-user"></i>
+					<i class="fa fa-user mr4"></i>
 					<span class="author" title="作者">{{substring .AuthorTxt 15 " 等"}}</span>
 					{{if .Tags}}
 					{{$tags := explode .Tags ","}}
 					<ul class="list-inline">
-						<i class="glyphicon glyphicon-tags"></i>
+						<i class="fa fa-tag"></i>
 						{{range $tag := $tags}}
 						<li>
 							<a href="/search?q={{$tag}}&f=tag" title="{{$tag}}" target="_blank">
@@ -59,11 +50,11 @@
 				</div>
 				<div class="col-md-4 metatag text-right">
 					<span class="view" title="阅读数">
-						<i class="glyphicon glyphicon-eye-open"></i>
+						<i class="fa fa-eye"></i>
 						阅读:<span>{{.Viewnum}}</span>次
 					</span>
 					<a href="/articles/{{.Id}}#commentForm" class="cmt" target="_blank" title="评论数">
-						<i class="glyphicon glyphicon-comment"></i>
+						<i class="fa fa-commenting mr4"></i>
 						评论:<span>{{.Cmtnum}}</span>条
 					</a>
 					{{if $.likeflags}}
@@ -72,7 +63,7 @@
 						<i class="glyphicon glyphicon-heart{{if not $likeFlag}}-empty{{end}}"></i>
 					{{else}}
 					<a href="#" class="like" title="我喜欢" data-objid="{{.Id}}" data-objtype="1" data-flag="0">
-						<i class="glyphicon glyphicon-heart-empty"></i>
+						<i class="fa fa-heart mr4"></i>
 					{{end}}
 						<span class="likenum">{{.Likenum}}</span>人喜欢
 					</a>
@@ -80,7 +71,7 @@
 			</div>
 		</article>
 		{{else}}
-		<article class="article box_white">
+		<article class="stream-list__item">
 			<div class="row">暂无博文，<a class="btn btn-default btn-sm" href="/articles/new">撰写文章</a></div>
 		</article>
 		{{end}}
@@ -122,7 +113,7 @@
 				</div>
 			</div>
 		</div>
-
+</div>
 		{{if .pos_ad.right1}}
 		<div class="box_white sidebar" id="ad-right1">
 			{{if eq .pos_ad.right1.AdType 0}}

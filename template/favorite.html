@@ -16,7 +16,7 @@
 		</ul>
 		{{if eq .objtype 1}}
 		{{range .articles}}
-		<article class="article box_white">
+		<article class="stream-list__item">
 			<div class="row">
 				{{if .Cover}}
 				<div class="pull-left">
@@ -34,14 +34,14 @@
 			</div>
 			<div class="row">
 				<div class="col-md-6 metatag">
-					<i class="glyphicon glyphicon-calendar"></i>
+					<i class="fa fa-calendar mr4"></i>
 					<span class="date" title="发布日期">{{.PubDate}}</span>
-					<i class="glyphicon glyphicon-user"></i>
+					<i class="fa fa-user mr4"></i>
 					<span class="author" title="作者">{{substring .AuthorTxt 15 " 等"}}</span>
 					{{if .Tags}}
 					{{$tags := explode .Tags ","}}
 					<ul class="list-inline">
-						<i class="glyphicon glyphicon-tags"></i>
+						<i class="fa fa-tag"></i>
 						{{range $tag := $tags}}
 						<li>
 							<a href="/" title="{{$tag}}" target="_blank">
@@ -54,15 +54,15 @@
 				</div>
 				<div class="col-md-6 metatag text-right">
 					<span class="view" title="阅读数">
-						<i class="glyphicon glyphicon-eye-open"></i>
+						<i class="fa fa-eye"></i>
 						阅读:<span>{{.Viewnum}}</span>次
 					</span>
 					<a href="/articles/{{.Id}}#commentForm" class="cmt" target="_blank" title="评论数">
-						<i class="glyphicon glyphicon-comment"></i>
+						<i class="fa fa-commenting mr4"></i>
 						评论:<span>{{.Cmtnum}}</span>条
 					</a>
 					<span class="like" title="喜欢数">
-						<i class="glyphicon glyphicon-heart-empty"></i>
+						<i class="fa fa-heart mr4"></i>
 						<span class="likenum">{{.Likenum}}</span>人喜欢
 					</span>
 					{{if $.me}}
@@ -84,7 +84,7 @@
 		{{end}}
 		{{if eq .objtype 0}}
 		{{range .topics}}
-		<article class="article box_white">
+		<article class="stream-list__item">
 			<div class="row">
 				<div>
 					<h2><a href="/topics/{{.Tid}}" target="_blank" title="{{.Title}}">{{.Title}}</a></h2>
@@ -93,7 +93,7 @@
 			</div>
 			<div class="row">
 				<div class="col-md-6 metatag">
-					<i class="glyphicon glyphicon-calendar"></i>
+					<i class="fa fa-calendar mr4"></i>
 					<span class="date" title="发布日期">{{.Ctime}}</span>
 				</div>
 				<div class="col-md-6 metatag text-right">
@@ -116,7 +116,7 @@
 		{{end}}
 		{{if eq .objtype 4}}
 		{{range .projects}}
-		<article class="article box_white">
+		<article class="stream-list__item">
 			<div class="row">
 				<div>
 					<h2>
@@ -128,22 +128,22 @@
 			</div>
 			<div class="row">
 				<div class="col-md-8 metatag">
-					<i class="glyphicon glyphicon-calendar"></i>
+					<i class="fa fa-calendar mr4"></i>
 					<span class="date" title="发布日期">{{.Ctime}}</span>
-					<i class="glyphicon glyphicon-user"></i>
+					<i class="fa fa-user mr4"></i>
 					<span class="author" title="作者">{{.Author}}</span>
 				</div>
 				<div class="col-md-4 metatag text-right">
 					<span class="view" title="阅读数">
-						<i class="glyphicon glyphicon-eye-open"></i>
+						<i class="fa fa-eye"></i>
 						阅读:<span>{{.Viewnum}}</span>次
 					</span>
 					<a href="/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}#commentForm" class="cmt" target="_blank" title="评论数">
-						<i class="glyphicon glyphicon-comment"></i>
+						<i class="fa fa-commenting mr4"></i>
 						评论:<span>{{.Cmtnum}}</span>条
 					</a>
 					<span class="like" title="喜欢数">
-						<i class="glyphicon glyphicon-heart-empty"></i>
+						<i class="fa fa-heart mr4"></i>
 						<span class="likenum">{{.Likenum}}</span>人喜欢
 					</span>
 					{{if $.me}}
@@ -165,7 +165,7 @@
 		{{end}}
 		{{if eq .objtype 2}}
 		{{range .resources}}
-		<article class="article box_white">
+		<article class="stream-list__item">
 			<div class="row">
 				<div>
 					<h2><a href="/resources/{{.Id}}" target="_blank" title="{{.Title}}">{{.Title}}</a></h2>
@@ -174,7 +174,7 @@
 			</div>
 			<div class="row">
 				<div class="col-md-6 metatag">
-					<i class="glyphicon glyphicon-calendar"></i>
+					<i class="fa fa-calendar mr4"></i>
 					<span class="date" title="发布日期">{{.Ctime}}</span>
 				</div>
 				<div class="col-md-6 metatag text-right">

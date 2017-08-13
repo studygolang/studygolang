@@ -24,15 +24,27 @@
 				return false;
 			}
 
-			$('#myeditor').text(CKEDITOR.instances.myeditor.getData());
-			if (window.localStorage) {
-				localStorage.removeItem('autosaveKey');
+			if ($('input[type=radio]:checked').val() == 0) {
+				$('#content').val(CKEDITOR.instances.myeditor.getData());
+				if (window.localStorage) {
+					localStorage.removeItem('autosaveKey');
+				}
+
+				$('#txt').val(CKEDITOR.instances.myeditor.document.getBody().getText());
+			} else {
+				$('#content').val($('#markdown-content').val());
 			}
 
-			$('#txt').text(CKEDITOR.instances.myeditor.document.getBody().getText());
-
 			var articles = new SG.Articles();
-			articles.publish(this);
+			articles.publish(this, function(data) {
+				setTimeout(function(){
+					if (data.id) {
+						window.location.href = '/articles/'+data.id;
+					} else {
+						window.location.href = '/articles';
+					}
+				}, 1000);
+			});
 		});
 
 		$(document).keypress(function(evt){

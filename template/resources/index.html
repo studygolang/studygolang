@@ -28,15 +28,15 @@
 						<span class="host">({{.host}})</span>
 						{{end}}
 						<p class="ino">
-							<i class="glyphicon glyphicon-user"></i> <a class="a-pop-info" href="/user/{{.user.Username}}" title="{{.user.Username}}">{{.user.Username}}</a> 于
+							<i class="fa fa-user mr4"></i> <a class="a-pop-info" href="/user/{{.user.Username}}" title="{{.user.Username}}">{{.user.Username}}</a> 于
 							<em><abbr class="timeago" title="{{.ctime}}"></abbr></em> 发布
 						</p>
 						<p class="edi">
 							<a href="/resources/{{.id}}#commentForm">
-								<i class="glyphicon glyphicon-comment"></i> {{if .cmtnum}} <b>{{.cmtnum}}</b> {{end}}评论
+								<i class="fa fa-commenting mr4"></i> {{if .cmtnum}} <b>{{.cmtnum}}</b> {{end}}评论
 							</a>
 							<span><i class="glyphicon glyphicon-heart"></i> <b>{{.likenum}}</b> 喜欢</span>
-							<span><i class="glyphicon glyphicon-eye-open"></i> <b>{{.viewnum}}</b> 阅读</span>
+							<span><i class="fa fa-eye"></i> <b>{{.viewnum}}</b> 阅读</span>
 						</p>
 					</div>
 				</div>

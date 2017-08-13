@@ -13,7 +13,7 @@
 			<li role="presentation"{{if eq .rtype 1}} class="active"{{end}}><a href="/readings?rtype=1">综合晨读</a></li>
 		</ul>
 		{{range .readings}}
-		<article class="article box_white reading">
+		<article class="stream-list__item reading">
 			<div class="row">
 				<div class="pull-left">
 					<a href="/readings/{{.Id}}" target="_blank" title="阅读全文">
@@ -23,26 +23,26 @@
 					</a>
 				</div>
 				<div class="reading-content">
-					<p>{{.Content}} <a class="btn btn-success btn-xs" href="/readings/{{.Id}}" target="_blank" title="阅读全文">我要晨读</a>{{if .Urls}}&nbsp;&nbsp;相关阅读：{{range .Urls}}<a class="btn btn-info btn-xs" href="/wr?u={{.}}" target="_blank"><i class="glyphicon glyphicon-link"></i> 网页链接</a>&nbsp;{{end}}{{end}}</p>
+					<p>{{.Content}} <a class="btn btn-success btn-xs" href="/readings/{{.Id}}" target="_blank" title="阅读全文">我要晨读</a>{{if .Urls}}&nbsp;&nbsp;相关阅读：{{range .Urls}}<a class="btn btn-info btn-xs" href="/wr?u={{.}}" target="_blank"><i class="fa fa-link mr4"></i> 网页链接</a>&nbsp;{{end}}{{end}}</p>
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-md-8 metatag">
-					<i class="glyphicon glyphicon-calendar"></i>
+					<i class="fa fa-calendar mr4"></i>
 					<span class="date timeago" title="{{.Ctime}}"></span>
-					<i class="glyphicon glyphicon-user"></i>
+					<i class="fa fa-user mr4"></i>
 					<a href="/user/{{.Username}}" class="author" title="发布人">{{.Username}}</a>
 				</div>
 				<div class="col-md-4 metatag text-right">
 					<span class="view" title="阅读数">
-						<i class="glyphicon glyphicon-eye-open"></i>
+						<i class="fa fa-eye"></i>
 						已有<span>{{.Clicknum}}</span>人晨读
 					</span>
 				</div>
 			</div>
 		</article>
 		{{else}}
-		<article class="article box_white reading">
+		<article class="stream-list__item reading">
 			<div class="row">暂无晨读</div>
 		</article>
 		{{end}}

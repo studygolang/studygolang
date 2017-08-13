@@ -153,25 +153,24 @@ $(function(){
 					cmtTime = cmtTimes[0];
 				}
 				
-				content += '<li>'+
-					'<div class="pic">'+
-						'<a href="/user/'+user.username+'" target="_blank">'+
-							'<img src="'+avatar+'" alt="'+user.username+'" width="40px" height="40px">'+
+				content += '<div class="item">'+
+					'<span class="thePoint"></span>'+
+						'<p class="startWord">'+cmtTime+'<a href="/user/'+user.username+'" target="_blank" title="'+user.username+'">'+  user.username+'</a>'+'  在:'+'</p>'+
+						'<div>'+
+						'<a href="/user/'+user.username+'" target="_blank" class="pull-left" >'+
+							'<img src="'+avatar+'" alt="'+user.username+'" class="lecturer_avater"> '+
 						'</a>'+
+					'<div class="message">'+
+					'<a href="'+url+'#commentForm" title="'+comments[i].objinfo.title+' class="lecturer_title">'+
+					'<div class="titlebox">'+comments[i].objinfo.title+'</div>'+'</a>'+
+					' <p class="">'+
+					 '<a href="/u/kailuntalk" target="_blank" class="lecturer_name">' +
+					  '评论：</a><span class="split"></span>'+
+							'<span class="joinedUsers">'+comments[i].content+'</span>'+
+						'</p>'+
 					'</div>'+
-					'<div class="word">'+
-						'<div class="w-name">'+
-							'<a href="/user/'+user.username+'" target="_blank" title="'+user.username+'">'+user.username+'</a>'+
-							'<span title="'+comments[i].ctime+'">'+cmtTime+'</span>'+
-						'</div>'+
-						'<div class="w-page">'+
-							'<span>在 <a href="'+url+'#commentForm" title="'+comments[i].objinfo.title+'">'+comments[i].objinfo.title+'</a> 中评论</span>'+
-						'</div>'+
-						'<div class="w-comment">'+
-							'<span>'+comments[i].content+'</span>'+
-						'</div>'+
 					'</div>'+
-				'</li>';
+				'</div>';
 			}
 			$('.sb-content .cmt-list ul').html(content);
 			emojify.run($('.sb-content .cmt-list ul').get(0));
