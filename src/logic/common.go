@@ -148,6 +148,33 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 	return false
 }
 
+func CanPublish(dauAuth, objtype int) bool {
+	if dauAuth == 0 {
+		return true
+	}
+
+	switch objtype {
+	case model.TypeTopic:
+		return (dauAuth & model.DauAuthTopic) == model.DauAuthTopic
+	case model.TypeArticle:
+		return (dauAuth & model.DauAuthArticle) == model.DauAuthArticle
+	case model.TypeResource:
+		return (dauAuth & model.DauAuthResource) == model.DauAuthResource
+	case model.TypeProject:
+		return (dauAuth & model.DauAuthProject) == model.DauAuthProject
+	case model.TypeWiki:
+		return (dauAuth & model.DauAuthWiki) == model.DauAuthWiki
+	case model.TypeBook:
+		return (dauAuth & model.DauAuthBook) == model.DauAuthBook
+	case model.TypeComment:
+		return (dauAuth & model.DauAuthComment) == model.DauAuthComment
+	case model.TypeTop:
+		return (dauAuth & model.DauAuthTop) == model.DauAuthTop
+	default:
+		return true
+	}
+}
+
 func website() string {
 	host := "http://"
 	if WebsiteSetting.OnlyHttps {

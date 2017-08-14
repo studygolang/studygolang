@@ -155,6 +155,24 @@
 				</span>
 			</p>
 		</div>
+		<div class="contenttitle2">
+			<h3>DAU 权限设置</h3>
+		</div>
+		<div>
+			<p>
+				<label for="dau">&nbsp;</label>
+				<span class="field">
+					发布主题：<input type="checkbox" name="topic" value="1" {{if canPublish .user.DauAuth 0}}checked{{end}}>&nbsp;&nbsp;
+					发布文章：<input type="checkbox" name="article" value="1" {{if canPublish .user.DauAuth 1}}checked{{end}}>&nbsp;&nbsp;
+					分享资源：<input type="checkbox" name="resource" value="1" {{if canPublish .user.DauAuth 2}}checked{{end}}>&nbsp;&nbsp;
+					发布Wiki：<input type="checkbox" name="wiki" value="1" {{if canPublish .user.DauAuth 3}}checked{{end}}>&nbsp;&nbsp;
+					发布项目：<input type="checkbox" name="project" value="1" {{if canPublish .user.DauAuth 4}}checked{{end}}>&nbsp;&nbsp;
+					发布图书：<input type="checkbox" name="book" value="1" {{if canPublish .user.DauAuth 5}}checked{{end}}>&nbsp;&nbsp;
+					发布评论：<input type="checkbox" name="comment" value="1" {{if canPublish .user.DauAuth 100}}checked{{end}}>&nbsp;&nbsp;
+					置顶：<input type="checkbox" name="top" value="1" {{if canPublish .user.DauAuth 101}}checked{{end}}>
+				</span>
+			</p>
+		</div>
 		<div style="margin: 0 auto; width: 500px;"><input class="submit_btn" type="submit" name="save" value="提交" /></a></div>
 	</form>
 	<img id="loaders" src="/static/img/loaders/loader7.gif" alt="" class="hide"><blockquote></blockquote>

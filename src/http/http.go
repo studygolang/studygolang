@@ -139,7 +139,8 @@ var funcMap = template.FuncMap{
 
 		return int(time.Now().Sub(t).Hours() / 24)
 	},
-	"canEdit": logic.CanEdit,
+	"canEdit":    logic.CanEdit,
+	"canPublish": logic.CanPublish,
 }
 
 func tplInclude(file string, dot map[string]interface{}) template.HTML {

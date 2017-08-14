@@ -9,6 +9,7 @@
             <li class="active">{{if .article.Id}}编辑{{else}}写{{end}}文章</li>
         </ol>
         <div class="page box_white">
+        {{if canPublish .me.DauAuth 1}}
             <form class="form-horizontal validate-form" role="form" action="{{if .article.Id}}/articles/modify{{else}}/articles/new{{end}}" data-redirect="/articles{{if .article.Id}}/{{.article.Id}}?r={{timestamp}}{{end}}">
                 {{if .article.Id}}
                 <input type="hidden" name="id" value="{{.article.Id}}" />
@@ -56,12 +57,27 @@
                 {{if not .article.Id}}
                 <textarea id="myeditor" name="ckeditor-content" cols="102" rows="22" style="margin-left: 5px;display: none;"></textarea>
                 {{end}}
+
                 <div class="form-group form-group-sm">
                     <label class="col-sm-5 control-label">&nbsp;</label>
                     <div class="col-sm-6">
                         <button type="submit" class="btn btn-default btn-sm" id="submit">{{if .article.Id}}提交修改{{else}}发布文章{{end}}</button> (Ctrl+Enter)
                     </div>
                 </div>
+            {{else}}
+                <div class="text-center">
+                    <div class="sep20"></div>
+                    <div>
+                        <span class="alert alert-warning">您没有权限发布文章，请通过主题发布帖子</span>
+                    </div>
+                    <div class="sep20"></div>
+                    <div>
+                        <a class="btn btn-default btn-sm" href="/topics/new">发布主题</a>
+                    </div>
+                </div>
+                <div class="sep10"></div>
+            {{end}}
+
             </form>
         </div>
     </div>

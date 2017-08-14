@@ -10,6 +10,7 @@
 			<li class="active">{{if .resource.Id}}修改{{else}}发布{{end}}资源</li>
 		</ol>
 		<div class="page box_white">
+		{{if canPublish .me.DauAuth 2}}
 			<form class="form-horizontal validate-form" role="form" action="{{if .resource.Id}}/resources/modify{{else}}/resources/new{{end}}" data-redirect="/resources{{if .resource.Id}}/{{.resource.Id}}{{end}}">
 				{{if .resource.Id}}
 				<input type="hidden" name="id" value="{{.resource.Id}}" />
@@ -76,6 +77,19 @@
 					</div>
 				</div>
 			</form>
+		{{else}}
+            <div class="text-center">
+                <div class="sep20"></div>
+                <div>
+                    <span class="alert alert-warning">您没有权限分享资源，请通过主题发布帖子</span>
+                </div>
+                <div class="sep20"></div>
+                <div>
+                    <a class="btn btn-default btn-sm" href="/topics/new">发布主题</a>
+                </div>
+            </div>
+            <div class="sep10"></div>
+        {{end}}
 		</div>
 	</div>
 	<div class="col-md-3 col-sm-6">

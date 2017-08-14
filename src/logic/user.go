@@ -268,6 +268,7 @@ func (self UserLogic) FindCurrentUser(ctx context.Context, username interface{})
 		Status:   user.Status,
 		IsRoot:   user.IsRoot,
 		MsgNum:   DefaultMessage.FindNotReadMsgNum(ctx, user.Uid),
+		DauAuth:  user.DauAuth,
 
 		Balance: user.Balance,
 		Gold:    user.Gold,
@@ -520,6 +521,64 @@ func (UserLogic) FindNewUsers(ctx context.Context, limit int, offset ...int) []*
 		return nil
 	}
 	return users
+}
+
+// 获取用户列表（分页）：后台用
+func (UserLogic) FindUserByPage(ctx context.Context, conds map[string]string, curPage, limit int) ([]*model.User, int) {
+	objLog := GetLogger(ctx)
+
+	session := MasterDB.NewSession()
+	session.IsAutoClose = true
+
+	for k, v := range conds {
+		session.And(k+"=?", v)
+	}
+
+	totalSession := session.Clone()
+
+	offset := (curPage - 1) * limit
+	userList := make([]*model.User, 0)
+	err := session.OrderBy("uid DESC").Limit(limit, offset).Find(&userList)
+	if err != nil {
+		objLog.Errorln("UserLogic find error:", err)
+		return nil, 0
+	}
+
+	total, err := totalSession.Count(new(model.User))
+	if err != nil {
+		objLog.Errorln("UserLogic find count error:", err)
+		return nil, 0
+	}
+
+	return userList, int(total)
+}
+
+func (self UserLogic) SetDauAuth(ctx context.Context, uid string, form url.Values) {
+	user := self.FindOne(ctx, "uid", uid)
+	user.DauAuth = 0
+
+	for k := range form {
+		switch k {
+		case "topic":
+			user.DauAuth |= model.DauAuthTopic
+		case "article":
+			user.DauAuth |= model.DauAuthArticle
+		case "resource":
+			user.DauAuth |= model.DauAuthResource
+		case "project":
+			user.DauAuth |= model.DauAuthProject
+		case "wiki":
+			user.DauAuth |= model.DauAuthWiki
+		case "book":
+			user.DauAuth |= model.DauAuthBook
+		case "comment":
+			user.DauAuth |= model.DauAuthComment
+		case "top":
+			user.DauAuth |= model.DauAuthTop
+		}
+	}
+
+	MasterDB.Id(user.Uid).Update(user)
 }
 
 // GetUserMentions 获取 @ 的 suggest 列表

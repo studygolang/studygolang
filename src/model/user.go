@@ -49,6 +49,24 @@ const (
 	UserStatusOutage // 停用
 )
 
+const (
+	// 用户拥有的权限设置
+	DauAuthTopic = 1 << iota
+	DauAuthArticle
+	DauAuthResource
+	DauAuthWiki
+	DauAuthProject
+	DauAuthBook
+	DauAuthComment // 评论
+	DauAuthTop     // 置顶
+)
+
+// 置顶
+const (
+	TypeComment = 100
+	TypeTop     = 101
+)
+
 // 用户基本信息
 type User struct {
 	Uid         int       `json:"uid" xorm:"pk autoincr"`
@@ -67,6 +85,7 @@ type User struct {
 	Unsubscribe int       `json:"unsubscribe"`
 	Balance     int       `json:"balance"`
 	IsThird     int       `json:"is_third"`
+	DauAuth     int       `json:"dau_auth"`
 	Status      int       `json:"status"`
 	IsRoot      bool      `json:"is_root"`
 	Ctime       OftenTime `json:"ctime" xorm:"created"`
@@ -121,6 +140,7 @@ type Me struct {
 	MsgNum   int    `json:"msgnum"`
 	IsAdmin  bool   `json:"isadmin"`
 	IsRoot   bool   `json:"is_root"`
+	DauAuth  int    `json:"dau_auth"`
 
 	Balance int `json:"balance"`
 	Gold    int `json:"gold"`

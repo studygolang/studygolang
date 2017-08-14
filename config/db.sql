@@ -135,6 +135,7 @@ CREATE TABLE IF NOT EXISTS `user_info` (
   `unsubscribe` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否退订本站邮件，0-否；1-是',
   `is_third` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否通过第三方账号注册',
   `balance` int unsigned NOT NULL DEFAULT 0 COMMENT '财富余额（铜币）',
+  `dau_auth` int unsigned NOT NULL DEFAULT 0 COMMENT '控制用户权限，如能否发文章等',
   `status` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '用户账号状态。0-默认；1-已审核；2-拒绝；3-冻结；4-停号',
   `is_root` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否超级用户，不受权限控制：1-是',
   `ctime` timestamp NOT NULL DEFAULT 0,

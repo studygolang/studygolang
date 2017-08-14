@@ -20,9 +20,23 @@
 		<p style="margin-top: 10.5px; text-align: center;">欢迎您，<a href="/user/{{.me.Username}}">{{.me.Username}}</a></p>
 	</div> -->
 	<div class="box" style="text-align: center;">
+		{{if canPublish .me.DauAuth 0}}
 		<a class="btn btn-default btn-sm" href="/topics/new">发布主题</a>&nbsp;
+		{{end}}
+		{{if canPublish .me.DauAuth 1}}
 		<a class="btn btn-default btn-sm" href="/articles/new">撰写文章</a>&nbsp;
+		{{end}}
+		{{if canPublish .me.DauAuth 2}}
 		<a class="btn btn-default btn-sm" href="/resources/new">分享资源</a>&nbsp;
+		{{end}}
+		
+		{{if and (canPublish .me.DauAuth 0) (canPublish .me.DauAuth 1) (canPublish .me.DauAuth 2)}}
+		
+		{{else}}
+			{{if canPublish .me.DauAuth 4}}
+			<a class="btn btn-default btn-sm" href="/project/new">发布项目</a>&nbsp;
+			{{end}}
+		{{end}}
 	</div>
 	<div class="inner_content">
 		<a class="pull-left" href="/message/system" style="margin-left: 10px">
