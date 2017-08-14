@@ -51,8 +51,10 @@ func (MessageController) Send(ctx echo.Context) error {
 		message := logic.DefaultMessage.FindMsgById(ctx, ctx.FormValue("id"))
 		user := logic.DefaultUser.FindOne(ctx, "username", username)
 
-		if message.To != me.Uid || message.From != user.Uid {
-			message = nil
+		if message != nil {
+			if message.To != me.Uid || message.From != user.Uid {
+				message = nil
+			}
 		}
 
 		return render(ctx, "messages/send.html", map[string]interface{}{
