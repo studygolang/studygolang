@@ -46,3 +46,12 @@ func (this *UserBalanceDetail) AfterSet(name string, cell xorm.Cell) {
 		this.TypeShow = BalanceTypeMap[this.Type]
 	}
 }
+
+type UserRecharge struct {
+	Id        int       `json:"id" xorm:"pk autoincr"`
+	Uid       int       `json:"uid"`
+	Amount    int       `json:"amount"`
+	Channel   string    `json:"channel"`
+	Remark    string    `json:"remark"`
+	CreatedAt time.Time `json:"created_at"`
+}

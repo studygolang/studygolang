@@ -522,7 +522,6 @@ func (ArticleLogic) FindArticleByPage(ctx context.Context, conds map[string]stri
 	objLog := GetLogger(ctx)
 
 	session := MasterDB.NewSession()
-	session.IsAutoClose = true
 
 	for k, v := range conds {
 		session.And(k+"=?", v)

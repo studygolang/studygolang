@@ -115,15 +115,21 @@
 			"branch": "v2"
 		},
 		{
+			"importpath": "github.com/go-xorm/builder",
+			"repository": "https://github.com/go-xorm/builder",
+			"revision": "c8871c857d2555fbfbd8524f895be5386d3d8836",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/go-xorm/core",
 			"repository": "https://github.com/go-xorm/core",
-			"revision": "b9277f807c011387baed9748a45f26da65b42077",
+			"revision": "cd38c8eb3375b27cbc8c7f3f4f6501cce1eb4b4c",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/go-xorm/xorm",
 			"repository": "https://github.com/go-xorm/xorm",
-			"revision": "2f8952d39b3fde5a64ec5b43052b13ed49dca45a",
+			"revision": "4e7d9706bd33f3dc9ce473a62f9018bf3bea7161",
 			"branch": "master"
 		},
 		{

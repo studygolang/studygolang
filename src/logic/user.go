@@ -528,7 +528,6 @@ func (UserLogic) FindUserByPage(ctx context.Context, conds map[string]string, cu
 	objLog := GetLogger(ctx)
 
 	session := MasterDB.NewSession()
-	session.IsAutoClose = true
 
 	for k, v := range conds {
 		session.And(k+"=?", v)

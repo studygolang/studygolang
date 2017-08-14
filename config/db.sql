@@ -552,6 +552,17 @@ CREATE TABLE IF NOT EXISTS `user_login_mission` (
   PRIMARY KEY (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户登录任务';
 
+CREATE TABLE IF NOT EXISTS `user_recharge` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `uid` int unsigned NOT NULL DEFAULT 0 COMMENT '用户UID',
+  `amount` int unsigned NOT NULL DEFAULT 0 COMMENT '充值金额',
+  `channel` varchar(15) NOT NULL DEFAULT '' COMMENT '充值渠道：alipay或wechatpay',
+  `remark` varchar(255) NOT NULL DEFAULT '' COMMENT '充值备注',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '充值时间',
+  PRIMARY KEY (`id`),
+  INDEX `idx_uid`(`uid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户充值记录表';
+
 CREATE TABLE IF NOT EXISTS `feed` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(127) NOT NULL DEFAULT '' COMMENT '标题',

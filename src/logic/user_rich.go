@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"model"
+	"net/url"
 	"time"
 	"util"
 
@@ -17,6 +18,7 @@ import (
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/go-xorm/xorm"
+	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	"github.com/polaris1119/nosql"
 	"github.com/polaris1119/times"
@@ -171,6 +173,57 @@ func (UserRichLogic) Total(ctx context.Context, uid int) int64 {
 		logger.Errorln("UserRichLogic Total error:", err)
 	}
 	return total
+}
+
+func (self UserRichLogic) FindRecharge(ctx context.Context, me *model.Me) int {
+	objLog := GetLogger(ctx)
+
+	total, err := MasterDB.Where("uid=?", me.Uid).SumInt(new(model.UserRecharge), "amount")
+	if err != nil {
+		objLog.Errorln("UserRichLogic FindRecharge error:", err)
+		return 0
+	}
+
+	return int(total)
+}
+
+// Recharge 用户充值
+func (self UserRichLogic) Recharge(ctx context.Context, uid string, form url.Values) {
+	objLog := GetLogger(ctx)
+
+	createdAt, _ := time.ParseInLocation("2006-01-02 15:04:05", form.Get("time"), time.Local)
+	userRecharge := &model.UserRecharge{
+		Uid:       goutils.MustInt(uid),
+		Amount:    goutils.MustInt(form.Get("amount")),
+		Channel:   form.Get("channel"),
+		CreatedAt: createdAt,
+	}
+
+	session := MasterDB.NewSession()
+	session.Begin()
+
+	_, err := session.Insert(userRecharge)
+	if err != nil {
+		session.Rollback()
+		objLog.Errorln("UserRichLogic Recharge error:", err)
+		return
+	}
+
+	user := DefaultUser.FindOne(ctx, "uid", uid)
+	me := &model.Me{
+		Uid:     user.Uid,
+		Balance: user.Balance,
+	}
+
+	award := goutils.MustInt(form.Get("copper"))
+	desc := fmt.Sprintf("%s 充值 ￥%d，获得 %d 个铜币", times.Format("Ymd"), userRecharge.Amount, award)
+	err = DefaultMission.changeUserBalance(session, me, model.MissionTypeAdd, award, desc)
+	if err != nil {
+		session.Rollback()
+		objLog.Errorln("UserRichLogic changeUserBalance error:", err)
+		return
+	}
+	session.Commit()
 }
 
 func (UserRichLogic) add(session *xorm.Session, balanceDetail *model.UserBalanceDetail) error {

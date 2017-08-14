@@ -36,8 +36,11 @@ func (UserRichController) Add(ctx echo.Context) error {
 	me := ctx.Get("user").(*model.Me)
 	balanceDetails := logic.DefaultUserRich.FindBalanceDetail(ctx, me, model.MissionTypeAdd)
 
+	rechargeAmount := logic.DefaultUserRich.FindRecharge(ctx, me)
+
 	data := map[string]interface{}{
-		"details": balanceDetails,
+		"details":         balanceDetails,
+		"recharge_amount": rechargeAmount,
 	}
 	return render(ctx, "rich/add.html", data)
 }

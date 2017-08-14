@@ -23,7 +23,6 @@ func (RuleLogic) FindBy(ctx context.Context, conds map[string]string, curPage, l
 	objLog := GetLogger(ctx)
 
 	session := MasterDB.NewSession()
-	session.IsAutoClose = true
 
 	for k, v := range conds {
 		session.And(k+"=?", v)

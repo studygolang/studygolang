@@ -127,7 +127,6 @@ func (AuthorityLogic) FindAuthoritiesByPage(ctx context.Context, conds map[strin
 	objLog := GetLogger(ctx)
 
 	session := MasterDB.NewSession()
-	session.IsAutoClose = true
 
 	for k, v := range conds {
 		session.And(k+"=?", v)

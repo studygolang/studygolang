@@ -131,6 +131,38 @@
 			</p>
 		</div>
 		<div class="contenttitle2">
+			<h3>DAU 权限设置</h3>
+		</div>
+		<div>
+			<p>
+				<label for="dau">&nbsp;</label>
+				<span class="field">
+					发布主题：<input type="checkbox" name="topic" value="1" {{if canPublish .user.DauAuth 0}}checked{{end}}>&nbsp;&nbsp;
+					发布文章：<input type="checkbox" name="article" value="1" {{if canPublish .user.DauAuth 1}}checked{{end}}>&nbsp;&nbsp;
+					分享资源：<input type="checkbox" name="resource" value="1" {{if canPublish .user.DauAuth 2}}checked{{end}}>&nbsp;&nbsp;
+					发布Wiki：<input type="checkbox" name="wiki" value="1" {{if canPublish .user.DauAuth 3}}checked{{end}}>&nbsp;&nbsp;
+					发布项目：<input type="checkbox" name="project" value="1" {{if canPublish .user.DauAuth 4}}checked{{end}}>&nbsp;&nbsp;
+					发布图书：<input type="checkbox" name="book" value="1" {{if canPublish .user.DauAuth 5}}checked{{end}}>&nbsp;&nbsp;
+					发布评论：<input type="checkbox" name="comment" value="1" {{if canPublish .user.DauAuth 100}}checked{{end}}>&nbsp;&nbsp;
+					置顶：<input type="checkbox" name="top" value="1" {{if canPublish .user.DauAuth 101}}checked{{end}}>
+				</span>
+			</p>
+		</div>
+		<div class="contenttitle2">
+			<h3>充值</h3>
+		</div>
+		<div>
+			<p>
+				<label for="recharge">&nbsp;</label>
+				<span class="field">
+					<input id="amount" type="text" name="amount" class="smallinput" placeholder="输入充值金额" />
+					<input id="copper" type="text" name="copper" class="smallinput" placeholder="输入获得铜币" />
+					<input id="channel" type="text" name="channel" class="smallinput" placeholder="输入充值渠道" />
+					<input id="time" type="text" name="time" class="smallinput" placeholder="输入充值时间" />
+				</span>
+			</p>
+		</div>
+		<div class="contenttitle2">
 			<h3>角色信息</h3>
 		</div>
 		{{range $name := .user.Rolenames}}
@@ -152,24 +184,6 @@
 						<option value="{{.Roleid}}">{{.Name}}</option>
 						{{end}}
 					</select>
-				</span>
-			</p>
-		</div>
-		<div class="contenttitle2">
-			<h3>DAU 权限设置</h3>
-		</div>
-		<div>
-			<p>
-				<label for="dau">&nbsp;</label>
-				<span class="field">
-					发布主题：<input type="checkbox" name="topic" value="1" {{if canPublish .user.DauAuth 0}}checked{{end}}>&nbsp;&nbsp;
-					发布文章：<input type="checkbox" name="article" value="1" {{if canPublish .user.DauAuth 1}}checked{{end}}>&nbsp;&nbsp;
-					分享资源：<input type="checkbox" name="resource" value="1" {{if canPublish .user.DauAuth 2}}checked{{end}}>&nbsp;&nbsp;
-					发布Wiki：<input type="checkbox" name="wiki" value="1" {{if canPublish .user.DauAuth 3}}checked{{end}}>&nbsp;&nbsp;
-					发布项目：<input type="checkbox" name="project" value="1" {{if canPublish .user.DauAuth 4}}checked{{end}}>&nbsp;&nbsp;
-					发布图书：<input type="checkbox" name="book" value="1" {{if canPublish .user.DauAuth 5}}checked{{end}}>&nbsp;&nbsp;
-					发布评论：<input type="checkbox" name="comment" value="1" {{if canPublish .user.DauAuth 100}}checked{{end}}>&nbsp;&nbsp;
-					置顶：<input type="checkbox" name="top" value="1" {{if canPublish .user.DauAuth 101}}checked{{end}}>
 				</span>
 			</p>
 		</div>
