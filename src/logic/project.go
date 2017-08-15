@@ -84,7 +84,7 @@ func (self ProjectLogic) Publish(ctx context.Context, user *model.Me, form url.V
 	if !isModify {
 		affected, err = MasterDB.Insert(project)
 	} else {
-		affected, err = MasterDB.Update(project)
+		affected, err = MasterDB.Id(id).Update(project)
 	}
 
 	if err != nil {
