@@ -185,7 +185,7 @@ SG.registerAtEvent = function(isAt, isEmoji, selector) {
 		selector.atwho({
 			at: ":",
 			data: window.emojis,
-			tpl:"<li data-value='${key}'><img src='${SG.EMOJI_DOMAIN}/${name}.png' height='20' width='20' /> ${name}</li>"
+			tpl:"<li data-value='${key}'><img src='"+SG.EMOJI_DOMAIN+"/${name}.png' height='20' width='20' /> ${name}</li>"
 		});
 	}
 }
