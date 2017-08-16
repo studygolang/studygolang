@@ -18,13 +18,13 @@
 				{{end}}
 				<div class="form-group form-group-sm">
 					<label class="col-sm-1 control-label" for="title"><abbr>*</abbr>标题</label>
-					<div class="col-sm-10">
+					<div class="col-sm-11">
 						<textarea class="form-control required" style="resize: none;" rows="1" maxlength="120" name="title" autofocus="autofocus" placeholder="请输入主题标题(最多120个字），如果标题能够表达完整内容，则正文可以为空">{{.topic.Title}}</textarea>
 					</div>
 				</div>
 				<div class="form-group form-group-sm">
 					<label class="col-sm-1 control-label" for="content">正文</label>
-					<div class="col-sm-10">
+					<div class="col-sm-11">
 						<div class="row clearfix md-toolbar">
 							<ul class="col-md-10 list-inline">
 								<li class="edit cur"><a href="#" tabindex="-1"><i class="glyphicon glyphicon-edit"></i> 编辑</a></li>
@@ -59,7 +59,7 @@
 				</div>
 				
 				<div class="form-group form-group-sm cell">
-					<div class="col-sm-10 col-sm-offset-1">
+					<div class="col-sm-11 col-sm-offset-1">
 						最热节点&nbsp; 
 						{{range .tab_list}}
 						<a href="javascript:chooseNode('{{.nid}}')" class="node">{{.name}}</a> &nbsp;
@@ -67,10 +67,15 @@
 					</div>
 				</div>
 				
+				<div class="form-group form-group-sm cell">
+					<div class="col-sm-6 col-sm-offset-5">
+						<button type="submit" class="btn btn-default btn-sm" id="submit">{{if .topic.Tid}}提交修改{{else}}发布主题{{end}}</button> (Ctrl/Command+Enter)
+					</div>
+				</div>
 				<div class="form-group form-group-sm">
-					<div class="col-sm-8 col-sm-offset-1">
-						<div class="pull-right">(Ctrl/Command+Enter) <button type="submit" class="btn btn-default btn-sm" id="submit">{{if .topic.Tid}}提交修改{{else}}发布主题{{end}}</button></div>
-						<button class="btn btn-default btn-sm preview_btn">预览主题</button>
+					<label class="col-sm-1 control-label">预览</label>
+					<div class="col-sm-11">
+						<div id="content-preview" style="border: 1px solid #ccc; padding: 5px; font-size: 13px;"></div>
 					</div>
 				</div>
 			</form>
@@ -81,19 +86,46 @@
 
 		<div class="box_white sidebar sb-author">
 			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-list-alt"></i>&nbsp;发布主题说明</h3>
+				<h3 class="title"><i class="glyphicon glyphicon-list-alt"></i>&nbsp;发帖提示</h3>
 			</div>
 			<div class="sb-content">
 				<span class="help-block">
 					<ul>
-						<li>支持 Markdown 格式, <strong>**粗体**</strong>、~~删除线~~、<code>`单行代码`</code></li>
-						<li>http://example.org 自动加链接</li>
-						<li>代码支持高亮，如：```go func main() {}``` 则是Go语法高亮</li>
-						<li><strong>@name</strong> 会链接到用户页面，并会通知他</li>
-						<li>![alt 文本](http://foo.com/bar.jpg) 显示图片</li>
-						<li>:smile: 支持 <strong>emoji 表情</strong>，见<a href="http://www.emoji-cheat-sheet.com/" target="_blank">Emoji cheat sheet</a></li>
-						<li>完整 Markdwon 语法说明：<a href="http://wowubuntu.com/markdown/" target="_blank">语法说明 (简体中文版)</a></li>
-						<li>支持嵌入 Wide 的Playground 代码直接运行</li>
+						<li>
+							<span class="f13">主题标题</span>
+							<div class="sep10"></div>
+							<div>请在标题中描述内容要点。如果一件事情在标题的长度内就已经可以说清楚，那就没有必要写正文了。</div>
+							<div class="sep10"></div>
+						</li>
+						<li>
+							<span class="f13">正文</span>
+							<div class="sep10"></div>
+							<div>可以在正文中为你要发布的主题添加更多细节。本站支持 Markdown 文本标记语法。</div>
+							<div class="sep10"></div>
+							<div>在正式提交之前，你应该在提交按钮下方查看 Markdown 正文的实际渲染效果。</div>
+							<div class="sep10"></div>
+							<span class="f13" style="font-weight: bold;">Markdown 格式说明</span>
+							<div class="sep10"></div>
+							<ul>
+								<li>支持 Markdown 格式, <strong>**粗体**</strong>、~~删除线~~、<code>`单行代码`</code></li>
+								<li>http://example.org 自动加链接</li>
+								<li>代码支持高亮，如：```go func main() {}``` 则是Go语法高亮</li>
+								<li><strong>@name</strong> 会链接到用户页面，并会通知他</li>
+								<li>![alt 文本](http://foo.com/bar.jpg) 显示图片</li>
+								<li>:smile: 支持 <strong>emoji 表情</strong>，见<a href="http://www.emoji-cheat-sheet.com/" target="_blank">Emoji cheat sheet</a></li>
+								<li>完整 Markdwon 语法说明：<a href="http://wowubuntu.com/markdown/" target="_blank">语法说明 (简体中文版)</a></li>
+								<li>支持嵌入 Wide 的Playground 代码直接运行</li>
+							</ul>
+							<div class="sep10"></div>
+						</li>
+						<li>
+							<span class="f13">选择节点</span>
+							<div class="sep10"></div>
+							<div>在最后，请为你的主题选择一个节点。恰当的归类会让你发布的信息更加有用。</div>
+							<div class="sep10"></div>
+							<div>你可以在主题发布后 600 秒内，对标题或者正文进行编辑。同时，在 600 秒内，你可以重新为主题选择节点。</div>
+							<div class="sep10"></div>
+						</li>
 					</ul>
 				</span>
 			</div>
@@ -106,7 +138,7 @@
 <link href="//cdn.bootcss.com/select2/4.0.3/css/select2.min.css" rel="stylesheet">
 <link href="/static/css/jquery.atwho.min.css" rel="stylesheet">
 <link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
-<link href="/static/css/md_toolbar.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/md_toolbar.css?v=0.1" media="screen" rel="stylesheet" type="text/css">
 {{end}}
 {{define "js"}}
 <script type="text/javascript" src="//cdn.bootcss.com/select2/4.0.3/js/select2.min.js"></script>
@@ -140,6 +172,20 @@ $(function(){
 		select2.val(node).trigger('change');
 		// saveComposeDraft(memberId);
 	}
+
+	$('#content').on('change', function() {
+		var markdownString = $(this).val();
+		// 配置 marked 语法高亮
+		marked = SG.markSetting();
+
+		var contentHtml = marked(markdownString);
+		contentHtml = SG.replaceCodeChar(contentHtml);
+		
+		$('#content-preview').html(contentHtml);
+
+		// emoji 表情解析
+		emojify.run($('#content-preview').get(0));
+	});
 });
 </script>
 {{end}}
