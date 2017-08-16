@@ -181,7 +181,7 @@ $(function() {
     // 文本框自动伸缩
     $('.need-autogrow').autoGrow();
 
-    $('#markdown-content').on('change', function() {
+    $('#markdown-content').on('input propertychange', function() {
         var markdownString = $(this).val();
         // 配置 marked 语法高亮
         marked = SG.markSetting();
