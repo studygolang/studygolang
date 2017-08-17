@@ -18,25 +18,23 @@
 			$('.page-comment .md-toolbar .preview').removeClass('cur');
 
 			$('.page-comment .content-preview').hide();
-			$('.page-comment #commentForm').show();
+			$('.page-comment #commentForm .text').show();
 		});
 		$('.page-comment .md-toolbar .preview').on('click', function(evt){
 			evt.preventDefault();
 
-			// 配置 marked 语法高亮
-			marked.setOptions({
-				highlight: function (code) {
-					return hljs.highlightAuto(code).value;
-				}
-			});
+			var marked = SG.markSetting();
 
 			$(this).addClass('cur');
 			$('.page-comment .md-toolbar .edit').removeClass('cur');
 
-			$('.page-comment #commentForm').hide();
+			$('.page-comment #commentForm .text').hide();
 			var content = $('.page-comment #commentForm textarea').val();
 			$('.page-comment .content-preview').html(marked(content));
+			// emoji 表情解析
+			emojify.run($('.page-comment .content-preview').get(0));
 			$('.page-comment .content-preview').show();
+
 		});
 
 		$('#replies').on('mouseenter', '.reply', function(evt) {
@@ -160,17 +158,7 @@
 		}
 
 		var parseCmtContent = function(content) {
-			// 配置 marked 语法高亮
-			marked.setOptions({
-				highlight: function (code) {
-					code = code.replace(/&#34;/g, '"');
-					code = code.replace(/&#39;/g, "'");
-					code = code.replace(/&lt;/g, '<');
-					code = code.replace(/&gt;/g, '>');
-					code = code.replace(/&amp;/g, '&');
-					return hljs.highlightAuto(code).value;
-				}
-			});
+			var marked = SG.markSetting();
 			content = SG.preProcess(content);
 			content = marked(content);
 			return SG.replaceCodeChar(content);
@@ -226,6 +214,7 @@
 						user.avatar = $pageComment.data('avatar'),
 						comment.cmt_time = SG.timeago(comment.ctime);
 						comment.reply_floor = 0;
+						comment.content = parseCmtContent(comment.content);
 
 						var oneCmt = $.templates('#one-comment').render({comment: comment, user: user, is_new: true});
 
