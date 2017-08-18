@@ -63,31 +63,11 @@
 		</div>
 		{{end}}
 		
-		<div class="box_white sidebar">
-			<div class="top">
-				<ul class="list-inline text-center">
-					<li class="first"><a href="javascript:;" class="cur">最新评论</a>|</li>
-					<li class="second"><a href="/articles" target="_blank" title="点击更多">最新博文</a>|</li>
-					<li class="last"><a href="/topics" target="_blank" title="点击更多">最新主题</a></li>
-				</ul>
-				<p class="bar"></p>
-			</div>
-			<div class="sb-content">
-				<div class="cmt-list first" data-limit="5">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-				<div class="article-list second hidden">
-					<ul class="list-unstyled">
-					</ul>
-				</div>
-				<div class="topic-list last hidden">
-					<ul class="list-unstyled">
-					</ul>
-				</div>
-			</div>
-		</div>
+		{{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"今日阅读排行","objtype":2,"limit":10,"rank_type":"today"}`)}}
+	
+		{{include "sidebar/topic.html" .}}
+
+		{{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"一周阅读排行","objtype":2,"limit":10,"rank_type":"week"}`)}}
 		
 	</div>
 </div>
@@ -99,10 +79,8 @@
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
-	"/comments/recent",
-	"/articles/recent",
 	"/topics/recent",
-	"/websites/stat"
+	"/rank/view"
 ];
 
 $(function(){

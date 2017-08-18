@@ -319,6 +319,9 @@ $(function(){
 						path = data.path + list[i].uri;
 					}
 					break;
+				case 5:
+					title = list[i].name;
+					break;
 				}
 				var pos = parseInt(i, 10) + 1;
 

@@ -8,6 +8,7 @@ package http
 
 import (
 	"bytes"
+	"encoding/json"
 	"global"
 	"html/template"
 	"logic"
@@ -141,6 +142,11 @@ var funcMap = template.FuncMap{
 	},
 	"canEdit":    logic.CanEdit,
 	"canPublish": logic.CanPublish,
+	"parseJSON": func(str string) map[string]interface{} {
+		result := make(map[string]interface{})
+		json.Unmarshal([]byte(str), &result)
+		return result
+	},
 }
 
 func tplInclude(file string, dot map[string]interface{}) template.HTML {

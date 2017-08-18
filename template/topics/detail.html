@@ -95,6 +95,8 @@
 		</div>
 		{{end}}
 		
+		{{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"今日阅读排行","objtype":0,"limit":10,"rank_type":"today"}`)}}
+
 		{{if .pos_ad.right2}}
 		<div class="box_white sidebar" id="ad-right2">
 			{{if eq .pos_ad.right2.AdType 0}}
@@ -102,6 +104,8 @@
 			{{end}}
 		</div>
 		{{end}}
+
+		{{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"一周阅读排行","objtype":0,"limit":10,"rank_type":"week"}`)}}
 		
 	</div>
 </div>
@@ -133,7 +137,8 @@
 SG.SIDE_BARS = [
 	"/topics/recent",
 	"/articles/recent",
-	"/resources/recent"
+	"/resources/recent",
+	"/rank/view"
 ];
 
 $(function(){
