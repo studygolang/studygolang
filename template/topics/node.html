@@ -20,7 +20,7 @@
 					<span class="total">共有 {{.total}} 个主题</span>
 				</div>
 				<div class="desc">
-					<p>{{.node.intro}}</p>
+					<p class="intro">{{.node.intro}}</p>
 				</div>
 			</div>
 		</div>
@@ -54,6 +54,7 @@
 <link href="/static/css/topics.css?v=1.1" rel="stylesheet" type="text/css" />
 {{end}}
 {{define "js"}}
+<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
@@ -64,6 +65,12 @@ SG.SIDE_BARS = [
 	"/websites/stat",
 	"/rank/view"
 ];
+
+$(function() {
+	var marked = SG.markSetting();
+	var introHtml = marked($('.intro').text());
+	$('.intro').html(introHtml);
+});
 </script>
 
 {{if .pos_ad.right1}}
