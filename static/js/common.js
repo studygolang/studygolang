@@ -474,15 +474,6 @@ if (window.WebSocket) {
 var hadPop = false;
 
 $(function(){
-	if (Math.random()*50 <= 1) {
-		$('.ad').each(function(){
-			var url = $(this).attr('href');
-
-			var adImg = new Image();
-			adImg.src = url;
-		});
-	}
-
 	$(window).scroll(function() {
 		// 滚动条所在位置的高度
 		var totalheight = parseFloat($(window).height()) + parseFloat($(window).scrollTop());
