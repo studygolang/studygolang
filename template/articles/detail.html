@@ -74,12 +74,12 @@
 
 			<div class="sep20"></div>
 			<div class="box_white">
-				<div class="cell">
-					{{if .next}}
-					下一篇：<a href="/articles/{{.next.Id}}" class="pull-right">{{.next.Title}}</a>
-					{{end}}
+				<div class="cell row">
 					{{if .prev}}
-					上一篇：<a href="/articles/{{.prev.Id}}">{{.prev.Title}}</a>
+					<div class="col-sm-6">上一篇：<a href="/articles/{{.prev.Id}}">{{.prev.Title}}</a></div>
+					{{end}}
+					{{if .next}}
+					<div class="col-sm-6 right">下一篇：<a href="/articles/{{.next.Id}}">{{.next.Title}}</a></div>
 					{{end}}
 				</div>
 			</div>
@@ -162,6 +162,14 @@
 <link href="/static/css/prism.css" media="screen" rel="stylesheet" type="text/css">
 {{end}}
 <link href="/static/css/jquery.atwho.min.css" media="screen" rel="stylesheet" type="text/css">
+<style type="text/css">
+@media (min-width: 768px) {
+	.right {
+		text-align: right;
+	}
+}
+</style>
+
 {{end}}
 {{define "js"}}
 <script type="text/javascript" src="//cdn.ckeditor.com/4.6.2/standard-all/ckeditor.js"></script>
