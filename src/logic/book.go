@@ -27,7 +27,7 @@ const (
 	WsMsgOnline        // 发送在线用户数（和需要时也发历史最高）
 )
 
-const MessageQueueLen = 1
+const MessageQueueLen = 10
 
 type Message struct {
 	Type int         `json:"type"`
@@ -79,11 +79,13 @@ func (this *UserData) SendMessage(message *Message) {
 	defer this.rwMutex.RUnlock()
 
 	for serverId, messageQueue := range this.serverMsgQueue {
-		// 有可能用户已经退出，导致 messageQueue满，阻塞
+		// 有可能用户已经退出，导致 messageQueue 满，阻塞
 		if len(messageQueue) < MessageQueueLen {
 			messageQueue <- message
 		} else {
 			logger.Infoln("server_id:", serverId, "had close")
+
+			delete(this.serverMsgQueue, serverId)
 		}
 	}
 }

@@ -8,7 +8,7 @@ package controller
 
 import (
 	"logic"
-	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/labstack/echo"
@@ -20,8 +20,7 @@ import (
 )
 
 type WebsocketController struct {
-	ServerId int
-	mutex    sync.Mutex
+	ServerId uint32
 }
 
 func (this *WebsocketController) RegisterRoute(g *echo.Group) {
@@ -33,10 +32,7 @@ func (this *WebsocketController) RegisterRoute(g *echo.Group) {
 func (this *WebsocketController) Ws(wsConn *websocket.Conn) {
 	defer wsConn.Close()
 
-	this.mutex.Lock()
-	this.ServerId++
-	serverId := this.ServerId
-	this.mutex.Unlock()
+	serverId := int(atomic.AddUint32(&this.ServerId, 1))
 
 	isUid := true
 	req := wsConn.Request()
@@ -74,6 +70,8 @@ func (this *WebsocketController) Ws(wsConn *websocket.Conn) {
 	}
 	// 用户退出时需要变更其他用户看到的在线用户数
 	if !logic.Book.UserIsOnline(user) {
+		logger.Infoln("user:", user, "had leave")
+
 		message := logic.NewMessage(logic.WsMsgOnline, map[string]int{"online": logic.Book.Len()})
 		go logic.Book.BroadcastAllUsersMessage(message)
 	}
