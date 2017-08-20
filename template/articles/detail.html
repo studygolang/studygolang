@@ -14,7 +14,7 @@
 				<div class="title">
 					{{if .article.IsSelf}}
 					<div class="pull-right">
-						<a href="/user/{{.article.User.Username}}" title="{{.article.User.Username}}">
+						<a href="/user/{{.article.User.Username}}" title="{{.article.User.Username}}" style="display: block;">
 							<img src="{{gravatar .article.User.Avatar .article.User.Email 62 .is_https}}" alt="{{if .article.User.Name}}{{.article.User.Name}}{{else}}{{.article.User.Username}}{{end}}" width="62px" height="62px">
 						</a>
 					</div>

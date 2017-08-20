@@ -34,6 +34,7 @@ func RegisterRoutes(g *echo.Group) {
 	new(GiftController).RegisterRoute(g)
 	new(OAuthController).RegisterRoute(g)
 	new(WebsocketController).RegisterRoute(g)
+	new(DownloadController).RegisterRoute(g)
 
 	new(WechatController).RegisterRoute(g)
 
