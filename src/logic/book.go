@@ -125,8 +125,6 @@ func (this *book) AddUser(user, serverId int, isUid bool) *UserData {
 	if userData, ok = this.users[user]; ok {
 		this.rwMutex.Unlock()
 
-		logger.Infoln("user:", user, "had enter")
-
 		userData.InitMessageQueue(serverId)
 		userData.onlineDuartion += time.Now().Sub(userData.lastAccessTime)
 		userData.lastAccessTime = time.Now()
@@ -142,6 +140,8 @@ func (this *book) AddUser(user, serverId int, isUid bool) *UserData {
 		length := len(this.users)
 
 		this.rwMutex.Unlock()
+
+		logger.Infoln("user:", user, "had enter")
 
 		onlineInfo := map[string]int{"online": length}
 		// 在线人数超过历史最高
