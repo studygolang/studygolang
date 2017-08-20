@@ -125,6 +125,8 @@ func (this *book) AddUser(user, serverId int, isUid bool) *UserData {
 	if userData, ok = this.users[user]; ok {
 		this.rwMutex.Unlock()
 
+		logger.Infoln("user:", user, "had enter")
+
 		userData.InitMessageQueue(serverId)
 		userData.onlineDuartion += time.Now().Sub(userData.lastAccessTime)
 		userData.lastAccessTime = time.Now()
