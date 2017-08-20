@@ -165,6 +165,14 @@ func (this *book) DelUser(user, serverId int, isUid bool) {
 	this.rwMutex.Lock()
 	defer this.rwMutex.Unlock()
 
+	// 已经不存在了
+	if _, ok := this.users[user]; !ok {
+		if isUid {
+			delete(this.uids, user)
+		}
+		return
+	}
+
 	// 自己只有一个页面建立websocket连接
 	if this.users[user].Len() == 1 {
 		delete(this.users, user)
