@@ -30,7 +30,7 @@ func (self DownloadController) RegisterRoute(g *echo.Group) {
 func (DownloadController) GoDl(ctx echo.Context) error {
 
 	data := map[string]interface{}{
-		"activeBooks": "active",
+		"activeDl": "active",
 	}
 
 	return render(ctx, "download/go.html", data)

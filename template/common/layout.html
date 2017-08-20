@@ -50,27 +50,30 @@
 						<a href="/articles">文章</a>
 					</li>
 					<li class="{{.activeProjects}}">
-						<a href="/projects">开源项目</a>
+						<a href="/projects">项目</a>
 					</li>
 					<li class="{{.activeResources}}">
 						<a href="/resources">资源</a>
 					</li>
 					<li class="{{.activeBooks}}">
-						<a href="/books">图书<i class="newfuture"></i></a>
+						<a href="/books">图书</a>
 					</li>
 					<li class="dropdown {{.activeReadings}}">
 						{{if .setting.ReadingMenu}}
 						<a href="/readings">{{.setting.ReadingMenu}}</a>
 						{{else}}
-						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="readings">技术晨读 <span class="caret"></span></a>
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="readings">晨读 <span class="caret"></span></a>
 						<ul class="dropdown-menu" aria-labelledby="readings">
 							<li><a href="/readings">Go晨读</a></li>
 							<li><a href="/readings?rtype=1">综合晨读</a></li>
 						</ul>
 						{{end}}
 					</li>
+					<li class="{{.activeDl}}">
+						<a href="/dl">下载<i class="newfuture"></i></a>
+					</li>
 					<li class="dropdown {{.activeDoc}}">
-						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="docs">官方文档 <span class="caret"></span></a>
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="docs">文档 <span class="caret"></span></a>
 						<ul class="dropdown-menu" aria-labelledby="docs">
 						{{range .setting.DocMenus}}
 							<li><a href="{{.Url}}" target="_blank">{{.Name}}</a></li>
