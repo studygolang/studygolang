@@ -183,7 +183,7 @@
 <!-- <script type="text/javascript" src="//twemoji.maxcdn.com/twemoji.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/twemojis.js"></script> -->
 <script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
-<script type="text/javascript" src="/static/js/comment.js?v=1.0"></script>
+<script type="text/javascript" src="/static/js/comment.js?v=1.25"></script>
 <script type="text/javascript" src="/static/js/puploader.js?v=1.1"></script>
 {{if .article.IsSelf}}
 <script type="text/javascript">
@@ -199,6 +199,9 @@ $('code[class*="language-"]').parent('pre').addClass('line-numbers');
 SG.SIDE_BARS = [
 	"/rank/view",
 ];
+
+var keyprefix = 'article';
+var objid = {{.article.Id}};
 
 $(function(){
 	{{if .article.Markdown}}

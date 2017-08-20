@@ -177,9 +177,39 @@ function init() {
     CKEDITOR.replace( 'myeditor', MyEditorConfig );
 }
 
+var isNew = {{.article.Id}} == '';
+var isMarkdown = true;
+
 $(function() {
     // 文本框自动伸缩
     $('.need-autogrow').autoGrow();
+
+    function saveArticleComposeDraft() {
+        if (!isNew || !isMarkdown) {
+            return;
+        }
+
+        var title = $('#title').val(),
+            content = $('#markdown-content').val();
+
+        var objdata = {title: title, content: content};
+
+        saveComposeDraft(uid, 'article', objdata);
+    }
+
+    (function() {
+        if (isNew && isMarkdown) {
+            var draft = loadComposeDraft(uid, 'article');
+            if (draft) {
+                $('#title').val(draft.title);
+                $('#markdown-content').val(draft.content);
+            }
+        }
+    })();
+
+    $('#title,#markdown-content').on('change', function() {
+        saveArticleComposeDraft();
+    });
 
     $('#markdown-content').on('input propertychange', function() {
         var markdownString = $(this).val();
@@ -195,8 +225,25 @@ $(function() {
         emojify.run($('#content-preview').get(0));
     });
 
+    $('#markdown-content').on('keydown', function(e) {
+        if (e.keyCode == 9) {
+            e.preventDefault();
+            var indent = "\t";
+            var start = this.selectionStart;
+            var end = this.selectionEnd;
+            var selected = window.getSelection().toString();
+            selected = indent + selected.replace(/\n/g, '\n' + indent);
+            this.value = this.value.substring(0, start) + selected
+                    + this.value.substring(end);
+            this.setSelectionRange(start + indent.length, start
+                    + selected.length);
+        }
+    });
+
     $('input[type=radio]').on('click', function() {
         if ($(this).val() == 0) {
+            isMarkdown = false;
+
             init();
             $('#cke_myeditor').show();
             $('#markdown-editor').hide();
@@ -206,6 +253,8 @@ $(function() {
 
             $('.markdown-preview').hide();
         } else {
+            isMarkdown = true;
+
             $('#cke_myeditor').hide();
             $('#markdown-editor').show();
 
@@ -217,5 +266,5 @@ $(function() {
     });
 });
 </script>
-<script type="text/javascript" src="/static/js/articles.js?v=0.3"></script>
+<script type="text/javascript" src="/static/js/articles.js?v=0.4"></script>
 {{end}}

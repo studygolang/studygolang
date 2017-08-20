@@ -417,6 +417,46 @@ jQuery(document).ready(function($) {
 		});
 	});
 
+	window.saveComposeDraft = function(uid, keyprefix, objdata) {
+		var key = keyprefix+':compose:by:' + uid;
+		lscache.set(key, objdata, 525600);
+		console.log('Compose draft for UID ' + uid + ' is saved');
+	};
+
+	window.loadComposeDraft = function(uid, keyprefix) {
+		var key = keyprefix+":compose:by:" + uid;
+		var draft = lscache.get(key);
+		console.log("Loaded compose draft for UID " + uid);
+
+		return draft;
+	}
+
+	window.purgeComposeDraft = function(uid, keyprefix) {
+		var key = keyprefix+":compose:by:" + uid;
+		lscache.remove(key);
+		console.log("Purged compose draft for UID " + uid);
+	}
+
+	window.saveReplyDraft = function(uid, keyprefix, objid, objdata) {
+		var key = keyprefix+':'+objid+':reply:by:' + uid;
+		lscache.set(key, objdata, 525600);
+		console.log('Reply draft for ' + keyprefix + ':' + objid + ' is saved');
+	};
+
+	window.loadReplyDraft = function(uid, keyprefix, objid) {
+		var key = keyprefix+':'+objid+':reply:by:' + uid;
+		var draft = lscache.get(key);
+		console.log('Loaded reply draft for ' + keyprefix + ':' + objid);
+
+		return draft;
+	}
+
+	window.purgeReplyDraft = function(uid, keyprefix, objid) {
+		var key = keyprefix+':'+objid+':reply:by:' + uid;
+		lscache.remove(key);
+		console.log('Purged reply draft for ' + keyprefix + ':' + objid);
+	}
+
 	// 图片响应式
 	setTimeout(function(){
 		$('.page .content img').addClass('img-responsive');

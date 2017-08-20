@@ -127,7 +127,7 @@
 <script type="text/javascript" src="/static/js/libs/emojis.js"></script>
 <script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
 <script type="text/javascript" src="/static/js/resources.js?v=1.1"></script>
-<script type="text/javascript" src="/static/js/comment.js?v=1.2"></script>
+<script type="text/javascript" src="/static/js/comment.js?v=1.25"></script>
 <script type="text/javascript" src="/static/js/puploader.js?v=1.1"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏
@@ -136,6 +136,9 @@ SG.SIDE_BARS = [
 	"/articles/recent",
 	"/rank/view"
 ];
+
+var keyprefix = 'resource';
+var objid = {{.resource.id}};
 
 $(function(){
 	new SG.Resources().parseContent($('.page .content'));

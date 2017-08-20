@@ -11,6 +11,21 @@
 			}
 		});
 
+		$('#comment-content').on('change', function() {
+			var content = $(this).val();
+
+			var objdata = {content: content};
+
+			saveReplyDraft(uid, keyprefix, objid, objdata);
+		});
+
+		(function() {
+			var draft = loadReplyDraft(uid, keyprefix, objid);
+			if (draft) {
+				$('#comment-content').val(draft.content);
+			}
+		})();
+
 		$('.page-comment .md-toolbar .edit').on('click', function(evt){
 			evt.preventDefault();
 			
@@ -176,8 +191,10 @@
 					var username = $('.md-toolbar .reply-to').data('username');
 					content = '#'+floor+'楼 @'+username+' '+content;
 				}
-				postComment($(this), content, function(comment){
+				postComment($(this), content, function(comment) {
 					comTip("回复成功！");
+					purgeReplyDraft(uid, keyprefix, objid);
+
 					$('#commentForm textarea').val('');
 
 					$('.md-toolbar .reply-to .close').click();

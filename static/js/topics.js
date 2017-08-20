@@ -45,6 +45,8 @@
 
 			var topics = new SG.Topics();
 			topics.publish(this, function(data) {
+				purgeComposeDraft(uid, 'topic');
+
 				setTimeout(function(){
 					if (data.tid) {
 						window.location.href = '/topics/'+data.tid;

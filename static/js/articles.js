@@ -37,6 +37,8 @@
 
 			var articles = new SG.Articles();
 			articles.publish(this, function(data) {
+				purgeComposeDraft(uid, 'article');
+
 				setTimeout(function(){
 					if (data.id) {
 						window.location.href = '/articles/'+data.id;

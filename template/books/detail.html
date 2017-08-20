@@ -149,13 +149,16 @@
 <!-- <script type="text/javascript" src="//twemoji.maxcdn.com/twemoji.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/twemojis.js"></script> -->
 <script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
-<script type="text/javascript" src="/static/js/comment.js?v=1.1"></script>
+<script type="text/javascript" src="/static/js/comment.js?v=1.25"></script>
 <script type="text/javascript" src="/static/js/puploader.js?v=1.1"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
 	"/rank/view",
 ];
+
+var keyprefix = 'book';
+var objid = {{.book.Id}};
 
 $(function(){
 	// 文本框自动伸缩
