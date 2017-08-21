@@ -48,19 +48,29 @@ func (this *WebsocketController) Ws(wsConn *websocket.Conn) {
 	err := websocket.JSON.Send(wsConn, message)
 	if err != nil {
 		logger.Errorln("Sending onlineusers error:", err)
+		return
 	}
+
+	messageChan := userData.MessageQueue(serverId)
+
 	var clientClosed = false
 	for {
 		select {
-		case message := <-userData.MessageQueue(serverId):
+		case message, ok := <-messageChan:
+			if !ok {
+				clientClosed = true
+				break
+			}
 			wsConn.SetWriteDeadline(time.Now().Add(5 * 10e9))
 			if err := websocket.JSON.Send(wsConn, message); err != nil {
+				logger.Errorln("Send message", message, " to user:", user, "server_id:", serverId, "error:", err)
 				clientClosed = true
 			}
 			// 心跳
 		case <-time.After(30e9):
 			wsConn.SetWriteDeadline(time.Now().Add(5 * 10e9))
 			if err := websocket.JSON.Send(wsConn, ""); err != nil {
+				logger.Errorln("Send heart message to user:", user, "server_id:", serverId, "error:", err)
 				clientClosed = true
 			}
 		}

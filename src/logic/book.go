@@ -56,7 +56,7 @@ func (this *UserData) Len() int {
 	return len(this.serverMsgQueue)
 }
 
-func (this *UserData) MessageQueue(serverId int) chan *Message {
+func (this *UserData) MessageQueue(serverId int) <-chan *Message {
 	this.rwMutex.RLock()
 	defer this.rwMutex.RUnlock()
 	return this.serverMsgQueue[serverId]
@@ -86,6 +86,7 @@ func (this *UserData) SendMessage(message *Message) {
 			logger.Infoln("server_id:", serverId, "had close")
 
 			delete(this.serverMsgQueue, serverId)
+			close(messageQueue)
 		}
 	}
 }
