@@ -53,11 +53,13 @@ func (this *WebsocketController) Ws(wsConn *websocket.Conn) {
 	for {
 		select {
 		case message := <-userData.MessageQueue(serverId):
+			wsConn.SetWriteDeadline(time.Now().Add(5 * 10e9))
 			if err := websocket.JSON.Send(wsConn, message); err != nil {
 				clientClosed = true
 			}
 			// 心跳
 		case <-time.After(30e9):
+			wsConn.SetWriteDeadline(time.Now().Add(5 * 10e9))
 			if err := websocket.JSON.Send(wsConn, ""); err != nil {
 				clientClosed = true
 			}
