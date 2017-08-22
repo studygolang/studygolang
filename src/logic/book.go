@@ -251,7 +251,11 @@ func (this *book) BroadcastAllUsersMessage(message *Message) {
 
 	this.rwMutex.RLock()
 	defer this.rwMutex.RUnlock()
-	for _, userData := range this.users {
+	for uid, userData := range this.users {
+		if userData.Len() == 0 {
+			delete(this.users, uid)
+			delete(this.uids, uid)
+		}
 		userData.SendMessage(message)
 	}
 }
@@ -265,6 +269,11 @@ func (this *book) BroadcastToOthersMessage(message *Message, myself int) {
 	for uid, userData := range this.users {
 		if uid == myself {
 			continue
+		}
+
+		if userData.Len() == 0 {
+			delete(this.users, uid)
+			delete(this.uids, uid)
 		}
 		userData.SendMessage(message)
 	}
