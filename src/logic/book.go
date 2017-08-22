@@ -86,7 +86,6 @@ func (this *UserData) SendMessage(message *Message) {
 			logger.Infoln("server_id:", serverId, "had close")
 
 			delete(this.serverMsgQueue, serverId)
-			close(messageQueue)
 		}
 	}
 }

@@ -158,7 +158,7 @@ func (ResourceLogic) FindBy(ctx context.Context, limit int, lastIds ...int) []*m
 }
 
 // FindAll 获得资源列表（完整信息），分页
-func (ResourceLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy, querystring string, args ...interface{}) (resources []map[string]interface{}, total int64) {
+func (self ResourceLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy, querystring string, args ...interface{}) (resources []map[string]interface{}, total int64) {
 	objLog := GetLogger(ctx)
 
 	var (
@@ -176,11 +176,7 @@ func (ResourceLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy,
 		return
 	}
 
-	total, err = MasterDB.Count(new(model.Resource))
-	if err != nil {
-		objLog.Errorln("ResourceLogic FindAll count error:", err)
-		return
-	}
+	total = self.Count(ctx, querystring, args...)
 
 	uidSet := set.New(set.NonThreadSafe)
 	for _, resourceInfo := range resourceInfos {
@@ -213,6 +209,26 @@ func (ResourceLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy,
 	}
 
 	return
+}
+
+func (ResourceLogic) Count(ctx context.Context, querystring string, args ...interface{}) int64 {
+	objLog := GetLogger(ctx)
+
+	var (
+		total int64
+		err   error
+	)
+	if querystring == "" {
+		total, err = MasterDB.Count(new(model.Resource))
+	} else {
+		total, err = MasterDB.Where(querystring, args...).Count(new(model.Resource))
+	}
+
+	if err != nil {
+		objLog.Errorln("ResourceLogic Count error:", err)
+	}
+
+	return total
 }
 
 // FindByCatid 获得某个分类的资源列表，分页

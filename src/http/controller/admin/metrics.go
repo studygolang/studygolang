@@ -10,9 +10,13 @@ import (
 	"expvar"
 	"global"
 	"logic"
+	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/labstack/echo"
+
+	"github.com/polaris1119/goutils"
 
 	. "http"
 )
@@ -28,6 +32,7 @@ type MetricsController struct{}
 // 注册路由
 func (self MetricsController) RegisterRoute(g *echo.Group) {
 	g.GET("/debug/vars", self.DebugExpvar)
+	g.GET("/user/is_online", self.IsOnline)
 }
 
 func (self MetricsController) DebugExpvar(ctx echo.Context) error {
@@ -42,6 +47,16 @@ func (self MetricsController) DebugExpvar(ctx echo.Context) error {
 	handler := expvar.Handler()
 	handler.ServeHTTP(ResponseWriter(ctx), Request(ctx))
 	return nil
+}
+
+func (self MetricsController) IsOnline(ctx echo.Context) error {
+	uid := goutils.MustInt(ctx.FormValue("uid"))
+
+	onlineInfo := map[string]int{"online": logic.Book.Len()}
+	message := logic.NewMessage(logic.WsMsgOnline, onlineInfo)
+	logic.Book.PostMessage(uid, message)
+
+	return ctx.HTML(http.StatusOK, strconv.FormatBool(logic.Book.UserIsOnline(uid)))
 }
 
 func (self MetricsController) calculateUptime() interface{} {
