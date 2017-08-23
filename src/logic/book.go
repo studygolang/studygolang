@@ -27,7 +27,7 @@ const (
 	WsMsgOnline        // 发送在线用户数（和需要时也发历史最高）
 )
 
-const MessageQueueLen = 5
+const MessageQueueLen = 2
 
 type Message struct {
 	Type int         `json:"type"`
