@@ -31,7 +31,7 @@
 						<a href="/user/{{.User.Username}}"><img src="{{gravatar .User.Avatar .User.Email 48 $.is_https}}" class="avatar" width="48px"></a>
 						{{else}}
 						<a href="javascript:">
-							<img class="noavatar" alt="" src="https://secure.gravatar.com/avatar/3bf6178897766ebadaa830073e87374d?s=48" data-objid="{{.Objid}}" data-objtype="{{.Objtype}}">
+							<img class="noavatar" alt="" src="https://secure.gravatar.com/avatar/3bf6178897766ebadaa830073e87374d?s=48" data-objid="{{.Objid}}" data-objtype="{{.Objtype}}" data-author="{{.Author}}">
 						</a>
 						{{end}}
 						</td>
@@ -132,7 +132,7 @@
 						<a href="/user/{{.User.Username}}"><img src="{{gravatar .User.Avatar .User.Email 48 $.is_https}}" class="avatar" width="48px"></a>
 						{{else}}
 						<a href="javascript:">
-							<img class="noavatar" alt="" src="https://secure.gravatar.com/avatar/3bf6178897766ebadaa830073e87374d?s=48" data-objid="{{.Id}}" data-objtype="1">
+							<img class="noavatar" alt="" src="https://secure.gravatar.com/avatar/3bf6178897766ebadaa830073e87374d?s=48" data-objid="{{.Id}}" data-objtype="1" data-author="{{.Author}}">
 						</a>
 						{{end}}
 						</td>
@@ -183,7 +183,7 @@
 						<a href="/user/{{$user.Username}}"><img src="{{gravatar $user.Avatar $user.Email 48 $.is_https}}" class="avatar" width="48px"></a>
 						{{else}}
 						<a href="javascript:">
-							<img class="noavatar" alt="" src="https://secure.gravatar.com/avatar/3bf6178897766ebadaa830073e87374d?s=48" data-objid="{{.Objid}}" data-objtype="{{.Objtype}}">
+							<img class="noavatar" alt="" src="https://secure.gravatar.com/avatar/3bf6178897766ebadaa830073e87374d?s=48" data-objid="{{.Objid}}" data-objtype="{{.Objtype}}" data-author="{{.Author}}">
 						</a>
 						{{end}}
 						</td>
@@ -314,8 +314,10 @@ SG.SIDE_BARS = [
 $(function() {
 	$('.noavatar').each(function() {
 		var objid = $(this).data('objid'),
-			objtype = $(this).data('objtype');
-		var hash = md5(objid+"-"+objtype);
+			objtype = $(this).data('objtype'),
+			author = $(this).data('author');
+		// var hash = md5(objid+"-"+objtype);
+		var hash = md5(author);
 		var data = new Identicon(hash, {format: 'svg', size: 48}).toString();
 		var imgData = 'data:image/svg+xml;base64,' + data;
 		$(this).attr('src', imgData);
