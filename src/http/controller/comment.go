@@ -13,6 +13,8 @@ import (
 	"net/http"
 	"strconv"
 
+	. "http"
+
 	"github.com/labstack/echo"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/slices"
@@ -29,7 +31,7 @@ func (self CommentController) RegisterRoute(g *echo.Group) {
 // AtUsers 评论或回复 @ 某人 suggest
 func (CommentController) AtUsers(ctx echo.Context) error {
 	term := ctx.QueryParam("term")
-	isHttps := goutils.MustBool(ctx.Request().Header().Get("X-Https"), false)
+	isHttps := CheckIsHttps(ctx)
 	users := logic.DefaultUser.GetUserMentions(term, 10, isHttps)
 	return ctx.JSON(http.StatusOK, users)
 }

@@ -305,11 +305,7 @@ func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interf
 	global.App.SetUptime()
 	global.App.SetCopyright()
 
-	isHttps := goutils.MustBool(ctx.Request().Header().Get("X-Https"))
-	if logic.WebsiteSetting.OnlyHttps {
-		isHttps = true
-	}
-
+	isHttps := CheckIsHttps(ctx)
 	cdnDomain := global.App.CDNHttp
 	if isHttps {
 		cdnDomain = global.App.CDNHttps
@@ -333,6 +329,15 @@ func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interf
 	}
 
 	return ctx.HTML(http.StatusOK, buf.String())
+}
+
+func CheckIsHttps(ctx echo.Context) bool {
+	isHttps := goutils.MustBool(ctx.Request().Header().Get("X-Https"))
+	if logic.WebsiteSetting.OnlyHttps {
+		isHttps = true
+	}
+
+	return isHttps
 }
 
 ///////////////////////////////// APP 相关 //////////////////////////////

@@ -67,7 +67,7 @@ func (self ImageController) QuickUpload(ctx echo.Context) error {
 	}
 
 	cdnDomain := global.App.CDNHttp
-	if goutils.MustBool(ctx.Request().Header().Get("X-Https")) {
+	if CheckIsHttps(ctx) {
 		cdnDomain = global.App.CDNHttps
 	}
 
@@ -128,7 +128,7 @@ func (ImageController) Upload(ctx echo.Context) error {
 	}
 
 	cdnDomain := global.App.CDNHttp
-	if goutils.MustBool(ctx.Request().Header().Get("X-Https")) {
+	if CheckIsHttps(ctx) {
 		cdnDomain = global.App.CDNHttps
 	}
 	if !strings.HasSuffix(cdnDomain, "/") {
@@ -157,7 +157,7 @@ func (ImageController) Transfer(ctx echo.Context) error {
 	}
 
 	cdnDomain := global.App.CDNHttp
-	if goutils.MustBool(ctx.Request().Header().Get("X-Https")) {
+	if CheckIsHttps(ctx) {
 		cdnDomain = global.App.CDNHttps
 	}
 	if !strings.HasSuffix(cdnDomain, "/") {

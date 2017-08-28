@@ -108,41 +108,53 @@ func (IndexController) WrapUrl(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusSeeOther, "/")
 	}
 
-	if pUrl, err := url.Parse(tUrl); err != nil {
+	// 本站
+	if strings.Contains(tUrl, logic.WebsiteSetting.Domain) {
 		return ctx.Redirect(http.StatusSeeOther, tUrl)
-	} else {
-		if !pUrl.IsAbs() {
-			return ctx.Redirect(http.StatusSeeOther, tUrl)
-		}
-
-		// 本站
-		if strings.Contains(pUrl.Host, logic.WebsiteSetting.Domain) {
-			return ctx.Redirect(http.StatusSeeOther, tUrl)
-		}
-
-		iframeDeny := config.ConfigFile.MustValue("crawl", "iframe_deny")
-		// 检测是否禁止了 iframe 加载
-		// 看是否在黑名单中
-		for _, denyHost := range strings.Split(iframeDeny, ",") {
-			if strings.Contains(pUrl.Host, denyHost) {
-				return ctx.Redirect(http.StatusSeeOther, tUrl)
-			}
-		}
-
-		// 检测会比较慢，进行异步检测，记录下来，以后分析再加黑名单
-		go func() {
-			resp, err := http.Head(tUrl)
-			if err != nil {
-				logger.Errorln("[iframe] head url:", tUrl, "error:", err)
-				return
-			}
-			defer resp.Body.Close()
-			if resp.Header.Get("X-Frame-Options") != "" {
-				logger.Errorln("[iframe] deny:", tUrl)
-				return
-			}
-		}()
 	}
+
+	if strings.Contains(tUrl, "?") {
+		tUrl += "&"
+	} else {
+		tUrl += "?"
+	}
+	tUrl += "hmsr=studygolang.com&utm_medium=studygolang.com&utm_source=studygolang.com"
+
+	if CheckIsHttps(ctx) {
+		return ctx.Redirect(http.StatusSeeOther, tUrl)
+	}
+
+	var (
+		pUrl *url.URL
+		err  error
+	)
+
+	if pUrl, err = url.Parse(tUrl); err != nil {
+		return ctx.Redirect(http.StatusSeeOther, tUrl)
+	}
+
+	iframeDeny := config.ConfigFile.MustValue("crawl", "iframe_deny")
+	// 检测是否禁止了 iframe 加载
+	// 看是否在黑名单中
+	for _, denyHost := range strings.Split(iframeDeny, ",") {
+		if strings.Contains(pUrl.Host, denyHost) {
+			return ctx.Redirect(http.StatusSeeOther, tUrl)
+		}
+	}
+
+	// 检测会比较慢，进行异步检测，记录下来，以后分析再加黑名单
+	go func() {
+		resp, err := http.Head(tUrl)
+		if err != nil {
+			logger.Errorln("[iframe] head url:", tUrl, "error:", err)
+			return
+		}
+		defer resp.Body.Close()
+		if resp.Header.Get("X-Frame-Options") != "" {
+			logger.Errorln("[iframe] deny:", tUrl)
+			return
+		}
+	}()
 
 	return render(ctx, "wr.html", map[string]interface{}{"url": tUrl})
 }

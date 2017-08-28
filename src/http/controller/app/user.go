@@ -11,7 +11,6 @@ import (
 	"model"
 
 	"github.com/labstack/echo"
-	"github.com/polaris1119/goutils"
 
 	. "http"
 	. "http/internal/helper"
@@ -91,7 +90,7 @@ func (UserController) Modify(ctx echo.Context) error {
 
 	email := ctx.FormValue("email")
 	if me.Email != email {
-		isHttps := goutils.MustBool(ctx.Request().Header().Get("X-Https"))
+		isHttps := checkIsHttps(ctx)
 		go logic.DefaultEmail.SendActivateMail(email, RegActivateCode.GenUUID(email), isHttps)
 	}
 
