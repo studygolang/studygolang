@@ -90,7 +90,7 @@ func (UserController) Modify(ctx echo.Context) error {
 
 	email := ctx.FormValue("email")
 	if me.Email != email {
-		isHttps := checkIsHttps(ctx)
+		isHttps := CheckIsHttps(ctx)
 		go logic.DefaultEmail.SendActivateMail(email, RegActivateCode.GenUUID(email), isHttps)
 	}
 
