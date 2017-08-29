@@ -122,9 +122,9 @@
 						var avatar = user.avatar;
 						if (avatar == "") {
 							if (isHttps) {
-								user.avatar = 'http://gravatar.com/avatar/'+md5(user.email)+"?s=48";
-							} else {
 								user.avatar = 'https://secure.gravatar.com/avatar/'+md5(user.email)+"?s=48";
+							} else {
+								user.avatar = 'http://gravatar.com/avatar/'+md5(user.email)+"?s=48";
 							}
 						} else if (avatar.indexOf('http') === -1) {
 							user.avatar = cdnDomain+'avatar/'+avatar+'?imageView2/2/w/48';
