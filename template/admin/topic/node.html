@@ -1,0 +1,111 @@
+{{define "content"}}
+<div class="pageheader notab">
+	<h1 class="pagetitle">主题节点</h1>
+	<span class="pagedesc">管理网站所有主题节点信息</span>
+</div><!--pageheader-->
+
+<div id="contentwrapper" class="contentwrapper">
+	<form id="queryform" class="stdform_q" action="#" method="get">
+		<div>
+			<p>
+				<label>&nbsp;</label>
+				<span class="field"><a class="btn btn_orange" href="/admin/community/node/modify">新增一级节点</a></span>
+			</p>
+		</div>
+	</form>
+	<div id="query_result">
+		<table id="stdtable" cellpadding="0" cellspacing="0" border="0" class="stdtable">
+			<thead class="center">
+				<tr>
+					<td width="10%">节点名称</td>
+					<td width="5%">Logo</td>
+					<td width="15%">简介</td>
+					<td width="5%">排序</td>
+					<td width="5%">操作</td>
+				</tr>
+			</thead>
+			<tbody class="center" id="treet1">
+				{{range .nodes}}
+				<tr class="bd-line" nc_type="table_item" idvalue="{{.Nid}}">
+					<td class="tl" style="text-align: right;">
+						<span class="ml5" nc_type="editobj" >{{.Name}}/{{.Ename}}</span>
+						{{if lt .Level 3}}
+						<a href="/admin/community/node/modify?parent={{.Nid}}" target="_blank" class="btn btn_link"><span>新增下级</span></a>
+						{{end}}
+					</td>
+					<td><img src="{{.Logo}}" width="40px"></td>
+					<td style="text-align: left;">{{.Intro}}</td>
+					<td class="edit" style="padding: 0px;">
+						<input type="text" size="8" class="seq" data-id="{{.Nid}}" style="line-height: 16px;height: 16px; font-size: 16p;" name="seq" value="{{.Seq}}" />
+					</td>
+					<td class="actions">
+						<a href="/admin/community/node/modify?nid={{.Nid}}" target="_blank">编辑</a>
+					</td>
+				</tr>
+				{{end}}
+			</tbody>
+		</table>
+	</div>
+
+</div><!--contentwrapper-->
+
+<img id="loaders" src="/images/loaders/loader7.gif" alt="" class="hide">
+
+<br clear="all" />
+{{end}}
+
+{{define "css"}}
+<style type="text/css">
+.collapsed{ display: none; }
+.parimg { cursor: pointer; }
+</style>
+{{end}}
+
+{{define "js"}}
+<script type="text/javascript" src="/static/js/admin/jqtreetable.js"></script>
+<script type="text/javascript">
+
+$(function(){
+	var map = {{.key_slice}};
+	var path = "/static/img/admin/";
+	if (map.length > 0) {
+		var option = {
+			openImg: path + "treetable/tv-collapsable.gif",
+			shutImg: path + "treetable/tv-expandable.gif",
+			leafImg: path + "treetable/tv-item.gif",
+			lastOpenImg: path + "treetable/tv-collapsable-last.gif",
+			lastShutImg: path + "treetable/tv-expandable-last.gif",
+			lastLeafImg: path + "treetable/tv-item-last.gif",
+			vertLineImg: path + "treetable/vertline.gif",
+			blankImg: path + "treetable/blank.gif",
+			collapse: false,
+			column: 0,
+			striped: false,
+			highlight: false,
+			state:false
+		};
+
+		$("#treet1").jqTreeTable(map, option);
+
+		// 默认收起二级节点
+		$.each($('.parimg'), function(){
+			if($(this).parent().parent().hasClass('collapsed') == false){
+				$(this).trigger('click');
+			}
+		});
+
+		$('.seq').on('blur', function() {
+			var that = this;
+			var id = $(this).data('id');
+			$.post('/admin/community/node/modify_seq', {nid:id, seq: $(this).val(), submit: 1}, function(result) {
+				if (!result.ok) {
+					alert(result.error);
+					$(that).focus();
+				}
+				$('#loaders').hide();
+			});
+		});
+	}
+});
+</script>
+{{end}}

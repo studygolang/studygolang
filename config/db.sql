@@ -30,12 +30,12 @@ CREATE TABLE IF NOT EXISTS `topics` (
   `nid` int unsigned NOT NULL COMMENT '节点id',
   `uid` int unsigned NOT NULL COMMENT '帖子作者',
   `lastreplyuid` int unsigned NOT NULL DEFAULT 0 COMMENT '最后回复者',
-  `lastreplytime` timestamp NOT NULL DEFAULT 0 COMMENT '最后回复时间',
+  `lastreplytime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '最后回复时间',
   `flag` tinyint NOT NULL DEFAULT 0 COMMENT '审核标识,0-未审核;1-已审核;2-审核删除;3-用户自己删除',
   `editor_uid` int unsigned NOT NULL DEFAULT 0 COMMENT '最后编辑人',
   `top` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '置顶，0否，1置顶',
   `tags` varchar(63) NOT NULL DEFAULT '' COMMENT 'tag，逗号分隔',
-  `ctime` timestamp NOT NULL DEFAULT 0,
+  `ctime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`tid`),
   KEY `uid` (`uid`),
@@ -63,6 +63,16 @@ CREATE TABLE IF NOT EXISTS `topics_node` (
   PRIMARY KEY (`nid`),
   INDEX `idx_ename` (`ename`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '帖子节点表';
+
+CREATE TABLE IF NOT EXISTS `recommend_node` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(20) NOT NULL DEFAULT '' COMMENT '虚拟节点名',
+  `parent` int unsigned NOT NULL DEFAULT 0 COMMENT '父节点id，无父节点为0',
+  `nid` int unsigned NOT NULL COMMENT 'topics_node nid，虚拟节点为0',
+  `seq` smallint(6) NOT NULL DEFAULT '0' COMMENT '节点排序，小的在前',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '导航推荐节点';
 
 CREATE TABLE IF NOT EXISTS `comments` (
   `cid` int unsigned NOT NULL AUTO_INCREMENT,
@@ -138,7 +148,7 @@ CREATE TABLE IF NOT EXISTS `user_info` (
   `dau_auth` int unsigned NOT NULL DEFAULT 0 COMMENT '控制用户权限，如能否发文章等',
   `status` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '用户账号状态。0-默认；1-已审核；2-拒绝；3-冻结；4-停号',
   `is_root` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否超级用户，不受权限控制：1-是',
-  `ctime` timestamp NOT NULL DEFAULT 0,
+  `ctime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`uid`),
   UNIQUE KEY (`username`),
@@ -161,7 +171,7 @@ CREATE TABLE IF NOT EXISTS `role` (
   `roleid` int unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(128) NOT NULL DEFAULT '' COMMENT '角色名',
   `op_user` varchar(20) NOT NULL DEFAULT '' COMMENT '操作人',
-  `ctime` timestamp NOT NULL DEFAULT 0,
+  `ctime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`roleid`),
   UNIQUE KEY (`name`)
@@ -174,7 +184,7 @@ CREATE TABLE IF NOT EXISTS `authority` (
   `menu2` int unsigned NOT NULL DEFAULT 0 COMMENT '所属二级菜单，本身为二级菜单，则为0',
   `route` varchar(128) NOT NULL DEFAULT '' COMMENT '路由（权限）',
   `op_user` varchar(20) NOT NULL COMMENT '操作人',
-  `ctime` timestamp NOT NULL DEFAULT 0,
+  `ctime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`aid`),
   KEY (`route`)
@@ -245,9 +255,9 @@ CREATE TABLE IF NOT EXISTS `resource` (
   `uid` int unsigned NOT NULL COMMENT '作者',
   `catid` int unsigned NOT NULL COMMENT '所属类别',
   `lastreplyuid` int unsigned NOT NULL DEFAULT 0 COMMENT '最后回复者',
-  `lastreplytime` timestamp NOT NULL DEFAULT 0 COMMENT '最后回复时间',
+  `lastreplytime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '最后回复时间',
   `tags` varchar(63) NOT NULL DEFAULT '' COMMENT 'tag，逗号分隔',
-  `ctime` timestamp NOT NULL DEFAULT 0,
+  `ctime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY (`url`)
@@ -289,12 +299,12 @@ CREATE TABLE IF NOT EXISTS `articles` (
   `cmtnum` int unsigned NOT NULL DEFAULT 0 COMMENT '评论数',
   `likenum` int unsigned NOT NULL DEFAULT 0 COMMENT '赞数',
   `lastreplyuid` int unsigned NOT NULL DEFAULT 0 COMMENT '最后回复者',
-  `lastreplytime` timestamp NOT NULL DEFAULT 0 COMMENT '最后回复时间',
+  `lastreplytime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '最后回复时间',
   `top` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '置顶，0否，1置顶',
   `markdown` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否是markwon格式：0-否，1-是',
   `status` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '状态：0-初始抓取；1-已上线；2-下线(审核拒绝)',
   `op_user` varchar(20) NOT NULL DEFAULT '' COMMENT '操作人',
-  `ctime` timestamp NOT NULL DEFAULT 0,
+  `ctime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY (`url`),
@@ -393,9 +403,9 @@ CREATE TABLE IF NOT EXISTS `open_project` (
   `cmtnum` int unsigned NOT NULL DEFAULT 0 COMMENT '评论数',
   `likenum` int unsigned NOT NULL DEFAULT 0 COMMENT '赞数',
   `lastreplyuid` int unsigned NOT NULL DEFAULT 0 COMMENT '最后回复者',
-  `lastreplytime` timestamp NOT NULL DEFAULT 0 COMMENT '最后回复时间',
+  `lastreplytime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '最后回复时间',
   `status` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '状态：0-新建；1-已上线；2-下线(审核拒绝)',
-  `ctime` timestamp NOT NULL DEFAULT 0 COMMENT '加入时间',
+  `ctime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '加入时间',
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY (`uri`)
@@ -572,7 +582,7 @@ CREATE TABLE IF NOT EXISTS `feed` (
   `author` varchar(31) NOT NULL DEFAULT '' COMMENT '外站作者',
   `nid` int unsigned NOT NULL DEFAULT 0 COMMENT '主题的nid或资源的catid',
   `lastreplyuid` int unsigned NOT NULL DEFAULT 0 COMMENT '最后回复者',
-  `lastreplytime` timestamp NOT NULL DEFAULT 0 COMMENT '最后回复时间',
+  `lastreplytime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '最后回复时间',
   `tags` varchar(63) NOT NULL DEFAULT '' COMMENT 'tag，逗号分隔',
   `cmtnum` int unsigned NOT NULL DEFAULT 0 COMMENT '评论数',
   `top` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '置顶，0否，1置顶',

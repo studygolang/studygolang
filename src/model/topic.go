@@ -92,8 +92,29 @@ type TopicNode struct {
 	Seq    int       `json:"seq"`
 	Intro  string    `json:"intro"`
 	Ctime  time.Time `json:"ctime" xorm:"<-"`
+
+	Level int `json:"-" xorm:"-"`
 }
 
 func (*TopicNode) TableName() string {
 	return "topics_node"
+}
+
+// 推荐节点
+type RecommendNode struct {
+	Id        int       `json:"id" xorm:"pk autoincr"`
+	Name      string    `json:"name"`
+	Parent    int       `json:"parent"`
+	Nid       int       `json:"nid"`
+	Seq       int       `json:"seq"`
+	CreatedAt time.Time `json:"created_at" xorm:"<-"`
+}
+
+type NodeInfo struct {
+	RecommendNode `xorm:"extends"`
+	TopicNode     `xorm:"extends"`
+}
+
+func (*NodeInfo) TableName() string {
+	return "recommend_node"
 }

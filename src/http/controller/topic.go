@@ -178,12 +178,23 @@ func (TopicController) Create(ctx echo.Context) error {
 	if title == "" || ctx.Request().Method() != "POST" {
 		hotNodes := logic.DefaultTopic.FindHotNodes(ctx)
 
-		return render(ctx, "topics/new.html", map[string]interface{}{
-			"nodes":        logic.GenNodes(),
+		data := map[string]interface{}{
 			"activeTopics": "active",
 			"nid":          nid,
 			"tab_list":     hotNodes,
-		})
+		}
+		hadRecommend := false
+		if len(logic.AllRecommendNodes) > 0 {
+			hadRecommend = true
+
+			data["nodes"] = logic.DefaultNode.FindAll(ctx)
+		} else {
+			data["nodes"] = logic.GenNodes()
+		}
+
+		data["had_recommend"] = hadRecommend
+
+		return render(ctx, "topics/new.html", data)
 	}
 
 	me := ctx.Get("user").(*model.Me)

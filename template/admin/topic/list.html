@@ -1,15 +1,23 @@
 {{define "content"}}
 <div class="pageheader notab">
-	<h1 class="pagetitle">帖子管理</h1>
-	<span class="pagedesc">管理网站所有帖子信息</span>
+	<h1 class="pagetitle">主题管理</h1>
+	<span class="pagedesc">管理网站所有主题信息</span>
 </div><!--pageheader-->
 
 <div id="contentwrapper" class="contentwrapper">
 	<form id="queryform" class="stdform_q" action="" method="get">
 		<div>
 			<p>
-				<label>帖子标题</label>
+				<label>tid</label>
+				<span class="field"><input type="text" id="q_tid" name="tid" class="smallinput" value=""/></span>
+			</p>
+			<p>
+				<label>标题</label>
 				<span class="field"><input type="text" id="q_title" name="title" class="smallinput" value=""/></span>
+			</p>
+			<p>
+				<label>UID</label>
+				<span class="field"><input type="text" id="q_uid" name="uid" class="smallinput" value=""/></span>
 			</p>
 		</div>
 		<div>
@@ -47,6 +55,8 @@
 var GLOBAL_CONF = {
 	"action_query" : "/admin/community/topic/query.html",
 	"query_params" : {
+		'tid' : '#q_tid',
+		'uid' : '#q_uid',
 		'title' : '#q_title',
 		'create_time_min' : '#create_time_min',
 		'create_time_max' : '#create_time_max'

@@ -45,6 +45,11 @@
 					<div class="col-sm-6">
 						<select id="nid" name="nid" class="form-control required" data-placeholder="请选择一个节点">
 							<option></option>
+						{{if .had_recommend}}
+							{{range .nodes}}
+								<option value="{{.Nid}}"{{if $.topic.Tid}}{{if eq $.topic.Nid .Nid}} selected{{end}}{{else if eq $.nid .Nid}}selected{{end}}>{{.Name}}/{{.Ename}}</option>
+							{{end}}
+						{{else}}
 							{{range .nodes}}
 								{{range $parent, $children := .}}
 								<optgroup label="{{$parent}}">
@@ -54,6 +59,7 @@
 								</optgroup>
 								{{end}}
 							{{end}}
+						{{end}}
 						</select>
 					</div>
 				</div>
@@ -189,8 +195,10 @@ $(function(){
 		saveComposeDraft(uid, 'topic', objdata);
 	}
 
+	var curNid = {{.nid}};
+
 	(function() {
-		if (isNew) {
+		if (isNew && !curNid) {
 			var draft = loadComposeDraft(uid, 'topic');
 			if (draft) {
 				$('#title').val(draft.title);

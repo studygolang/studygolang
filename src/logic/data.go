@@ -31,6 +31,8 @@ var (
 	nodeRWMutex sync.RWMutex
 	// 节点信息
 	AllNode []map[string]interface{}
+	// 推荐节点
+	AllRecommendNodes []map[string][]map[string]interface{}
 
 	catRWMutex sync.RWMutex
 	// 资源分类
@@ -124,6 +126,12 @@ func LoadRoles() error {
 
 // 将所有 节点信息 加载到内存中：后台修改节点时，重新加载一次
 func LoadNodes() error {
+	// 如果有 推荐 节点，加载推荐节点
+	hadRecommend := loadRecommendNodes()
+	if hadRecommend {
+		return nil
+	}
+
 	nodeList := make([]*model.TopicNode, 0)
 	err := MasterDB.Asc("seq").Find(&nodeList)
 	if err != nil {
@@ -215,6 +223,10 @@ func LoadDefaultAvatar() error {
 
 // 获得单个节点名
 func GetNodeName(nid int) string {
+	if len(AllRecommendNodes) > 0 {
+		return DefaultNode.FindOne(nid).Name
+	}
+
 	nodeRWMutex.RLock()
 	defer nodeRWMutex.RUnlock()
 	for _, node := range AllNode {
@@ -227,6 +239,18 @@ func GetNodeName(nid int) string {
 
 // 通过 ename 获得单个节点
 func GetNodeByEname(ename string) map[string]interface{} {
+	if len(AllRecommendNodes) > 0 {
+		node := DefaultNode.FindByEname(ename)
+		return map[string]interface{}{
+			"ename": node.Ename,
+			"name":  node.Name,
+			"pid":   node.Parent,
+			"nid":   node.Nid,
+			"logo":  node.Logo,
+			"intro": node.Intro,
+		}
+	}
+
 	nodeRWMutex.RLock()
 	defer nodeRWMutex.RUnlock()
 	for _, node := range AllNode {
@@ -239,6 +263,10 @@ func GetNodeByEname(ename string) map[string]interface{} {
 
 // 通过 ename 获得 nid
 func GetNidByEname(ename string) int {
+	if len(AllRecommendNodes) > 0 {
+		return DefaultNode.FindByEname(ename).Nid
+	}
+
 	nodeRWMutex.RLock()
 	defer nodeRWMutex.RUnlock()
 	for _, node := range AllNode {
@@ -251,6 +279,18 @@ func GetNidByEname(ename string) int {
 
 // 获得单个节点信息
 func GetNode(nid int) map[string]interface{} {
+	if len(AllRecommendNodes) > 0 {
+		node := DefaultNode.FindOne(nid)
+		return map[string]interface{}{
+			"ename": node.Ename,
+			"pid":   node.Parent,
+			"name":  node.Name,
+			"nid":   node.Nid,
+			"logo":  node.Logo,
+			"intro": node.Intro,
+		}
+	}
+
 	nodeRWMutex.RLock()
 	defer nodeRWMutex.RUnlock()
 	for _, node := range AllNode {
@@ -261,23 +301,12 @@ func GetNode(nid int) map[string]interface{} {
 	return nil
 }
 
-// 获得多个节点名
-func GetNodesName(nids []int) map[int]string {
-	nodes := make(map[int]string, len(nids))
-	nodeRWMutex.RLock()
-	defer nodeRWMutex.RUnlock()
-	for _, nid := range nids {
-		for _, node := range AllNode {
-			if node["nid"].(int) == nid {
-				nodes[nid] = node["name"].(string)
-			}
-		}
-	}
-	return nodes
-}
-
 // 获得多个节点
 func GetNodesByNids(nids []int) map[int]*model.TopicNode {
+	if len(AllRecommendNodes) > 0 {
+		return DefaultNode.FindByNids(nids)
+	}
+
 	nodes := make(map[int]*model.TopicNode, len(nids))
 	nodeRWMutex.RLock()
 	defer nodeRWMutex.RUnlock()
@@ -298,6 +327,17 @@ func GetNodesByNids(nids []int) map[int]*model.TopicNode {
 // GetChildrenNode 获取某个父节点下最多 num 个子节点
 func GetChildrenNode(parentId, num int) []interface{} {
 	nids := make([]interface{}, 0, num)
+
+	if len(AllRecommendNodes) > 0 {
+		nodeList := DefaultNode.FindByParent(parentId, num)
+
+		for _, node := range nodeList {
+			nids = append(nids, node.Nid)
+		}
+
+		return nids
+	}
+
 	for _, node := range AllNode {
 		if node["pid"].(int) == parentId {
 			nids = append(nids, node["nid"])
@@ -312,6 +352,10 @@ func GetChildrenNode(parentId, num int) []interface{} {
 
 // 将 node 组织成一定结构，方便前端展示
 func GenNodes() []map[string][]map[string]interface{} {
+	if len(AllRecommendNodes) > 0 {
+		return AllRecommendNodes
+	}
+
 	sameParent := make(map[string][]map[string]interface{})
 	allParentNodes := make([]string, 0, 8)
 	for _, node := range AllNode {
@@ -373,4 +417,49 @@ func GetCurIndexNav(tab string) *model.IndexNav {
 		}
 	}
 	return nil
+}
+
+func loadRecommendNodes() bool {
+	nodeList := make([]*model.NodeInfo, 0)
+	err := MasterDB.Join("LEFT OUTER", "topics_node", "topics_node.nid=recommend_node.nid").
+		Asc("recommend_node.seq").Find(&nodeList)
+	if err != nil {
+		logger.Errorln("loadRecommendNodes node read fail:", err)
+		return false
+	}
+
+	if len(nodeList) == 0 {
+		return false
+	}
+
+	parentMap := make(map[int]string)
+	parentSlice := make([]string, 0, 20)
+	sameParent := make(map[string][]map[string]interface{})
+
+	for _, node := range nodeList {
+		if node.RecommendNode.Parent == 0 {
+			parentName := node.RecommendNode.Name
+			parentMap[node.Id] = parentName
+			parentSlice = append(parentSlice, parentName)
+		} else {
+			parentName := parentMap[node.RecommendNode.Parent]
+			sameParent[parentName] = append(sameParent[parentName], map[string]interface{}{
+				"name":  node.TopicNode.Name,
+				"ename": node.Ename,
+			})
+		}
+	}
+
+	AllRecommendNodes = make([]map[string][]map[string]interface{}, len(parentSlice))
+
+	for i, name := range parentSlice {
+		children := sameParent[name]
+		AllRecommendNodes[i] = map[string][]map[string]interface{}{
+			name: children,
+		}
+	}
+
+	logger.Infoln("loadRecommendNodes successfully!")
+
+	return true
 }

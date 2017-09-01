@@ -274,6 +274,35 @@ func (self TopicLogic) FindByTid(ctx context.Context, tid int) (topicMap map[str
 	return
 }
 
+// 获取列表（分页）：后台用
+func (TopicLogic) FindByPage(ctx context.Context, conds map[string]string, curPage, limit int) ([]*model.Topic, int) {
+	objLog := GetLogger(ctx)
+
+	session := MasterDB.NewSession()
+
+	for k, v := range conds {
+		session.And(k+"=?", v)
+	}
+
+	totalSession := session.Clone()
+
+	offset := (curPage - 1) * limit
+	topicList := make([]*model.Topic, 0)
+	err := session.OrderBy("tid DESC").Limit(limit, offset).Find(&topicList)
+	if err != nil {
+		objLog.Errorln("find error:", err)
+		return nil, 0
+	}
+
+	total, err := totalSession.Count(new(model.Topic))
+	if err != nil {
+		objLog.Errorln("find count error:", err)
+		return nil, 0
+	}
+
+	return topicList, int(total)
+}
+
 func (TopicLogic) findByTid(tid int) *model.Topic {
 	topic := &model.Topic{}
 	_, err := MasterDB.Where("tid=?", tid).Get(topic)

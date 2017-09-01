@@ -25,11 +25,6 @@
 				<td>{{ .Mtime }}</td>
 				<td class="actions">
 					<a href="/admin/community/topic/modify?tid={{ .Tid }}" target="_blank">修改</a>
-					<a data-type="ajax-submit" href="#"
-						ajax-action="/admin/community/topic/del?tid={{ .Tid }}" 
-						ajax-hint="是否确定要删除?"
-						success-hint="删除成功"
-						callback="delCallback">删除</a>
 				</td>
 			</tr>
 		{{end}}

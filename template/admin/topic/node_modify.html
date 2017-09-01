@@ -1,0 +1,116 @@
+{{define "content"}}
+<div class="pageheader notab">
+	<h1 class="pagetitle">{{if .node.Nid}}修改{{else}}新增{{end}}主题节点</h1>
+</div><!--pageheader-->
+
+<div id="contentwraapper" class="contentwrapper">
+	<div id="tooltip" class="red"></div>
+	<form method="POST" action="/admin/community/node/modify" class="stdform">
+		<input type="hidden" id="nid" name="nid" value="{{.node.Nid}}" />
+		{{if .node.Nid}}
+		<div>
+			<p>
+				<label>节点ID</label>
+				<span class="field txt">
+					{{.node.Nid}}
+				</span>
+			</p>
+		</div>
+		{{end}}
+		<div>
+			<p>
+				<label for="name">节点名</label>
+				<span class="field">
+					<input id="name" type="text" name="name" class="smallinput required" value="{{.node.Name}}" />
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label for="ename">英文名</label>
+				<span class="field">
+					<input id="ename" type="text" name="ename" class="smallinput required" value="{{.node.Ename}}" />
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label for="logo">Logo</label>
+				<span class="field">
+					<input id="logo" type="text" name="logo" class="smallinput" value="{{.node.Logo}}" />
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label for="seq">排序</label>
+				<span class="field">
+					<input id="seq" type="text" name="seq" class="smallinput required" value="{{.node.Seq}}" />
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label for="parent">父节点</label>
+				<span class="field">
+					<select id="parent" name="parent" class="form-control" data-placeholder="请选择一个父节点">
+						<option value=""></option>
+						<option value="0"{{if eq .node.Parent 0}} selected{{end}}>本身是一级节点</option>
+					{{range .nodes}}
+						{{if lt .Level 3}}
+						<option value="{{.Nid}}"{{if $.node.Parent}}{{if eq $.node.Parent .Nid}} selected{{end}}{{else if eq $.parent .Nid}} selected{{end}}>{{.Name}}/{{.Ename}}</option>
+						{{end}}
+					{{end}}
+					</select>
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
+				<label for="intro">简介</label>
+				<span class="field">
+					<input id="intro" type="text" name="intro" class="longinput" value="{{.node.Intro}}" />
+				</span>
+			</p>
+		</div>
+		{{if .node.Nid}}
+		<div>
+			<p>
+				<label>创建时间</label>
+				<span class="field txt">
+					{{.node.Ctime}}
+				</span>
+			</p>
+		</div>
+		{{end}}
+		<div>
+			<p> 
+				<label>&nbsp;</label>
+				<input type="submit" class="submit radius2" value="提交" />
+			</p>
+		</div>
+	</form>
+	<img id="loaders" src="/static/img/loaders/loader7.gif" alt="" class="hide">
+	<div id="toast"></div>
+	<br/>
+	<br/>
+</div><!--contentwrapper-->
+{{end}}
+
+{{define "css"}}
+<link href="//cdn.bootcss.com/select2/4.0.3/css/select2.min.css" rel="stylesheet">
+{{end}}
+
+{{define "js"}}
+<script type="text/javascript" src="//cdn.bootcss.com/select2/4.0.3/js/select2.min.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script	type="text/javascript" src="/static/js/admin/forms.js"></script>
+<script type="text/javascript">
+$(function() {
+	var select2 = $('#parent').select2({
+		theme: "classic"
+	});
+});
+</script>
+{{end}}

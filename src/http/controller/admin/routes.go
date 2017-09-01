@@ -11,6 +11,8 @@ import "github.com/labstack/echo"
 func RegisterRoutes(g *echo.Group) {
 	new(AuthorityController).RegisterRoute(g)
 	new(UserController).RegisterRoute(g)
+	new(TopicController).RegisterRoute(g)
+	new(NodeController).RegisterRoute(g)
 	new(ArticleController).RegisterRoute(g)
 	new(ProjectController).RegisterRoute(g)
 	new(RuleController).RegisterRoute(g)
