@@ -170,6 +170,12 @@ func (self CommentLogic) Publish(ctx context.Context, uid, objid int, form url.V
 	} else {
 		comment.Floor = tmpCmt.Floor + 1
 	}
+
+	if tmpCmt.Uid == comment.Uid && tmpCmt.Content == comment.Content {
+		objLog.Infof("had post comment: %+v", *comment)
+		return tmpCmt, nil
+	}
+
 	// 入评论库
 	_, err = MasterDB.Insert(comment)
 	if err != nil {
