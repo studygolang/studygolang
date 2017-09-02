@@ -67,11 +67,15 @@ func (NodeController) Modify(ctx echo.Context) error {
 	parent := goutils.MustInt(ctx.QueryParam("parent"))
 	if nid == 0 && parent == 0 {
 		// 新增
-		data["node"] = &model.TopicNode{}
+		data["node"] = &model.TopicNode{
+			ShowIndex: true,
+		}
 	} else if nid > 0 {
 		data["node"] = logic.DefaultNode.FindOne(nid)
 	} else if parent > 0 {
-		data["node"] = &model.TopicNode{}
+		data["node"] = &model.TopicNode{
+			ShowIndex: true,
+		}
 	}
 	data["parent"] = parent
 
