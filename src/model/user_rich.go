@@ -24,9 +24,11 @@ var BalanceTypeMap = map[int]string{
 	MissionTypeWiki:     "创建WIKI",
 	MissionTypeProject:  "发布项目",
 	MissionTypeBook:     "分享图书",
+	MissionTypeModify:   "修改",
 	MissionTypeReplied:  "回复收益",
 	MissionTypeActive:   "活跃奖励",
 	MissionTypeGift:     "兑换物品",
+	MissionTypeSpam:     "Spam",
 }
 
 type UserBalanceDetail struct {

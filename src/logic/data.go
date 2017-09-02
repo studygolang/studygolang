@@ -243,12 +243,13 @@ func GetNodeByEname(ename string) map[string]interface{} {
 	if len(AllRecommendNodes) > 0 {
 		node := DefaultNode.FindByEname(ename)
 		return map[string]interface{}{
-			"ename": node.Ename,
-			"name":  node.Name,
-			"pid":   node.Parent,
-			"nid":   node.Nid,
-			"logo":  node.Logo,
-			"intro": node.Intro,
+			"ename":      node.Ename,
+			"name":       node.Name,
+			"pid":        node.Parent,
+			"nid":        node.Nid,
+			"logo":       node.Logo,
+			"show_index": node.ShowIndex,
+			"intro":      node.Intro,
 		}
 	}
 

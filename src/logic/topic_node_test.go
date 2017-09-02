@@ -6,7 +6,9 @@
 
 package logic_test
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestFindParallelTree(t *testing.T) {
 	// treeNodes := logic.DefaultNode.FindParallelTree(nil)

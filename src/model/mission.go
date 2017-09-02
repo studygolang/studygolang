@@ -34,6 +34,9 @@ const (
 
 	// 物品兑换
 	MissionTypeGift = 100
+
+	// 水
+	MissionTypeSpam = 127
 )
 
 const (

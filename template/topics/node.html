@@ -39,8 +39,10 @@
 					<input type="submit" value="创建新主题" id="submit" class="btn btn-sm btn-default">
 				</div>
 			</form>
+			{{if not .node.show_index}}
 			<div class="sep10"></div>
 			<div class="cell_ops" style="line-height: 150%;">发布在本节点的主题，默认不会出现在首页的 <a href="/?tab=all">全部</a> tab 以及 主题的 <a href="/topics?tab=all">全部</a> tab 中。</div>
+			{{end}}
 		</div>
 		{{end}}
 	</div>

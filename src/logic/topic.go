@@ -105,6 +105,29 @@ func (self TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Value
 			objLog.Errorln("TopicLogic Publish Insert TopicEx error:", err)
 			return
 		}
+		session.Commit()
+
+		go func() {
+			// 同一个首页不显示的节点，一天发布主题数超过3个，扣 1 千铜币
+			topicNum, err := MasterDB.Where("uid=? AND ctime>?", me.Uid, time.Now().Format("2006-01-02 00:00:00")).Count(new(model.Topic))
+			if err != nil {
+				logger.Errorln("find today topic num error:", err)
+				return
+			}
+
+			if topicNum > 3 {
+				node := DefaultNode.FindOne(topic.Nid)
+				if node.ShowIndex {
+					return
+				}
+
+				award := -1000
+
+				desc := fmt.Sprintf(`一天发布推广过多或 Spam 扣除铜币 %d 个`, -award)
+				user := DefaultUser.FindOne(ctx, "uid", me.Uid)
+				DefaultUserRich.IncrUserRich(user, model.MissionTypeSpam, award, desc)
+			}
+		}()
 
 		// 发布动态
 		DefaultFeed.publish(topic, topicEx)
