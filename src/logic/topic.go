@@ -49,14 +49,29 @@ func (self TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Value
 
 		_, err = self.Modify(ctx, me, form)
 		if err != nil {
-			objLog.Errorln("Publish Topic modif error:", err)
+			objLog.Errorln("Publish Topic modify error:", err)
 			return
 		}
 
 		nid := goutils.MustInt(form.Get("nid"))
-		if nid != topic.Nid {
-			DefaultFeed.modifyTopicNode(tid, nid)
-		}
+
+		go func() {
+			// 不是作者自己修改，且是调整节点，扣除铜币
+			if topic.Uid != me.Uid && topic.Nid != nid {
+				node := DefaultNode.FindOne(nid)
+				award := -500
+				if node.ShowIndex {
+					award = -30
+				}
+				desc := fmt.Sprintf(`主题节点被管理员调整为 <a href="/go/%s">%s</a>`, node.Ename, node.Name)
+				user := DefaultUser.FindOne(ctx, "uid", topic.Uid)
+				DefaultUserRich.IncrUserRich(user, model.MissionTypeModify, award, desc)
+			}
+
+			if nid != topic.Nid {
+				DefaultFeed.modifyTopicNode(tid, nid)
+			}
+		}()
 	} else {
 		usernames := form.Get("usernames")
 		form.Del("usernames")
@@ -392,7 +407,7 @@ func (TopicLogic) FindHotNodes(ctx context.Context) []map[string]interface{} {
 		return nil
 	}
 
-	nids := make([]int, 0, hotNum)
+	nids := make([]int, 0, 15)
 	for rows.Next() {
 		var nid, topicnum int
 		err = rows.Scan(&nid, &topicnum)
@@ -407,7 +422,8 @@ func (TopicLogic) FindHotNodes(ctx context.Context) []map[string]interface{} {
 	nodes := make([]map[string]interface{}, 0, hotNum)
 
 	topicNodes := GetNodesByNids(nids)
-	for _, topicNode := range topicNodes {
+	for _, nid := range nids {
+		topicNode := topicNodes[nid]
 		if !topicNode.ShowIndex {
 			continue
 		}
