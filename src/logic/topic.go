@@ -382,14 +382,17 @@ func (TopicLogic) FindHotNodes(ctx context.Context) []map[string]interface{} {
 
 	objLog := GetLogger(ctx)
 
+	hotNum := 10
+
 	lastWeek := time.Now().Add(-7 * 24 * time.Hour).Format("2006-01-02 15:04:05")
-	strSql := fmt.Sprintf("SELECT nid, COUNT(1) AS topicnum FROM topics WHERE ctime>='%s' GROUP BY nid ORDER BY topicnum DESC LIMIT 10", lastWeek)
+	strSql := fmt.Sprintf("SELECT nid, COUNT(1) AS topicnum FROM topics WHERE ctime>='%s' GROUP BY nid ORDER BY topicnum DESC LIMIT 15", lastWeek)
 	rows, err := MasterDB.DB().DB.Query(strSql)
 	if err != nil {
 		objLog.Errorln("TopicLogic FindHotNodes error:", err)
 		return nil
 	}
-	nodes := make([]map[string]interface{}, 0, 10)
+
+	nids := make([]int, 0, hotNum)
 	for rows.Next() {
 		var nid, topicnum int
 		err = rows.Scan(&nid, &topicnum)
@@ -397,14 +400,29 @@ func (TopicLogic) FindHotNodes(ctx context.Context) []map[string]interface{} {
 			objLog.Errorln("rows.Scan error:", err)
 			continue
 		}
-		nodeInfo := GetNode(nid)
+
+		nids = append(nids, nid)
+	}
+
+	nodes := make([]map[string]interface{}, 0, hotNum)
+
+	topicNodes := GetNodesByNids(nids)
+	for _, topicNode := range topicNodes {
+		if !topicNode.ShowIndex {
+			continue
+		}
+
 		node := map[string]interface{}{
-			"name":  nodeInfo["name"].(string),
-			"ename": nodeInfo["ename"].(string),
-			"nid":   nid,
+			"name":  topicNode.Name,
+			"ename": topicNode.Ename,
+			"nid":   topicNode.Nid,
 		}
 		nodes = append(nodes, node)
+		if len(nodes) == hotNum {
+			break
+		}
 	}
+
 	hotNodesCache = nodes
 	hotNodesBegin = time.Now()
 

@@ -11,6 +11,7 @@ import (
 	"model"
 	"strconv"
 	"time"
+	"util"
 
 	. "db"
 
@@ -51,6 +52,7 @@ func (FeedLogic) fillOtherInfo(ctx context.Context, feeds []*model.Feed, filterT
 	newFeeds := make([]*model.Feed, 0, len(feeds))
 
 	uidSet := set.New(set.NonThreadSafe)
+	nidSet := set.New(set.NonThreadSafe)
 	for _, feed := range feeds {
 		if feed.State == model.FeedOffline {
 			continue
@@ -69,7 +71,7 @@ func (FeedLogic) fillOtherInfo(ctx context.Context, feeds []*model.Feed, filterT
 			uidSet.Add(feed.Lastreplyuid)
 		}
 		if feed.Objtype == model.TypeTopic {
-			feed.Node = GetNode(feed.Nid)
+			nidSet.Add(feed.Nid)
 		} else if feed.Objtype == model.TypeResource {
 			feed.Node = map[string]interface{}{
 				"name": GetCategoryName(feed.Nid),
@@ -80,12 +82,20 @@ func (FeedLogic) fillOtherInfo(ctx context.Context, feeds []*model.Feed, filterT
 	}
 
 	usersMap := DefaultUser.FindUserInfos(ctx, set.IntSlice(uidSet))
+	nodesMap := GetNodesByNids(set.IntSlice(nidSet))
 	for _, feed := range newFeeds {
 		if _, ok := usersMap[feed.Uid]; ok {
 			feed.User = usersMap[feed.Uid]
 		}
 		if _, ok := usersMap[feed.Lastreplyuid]; ok {
 			feed.Lastreplyuser = usersMap[feed.Lastreplyuid]
+		}
+
+		if feed.Objtype == model.TypeTopic {
+			if _, ok := nodesMap[feed.Nid]; ok {
+				feed.Node = map[string]interface{}{}
+				util.Struct2Map(feed.Node, nodesMap[feed.Nid])
+			}
 		}
 	}
 
@@ -110,9 +120,16 @@ func (FeedLogic) updateComment(objid, objtype, uid int, cmttime time.Time) {
 
 func (self FeedLogic) modifyTopicNode(tid, nid int) {
 	go func() {
+		change := map[string]interface{}{
+			"nid": nid,
+		}
+
+		node := &model.TopicNode{}
+		_, err := MasterDB.Id(nid).Get(node)
+		if err == nil && !node.ShowIndex {
+			change["state"] = model.FeedOffline
+		}
 		MasterDB.Table(new(model.Feed)).Where("objid=? AND objtype=?", tid, model.TypeTopic).
-			Update(map[string]interface{}{
-				"nid": nid,
-			})
+			Update(change)
 	}()
 }

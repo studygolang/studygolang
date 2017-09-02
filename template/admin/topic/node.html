@@ -18,8 +18,9 @@
 			<thead class="center">
 				<tr>
 					<td width="10%">节点名称</td>
-					<td width="5%">Logo</td>
+					<td width="4%">Logo</td>
 					<td width="15%">简介</td>
+					<td width="5%">是否首页显示</td>
 					<td width="5%">排序</td>
 					<td width="5%">操作</td>
 				</tr>
@@ -35,6 +36,7 @@
 					</td>
 					<td><img src="{{.Logo}}" width="40px"></td>
 					<td style="text-align: left;">{{.Intro}}</td>
+					<td>{{.ShowIndex}}</td>
 					<td class="edit" style="padding: 0px;">
 						<input type="text" size="8" class="seq" data-id="{{.Nid}}" style="line-height: 16px;height: 16px; font-size: 16p;" name="seq" value="{{.Seq}}" />
 					</td>

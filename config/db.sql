@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS `topics_node` (
   `ename` varchar(15) NOT NULL DEFAULT '' COMMENT '节点英文名，用于导航',
   `intro` varchar(127) NOT NULL DEFAULT '' COMMENT '节点简介',
   `seq` smallint unsigned NOT NULL DEFAULT 0 COMMENT '节点排序，小的在前',
+  `show_index` tinyint(3) unsigned NOT NULL DEFAULT '1' COMMENT '主题是否在首页显示',
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`nid`),
   INDEX `idx_ename` (`ename`)

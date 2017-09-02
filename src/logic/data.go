@@ -161,6 +161,7 @@ func LoadNodes() error {
 		nodeMap["name"] = node.Name
 		nodeMap["ename"] = node.Ename
 		nodeMap["intro"] = node.Intro
+		nodeMap["show_index"] = node.ShowIndex
 		nodeMap["ctime"] = node.Ctime
 		AllNode[i] = nodeMap
 	}
@@ -282,12 +283,13 @@ func GetNode(nid int) map[string]interface{} {
 	if len(AllRecommendNodes) > 0 {
 		node := DefaultNode.FindOne(nid)
 		return map[string]interface{}{
-			"ename": node.Ename,
-			"pid":   node.Parent,
-			"name":  node.Name,
-			"nid":   node.Nid,
-			"logo":  node.Logo,
-			"intro": node.Intro,
+			"ename":      node.Ename,
+			"pid":        node.Parent,
+			"name":       node.Name,
+			"nid":        node.Nid,
+			"logo":       node.Logo,
+			"intro":      node.Intro,
+			"show_index": node.ShowIndex,
 		}
 	}
 
@@ -314,9 +316,10 @@ func GetNodesByNids(nids []int) map[int]*model.TopicNode {
 		for _, node := range AllNode {
 			if node["nid"].(int) == nid {
 				nodes[nid] = &model.TopicNode{
-					Nid:   nid,
-					Name:  node["name"].(string),
-					Ename: node["ename"].(string),
+					Nid:       nid,
+					Name:      node["name"].(string),
+					Ename:     node["ename"].(string),
+					ShowIndex: node["show_index"].(bool),
 				}
 			}
 		}

@@ -51,6 +51,17 @@
 		</div>
 		<div>
 			<p>
+				<label for="show_index">是否在首页显示</label>
+				<span class="field">
+					<select id="show_index" name="show_index" class="uniformselect">
+						<option value="0" {{if not .node.ShowIndex}}selected{{end}}>否</option>
+						<option value="1" {{if .node.ShowIndex}}selected{{end}}>是</option>
+					</select>
+				</span>
+			</p>
+		</div>
+		<div>
+			<p>
 				<label for="parent">父节点</label>
 				<span class="field">
 					<select id="parent" name="parent" class="form-control" data-placeholder="请选择一个父节点">

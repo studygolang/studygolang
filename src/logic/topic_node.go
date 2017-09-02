@@ -92,7 +92,7 @@ func (self TopicNodeLogic) Modify(ctx context.Context, form url.Values) error {
 
 	change := make(map[string]interface{})
 
-	fields := []string{"parent", "logo", "name", "ename", "intro", "seq"}
+	fields := []string{"parent", "logo", "name", "ename", "intro", "seq", "show_index"}
 	for _, field := range fields {
 		change[field] = form.Get(field)
 	}

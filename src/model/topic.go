@@ -84,14 +84,15 @@ func (*TopicInfo) TableName() string {
 
 // 社区主题节点信息
 type TopicNode struct {
-	Nid    int       `json:"nid" xorm:"pk autoincr"`
-	Parent int       `json:"parent"`
-	Logo   string    `json:"logo"`
-	Name   string    `json:"name"`
-	Ename  string    `json:"ename"`
-	Seq    int       `json:"seq"`
-	Intro  string    `json:"intro"`
-	Ctime  time.Time `json:"ctime" xorm:"<-"`
+	Nid       int       `json:"nid" xorm:"pk autoincr"`
+	Parent    int       `json:"parent"`
+	Logo      string    `json:"logo"`
+	Name      string    `json:"name"`
+	Ename     string    `json:"ename"`
+	Seq       int       `json:"seq"`
+	Intro     string    `json:"intro"`
+	ShowIndex bool      `json:"show_index"`
+	Ctime     time.Time `json:"ctime" xorm:"<-"`
 
 	Level int `json:"-" xorm:"-"`
 }

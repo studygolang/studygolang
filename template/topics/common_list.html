@@ -1,6 +1,7 @@
 <div class="box_white">
 	<dl class="topics dl-horizontal">
 	{{range .topics}}
+		{{if or ($.node) (and (not $.node) .node.ShowIndex)}}
 		<div class="topic">
 			<dt class="avatar">
 				<a href="/user/{{.user.Username}}" title="{{.user.Username}}"><img alt="{{.user.Username}}" class="img-rounded" src="{{gravatar .user.Avatar .user.Email 48 $.is_https}}" width="48px" height="48px"></a>
@@ -37,6 +38,7 @@
 				</div>
 			</dd>
 		</div>
+		{{end}}
 	{{else}}
 		<p class="text-center">暂时没有任何主题</p>
 	{{end}}

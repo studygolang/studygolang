@@ -171,7 +171,7 @@ func (TopicController) Detail(ctx echo.Context) error {
 
 // Create 新建主题
 func (TopicController) Create(ctx echo.Context) error {
-	nid := goutils.MustInt(ctx.QueryParam("nid"))
+	nid := goutils.MustInt(ctx.FormValue("nid"))
 
 	title := ctx.FormValue("title")
 	// 请求新建主题页面
@@ -197,6 +197,10 @@ func (TopicController) Create(ctx echo.Context) error {
 		return render(ctx, "topics/new.html", data)
 	}
 
+	if nid == 0 {
+		return fail(ctx, 1, "没有选择节点！")
+	}
+
 	me := ctx.Get("user").(*model.Me)
 	tid, err := logic.DefaultTopic.Publish(ctx, me, ctx.FormParams())
 	if err != nil {
@@ -213,8 +217,6 @@ func (TopicController) Modify(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusSeeOther, "/topics")
 	}
 
-	nodes := logic.GenNodes()
-
 	if ctx.Request().Method() != "POST" {
 		topics := logic.DefaultTopic.FindByTids([]int{tid})
 		if len(topics) == 0 {
@@ -223,12 +225,24 @@ func (TopicController) Modify(ctx echo.Context) error {
 
 		hotNodes := logic.DefaultTopic.FindHotNodes(ctx)
 
-		return render(ctx, "topics/new.html", map[string]interface{}{
-			"nodes":        nodes,
+		data := map[string]interface{}{
 			"topic":        topics[0],
 			"activeTopics": "active",
 			"tab_list":     hotNodes,
-		})
+		}
+
+		hadRecommend := false
+		if len(logic.AllRecommendNodes) > 0 {
+			hadRecommend = true
+
+			data["nodes"] = logic.DefaultNode.FindAll(ctx)
+		} else {
+			data["nodes"] = logic.GenNodes()
+		}
+
+		data["had_recommend"] = hadRecommend
+
+		return render(ctx, "topics/new.html", data)
 	}
 
 	me := ctx.Get("user").(*model.Me)

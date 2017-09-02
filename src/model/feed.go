@@ -42,6 +42,12 @@ func PublishFeed(object interface{}, objectExt interface{}) {
 	var feed *Feed
 	switch objdoc := object.(type) {
 	case *Topic:
+		node := &TopicNode{}
+		_, err := db.MasterDB.Id(objdoc.Nid).Get(node)
+		if err == nil && !node.ShowIndex {
+			return
+		}
+
 		cmtnum := 0
 		if objectExt != nil {
 			// 传递过来的是一个 *TopicEx 对象，类型是有的，即时值是 nil，这里也和 nil 是不等

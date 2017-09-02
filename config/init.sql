@@ -51,7 +51,10 @@ VALUES
 	(38, '用户修改', 1, 12, '/admin/user/user/modify', '', '2015-07-14 13:53:53', '2015-07-14 13:53:53'),
 	(39, '设置', 0, 0, '', '', '2017-05-21 16:03:00', '2017-05-21 16:03:59'),
 	(40, '常规', 39, 0, '/admin/setting/genneral/modify', '', '2017-05-21 16:05:00', '2017-05-21 16:05:46'),
-	(41, '导航', 39, 0, '/admin/setting/nav/modify', '', '2017-05-21 18:01:00', '2017-05-21 18:01:16');
+	(41, '导航', 39, 0, '/admin/setting/nav/modify', '', '2017-05-21 18:01:00', '2017-05-21 18:01:16'),
+	(42, '节点管理', 15, 0, '/admin/community/node/list', 'polaris', '2017-09-01 22:23:08', '2017-09-01 23:10:38'),
+	(43, '编辑/新增节点', 15, 42, '/admin/community/node/modify', 'polaris', '2017-09-01 22:23:08', '2017-09-01 23:11:09');
+
 
 INSERT INTO `website_setting` (`id`, `name`, `domain`, `title_suffix`, `favicon`, `logo`, `start_year`, `blog_url`, `reading_menu`, `docs_menu`, `slogan`, `beian`, `friends_logo`, `footer_nav`, `project_df_logo`, `index_nav`, `created_at`, `updated_at`)
 VALUES

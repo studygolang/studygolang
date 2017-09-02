@@ -125,6 +125,9 @@ func (self UserRichLogic) IncrUserRich(user *model.User, typ, award int, desc st
 	}
 
 	user.Balance += initialAward + award
+	if user.Balance < 0 {
+		user.Balance = 0
+	}
 	_, err = session.Where("uid=?", user.Uid).Cols("balance").Update(user)
 	if err != nil {
 		logger.Errorln("IncrUserRich update error:", err)

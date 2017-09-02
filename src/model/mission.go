@@ -23,6 +23,8 @@ const (
 	MissionTypeWiki     = 55
 	MissionTypeProject  = 56
 	MissionTypeBook     = 57
+
+	MissionTypeModify = 65
 	// 被回复
 	MissionTypeReplied = 70
 	// 额外奖励

@@ -25,6 +25,24 @@
 			</div>
 		</div>
 		{{include "topics/common_list.html" .}}
+
+		{{if .me.Uid}}
+		<div class="sep20"></div>
+		<div class="box_white cell">
+			<form action="/topics/new" method="post" _lpchecked="1">
+				<input type="hidden" name="nid" value="{{.node.nid}}">
+				<input type="text" name="title" value="" class="sll" id="topic_title" placeholder="请输入主题标题，如果标题能够表达完整内容，则正文可以为空">
+				<div class="sep10"></div>
+				<textarea name="content" class="mll" id="topic_content" placeholder="正文" style="overflow: hidden; word-wrap: break-word; resize: none; height: 112px;" rows="10"></textarea>
+				<div class="sep10"></div>
+				<div class="text-center">
+					<input type="submit" value="创建新主题" id="submit" class="btn btn-sm btn-default">
+				</div>
+			</form>
+			<div class="sep10"></div>
+			<div class="cell_ops" style="line-height: 150%;">发布在本节点的主题，默认不会出现在首页的 <a href="/?tab=all">全部</a> tab 以及 主题的 <a href="/topics?tab=all">全部</a> tab 中。</div>
+		</div>
+		{{end}}
 	</div>
 	<div class="col-md-3 col-sm-6">
 		<div class="sep20"></div>
@@ -52,9 +70,54 @@
 {{end}}
 {{define "css"}}
 <link href="/static/css/topics.css?v=1.1" rel="stylesheet" type="text/css" />
+<link href="/static/css/jquery.atwho.min.css" rel="stylesheet">
+<style type="text/css">
+.sll {
+	border-radius: 3px;
+	padding: 5px;
+	font-size: 14px;
+	border: 1px solid #ccc;
+	width: 100%;
+	font-family: "Helvetica Neue", "Luxi Sans", "DejaVu Sans", Tahoma, "Hiragino Sans GB", "Microsoft Yahei", sans-serif;
+	box-sizing: border-box;
+}
+.sll:focus {
+	border: 1px solid rgba(128, 128, 160, 0.6);
+	outline: none;
+}
+.mll {
+	border-radius: 3px;
+	padding: 5px;
+	font-size: 14px;
+	border: 1px solid #ccc;
+	display: block;
+	width: 100%;
+	height: 8em;
+	overflow-y: auto;
+	font-family: "Helvetica Neue", "Luxi Sans", "DejaVu Sans", Tahoma, "Hiragino Sans GB", "Microsoft Yahei", sans-serif;
+	resize: vertical;
+	box-sizing: border-box;
+}
+.mll:focus {
+	border: 1px solid rgba(128, 128, 160, 0.6);
+	outline: none;
+}
+.cell_ops {
+	padding: 10px;
+	font-size: 12px;
+	line-height: 120%;
+	text-align: left;
+	border-bottom: 1px solid #e2e2e2;
+	background-color: #F9F9F9;
+	box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05) inset;
+}
+</style>
 {{end}}
 {{define "js"}}
 <script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.caret.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.atwho.min.js"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
@@ -70,6 +133,71 @@ $(function() {
 	var marked = SG.markSetting();
 	var introHtml = marked($('.intro').text());
 	$('.intro').html(introHtml);
+
+	if ($("#is_login_status").val() != 1) {
+		return;
+	}
+
+	$('#topic_content').autoGrow();
+
+	var nodeEname = {{.node.ename}};
+
+	(function() {
+		var draft = loadComposeDraft(uid, 'topic:'+nodeEname);
+		if (draft) {
+			$('#topic_title').val(draft.title);
+			$('#topic_content').val(draft.content);
+		}
+	})();
+
+	function saveTopicDraft() {
+		var title = $('#topic_title').val(),
+			content = $('#topic_content').val();
+
+		var objdata = {title: title, content: content};
+
+		saveComposeDraft(uid, 'topic:'+nodeEname, objdata);
+	}
+
+	$("#topic_content").keydown(function(e) {
+		if ((e.ctrlKey || e.metaKey) && e.which === 13) {
+			e.preventDefault();
+			$("#topic_content").parent().submit();
+		}
+	});
+	$("#topic_title").keydown(function(e) {
+		if ((e.ctrlKey || e.metaKey) && e.which === 13) {
+			e.preventDefault();
+			$("#topic_title").parent().submit();
+		}
+	});
+
+	$("#topic_title").on('input', function(e) {
+		saveTopicDraft();
+	});
+	$("#topic_content").on('input', function(e) {
+		saveTopicDraft();
+	});
+
+	SG.NodeTopic = function(){}
+	SG.NodeTopic.prototype = new SG.Publisher();
+	// 发布主题
+	$('#submit').on('click', function(evt){
+		evt.preventDefault();
+
+		var nodeTopic = new SG.NodeTopic();
+		nodeTopic.publish(this, function(data) {
+			purgeComposeDraft(uid, 'topic:'+nodeEname);
+
+			setTimeout(function(){
+				if (data.tid) {
+					window.location.href = '/topics/'+data.tid;
+				} else {
+					window.location.href = '/go/'+nodeEname;
+				}
+			}, 1000);
+		});
+	});
 });
 </script>
 
