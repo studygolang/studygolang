@@ -33,6 +33,10 @@ func (self IndexController) RegisterRoute(g *echo.Group) {
 }
 
 func (IndexController) NewIndex(ctx echo.Context) error {
+	if len(logic.WebsiteSetting.IndexNavs) == 0 {
+		return render(ctx, "new_index.html", nil)
+	}
+
 	tab := ctx.QueryParam("tab")
 	if tab == "" {
 		tab = GetFromCookie(ctx, "INDEX_TAB")
