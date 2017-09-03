@@ -310,6 +310,7 @@ CREATE TABLE IF NOT EXISTS `articles` (
   PRIMARY KEY (`id`),
   UNIQUE KEY (`url`),
   KEY (`top`),
+  KEY (`author_txt`),
   KEY (`domain`),
   KEY (`ctime`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '网络文章聚合表';

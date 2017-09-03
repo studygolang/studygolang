@@ -126,6 +126,13 @@
 					您的账号未激活，不允许发布内容。<a href="/account/edit" class="alert-link">现在就去激活</a>
 				</div>
 			</div>
+			{{else if eq .me.Balance 0}}
+			<div class="row">
+				<div class="alert alert-warning text-center" role="alert" style="margin-bottom: 0px;">
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					您的账号铜币不足，不允许发布内容，可 <a href="/balance" class="alert-link">领取</a> 初始资本，或去 <a href="/balance/add" class="alert-link">充值</a>
+				</div>
+			</div>
 			{{end}}
 		{{end}}
 

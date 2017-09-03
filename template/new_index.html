@@ -47,7 +47,12 @@
 							{{if eq .Objtype 0}}
 							<a class="node" href="/go/{{.Node.ename}}">{{.Node.name}}</a>
 							{{else if eq .Objtype 1}}
-							<a class="node" href="/articles">文章</a>
+							{{if .Tags}}
+								{{$tags := explode .Tags ","}}
+								<a class="node" href="/tag/{{index $tags 0}}">{{index $tags 0}}</a>
+							{{else}}
+								<a class="node" href="/articles">文章</a>
+							{{end}}
 							{{else if eq .Objtype 2}}
 							<a class="node" href="/resources/cat/{{.Nid}}">{{.Node.name}}</a>
 							{{else if eq .Objtype 3}}

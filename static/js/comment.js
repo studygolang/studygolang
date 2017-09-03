@@ -257,7 +257,7 @@
 							$('.comment-list .words .reply').removeClass('light');
 						}, 2000);
 						callback();
-					}else{
+					} else {
 						alert(data.error);
 					}
 				},
