@@ -58,13 +58,13 @@ func (this *WebsocketController) Ws(wsConn *websocket.Conn) {
 		select {
 		case message := <-messageChan:
 			if err := websocket.JSON.Send(wsConn, message); err != nil {
-				logger.Errorln("Send message", message, " to user:", user, "server_id:", serverId, "error:", err)
+				// logger.Errorln("Send message", message, " to user:", user, "server_id:", serverId, "error:", err)
 				clientClosed = true
 			}
 			// 心跳
 		case <-time.After(15e9):
 			if err := websocket.JSON.Send(wsConn, ""); err != nil {
-				logger.Errorln("Send heart message to user:", user, "server_id:", serverId, "error:", err)
+				// logger.Errorln("Send heart message to user:", user, "server_id:", serverId, "error:", err)
 				clientClosed = true
 			}
 		}
