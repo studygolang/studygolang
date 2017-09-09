@@ -126,6 +126,8 @@ func (self TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Value
 				desc := fmt.Sprintf(`一天发布推广过多或 Spam 扣除铜币 %d 个`, -award)
 				user := DefaultUser.FindOne(ctx, "uid", me.Uid)
 				DefaultUserRich.IncrUserRich(user, model.MissionTypeSpam, award, desc)
+
+				DefaultRank.GenDAURank(me.Uid, -1000)
 			}
 		}()
 

@@ -231,7 +231,7 @@
 						user.avatar = $pageComment.data('avatar'),
 						comment.cmt_time = SG.timeago(comment.ctime);
 						if (comment.reply_floor > 0) {
-							comment.content = content.substr(2);
+							comment.content = content.substr(1);
 						}
 						comment.reply_floor = 0;
 						comment.content = parseCmtContent(comment.content);

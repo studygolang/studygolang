@@ -211,7 +211,11 @@ footer#bottom { border-top: 1px solid rgba(0, 0, 0, 0.22); background-color: #ff
 .truncate {-o-text-overflow: ellipsis;-moz-text-overflow: ellipsis; -webkit-text-overflow: ellipsis;text-overflow: ellipsis; overflow: hidden; white-space: nowrap;}
 
 /* 弹窗登录框 */
-.login-pop {font-family: "microsoft yahei";display: none;top: 0;width: 405px;height: 300px;padding: 30px 40px 30px 5px;background: #fff;position: absolute;z-index: 1001;border-radius: 3px;}
+.login-pop {font-family: "microsoft yahei";display: none;top: 0;width: 405px;max-height: 350px;padding: 30px 30px 30px 10px;background: #fff;position: absolute;z-index: 1001;border-radius: 3px;}
+@media(max-width: 768px) {
+	.login-pop { max-width: 350px; }
+	.login-pop .form-horizontal .form-group { margin-left: 0px; }
+}
 .login-pop .login-form {}
 .login-pop .login-form .error {color:red; display:none;}
 .login-pop .login-form .form-input {padding-left:0px;}
