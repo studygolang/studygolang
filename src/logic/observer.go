@@ -17,6 +17,7 @@ var (
 	modifyObservable  Observable
 	commentObservable Observable
 	ViewObservable    Observable
+	appendObservable  Observable
 )
 
 func init() {
@@ -38,6 +39,11 @@ func init() {
 	ViewObservable = NewConcreteObservable(actionView)
 	ViewObservable.AddObserver(&UserWeightObserver{})
 	ViewObservable.AddObserver(&TodayActiveObserver{})
+
+	appendObservable = NewConcreteObservable(actionAppend)
+	appendObservable.AddObserver(&UserWeightObserver{})
+	appendObservable.AddObserver(&TodayActiveObserver{})
+	appendObservable.AddObserver(&UserRichObserver{})
 }
 
 type Observer interface {
@@ -58,6 +64,7 @@ const (
 	actionModify  = "modify"
 	actionComment = "comment"
 	actionView    = "view"
+	actionAppend  = "append"
 )
 
 type ConcreteObservable struct {
@@ -104,29 +111,42 @@ func (this *ConcreteObservable) NotifyObservers(uid, objtype, objid int) {
 type UserWeightObserver struct{}
 
 func (this *UserWeightObserver) Update(action string, uid, objtype, objid int) {
-	if action == actionPublish {
-		DefaultUser.IncrUserWeight("uid", uid, 20)
-	} else if action == actionModify {
-		DefaultUser.IncrUserWeight("uid", uid, 2)
-	} else if action == actionComment {
-		DefaultUser.IncrUserWeight("uid", uid, 5)
-	} else if action == actionView {
-		DefaultUser.IncrUserWeight("uid", uid, 1)
+	var weight int
+	switch action {
+	case actionPublish:
+		weight = 20
+	case actionModify:
+		weight = 2
+	case actionComment:
+		weight = 5
+	case actionView:
+		weight = 1
+	case actionAppend:
+		weight = 15
 	}
+
+	DefaultUser.IncrUserWeight("uid", uid, weight)
 }
 
 type TodayActiveObserver struct{}
 
 func (*TodayActiveObserver) Update(action string, uid, objtype, objid int) {
-	if action == actionPublish {
-		DefaultRank.GenDAURank(uid, 20)
-	} else if action == actionModify {
-		DefaultRank.GenDAURank(uid, 2)
-	} else if action == actionComment {
-		DefaultRank.GenDAURank(uid, 5)
-	} else if action == actionView {
-		DefaultRank.GenDAURank(uid, 1)
+	var weight int
+
+	switch action {
+	case actionPublish:
+		weight = 20
+	case actionModify:
+		weight = 2
+	case actionComment:
+		weight = 5
+	case actionView:
+		weight = 1
+	case actionAppend:
+		weight = 15
 	}
+
+	DefaultRank.GenDAURank(uid, weight)
 }
 
 type UserRichObserver struct{}
@@ -324,6 +344,13 @@ func (UserRichObserver) Update(action string, uid, objtype, objid int) {
 		return
 	} else if action == actionView {
 		return
+	} else if action == actionAppend {
+		typ = model.MissionTypeAppend
+		award = -15
+		topic := DefaultTopic.findByTid(objid)
+		desc = fmt.Sprintf(`为主题 › <a href="/topics/%d">%s</a> 增加附言`,
+			topic.Tid,
+			topic.Title)
 	}
 
 	DefaultUserRich.IncrUserRich(user, typ, award, desc)

@@ -15,6 +15,11 @@ const (
 	FlagUserDelete
 )
 
+const (
+	// 最多附言条数
+	AppendMaxNum = 3
+)
+
 // 社区主题信息
 type Topic struct {
 	Tid           int       `xorm:"pk autoincr" json:"tid"`
@@ -80,6 +85,13 @@ type TopicInfo struct {
 
 func (*TopicInfo) TableName() string {
 	return "topics"
+}
+
+type TopicAppend struct {
+	Id        int `xorm:"pk autoincr"`
+	Tid       int
+	Content   string
+	CreatedAt OftenTime `xorm:"<-"`
 }
 
 // 社区主题节点信息

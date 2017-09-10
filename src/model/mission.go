@@ -24,6 +24,8 @@ const (
 	MissionTypeProject  = 56
 	MissionTypeBook     = 57
 
+	MissionTypeAppend = 60
+
 	MissionTypeModify = 65
 	// 被回复
 	MissionTypeReplied = 70

@@ -178,6 +178,37 @@ func (TopicLogic) Modify(ctx context.Context, user *model.Me, form url.Values) (
 	return
 }
 
+// Append 主题附言
+func (self TopicLogic) Append(ctx context.Context, uid, tid int, content string) error {
+	objLog := GetLogger(ctx)
+
+	// 当前已经附言了几条，最多 3 条
+	num, err := MasterDB.Where("tid=?", tid).Count(new(model.TopicAppend))
+	if err != nil {
+		objLog.Errorln("TopicLogic Append error:", err)
+		return err
+	}
+
+	if num >= model.AppendMaxNum {
+		return errors.New("不允许再发附言！")
+	}
+
+	topicAppend := &model.TopicAppend{
+		Tid:     tid,
+		Content: content,
+	}
+	_, err = MasterDB.Insert(topicAppend)
+
+	if err != nil {
+		objLog.Errorln("TopicLogic Append insert error:", err)
+		return err
+	}
+
+	go appendObservable.NotifyObservers(uid, model.TypeTopic, tid)
+
+	return nil
+}
+
 // FindAll 支持多页翻看
 func (self TopicLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy string, querystring string, args ...interface{}) []map[string]interface{} {
 	objLog := GetLogger(ctx)
@@ -341,6 +372,18 @@ func (TopicLogic) FindByPage(ctx context.Context, conds map[string]string, curPa
 	}
 
 	return topicList, int(total)
+}
+
+func (TopicLogic) FindAppend(ctx context.Context, tid int) []*model.TopicAppend {
+	objLog := GetLogger(ctx)
+
+	topicAppends := make([]*model.TopicAppend, 0)
+	err := MasterDB.Where("tid=?", tid).Find(&topicAppends)
+	if err != nil {
+		objLog.Errorln("TopicLogic FindAppend error:", err)
+	}
+
+	return topicAppends
 }
 
 func (TopicLogic) findByTid(tid int) *model.Topic {

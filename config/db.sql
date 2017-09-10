@@ -51,6 +51,15 @@ CREATE TABLE IF NOT EXISTS `topics_ex` (
   PRIMARY KEY (`tid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '主题扩展表（计数）';
 
+CREATE TABLE IF NOT EXISTS `topic_append` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `tid` int unsigned NOT NULL DEFAULT 0 COMMENT '主题 TID',
+  `content` text NOT NULL COMMENT '附言内容',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `tid` (`tid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '主题附言表';
+
 CREATE TABLE IF NOT EXISTS `topics_node` (
   `nid` int unsigned NOT NULL AUTO_INCREMENT,
   `parent` int unsigned NOT NULL DEFAULT 0 COMMENT '父节点id，无父节点为0',

@@ -12,6 +12,7 @@ import (
 	"logic"
 	"model"
 	"net/http"
+	"strconv"
 
 	. "http"
 
@@ -39,6 +40,8 @@ func (self TopicController) RegisterRoute(g *echo.Group) {
 
 	g.Match([]string{"GET", "POST"}, "/topics/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice())
 	g.Match([]string{"GET", "POST"}, "/topics/modify", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
+
+	g.Match([]string{"GET", "POST"}, "/append/topic/:tid", self.Append, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck())
 }
 
 func (self TopicController) TopicList(ctx echo.Context) error {
@@ -166,6 +169,8 @@ func (TopicController) Detail(ctx echo.Context) error {
 		logic.Views.Incr(Request(ctx), model.TypeTopic, tid)
 	}
 
+	data["appends"] = logic.DefaultTopic.FindAppend(ctx, tid)
+
 	return render(ctx, "topics/detail.html,common/comment.html", data)
 }
 
@@ -255,4 +260,40 @@ func (TopicController) Modify(ctx echo.Context) error {
 		return fail(ctx, 2, "服务错误，请稍后重试！")
 	}
 	return success(ctx, map[string]interface{}{"tid": tid})
+}
+
+func (TopicController) Append(ctx echo.Context) error {
+	tid := goutils.MustInt(ctx.Param("tid"))
+	if tid == 0 {
+		return ctx.Redirect(http.StatusSeeOther, "/topics")
+	}
+
+	topics := logic.DefaultTopic.FindByTids([]int{tid})
+	if len(topics) == 0 {
+		return ctx.Redirect(http.StatusSeeOther, "/topics")
+	}
+
+	topic := topics[0]
+	me := ctx.Get("user").(*model.Me)
+	if topic.Uid != me.Uid {
+		return ctx.Redirect(http.StatusSeeOther, "/topics/"+strconv.Itoa(tid))
+	}
+
+	// 请求新建主题页面
+	if ctx.Request().Method() != http.MethodPost {
+		data := map[string]interface{}{
+			"topic":        topic,
+			"activeTopics": "active",
+		}
+
+		return render(ctx, "topics/append.html", data)
+	}
+
+	content := ctx.FormValue("content")
+	err := logic.DefaultTopic.Append(ctx, me.Uid, tid, content)
+	if err != nil {
+		return fail(ctx, 1, "出错了:"+err.Error())
+	}
+
+	return success(ctx, nil)
 }

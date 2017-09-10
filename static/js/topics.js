@@ -16,17 +16,20 @@
 	SG.Topics = function(){}
 	SG.Topics.prototype = new SG.Publisher();
 	SG.Topics.prototype.parseContent = function(selector) {
-		var markdownString = selector.text();
 		// 配置 marked 语法高亮
 		marked = SG.markSetting();
 
-		var contentHtml = marked(markdownString);
-		contentHtml = SG.replaceCodeChar(contentHtml);
-		
-		selector.html(contentHtml);
+		selector.each(function() {
+			var markdownString = $(this).text();
 
-		// emoji 表情解析
-		emojify.run(selector.get(0));
+			var contentHtml = marked(markdownString);
+			contentHtml = SG.replaceCodeChar(contentHtml);
+			
+			$(this).html(contentHtml);
+
+			// emoji 表情解析
+			emojify.run(this);
+		});
 	}
 
 	jQuery(document).ready(function($) {

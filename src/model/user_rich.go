@@ -24,6 +24,7 @@ var BalanceTypeMap = map[int]string{
 	MissionTypeWiki:     "创建WIKI",
 	MissionTypeProject:  "发布项目",
 	MissionTypeBook:     "分享图书",
+	MissionTypeAppend:   "增加附言",
 	MissionTypeModify:   "修改",
 	MissionTypeReplied:  "回复收益",
 	MissionTypeActive:   "活跃奖励",
