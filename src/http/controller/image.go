@@ -29,8 +29,57 @@ type ImageController struct{}
 
 func (self ImageController) RegisterRoute(g *echo.Group) {
 	g.POST("/image/upload", self.Upload)
+	g.POST("/image/paste_upload", self.PasteUpload)
 	g.POST("/image/quick_upload", self.QuickUpload)
 	g.Match([]string{"GET", "POST"}, "/image/transfer", self.Transfer)
+}
+
+// PasteUpload jquery 粘贴上传图片
+func (self ImageController) PasteUpload(ctx echo.Context) error {
+	objLogger := getLogger(ctx)
+
+	file, fileHeader, err := Request(ctx).FormFile("imageFile")
+	if err != nil {
+		objLogger.Errorln("upload error:", err)
+		return self.pasteUploadFail(ctx, err.Error())
+	}
+	defer file.Close()
+
+	// 如果是临时文件，存在硬盘中，则是 *os.File（大于32M），直接报错
+	if _, ok := file.(*os.File); ok {
+		objLogger.Errorln("upload error:file too large!")
+		return self.pasteUploadFail(ctx, "文件太大！")
+	}
+
+	buf, err := ioutil.ReadAll(file)
+	if err != nil {
+		return self.pasteUploadFail(ctx, "文件读取失败！")
+	}
+	if len(buf) > logic.MaxImageSize {
+		return self.pasteUploadFail(ctx, "文件太大！")
+	}
+
+	imgDir := times.Format("ymd")
+	file.Seek(0, io.SeekStart)
+	path, err := logic.DefaultUploader.UploadImage(ctx, file, imgDir, buf, filepath.Ext(fileHeader.Filename))
+	if err != nil {
+		return self.pasteUploadFail(ctx, "文件上传失败！")
+	}
+
+	cdnDomain := global.App.CDNHttp
+	if CheckIsHttps(ctx) {
+		cdnDomain = global.App.CDNHttps
+	}
+
+	data := map[string]interface{}{
+		"success": 1,
+		"message": cdnDomain + path,
+	}
+	b, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	return ctx.JSONBlob(http.StatusOK, b)
 }
 
 // QuickUpload CKEditor 编辑器，上传图片，支持粘贴方式上传
@@ -75,20 +124,6 @@ func (self ImageController) QuickUpload(ctx echo.Context) error {
 		"uploaded": 1,
 		"fileName": fileName,
 		"url":      cdnDomain + path,
-	}
-	b, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
-	return ctx.JSONBlob(http.StatusOK, b)
-}
-
-func (ImageController) quickUploadFail(ctx echo.Context, message string) error {
-	data := map[string]interface{}{
-		"uploaded": 0,
-		"error": map[string]string{
-			"message": message,
-		},
 	}
 	b, err := json.Marshal(data)
 	if err != nil {
@@ -165,4 +200,30 @@ func (ImageController) Transfer(ctx echo.Context) error {
 	}
 
 	return success(ctx, map[string]interface{}{"url": cdnDomain + path})
+}
+
+func (ImageController) quickUploadFail(ctx echo.Context, message string) error {
+	data := map[string]interface{}{
+		"uploaded": 0,
+		"error": map[string]string{
+			"message": message,
+		},
+	}
+	b, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	return ctx.JSONBlob(http.StatusOK, b)
+}
+
+func (ImageController) pasteUploadFail(ctx echo.Context, message string) error {
+	data := map[string]interface{}{
+		"success": 0,
+		"message": message,
+	}
+	b, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	return ctx.JSONBlob(http.StatusOK, b)
 }

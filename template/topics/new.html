@@ -123,6 +123,8 @@
 								<!-- <li>支持嵌入 Wide 的Playground 代码直接运行</li> -->
 							</ul>
 							<div class="sep10"></div>
+							<div>图片支持拖拽、截图粘贴等方式上传。</div>
+							<div class="sep10"></div>
 						</li>
 						<li>
 							<span class="f13">选择节点</span>
@@ -243,6 +245,8 @@ $(function(){
 	$('#title,#content,#nid').on('change', function() {
 		saveTopicComposeDraft();
 	});
+
+	$('#content').pasteUploadImage('/image/paste_upload');
 });
 </script>
 {{end}}

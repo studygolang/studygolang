@@ -87,6 +87,9 @@
 			$(this).parents('.reply-to').addClass('dn').data('floor', '').data('username', '');
 		});
 
+		// 支持粘贴上传图片
+		$('#comment-content').pasteUploadImage('/image/paste_upload');
+
 		emojify.setConfig({
 			// emojify_tag_type : 'span',
 			only_crawl_id    : null,
