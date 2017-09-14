@@ -47,7 +47,7 @@
 					<h2>
 						<a href="/{{if eq .Objtype 0}}topics{{else if eq .Objtype 1}}articles{{else if eq .Objtype 2}}resources{{else if eq .Objtype 4}}p{{else}}wiki{{end}}/{{.Objid}}" target="_blank" title="{{.Title}}">{{noescape .HlTitle}}</a></h2>
 					{{if .Content}}
-					<p class="text">{{noescape .HlContent}}<a href="/articles/{{.Objid}}" target="_blank" title="阅读全文">阅读全文</a></p>
+					<p class="text">{{safeHtml (noescape .HlContent)}}<a href="/articles/{{.Objid}}" target="_blank" title="阅读全文">阅读全文</a></p>
 					{{end}}
 				</div>
 			</div>

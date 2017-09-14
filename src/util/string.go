@@ -7,6 +7,7 @@ package util
 
 import (
 	"errors"
+	"strings"
 	"unicode"
 	"unicode/utf8"
 
@@ -232,4 +233,9 @@ func UnderscoreName(name string) string {
 	}
 
 	return buffer.String()
+}
+
+func SafeHtml(s string) string {
+	r := strings.NewReplacer("<input", "&lt;input", "<a ", "&lt; a")
+	return r.Replace(s)
 }

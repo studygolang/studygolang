@@ -147,6 +147,7 @@ var funcMap = template.FuncMap{
 		json.Unmarshal([]byte(str), &result)
 		return result
 	},
+	"safeHtml": util.SafeHtml,
 }
 
 func tplInclude(file string, dot map[string]interface{}) template.HTML {
