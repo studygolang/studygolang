@@ -29,7 +29,7 @@ const (
 	MissionTypeModify = 65
 	// 被回复
 	MissionTypeReplied = 70
-	// 额外奖励
+	// 额外赠予
 	MissionTypeAward = 80
 	// 活跃奖励
 	MissionTypeActive = 81

@@ -27,6 +27,7 @@ var BalanceTypeMap = map[int]string{
 	MissionTypeAppend:   "增加附言",
 	MissionTypeModify:   "修改",
 	MissionTypeReplied:  "回复收益",
+	MissionTypeAward:    "额外赠予",
 	MissionTypeActive:   "活跃奖励",
 	MissionTypeGift:     "兑换物品",
 	MissionTypeSpam:     "Spam",
