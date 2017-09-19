@@ -17,6 +17,7 @@
 	<!--<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">-->
 	<link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
 	<link href="/static/css/main.css?v=1.4" rel="stylesheet"/>
+	<link href="/static/css/zoom.css" rel="stylesheet"/>
 	{{template "css" .}}
 	<style type="text/css">
 	#bottom .nav-content {
@@ -252,6 +253,7 @@
 	<script type="text/javascript" src="/static/js/libs/bootstrap-3.2.0.min.js"></script>
 	<script src="/static/js/libs/jquery.timeago.js?v=1.5.4"></script>
 	<script src="/static/js/libs/jquery.timeago.zh-CN.js?v=1.5.4"></script>
+	<script src="/static/js/libs/zoom.min.js"></script>
 	<script src="/static/js/libs/md5.js"></script>
 	<script type="text/javascript">
 	var uid = {{.me.Uid}};
@@ -264,7 +266,7 @@
 	}
 	var GLaunchTime = {{timestamp .app.LaunchTime}}*1000;
 	</script>
-	<script src="/static/js/common.js?v=1.2"></script>
+	<script src="/static/js/common.js?v=1.7"></script>
 	<script src="//cdn.bootcss.com/lscache/1.1.0/lscache.min.js"></script>
 	<script type="text/javascript" src="/static/js/libs/paste-upload-image.js"></script>
 	{{template "js" .}}

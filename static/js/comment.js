@@ -160,6 +160,12 @@
 							var url = $(this).attr('href');
 							$(this).attr('target', '_blank');
 						});
+
+						$('.comment-list .markdown img').attr('data-action', 'zoom');
+
+						$('.comment-list .markdown img').on('click', function() {
+							$(this).parents('.box_white').css('overflow', 'visible');
+						});
 					}
 					$('.comment-list .words').removeClass('hide');
 
