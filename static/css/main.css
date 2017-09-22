@@ -151,7 +151,7 @@ a.tab_current:hover {background-color: #445; color: #fff; text-decoration: none;
 /* 详情页 */
 .page {}
 .page .title { padding: 10px; font-size: 14px; line-height: 120%; text-align: left; border-bottom: 1px solid #e2e2e2; overflow: auto; }
-.page .title h1 { position: relative; font-size: 24px; font-weight: 500; line-height: 150%; margin: 0px 0px 10px 0px; padding: 0px;}
+.page .title h1 { font-size: 24px; font-weight: 500; line-height: 150%; margin: 0px 0px 10px 0px; padding: 0px;}
 .page .title h1 .edit { font-size: 15px; position: absolute; top: 12px; border: 1px solid #e6e6e6;background: #fdfdfd;margin-left: 10px; padding: 3px; }
 .page .title h1 .edit:hover { text-decoration: none; background: #121212; color: #fff;}
 .page .meta {height: 28px;line-height: 28px;border-bottom: dotted 1px #D8D8D8; margin: 0 30px;}
