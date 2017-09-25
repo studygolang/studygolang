@@ -1,0 +1,90 @@
+{{define "title"}}所有节点{{end}}
+{{define "content"}}
+<div class="row">
+	<div class="col-md-9 col-sm-6">
+		<div class="sep20"></div>
+
+		<ol class="breadcrumb" style="border-bottom: 1px solid #e2e2e2;">
+			<li><a href="/">首页</a></li>
+			<li class="active">所有节点</li>
+		</ol>
+		<div class="box_white cell">
+			<h2 class="text-center node-num">{{len .nodes}} nodes now and growing.</h2>
+		</div>
+		<div class="sep20"></div>
+		<div class="box_white cell">
+			<div class="inner">
+				{{range .nodes}}
+				<a href="/go/{{.Ename}}" class="item_node">{{.Name}}</a>
+				{{end}}
+			</div>
+		</div>
+	</div>
+	<div class="col-md-3 col-sm-6">
+		<div class="sep20"></div>
+
+		{{include "common/my_info.html" .}}
+
+		{{if .pos_ad.right1}}
+		<div class="box_white sidebar" id="ad-right1">
+			{{if eq .pos_ad.right1.AdType 0}}
+				{{noescape .pos_ad.right1.Code}}
+			{{end}}
+		</div>
+		{{end}}
+		
+		{{include "sidebar/hot_node.html" .}}
+		
+		{{include "sidebar/stat.html" .}}
+		
+	</div>
+</div>
+{{end}}
+{{define "css"}}
+<style type="text/css">
+.node-num { border-bottom: 1px solid #e2e2e2;margin: 15px 0px; padding: 0px 0px 8px 0px; }
+.item_node {
+    font-size: 12px;
+    line-height: 12px;
+    padding: 4px 10px 4px 10px;
+    margin: 0px 5px 5px 0px;
+    border-radius: 16px;
+    display: inline-block;
+    border: 1px solid #e5e5e5;
+}
+.item_node:hover {
+    text-decoration: none;
+    color: #333;
+
+    border: 1px solid #ccc;
+    box-shadow: 0px 1px 2px rgba(0, 0, 32, 0.1);
+}
+
+.item_node:active {
+    text-decoration: none;
+    background-color: #f9f9f9;
+    color: #333;
+
+    border: 1px solid #ccc;
+    box-shadow: 0px 1px 2px rgba(0, 0, 32, 0.1) inset;
+    outline: none;
+}
+</style>
+{{end}}
+{{define "js"}}
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/nodes/hot",
+	"/websites/stat",
+	"/rank/view"
+];
+</script>
+
+{{if .pos_ad.right1}}
+	{{if eq .pos_ad.right1.AdType 1}}
+		{{noescape .pos_ad.right1.Code}}
+	{{end}}
+{{end}}
+
+{{end}}

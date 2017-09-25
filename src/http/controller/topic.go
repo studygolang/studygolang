@@ -37,6 +37,7 @@ func (self TopicController) RegisterRoute(g *echo.Group) {
 	g.GET("/topics/:tid", self.Detail)
 	g.GET("/topics/node/:nid", self.NodeTopics)
 	g.GET("/go/:node", self.GoNodeTopics)
+	g.GET("/nodes", self.Nodes)
 
 	g.Match([]string{"GET", "POST"}, "/topics/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice())
 	g.Match([]string{"GET", "POST"}, "/topics/modify", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
@@ -296,4 +297,17 @@ func (TopicController) Append(ctx echo.Context) error {
 	}
 
 	return success(ctx, nil)
+}
+
+// Nodes 所有节点
+func (TopicController) Nodes(ctx echo.Context) error {
+	data := make(map[string]interface{})
+
+	if len(logic.AllRecommendNodes) > 0 {
+		data["nodes"] = logic.DefaultNode.FindAll(ctx)
+	} else {
+		data["nodes"] = logic.GenNodes()
+	}
+
+	return render(ctx, "topics/nodes.html", data)
 }
