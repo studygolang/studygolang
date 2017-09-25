@@ -1,0 +1,29 @@
+{{define "title"}}友情链接{{end}}
+{{define "seo"}}<meta name="keywords" content="{{.setting.SeoKeywords}}">
+<meta name="description" content="{{.setting.SeoDescription}}">{{end}}
+{{define "content"}}
+<div class="row">
+    <div class="col-md-9 col-sm-6">
+        <div class="sep20"></div>
+        <div>
+            <ol class="breadcrumb">
+                <li><a href="/">首页</a></li>
+                <li class="active">友情链接</li>
+            </ol>
+        </div>
+        
+        <div class="page box_white">
+            <div class="cell">
+              {{range .links}}
+                <a href="{{.Url}}" target="_blank" style="margin-right: 20px;">{{.Name}}</a>
+              {{end}}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="sep20"></div>
+        
+        {{include "common/my_info.html" .}}
+    </div>
+</div>
+{{end}}

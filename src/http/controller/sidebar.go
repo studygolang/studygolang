@@ -157,7 +157,7 @@ func (SidebarController) NewestUser(ctx echo.Context) error {
 
 // FriendLinks 友情链接
 func (SidebarController) FriendLinks(ctx echo.Context) error {
-	friendLinks := logic.DefaultFriendLink.FindAll(ctx)
+	friendLinks := logic.DefaultFriendLink.FindAll(ctx, 5)
 	return success(ctx, friendLinks)
 }
 

@@ -1,0 +1,283 @@
+{{define "title"}}Markdown 教程{{end}}
+{{define "seo"}}<meta name="keywords" content="{{.setting.SeoKeywords}}">
+<meta name="description" content="{{.setting.SeoDescription}}">{{end}}
+{{define "content"}}
+<div class="row">
+    <div class="sep20"></div>
+    <div class="box_white markdown">
+        <h1 style="text-align: center;">Markdown 教程</h1>
+        <div class="col-md-6">
+            <pre><code>
+# Guide
+
+这是一篇讲解如何正确使用 **Markdown** 的排版示例，学会这个很有必要，能让你的帖子有更加清晰的排版。
+
+&gt; 引用文本：Markdown is a text formatting syntax inspired
+
+## 语法指导
+
+### 普通内容
+
+这段内容展示了在内容里面一些小的格式，比如：
+
+- **加粗** - `**加粗**`
+- *倾斜* - `*倾斜*`
+- ~~删除线~~ - `~~删除线~~`
+- `Code 标记` - ``Code 标记``
+- [超级链接](http://github.com) - `[超级链接](http://github.com)`
+- [username@gmail.com](mailto:username@gmail.com) - `[username@gmail.com](mailto:username@gmail.com)`
+
+### 提及用户
+
+@polaris ... 通过 @ 可以在发帖和回帖里面提及用户，信息提交以后，被提及的用户将会收到系统通知。以便让他来关注这个帖子或回帖。
+
+### 表情符号 Emoji
+
+支持表情符号，你可以用系统默认的 Emoji 符号（无法支持 Windows 用户）。
+也可以用图片的表情，输入 `:` 将会出现智能提示。
+
+#### 一些表情例子
+
+:smile: :laughing: :dizzy_face: :sob: :cold_sweat: :sweat_smile:  :cry: :triumph: :heart_eyes: :relaxed: :sunglasses: :weary:
+
+:+1: :-1: :100: :clap: :bell: :gift: :question: :bomb: :heart: :coffee: :cyclone: :bow: :kiss: :pray: :sweat_drops: :hankey: :exclamation: :anger:
+
+### 大标题 - Heading 3
+
+你可以选择使用 H2 至 H6，使用 ##(N) 打头，H1 不能使用，会自动转换成 H2。
+
+&gt; NOTE: 别忘了 # 后面需要有空格！
+
+#### Heading 4
+
+##### Heading 5
+
+###### Heading 6
+
+### 图片
+
+```
+![alt 文本](http://image-path.png)
+![alt 文本](http://image-path.png &quot;图片 Title 值&quot;)
+![设置图片宽度高度](http://image-path.png =300x200)
+![设置图片宽度](http://image-path.png =300x)
+![设置图片高度](http://image-path.png =x200)
+```
+
+### 代码块
+
+#### 普通
+
+```
+*emphasize*    **strong**
+_emphasize_    __strong__
+@a = 1
+```
+
+#### 语法高亮支持
+
+如果在 ``` 后面跟随语言名称，可以有语法高亮的效果哦，比如:
+
+##### 演示 Go 代码高亮
+
+```go
+package main
+
+import (
+    "fmt"
+)
+
+func main() {
+    fmt.Println("Hello World!")
+}
+```
+
+##### 演示 JSON 代码高亮
+
+```json
+{"name":"Go语言中文网","url":"https://studygolang.com"}
+``` 
+
+&gt; Tip: 语言名称支持大部分常用的语言
+
+### 有序、无序列表
+
+#### 无序列表
+
+- Go
+  - Gofmt
+  - Revel
+  - Gin
+  - Echo
+- PHP
+  - Laravel
+  - ThinkPHP
+
+#### 有序列表
+
+1. Go
+  1. Gofmt
+  2. Revel
+  3. Gin
+  4. Echo
+2. PHP
+  1. Laravel
+  2. ThinkPHP
+3. Java
+
+### 表格
+
+如果需要展示数据什么的，可以选择使用表格哦
+
+| header 1 | header 3 |
+| -------- | -------- |
+| cell 1   | cell 2   |
+| cell 3   | cell 4   |
+| cell 5   | cell 6   |
+
+### 段落
+
+留空白的换行，将会被自动转换成一个段落，会有一定的段落间距，便于阅读。
+
+请注意后面 Markdown 源代码的换行留空情况。
+        </code></pre>
+    </div>
+
+    <div class="col-md-6">
+        <h2 id="Guide">Guide</h2>
+<p>这是一篇讲解如何正确使用 <strong>Markdown</strong> 的排版示例，学会这个很有必要，能让你的文章有更佳清晰的排版。</p>
+
+<blockquote>
+<p>引用文本：Markdown is a text formatting syntax inspired</p>
+</blockquote>
+<h2 id="语法指导">语法指导</h2><h3 id="普通内容">普通内容</h3>
+<p>这段内容展示了在内容里面一些小的格式，比如：</p>
+
+<ul>
+<li>
+<strong>加粗</strong> - <code>**加粗**</code>
+</li>
+<li>
+<em>倾斜</em> - <code>*倾斜*</code>
+</li>
+<li>
+<del>删除线</del> - <code>~~删除线~~</code>
+</li>
+<li>
+<code>Code 标记</code> - <code>Code 标记</code>
+</li>
+<li>
+<a href="http://github.com">超级链接</a> - <code>[超级链接](http://github.com)</code>
+</li>
+<li>
+<a href="mailto:username@gmail.com">username@gmail.com</a> - <code>[username@gmail.com](mailto:username@gmail.com)</code>
+</li>
+</ul>
+<h3 id="提及用户">提及用户</h3>
+<p><a href="/user/polaris" class="user-mention" title="@polaris"><i>@</i>polaris</a> ... 通过 @ 可以在发帖和回帖里面提及用户，信息提交以后，被提及的用户将会收到系统通知。以便让他来关注这个帖子或回帖。</p>
+<h3 id="表情符号 Emoji">表情符号 Emoji</h3>
+<p>支持表情符号，你可以用系统默认的 Emoji 符号（无法支持 Windows 用户）。
+也可以用图片的表情，输入 <code>:</code> 将会出现智能提示。</p>
+<h4 id="一些表情例子">一些表情例子</h4>
+<p><img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/smile.png" title=":smile:" alt=":smile:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/laughing.png" title=":laughing:" alt=":laughing:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/dizzy_face.png" title=":dizzy_face:" alt=":dizzy_face:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/sob.png" title=":sob:" alt=":sob:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/cold_sweat.png" title=":cold_sweat:" alt=":cold_sweat:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/sweat_smile.png" title=":sweat_smile:" alt=":sweat_smile:" align="absmiddle">  <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/cry.png" title=":cry:" alt=":cry:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/triumph.png" title=":triumph:" alt=":triumph:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/heart_eyes.png" title=":heart_eyes:" alt=":heart_eyes:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/relaxed.png" title=":relaxed:" alt=":relaxed:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/sunglasses.png" title=":sunglasses:" alt=":sunglasses:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/weary.png" title=":weary:" alt=":weary:" align="absmiddle"></p>
+<p><img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/thumbsup.png" title=":thumbsup:" alt=":thumbsup:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/-1.png" title=":-1:" alt=":-1:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/100.png" title=":100:" alt=":100:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/clap.png" title=":clap:" alt=":clap:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/bell.png" title=":bell:" alt=":bell:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/gift.png" title=":gift:" alt=":gift:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/question.png" title=":question:" alt=":question:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/bomb.png" title=":bomb:" alt=":bomb:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/heart.png" title=":heart:" alt=":heart:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/coffee.png" title=":coffee:" alt=":coffee:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/cyclone.png" title=":cyclone:" alt=":cyclone:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/bow.png" title=":bow:" alt=":bow:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/kiss.png" title=":kiss:" alt=":kiss:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/pray.png" title=":pray:" alt=":pray:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/sweat_drops.png" title=":sweat_drops:" alt=":sweat_drops:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/hankey.png" title=":hankey:" alt=":hankey:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/exclamation.png" title=":exclamation:" alt=":exclamation:" align="absmiddle"> <img class="emoji" src="https://cdnjs.cloudflare.com/ajax/libs/emojify.js/1.1.0/images/basic/anger.png" title=":anger:" alt=":anger:" align="absmiddle"></p>
+<h3 id="大标题 - Heading 3">大标题 - Heading 3</h3>
+<p>你可以选择使用 H2 至 H6，使用 ##(N) 打头，H1 不能使用，会自动转换成 H2。</p>
+
+<blockquote>
+<p>NOTE: 别忘了 # 后面需要有空格！</p>
+</blockquote>
+<h4 id="Heading 4">Heading 4</h4><h5 id="Heading 5">Heading 5</h5><h6 id="Heading 6">Heading 6</h6><h3 id="图片">图片</h3><pre class="highlight plaintext"><code>![alt 文本](http://image-path.png)
+![alt 文本](http://image-path.png "图片 Title 值")
+![设置图片宽度高度](http://image-path.png =300x200)
+![设置图片宽度](http://image-path.png =300x)
+![设置图片高度](http://image-path.png =x200)
+</code></pre><h3 id="代码块">代码块</h3><h4 id="普通">普通</h4>
+<pre><code><span class="hljs-emphasis">*emphasize*</span>    <span class="hljs-strong">**strong**</span>
+<span class="hljs-emphasis">_emphasize_</span>    <span class="hljs-strong">__strong__</span>
+@a = 1
+</code></pre>
+<h4 id="语法高亮支持">语法高亮支持</h4>
+<p>如果在 ``` 后面更随语言名称，可以有语法高亮的效果哦，比如:</p>
+<h5 id="演示 Go 代码高亮">演示 Go 代码高亮</h5>
+<pre><code class="lang-go"><span class="hljs-function"><span class="hljs-keyword">package</span> main
+
+<span class="hljs-title">import</span> <span class="hljs-params">(
+    <span class="hljs-string">"fmt"</span>
+)</span>
+
+func <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>{
+    fmt.Println(<span class="hljs-string">"Hello World!"</span>)
+}
+</code></pre>
+<h5 id="-json-">演示 JSON 代码高亮</h5>
+<pre><code class="lang-json">{"<span class="hljs-attribute">name</span>":<span class="hljs-value"><span class="hljs-string">"Go语言中文网"</span></span>,"<span class="hljs-attribute">url</span>":<span class="hljs-value"><span class="hljs-string">"https://studygolang.com"</span></span>}
+</code></pre>
+
+<blockquote>
+<p>Tip: 语言名称支持大部分常用的语言</p>
+</blockquote>
+<h3 id="有序、无序列表">有序、无序列表</h3><h4 id="无序列表">无序列表</h4>
+<ul>
+<li>Go<ul>
+<li>Gofmt</li>
+<li>Revel</li>
+<li>Gin</li>
+<li>Echo</li>
+</ul>
+</li>
+<li>PHP<ul>
+<li>Laravel</li>
+<li>ThinkPHP</li>
+</ul>
+</li>
+</ul>
+<h4 id="有序列表">有序列表</h4>
+<ol>
+<li>Go<ol>
+<li>Gofmt</li>
+<li>Revel</li>
+<li>Gin</li>
+<li>Echo</li>
+</ol>
+</li>
+<li>PHP<ol>
+<li>Laravel</li>
+<li>ThinkPHP</li>
+</ol>
+</li>
+<li>Java</li>
+</ol>
+<h3 id="表格">表格</h3>
+<p>如果需要展示数据什么的，可以选择使用表格哦</p>
+ <table class="table table-bordered table-striped">
+<tbody><tr>
+<th>header 1</th>
+<th>header 3</th>
+</tr>
+<tr>
+<td>cell 1</td>
+<td>cell 2</td>
+</tr>
+<tr>
+<td>cell 3</td>
+<td>cell 4</td>
+</tr>
+<tr>
+<td>cell 5</td>
+<td>cell 6</td>
+</tr>
+</tbody></table> <h3 id="段落">段落</h3>
+<p>留空白的换行，将会被自动转换成一个段落，会有一定的段落间距，便于阅读。</p>
+
+<p>请注意后面 Markdown 源代码的换行留空情况。</p>
+
+        </div>
+    </div>
+
+</div>
+{{end}}
+
+{{define "css"}}
+<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
+{{end}}

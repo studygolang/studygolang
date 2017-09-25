@@ -30,6 +30,7 @@ func (self IndexController) RegisterRoute(g *echo.Group) {
 	g.GET("/", self.NewIndex)
 	g.GET("/wr", self.WrapUrl)
 	g.GET("/pkgdoc", self.Pkgdoc)
+	g.GET("/markdown", self.Markdown)
 }
 
 func (IndexController) NewIndex(ctx echo.Context) error {
@@ -180,4 +181,8 @@ func (IndexController) Pkgdoc(ctx echo.Context) error {
 	}
 
 	return ctx.HTML(http.StatusOK, buf.String())
+}
+
+func (IndexController) Markdown(ctx echo.Context) error {
+	return render(ctx, "markdown.html", nil)
 }
