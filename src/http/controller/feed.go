@@ -22,7 +22,7 @@ type FeedController struct{}
 
 // 注册路由
 func (self FeedController) RegisterRoute(g *echo.Group) {
-	g.Get("/feedx.xml", self.List)
+	g.Get("/feed.xml", self.List)
 }
 
 func (self FeedController) List(ctx echo.Context) error {
