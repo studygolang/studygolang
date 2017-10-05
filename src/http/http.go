@@ -285,7 +285,7 @@ func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interf
 	if seoTpl := tpl.Lookup("seo"); seoTpl == nil {
 		tpl.Parse(`{{define "seo"}}
 			<meta name="keywords" content="` + logic.WebsiteSetting.SeoKeywords + `">
-			<meta name="description" content="` + logic.WebsiteSetting.SeoKeywords + `">
+			<meta name="description" content="` + logic.WebsiteSetting.SeoDescription + `">
 		{{end}}`)
 	}
 
