@@ -146,6 +146,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/gorilla/feeds",
+			"repository": "https://github.com/gorilla/feeds",
+			"revision": "b78e02c3f88b84269be5c20c2b98127bbea1fcba",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/gorilla/schema",
 			"repository": "https://github.com/gorilla/schema",
 			"revision": "ddf016c1034e9cfd3eb5b276f626c8f04d765f6f",
