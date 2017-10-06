@@ -7,6 +7,7 @@
 package controller
 
 import (
+	"fmt"
 	"logic"
 	"model"
 	"net/http"
@@ -22,14 +23,20 @@ type FeedController struct{}
 
 // 注册路由
 func (self FeedController) RegisterRoute(g *echo.Group) {
+	g.Get("/feed.html", self.Atom)
 	g.Get("/feed.xml", self.List)
 }
 
+func (self FeedController) Atom(ctx echo.Context) error {
+	return Render(ctx, "atom.html", map[string]interface{}{})
+}
+
 func (self FeedController) List(ctx echo.Context) error {
-	link := "http://" + logic.WebsiteSetting.Domain
-	isHttps := CheckIsHttps(ctx)
-	if isHttps {
-		link = "https://" + logic.WebsiteSetting.Domain
+	link := logic.WebsiteSetting.Domain
+	if logic.WebsiteSetting.OnlyHttps {
+		link = "https://" + link
+	} else {
+		link = "http://" + link
 	}
 
 	now := time.Now()
@@ -43,32 +50,37 @@ func (self FeedController) List(ctx echo.Context) error {
 		Updated:     now,
 	}
 
-	siteFeeds := logic.DefaultFeed.FindRecent(ctx, 50)
+	respBody, err := logic.DefaultSearcher.FindAtomFeeds(50)
+	if err != nil {
+		return err
+	}
 
-	feed.Items = make([]*feeds.Item, len(siteFeeds))
+	feed.Items = make([]*feeds.Item, len(respBody.Docs))
 
-	for i, siteFeed := range siteFeeds {
-		strObjtype := ""
-		switch siteFeed.Objtype {
+	for i, doc := range respBody.Docs {
+		url := ""
+
+		switch doc.Objtype {
 		case model.TypeTopic:
-			strObjtype = "主题"
-		case model.TypeResource:
-			strObjtype = "资源"
+			url = fmt.Sprintf("%s/topics/%d", link, doc.Objid)
 		case model.TypeArticle:
-			strObjtype = "文章"
+			url = fmt.Sprintf("%s/articles/%d", link, doc.Objid)
+		case model.TypeResource:
+			url = fmt.Sprintf("%s/resources/%d", link, doc.Objid)
 		case model.TypeProject:
-			strObjtype = "开源项目"
-		case model.TypeBook:
-			strObjtype = "图书"
+			url = fmt.Sprintf("%s/p/%d", link, doc.Objid)
 		case model.TypeWiki:
-			strObjtype = "Wiki"
+			url = fmt.Sprintf("%s/wiki/%d", link, doc.Objid)
+		case model.TypeBook:
+			url = fmt.Sprintf("%s/book/%d", link, doc.Objid)
 		}
 		feed.Items[i] = &feeds.Item{
-			Title:       siteFeed.Title,
-			Link:        &feeds.Link{Href: link + siteFeed.Uri},
-			Description: "这是" + strObjtype,
-			Created:     time.Time(siteFeed.CreatedAt),
-			Updated:     time.Time(siteFeed.UpdatedAt),
+			Title:       doc.Title,
+			Link:        &feeds.Link{Href: url},
+			Author:      &feeds.Author{Name: doc.Author},
+			Description: doc.Content,
+			Created:     time.Time(doc.SortTime),
+			Updated:     time.Time(doc.UpdatedAt),
 		}
 	}
 

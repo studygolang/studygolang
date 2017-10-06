@@ -417,6 +417,39 @@ func (this *SearcherLogic) SearchByField(field, value string, start, rows int, s
 	return searchResponse.RespBody, nil
 }
 
+func (this *SearcherLogic) FindAtomFeeds(rows int) (*model.ResponseBody, error) {
+	selectUrl := this.engineUrl + "/select?"
+
+	var values = url.Values{
+		"q":     []string{"*:*"},
+		"sort":  []string{"sort_time desc"},
+		"wt":    []string{"json"},
+		"start": []string{"0"},
+		"rows":  []string{strconv.Itoa(rows)},
+	}
+
+	resp, err := http.Get(selectUrl + values.Encode())
+	if err != nil {
+		logger.Errorln("search error:", err)
+		return &model.ResponseBody{}, err
+	}
+
+	defer resp.Body.Close()
+
+	var searchResponse model.SearchResponse
+	err = json.NewDecoder(resp.Body).Decode(&searchResponse)
+	if err != nil {
+		logger.Errorln("parse response error:", err)
+		return &model.ResponseBody{}, err
+	}
+
+	if searchResponse.RespBody == nil {
+		searchResponse.RespBody = &model.ResponseBody{}
+	}
+
+	return searchResponse.RespBody, nil
+}
+
 func (this *SearcherLogic) FillNodeAndUser(ctx context.Context, respBody *model.ResponseBody) (map[int]*model.User, map[int]*model.TopicNode) {
 	if respBody.NumFound == 0 {
 		return nil, nil
