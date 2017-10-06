@@ -36,6 +36,10 @@ func IndexingServer() {
 
 	c := cron.New()
 	// 构建 solr 需要的索引数据
+	// 1 分钟一次增量
+	c.AddFunc("@every 1m", func() {
+		indexing(false)
+	})
 	// 一天一次全量
 	c.AddFunc("@daily", func() {
 		indexing(true)

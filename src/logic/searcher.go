@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"time"
 	"util"
 
 	. "db"
@@ -51,44 +52,51 @@ func (self SearcherLogic) IndexingArticle(isAll bool) {
 		err         error
 	)
 
-	if isAll {
-		id := 0
-		for {
-			articleList = make([]*model.Article, 0)
+	id := 0
+	for {
+		articleList = make([]*model.Article, 0)
+		if isAll {
 			err = MasterDB.Where("id>?", id).Limit(self.maxRows).OrderBy("id ASC").Find(&articleList)
-			if err != nil {
-				logger.Errorln("IndexingArticle error:", err)
-				break
+		} else {
+			timeAgo := time.Now().Add(-5 * time.Minute).Format("2006-01-02 15:04:05")
+			err = MasterDB.Where("mtime>?", timeAgo).Find(&articleList)
+		}
+		if err != nil {
+			logger.Errorln("IndexingArticle error:", err)
+			break
+		}
+
+		if len(articleList) == 0 {
+			break
+		}
+
+		for _, article := range articleList {
+			logger.Infoln("deal article_id:", article.Id)
+
+			if id < article.Id {
+				id = article.Id
 			}
 
-			if len(articleList) == 0 {
-				break
-			}
-
-			for _, article := range articleList {
-				logger.Infoln("deal article_id:", article.Id)
-
-				if id < article.Id {
-					id = article.Id
-				}
-
-				if article.Tags == "" {
-					// 自动生成
-					article.Tags = model.AutoTag(article.Title, article.Txt, 4)
-					if article.Tags != "" {
-						MasterDB.Id(article.Id).Cols("tags").Update(article)
-					}
-				}
-
-				document := model.NewDocument(article, nil)
-				if article.Status != model.ArticleStatusOffline {
-					solrClient.PushAdd(model.NewDefaultArgsAddCommand(document))
-				} else {
-					solrClient.PushDel(model.NewDelCommand(document))
+			if article.Tags == "" {
+				// 自动生成
+				article.Tags = model.AutoTag(article.Title, article.Txt, 4)
+				if article.Tags != "" {
+					MasterDB.Id(article.Id).Cols("tags").Update(article)
 				}
 			}
 
-			solrClient.Post()
+			document := model.NewDocument(article, nil)
+			if article.Status != model.ArticleStatusOffline {
+				solrClient.PushAdd(model.NewDefaultArgsAddCommand(document))
+			} else {
+				solrClient.PushDel(model.NewDelCommand(document))
+			}
+		}
+
+		solrClient.Post()
+
+		if !isAll {
+			break
 		}
 	}
 }
@@ -104,54 +112,61 @@ func (self SearcherLogic) IndexingTopic(isAll bool) {
 		err error
 	)
 
-	if isAll {
-		id := 0
-		for {
-			topicList = make([]*model.Topic, 0)
-			topicExList = make(map[int]*model.TopicUpEx)
+	id := 0
+	for {
+		topicList = make([]*model.Topic, 0)
+		topicExList = make(map[int]*model.TopicUpEx)
 
+		if isAll {
 			err = MasterDB.Where("tid>?", id).OrderBy("tid ASC").Limit(self.maxRows).Find(&topicList)
-			if err != nil {
-				logger.Errorln("IndexingTopic error:", err)
-				break
+		} else {
+			timeAgo := time.Now().Add(-5 * time.Minute).Format("2006-01-02 15:04:05")
+			err = MasterDB.Where("mtime>?", timeAgo).Find(&topicList)
+		}
+		if err != nil {
+			logger.Errorln("IndexingTopic error:", err)
+			break
+		}
+
+		if len(topicList) == 0 {
+			break
+		}
+
+		tids := util.Models2Intslice(topicList, "Tid")
+
+		err = MasterDB.In("tid", tids).Find(&topicExList)
+		if err != nil {
+			logger.Errorln("IndexingTopic error:", err)
+			break
+		}
+
+		for _, topic := range topicList {
+			logger.Infoln("deal topic_id:", topic.Tid)
+
+			if id < topic.Tid {
+				id = topic.Tid
 			}
 
-			if len(topicList) == 0 {
-				break
-			}
-
-			tids := util.Models2Intslice(topicList, "Tid")
-
-			err = MasterDB.In("tid", tids).Find(&topicExList)
-			if err != nil {
-				logger.Errorln("IndexingTopic error:", err)
-				break
-			}
-
-			for _, topic := range topicList {
-				logger.Infoln("deal topic_id:", topic.Tid)
-
-				if id < topic.Tid {
-					id = topic.Tid
+			if topic.Tags == "" {
+				// 自动生成
+				topic.Tags = model.AutoTag(topic.Title, topic.Content, 4)
+				if topic.Tags != "" {
+					MasterDB.Id(topic.Tid).Cols("tags").Update(topic)
 				}
-
-				if topic.Tags == "" {
-					// 自动生成
-					topic.Tags = model.AutoTag(topic.Title, topic.Content, 4)
-					if topic.Tags != "" {
-						MasterDB.Id(topic.Tid).Cols("tags").Update(topic)
-					}
-				}
-
-				topicEx := topicExList[topic.Tid]
-
-				document := model.NewDocument(topic, topicEx)
-				addCommand := model.NewDefaultArgsAddCommand(document)
-
-				solrClient.PushAdd(addCommand)
 			}
 
-			solrClient.Post()
+			topicEx := topicExList[topic.Tid]
+
+			document := model.NewDocument(topic, topicEx)
+			addCommand := model.NewDefaultArgsAddCommand(document)
+
+			solrClient.PushAdd(addCommand)
+		}
+
+		solrClient.Post()
+
+		if !isAll {
+			break
 		}
 	}
 }
@@ -166,54 +181,61 @@ func (self SearcherLogic) IndexingResource(isAll bool) {
 		err            error
 	)
 
-	if isAll {
-		id := 0
-		for {
-			resourceList = make([]*model.Resource, 0)
-			resourceExList = make(map[int]*model.ResourceEx)
+	id := 0
+	for {
+		resourceList = make([]*model.Resource, 0)
+		resourceExList = make(map[int]*model.ResourceEx)
 
+		if isAll {
 			err = MasterDB.Where("id>?", id).OrderBy("id ASC").Limit(self.maxRows).Find(&resourceList)
-			if err != nil {
-				logger.Errorln("IndexingResource error:", err)
-				break
+		} else {
+			timeAgo := time.Now().Add(-5 * time.Minute).Format("2006-01-02 15:04:05")
+			err = MasterDB.Where("mtime>?", timeAgo).Find(&resourceList)
+		}
+		if err != nil {
+			logger.Errorln("IndexingResource error:", err)
+			break
+		}
+
+		if len(resourceList) == 0 {
+			break
+		}
+
+		ids := util.Models2Intslice(resourceList, "Id")
+
+		err = MasterDB.In("id", ids).Find(&resourceExList)
+		if err != nil {
+			logger.Errorln("IndexingResource error:", err)
+			break
+		}
+
+		for _, resource := range resourceList {
+			logger.Infoln("deal resource_id:", resource.Id)
+
+			if id < resource.Id {
+				id = resource.Id
 			}
 
-			if len(resourceList) == 0 {
-				break
-			}
-
-			ids := util.Models2Intslice(resourceList, "Id")
-
-			err = MasterDB.In("id", ids).Find(&resourceExList)
-			if err != nil {
-				logger.Errorln("IndexingResource error:", err)
-				break
-			}
-
-			for _, resource := range resourceList {
-				logger.Infoln("deal resource_id:", resource.Id)
-
-				if id < resource.Id {
-					id = resource.Id
+			if resource.Tags == "" {
+				// 自动生成
+				resource.Tags = model.AutoTag(resource.Title+resource.CatName, resource.Content, 4)
+				if resource.Tags != "" {
+					MasterDB.Id(resource.Id).Cols("tags").Update(resource)
 				}
-
-				if resource.Tags == "" {
-					// 自动生成
-					resource.Tags = model.AutoTag(resource.Title+resource.CatName, resource.Content, 4)
-					if resource.Tags != "" {
-						MasterDB.Id(resource.Id).Cols("tags").Update(resource)
-					}
-				}
-
-				resourceEx := resourceExList[resource.Id]
-
-				document := model.NewDocument(resource, resourceEx)
-				addCommand := model.NewDefaultArgsAddCommand(document)
-
-				solrClient.PushAdd(addCommand)
 			}
 
-			solrClient.Post()
+			resourceEx := resourceExList[resource.Id]
+
+			document := model.NewDocument(resource, resourceEx)
+			addCommand := model.NewDefaultArgsAddCommand(document)
+
+			solrClient.PushAdd(addCommand)
+		}
+
+		solrClient.Post()
+
+		if !isAll {
+			break
 		}
 	}
 }
@@ -227,46 +249,55 @@ func (self SearcherLogic) IndexingOpenProject(isAll bool) {
 		err         error
 	)
 
-	if isAll {
-		id := 0
-		for {
-			projectList = make([]*model.OpenProject, 0)
+	id := 0
+	for {
+		projectList = make([]*model.OpenProject, 0)
+
+		if isAll {
 			err = MasterDB.Where("id>?", id).OrderBy("id ASC").Limit(self.maxRows).Find(&projectList)
-			if err != nil {
-				logger.Errorln("IndexingArticle error:", err)
-				break
+		} else {
+			timeAgo := time.Now().Add(-5 * time.Minute).Format("2006-01-02 15:04:05")
+			err = MasterDB.Where("mtime>?", timeAgo).Find(&projectList)
+		}
+		if err != nil {
+			logger.Errorln("IndexingArticle error:", err)
+			break
+		}
+
+		if len(projectList) == 0 {
+			break
+		}
+
+		for _, project := range projectList {
+			logger.Infoln("deal project_id:", project.Id)
+
+			if id < project.Id {
+				id = project.Id
 			}
 
-			if len(projectList) == 0 {
-				break
-			}
-
-			for _, project := range projectList {
-				logger.Infoln("deal project_id:", project.Id)
-
-				if id < project.Id {
-					id = project.Id
-				}
-
-				if project.Tags == "" {
-					// 自动生成
-					project.Tags = model.AutoTag(project.Name+project.Category, project.Desc, 4)
-					if project.Tags != "" {
-						MasterDB.Id(project.Id).Cols("tags").Update(project)
-					}
-				}
-
-				document := model.NewDocument(project, nil)
-				if project.Status != model.ProjectStatusOffline {
-					solrClient.PushAdd(model.NewDefaultArgsAddCommand(document))
-				} else {
-					solrClient.PushDel(model.NewDelCommand(document))
+			if project.Tags == "" {
+				// 自动生成
+				project.Tags = model.AutoTag(project.Name+project.Category, project.Desc, 4)
+				if project.Tags != "" {
+					MasterDB.Id(project.Id).Cols("tags").Update(project)
 				}
 			}
 
-			solrClient.Post()
+			document := model.NewDocument(project, nil)
+			if project.Status != model.ProjectStatusOffline {
+				solrClient.PushAdd(model.NewDefaultArgsAddCommand(document))
+			} else {
+				solrClient.PushDel(model.NewDelCommand(document))
+			}
+		}
+
+		solrClient.Post()
+
+		if !isAll {
+			break
 		}
 	}
+
 }
 
 const searchContentLen = 350
