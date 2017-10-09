@@ -34,9 +34,9 @@ func (self FeedController) Atom(ctx echo.Context) error {
 func (self FeedController) List(ctx echo.Context) error {
 	link := logic.WebsiteSetting.Domain
 	if logic.WebsiteSetting.OnlyHttps {
-		link = "https://" + link
+		link = "https://" + link + "/"
 	} else {
-		link = "http://" + link
+		link = "http://" + link + "/"
 	}
 
 	now := time.Now()

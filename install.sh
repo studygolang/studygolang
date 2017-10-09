@@ -24,7 +24,6 @@ go install server/indexer
 go install server/crawler
 
 export GOPATH="$OLDGOPATH"
-export PATH="$OLDPATH"
 
 echo 'finished'
 
