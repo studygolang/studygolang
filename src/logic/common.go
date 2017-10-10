@@ -62,15 +62,15 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 		return false
 	}
 
-	if me.IsAdmin {
-		return true
-	}
-
 	canEditTime := time.Duration(UserSetting["can_edit_time"]) * time.Second
 
 	switch entity := curModel.(type) {
 	case *model.Topic:
 		if time.Now().Sub(time.Time(entity.Ctime)) > canEditTime {
+			if me.Uid != entity.Uid && me.IsAdmin {
+				return true
+			}
+
 			return false
 		}
 
@@ -78,6 +78,10 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 			return true
 		}
 	case *model.Article:
+		if me.IsAdmin {
+			return true
+		}
+
 		// 文章的能编辑时间是15天
 		if time.Now().Sub(time.Time(entity.Ctime)) > 15*86400*time.Second {
 			return false
@@ -95,6 +99,10 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 			return true
 		}
 	case *model.OpenProject:
+		if me.IsAdmin {
+			return true
+		}
+
 		// 开源项目的能编辑时间是30天
 		if time.Now().Sub(time.Time(entity.Ctime)) > 30*86400*time.Second {
 			return false
@@ -104,6 +112,9 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 			return true
 		}
 	case *model.Wiki:
+		if me.IsAdmin {
+			return true
+		}
 		if time.Now().Sub(time.Time(entity.Ctime)) > canEditTime {
 			return false
 		}
@@ -112,6 +123,9 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 			return true
 		}
 	case *model.Book:
+		if me.IsAdmin {
+			return true
+		}
 		if time.Now().Sub(time.Time(entity.CreatedAt)) > canEditTime {
 			return false
 		}
