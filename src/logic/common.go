@@ -66,11 +66,11 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 
 	switch entity := curModel.(type) {
 	case *model.Topic:
-		if time.Now().Sub(time.Time(entity.Ctime)) > canEditTime {
-			if me.Uid != entity.Uid && me.IsAdmin {
-				return true
-			}
+		if me.Uid != entity.Uid && me.IsAdmin {
+			return true
+		}
 
+		if time.Now().Sub(time.Time(entity.Ctime)) > canEditTime {
 			return false
 		}
 
