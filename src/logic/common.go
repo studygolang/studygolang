@@ -134,6 +134,10 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 			return true
 		}
 	case map[string]interface{}:
+		if adminCanEdit(entity, me) {
+			return true
+		}
+
 		if ctime, ok := entity["ctime"]; ok {
 			if time.Now().Sub(time.Time(ctime.(model.OftenTime))) > canEditTime {
 				return false
@@ -195,4 +199,22 @@ func website() string {
 		host = "https://"
 	}
 	return host + WebsiteSetting.Domain
+}
+
+func adminCanEdit(entity map[string]interface{}, me *model.Me) bool {
+	if uid, ok := entity["uid"]; ok {
+		if me.Uid != uid.(int) && me.IsAdmin {
+			return true
+		}
+		return false
+	}
+
+	if username, ok := entity["username"]; ok {
+		if me.Username != username.(string) && me.IsAdmin {
+			return true
+		}
+		return false
+	}
+
+	return false
 }
