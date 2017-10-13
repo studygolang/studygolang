@@ -37,6 +37,8 @@ func RegisterRoutes(g *echo.Group) {
 	new(DownloadController).RegisterRoute(g)
 	new(LinkController).RegisterRoute(g)
 
+	new(FeedController).RegisterRoute(g)
+
 	new(WechatController).RegisterRoute(g)
 
 	new(InstallController).RegisterRoute(g)

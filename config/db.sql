@@ -321,7 +321,7 @@ CREATE TABLE IF NOT EXISTS `articles` (
   KEY (`top`),
   KEY (`author_txt`),
   KEY (`domain`),
-  KEY (`ctime`)
+  KEY (`mtime`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '网络文章聚合表';
 
 CREATE TABLE IF NOT EXISTS `crawl_rule` (

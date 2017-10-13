@@ -62,14 +62,14 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 		return false
 	}
 
-	if me.IsAdmin {
-		return true
-	}
-
 	canEditTime := time.Duration(UserSetting["can_edit_time"]) * time.Second
 
 	switch entity := curModel.(type) {
 	case *model.Topic:
+		if me.Uid != entity.Uid && me.IsAdmin {
+			return true
+		}
+
 		if time.Now().Sub(time.Time(entity.Ctime)) > canEditTime {
 			return false
 		}
@@ -78,6 +78,10 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 			return true
 		}
 	case *model.Article:
+		if me.IsAdmin {
+			return true
+		}
+
 		// 文章的能编辑时间是15天
 		if time.Now().Sub(time.Time(entity.Ctime)) > 15*86400*time.Second {
 			return false
@@ -95,6 +99,10 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 			return true
 		}
 	case *model.OpenProject:
+		if me.IsAdmin {
+			return true
+		}
+
 		// 开源项目的能编辑时间是30天
 		if time.Now().Sub(time.Time(entity.Ctime)) > 30*86400*time.Second {
 			return false
@@ -104,6 +112,9 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 			return true
 		}
 	case *model.Wiki:
+		if me.IsAdmin {
+			return true
+		}
 		if time.Now().Sub(time.Time(entity.Ctime)) > canEditTime {
 			return false
 		}
@@ -112,6 +123,9 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 			return true
 		}
 	case *model.Book:
+		if me.IsAdmin {
+			return true
+		}
 		if time.Now().Sub(time.Time(entity.CreatedAt)) > canEditTime {
 			return false
 		}
@@ -120,6 +134,10 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 			return true
 		}
 	case map[string]interface{}:
+		if adminCanEdit(entity, me) {
+			return true
+		}
+
 		if ctime, ok := entity["ctime"]; ok {
 			if time.Now().Sub(time.Time(ctime.(model.OftenTime))) > canEditTime {
 				return false
@@ -181,4 +199,22 @@ func website() string {
 		host = "https://"
 	}
 	return host + WebsiteSetting.Domain
+}
+
+func adminCanEdit(entity map[string]interface{}, me *model.Me) bool {
+	if uid, ok := entity["uid"]; ok {
+		if me.Uid != uid.(int) && me.IsAdmin {
+			return true
+		}
+		return false
+	}
+
+	if username, ok := entity["username"]; ok {
+		if me.Username != username.(string) && me.IsAdmin {
+			return true
+		}
+		return false
+	}
+
+	return false
 }
