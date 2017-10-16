@@ -36,7 +36,7 @@ func (DownloadController) GoDl(ctx echo.Context) error {
 	return render(ctx, "download/go.html", data)
 }
 
-var filenameReg = regexp.MustCompile(`go\d+\.\d[a-z\.]*\d+`)
+var filenameReg = regexp.MustCompile(`\d+\.\d[a-z\.]*\d+`)
 
 func (DownloadController) FetchGoInstallPackage(ctx echo.Context) error {
 	filename := ctx.Param("filename")
@@ -48,7 +48,7 @@ func (DownloadController) FetchGoInstallPackage(ctx echo.Context) error {
 	}
 
 	goVersion := filenameReg.FindString(filename)
-	filePath := fmt.Sprintf("/go/%s/%s", goVersion, filename)
+	filePath := fmt.Sprintf("go/%s/%s", goVersion, filename)
 
 	dlUrls := strings.Split(config.ConfigFile.MustValue("download", "dl_urls"), ",")
 	for _, dlUrl := range dlUrls {
