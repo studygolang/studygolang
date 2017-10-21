@@ -160,7 +160,7 @@ func (TopicLogic) Modify(ctx context.Context, user *model.Me, form url.Values) (
 		"editor_uid": user.Uid,
 	}
 
-	fields := []string{"title", "content", "nid"}
+	fields := []string{"title", "content", "nid", "permission"}
 	for _, field := range fields {
 		change[field] = form.Get(field)
 	}

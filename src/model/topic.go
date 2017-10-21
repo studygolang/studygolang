@@ -20,6 +20,12 @@ const (
 	AppendMaxNum = 3
 )
 
+const (
+	PermissionPublic = iota // 公开
+	PermissionLogin         // 登录可见
+	PermissionFollow        // 关注可见（暂未实现）
+)
+
 // 社区主题信息
 type Topic struct {
 	Tid           int       `xorm:"pk autoincr" json:"tid"`
@@ -33,6 +39,7 @@ type Topic struct {
 	EditorUid     int       `json:"editor_uid"`
 	Top           uint8     `json:"top"`
 	Tags          string    `json:"tags"`
+	Permission    int       `json:"permission"`
 	Ctime         OftenTime `json:"ctime" xorm:"created"`
 	Mtime         OftenTime `json:"mtime" xorm:"<-"`
 

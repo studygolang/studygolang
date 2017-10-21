@@ -36,7 +36,11 @@
 				<div class="outdated">这是一个创建于 <span title="{{.topic.ctime}}" class="timeago"></span> 的主题，其中的信息可能已经有所发展或是发生改变。</div>
 				{{end}}
 				<div class="cell">
+					{{if or (not .topic.permission) .me.Status}}
 					<div class="content">{{.topic.content}}</div>
+					{{else}}
+					<div style="font-size: 1.2em;">作者设置必须登录才能查看，<a href="/account/login?redirect_uri=/topics/{{.topic.tid}}">请登录</a>；如没有账号，<a href="/account/register">请注册</a></div>
+					{{end}}
 				</div>
 				{{range $i, $append := .appends}}
 				<div class="subtle">
@@ -164,7 +168,10 @@ $(function(){
 	// 文本框自动伸缩
 	$('.need-autogrow').autoGrow();
 	
+	// 有权限查看才加载评论
+	{{if or (not .topic.permission) .me.Status}}
 	loadComments();
+	{{end}}
 
 	// 链接，add target=_blank
 	$('#wrapper .content').on('mousedown', 'a', function(evt){

@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS `topics` (
   `editor_uid` int unsigned NOT NULL DEFAULT 0 COMMENT '最后编辑人',
   `top` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '置顶，0否，1置顶',
   `tags` varchar(63) NOT NULL DEFAULT '' COMMENT 'tag，逗号分隔',
+  `permission` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '访问权限：0-公开；1-登录用户可见；2-关注的人可见',
   `ctime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`tid`),

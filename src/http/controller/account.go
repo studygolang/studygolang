@@ -212,7 +212,12 @@ func (AccountController) Login(ctx echo.Context) error {
 	// 支持跳转到源页面
 	uri := ctx.FormValue("redirect_uri")
 	if uri == "" {
-		uri = "/"
+		referer := ctx.Request().Referer()
+		if referer == "" {
+			uri = "/"
+		} else {
+			uri = referer
+		}
 	}
 
 	contentTpl := "login.html"
@@ -411,8 +416,8 @@ func (AccountController) Logout(ctx echo.Context) error {
 	session := GetCookieSession(ctx)
 	session.Options = &sessions.Options{Path: "/", MaxAge: -1}
 	session.Save(Request(ctx), ResponseWriter(ctx))
-	// 重定向得到登录页（TODO:重定向到什么页面比较好？）
-	return ctx.Redirect(http.StatusSeeOther, "/account/login")
+	// 重定向得到原页面
+	return ctx.Redirect(http.StatusSeeOther, ctx.Request().Referer())
 }
 
 // Unbind 第三方账号解绑

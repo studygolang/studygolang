@@ -64,12 +64,22 @@
 					</div>
 				</div>
 				
-				<div class="form-group form-group-sm cell">
+				<div class="form-group form-group-sm">
 					<div class="col-sm-11 col-sm-offset-1">
 						最热节点&nbsp; 
 						{{range .tab_list}}
 						<a href="javascript:chooseNode('{{.nid}}')" class="node">{{.name}}</a> &nbsp;
 						{{end}}
+					</div>
+				</div>
+
+				<div class="form-group form-group-sm cell">
+					<label class="col-sm-1 control-label" for="title">可见性</label>
+					<div class="col-sm-11">
+						<select id="permission" name="permission" class="form-control" style="width: 30%;">
+							<option value="0" {{if not .topic.Permission}}selected{{end}}>公开</option>
+							<option value="1" {{if .topic.Permission}}selected{{end}}>登录可见</option>
+						</select>
 					</div>
 				</div>
 				
