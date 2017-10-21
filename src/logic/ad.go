@@ -23,7 +23,7 @@ func (AdLogic) FindAll(ctx context.Context, path string) map[string]*model.Adver
 	objLog := GetLogger(ctx)
 
 	pageAds := make([]*model.PageAd, 0)
-	err := MasterDB.Where("path=? AND is_online=1", path).Find(&pageAds)
+	err := MasterDB.Where("(path=? OR path=?) AND is_online=1", path, "*").Find(&pageAds)
 	if err != nil {
 		objLog.Errorln("AdLogic FindAll PageAd error:", err)
 		return nil

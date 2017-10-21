@@ -108,3 +108,11 @@
 	</div>
 </div>
 {{end}}
+
+{{if and .pos_ad.below_me (not .pos_ad.right1)}}
+<div class="box_white sidebar" id="ad-below_me">
+	{{if eq .pos_ad.below_me.AdType 0}}
+		{{noescape .pos_ad.below_me.Code}}
+	{{end}}
+</div>
+{{end}}

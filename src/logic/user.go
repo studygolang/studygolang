@@ -12,6 +12,7 @@ import (
 	"math/rand"
 	"model"
 	"net/url"
+	"strings"
 	"time"
 	"util"
 
@@ -114,7 +115,12 @@ func (self UserLogic) Update(ctx context.Context, me *model.Me, form url.Values)
 	_, err = MasterDB.Id(me.Uid).Cols(cols).Update(user)
 	if err != nil {
 		objLog.Errorf("更新用户 【%d】 信息失败：%s", me.Uid, err)
-		errMsg = "对不起，服务器内部错误，请稍后再试！"
+		if strings.Contains(err.Error(), "Error 1062: Duplicate entry") {
+			// TODO：被恶意注册？
+			errMsg = "该邮箱地址被其他账号注册了"
+		} else {
+			errMsg = "对不起，服务器内部错误，请稍后再试！"
+		}
 		return
 	}
 

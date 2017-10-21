@@ -68,6 +68,14 @@
 		{{include "sidebar/topic.html" .}}
 
 		{{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"一周阅读排行","objtype":2,"limit":10,"rank_type":"week"}`)}}
+
+		{{if .pos_ad.right2}}
+		<div class="box_white sidebar" id="ad-right2">
+			{{if eq .pos_ad.right2.AdType 0}}
+				{{noescape .pos_ad.right2.Code}}
+			{{end}}
+		</div>
+		{{end}}
 		
 	</div>
 </div>

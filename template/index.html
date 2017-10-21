@@ -1,493 +1,381 @@
 {{define "title"}}首页{{end}}
-{{define "seo"}}<meta name="keywords" content="{{.setting.Name}},{{.setting.SeoKeywords}},社区,资源,文章,图书,开源项目">
+{{define "seo"}}<meta name="keywords" content="{{.setting.Name}},{{.setting.SeoKeywords}},主题,资源,文章,图书,开源项目">
 <meta name="description" content="{{.setting.SeoDescription}}">{{end}}
 {{define "content"}}
-<div class="row"><!-- 
-	<div id="content" class="tip">
-		<div id="top" class="box_white">
-			<ul class="list-unstyled">
-			</ul>
-		</div>
-		<div id="bottom"></div>
-	</div> -->
-	<div class="row banner">
-	</div>
-	<div class="col-lg-9 col-md-8 col-sm-7">
+<div class="row">
+	<div class="col-md-9 col-sm-6">
+		<div class="sep20"></div>
 		<div class="box_white">
-			<div class="col-md-6 recent-list">
-				<!-- <div class="title">
-					<h3><a href="/topics">最新主题</a></h3>
-					<a class="pull-right more" href="/topics">更多&gt;&gt;</a>
-				</div> -->
-				<div class="title" style="border-bottom: none;">
-					<ol class="nav nav-tabs" role="tablist" id="topic-nav">
-						<li role="presentation" class="active" data-type="newest"><a href="javascript:">最新主题</a></li>
-						<li role="presentation" data-type="today"><a href="javascript:">今日热门</a></li>
-						<li role="presentation" data-type="week"><a href="javascript:">一周热门</a></li>
-					</ol>
-					<a class="pull-right more" href="/topics" style="top: 5px;">更多&gt;&gt;</a>
-				</div>
-				<ul class="clearfix list-unstyled" id="topic-list">
-					{{range .topics}}
-					<li><i></i>{{if .top}}<font color="red"><span class="glyphicon glyphicon-pushpin"></span></font> {{end}}<a href="/topics/{{.tid}}" title="{{.title}}">{{substring .title 35 "..."}}</a><span class="pull-right timeago" title="{{.ctime}}"></span></li>
-					{{else}}
-					<li style="height: 40px; line-height: 40px;">暂无主题，<a class="btn btn-default btn-sm" href="/topics/new">发布主题</a></li>
-					{{end}}
-				</ul>
+			<div class="inner_content" style="border-top-left-radius: 3px; border-top-right-radius: 3px;" id="tabs">
+				{{range .index_navs}}
+				<a href="/?tab={{.Tab}}" class="{{if eq $.tab .Tab}}tab_current{{else}}tab{{end}}">{{.Name}}</a>
+				{{end}}
 			</div>
-			<div class="col-md-6 recent-list">
-				<!-- <div class="title">
-					<h3><a href="/resources">最新资源</a></h3>
-					<a class="pull-right more" href="/resources">更多&gt;&gt;</a>
-				</div> -->
-				<div class="title" style="border-bottom: none;">
-					<ol class="nav nav-tabs" role="tablist" id="resource-nav">
-						<li role="presentation" class="active" data-type="newest"><a href="javascript:">最新资源</a></li>
-						<li role="presentation" data-type="today"><a href="javascript:">今日热门</a></li>
-						<li role="presentation" data-type="week"><a href="javascript:">一周热门</a></li>
-					</ol>
-					<a class="pull-right more" href="/resources" style="top: 5px;">更多&gt;&gt;</a>
-				</div>
-				<ul class="clearfix list-unstyled" id="resource-list">
-					{{range .resources}}
-					<li><i></i><a href="/resources/{{.Id}}" title="{{.Title}}" target="_blank">{{substring .Title 45 "..."}}</a><span class="pull-right timeago" title="{{.Ctime}}"></span></li>
-					{{else}}
-					<li style="height: 40px; line-height: 40px;">暂无资源，<a class="btn btn-default btn-sm" href="/resources/new">分享资源</a></li>
-					{{end}}
-				</ul>
+			{{if .cur_nav.Children}}
+			<div class="cell" style="background-color: #f9f9f9; padding: 10px 10px 10px 20px;">
+				{{range .cur_nav.Children}}
+				<a href="{{.Uri}}">{{.Name}}</a> &nbsp; &nbsp; 
+				{{end}}
 			</div>
-		</div>
-		
-		{{if .pos_ad.banner}}
-		<div class="box_white" style="margin-top:20px;" id="ad-banner">
-			{{if eq .pos_ad.banner.AdType 0}}
-				{{noescape .pos_ad.banner.Code}}
 			{{end}}
-		</div>
-		{{end}}
 
-		<div class="box_white article-list">
-			<ul class="nav nav-tabs" role="tablist" id="article-nav">
-				<li role="presentation" class="active" data-type="newest"><a href="javascript:">最新博文</a></li>
-				<li role="presentation" data-type="today"><a href="javascript:">今日热门</a></li>
-				<li role="presentation" data-type="yesterday"><a href="javascript:">昨日热门</a></li>
-				<li role="presentation" data-type="week"><a href="javascript:">一周热门</a></li>
-			</ul>
-			<div id="article-list">
-			{{range .articles}}
-			<article class="article box_white">
-				<div class="row">
-					{{if .Cover}}
-					<div class="pull-left">
-						<a href="/articles/{{.Id}}" target="_blank" title="{{.Title}}">
-							<img class="lazy" src="{{.Cover}}" width="200" alt="{{.Title}}" style="display: inline;">
-						</a>
-					</div>
-					<div style="margin-left:220px;">
-					{{else}}
-					<div>
-					{{end}}
-						<h2><a href="/articles/{{.Id}}" target="_blank" title="{{.Title}}">
-							{{if .Top}}<font color="red">[置顶]</font>{{end}}{{.Title}}
-						</a></h2>
-						<p class="text">{{substring .Txt 220 "..."}}<a href="/articles/{{.Id}}" target="_blank" title="阅读全文">阅读全文</a></p>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-8 metatag">
-						<i class="glyphicon glyphicon-th"></i>
-						<span class="source" title="来源">{{.Name}}</span>
-						<i class="glyphicon glyphicon-calendar"></i>
-						<span class="date" title="发布日期">{{.PubDate}}</span>
-						<i class="glyphicon glyphicon-user"></i>
-						<span class="author" title="作者">{{substring .AuthorTxt 15 " 等"}}</span>
-						{{if .Tags}}
-						{{$tags := explode .Tags ","}}
-						<ul class="list-inline">
-							<i class="glyphicon glyphicon-tags"></i>
-							{{range $tag := $tags}}
-							<li>
-								<a href="/search?q={{$tag}}&f=tag" title="{{$tag}}" target="_blank">
-									{{$tag}}
-								</a>
-							</li>
-							{{end}}
-						</ul>
-						{{end}}
-					</div>
-					<div class="col-md-4 metatag text-right">
-						<span class="view" title="阅读数">
-							<i class="glyphicon glyphicon-eye-open"></i>
-							阅读:<span>{{.Viewnum}}</span>次
-						</span>
-						<a href="/articles/{{.Id}}#commentForm" class="cmt" target="_blank" title="评论数">
-							<i class="glyphicon glyphicon-comment"></i>
-							评论:<span>{{.Cmtnum}}</span>条
-						</a>
-						{{if $.likeflags}}
-						{{$likeFlag := index $.likeflags .Id}}
-						<a href="#" class="like{{if $likeFlag}} hadlike{{end}}" title="{{if $likeFlag}}取消喜欢{{else}}我喜欢{{end}}" data-objid="{{.Id}}" data-objtype="1" data-flag="{{if $likeFlag}}{{$likeFlag}}{{else}}0{{end}}">
-							<i class="glyphicon glyphicon-heart{{if not $likeFlag}}-empty{{end}}"></i>
+		{{with or .feeds .topics .articles .docs}}
+		
+			{{range $i, $feed := $.feeds}}
+			<div class="cell item">
+				<table cellpadding="0" cellspacing="0" border="0" width="100%">
+					<tbody><tr>
+						
+						<td width="48" valign="top" align="center">
+						{{if .User}}
+						<a href="/user/{{.User.Username}}"><img src="{{gravatar .User.Avatar .User.Email 48 $.is_https}}" class="avatar" width="48px"></a>
 						{{else}}
-						<a href="#" class="like" title="我喜欢" data-objid="{{.Id}}" data-objtype="1" data-flag="0">
-							<i class="glyphicon glyphicon-heart-empty"></i>
+						<a href="javascript:">
+							<img class="noavatar" alt="" src="https://secure.gravatar.com/avatar/3bf6178897766ebadaa830073e87374d?s=48" data-objid="{{.Objid}}" data-objtype="{{.Objtype}}" data-author="{{.Author}}">
+						</a>
 						{{end}}
-							<span class="likenum">{{.Likenum}}</span>人喜欢
-						</a>
-					</div>
-				</div>
-			</article>
-			{{else}}
-			<article class="article box_white">
-				<div class="row">暂无博文，<a class="btn btn-default btn-sm" href="/articles/new">撰写文章</a></div>
-			</article>
-			{{end}}
-
-			{{if (len .articles) gt 0}}
-			{{$article := index .articles 0}}
-			<div class="pull-right article-bottom"><a href="/articles?lastid={{add $article.Id -10}}" title="查看更多">查看更多&gt;&gt;</a></div>
-			{{end}}
-
+						</td>
+						<td width="10"></td>
+						
+						<td width="auto" valign="middle">
+						<span class="item_title"><a href="{{.Uri}}#reply{{.Cmtnum}}" class="noul">{{.Title}}</a></span>
+						<div class="sep5"></div>
+						<span class="small cc">
+							{{if .Top}}
+							<span style="color: #ff7700; border: 1px solid #ff7700;">置顶</span> • 
+							{{end}}
+							{{if eq .Objtype 0}}
+							<a class="node" href="/go/{{.Node.ename}}">{{.Node.name}}</a>
+							{{else if eq .Objtype 1}}
+							{{if .Tags}}
+								{{$tags := explode .Tags ","}}
+								<a class="node" href="/tag/{{index $tags 0}}">{{index $tags 0}}</a>
+							{{else}}
+								<a class="node" href="/articles">文章</a>
+							{{end}}
+							{{else if eq .Objtype 2}}
+							<a class="node" href="/resources/cat/{{.Nid}}">{{.Node.name}}</a>
+							{{else if eq .Objtype 3}}
+							<a class="node" href="/wiki">WIKI</a>
+							{{else if eq .Objtype 4}}
+							<a class="node" href="/projects">开源项目</a>
+							{{else if eq .Objtype 5}}
+							<a class="node" href="/books">图书</a>
+							{{end}}
+							&nbsp;•&nbsp;
+							{{if .Uid}}
+							<strong><a href="/user/{{.User.Username}}" class="noul">{{.User.Username}}</a></strong>
+							{{else}}
+							<span>{{.Author}}</span>
+							{{end}}
+							&nbsp;•&nbsp;
+							{{if .Lastreplyuid}}
+							<span title="{{.Lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp;最后回复来自 <strong><a href="/user/{{.Lastreplyuser.Username}}" class="noul">{{.Lastreplyuser.Username}}</a></strong>
+							{{else}}
+							<span title="{{.CreatedAt}}" class="timeago"></span>发布
+							{{end}}
+						</td>
+						{{if .Cmtnum}}
+						<td width="70" align="right" valign="middle">
+							<a href="{{.Uri}}#reply{{.Cmtnum}}" class="count_livid" title="{{.Cmtnum}}">{{.Cmtnum}}</a>
+						</td>
+						{{end}}
+					</tr>
+				</tbody></table>
 			</div>
-		</div>
-		<div class="box_white book-list">
-			<div class="title">
-				<h3><a href="/books">图书</a></h3>
-				<a class="pull-right more" href="/books">更多&gt;&gt;</a>
-			</div>
-			<ul class="list-unstyled">
-				{{range .books}}
-				<li class="book-item">
-					<div class="book-img">
-						<a href="/book/{{.Id}}" title="{{.Name}}">
-							<img src="{{if .Cover}}{{.Cover}}{{else}}http://studygolang.qiniudn.com/img/golang_default_cover.png{{end}}" width="172px" height="225px" alt="{{.Name}}">
-						</a>
-					</div>
-					<div class="book-title">
-						<h5>{{.Name}}</h5>
-					</div>
-				</li>
-				{{end}}
-			</ul>
-		</div>
-		
-		{{if .materials}}
-		<div class="box_white learn-info">
-			<h3><a href="javascript:">学习资料</a></h3>
-			<div class="col-md-6 infolist">
-				<ul class="list-unstyled">
-				{{range .materials}}
-					{{if eq .Type 0}}
-					<li>
-						<i></i>
-						<a href="{{.Url}}" title="{{.Title}}" target="_blank" class="video">【文本】《{{.Title}}》</a>
-						<a href="{{.FirstUrl}}" target="_blank" class="learn pull-right">开始学习&gt;&gt;</a>
-					</li>
+				{{if eq $i 4}}
+					{{if $.pos_ad.banner}}
+					
+						{{if eq $.pos_ad.banner.AdType 0}}
+							{{noescape $.pos_ad.banner.Code}}
+						{{else}}
+							<div id="ad-banner">
+							</div>
+						{{end}}
+					
 					{{end}}
 				{{end}}
-				</ul>
+			{{end}}
+
+			{{range $i, $topic := $.topics}}
+			<div class="cell item">
+				<table cellpadding="0" cellspacing="0" border="0" width="100%">
+					<tbody><tr>
+						
+						<td width="48" valign="top" align="center"><a href="/user/{{.user.Username}}"><img src="{{gravatar .user.Avatar .user.Email 48 $.is_https}}" class="avatar" width="48px"></a></td>
+						<td width="10"></td>
+						
+						<td width="auto" valign="middle">
+						<span class="item_title"><a href="/topics/{{.tid}}{{if .reply}}#reply{{.reply}}{{end}}" class="noul">{{.title}}</a></span>
+						<div class="sep5"></div>
+						<span class="small cc">
+							{{if .top}}
+							<span style="color: #ff7700; border: 1px solid #ff7700;">置顶</span> • 
+							{{end}}
+							<a class="node" href="/go/{{.node.Ename}}">{{.node.Name}}</a> &nbsp;•&nbsp;
+							<strong><a href="/user/{{.user.Username}}" class="noul">{{.user.Username}}</a></strong> &nbsp;•&nbsp;
+							{{if .lastreplyuid}}
+							<span title="{{.lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp;最后回复来自 <strong><a href="/user/{{.lastreplyusername}}" class="noul">{{.lastreplyusername}}</a></strong>
+							{{else}}
+							<span title="{{.ctime}}" class="timeago"></span> 发布
+							{{end}}
+						</td>
+						{{if .reply}}
+						<td width="70" align="right" valign="middle">
+							<a href="/topics/{{.tid}}#reply{{.reply}}" class="count_livid" title="{{.reply}}">{{.reply}}</a>
+						</td>
+						{{end}}
+					</tr>
+				</tbody></table>
 			</div>
-			<div class="col-md-6 infolist">
-				<ul class="list-unstyled">
-				{{range .materials}}
-					{{if .Type}}
-					<li>
-						<i></i>
-						<a href="{{.Url}}" title="{{.Title}}" target="_blank" class="video">【视频】《{{.Title}}》</a>
-						<a href="{{.FirstUrl}}" target="_blank" class="learn pull-right">开始学习&gt;&gt;</a>
-					</li>
+				{{if eq $i 4}}
+					{{if $.pos_ad.other_banner}}
+						{{if eq $.pos_ad.other_banner.AdType 0}}
+							{{noescape $.pos_ad.other_banner.Code}}
+						{{else}}
+							<div id="other-banner">
+							</div>
+						{{end}}
 					{{end}}
 				{{end}}
-				</ul>
+			{{end}}
+
+			{{range $i, $article := $.articles}}
+			<div class="cell item">
+				<table cellpadding="0" cellspacing="0" border="0" width="100%">
+					<tbody><tr>
+						
+						<td width="48" valign="top" align="center">
+						{{if .User}}
+						<a href="/user/{{.User.Username}}"><img src="{{gravatar .User.Avatar .User.Email 48 $.is_https}}" class="avatar" width="48px"></a>
+						{{else}}
+						<a href="javascript:">
+							<img class="noavatar" alt="" src="https://secure.gravatar.com/avatar/3bf6178897766ebadaa830073e87374d?s=48" data-objid="{{.Id}}" data-objtype="1" data-author="{{.Author}}">
+						</a>
+						{{end}}
+						</td>
+						<td width="10"></td>
+						
+						<td width="auto" valign="middle">
+						<span class="item_title"><a href="/articles/{{.Id}}" class="noul">{{.Title}}</a></span>
+						<div class="sep5"></div>
+						<span class="small cc">
+							{{if .Top}}
+							<span style="color: #ff7700; border: 1px solid #ff7700;">置顶</span> • 
+							{{end}}
+							{{if .Tags}}
+								{{$tags := explode .Tags ","}}
+								<a class="node" href="/tag/{{index $tags 0}}">{{index $tags 0}}</a>
+							{{else}}
+								<a class="node" href="/articles">文章</a> &nbsp;•&nbsp;
+							{{end}}
+							{{if and .IsSelf .User}}
+							<strong><a href="/user/{{.User.Username}}" class="noul">{{.User.Username}}</a></strong>
+							{{else}}
+							<span>{{.AuthorTxt}}</span>
+							{{end}}
+							&nbsp;•&nbsp;
+							{{if .Lastreplyuid}}
+							<span title="{{.Lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp;最后回复来自 <strong><a href="/user/{{.LastReplyUser.Username}}" class="noul">{{.LastReplyUser.Username}}</a></strong>
+							{{else}}
+							<span title="{{.Ctime}}" class="timeago"></span> 发布
+							{{end}}
+						</td>
+						{{if .Cmtnum}}
+						<td width="70" align="right" valign="middle">
+							<a href="/articles/{{.Id}}#reply{{.Cmtnum}}" class="count_livid" title="{{.Cmtnum}}">{{.Cmtnum}}</a>
+						</td>
+						{{end}}
+					</tr>
+				</tbody></table>
 			</div>
-		</div>
+				{{if eq $i 4}}
+					{{if $.pos_ad.other_banner}}
+						{{if eq $.pos_ad.other_banner.AdType 0}}
+							{{noescape $.pos_ad.other_banner.Code}}
+						{{else}}
+							<div id="other-banner">
+							</div>
+						{{end}}
+					{{end}}
+				{{end}}
+			{{end}}
+
+			{{range $i, $doc := $.docs}}
+			<div class="cell item" style="">
+				<table cellpadding="0" cellspacing="0" border="0" width="100%">
+					<tbody><tr>
+						<td width="48" valign="top" align="center">
+						{{if .Uid}}
+						{{$user := index $.users .Uid}}
+						<a href="/user/{{$user.Username}}"><img src="{{gravatar $user.Avatar $user.Email 48 $.is_https}}" class="avatar" width="48px"></a>
+						{{else}}
+						<a href="javascript:">
+							<img class="noavatar" alt="" src="https://secure.gravatar.com/avatar/3bf6178897766ebadaa830073e87374d?s=48" data-objid="{{.Objid}}" data-objtype="{{.Objtype}}" data-author="{{.Author}}">
+						</a>
+						{{end}}
+						</td>
+						<td width="10"></td>
+						
+						<td width="auto" valign="middle">
+							<span class="item_title">
+								<a class="title noul" href="/{{if eq .Objtype 0}}topics{{else if eq .Objtype 1}}articles{{else if eq .Objtype 2}}resources{{else if eq .Objtype 4}}p{{else}}wiki{{end}}/{{.Objid}}{{if .Cmtnum}}#reply{{.Cmtnum}}{{end}}" title="{{.Title}}">{{.Title}}</a>
+							</span>
+							<div class="sep5"></div>
+							<span class="small c9">
+							{{if .Nid}}
+								{{$node := index $.nodes .Nid}}
+								<a class="node" href="/go/{{$node.Ename}}">{{$node.Name}}</a>
+							{{else}}
+								{{if .Tags}}
+									{{$tags := explode .Tags ","}}
+									<a class="node" href="/tag/{{index $tags 0}}">{{index $tags 0}}</a>
+								{{else}}
+									{{if eq .Objtype 1}}
+									<a class="node" href="/articles">文章</a>
+									{{else if eq .Objtype 2}}
+									<a class="node" href="/resources">分享发现</a>
+									{{else if eq .Objtype 3}}
+									<a class="node" href="/wiki">WIKI</a>
+									{{else if eq .Objtype 4}}
+									<a class="node" href="/projects">开源项目</a>
+									{{end}}
+								{{end}}
+							{{end}}
+								&nbsp;•&nbsp; 
+							{{if .Uid}}
+								{{$user := index $.users .Uid}}
+								 <strong><a href="/user/{{$user.Username}}" class="noul">{{$user.Username}}</a></strong>
+							{{else}}
+								<span>{{.Author}}</span>
+							{{end}}
+								&nbsp;•&nbsp; 
+							{{if .Lastreplyuid}}
+								{{$user := index $.users .Lastreplyuid}}
+								<span title="{{.Lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp; 最后回复来自 <strong><a href="/user/{{$user.Username}}" class="noul">{{$user.Username}}</a></strong>
+							{{else}}
+								<span title="{{.PubTime}}" class="timeago"></span> 发布
+							{{end}}
+							</span>
+						</td>
+						{{if .Cmtnum}}
+						<td width="70" align="right" valign="middle">
+							<a href="/{{if eq .Objtype 0}}topics{{else if eq .Objtype 1}}articles{{else if eq .Objtype 2}}resources{{else if eq .Objtype 4}}p{{else}}wiki{{end}}/{{.Objid}}#reply{{.Cmtnum}}" class="count_livid" title="{{.Cmtnum}}">{{.Cmtnum}}</a>
+						</td>
+						{{end}}
+
+					</tr>
+				</tbody></table>
+			</div>
+				{{if eq $i 4}}
+					{{if $.pos_ad.other_banner}}
+						{{if eq $.pos_ad.other_banner.AdType 0}}
+							{{noescape $.pos_ad.other_banner.Code}}
+						{{else}}
+							<div id="other-banner">
+							</div>
+						{{end}}
+					{{end}}
+				{{end}}
+			{{end}}
+
+		{{else}}
+
+			<div class="cell item">
+				<div class="pull-right"><a href="/topics/new">我来发布</a> <i class="fa fa-caret-right c9"></i></div>
+				<span class="text-center" style="display: inherit">暂无主题</span>
+			</div>
 		{{end}}
+		
+		</div>
+	
+		<div class="sep20"></div>
+		<div class="box_white">
+			<div class="cell">
+				<div class="pull-right"><a href="/nodes">浏览全部节点</a></div>
+				<span class="cc">节点导航</span>
+			</div>
+			{{range .all_nodes}}
+			<div class="cell">
+				<table cellpadding="0" cellspacing="0" border="0"><tbody>
+					<tr>
+					{{range $parent, $children := .}}
+						<td align="right" width="65"><span class="cc">{{$parent}}</span></td>
+						<td style="line-height: 200%; padding-left: 10px; word-break: keep-all;">
+						{{range $children}}
+							<a href="/go/{{.ename}}?fr=index_node" style="font-size: 14px;" class="noul" title="{{.name}}">{{.name}}</a>&nbsp; &nbsp;
+						{{end}}
+						</td>
+					{{end}}
+					</tr>
+				</tbody></table>
+			</div>
+			{{end}}
+			
+		</div>
+
 	</div>
-	<div class="col-lg-3 col-md-4 col-sm-5">
+	<div class="col-md-3 col-sm-6">
+		<div class="sep20"></div>
+
 		{{include "common/my_info.html" .}}
 
-		<div class="row box_white sidebar">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-book"></i>&nbsp;<a href="/readings" target="_blank" title="点击更多">今日晨读</a></h3>
-			</div>
-			<div class="sb-content">
-				<div class="reading-list" data-limit="1">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-			</div>
+		{{if .pos_ad.right1}}
+		<div class="box_white sidebar" id="ad-right1">
+			{{if eq .pos_ad.right1.AdType 0}}
+				{{noescape .pos_ad.right1.Code}}
+			{{end}}
 		</div>
-		
-		<!-- <div class="row box_white sidebar">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-fire"></i>&nbsp;<a href="/projects" target="_blank" title="点击更多">开源项目</a></h3>
-			</div>
-			<div class="sb-content">
-				<div class="project-list" data-limit="10">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-			</div>
-		</div> -->
-		<div class="row box_white sidebar">
-			<div class="top">
-				<ul class="list-inline text-center">
-					<li class="first"><a href="/projects" target="_blank" title="点击更多" class="cur">开源项目</a>|</li>
-					<li class="second"><a href="javascript:;">今日热门</a>|</li>
-					<li class="last"><a href="javascript:;">一周热门</a>
-				</ul>
-				<p class="bar"></p>
-			</div>
-			<div class="sb-content">
-				<div class="project-list first" data-limit="10">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-				<div class="rank-list second hidden" data-objtype="4" data-limit="10" data-rank_type="today">
-					<ul class="list-unstyled">
-					</ul>
-				</div>
-				<div class="rank-list last hidden" data-objtype="4" data-limit="10" data-rank_type="week">
-					<ul class="list-unstyled">
-					</ul>
-				</div>
-			</div>
-		</div>
-		
-		<div class="row box_white sidebar">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-comment"></i>&nbsp;最新评论</h3>
-			</div>
-			<div class="sb-content">
-				<div class="cmt-list" data-limit="5">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-			</div>
-		</div>
+		{{end}}
 
-		<div class="row box_white sidebar">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-user"></i>&nbsp;<a href="/users" target="_blank" title="点击更多">新会员</a></h3>
-			</div>
-			<div class="sb-content">
-				<div id="newest-list" class="user-list" data-limit="9">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-			</div>
-		</div>
-		
-		<div class="row box_white sidebar">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-user"></i>&nbsp;<a href="/users" target="_blank" title="点击更多">活跃会员</a></h3>
-			</div>
-			<div class="sb-content">
-				<div id="active-list" class="user-list" data-limit="9">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-			</div>
-		</div>
-		<div class="row box_white sidebar">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-stats"></i>&nbsp;&nbsp;统计信息</h3>
-			</div>
-			<div class="sb-content">
-				<div class="stat-list">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-			</div>
-		</div>
+		{{include "sidebar/reading.html" .}}
 
-		<div class="row box_white sidebar">
-			<div class="top">
-				<h3 class="title"><i class="glyphicon glyphicon-link"></i>&nbsp;友情链接</h3>
-			</div>
-			<div class="sb-content">
-				<div class="friendslink-list">
-					<ul class="list-unstyled">
-						<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-					</ul>
-				</div>
-			</div>
+		{{include "sidebar/comment.html" .}}
+
+		{{include "sidebar/new_user.html" .}}
+		
+		{{include "sidebar/active_user.html" .}}
+
+		{{if .pos_ad.right2}}
+		<div class="box_white sidebar" id="ad-right2">
+			{{if eq .pos_ad.right2.AdType 0}}
+				{{noescape .pos_ad.right2.Code}}
+			{{end}}
 		</div>
+		{{end}}
+
+		{{include "sidebar/stat.html" .}}
+
+		{{include "sidebar/friend_link.html" .}}
 		
 	</div>
 </div>
 
-<script type="text/x-jsrender" id="article-tpl">
-<article class="article box_white">
-	<div class="row">
-		[%if #index > 2%]
-		<div>
-		[%else%]
-		<div class="pull-left">
-			<a href="/articles/[%:id%]" target="_blank" title="[%:title%]">
-				<img class="lazy img-responsive" src="/static/img/rank_num[%:#getIndex()+1%].png" width="90" alt="[%:title%]" style="display: inline;">
-			</a>
-		</div>
-		<div style="margin-left:110px;">
-		[%/if%]
-			<h2><a href="/articles/[%:id%]" target="_blank" title="[%:title%]">
-				[%:title%]
-			</a></h2>
-			<p class="text">[%substring:txt 250%]<a href="/articles/[%:id%]" target="_blank" title="阅读全文">阅读全文</a></p>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-8 metatag">
-			<i class="glyphicon glyphicon-th"></i>
-			<span class="source" title="来源">[%:name%]</span>
-			<i class="glyphicon glyphicon-calendar"></i>
-			<span class="date" title="发布日期">[%:pub_date%]</span>
-			<i class="glyphicon glyphicon-user"></i>
-			<span class="author" title="作者">[%substring:author_txt 15 ' 等'%]</span>
-		</div>
-		<div class="col-md-4 metatag text-right">
-			<span class="view" title="阅读数">
-				<i class="glyphicon glyphicon-eye-open"></i>
-				阅读:<span>[%:rank_view%]</span>次
-			</span>
-		</div>
-	</div>
-</article>
-</script>
 
-<script type="text/x-jsrender" id="no-article-tpl">
-<article class="article box_white">
-	<div class="row">该排行榜暂无博文</div>
-</article>
-</script>
-
-<script type="text/x-jsrender" id="topic-tpl">
-<li>[%if #index > 2%]<em>[%:#getIndex()+1%]</em>[%else%]<img src="/static/img/rank_medal[%:#getIndex()+1%].png" width="15px">[%/if%]&nbsp;<a href="/topics/[%:tid%]" title="[%:title%]">[%substring:title 25%]</a><span class="pull-right" style="color: #bbb;"><span class="glyphicon glyphicon-eye-open"></span> [%:rank_view%]</span></li>
-</script>
-
-<script type="text/x-jsrender" id="no-topic-tpl">
-<li style="height: 40px; line-height: 40px; text-align: center;">该排行榜暂无主题</li>
-</script>
-
-<script type="text/x-jsrender" id="resource-tpl">
-<li>[%if #index > 2%]<em>[%:#getIndex()+1%]</em>[%else%]<img src="/static/img/rank_medal[%:#getIndex()+1%].png" width="15px">[%/if%]&nbsp;<a href="/resources/[%:id%]" title="[%:title%]">[%substring:title 35%]</a><span class="pull-right" style="color: #bbb;"><span class="glyphicon glyphicon-eye-open"></span> [%:rank_view%]</span></li>
-</script>
-
-<script type="text/x-jsrender" id="no-resource-tpl">
-<li style="height: 40px; line-height: 40px; text-align: center;">该排行榜暂无资源</li>
-</script>
-
-<script type="text/x-jsrender" id="loading-tpl">
-<article class="article box_white" style="text-align: center; margin-top: 10px;">
-	<img src="/static/img/loaders/loader7.gif" alt="加载中" />
-</article>
-</script>
-
-{{end}}
-{{define "css"}}
-<link href="/static/css/index.css?v=0.8" rel="stylesheet"/>
-<style type="text/css">
-#topic-nav li a, #resource-nav li a { padding: 5px; }
-</style>
 {{end}}
 {{define "js"}}
-<script type="text/javascript" src="/static/js/index.js?v=0.6"></script>
+<script type="text/javascript" src="/static/js/libs/identicon.js"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
-	"/projects/recent",
 	"/comments/recent",
 	"/users/active",
 	"/users/newest",
 	"/websites/stat",
 	"/readings/recent",
 	"/friend/links",
-	"/rank/view"
 ];
 
-$.views.converters("substring", function(val, len) {
-	if (val.length > len) {
-		if (arguments.length >= 3) {
-			suffix = arguments[2];
-		} else {
-			suffix = '...';
-		}
-		val = val.substr(0, len)+suffix;
-	}
-	return val;
-});
-
 $(function() {
-
-	var newestArticleHtml = '',
-		newestTopicHtml = '',
-		newestResourceHtml = '';
-
-	function loadRank(that, listIdSelector, newestHtml, objtype, tplIdSelector, noTplIdSelector) {
-		$(that).parent().children().removeClass('active');
-		$(that).addClass('active');
-
-		var type = $(that).data('type');
-
-		if (type != "newest" && newestHtml == '') {
-			newestHtml = $(listIdSelector).html();
-		} else {
-			if (type == "newest") {
-				$(listIdSelector).html(newestHtml);
-				return "";
-			}
-		}
-
-		$(listIdSelector).html($('#loading-tpl').html());
-
-		var params = {objtype: objtype, limit: 10, rank_type: type, fr: "index"}
-		$.getJSON('/rank/view', params, function(result) {
-			if (result.ok) {
-				var data = result.data.list;
-				if (data) {
-					var rankHtml = $.templates(tplIdSelector).render(data);
-					$(listIdSelector).html(rankHtml);
-				} else {
-					$(listIdSelector).html($(noTplIdSelector).html());
-				}
-			}
-		});
-
-		return newestHtml;
-	}
-
-	$('#article-nav li').on('click', function(evt) {
-		evt.preventDefault();
-
-		var newestHtml = loadRank(this, '#article-list', newestArticleHtml, 1, '#article-tpl', '#no-article-tpl')
-		if (newestHtml != "") {
-			newestArticleHtml = newestHtml;
-		}
-	});
-
-	$('#topic-nav li').on('click', function(evt) {
-		evt.preventDefault();
-
-		var newestHtml = loadRank(this, '#topic-list', newestTopicHtml, 0, '#topic-tpl', '#no-topic-tpl')
-		if (newestHtml != "") {
-			newestTopicHtml = newestHtml;
-		}
-	});
-
-	$('#resource-nav li').on('click', function(evt) {
-		evt.preventDefault();
-
-		var newestHtml = loadRank(this, '#resource-list', newestResourceHtml, 2, '#resource-tpl', '#no-resource-tpl')
-		if (newestHtml != "") {
-			newestResourceHtml = newestHtml;
-		}
+	$('.noavatar').each(function() {
+		var objid = $(this).data('objid'),
+			objtype = $(this).data('objtype'),
+			author = $(this).data('author');
+		// var hash = md5(objid+"-"+objtype);
+		var hash = md5(author+"");
+		var data = new Identicon(hash, {format: 'svg', size: 48}).toString();
+		var imgData = 'data:image/svg+xml;base64,' + data;
+		$(this).attr('src', imgData);
 	});
 });
 

@@ -27,15 +27,15 @@ type IndexController struct{}
 
 // 注册路由
 func (self IndexController) RegisterRoute(g *echo.Group) {
-	g.GET("/", self.NewIndex)
+	g.GET("/", self.Index)
 	g.GET("/wr", self.WrapUrl)
 	g.GET("/pkgdoc", self.Pkgdoc)
 	g.GET("/markdown", self.Markdown)
 }
 
-func (IndexController) NewIndex(ctx echo.Context) error {
+func (IndexController) Index(ctx echo.Context) error {
 	if len(logic.WebsiteSetting.IndexNavs) == 0 {
-		return render(ctx, "new_index.html", nil)
+		return render(ctx, "index.html", nil)
 	}
 
 	tab := ctx.QueryParam("tab")
@@ -51,11 +51,11 @@ func (IndexController) NewIndex(ctx echo.Context) error {
 	SetCookie(ctx, "INDEX_TAB", data["tab"].(string))
 	data["all_nodes"] = logic.GenNodes()
 
-	return render(ctx, "new_index.html", data)
+	return render(ctx, "index.html", data)
 }
 
 // Index 首页
-func (IndexController) Index(ctx echo.Context) error {
+func (IndexController) OldIndex(ctx echo.Context) error {
 	num := 10
 	paginator := logic.NewPaginatorWithPerPage(1, num)
 	topicsList := make([]map[string]interface{}, num)

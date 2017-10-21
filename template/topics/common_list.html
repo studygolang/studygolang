@@ -1,6 +1,6 @@
 <div class="box_white">
 	<dl class="topics dl-horizontal">
-	{{range .topics}}
+	{{range $i, $topic := .topics}}
 		{{if or ($.node) (and (not $.node) .node.ShowIndex)}}
 		<div class="topic">
 			<dt class="avatar">
@@ -38,6 +38,15 @@
 				</div>
 			</dd>
 		</div>
+				{{if eq $i 4}}
+					{{if $.pos_ad.banner}}
+					<div>
+						{{if eq $.pos_ad.banner.AdType 0}}
+							{{noescape $.pos_ad.banner.Code}}
+						{{end}}
+					</div>
+					{{end}}
+				{{end}}
 		{{end}}
 	{{else}}
 		<p class="text-center">暂时没有任何主题</p>

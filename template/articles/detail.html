@@ -316,6 +316,12 @@ $(function(){
 	{{end}}
 {{end}}
 
+{{if .pos_ad.right2}}
+	{{if eq .pos_ad.right2.AdType 1}}
+		{{noescape .pos_ad.right2.Code}}
+	{{end}}
+{{end}}
+
 <script>
 var baiduImagePlus = {
 noLogo:true,

@@ -75,7 +75,9 @@ func NeedLogin() echo.MiddlewareFunc {
 			if !ok || user.Status != model.UserStatusAudit {
 				method := ctx.Request().Method()
 				if util.IsAjax(ctx) {
-					return ctx.JSON(http.StatusForbidden, `{"ok":0,"error":"403 Forbidden"}`)
+					if !strings.HasPrefix(ctx.Path(), "/account") {
+						return ctx.JSON(http.StatusForbidden, `{"ok":0,"error":"403 Forbidden"}`)
+					}
 				} else {
 					if method == "POST" {
 						return ctx.HTML(http.StatusForbidden, `403 Forbidden`)
