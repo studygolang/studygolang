@@ -83,14 +83,26 @@ func (BookController) Detail(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusSeeOther, "/books")
 	}
 
-	likeFlag := 0
-	hadCollect := 0
+	data := map[string]interface{}{
+		"activeBooks": "active",
+		"book":        book,
+	}
+
 	me, ok := ctx.Get("user").(*model.Me)
 	if ok {
-		likeFlag = logic.DefaultLike.HadLike(ctx, me.Uid, book.Id, model.TypeBook)
-		hadCollect = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, book.Id, model.TypeBook)
+		data["likeflag"] = logic.DefaultLike.HadLike(ctx, me.Uid, book.Id, model.TypeBook)
+		data["hadcollect"] = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, book.Id, model.TypeBook)
 
 		logic.Views.Incr(Request(ctx), model.TypeBook, book.Id, me.Uid)
+
+		if me.Uid != book.Uid {
+			go logic.DefaultViewRecord.Record(book.Id, model.TypeBook, me.Uid)
+		}
+
+		if me.IsRoot || me.Uid == book.Uid {
+			data["view_user_num"] = logic.DefaultViewRecord.FindUserNum(ctx, book.Id, model.TypeBook)
+			data["view_source"] = logic.DefaultViewSource.FindOne(ctx, book.Id, model.TypeBook)
+		}
 	} else {
 		logic.Views.Incr(Request(ctx), model.TypeBook, book.Id)
 	}
@@ -98,5 +110,5 @@ func (BookController) Detail(ctx echo.Context) error {
 	// 为了阅读数即时看到
 	book.Viewnum++
 
-	return render(ctx, "books/detail.html,common/comment.html", map[string]interface{}{"activeBooks": "active", "book": book, "likeflag": likeFlag, "hadcollect": hadCollect})
+	return render(ctx, "books/detail.html,common/comment.html", data)
 }

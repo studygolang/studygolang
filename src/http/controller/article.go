@@ -140,6 +140,7 @@ func (ArticleController) Detail(ctx echo.Context) error {
 
 		if me.IsRoot || (article.IsSelf && me.Uid == article.User.Uid) {
 			data["view_user_num"] = logic.DefaultViewRecord.FindUserNum(ctx, article.Id, model.TypeArticle)
+			data["view_source"] = logic.DefaultViewSource.FindOne(ctx, article.Id, model.TypeArticle)
 		}
 	} else {
 		logic.Views.Incr(Request(ctx), model.TypeArticle, article.Id)

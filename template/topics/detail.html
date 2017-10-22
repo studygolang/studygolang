@@ -90,15 +90,7 @@
 			<!-- 评论框 -->
 			{{template "comment" .}}
 
-			{{if .view_user_num}}
-			<div class="sep20"></div>
-			<div class="box_white">
-				<div class="cell">统计信息</div>
-				<div class="cell">
-					<span class="c9">目前已有 <strong>{{.view_user_num}}</strong> 位注册会员查看了本主题</span>
-				</div>
-			</div>
-			{{end}}
+			{{include "common/view_stat.html" .}}
 			
 		</div>
 	</div>

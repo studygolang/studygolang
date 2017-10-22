@@ -1,0 +1,19 @@
+{{if .view_user_num}}
+<div class="sep20"></div>
+<div class="box_white">
+	<div class="cell">统计信息</div>
+	<div class="cell">
+		<span class="c9">目前已有 <strong>{{.view_user_num}}</strong> 位注册会员查看</span>
+	</div>
+	{{if .view_source.Id}}
+	<ul class="cell">
+		{{if .view_source.Google}}<li>{{.view_source.Google}} 次来自 Google 点击</li>{{end}}
+		{{if .view_source.Baidu}}<li>{{.view_source.Baidu}} 次来自 Baidu 点击</li>{{end}}
+		{{if .view_source.Bing}}<li>{{.view_source.Bing}} 次来自 Bing 点击</li>{{end}}
+		{{if .view_source.Sogou}}<li>{{.view_source.Sogou}} 次来自 Sogou 点击</li>{{end}}
+		{{if .view_source.So}}<li>{{.view_source.So}} 次来自 360搜索 点击</li>{{end}}
+		{{if .view_source.Other}}<li>{{.view_source.Other}} 次外链点击</li>{{end}}
+	</ul>
+	{{end}}
+</div>
+{{end}}

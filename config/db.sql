@@ -617,6 +617,21 @@ CREATE TABLE `view_record` (
   INDEX `idx_uid` (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户浏览记录表';
 
+CREATE TABLE `view_source` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `objid` int(10) unsigned NOT NULL COMMENT '对象id，属主',
+  `objtype` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '类型,0-帖子;1-博客;2-资源;3-wiki;4-项目;5-图书',
+  `google` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '来源谷歌数量',
+  `baidu` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '来源百度数量',
+  `bing` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '来源必应数量',
+  `sogou` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '来源搜狗数量',
+  `so` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '来源360数量',
+  `other` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '其他来源数量',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_obj` (`objid`,`objtype`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='浏览来源表';
+
 CREATE TABLE `gift` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(63) NOT NULL DEFAULT '' COMMENT '物品名称',

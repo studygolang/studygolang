@@ -91,6 +91,9 @@ func (this *views) Incr(req *http.Request, objtype, objid int, uids ...int) {
 		}
 	}
 
+	// 记录浏览来源
+	go DefaultViewSource.Record(req, objtype, objid)
+
 	key := strconv.Itoa(objtype) + strconv.Itoa(objid)
 
 	var userKey string

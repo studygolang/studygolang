@@ -159,6 +159,7 @@ func (ProjectController) Detail(ctx echo.Context) error {
 
 		if me.IsRoot || me.Uid == project.User.Uid {
 			data["view_user_num"] = logic.DefaultViewRecord.FindUserNum(ctx, project.Id, model.TypeProject)
+			data["view_source"] = logic.DefaultViewSource.FindOne(ctx, project.Id, model.TypeProject)
 		}
 	} else {
 		logic.Views.Incr(Request(ctx), model.TypeProject, project.Id)

@@ -81,8 +81,11 @@ func (ResourceController) Detail(ctx echo.Context) error {
 
 		if me.Uid != resource["uid"].(int) {
 			go logic.DefaultViewRecord.Record(id, model.TypeResource, me.Uid)
-		} else {
+		}
+
+		if me.IsRoot || me.Uid == resource["uid"].(int) {
 			data["view_user_num"] = logic.DefaultViewRecord.FindUserNum(ctx, id, model.TypeResource)
+			data["view_source"] = logic.DefaultViewSource.FindOne(ctx, id, model.TypeResource)
 		}
 	} else {
 		logic.Views.Incr(Request(ctx), model.TypeResource, id)

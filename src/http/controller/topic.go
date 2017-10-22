@@ -165,8 +165,11 @@ func (TopicController) Detail(ctx echo.Context) error {
 
 		if me.Uid != topic["uid"].(int) {
 			go logic.DefaultViewRecord.Record(tid, model.TypeTopic, me.Uid)
-		} else {
+		}
+
+		if me.IsRoot || me.Uid == topic["uid"].(int) {
 			data["view_user_num"] = logic.DefaultViewRecord.FindUserNum(ctx, tid, model.TypeTopic)
+			data["view_source"] = logic.DefaultViewSource.FindOne(ctx, tid, model.TypeTopic)
 		}
 	} else {
 		logic.Views.Incr(Request(ctx), model.TypeTopic, tid)
