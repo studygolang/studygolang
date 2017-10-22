@@ -26,7 +26,10 @@ func init() {
 	schemaDecoder.IgnoreUnknownKeys(true)
 }
 
-var NotModifyAuthorityErr = errors.New("没有修改权限")
+var (
+	NotModifyAuthorityErr = errors.New("没有修改权限")
+	NotFoundErr           = errors.New("Not Found")
+)
 
 func GetLogger(ctx context.Context) *logger.Logger {
 	if ctx == nil {

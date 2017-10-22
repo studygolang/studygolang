@@ -38,6 +38,7 @@ type Topic struct {
 	Lastreplytime OftenTime `json:"lastreplytime"`
 	EditorUid     int       `json:"editor_uid"`
 	Top           uint8     `json:"top"`
+	TopTime       int64     `json:"top_time"`
 	Tags          string    `json:"tags"`
 	Permission    int       `json:"permission"`
 	Ctime         OftenTime `json:"ctime" xorm:"created"`

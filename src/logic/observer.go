@@ -18,6 +18,7 @@ var (
 	commentObservable Observable
 	ViewObservable    Observable
 	appendObservable  Observable
+	topObservable     Observable
 )
 
 func init() {
@@ -44,6 +45,11 @@ func init() {
 	appendObservable.AddObserver(&UserWeightObserver{})
 	appendObservable.AddObserver(&TodayActiveObserver{})
 	appendObservable.AddObserver(&UserRichObserver{})
+
+	topObservable = NewConcreteObservable(actionTop)
+	topObservable.AddObserver(&UserWeightObserver{})
+	topObservable.AddObserver(&TodayActiveObserver{})
+	topObservable.AddObserver(&UserRichObserver{})
 }
 
 type Observer interface {
@@ -65,6 +71,7 @@ const (
 	actionComment = "comment"
 	actionView    = "view"
 	actionAppend  = "append"
+	actionTop     = "top" // 置顶
 )
 
 type ConcreteObservable struct {
@@ -123,6 +130,8 @@ func (this *UserWeightObserver) Update(action string, uid, objtype, objid int) {
 		weight = 1
 	case actionAppend:
 		weight = 15
+	case actionTop:
+		weight = 5
 	}
 
 	DefaultUser.IncrUserWeight("uid", uid, weight)
@@ -144,6 +153,8 @@ func (*TodayActiveObserver) Update(action string, uid, objtype, objid int) {
 		weight = 1
 	case actionAppend:
 		weight = 15
+	case actionTop:
+		weight = 5
 	}
 
 	DefaultRank.GenDAURank(uid, weight)
@@ -351,6 +362,22 @@ func (UserRichObserver) Update(action string, uid, objtype, objid int) {
 		desc = fmt.Sprintf(`为主题 › <a href="/topics/%d">%s</a> 增加附言`,
 			topic.Tid,
 			topic.Title)
+	} else if action == actionTop {
+		typ = model.MissionTypeTop
+		award = -200
+
+		switch objtype {
+		case model.TypeTopic:
+			topic := DefaultTopic.findByTid(objid)
+			desc = fmt.Sprintf(`将主题 › <a href="/topics/%d">%s</a> 置顶`,
+				topic.Tid,
+				topic.Title)
+		case model.TypeArticle:
+			article, _ := DefaultArticle.FindById(nil, objid)
+			desc = fmt.Sprintf(`将文章 › <a href="/articles/%d">%s</a> 置顶`,
+				article.Id,
+				article.Title)
+		}
 	}
 
 	DefaultUserRich.IncrUserRich(user, typ, award, desc)

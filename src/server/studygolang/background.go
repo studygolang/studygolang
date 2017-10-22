@@ -60,6 +60,9 @@ func ServeBackGround() {
 			c.AddFunc("0 0 0 * * *", logic.DefaultEmail.EmailNotice)
 		}
 
+		// 取消置顶
+		c.AddFunc("0 * * * * *", unsetTop)
+
 		// 每天对活跃用户奖励铜币
 		c.AddFunc("@daily", logic.DefaultUserRich.AwardCooper)
 	}
@@ -140,4 +143,8 @@ func genViewRank() {
 		logic.DefaultRank.GenWeekRank(objtype)
 		logic.DefaultRank.GenMonthRank(objtype)
 	}
+}
+
+func unsetTop() {
+	logic.DefaultTopic.AutoUnsetTop()
 }

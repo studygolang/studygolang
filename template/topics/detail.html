@@ -30,6 +30,9 @@
 						{{else if and (eq .me.Uid .topic.user.Uid) (lt (len .appends) 3) }}
 						<a class="op" href="/append/topic/{{.topic.tid}}" title="附言">附言</a>
 						{{end}}
+						{{if and (canPublish .me.DauAuth 101) (not .topic.top)}}
+						<a id="set-top" class="op" href="/topics/set_top?tid={{.topic.tid}}" title="置顶">置顶</a>
+						{{end}}
 					</small>
 				</div>
 				{{if gt (distanceDay .topic.ctime) 100 }}
@@ -177,6 +180,21 @@ $(function(){
 	$('#wrapper .content').on('mousedown', 'a', function(evt){
 		var url = $(this).attr('href');
 		$(this).attr('target', '_blank');
+	});
+
+	$('#set-top').on('click', function(evt) {
+		evt.preventDefault();
+
+		var url = $(this).attr('href');
+		$.post(url, {}, function(result) {
+			if (result.ok) {
+				comTip("置顶成功！");
+			} else {
+				comTip(result.msg);
+			}
+		});
+
+		return false;
 	});
 });
 </script>

@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS `topics` (
   `flag` tinyint NOT NULL DEFAULT 0 COMMENT '审核标识,0-未审核;1-已审核;2-审核删除;3-用户自己删除',
   `editor_uid` int unsigned NOT NULL DEFAULT 0 COMMENT '最后编辑人',
   `top` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '置顶，0否，1置顶',
+  `top_time` int unsigned NOT NULL DEFAULT 0 COMMENT '置顶时间',
   `tags` varchar(63) NOT NULL DEFAULT '' COMMENT 'tag，逗号分隔',
   `permission` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '访问权限：0-公开；1-登录用户可见；2-关注的人可见',
   `ctime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -615,7 +616,6 @@ CREATE TABLE `view_record` (
   UNIQUE KEY `uniq_obj_uid` (`objid`,`objtype`,`uid`),
   INDEX `idx_uid` (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户浏览记录表';
-
 
 CREATE TABLE `gift` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,

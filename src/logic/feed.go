@@ -15,6 +15,7 @@ import (
 
 	. "db"
 
+	"github.com/go-xorm/xorm"
 	"github.com/polaris1119/set"
 )
 
@@ -105,6 +106,16 @@ func (FeedLogic) fillOtherInfo(ctx context.Context, feeds []*model.Feed, filterT
 // publish 发布动态
 func (FeedLogic) publish(object interface{}, objectExt interface{}) {
 	go model.PublishFeed(object, objectExt)
+}
+
+// setTop 置顶或取消置顶
+func (FeedLogic) setTop(session *xorm.Session, objid, objtype int, top int) error {
+	_, err := session.Table(new(model.Feed)).Where("objid=? AND objtype=?", objid, objtype).
+		Update(map[string]interface{}{
+			"top": top,
+		})
+
+	return err
 }
 
 // updateComment 更新动态评论数据

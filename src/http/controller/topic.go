@@ -42,6 +42,8 @@ func (self TopicController) RegisterRoute(g *echo.Group) {
 	g.Match([]string{"GET", "POST"}, "/topics/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice())
 	g.Match([]string{"GET", "POST"}, "/topics/modify", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
 
+	g.POST("/topics/set_top", self.SetTop, middleware.NeedLogin())
+
 	g.Match([]string{"GET", "POST"}, "/append/topic/:tid", self.Append, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck())
 }
 
@@ -310,4 +312,23 @@ func (TopicController) Nodes(ctx echo.Context) error {
 	}
 
 	return render(ctx, "topics/nodes.html", data)
+}
+
+func (TopicController) SetTop(ctx echo.Context) error {
+	tid := goutils.MustInt(ctx.FormValue("tid"))
+	if tid == 0 {
+		return ctx.Redirect(http.StatusSeeOther, "/topics")
+	}
+
+	me := ctx.Get("user").(*model.Me)
+	err := logic.DefaultTopic.SetTop(ctx, me, tid)
+	if err != nil {
+		if err == logic.NotFoundErr {
+			return ctx.Redirect(http.StatusSeeOther, "/topics")
+		}
+
+		return fail(ctx, 1, "出错了:"+err.Error())
+	}
+
+	return success(ctx, nil)
 }

@@ -87,6 +87,7 @@ func (self TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Value
 
 		session := MasterDB.NewSession()
 		defer session.Close()
+		session.Begin()
 
 		_, err = session.Insert(topic)
 		if err != nil {
@@ -205,6 +206,94 @@ func (self TopicLogic) Append(ctx context.Context, uid, tid int, content string)
 	}
 
 	go appendObservable.NotifyObservers(uid, model.TypeTopic, tid)
+
+	return nil
+}
+
+// SetTop 置顶
+func (self TopicLogic) SetTop(ctx context.Context, me *model.Me, tid int) error {
+	objLog := GetLogger(ctx)
+
+	if !me.IsAdmin {
+		topic := self.findByTid(tid)
+		if topic.Tid == 0 || topic.Uid != me.Uid {
+			return NotFoundErr
+		}
+	}
+
+	session := MasterDB.NewSession()
+	defer session.Close()
+	session.Begin()
+
+	_, err := session.Table(new(model.Topic)).Id(tid).Update(map[string]interface{}{
+		"top":      1,
+		"top_time": time.Now().Unix(),
+	})
+	if err != nil {
+		objLog.Errorln("TopicLogic SetTop error:", err)
+		session.Rollback()
+		return err
+	}
+
+	err = DefaultFeed.setTop(session, tid, model.TypeTopic, 1)
+	if err != nil {
+		objLog.Errorln("TopicLogic SetTop feed error:", err)
+		session.Rollback()
+		return err
+	}
+
+	session.Commit()
+
+	go topObservable.NotifyObservers(me.Uid, model.TypeTopic, tid)
+
+	return nil
+}
+
+// UnsetTop 取消置顶
+func (self TopicLogic) UnsetTop(ctx context.Context, tid int) error {
+	objLog := GetLogger(ctx)
+
+	session := MasterDB.NewSession()
+	defer session.Close()
+	session.Begin()
+
+	_, err := session.Table(new(model.Topic)).Id(tid).Update(map[string]interface{}{
+		"top": 0,
+	})
+	if err != nil {
+		objLog.Errorln("TopicLogic UnsetTop error:", err)
+		session.Rollback()
+		return err
+	}
+
+	err = DefaultFeed.setTop(session, tid, model.TypeTopic, 0)
+	if err != nil {
+		objLog.Errorln("TopicLogic UnsetTop feed error:", err)
+		session.Rollback()
+		return err
+	}
+
+	session.Commit()
+
+	return nil
+}
+
+// AutoUnsetTop 自动取消置顶
+func (self TopicLogic) AutoUnsetTop() error {
+	topics := make([]*model.Topic, 0)
+	err := MasterDB.Where("top=1").Find(&topics)
+	if err != nil {
+		logger.Errorln("TopicLogic AutoUnsetTop error:", err)
+		return err
+	}
+
+	for _, topic := range topics {
+		if topic.TopTime == 0 || topic.TopTime+86400 > time.Now().Unix() {
+			continue
+		}
+
+		self.UnsetTop(nil, topic.Tid)
+	}
 
 	return nil
 }

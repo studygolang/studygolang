@@ -25,6 +25,8 @@ const (
 	MissionTypeBook     = 57
 
 	MissionTypeAppend = 60
+	// 置顶
+	MissionTypeTop = 61
 
 	MissionTypeModify = 65
 	// 被回复

@@ -25,6 +25,7 @@ var BalanceTypeMap = map[int]string{
 	MissionTypeProject:  "发布项目",
 	MissionTypeBook:     "分享图书",
 	MissionTypeAppend:   "增加附言",
+	MissionTypeTop:      "置顶",
 	MissionTypeModify:   "修改",
 	MissionTypeReplied:  "回复收益",
 	MissionTypeAward:    "额外赠予",

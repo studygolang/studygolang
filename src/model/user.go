@@ -67,6 +67,8 @@ const (
 	TypeTop     = 101
 )
 
+const DefaultAuth = DauAuthTopic | DauAuthArticle | DauAuthResource | DauAuthProject | DauAuthComment
+
 // 用户基本信息
 type User struct {
 	Uid         int       `json:"uid" xorm:"pk autoincr"`

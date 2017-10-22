@@ -638,6 +638,8 @@ func (UserLogic) doCreateUser(ctx context.Context, session *xorm.Session, user *
 	}
 	user.Open = 0
 
+	user.DauAuth = model.DefaultAuth
+
 	_, err := session.Insert(user)
 	if err != nil {
 		return err
