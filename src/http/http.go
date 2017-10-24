@@ -12,6 +12,7 @@ import (
 	"global"
 	"html/template"
 	"logic"
+	"math/rand"
 	"model"
 	"net/http"
 	"path/filepath"
@@ -108,6 +109,13 @@ var funcMap = template.FuncMap{
 			}
 		}
 		return total
+	},
+	"mod": func(num1, num2 int) int {
+		if num1 == 0 {
+			num1 = rand.Intn(500)
+		}
+
+		return num1 % num2
 	},
 	"explode": func(s, sep string) []string {
 		return strings.Split(s, sep)
