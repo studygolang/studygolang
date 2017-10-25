@@ -58,9 +58,13 @@ type app struct {
 	Host string
 	Port string
 
+	BaseURL string
+
 	// CDN 资源域名
 	CDNHttp  string
 	CDNHttps string
+
+	Domain string
 
 	locker sync.Mutex
 }
@@ -92,6 +96,10 @@ func init() {
 
 	App.CDNHttp = config.ConfigFile.MustValue("qiniu", "http_domain", DefaultCDNHttp)
 	App.CDNHttps = config.ConfigFile.MustValue("qiniu", "https_domain", DefaultCDNHttps)
+}
+
+func (this *app) Init(domain string) {
+	this.Domain = config.ConfigFile.MustValue("global", "domain", domain)
 }
 
 func (this *app) SetUptime() {

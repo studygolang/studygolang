@@ -9,15 +9,14 @@
 	<link rel="apple-touch-icon" type="image/png" href="/static/img/logo2.png">
 	{{template "seo" .}}
 	<meta name="author" content="polaris <polaris@studygolang.com>">
-	<!--<link href="http://studygolang.qiniudn.com/fonts_googleapi.css" rel="stylesheet">-->
-	<!-- <link href="//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"> -->
-	<link href="/static/css/fonts_googleapi.css" rel="stylesheet">
-	<link href="/static/css/cosmo_bootstrap.min.css" rel="stylesheet">
-	<!--<link href="http://studygolang.qiniudn.com/cosmo_bootstrap.min.css" rel="stylesheet">-->
-	<!--<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">-->
-	<link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
-	<link href="/static/css/main.css?v=1.5" rel="stylesheet"/>
-	<link href="/static/css/zoom.css" rel="stylesheet"/>
+	<link rel="canonical" href="{{.app.BaseURL}}" />
+	
+	{{if .use_cdn}}
+		{{include "common/common.css.cdn" .}}
+	{{else}}
+		{{include "common/common.css" .}}
+	{{end}}
+	
 	{{template "css" .}}
 	<style type="text/css">
 	#bottom .nav-content {
@@ -165,34 +164,6 @@
 		</div>
 	</footer>
 
-	<!-- <footer class="footer">
-		<div class="container">
-			<div>
-				<div class="pull-left" style="margin-right:10px;">
-					<a href="http://studygolang.com" target="_blank">
-						<img src="/static/img/logo2.png" widht="48px" height="48px" alt="golang logo">
-					</a>
-				</div>
-				<p class="links">
-					{{range $i, $el := .setting.FooterNavs}}
-					{{if gt $i 0}} | {{end}}<a href="{{.Url}}">{{.Name}}</a>
-					{{end}}
-				</p>
-				<p class="copyright">&copy;{{.app.Copyright}} 采用 <a href="https://golang.org" target="_blank">Go语言</a> + <a href="https://www.mysql.com/" target="_blank">MYSQL 构建</a>
-				&nbsp;&nbsp;当前在线：<span id="onlineusers">{{.online_users.online}}</span>人&nbsp;&nbsp;历史最高：<span id="maxonline">{{.online_users.maxonline}}</span>人&nbsp;&nbsp;运行时间：<attr>{{.app.Uptime}}</attr>
-				<br/>
-				<b>网站编译信息</b>&nbsp;版本：{{.app.Version}}/{{.app.Build}}，时间：<attr class="timeago">{{.app.Date}}</attr>
-				<br/>{{.setting.Slogan}}
-	{{.setting.Beian}}
-				</p>
-				<p class="text-center">
-					{{range .setting.FriendLogos}}
-					<a href="{{.Url}}" title="{{.Name}}" target="_blank"><img src="{{.Image}}" alt="{{.Name}}" width="{{.Width}}" height="{{.Height}}" /></a>
-					{{end}}
-				</p>
-			</div>
-		</div>
-	</footer> -->
 	<div id="gotop"></div>
 
 	{{if .me.Uid}}
@@ -247,35 +218,28 @@
 	<div id="sg-overlay"></div>
 	{{end}}
 	
-	<!--<script type="text/javascript"  src="//apps.bdimg.com/libs/jquery/1.11.1/jquery.min.js"></script>-->
-	<script type="text/javascript" src="/static/js/libs/jquery-1.11.1.min.js"></script>
-	<!--<script src="//apps.bdimg.com/libs/bootstrap/3.2.0/js/bootstrap.min.js"></script>-->
-	<script type="text/javascript" src="/static/js/libs/bootstrap-3.2.0.min.js"></script>
-	<script src="/static/js/libs/jquery.timeago.js?v=1.5.4"></script>
-	<script src="/static/js/libs/jquery.timeago.zh-CN.js?v=1.5.4"></script>
-	<script src="/static/js/libs/zoom.min.js"></script>
-	<script src="/static/js/libs/md5.js"></script>
-	<script type="text/javascript">
-	var uid = {{.me.Uid}};
-	var isHttps = {{.is_https}},
-		cdnDomain = "{{.cdn_domain}}";
-	if (isHttps) {
-		var wsUrl = 'wss://{{.wshost}}/ws?uid='+uid;
-	} else {
-		var wsUrl = 'ws://{{.wshost}}/ws?uid='+uid;
-	}
-	var GLaunchTime = {{timestamp .app.LaunchTime}}*1000;
-	</script>
-	<script src="/static/js/common.js?v=1.7"></script>
-	<script src="//cdn.bootcss.com/lscache/1.1.0/lscache.min.js"></script>
-	<script type="text/javascript" src="/static/js/libs/paste-upload-image.js"></script>
+	<script src="//cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+	<script src="//cdn.bootcss.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+	<script src="//cdn.bootcss.com/jquery-timeago/1.6.1/jquery.timeago.min.js"></script>
+	
+	{{if .use_cdn}}
+		{{include "common/common.js.cdn" .}}
+	{{else}}
+		{{include "common/common.js" .}}
+	{{end}}
+
 	{{template "js" .}}
-	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jsrender/0.9.84/jsrender.min.js"></script>
-	<script type="text/javascript">
-	$.views.settings.delimiters("[%", "%]");
-	// $.views.settings.debugMode(true);
-	</script>
-	<script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
-	<script type="text/javascript" src="/static/js/sidebar.js?v=1.12"></script>
+
+	{{if .use_cdn}}
+	<script src="{{.cdn_domain}}cssjs/sidebar.js"></script>
+	{{else}}
+	<script type="text/javascript" src="/static/js/sidebar.js"></script>
+	{{end}}
+
+	{{if .is_pro}}
+		<!-- 统计分析、广告脚本等 -->
+		{{include "common/analytics.html" .}}
+	{{end}}
+
 </body>
 </html>

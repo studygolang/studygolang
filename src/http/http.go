@@ -307,7 +307,7 @@ func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interf
 
 	// websocket主机
 	if global.OnlineEnv() {
-		data["wshost"] = config.ConfigFile.MustValue("global", "domain", logic.WebsiteSetting.Domain)
+		data["wshost"] = global.App.Domain
 	} else {
 		data["wshost"] = global.App.Host + ":" + global.App.Port
 	}
@@ -317,11 +317,17 @@ func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interf
 	isHttps := CheckIsHttps(ctx)
 	cdnDomain := global.App.CDNHttp
 	if isHttps {
+		global.App.BaseURL = "https://" + global.App.Domain + "/"
 		cdnDomain = global.App.CDNHttps
+	} else {
+		global.App.BaseURL = "http://" + global.App.Domain + "/"
 	}
+
 	data["app"] = global.App
 	data["is_https"] = isHttps
 	data["cdn_domain"] = cdnDomain
+	data["use_cdn"] = config.ConfigFile.MustBool("global", "use_cdn", false)
+	data["is_pro"] = global.OnlineEnv()
 
 	data["online_users"] = map[string]int{"online": logic.Book.Len(), "maxonline": logic.MaxOnlineNum()}
 

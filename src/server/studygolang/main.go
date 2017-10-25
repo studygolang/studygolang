@@ -12,6 +12,7 @@ import (
 	"http/controller/admin"
 	"http/controller/app"
 	"io/ioutil"
+	"logic"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -43,6 +44,8 @@ func main() {
 	global.PrintVersion(os.Stdout)
 
 	savePid()
+
+	global.App.Init(logic.WebsiteSetting.Domain)
 
 	logger.Init(ROOT+"/log", ConfigFile.MustValue("global", "log_level", "DEBUG"))
 
