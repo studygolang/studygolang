@@ -48,7 +48,9 @@ func (self DownloadController) FetchGoInstallPackage(ctx echo.Context) error {
 		resp.Body.Close()
 		return ctx.Redirect(http.StatusSeeOther, officalUrl)
 	}
-	resp.Body.Close()
+	if err == nil {
+		resp.Body.Close()
+	}
 
 	goVersion := filenameReg.FindString(filename)
 	filePath := fmt.Sprintf("go/%s/%s", goVersion, filename)
@@ -61,7 +63,9 @@ func (self DownloadController) FetchGoInstallPackage(ctx echo.Context) error {
 			resp.Body.Close()
 			return ctx.Redirect(http.StatusSeeOther, dlUrl)
 		}
-		resp.Body.Close()
+		if err == nil {
+			resp.Body.Close()
+		}
 	}
 
 	getLogger(ctx).Infoln("download:", filename, "from the site static directory")
