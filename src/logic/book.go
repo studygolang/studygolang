@@ -16,6 +16,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/polaris1119/nosql"
+
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
@@ -107,6 +109,9 @@ func (self LoginUserSlice) String() string {
 	return string(b)
 }
 
+const statOnlineKey = "stat:online"
+
+// TODO: 多机器部署，广播、在线注册用户信息没有同步
 var Book = &book{users: make(map[int]*UserData), uids: make(map[int]struct{})}
 
 type book struct {
@@ -137,11 +142,15 @@ func (this *book) AddUser(user, serverId int, isUid bool) *UserData {
 		if isUid {
 			this.uids[user] = struct{}{}
 		}
-		length := len(this.users)
 
 		this.rwMutex.Unlock()
 
+		// 存入 redis
+		this.newUser2Redis(user)
+
 		logger.Infoln("user:", user, "had enter")
+
+		length := this.Len()
 
 		onlineInfo := map[string]int{"online": length}
 		// 在线人数超过历史最高
@@ -170,15 +179,20 @@ func (this *book) DelUser(user, serverId int, isUid bool) {
 		if isUid {
 			delete(this.uids, user)
 		}
+
+		go this.delUserFromRedis(user)
+
 		return
 	}
 
-	// 自己只有一个页面建立websocket连接
+	// 自己只有一个页面建立 websocket 连接
 	if this.users[user].Len() == 1 {
 		delete(this.users, user)
 		if isUid {
 			delete(this.uids, user)
 		}
+
+		go this.delUserFromRedis(user)
 	} else {
 		this.users[user].Remove(serverId)
 	}
@@ -187,10 +201,21 @@ func (this *book) DelUser(user, serverId int, isUid bool) {
 // 判断用户是否还在线（user 有可能是IP）
 func (this *book) UserIsOnline(user int) bool {
 	this.rwMutex.RLock()
-	defer this.rwMutex.RUnlock()
 	if _, ok := this.users[user]; ok {
+		this.rwMutex.RUnlock()
 		return true
 	}
+	this.rwMutex.RUnlock()
+
+	// 是否其他机器在线
+	if this.isStoreRedis() {
+		redisClient := nosql.NewRedisClient()
+		defer redisClient.Close()
+
+		exists, _ := redisClient.HEXISTS(statOnlineKey, strconv.Itoa(user))
+		return exists
+	}
+
 	return false
 }
 
@@ -206,9 +231,17 @@ func (this *book) RegUserIsOnline(uid int) bool {
 
 // 在线用户数
 func (this *book) Len() int {
+	length := 0
+	if this.isStoreRedis() {
+		redisClient := nosql.NewRedisClient()
+		defer redisClient.Close()
+
+		length, _ = redisClient.HLEN(statOnlineKey)
+	}
+
 	this.rwMutex.RLock()
 	defer this.rwMutex.RUnlock()
-	return len(this.users)
+	return length + len(this.users)
 }
 
 // 在线注册会员数
@@ -277,6 +310,34 @@ func (this *book) BroadcastToOthersMessage(message *Message, myself int) {
 		}
 		userData.SendMessage(message)
 	}
+}
+
+// newUser2Redis 新用户存入 redis
+func (this *book) newUser2Redis(user int) {
+	if !this.isStoreRedis() {
+		return
+	}
+
+	redisClient := nosql.NewRedisClient()
+	defer redisClient.Close()
+
+	redisClient.HSET(statOnlineKey, strconv.Itoa(user), "")
+}
+
+func (this *book) delUserFromRedis(user int) {
+	if !this.isStoreRedis() {
+		return
+	}
+
+	redisClient := nosql.NewRedisClient()
+	defer redisClient.Close()
+
+	redisClient.HDEL(statOnlineKey, strconv.Itoa(user))
+}
+
+func (this *book) isStoreRedis() bool {
+	onlineStore := config.ConfigFile.MustValue("stat", "online_store")
+	return strings.ToLower(onlineStore) == "redis"
 }
 
 var (
