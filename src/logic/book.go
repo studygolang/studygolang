@@ -231,17 +231,18 @@ func (this *book) RegUserIsOnline(uid int) bool {
 
 // 在线用户数
 func (this *book) Len() int {
-	length := 0
 	if this.isStoreRedis() {
 		redisClient := nosql.NewRedisClient()
 		defer redisClient.Close()
 
-		length, _ = redisClient.HLEN(statOnlineKey)
+		length, _ := redisClient.HLEN(statOnlineKey)
+
+		return length
 	}
 
 	this.rwMutex.RLock()
 	defer this.rwMutex.RUnlock()
-	return length + len(this.users)
+	return len(this.users)
 }
 
 // 在线注册会员数
