@@ -51,6 +51,8 @@ func main() {
 
 	go keyword.Extractor.Init(keyword.DefaultProps, true, ROOT+"/data/programming.txt,"+ROOT+"/data/dictionary.txt")
 
+	go logic.Book.ClearRedisUser()
+
 	go ServeBackGround()
 
 	e := echo.New()

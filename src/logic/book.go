@@ -133,6 +133,8 @@ func (this *book) AddUser(user, serverId int, isUid bool) *UserData {
 		userData.InitMessageQueue(serverId)
 		userData.onlineDuartion += time.Now().Sub(userData.lastAccessTime)
 		userData.lastAccessTime = time.Now()
+
+		go this.newUser2Redis(user)
 	} else {
 		userData = &UserData{
 			serverMsgQueue: map[int]chan *Message{serverId: make(chan *Message, MessageQueueLen)},
@@ -311,6 +313,18 @@ func (this *book) BroadcastToOthersMessage(message *Message, myself int) {
 		}
 		userData.SendMessage(message)
 	}
+}
+
+// ClearRedisUser 删除 redis 中的用户
+func (this *book) ClearRedisUser() {
+	if !this.isStoreRedis() {
+		return
+	}
+
+	redisClient := nosql.NewRedisClient()
+	defer redisClient.Close()
+
+	redisClient.DEL(statOnlineKey)
 }
 
 // newUser2Redis 新用户存入 redis
