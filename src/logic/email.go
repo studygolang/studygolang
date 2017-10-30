@@ -20,6 +20,7 @@ import (
 	"github.com/polaris1119/email"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
+	gomail "gopkg.in/gomail.v2"
 
 	. "db"
 	"model"
@@ -30,8 +31,28 @@ type EmailLogic struct{}
 
 var DefaultEmail = EmailLogic{}
 
-// SendMail 发送电子邮件
+// SendMail 发送电子邮件（使用 gopkg.in/gomail.v2）
 func (EmailLogic) SendMail(subject, content string, tos []string) (err error) {
+	emailConfig, _ := config.ConfigFile.GetSection("email")
+
+	m := gomail.NewMessage()
+	m.SetHeader("From", WebsiteSetting.Name+` <`+emailConfig["from_email"]+`>`)
+	m.SetHeader("To", tos...)
+	m.SetHeader("Subject", subject)
+	m.SetBody("text/html", content)
+
+	d := gomail.NewDialer(emailConfig["smtp_host"], goutils.MustInt(emailConfig["smtp_port"]), emailConfig["smtp_username"], emailConfig["smtp_password"])
+	if err = d.DialAndSend(m); err != nil {
+		logger.Errorln("Send Mail to", strings.Join(tos, ","), "error:", err)
+		return
+	}
+
+	logger.Infoln("Send Mail to", strings.Join(tos, ","), "Successfully")
+	return
+}
+
+// SendMail 发送电子邮件（使用 github.com/polaris1119/email），go 1.9 tls 有问题
+func (EmailLogic) SendMail1(subject, content string, tos []string) (err error) {
 	emailConfig, _ := config.ConfigFile.GetSection("email")
 
 	e := email.NewEmail()

@@ -311,7 +311,7 @@
 		{
 			"importpath": "github.com/polaris1119/email",
 			"repository": "https://github.com/polaris1119/email",
-			"revision": "fab6eb4568abf395404252a598ff32d7fe445dbf",
+			"revision": "809494756a1ae301b702722e00b8584bdc7d68cc",
 			"branch": "master"
 		},
 		{
@@ -522,6 +522,12 @@
 			"revision": "dafb3384ad25363d928a9e97ce4ad3a2f0667e34",
 			"branch": "master",
 			"path": "/transform"
+		},
+		{
+			"importpath": "gopkg.in/gomail.v2",
+			"repository": "https://gopkg.in/gomail.v2",
+			"revision": "81ebce5c23dfd25c6c67194b37d3dd3f338c98b1",
+			"branch": "v2"
 		}
 	]
 }
