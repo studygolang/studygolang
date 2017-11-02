@@ -179,6 +179,25 @@ const (
 	AdminLayoutTpl = "common.html"
 )
 
+// 是否访问这些页面
+var filterPathes = map[string]struct{}{
+	"/account/login":     struct{}{},
+	"/account/register":  struct{}{},
+	"/account/forgetpwd": struct{}{},
+	"/account/resetpwd":  struct{}{},
+	"/topics/new":        struct{}{},
+	"/topics/modify":     struct{}{},
+	"/resources/new":     struct{}{},
+	"/resources/modify":  struct{}{},
+	"/articles/new":      struct{}{},
+	"/articles/modify":   struct{}{},
+	"/project/new":       struct{}{},
+	"/project/modify":    struct{}{},
+	"/book/new":          struct{}{},
+	"/wiki/new":          struct{}{},
+	"/wiki/modify":       struct{}{},
+}
+
 // Render html 输出
 func Render(ctx echo.Context, contentTpl string, data map[string]interface{}) error {
 	if data == nil {
@@ -204,6 +223,10 @@ func Render(ctx echo.Context, contentTpl string, data map[string]interface{}) er
 	data["pos_ad"] = logic.DefaultAd.FindAll(ctx, ctx.Path())
 	data["cur_time"] = times.Format("Y-m-d H:i:s")
 	data["path"] = ctx.Path()
+	data["filter"] = false
+	if _, ok := filterPathes[ctx.Path()]; ok {
+		data["filter"] = true
+	}
 
 	// TODO：每次查询有点影响性能
 	hasLoginMisson := false
