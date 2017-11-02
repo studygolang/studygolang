@@ -203,6 +203,7 @@ func Render(ctx echo.Context, contentTpl string, data map[string]interface{}) er
 
 	data["pos_ad"] = logic.DefaultAd.FindAll(ctx, ctx.Path())
 	data["cur_time"] = times.Format("Y-m-d H:i:s")
+	data["path"] = ctx.Path()
 
 	// TODO：每次查询有点影响性能
 	hasLoginMisson := false
