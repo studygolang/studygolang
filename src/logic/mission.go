@@ -161,6 +161,20 @@ func (MissionLogic) Complete(ctx context.Context, me *model.Me, id interface{}) 
 	}
 
 	user := DefaultUser.FindOne(ctx, "uid", me.Uid)
+
+	// 初始任务，不允许重复提交
+	if id == model.InitialMissionId {
+		if user.Balance > 0 {
+			objLog.Errorln("repeat claim init award", user.Username)
+			return nil
+		}
+
+		details := DefaultUserRich.FindBalanceDetail(ctx, me, mission.Type)
+		if len(details) > 0 {
+			return nil
+		}
+	}
+
 	desc := fmt.Sprintf("获得%s %d 铜币", model.BalanceTypeMap[mission.Type], mission.Fixed)
 	DefaultUserRich.IncrUserRich(user, mission.Type, mission.Fixed, desc)
 
