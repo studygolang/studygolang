@@ -13,6 +13,7 @@ import (
 	"os"
 	"regexp"
 	"time"
+	"util"
 
 	"github.com/gorilla/schema"
 	"github.com/polaris1119/logger"
@@ -69,7 +70,7 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 
 	switch entity := curModel.(type) {
 	case *model.Topic:
-		if me.Uid != entity.Uid && me.IsAdmin {
+		if me.Uid != entity.Uid && me.IsAdmin && roleCanEdit(model.TopicAdmin, me) {
 			return true
 		}
 
@@ -81,7 +82,7 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 			return true
 		}
 	case *model.Article:
-		if me.IsAdmin {
+		if me.IsAdmin && roleCanEdit(model.ArticleAdmin, me) {
 			return true
 		}
 
@@ -102,7 +103,7 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 			return true
 		}
 	case *model.OpenProject:
-		if me.IsAdmin {
+		if me.IsAdmin && roleCanEdit(model.Administrator, me) {
 			return true
 		}
 
@@ -115,7 +116,7 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 			return true
 		}
 	case *model.Wiki:
-		if me.IsAdmin {
+		if me.IsAdmin && roleCanEdit(model.Administrator, me) {
 			return true
 		}
 		if time.Now().Sub(time.Time(entity.Ctime)) > canEditTime {
@@ -126,7 +127,7 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 			return true
 		}
 	case *model.Book:
-		if me.IsAdmin {
+		if me.IsAdmin && roleCanEdit(model.Administrator, me) {
 			return true
 		}
 		if time.Now().Sub(time.Time(entity.CreatedAt)) > canEditTime {
@@ -206,17 +207,35 @@ func website() string {
 
 func adminCanEdit(entity map[string]interface{}, me *model.Me) bool {
 	if uid, ok := entity["uid"]; ok {
-		if me.Uid != uid.(int) && me.IsAdmin {
+		if me.Uid != uid.(int) && me.IsAdmin && roleCanEdit(model.Administrator, me) {
 			return true
 		}
 		return false
 	}
 
 	if username, ok := entity["username"]; ok {
-		if me.Username != username.(string) && me.IsAdmin {
+		if me.Username != username.(string) && me.IsAdmin && roleCanEdit(model.Administrator, me) {
 			return true
 		}
 		return false
+	}
+
+	return false
+}
+
+func roleCanEdit(typRoleId int, me *model.Me) bool {
+	if me.IsRoot {
+		return true
+	}
+
+	if util.InSlice(typRoleId, me.RoleIds) {
+		return
+	}
+
+	for _, roleId := range me.RoleIds {
+		if roleId <= model.Administrator {
+			return true
+		}
 	}
 
 	return false

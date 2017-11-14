@@ -524,7 +524,7 @@ $(function(){
 		// 当前文档高度   小于或等于   滚动条所在位置高度  则是页面底部
 		if(($(document).height()) <= totalheight) {
 			if($("#is_login_status").val() != 1){
-				openPop("#login-pop");
+				// openPop("#login-pop");
 			}
 		}
 	});

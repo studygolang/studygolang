@@ -148,6 +148,8 @@ type Me struct {
 	Gold    int `json:"gold"`
 	Silver  int `json:"silver"`
 	Copper  int `json:"copper"`
+
+	RoleIds []int `json:"-"`
 }
 
 // 活跃用户信息

@@ -6,8 +6,19 @@
 
 package model
 
-// 角色分界点：roleid小于该值，则没有管理权限
-const AdminMinRoleId int = 6
+// 角色分界点：roleid 大于该值，则没有管理权限
+const AdminMinRoleId = 7 // 晨读管理员
+
+const (
+	// Master 站长
+	Master = iota + 1
+	AssistantMaster
+	Administrator
+	TopicAdmin
+	ResourceAdmin
+	ArticleAdmin
+	ReadingAdmin
+)
 
 // 角色信息
 type Role struct {

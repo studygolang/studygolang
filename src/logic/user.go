@@ -280,6 +280,8 @@ func (self UserLogic) FindCurrentUser(ctx context.Context, username interface{})
 		Gold:    user.Gold,
 		Silver:  user.Silver,
 		Copper:  user.Copper,
+
+		RoleIds: make([]int, 0, 2),
 	}
 
 	// TODO: 先每次都记录登录时间
@@ -298,10 +300,11 @@ func (self UserLogic) FindCurrentUser(ctx context.Context, username interface{})
 		return me
 	}
 	for _, userRole := range userRoleList {
+		me.RoleIds = append(me.RoleIds, userRole.Roleid)
+
 		if userRole.Roleid <= model.AdminMinRoleId {
 			// 是管理员
 			me.IsAdmin = true
-			break
 		}
 	}
 
