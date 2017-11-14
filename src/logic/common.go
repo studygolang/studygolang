@@ -223,17 +223,17 @@ func adminCanEdit(entity map[string]interface{}, me *model.Me) bool {
 	return false
 }
 
-func roleCanEdit(typRoleId int, me *model.Me) bool {
+func roleCanEdit(typRoleID int, me *model.Me) bool {
 	if me.IsRoot {
 		return true
 	}
 
-	if util.InSlice(typRoleId, me.RoleIds) {
-		return
+	if util.InSlice(typRoleID, me.RoleIds) {
+		return true
 	}
 
-	for _, roleId := range me.RoleIds {
-		if roleId <= model.Administrator {
+	for _, roleID := range me.RoleIds {
+		if roleID <= model.Administrator {
 			return true
 		}
 	}
