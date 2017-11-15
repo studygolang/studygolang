@@ -1,6 +1,6 @@
 # 简介
 
-目前版本基于 [echo](https://github.com/labstack/echo) 框架开发， mysql 数据库操作使用 [xorm](http://books.studygolang.com/xorm)。
+目前版本基于 [echo](https://github.com/labstack/echo) 框架开发，mysql 数据库操作使用 [xorm](http://books.studygolang.com/xorm)。
 
 ## 项目目录结构
 
