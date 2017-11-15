@@ -110,6 +110,10 @@ func (ReadingLogic) SaveReading(ctx context.Context, form url.Values, username s
 		return
 	}
 
+	if reading.Inner != 0 {
+		reading.Url = ""
+	}
+
 	reading.Moreurls = strings.TrimSpace(reading.Moreurls)
 	if strings.Contains(reading.Moreurls, "\n") {
 		reading.Moreurls = strings.Join(strings.Split(reading.Moreurls, "\n"), ",")
@@ -119,7 +123,7 @@ func (ReadingLogic) SaveReading(ctx context.Context, form url.Values, username s
 
 	logger.Debugln(reading.Rtype, "id=", reading.Id)
 	if reading.Id != 0 {
-		_, err = MasterDB.Update(reading)
+		_, err = MasterDB.Id(reading.Id).Update(reading)
 	} else {
 		_, err = MasterDB.Insert(reading)
 	}
