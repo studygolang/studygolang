@@ -1,5 +1,7 @@
 studygolang
 ===========
+[![Build Status](https://travis-ci.org/studygolang/studygolang.svg?branch=master)](https://travis-  ci.org/studygolang/studygolang)
+
 [Go语言中文网 - Golang中文社区](https://studygolang.com "Go语言中文网 - Golang中文社区") 源码
 
 网站上线时间：2013-03-15 14:38:09
