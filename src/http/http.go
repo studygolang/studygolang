@@ -181,21 +181,21 @@ const (
 
 // 是否访问这些页面
 var filterPathes = map[string]struct{}{
-	"/account/login":     struct{}{},
-	"/account/register":  struct{}{},
-	"/account/forgetpwd": struct{}{},
-	"/account/resetpwd":  struct{}{},
-	"/topics/new":        struct{}{},
-	"/topics/modify":     struct{}{},
-	"/resources/new":     struct{}{},
-	"/resources/modify":  struct{}{},
-	"/articles/new":      struct{}{},
-	"/articles/modify":   struct{}{},
-	"/project/new":       struct{}{},
-	"/project/modify":    struct{}{},
-	"/book/new":          struct{}{},
-	"/wiki/new":          struct{}{},
-	"/wiki/modify":       struct{}{},
+	"/account/login":     {},
+	"/account/register":  {},
+	"/account/forgetpwd": {},
+	"/account/resetpwd":  {},
+	"/topics/new":        {},
+	"/topics/modify":     {},
+	"/resources/new":     {},
+	"/resources/modify":  {},
+	"/articles/new":      {},
+	"/articles/modify":   {},
+	"/project/new":       {},
+	"/project/modify":    {},
+	"/book/new":          {},
+	"/wiki/new":          {},
+	"/wiki/modify":       {},
 }
 
 // Render html 输出
