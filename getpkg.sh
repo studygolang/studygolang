@@ -19,24 +19,12 @@ export GOPATH=`pwd`
 
 cd src
 
-if [ -d "vendor/github.com" ]; then
-	if [ "$1" = "update" ]; then
-		gvt update -all
-	fi
+if [ "$1" = "update" ]; then
+    if [ -d "vendor/github.com" ]; then
+        gvt update -all
+    fi
 elif [ -f "vendor/manifest" ]; then
-	gvt restore -connections 8
-else
-	pkgs=("github.com/polaris1119/middleware" "github.com/fatih/structs"
-	"github.com/go-xorm/xorm" "github.com/fatih/set" "github.com/dchest/captcha"
-	"github.com/robfig/cron" "github.com/gorilla/sessions" "github.com/polaris1119/echoutils"
-	"golang.org/x/net/websocket" "github.com/polaris1119/slices" "github.com/qiniu/api.v6"
-	"github.com/polaris1119/times" "github.com/PuerkitoBio/goquery" "github.com/go-validator/validator"
-	"github.com/polaris1119/email" "github.com/jaytaylor/html2text" "github.com/sundy-li/html2article"
-	"github.com/gorilla/schema" "github.com/facebookgo/grace/gracehttp")
-
-	for pkg in "${pkgs[@]}"; do
-		gvt fetch "$pkg"
-	done
+    gvt restore -connections 8 -precaire
 fi
 
 cd ..
