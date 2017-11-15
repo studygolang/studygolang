@@ -1,6 +1,6 @@
 # 简介
 
-目前版本基于 [echo](https://github.com/labstack/echo) 框架开发，mysql 数据库操作使用 [xorm](http://books.studygolang.com/xorm)。
+目前版本基于 [echo](https://github.com/labstack/echo) 框架开发， mysql 数据库操作使用 [xorm](http://books.studygolang.com/xorm)。
 
 ## 项目目录结构
 
@@ -25,7 +25,7 @@
 │   ├── README.md
 │   └── intro.md
 ├── getpkg.bat
-├── getpkg.sh 下载依赖
+├── getpkg.sh 下载依赖
 ├── install.bat
 ├── install.sh 编译
 ├── log 日志目录
@@ -107,22 +107,24 @@
 │   └── vendor
 ```
 
-- db 包
+- db 包  
     负责初始化 xorm，构造数据库对象，需要数据库操作的地方，只需要如下方式使用即可：
+    
     ```go
     import . "db"
 
     MasterDB.Where()....
     ```
-- global 包
-    全局的一些对象，比如 App（包含网站的一些配置信息）、全局的一些 Channel 等。
-- http 包
+    
+- global 包  
+    全局的一些对象，比如 App（包含网站的一些配置信息）、全局的一些 channel 等。
+- http 包  
     包含 controller 和 middleware；其中的 http.go 文件封装了模板处理的一些通用逻辑。
-- logic 包
+- logic 包  
     所有业务逻辑
-- model 包
+- model 包  
     数据库实体，ORM
-- server 包
+- server 包  
     存放 main
-- util 包
+- util 包  
     一些辅助函数
