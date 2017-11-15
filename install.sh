@@ -9,6 +9,7 @@ fi
 
 CURDIR=`pwd`
 OLDGOPATH="$GOPATH"
+OLDGOBIN="$GOBIN"
 export GOPATH="$CURDIR"
 export GOBIN=
 
@@ -25,6 +26,7 @@ go install server/indexer
 go install server/crawler
 
 export GOPATH="$OLDGOPATH"
+export GOBIN="$OLDGOBIN"
 
 echo 'finished'
 
