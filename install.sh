@@ -10,6 +10,7 @@ fi
 CURDIR=`pwd`
 OLDGOPATH="$GOPATH"
 export GOPATH="$CURDIR"
+export GOBIN=
 
 if [ ! -d log ]; then
 	mkdir log

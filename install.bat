@@ -8,6 +8,7 @@ goto end
 
 :ok
 
+set GOBIN=
 set OLDGOPATH=%GOPATH%
 set GOPATH=%~dp0
 

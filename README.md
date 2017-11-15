@@ -1,18 +1,13 @@
 studygolang
 ===========
-[Go语言中文网 - Golang中文社区](http://studygolang.com "Go语言中文网 - Golang中文社区") 源码
+[Go语言中文网 - Golang中文社区](https://studygolang.com "Go语言中文网 - Golang中文社区") 源码
 
 网站上线时间：2013-03-15 14:38:09
 
-收到不少人反馈，网站访问不了，初步判断，上海电信和广东电信遇到比较多，如果您访问不了，请通过 https://golang.top 访问
+~~收到不少人反馈，网站访问不了，初步判断，上海电信和广东电信遇到比较多，如果您访问不了，请通过 https://golang.top 访问~~
+> 增加了一台阿里云服务器，问题已解决。如果还有问题，请联系我们：polaris@studygolang.com。
 
-目前在线运行的是 V3.0。欢迎有兴趣的 gopher 们参与进来，一起构建一个完善的 Go 语言中文网，Go 语言爱好者的学习家园。
-
-# 目前需要开发的功能
-1. 关注
-2. 绑定 github 后显示其代码
-3. rss 订阅
-4. ...
+目前在线运行的是 Master。欢迎有兴趣的 gopher 们参与进来，一起构建一个完善的 Go 语言中文网，Go 语言爱好者的学习家园，参与方式请参考：https://studygolang.com/topics/4092
 
 # 本地搭建一个 Go语言中文网 #
 
@@ -22,7 +17,7 @@ studygolang
 
 ## 步骤二
 
-### 方式一：二进制安装
+### 方式一：二进制安装（不推荐，可能不是最新的）
 
 1、下载预编译好的二进制文件（将下载的文件放入源码的bin目录下，自己创建好bin目录）
 
@@ -59,9 +54,9 @@ studygolang
    </tr>
 </table>
 
-### 方式二：源码安装
+### 方式二：源码安装（推荐）
 
-要求 Go 1.6+
+要求 Go 1.8+
 
 1、下载 gvt 依赖管理工具
 	
@@ -115,7 +110,9 @@ cd 到 studygolang 源码目录
 
 接下来你会看到图形化安装界面，一步步照做吧。
 
-# 使用该项目搭建的网站：
+* 如果之后有出现页面空白，请查看 error.log 是否有错误
 
-- [Go语言中文网](http://studygolang.com)
+# 使用该项目搭建的网站
+
+- [Go语言中文网](https://studygolang.com)
 - [Kotlin中国](https://kotlintc.com)
