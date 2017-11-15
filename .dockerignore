@@ -1,0 +1,12 @@
+.git
+bundles
+pkg
+bin
+log
+pid
+sitemap
+assets
+*.swp
+*.o
+*.a
+*.so
