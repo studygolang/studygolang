@@ -117,7 +117,7 @@
     ```
     
 - global 包  
-    全局的一些对象，比如 App（包含网站的一些配置信息）、全局的一些 channel 等。
+    全局的一些对象，比如 App（包含网站的一些配置信息）、全局的一些 channel 等。
 - http 包  
     包含 controller 和 middleware；其中的 http.go 文件封装了模板处理的一些通用逻辑。
 - logic 包  
