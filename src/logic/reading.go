@@ -110,8 +110,17 @@ func (ReadingLogic) SaveReading(ctx context.Context, form url.Values, username s
 		return
 	}
 
+	readings := make([]*model.MorningReading, 0)
 	if reading.Inner != 0 {
 		reading.Url = ""
+		err = MasterDB.Where("inner=?", reading.Inner).OrderBy("id DESC").Find(&readings)
+	} else {
+		err = MasterDB.Where("url=?", reading.Url).OrderBy("id DESC").Find(&readings)
+	}
+	if err != nil {
+		logger.Errorln("reading SaveReading MasterDB.Where() error", err)
+		errMsg = err.Error()
+		return
 	}
 
 	reading.Moreurls = strings.TrimSpace(reading.Moreurls)
@@ -125,6 +134,10 @@ func (ReadingLogic) SaveReading(ctx context.Context, form url.Values, username s
 	if reading.Id != 0 {
 		_, err = MasterDB.Id(reading.Id).Update(reading)
 	} else {
+		if len(readings) > 0 {
+			logger.Errorln("reading report:", reading)
+			return
+		}
 		_, err = MasterDB.Insert(reading)
 	}
 
