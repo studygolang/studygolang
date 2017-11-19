@@ -17,11 +17,38 @@ import (
 
 	"github.com/polaris1119/logger"
 	"github.com/tidwall/gjson"
+	"golang.org/x/net/context"
 )
 
 type GithubLogic struct{}
 
 var DefaultGithub = GithubLogic{}
+
+func (self GithubLogic) PullRequestEvent(ctx context.Context, body []byte) error {
+	objLog := GetLogger(ctx)
+
+	result := gjson.ParseBytes(body)
+
+	thePRURL := result.Get("pull_request.url").String()
+	objLog.Infoln("GithubLogic PullRequestEvent, url:", thePRURL)
+
+	if result.Get("action").String() != "closed" || !result.Get("pull_request.merged").Bool() {
+		objLog.Infoln("action:", result.Get("action"), "merged:", result.Get("pull_request.merged"))
+		return nil
+	}
+
+	username := result.Get("pull_request.user.login").String()
+	avatar := result.Get("pull_request.user.avatar_url").String()
+	prTime := result.Get("pull_request.created_at").Time()
+
+	err := self.dealFiles(username, avatar, prTime, thePRURL)
+
+	objLog.Infoln("pull request deal successfully!")
+
+	go self.statUserTime()
+
+	return err
+}
 
 func (self GithubLogic) PullPR(repo string) error {
 	prURL := fmt.Sprintf("%s/repos/%s/pulls?state=all&per_page=30", GithubAPIBaseUrl, repo)
@@ -53,23 +80,7 @@ func (self GithubLogic) PullPR(repo string) error {
 		username := val.Get("user.login").String()
 		avatar := val.Get("user.avatar_url").String()
 
-		filesURL := thePRURL + "/files"
-		resp, err = http.Get(filesURL)
-		if err != nil {
-			outErr = err
-			logger.Errorln("github fetch files error:", err, "url:", filesURL)
-			return true
-		}
-		body, err := ioutil.ReadAll(resp.Body)
-		resp.Body.Close()
-		if err != nil {
-			outErr = err
-			logger.Errorln("github read files resp error:", err)
-			return true
-		}
-		filesResult := gjson.ParseBytes(body)
-
-		err = self.dealFiles(username, avatar, prTime, filesResult)
+		err = self.dealFiles(username, avatar, prTime, thePRURL)
 		if err != nil {
 			outErr = err
 		}
@@ -83,7 +94,21 @@ func (self GithubLogic) PullPR(repo string) error {
 	return outErr
 }
 
-func (self GithubLogic) dealFiles(username, avatar string, prTime time.Time, filesResult gjson.Result) error {
+func (self GithubLogic) dealFiles(username, avatar string, prTime time.Time, thePRURL string) error {
+	filesURL := thePRURL + "/files"
+	resp, err := http.Get(filesURL)
+	if err != nil {
+		logger.Errorln("github fetch files error:", err, "url:", filesURL)
+		return err
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+	if err != nil {
+		logger.Errorln("github read files resp error:", err)
+		return err
+	}
+	filesResult := gjson.ParseBytes(body)
+
 	var outErr error
 	filesResult.ForEach(func(key, val gjson.Result) bool {
 		status := val.Get("status").String()

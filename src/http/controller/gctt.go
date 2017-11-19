@@ -7,11 +7,19 @@
 package controller
 
 import (
+	"crypto/hmac"
+	"crypto/sha1"
+	"fmt"
 	. "http"
 	"http/middleware"
+	"io/ioutil"
 	"logic"
 	"model"
 	"net/http"
+
+	"github.com/polaris1119/config"
+
+	"github.com/polaris1119/logger"
 
 	"github.com/labstack/echo"
 	"github.com/polaris1119/echoutils"
@@ -26,6 +34,8 @@ func (self GCTTController) RegisterRoute(g *echo.Group) {
 	g.Get("/gctt/:username", self.User)
 	g.Get("/gctt-apply", self.Apply, middleware.NeedLogin())
 	g.Match([]string{"GET", "POST"}, "/gctt-new", self.Create, middleware.NeedLogin())
+
+	g.Post("/gctt-webhook", self.Webhook)
 }
 
 func (self GCTTController) Index(ctx echo.Context) error {
@@ -110,4 +120,38 @@ func (GCTTController) User(ctx echo.Context) error {
 
 func (GCTTController) UserList(ctx echo.Context) error {
 	return render(ctx, "gctt/user-list.html", map[string]interface{}{})
+}
+
+func (GCTTController) Webhook(ctx echo.Context) error {
+	body, err := ioutil.ReadAll(Request(ctx).Body)
+	if err != nil {
+		logger.Errorln("GCTTController Webhook error:", err)
+		return err
+	}
+
+	header := ctx.Request().Header()
+
+	tokenSecret := config.ConfigFile.MustValue("gctt", "token_secret")
+	ok := checkMAC(body, header.Get("X-Hub-Signature"), []byte(tokenSecret))
+	if !ok {
+		logger.Errorln("GCTTController Webhook checkMAC error", string(body))
+		return nil
+	}
+
+	event := header.Get("X-GitHub-Event")
+	switch event {
+	case "pull_request":
+		return logic.DefaultGithub.PullRequestEvent(ctx, body)
+	default:
+		fmt.Println("not deal event:", event)
+	}
+
+	return nil
+}
+
+func checkMAC(message []byte, messageMAC string, key []byte) bool {
+	mac := hmac.New(sha1.New, key)
+	mac.Write(message)
+	expectedMAC := fmt.Sprintf("%x", mac.Sum(nil))
+	return messageMAC == "sha1="+expectedMAC
 }
