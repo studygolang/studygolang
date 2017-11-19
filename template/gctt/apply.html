@@ -1,0 +1,23 @@
+{{define "title"}}申请成为译者 - Go中文翻译组(GCTT) {{end}}
+{{define "content"}}
+<div class="row">
+    <div class="col-md-9 col-sm-6">
+        <div class="sep20"></div>
+        <ol class="breadcrumb">
+            <li><a href="/">首页</a></li>
+            <li><a href="/gctt">GCTT</a></li>
+            <li class="active">申请成为译者</li>
+        </ol>
+        <div class="page box_white">
+            <div class="cell">
+                绑定 GitHub 账号：<a class="btn btn-default btn-sm" title="GitHub" href="/oauth/github/login?uri=/gctt-apply">绑定 GitHub</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="sep20"></div>
+
+        {{include "common/my_info.html" .}}
+    </div>
+</div>
+{{end}}

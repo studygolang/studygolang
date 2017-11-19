@@ -38,9 +38,10 @@ type ThirdUserLogic struct{}
 
 var DefaultThirdUser = ThirdUserLogic{}
 
-func (ThirdUserLogic) GithubAuthCodeUrl(ctx context.Context) string {
+func (ThirdUserLogic) GithubAuthCodeUrl(ctx context.Context, redirectURL string) string {
 	// Redirect user to consent page to ask for permission
 	// for the scopes specified above.
+	githubConf.RedirectURL = redirectURL
 	return githubConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
 }
 

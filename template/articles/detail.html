@@ -14,20 +14,30 @@
 				<div class="title">
 					{{if .article.IsSelf}}
 					<div class="pull-right">
-						<a href="/user/{{.article.User.Username}}" title="{{.article.User.Username}}">
-							<img src="{{gravatar .article.User.Avatar .article.User.Email 62 .is_https}}" alt="{{if .article.User.Name}}{{.article.User.Name}}{{else}}{{.article.User.Username}}{{end}}" width="62px" height="62px">
-						</a>
+						{{if .article.GCTT}}
+							<a href="/gctt/{{.article_gctt.Translator}}" title="{{.article_gctt.Translator}}">
+								<img src="{{.article_gctt.Avatar}}" alt="{{.article_gctt.Translator}}" width="62px" height="62px">
+							</a>
+						{{else}}
+							<a href="/user/{{.article.User.Username}}" title="{{.article.User.Username}}">
+								<img src="{{gravatar .article.User.Avatar .article.User.Email 62 .is_https}}" alt="{{if .article.User.Name}}{{.article.User.Name}}{{else}}{{.article.User.Username}}{{end}}" width="62px" height="62px">
+							</a>
+						{{end}}
 					</div>
 					{{end}}
 					<h1 id="title" data-id="{{.article.Id}}">
 						{{.article.Title}}
 					</h1>
 					<small class="c9">
+					{{if .article.GCTT}}
+						<a href="/gctt/{{.article_gctt.Translator}}">{{.article_gctt.Translator}}</a>
+					{{else}}
 						{{if .article.IsSelf}}
 						<a href="/user/{{.article.User.Username}}">{{.article.User.Username}}</a>
 						{{else}}
 						<span>{{.article.AuthorTxt}}</span>
 						{{end}}
+					{{end}}
 						 · <span title="{{.article.Ctime}}" class="timeago"></span> · {{.article.Viewnum}} 次点击 · 
 						<span class="read-time"></span> · 
 						<span class="timeago" title="{{.cur_time}}"></span> 开始浏览 &nbsp; &nbsp;
@@ -45,7 +55,29 @@
 				{{end}}
 				<div class="cell">
 					{{if .article.Markdown}}
-					<div class="content">{{.article.Content}}</div>
+					<div class="content markdown-body">{{.article.Content}}</div>
+					
+					{{if .article.GCTT}}
+					<hr>
+					<p>via: {{.article_gctt.URL}}</p>
+					<p>
+						作者：<a href="{{.article_gctt.AuthorURL}}" class="ext" rel="external nofollow" target="_blank">{{.article_gctt.Author}}</a>
+						译者：<a href="https://github.com/{{.article_gctt.Translator}}" class="ext" rel="external nofollow" target="_blank">{{.article_gctt.Translator}}</a>
+						校对：<a href="https://github.com/{{.article_gctt.Translator}}" class="ext" rel="external nofollow" target="_blank">{{.article_gctt.Translator}}</a>
+					</p>
+					<p>本文由 <a href="https://github.com/studygolang/GCTT" class="ext" rel="external nofollow" target="_blank">GCTT</a> 原创编译，<a href="/articles/{{.article.Id}}">{{.setting.Name}}</a> 荣誉推出</p>
+
+					<div class="alert" role="alert" style="background-color:rgba(24,241,24,0.1);">
+						<p class="copyright" style="line-height: 1.5em;">
+							<span>本文由 GCTT 原创翻译，<a href="/articles/{{.article.Id}}">{{.setting.Name}}</a>。也想加入译者行列，为开源做一些自己的贡献么？欢迎加入 <a href="/gctt" target="_blank">GCTT</a>！<br>
+							翻译工作和译文发表仅用于学习和交流目的，翻译工作遵照 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/deed.zh" target="_blank">CC-BY-NC-SA 协议规定</a>，如果我们的工作有侵犯到您的权益，请及时联系我们。</span><br>
+							<span style="color:red;">欢迎遵照 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/deed.zh" target="_blank">CC-BY-NC-SA 协议规定</a> 转载，敬请在正文中标注并保留原文/译文链接和作者/译者等信息。</span><br>
+							<span>文章仅代表作者的知识和看法，如有不同观点，请楼下排队吐槽</span>
+						</p>
+					</div>
+
+					{{end}}
+
 					{{else}}
 					<div id="myeditor" class="content article-entry">
 						{{noescape .article.Content}}

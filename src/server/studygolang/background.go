@@ -65,6 +65,9 @@ func ServeBackGround() {
 
 		// 每天对活跃用户奖励铜币
 		c.AddFunc("@daily", logic.DefaultUserRich.AwardCooper)
+
+		// webhook 方式增量，每天补漏
+		c.AddFunc("@daily", pullGCTTPR)
 	}
 
 	// 两分钟刷一次浏览数（TODO：重启丢失问题？信号控制重启？）
@@ -147,4 +150,13 @@ func genViewRank() {
 
 func unsetTop() {
 	logic.DefaultTopic.AutoUnsetTop()
+}
+
+func pullGCTTPR() {
+	repo := config.ConfigFile.MustValue("gctt", "repo")
+	if repo == "" {
+		return
+	}
+
+	logic.DefaultGithub.PullPR(repo)
 }

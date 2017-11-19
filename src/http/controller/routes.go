@@ -36,6 +36,7 @@ func RegisterRoutes(g *echo.Group) {
 	new(WebsocketController).RegisterRoute(g)
 	new(DownloadController).RegisterRoute(g)
 	new(LinkController).RegisterRoute(g)
+	new(GCTTController).RegisterRoute(g)
 
 	new(FeedController).RegisterRoute(g)
 

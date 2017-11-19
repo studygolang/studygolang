@@ -297,6 +297,7 @@ func (self ArticleLogic) Publish(ctx context.Context, me *model.Me, form url.Val
 		Txt:       form.Get("txt"),
 		Markdown:  goutils.MustBool(form.Get("markdown"), false),
 		PubDate:   times.Format("Y-m-d H:i:s"),
+		GCTT:      goutils.MustBool(form.Get("gctt"), false),
 	}
 
 	if article.Txt == "" {
@@ -315,8 +316,13 @@ func (self ArticleLogic) Publish(ctx context.Context, me *model.Me, form url.Val
 		return 0, errors.New("request_id is empty!")
 	}
 
-	_, err := MasterDB.Insert(article)
+	session := MasterDB.NewSession()
+	defer session.Close()
+	session.Begin()
+
+	_, err := session.Insert(article)
 	if err != nil {
+		session.Rollback()
 		objLog.Errorln("insert article error:", err)
 		return 0, err
 	}
@@ -324,7 +330,27 @@ func (self ArticleLogic) Publish(ctx context.Context, me *model.Me, form url.Val
 	change := map[string]interface{}{
 		"url": article.Id,
 	}
-	MasterDB.Table(new(model.Article)).Id(article.Id).Update(change)
+	session.Table(new(model.Article)).Id(article.Id).Update(change)
+
+	if article.GCTT {
+		articleGCTT := &model.ArticleGCTT{
+			ArticleID:  article.Id,
+			Author:     form.Get("author"),
+			AuthorURL:  form.Get("author_url"),
+			Translator: form.Get("translator"),
+			Checker:    form.Get("checker"),
+			URL:        form.Get("url"),
+		}
+
+		_, err = session.Insert(articleGCTT)
+		if err != nil {
+			session.Rollback()
+			objLog.Errorln("insert article_gctt error:", err)
+			return 0, err
+		}
+	}
+
+	session.Commit()
 
 	go publishObservable.NotifyObservers(me.Uid, model.TypeArticle, article.Id)
 
@@ -698,6 +724,28 @@ func (ArticleLogic) FindByIdAndPreNext(ctx context.Context, id int) (curArticle 
 	}
 
 	return
+}
+
+func (ArticleLogic) FindArticleGCTT(ctx context.Context, article *model.Article) *model.ArticleGCTT {
+	articleGCTT := &model.ArticleGCTT{}
+
+	if !article.GCTT {
+		return articleGCTT
+	}
+
+	objLog := GetLogger(ctx)
+
+	_, err := MasterDB.Where("article_id=?", article.Id).Get(articleGCTT)
+	if err != nil {
+		objLog.Errorln("ArticleLogic FindArticleGCTT error:", err)
+	}
+
+	if articleGCTT.ArticleID > 0 {
+		gcttUser := DefaultGCTT.FindOne(ctx, articleGCTT.Translator)
+		articleGCTT.Avatar = gcttUser.Avatar
+	}
+
+	return articleGCTT
 }
 
 // Modify 修改文章信息

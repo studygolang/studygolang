@@ -25,7 +25,8 @@ func (self OAuthController) RegisterRoute(g *echo.Group) {
 }
 
 func (OAuthController) GithubLogin(ctx echo.Context) error {
-	url := logic.DefaultThirdUser.GithubAuthCodeUrl(ctx)
+	uri := ctx.QueryParam("uri")
+	url := logic.DefaultThirdUser.GithubAuthCodeUrl(ctx, uri)
 	return ctx.Redirect(http.StatusSeeOther, url)
 }
 
@@ -36,7 +37,12 @@ func (OAuthController) GithubCallback(ctx echo.Context) error {
 	if ok {
 		// 已登录用户，绑定 github
 		logic.DefaultThirdUser.BindGithub(ctx, code, me)
-		return ctx.Redirect(http.StatusSeeOther, "/account/edit#connection")
+
+		redirectURL := ctx.QueryParam("redirect_url")
+		if redirectURL == "" {
+			redirectURL = "/account/edit#connection"
+		}
+		return ctx.Redirect(http.StatusSeeOther, redirectURL)
 	}
 
 	user, err := logic.DefaultThirdUser.LoginFromGithub(ctx, code)

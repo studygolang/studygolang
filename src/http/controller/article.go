@@ -120,9 +120,11 @@ func (ArticleController) Detail(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusSeeOther, "/articles")
 	}
 
+	articleGCTT := logic.DefaultArticle.FindArticleGCTT(ctx, article)
 	data := map[string]interface{}{
 		"activeArticles": "active",
 		"article":        article,
+		"article_gctt":   articleGCTT,
 		"prev":           prevNext[0],
 		"next":           prevNext[1],
 	}

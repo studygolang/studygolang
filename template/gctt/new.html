@@ -1,85 +1,98 @@
-{{define "title"}}{{if .article.Id}}修改{{else}}发布{{end}}文章 {{end}}
+{{define "title"}}GCTT 文章发布 - Go中文翻译组 {{end}}
 {{define "content"}}
 <div class="row">
     <div class="col-md-9 col-sm-6">
         <div class="sep20"></div>
         <ol class="breadcrumb">
             <li><a href="/">首页</a></li>
-            <li><a href="/articles">文章</a></li>
-            <li class="active">{{if .article.Id}}编辑{{else}}写{{end}}文章</li>
+            <li><a href="/gctt">GCTT</a></li>
+            <li class="active">发文章</li>
         </ol>
         <div class="page box_white">
-        {{if canPublish .me.DauAuth 1}}
-            <form class="form-horizontal validate-form" role="form" action="{{if .article.Id}}/articles/modify{{else}}/articles/new{{end}}" data-redirect="/articles{{if .article.Id}}/{{.article.Id}}?r={{timestamp}}{{end}}">
-                {{if .article.Id}}
-                <input type="hidden" name="id" value="{{.article.Id}}" />
-                {{end}}
+            <form class="form-horizontal validate-form" role="form" action="/gctt-new" data-redirect="/articles?r={{timestamp}}">
+            {{if .gctt_user.Id}}
+                <input type="hidden" name="markdown" value="1">
+                <input type="hidden" name="gctt" value="1">
                 <textarea id="txt" name="txt" style="display: none;"></textarea>
                 <textarea id="content" name="content" style="display: none;"></textarea>
                 <div class="form-group form-group-sm">
                     <label class="col-sm-1 control-label" for="title"><abbr>*</abbr>标题</label>
                     <div class="col-sm-11">
-                        <input class="form-control required" type="text" id="title" name="title" placeholder="标题" value="{{.article.Title}}">
+                        <input class="form-control required" type="text" id="title" name="title" placeholder="标题">
                     </div>
                 </div>
                 <div class="form-group form-group-sm">
-                    <label class="col-sm-1 control-label"><abbr>*</abbr>格式</label>
+                    <label class="col-sm-1 control-label"><abbr>*</abbr>作者</label>
                     <div class="col-sm-11">
-                        <label class="radio-inline">
-                            <input type="radio" name="markdown" value="1" checked>
-                            Markdown
-                        </label>
-                        {{if not .article.Id}}
-                        <label class="radio-inline">
-                            <input type="radio" name="markdown" value="0" class="required">
-                            富文本编辑
-                        </label>
-                        {{end}}
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <input class="form-control required" type="text" id="author" name="author" placeholder="原作者">
+                            </div>
+                            <div class="col-sm-9">
+                                <input class="form-control required" type="text" id="author-url" name="author_url" placeholder="作者链接">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group form-group-sm">
+                    <label class="col-sm-1 control-label"><abbr>*</abbr>译者</label>
+                    <div class="col-sm-11">
+                        <div class="row">
+                            <div class="col-sm-5">
+                                <input class="form-control required" type="text" id="translator" name="translator" placeholder="GCTT 译者 GitHub ID">
+                            </div>
+                            <label class="col-sm-1 control-label"><abbr>*</abbr>校对</label>
+                            <div class="col-sm-6">
+                                <input class="form-control required" type="text" id="checker" name="checker" placeholder="GCTT 校对者 GitHub ID">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group form-group-sm">
+                    <label class="col-sm-1 control-label"><abbr>*</abbr>原文</label>
+                    <div class="col-sm-11">
+                        <input class="form-control required" type="text" id="url" name="url" placeholder="原文链接">
                     </div>
                 </div>
                 <div class="form-group form-group-sm" id="markdown-editor">
-                    <label class="col-sm-1 control-label" for="content">正文</label>
+                    <label class="col-sm-1 control-label" for="content"><abbr>*</abbr>正文</label>
                     <div class="col-sm-11">
                         <div class="row clearfix md-toolbar">
                             <ul class="col-md-10 list-inline">
                                 <li class="edit cur"><a href="#" tabindex="-1"><i class="glyphicon glyphicon-edit"></i> 编辑</a></li>
                                 <li class="preview"><a href="#" title="预览" tabindex="-1"><i class="glyphicon glyphicon-eye-open preview"></i> 预览</a></li>
-                                <!-- <li class="wide"><a href="/wide/playground" tabindex="-1" target="_blank" title="通过Wide编辑代码"><i class="glyphicon glyphicon-cloud"></i> Wide</a></li> -->
                             </ul>
                             <div class="col-md-2 text-right">
                                 <i id="upload-img" class="glyphicon glyphicon-picture upload-img tool-tip" data-toggle="tooltip" data-placement="top" title="上传图片"></i>
                             </div>
                         </div>
-                        <textarea class="form-control need-autogrow main-textarea" id="markdown-content" name="markdown-content" rows="15" tabindex="0">{{.article.Content}}</textarea>
-                        <div class="content-preview"></div>
+                        <textarea class="form-control need-autogrow main-textarea" id="markdown-content" name="markdown-content" rows="15" tabindex="0"></textarea>
+                        <div class="content-preview markdown-body"></div>
                     </div>
                 </div>
-                {{if not .article.Id}}
-                <textarea id="myeditor" name="ckeditor-content" cols="102" rows="22" style="margin-left: 5px;display: none;"></textarea>
-                {{end}}
 
                 <div class="form-group form-group-sm">
                     <label class="col-sm-5 control-label">&nbsp;</label>
                     <div class="col-sm-6">
-                        <button type="submit" class="btn btn-default btn-sm" id="submit">{{if .article.Id}}提交修改{{else}}发布文章{{end}}</button> (Ctrl+Enter)
+                        <button type="submit" class="btn btn-default btn-sm" id="submit">发布文章</button> (Ctrl+Enter)
                     </div>
                 </div>
 
                 <div class="form-group form-group-sm markdown-preview">
                     <label class="col-sm-1 control-label">预览</label>
                     <div class="col-sm-11">
-                        <div id="content-preview" style="border: 1px solid #ccc; padding: 5px; font-size: 13px;"></div>
+                        <div id="content-preview" style="border: 1px solid #ccc; padding: 5px; font-size: 13px;" class="markdown-body"></div>
                     </div>
                 </div>
             {{else}}
                 <div class="text-center">
                     <div class="sep20"></div>
                     <div>
-                        <span class="alert alert-warning">您没有权限发布文章，请通过主题发布帖子</span>
+                        <span class="alert alert-warning">您没有权限发布译文，请先成为译者</span>
                     </div>
                     <div class="sep20"></div>
                     <div>
-                        <a class="btn btn-default btn-sm" href="/topics/new">发布主题</a>
+                        <a class="btn btn-default btn-sm" href="/gctt-apply">申请成为译者</a>
                     </div>
                 </div>
                 <div class="sep10"></div>
@@ -105,12 +118,6 @@
                         <li>![alt 文本](http://foo.com/bar.jpg) 显示图片</li>
                         <li>:smile: 支持 <strong>emoji 表情</strong>，见<a href="http://www.emoji-cheat-sheet.com/" target="_blank">Emoji cheat sheet</a></li>
                         <li>完整 Markdwon 语法说明：<a href="http://wowubuntu.com/markdown/" target="_blank">语法说明 (简体中文版)</a></li>
-                        <!-- <li>支持嵌入 Wide 的Playground 代码直接运行</li> -->
-                    </ul>
-                    <ul class="ckeditor-help dn">
-                        <li>富文本编辑器使用的是 <a href="http://ckeditor.com" target="_blank">ckeditor</a></li>
-                        <li>代码请通过工具栏代码按钮撰写，支持高亮</li>
-                        <li>支持截图后直接粘贴上传图片</li>
                     </ul>
                 </span>
             </div>
@@ -125,16 +132,11 @@
 <link href="/static/css/syntax_highlight/shCore.css" media="screen" rel="stylesheet" type="text/css">
 <link href="/static/css/syntax_highlight/shCoreDefault.css" media="screen" rel="stylesheet" type="text/css">
 <link href="/static/css/prism.css" media="screen" rel="stylesheet" type="text/css">
-<style type="text/css">
-#cke_myeditor { margin: 0 auto 8px; }
-</style>
 {{end}}
 {{define "js"}}
-<script type="text/javascript" src="//cdn.ckeditor.com/4.6.2/standard-all/ckeditor.js"></script>
 <script type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
 <script type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
-<script type="text/javascript" src="/static/ckeditor/config.js"></script>
 <script type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
@@ -151,65 +153,48 @@ $('code[class*="language-"]').parent('pre').addClass('line-numbers');
 <script type="text/javascript" src="/static/js/prism.js"></script>
 <script>
 
-var hadInit = false;
+var isNew = isMarkdown = true;
 
-function init() {
-    if (hadInit) {
-        return;
-    }
-
-    hadInit = true;
-
-    CKEDITOR.plugins.addExternal('autosave', '/static/ckeditor/plugins/autosave/', 'plugin.js');
-    CKEDITOR.plugins.addExternal('prism', '/static/ckeditor/plugins/prism/', 'plugin.js');
-
-    MyEditorConfig.extraPlugins = MyEditorExtraPlugins+',preview,prism,autosave';
-    MyEditorConfig.toolbar = [
-        { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'RemoveFormat' ] },
-        { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight' ] },
-        { name: 'clipboard', items: [ 'Undo', 'Redo' ] },
-        { name: 'links', items: [ 'Link', 'Unlink' ] },
-        { name: 'insert', items: [ 'CodeSnippet', 'Image' ] },
-        { name: 'styles', items: [ 'Format' ] },
-        { name: 'document', items: [ 'Source', 'Preview' ] },
-        { name: 'tools', items: [ 'Maximize' ] }
-    ];
-    CKEDITOR.replace( 'myeditor', MyEditorConfig );
-}
-
-var isNew = {{.article.Id}} == '';
-var isMarkdown = true;
+var cacheKey = 'gctt';
 
 $(function() {
     // 文本框自动伸缩
     $('.need-autogrow').autoGrow();
 
     function saveArticleComposeDraft() {
-        if (!isNew || !isMarkdown) {
-            return;
-        }
-
         var title = $('#title').val(),
-            content = $('#markdown-content').val();
+            content = $('#markdown-content').val(),
+            author = $('#author').val(),
+            authorURL = $('#author-url').val(),
+            translator = $('#translator').val(),
+            checker = $('#checker').val(),
+            url = $('#url').val();
 
-        var objdata = {title: title, content: content};
+        var objdata = {title: title, content: content,
+            author: author, author_url: authorURL,
+            translator: translator, checker: checker, url: url};
 
-        saveComposeDraft(uid, 'article', objdata);
+        saveComposeDraft(uid, cacheKey, objdata);
     }
 
     (function() {
         if (isNew && isMarkdown) {
-            var draft = loadComposeDraft(uid, 'article');
+            var draft = loadComposeDraft(uid, cacheKey);
             if (draft) {
                 $('#title').val(draft.title);
                 $('#markdown-content').val(draft.content);
+                $('#author').val(draft.author);
+                $('#author-url').val(draft.author_url);
+                $('#translator').val(draft.translator);
+                $('#checker').val(draft.checker),
+                $('#url').val(draft.url);
             }
-            
+
             $('.need-autogrow').autoGrow();
         }
     })();
 
-    $('#title,#markdown-content').on('change', function() {
+    $('#title,#markdown-content,#author,#author-url,#translator,#checker,#url').on('change', function() {
         saveArticleComposeDraft();
     });
 
@@ -241,32 +226,7 @@ $(function() {
                     + selected.length);
         }
     });
-
-    $('input[type=radio]').on('click', function() {
-        if ($(this).val() == 0) {
-            isMarkdown = false;
-
-            init();
-            $('#cke_myeditor').show();
-            $('#markdown-editor').hide();
-
-            $('.markdown-help').hide();
-            $('.ckeditor-help').show();
-
-            $('.markdown-preview').hide();
-        } else {
-            isMarkdown = true;
-
-            $('#cke_myeditor').hide();
-            $('#markdown-editor').show();
-
-            $('.markdown-help').show();
-            $('.ckeditor-help').hide();
-
-            $('.markdown-preview').show();
-        }
-    });
 });
 </script>
-<script type="text/javascript" src="/static/js/articles.js?v=0.4"></script>
+<script type="text/javascript" src="/static/js/articles.js"></script>
 {{end}}

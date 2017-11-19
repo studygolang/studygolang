@@ -125,7 +125,7 @@ CREATE TABLE IF NOT EXISTS `user_login` (
 CREATE TABLE IF NOT EXISTS `bind_user` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `uid` int unsigned NOT NULL DEFAULT 0 COMMENT '本站用户UID',
-  `type` tinyint NOT NULL DEFAULT 0 COMMENT '绑定的第三方类型',
+  `type` tinyint NOT NULL DEFAULT 0 COMMENT '绑定的第三方类型,0-github',
   `email` varchar(128) NOT NULL DEFAULT '' COMMENT '第三方邮箱',
   `tuid` int unsigned NOT NULL DEFAULT 0 COMMENT '第三方uid',
   `username` varchar(20) NOT NULL DEFAULT '' COMMENT '第三方用户名',
@@ -314,6 +314,7 @@ CREATE TABLE IF NOT EXISTS `articles` (
   `lastreplytime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '最后回复时间',
   `top` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '置顶，0否，1置顶',
   `markdown` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否是markwon格式：0-否，1-是',
+  `gctt` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否是 gctt 翻译：0-否则；1-是',
   `status` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '状态：0-初始抓取；1-已上线；2-下线(审核拒绝)',
   `op_user` varchar(20) NOT NULL DEFAULT '' COMMENT '操作人',
   `ctime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -325,6 +326,17 @@ CREATE TABLE IF NOT EXISTS `articles` (
   KEY (`domain`),
   KEY (`mtime`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '网络文章聚合表';
+
+CREATE TABLE IF NOT EXISTS `article_gctt` (
+  `article_id` int unsigned NOT NULL COMMENT '文章ID',
+  `author` varchar(31) NOT NULL DEFAULT '' COMMENT '原文作者',
+  `author_url` varchar(127) NOT NULL DEFAULT '' COMMENT '原文作者的主页',
+  `translator` varchar(31) NOT NULl DEFAULT '' COMMENT 'gctt 译者',
+  `checker` varchar(31) NOT NULl DEFAULT '' COMMENT 'gctt 校对',
+  `url` varchar(255) NOT NULL DEFAULT '' COMMENT '原文链接',
+  PRIMARY KEY (`article_id`),
+  UNIQUE KEY (`url`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'gctt 翻译文章信息表';
 
 CREATE TABLE IF NOT EXISTS `crawl_rule` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -669,4 +681,30 @@ CREATE TABLE `user_exchange_record` (
   INDEX `idx_gid` (`gift_id`),
   INDEX `idx_uid` (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '物品用户兑换记录';
+
+CREATE TABLE IF NOT EXISTS `gctt_user` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `username` varchar(31) NOT NULL DEFAULT '' COMMENT 'Github 用户名',
+  `avatar` varchar(127) NOT NULL DEFAULT '' COMMENT 'github 头像',
+  `uid` int unsigned NOT NULL DEFAULT 0 COMMENT '本站 uid',
+  `joined_at` int unsigned NOT NULL DEFAULT 0 COMMENT '加入GCTT时间，第一个 pr 时间',
+  `last_at` int unsigned NOT NULL DEFAULT 0 COMMENT '最后一个 pr 时间',
+  `num` int unsigned NOT NULl DEFAULT 0 COMMENT '翻译的文章数',
+  `avg_time` int unsigned NOT NULl DEFAULT 0 COMMENT '平均每篇用时（天）',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`username`),
+  INDEX idx_uid (`uid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'GCTT 用户表';
+
+CREATE TABLE IF NOT EXISTS `gctt_git` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `username` varchar(31) NOT NULL DEFAULT '' COMMENT 'Github 用户名',
+  `title` varchar(127) NOT NULL DEFAULT '' COMMENT 'github 上文章名（也是文件名，无后缀）',
+  `translating_at` int unsigned NOT NULL DEFAULT 0 COMMENT '开始翻译时间',
+  `translated_at` int unsigned NOT NULL DEFAULT 0 COMMENT '完成翻译时间',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`username`,`title`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'GCTT github 文章翻译信息表';
 

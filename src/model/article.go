@@ -47,6 +47,7 @@ type Article struct {
 	Lastreplytime OftenTime `json:"lastreplytime"`
 	Top           uint8     `json:"top"`
 	Markdown      bool      `json:"markdown"`
+	GCTT          bool      `json:"gctt" xorm:"gctt"`
 	Status        int       `json:"status"`
 	OpUser        string    `json:"op_user"`
 	Ctime         OftenTime `json:"ctime" xorm:"created"`
@@ -87,6 +88,21 @@ func (this *Article) AfterInsert() {
 
 func (*Article) TableName() string {
 	return "articles"
+}
+
+type ArticleGCTT struct {
+	ArticleID  int `xorm:"article_id pk"`
+	Author     string
+	AuthorURL  string `xorm:"author_url"`
+	Translator string
+	Checker    string
+	URL        string `xorm:"url"`
+
+	Avatar string `xorm:"-"`
+}
+
+func (*ArticleGCTT) TableName() string {
+	return "article_gctt"
 }
 
 // 抓取网站文章的规则

@@ -37,7 +37,10 @@
 
 			var articles = new SG.Articles();
 			articles.publish(this, function(data) {
-				purgeComposeDraft(uid, 'article');
+				if (typeof cacheKey == "undefined") {
+					cacheKey = 'article';
+				}
+				purgeComposeDraft(uid, cacheKey);
 
 				setTimeout(function(){
 					if (data.id) {
