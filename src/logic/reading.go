@@ -8,6 +8,7 @@ package logic
 
 import (
 	. "db"
+	"errors"
 	"model"
 	"net/url"
 	"strconv"
@@ -113,7 +114,7 @@ func (ReadingLogic) SaveReading(ctx context.Context, form url.Values, username s
 	readings := make([]*model.MorningReading, 0)
 	if reading.Inner != 0 {
 		reading.Url = ""
-		err = MasterDB.Where("inner=?", reading.Inner).OrderBy("id DESC").Find(&readings)
+		err = MasterDB.Where("`inner`=?", reading.Inner).OrderBy("id DESC").Find(&readings)
 	} else {
 		err = MasterDB.Where("url=?", reading.Url).OrderBy("id DESC").Find(&readings)
 	}
@@ -136,6 +137,7 @@ func (ReadingLogic) SaveReading(ctx context.Context, form url.Values, username s
 	} else {
 		if len(readings) > 0 {
 			logger.Errorln("reading report:", reading)
+			errMsg, err = "已经存在了!!", errors.New("已经存在了!!")
 			return
 		}
 		_, err = MasterDB.Insert(reading)
