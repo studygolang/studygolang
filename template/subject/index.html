@@ -1,0 +1,454 @@
+{{define "title"}}{{.subject.Name}} - 专题 {{end}}
+{{define "seo"}}<meta name="keywords" content="{{.setting.SeoKeywords}}">
+<meta name="description" content="{{.setting.SeoDescription}}">{{end}}
+{{define "content"}}
+<div class="row">
+    <div class="col-md-9 col-sm-6">
+        <div class="sep20"></div>
+        <div>
+            <ol class="breadcrumb">
+                <li><a href="/">首页</a></li>
+                <li class="active">专题</li>
+            </ol>
+        </div>
+        
+        <div class="page box_white">
+            <div class="subject-header">
+                <div class="subject-info">
+                    <a href="">
+                        <img class="img-rounded" src="http://upload.jianshu.io/collections/images/567529/logo1.png?imageMogr2/auto-orient/strip|imageView2/1/w/240/h/240" alt="" width="80px">
+                    </a>
+                    <div class="subject-meta">
+                        <p class="title">{{.subject.Name}}</p>
+                        <p>收录了 {{.article_num}} 篇文章 <span>·</span> {{.follower_num}} 人关注</p>
+                    </div>
+                </div>
+                <div class="subject-op">
+                    {{if eq .me.Uid .subject.Uid}}
+                    <button class="btn btn-hollow">收录</button>
+                    {{else}}
+                    <button class="btn btn-hollow">投稿</button>
+                    {{end}}
+                    <button class="btn btn-hollow" style="margin-left: 8px;" id="follow">关注</button>
+                </div>
+            </div>
+
+            <ul class="trigger-menu" data-pjax-container="#list-container">
+                <li class="{{if eq .order_by "added_at"}}active{{end}}"><a href="/subject/{{.subject.Id}}?order_by=added_at"><i class="fa fa-file-text" aria-hidden="true"></i> 最新收录</a></li>
+                <li class="{{if eq .order_by "commented_at"}}active{{end}}"><a href="/subject/{{.subject.Id}}?order_by=commented_at"><i class="fa fa-comments" aria-hidden="true"></i> 最新评论</a></li>
+                <!-- <li class=""><a href="/subject/{{.subject.Id}}?order_by=top"><i class="fa fa-fire" aria-hidden="true"></i> 热门</a></li> -->
+            </ul>
+
+            <div id="list-container">
+                <ul class="note-list">
+                {{range .articles}}
+                    <li class="{{if .Cover}}have-img{{end}}">
+                        {{if .Cover}}
+                        <a class="wrap-img" href="/articles/{{.Id}}" target="_blank">
+                            <img class="img-blur-done" src="{{.Cover}}" alt="120" height="120px">
+                        </a>
+                        {{end}}
+                        <div class="article-content">
+                            <div class="author">
+                        {{if .IsSelf}}
+                                <a class="avatar" target="_blank" href="/user/{{.User.Username}}">
+                                    <img src="{{gravatar .User.Avatar .User.Email 32 $.is_https}}" alt="{{if .User.Name}}{{.User.Name}}{{else}}{{.User.Username}}{{end}}" width="32px" height="32px">
+                                </a>
+                                <div class="info">
+                                    <a class="nickname" target="_blank" href="/user/{{.User.Username}}">{{.User.Username}}</a>
+                                    <span class="time timeago" title="{{.Ctime}}"></span>
+                                </div>
+                        {{else}}
+                                <a class="avatar" href="javascript:">
+                                    <img class="noavatar" alt="" src="https://secure.gravatar.com/avatar/3bf6178897766ebadaa830073e87374d?s=48" data-author="{{.Author}}">
+                                </a>
+                                <div class="info">
+                                    <a class="nickname" href="javascript:">{{.AuthorTxt}}</a>
+                                    <span class="time timeago" title="{{.Ctime}}"></span>
+                                </div>
+                        {{end}}
+                            </div>
+                            <a class="article-title" target="_blank" href="/articles/{{.Id}}">{{.Title}}</a>
+                            <p class="abstract">{{substring .Txt 250 "..."}}</p>
+                            <div class="article-meta">
+                                <a target="_blank" href="/articles/{{.Id}}">
+                                    <i class="fa fa-eye"></i> {{.Viewnum}}
+                                </a>
+                                <a target="_blank" href="/articles/{{.Id}}#commentForm">
+                                    <i class="fa fa-comment"></i> {{.Cmtnum}}
+                                </a>
+                                <span><i class="fa fa-heart"></i> {{.Likenum}}</span>
+                            </div>
+                        </div>
+                    </li>
+                    {{end}}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="sep20"></div>
+        <div class="box_white sidebar">
+            <div class="top" style="margin-bottom:3px;">
+                <h3 class="title"><i class="fa fa-bullhorn" aria-hidden="true"></i>&nbsp;专题公告</h3>
+            </div>
+            <div class="sb-content">
+                <div class="cell" style="font-size: 14px; line-height: 1.4;">
+                    {{.subject.Description}}
+                </div>
+            </div>
+        </div>
+        <div class="box_white sidebar">
+            <div class="top" style="margin-bottom:3px;">
+                <h3 class="title"><i class="fa fa-user" aria-hidden="true"></i></i>&nbsp;管理员</h3>
+            </div>
+            <div class="sb-content" style="margin: 10px;padding-bottom: 0px;">
+                <ul class="list-unstyled">
+                    <li>
+                        <a href="/user/{{.subject.User.Username}}" title="{{.subject.User.Username}}">
+                            <img src="{{gravatar .subject.User.Avatar .subject.User.Email 32 .is_https}}" alt="" class="img-circle" width="32px">
+                            {{.subject.User.Username}}
+                        </a>
+                        <span class="tag">创建者</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        {{if .follower_num}}
+        <div class="box_white sidebar">
+            <div class="top" style="margin-bottom:3px;">
+                <h3 class="title"><i class="fa fa-user" aria-hidden="true"></i></i>&nbsp;关注的人({{.follower_num}})</h3>
+            </div>
+            <div class="sb-content" style="margin: 10px; padding-bottom: 0px;">
+                <ul class="list-unstyled users">
+                    {{range .followers}}
+                    <li>
+                        <a href="/user/{{.User.Username}}">
+                            <img src="{{gravatar .User.Avatar .User.Email 32 $.is_https}}" alt="" class="img-circle" width="32px"
+                            data-tooltip="{{.User.Username}} · {{.TimeAgo}} 关注" data-tooltip-delay="10">
+                        </a>
+                    </li>
+                    {{end}}
+                </ul>
+            </div>
+        </div>
+        {{end}}
+    </div>
+</div>
+{{end}}
+{{define "css"}}
+<link href="https://cdn.bootcss.com/html5tooltipsjs/1.7.2/html5tooltips.min.css" rel="stylesheet">
+<style>
+.subject-header {
+    display: -webkit-flex;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    font-size: 13px;
+    line-height: 120%;
+}
+
+.subject-info {
+    display: -webkit-flex;
+    display: flex; 
+}
+
+.subject-meta {
+    margin-left: 10px;
+}
+
+.subject-meta p {
+    padding-left: 10px;
+}
+
+.subject-op {
+    align-self: center;
+}
+
+.subject-meta .title {
+    font-size: 1.75rem;
+    font-weight: bold;
+}
+
+.btn-hollow {
+    border: 1px solid rgba(59,194,29,.7);
+    color: #42c02e!important;
+    border-radius: 40px;
+    background-color: white;
+    width: 90px;
+}
+
+.btn-hollow:focus,.btn-hollow:hover {
+    border: 1px solid #42c02e;
+    color: #42c02e!important;
+    background-color: rgba(59,194,29,.05)
+}
+
+.trigger-menu {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0;
+    list-style: none;
+    padding-left: 10px;
+}
+
+.trigger-menu li {
+    position: relative;
+    display: inline-block;
+    padding: 8px 0;
+    margin-bottom: -1px;
+}
+
+.trigger-menu li.active {
+    border-bottom: 2px solid #646464;
+    padding: 8px 0;
+    margin: 0;
+}
+
+.trigger-menu a {
+    padding: 13px 20px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #969696;
+    line-height: 25px;
+}
+
+.trigger-menu .active a, .trigger-menu a:hover {
+    color: #646464;
+    text-decoration: none;
+}
+
+.trigger-menu i {
+    margin-right: 5px;
+    font-size: 17px;
+}
+
+.trigger-menu li:after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -2px;
+    width: 100%;
+    opacity: 0;
+    border-bottom: 2px solid #646464;
+    transform: translate(-50%) scaleX(0);
+    -webkit-transform: translate(-50%) scaleX(0);
+    -moz-transform: translate(-50%) scaleX(0);
+    -o-transform: translate(-50%) scaleX(0);
+    -ms-transform: translate(-50%) scaleX(0)
+}
+
+.trigger-menu li:after,.trigger-menu li:hover:after {
+    transition: .2s ease-in-out;
+    -webkit-transition: .2s ease-in-out;
+    -moz-transition: .2s ease-in-out;
+    -o-transition: .2s ease-in-out;
+    -ms-transition: .2s ease-in-out
+}
+
+.trigger-menu li:hover:after {
+    opacity: 1;
+    transform: translate(-50%) scaleX(1);
+    -webkit-transform: translate(-50%) scaleX(1);
+    -moz-transform: translate(-50%) scaleX(1);
+    -o-transform: translate(-50%) scaleX(1);
+    -ms-transform: translate(-50%) scaleX(1)
+}
+
+#list-container {
+    padding: 0 10px;
+}
+
+.sidebar .tag {
+    padding: 1px 3px;
+    margin-left: 2px;
+    border-radius: 3px;
+    font-size: 12px;
+    color: #969696;
+    border: 1px solid #969696;
+}
+
+.sidebar .tag:hover {background-color:white; text-decoration: none; }
+
+.note-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.note-list li {
+    position: relative;
+    width: 100%;
+    margin: 0 0 17px;
+    padding: 0 2px 17px 0;
+    border-bottom: 1px solid #f0f0f0;
+    word-wrap: break-word;
+}
+
+.note-list li.have-img {
+    min-height: 140px;
+}
+
+.note-list .have-img .wrap-img {
+    position: absolute;
+    top: 50%;
+    margin-top: -68px;
+    right: 0;
+    width: 150px;
+    height: 120px;
+}
+
+.note-list .have-img .wrap-img img {
+    width: 100%;
+    height: 100%;
+    border-radius: 4px;
+    border: 1px solid #f0f0f0;
+}
+
+.note-list .have-img>div {
+    padding-right: 160px;
+}
+
+.note-list .author {
+    margin-bottom: 14px;
+    font-size: 13px;
+}
+
+.note-list .author .avatar, .note-list .author .info {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.note-list .author .avatar {
+    margin: 0 5px 0 0;
+}
+
+.note-list .author a {
+    color: #333;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    display: block;
+    cursor: pointer;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+}
+
+.note-list .author .avatar, .note-list .author .info {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.note-list .author .info .nickname {
+    vertical-align: middle;
+}
+
+.note-list .author .info span {
+    display: inline-block;
+    padding-left: 3px;
+    color: #969696;
+    vertical-align: middle;
+}
+
+.note-list .author .time {
+    color: #969696;
+}
+
+.note-list .article-title {
+    margin: -7px 0 4px;
+    display: inherit;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.5;
+    color: #333;
+}
+
+.note-list .article-title:visited {
+    color: #969696;
+}
+
+.note-list .abstract {
+    margin: 0 0 8px;
+    font-size: 13px;
+    line-height: 24px;
+}
+
+.note-list .article-meta {
+    padding-right: 0!important;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 20px;
+}
+
+.note-list .article-meta a, .note-list .article-meta a:hover {
+    transition: .1s ease-in;
+    -webkit-transition: .1s ease-in;
+    -moz-transition: .1s ease-in;
+    -o-transition: .1s ease-in;
+    -ms-transition: .1s ease-in;
+}
+
+.note-list .article-meta a {
+    margin-right: 10px;
+    color: #b4b4b4;
+}
+
+.note-list .article-meta a:hover {
+    color: #787878;
+    text-decoration: none;
+}
+
+.note-list .article-meta span {
+    margin-right: 10px;
+    color: #b4b4b4;
+}
+
+.sidebar .users {}
+
+.sidebar .users li {
+    display: inline-block;
+}
+.sidebar .users li:first-child {
+    margin-left: -3px;
+}
+
+.sidebar .users li a {
+    margin-right: -12px;
+    display: inline-block;
+}
+
+.sidebar .users li img {
+    border: 3px solid #fff;
+    background-color: #fff;
+}
+
+</style>
+{{end}}
+
+{{define "js"}}
+<script src="//cdn.bootcss.com/identicon.js/2.3.1/identicon.min.js"></script>
+<script src="https://cdn.bootcss.com/html5tooltipsjs/1.7.2/html5tooltips.min.js"></script>
+<script>
+$(function() {
+    $('.noavatar').each(function() {
+        var author = $(this).data('author');
+        var hash = md5(author+"");
+        var data = new Identicon(hash, {format: 'svg', size: 32}).toString();
+        var imgData = 'data:image/svg+xml;base64,' + data;
+        $(this).attr('src', imgData);
+    });
+
+    $('#follow').on('click', function() {
+
+    });
+});
+</script>
+{{end}}

@@ -2,7 +2,7 @@
 
 ## 简介
 
-GCTT (Go Chinese Traslation Team) 是 Go中文网（https://studygolang.com) 翻译组，负责从国外优秀媒体翻译 Go 相关的技术、教程、资讯、杂文等内容。
+GCTT (Go Chinese Translation Team) 是 Go中文网（https://studygolang.com) 翻译组，负责从国外优秀媒体翻译 Go 相关的技术、教程、资讯、杂文等内容。
 
 ## GCTT 的组成
 

@@ -16,6 +16,8 @@ import (
 	"time"
 	"util"
 
+	"github.com/polaris1119/slices"
+
 	"github.com/go-validator/validator"
 	"github.com/go-xorm/xorm"
 	"github.com/polaris1119/config"
@@ -309,6 +311,33 @@ func (self UserLogic) FindCurrentUser(ctx context.Context, username interface{})
 	}
 
 	return me
+}
+
+// findUsers 获得用户信息，包内使用。
+// s 是包含用户 UID 的二维数组
+func (self UserLogic) findUsers(ctx context.Context, s interface{}) []*model.User {
+	objLog := GetLogger(ctx)
+
+	uids := slices.StructsIntSlice(s, "Uid")
+
+	users := make([]*model.User, 0)
+	if err := MasterDB.In("uid", uids).Find(&users); err != nil {
+		objLog.Errorln("user logic findUsers not record found:", err)
+		return nil
+	}
+	return users
+}
+
+func (self UserLogic) findUser(ctx context.Context, uid int) *model.User {
+	objLog := GetLogger(ctx)
+
+	user := &model.User{}
+	_, err := MasterDB.Id(uid).Get(user)
+	if err != nil {
+		objLog.Errorln("user logic findUser not record found:", err)
+	}
+
+	return user
 }
 
 // 会员总数
