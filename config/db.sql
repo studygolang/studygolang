@@ -708,3 +708,48 @@ CREATE TABLE IF NOT EXISTS `gctt_git` (
   UNIQUE KEY (`username`,`title`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'GCTT github 文章翻译信息表';
 
+
+CREATE TABLE IF NOT EXISTS `subject` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '专题ID',
+  `name` varchar(31) NOT NULL DEFAULT '' COMMENT '专题名',
+  `cover` varchar(127) NOT NULL DEFAULT '' COMMENT '专题封面',
+  `description` varchar(1023) NOT NULL DEFAULT '' COMMENT '专题描述（公告）',
+  `uid` int unsigned NOT NULL DEFAULT 0 COMMENT '创建者UID',
+  `contribute` tinyint unsigned NOT NULL DEFAULT 1 COMMENT '是否允许投稿, 0-不允许；1-允许',
+  `audit` tinyint unsigned NOT NULL DEFAULT 1 COMMENT '投稿是否需要审核, 0-不需要；1-需要',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '专题';
+
+
+CREATE TABLE IF NOT EXISTS `subject_admin` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `sid` int unsigned NOT NULL DEFAULT 0 COMMENT '专题ID',
+  `uid` int unsigned NOT NULL DEFAULT 0 COMMENT '管理员UID',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`sid`,`uid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '专题管理员（不包括创建者）';
+
+
+CREATE TABLE IF NOT EXISTS `subject_article` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `sid` int unsigned NOT NULL DEFAULT 0 COMMENT '专题ID',
+  `article_id` int unsigned NOT NULL DEFAULT 0 COMMENT '文章ID',
+  `state` tinyint unsigned NOT NULl DEFAULT 0 COMMENT '状态：0-新投稿（待审核）；1-上线；2-下线（删除）',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`sid`,`article_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '专题文章列表';
+
+
+CREATE TABLE IF NOT EXISTS `subject_follower` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `sid` int unsigned NOT NULL DEFAULT 0 COMMENT '专题ID',
+  `uid` int unsigned NOT NULL DEFAULT 0 COMMENT '关注者UID',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`sid`,`uid`),
+  INDEX (`uid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '专题关注者';

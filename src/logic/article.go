@@ -17,6 +17,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/polaris1119/slices"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/jaytaylor/html2text"
 	"github.com/polaris1119/config"
@@ -501,6 +503,51 @@ func (self ArticleLogic) FindByUser(ctx context.Context, username string, limit 
 	}
 
 	return articles
+}
+
+func (self ArticleLogic) SearchMyArticles(ctx context.Context, me *model.Me, sid int, kw string) []map[string]interface{} {
+	objLog := GetLogger(ctx)
+
+	articles := make([]*model.Article, 0)
+	session := MasterDB.Where("author_txt=?", me.Username).OrderBy("id DESC").Limit(8)
+	if kw != "" {
+		session.Where("title LIKE ?", "%"+kw+"%")
+	}
+	err := session.Find(&articles)
+	if err != nil {
+		objLog.Errorln("ArticleLogic SearchMyArticles Error:", err)
+		return nil
+	}
+
+	subjectArticles := make([]*model.SubjectArticle, 0)
+	articleIds := slices.StructsIntSlice(articles, "Id")
+	err = MasterDB.Where("sid=?", sid).In("article_id", articleIds).Find(&subjectArticles)
+	if err != nil {
+		objLog.Errorln("ArticleLogic SearchMyArticles find subject article Error:", err)
+		return nil
+	}
+
+	subjectArticleMap := make(map[int]struct{})
+	for _, subjectArticle := range subjectArticles {
+		subjectArticleMap[subjectArticle.ArticleId] = struct{}{}
+	}
+
+	articleMapSlice := make([]map[string]interface{}, len(articles))
+	for i, article := range articles {
+		articleMap := map[string]interface{}{
+			"id":    article.Id,
+			"title": article.Title,
+		}
+		if _, ok := subjectArticleMap[article.Id]; ok {
+			articleMap["had_add"] = 1
+		} else {
+			articleMap["had_add"] = 0
+		}
+
+		articleMapSlice[i] = articleMap
+	}
+
+	return articleMapSlice
 }
 
 // FindAll 支持多页翻看

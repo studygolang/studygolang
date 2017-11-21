@@ -1,0 +1,159 @@
+{{define "title"}}{{.subject.Name}} - 专题 {{end}}
+{{define "seo"}}<meta name="keywords" content="{{.setting.SeoKeywords}}">
+<meta name="description" content="{{.setting.SeoDescription}}">{{end}}
+{{define "content"}}
+<div class="row">
+    <div class="col-md-9 col-sm-6">
+        <div class="sep20"></div>
+        <div>
+            <ol class="breadcrumb">
+                <li><a href="/">首页</a></li>
+                <li class="active">专题</li>
+            </ol>
+        </div>
+        
+        <div class="page box_white">
+            <div class="subject-header">
+                <div class="subject-info">
+                    <a href="">
+                        <img class="img-rounded" src="http://upload.jianshu.io/collections/images/567529/logo1.png?imageMogr2/auto-orient/strip|imageView2/1/w/240/h/240" alt="" width="80px">
+                    </a>
+                    <div class="subject-meta">
+                        <p class="title">{{.subject.Name}}</p>
+                        <p>收录了 {{.article_num}} 篇文章 <span>·</span> {{.follower_num}} 人关注</p>
+                    </div>
+                </div>
+                <div class="subject-op">
+                    {{if eq .me.Uid .subject.Uid}}
+                    <button class="btn btn-hollow" id="contribute">收录</button>
+                    {{else}}
+                    <button class="btn btn-hollow" id="contribute">投稿</button>
+                    {{end}}
+                    <button class="btn {{if .followed}}btn-followed{{else}}btn-success{{end}}" data-sid="{{.subject.Id}}" style="margin-left: 8px;" id="follow" data-follow="{{.followed}}">
+                    {{if .followed}}
+                        <i class="fa fa-check" aria-hidden="true"></i> 已关注
+                    {{else}}
+                        <i class="fa fa-plus" aria-hidden="true"></i> 关注
+                    {{end}}
+                    </button>
+                </div>
+            </div>
+
+            <ul class="trigger-menu" data-pjax-container="#list-container">
+                <li class="{{if eq .order_by "added_at"}}active{{end}}"><a href="/subject/{{.subject.Id}}?order_by=added_at"><i class="fa fa-file-text" aria-hidden="true"></i> 最新收录</a></li>
+                <li class="{{if eq .order_by "commented_at"}}active{{end}}"><a href="/subject/{{.subject.Id}}?order_by=commented_at"><i class="fa fa-comments" aria-hidden="true"></i> 最新评论</a></li>
+                <!-- <li class=""><a href="/subject/{{.subject.Id}}?order_by=top"><i class="fa fa-fire" aria-hidden="true"></i> 热门</a></li> -->
+            </ul>
+
+            <div id="list-container">
+                <ul class="note-list">
+                {{range .articles}}
+                    <li class="{{if .Cover}}have-img{{end}}">
+                        {{if .Cover}}
+                        <a class="wrap-img" href="/articles/{{.Id}}" target="_blank">
+                            <img class="img-blur-done" src="{{.Cover}}" alt="120" height="120px">
+                        </a>
+                        {{end}}
+                        <div class="article-content">
+                            <div class="author">
+                        {{if .IsSelf}}
+                                <a class="avatar" target="_blank" href="/user/{{.User.Username}}">
+                                    <img src="{{gravatar .User.Avatar .User.Email 32 $.is_https}}" alt="{{if .User.Name}}{{.User.Name}}{{else}}{{.User.Username}}{{end}}" width="32px" height="32px">
+                                </a>
+                                <div class="info">
+                                    <a class="nickname" target="_blank" href="/user/{{.User.Username}}">{{.User.Username}}</a>
+                                    <span class="time timeago" title="{{.Ctime}}"></span>
+                                </div>
+                        {{else}}
+                                <a class="avatar" href="javascript:">
+                                    <img class="noavatar" alt="" src="https://secure.gravatar.com/avatar/3bf6178897766ebadaa830073e87374d?s=48" data-author="{{.Author}}">
+                                </a>
+                                <div class="info">
+                                    <a class="nickname" href="javascript:">{{.AuthorTxt}}</a>
+                                    <span class="time timeago" title="{{.Ctime}}"></span>
+                                </div>
+                        {{end}}
+                            </div>
+                            <a class="article-title" target="_blank" href="/articles/{{.Id}}">{{.Title}}</a>
+                            <p class="abstract">{{substring .Txt 250 "..."}}</p>
+                            <div class="article-meta">
+                                <a target="_blank" href="/articles/{{.Id}}">
+                                    <i class="fa fa-eye"></i> {{.Viewnum}}
+                                </a>
+                                <a target="_blank" href="/articles/{{.Id}}#commentForm">
+                                    <i class="fa fa-comment"></i> {{.Cmtnum}}
+                                </a>
+                                <span><i class="fa fa-heart"></i> {{.Likenum}}</span>
+                            </div>
+                        </div>
+                    </li>
+                    {{end}}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="sep20"></div>
+        <div class="box_white sidebar">
+            <div class="top" style="margin-bottom:3px;">
+                <h3 class="title"><i class="fa fa-bullhorn" aria-hidden="true"></i>&nbsp;专题公告</h3>
+            </div>
+            <div class="sb-content">
+                <div class="cell desc" style="font-size: 14px; line-height: 1.4;">
+                    {{.subject.Description}}
+                </div>
+            </div>
+        </div>
+        <div class="box_white sidebar">
+            <div class="top" style="margin-bottom:3px;">
+                <h3 class="title"><i class="fa fa-user" aria-hidden="true"></i></i>&nbsp;管理员</h3>
+            </div>
+            <div class="sb-content" style="margin: 10px;padding-bottom: 0px;">
+                <ul class="list-unstyled">
+                    <li>
+                        <a href="/user/{{.subject.User.Username}}" title="{{.subject.User.Username}}">
+                            <img src="{{gravatar .subject.User.Avatar .subject.User.Email 32 .is_https}}" alt="" class="img-circle" width="32px">
+                            {{.subject.User.Username}}
+                        </a>
+                        <span class="tag">创建者</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        {{if .follower_num}}
+        <div class="box_white sidebar">
+            <div class="top" style="margin-bottom:3px;">
+                <h3 class="title"><i class="fa fa-user" aria-hidden="true"></i></i>&nbsp;关注的人({{.follower_num}})</h3>
+            </div>
+            <div class="sb-content" style="margin: 10px; padding-bottom: 0px;">
+                <ul class="list-unstyled users">
+                    {{range .followers}}
+                    <li>
+                        <a href="/user/{{.User.Username}}">
+                            <img src="{{gravatar .User.Avatar .User.Email 32 $.is_https}}" alt="" class="img-circle" width="32px"
+                            data-tooltip="{{.User.Username}} · {{.TimeAgo}} 关注" data-tooltip-delay="10">
+                        </a>
+                    </li>
+                    {{end}}
+                </ul>
+            </div>
+        </div>
+        {{end}}
+    </div>
+</div>
+
+{{include "common/modal.html" .}}
+{{end}}
+{{define "css"}}
+<link href="https://cdn.bootcss.com/html5tooltipsjs/1.7.2/html5tooltips.min.css" rel="stylesheet">
+<link href="/static/css/subject.css" rel="stylesheet">
+{{end}}
+
+{{define "js"}}
+<script src="//cdn.bootcss.com/identicon.js/2.3.1/identicon.min.js"></script>
+<script src="https://cdn.bootcss.com/html5tooltipsjs/1.7.2/html5tooltips.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
+<script type="text/javascript" src="/static/js/subject.js"></script>
+{{end}}
