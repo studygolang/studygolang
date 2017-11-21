@@ -47,7 +47,7 @@ func (self SubjectLogic) FindArticles(ctx context.Context, sid int, orderBy stri
 
 	subjectArticles := make([]*model.SubjectArticles, 0)
 	err := MasterDB.Join("INNER", "subject_article", "subject_article.article_id = articles.id").
-		Where("subject_article.sid=?", sid).OrderBy(order).Find(&subjectArticles)
+		Where("sid=? AND state=?", sid, model.ContributeStateOnline).OrderBy(order).Find(&subjectArticles)
 	if err != nil {
 		objLog.Errorln("SubjectLogic FindArticles Find subject_article error:", err)
 		return nil
