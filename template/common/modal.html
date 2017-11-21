@@ -1,0 +1,365 @@
+<style>
+.modal .modal-dialog {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    -webkit-transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%)
+}
+
+.contribute-modal .modal-dialog,.follow-list .modal-dialog {
+    width: 560px;
+}
+
+.modal .modal-content {
+    box-shadow: 0 5px 25px rgba(0,0,0,.1);
+    -webkit-box-shadow: 0 5px 25px rgba(0,0,0,.1);
+    border: 1px solid rgba(0,0,0,.1)
+}
+
+.modal,.modal-open {
+    overflow: hidden
+}
+
+.modal {
+    background-color: hsla(0,0%,100%,.7);
+}
+
+.modal.fade .modal-dialog {
+    -webkit-transform: translateY(-25%);
+    transform: translateY(-25%);
+    transition: -webkit-transform .3s ease-out;
+    transition: transform .3s ease-out;
+    transition: transform .3s ease-out,-webkit-transform .3s ease-out
+}
+
+.modal.in .modal-dialog {
+    -webkit-transform: translate(0);
+    transform: translate(0)
+}
+
+.modal-dialog {
+    position: relative;
+    width: auto;
+    margin: 10px
+}
+
+.modal-content {
+    position: relative;
+    background-color: #fff;
+    border: 1px solid #999;
+    border: 1px solid rgba(0,0,0,.2);
+    border-radius: 6px;
+    box-shadow: 0 3px 9px rgba(0,0,0,.5);
+    background-clip: padding-box;
+    outline: 0
+}
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1040;
+    background-color: #000
+}
+
+.modal-backdrop.fade {
+    opacity: 0;
+    filter: alpha(opacity=0)
+}
+
+.modal-backdrop.in {
+    opacity: .5;
+    filter: alpha(opacity=50)
+}
+
+.modal-header {
+    padding: 15px;
+    border-bottom: 1px solid #e5e5e5
+}
+
+.modal-header:after,.modal-header:before {
+    content: " ";
+    display: table
+}
+
+.modal-header:after {
+    clear: both
+}
+
+.modal-header .close {
+    margin-top: -2px;
+    color: #000; 
+    opacity: .2;
+    outline: none;
+}
+
+.modal-header .close:hover {
+    opacity: .4;
+}
+
+.modal-title {
+    margin: 0;
+    line-height: 1.42857
+}
+
+.modal-body {
+    position: relative;
+    padding: 15px
+}
+
+.modal-footer {
+    padding: 15px;
+    text-align: right;
+    border-top: 1px solid #e5e5e5
+}
+
+.modal-footer:after,.modal-footer:before {
+    content: " ";
+    display: table
+}
+
+.modal-footer:after {
+    clear: both
+}
+
+.modal-footer .btn+.btn {
+    margin-left: 5px;
+    margin-bottom: 0
+}
+
+.modal-footer .btn-group .btn+.btn {
+    margin-left: -1px
+}
+
+.modal-footer .btn-block+.btn-block {
+    margin-left: 0
+}
+
+.modal-scrollbar-measure {
+    position: absolute;
+    top: -9999px;
+    width: 50px;
+    height: 50px;
+    overflow: scroll
+}
+
+.contribute-modal .modal-dialog,.follow-list .modal-dialog {
+    width: 560px
+}
+
+.contribute-modal .modal-header .notice,.follow-list .modal-header .notice {
+    font-size: 13px;
+    vertical-align: middle;
+    color: #969696
+}
+
+.contribute-modal .modal-header div,.follow-list .modal-header div {
+    margin: 20px 0 0;
+    position: relative
+}
+
+.contribute-modal .modal-header div .search-input,.follow-list .modal-header div .search-input {
+    padding: 0 40px 0 20px;
+    width: 100%;
+    height: 35px;
+    font-size: 14px;
+    background-color: hsla(0,0%,71%,.2);
+    border: none;
+    border-radius: 40px;
+    outline: none;
+}
+
+.contribute-modal .modal-header div .search-btn,.follow-list .modal-header div .search-btn {
+    position: absolute;
+    top: 2px;
+    right: 6px;
+    width: 30px;
+    height: 30px;
+    color: #969696;
+    text-align: center;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.contribute-modal .modal-header div .ic-search,.follow-list .modal-header div .ic-search {
+    margin: 4px -1px 0 0;
+    display: block
+}
+
+.contribute-modal .modal-body,.follow-list .modal-body {
+    padding: 0;
+    height: 460px;
+    overflow: auto
+}
+
+.contribute-modal .modal-body ul,.follow-list .modal-body ul {
+    margin: 0;
+    list-style: none;
+    padding-left: 0;
+}
+
+.contribute-modal .modal-body ul .default,.follow-list .modal-body ul .default {
+    padding-top: 200px;
+    font-size: 15px;
+    color: #999;
+    text-align: center
+}
+
+.contribute-modal .modal-body ul .default a,.follow-list .modal-body ul .default a {
+    color: #3194d0
+}
+
+.contribute-modal .modal-body li,.follow-list .modal-body li {
+    display: block!important;
+    position: relative;
+    padding: 20px 100px 20px 25px;
+    font-size: 15px;
+    border-bottom: 1px solid #e6e6e6
+}
+
+.contribute-modal .modal-body .note-name,.follow-list .modal-body .note-name {
+    display: inherit;
+    vertical-align: middle;
+    max-width: 85%
+}
+
+.contribute-modal .modal-body .status,.follow-list .modal-body .status {
+    font-size: 13px;
+    vertical-align: middle
+}
+
+.contribute-modal .modal-body span.has-add,.contribute-modal .modal-body span.reject,.contribute-modal .modal-body span.waiting,.follow-list .modal-body span.has-add,.follow-list .modal-body span.reject,.follow-list .modal-body span.waiting {
+    color: #969696
+}
+
+.contribute-modal .modal-body .action-btn,.follow-list .modal-body .action-btn {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    margin-top: -12px;
+    padding: 2px 8px;
+    font-size: 13px;
+    border-radius: 20px;
+    line-height: normal;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.contribute-modal .modal-body .push,.contribute-modal .modal-body .repush,.follow-list .modal-body .push,.follow-list .modal-body .repush {
+    color: #42c02e;
+    border: 1px solid #42c02e
+}
+
+.contribute-modal .modal-body .push:hover,.contribute-modal .modal-body .repush:hover,.follow-list .modal-body .push:hover,.follow-list .modal-body .repush:hover {
+    background-color: rgba(66,192,46,.05)
+}
+
+.contribute-modal .modal-body .revoke,.follow-list .modal-body .revoke {
+    color: #969696;
+    border: 1px solid #969696
+}
+
+.contribute-modal .modal-body .revoke:hover,.follow-list .modal-body .revoke:hover {
+    background-color: hsla(0,0%,71%,.05)
+}
+
+.contribute-modal .modal-body .remove,.follow-list .modal-body .remove {
+    color: #ea6f5a;
+    border: 1px solid #ea6f5a
+}
+
+.contribute-modal .modal-body .remove:hover,.follow-list .modal-body .remove:hover {
+    background-color: rgba(236,97,73,.05)
+}
+
+.contribute-modal .modal-footer,.follow-list .modal-footer {
+    display: none
+}
+
+.contribute-modal .new-note-btn,.follow-list .new-note-btn {
+    padding-left: 10px;
+    font-size: 13px;
+    font-weight: 400;
+    color: #42c02e;
+    vertical-align: middle
+}
+
+.modal-notes-placeholder {
+    padding: 25px 20px 25px 25px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.modal-notes-placeholder .text {
+    width: 40%;
+    height: 15px;
+    background-color: #eaeaea;
+    animation: shortLoading 1s ease-in-out -.5s infinite;
+    -webkit-animation: shortLoading 1s ease-in-out -.5s infinite;
+    -moz-animation: shortLoading 1s ease-in-out -.5s infinite;
+    -o-animation: shortLoading 1s ease-in-out -.5s infinite;
+    -ms-animation: shortLoading 1s ease-in-out -.5s infinite
+}
+
+.modal-notes-placeholder .btn {
+    cursor: default!important;
+    margin: -18px 0 0!important;
+    float: right;
+    width: 44px;
+    height: 24px;
+    background-color: #eaeaea;
+    border-radius: 20px
+}
+
+@media (min-width: 768px) {
+    .modal-dialog {
+        width:600px;
+        margin: 30px auto
+    }
+
+    .modal-content {
+        box-shadow: 0 5px 15px rgba(0,0,0,.5)
+    }
+
+    .modal-sm {
+        width: 300px
+    }
+}
+
+@media (min-width: 992px) {
+    .modal-lg {
+        width:900px
+    }
+}
+</style>
+<div class="modal contribute-modal animated" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close">×</button>
+                <h4 class="modal-title">
+                    给该专题投稿
+                    <a href="/articles/new" class="new-note-btn">写篇新文章</a>
+                </h4>
+                <span class="notice">每篇文章有总共有 5 次投稿机会</span>
+                <div>
+                    <input type="text" placeholder="搜索我的文章" class="search-input">
+                    <a class="search-btn">
+                        <i class="fa fa-search" aria-hidden="true" style="margin: 8px -1px 0 0;display: block;"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="modal-body">
+                <ul id="contribute-note-list"></ul>
+                <div class="modal-notes-placeholder" style="display: none;">
+                    <div class="text"></div>
+                    <div class="btn"></div>
+                </div>
+            </div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>

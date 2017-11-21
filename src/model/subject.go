@@ -32,6 +32,12 @@ type SubjectAdmin struct {
 	CreatedAt time.Time `json:"created_at" xorm:"<-"`
 }
 
+const (
+	ContributeStateNew = iota
+	ContributeStateOnline
+	ContributeStateOffline
+)
+
 // SubjectArticle 专题文章
 type SubjectArticle struct {
 	Id        int       `xorm:"pk autoincr" json:"id"`

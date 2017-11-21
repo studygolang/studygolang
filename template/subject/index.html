@@ -25,11 +25,17 @@
                 </div>
                 <div class="subject-op">
                     {{if eq .me.Uid .subject.Uid}}
-                    <button class="btn btn-hollow">收录</button>
+                    <button class="btn btn-hollow" id="contribute">收录</button>
                     {{else}}
-                    <button class="btn btn-hollow">投稿</button>
+                    <button class="btn btn-hollow" id="contribute">投稿</button>
                     {{end}}
-                    <button class="btn btn-hollow" style="margin-left: 8px;" id="follow">关注</button>
+                    <button class="btn {{if .followed}}btn-followed{{else}}btn-success{{end}}" data-sid="{{.subject.Id}}" style="margin-left: 8px;" id="follow" data-follow="{{.followed}}">
+                    {{if .followed}}
+                        <i class="fa fa-check" aria-hidden="true"></i> 已关注
+                    {{else}}
+                        <i class="fa fa-plus" aria-hidden="true"></i> 关注
+                    {{end}}
+                    </button>
                 </div>
             </div>
 
@@ -93,7 +99,7 @@
                 <h3 class="title"><i class="fa fa-bullhorn" aria-hidden="true"></i>&nbsp;专题公告</h3>
             </div>
             <div class="sb-content">
-                <div class="cell" style="font-size: 14px; line-height: 1.4;">
+                <div class="cell desc" style="font-size: 14px; line-height: 1.4;">
                     {{.subject.Description}}
                 </div>
             </div>
@@ -136,319 +142,18 @@
         {{end}}
     </div>
 </div>
+
+{{include "common/modal.html" .}}
 {{end}}
 {{define "css"}}
 <link href="https://cdn.bootcss.com/html5tooltipsjs/1.7.2/html5tooltips.min.css" rel="stylesheet">
-<style>
-.subject-header {
-    display: -webkit-flex;
-    display: flex;
-    justify-content: space-between;
-    padding: 10px;
-    font-size: 13px;
-    line-height: 120%;
-}
-
-.subject-info {
-    display: -webkit-flex;
-    display: flex; 
-}
-
-.subject-meta {
-    margin-left: 10px;
-}
-
-.subject-meta p {
-    padding-left: 10px;
-}
-
-.subject-op {
-    align-self: center;
-}
-
-.subject-meta .title {
-    font-size: 1.75rem;
-    font-weight: bold;
-}
-
-.btn-hollow {
-    border: 1px solid rgba(59,194,29,.7);
-    color: #42c02e!important;
-    border-radius: 40px;
-    background-color: white;
-    width: 90px;
-}
-
-.btn-hollow:focus,.btn-hollow:hover {
-    border: 1px solid #42c02e;
-    color: #42c02e!important;
-    background-color: rgba(59,194,29,.05)
-}
-
-.trigger-menu {
-    margin-bottom: 20px;
-    border-bottom: 1px solid #f0f0f0;
-    font-size: 0;
-    list-style: none;
-    padding-left: 10px;
-}
-
-.trigger-menu li {
-    position: relative;
-    display: inline-block;
-    padding: 8px 0;
-    margin-bottom: -1px;
-}
-
-.trigger-menu li.active {
-    border-bottom: 2px solid #646464;
-    padding: 8px 0;
-    margin: 0;
-}
-
-.trigger-menu a {
-    padding: 13px 20px;
-    font-size: 15px;
-    font-weight: 700;
-    color: #969696;
-    line-height: 25px;
-}
-
-.trigger-menu .active a, .trigger-menu a:hover {
-    color: #646464;
-    text-decoration: none;
-}
-
-.trigger-menu i {
-    margin-right: 5px;
-    font-size: 17px;
-}
-
-.trigger-menu li:after {
-    content: "";
-    position: absolute;
-    left: 50%;
-    bottom: -2px;
-    width: 100%;
-    opacity: 0;
-    border-bottom: 2px solid #646464;
-    transform: translate(-50%) scaleX(0);
-    -webkit-transform: translate(-50%) scaleX(0);
-    -moz-transform: translate(-50%) scaleX(0);
-    -o-transform: translate(-50%) scaleX(0);
-    -ms-transform: translate(-50%) scaleX(0)
-}
-
-.trigger-menu li:after,.trigger-menu li:hover:after {
-    transition: .2s ease-in-out;
-    -webkit-transition: .2s ease-in-out;
-    -moz-transition: .2s ease-in-out;
-    -o-transition: .2s ease-in-out;
-    -ms-transition: .2s ease-in-out
-}
-
-.trigger-menu li:hover:after {
-    opacity: 1;
-    transform: translate(-50%) scaleX(1);
-    -webkit-transform: translate(-50%) scaleX(1);
-    -moz-transform: translate(-50%) scaleX(1);
-    -o-transform: translate(-50%) scaleX(1);
-    -ms-transform: translate(-50%) scaleX(1)
-}
-
-#list-container {
-    padding: 0 10px;
-}
-
-.sidebar .tag {
-    padding: 1px 3px;
-    margin-left: 2px;
-    border-radius: 3px;
-    font-size: 12px;
-    color: #969696;
-    border: 1px solid #969696;
-}
-
-.sidebar .tag:hover {background-color:white; text-decoration: none; }
-
-.note-list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.note-list li {
-    position: relative;
-    width: 100%;
-    margin: 0 0 17px;
-    padding: 0 2px 17px 0;
-    border-bottom: 1px solid #f0f0f0;
-    word-wrap: break-word;
-}
-
-.note-list li.have-img {
-    min-height: 140px;
-}
-
-.note-list .have-img .wrap-img {
-    position: absolute;
-    top: 50%;
-    margin-top: -68px;
-    right: 0;
-    width: 150px;
-    height: 120px;
-}
-
-.note-list .have-img .wrap-img img {
-    width: 100%;
-    height: 100%;
-    border-radius: 4px;
-    border: 1px solid #f0f0f0;
-}
-
-.note-list .have-img>div {
-    padding-right: 160px;
-}
-
-.note-list .author {
-    margin-bottom: 14px;
-    font-size: 13px;
-}
-
-.note-list .author .avatar, .note-list .author .info {
-    display: inline-block;
-    vertical-align: middle;
-}
-
-.note-list .author .avatar {
-    margin: 0 5px 0 0;
-}
-
-.note-list .author a {
-    color: #333;
-}
-
-.avatar {
-    width: 32px;
-    height: 32px;
-    display: block;
-    cursor: pointer;
-}
-
-.avatar img {
-    width: 100%;
-    height: 100%;
-    border: 1px solid #ddd;
-    border-radius: 50%;
-}
-
-.note-list .author .avatar, .note-list .author .info {
-    display: inline-block;
-    vertical-align: middle;
-}
-
-.note-list .author .info .nickname {
-    vertical-align: middle;
-}
-
-.note-list .author .info span {
-    display: inline-block;
-    padding-left: 3px;
-    color: #969696;
-    vertical-align: middle;
-}
-
-.note-list .author .time {
-    color: #969696;
-}
-
-.note-list .article-title {
-    margin: -7px 0 4px;
-    display: inherit;
-    font-size: 18px;
-    font-weight: 700;
-    line-height: 1.5;
-    color: #333;
-}
-
-.note-list .article-title:visited {
-    color: #969696;
-}
-
-.note-list .abstract {
-    margin: 0 0 8px;
-    font-size: 13px;
-    line-height: 24px;
-}
-
-.note-list .article-meta {
-    padding-right: 0!important;
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 20px;
-}
-
-.note-list .article-meta a, .note-list .article-meta a:hover {
-    transition: .1s ease-in;
-    -webkit-transition: .1s ease-in;
-    -moz-transition: .1s ease-in;
-    -o-transition: .1s ease-in;
-    -ms-transition: .1s ease-in;
-}
-
-.note-list .article-meta a {
-    margin-right: 10px;
-    color: #b4b4b4;
-}
-
-.note-list .article-meta a:hover {
-    color: #787878;
-    text-decoration: none;
-}
-
-.note-list .article-meta span {
-    margin-right: 10px;
-    color: #b4b4b4;
-}
-
-.sidebar .users {}
-
-.sidebar .users li {
-    display: inline-block;
-}
-.sidebar .users li:first-child {
-    margin-left: -3px;
-}
-
-.sidebar .users li a {
-    margin-right: -12px;
-    display: inline-block;
-}
-
-.sidebar .users li img {
-    border: 3px solid #fff;
-    background-color: #fff;
-}
-
-</style>
+<link href="/static/css/subject.css" rel="stylesheet">
 {{end}}
 
 {{define "js"}}
 <script src="//cdn.bootcss.com/identicon.js/2.3.1/identicon.min.js"></script>
 <script src="https://cdn.bootcss.com/html5tooltipsjs/1.7.2/html5tooltips.min.js"></script>
-<script>
-$(function() {
-    $('.noavatar').each(function() {
-        var author = $(this).data('author');
-        var hash = md5(author+"");
-        var data = new Identicon(hash, {format: 'svg', size: 32}).toString();
-        var imgData = 'data:image/svg+xml;base64,' + data;
-        $(this).attr('src', imgData);
-    });
-
-    $('#follow').on('click', function() {
-
-    });
-});
-</script>
+<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
+<script type="text/javascript" src="/static/js/subject.js"></script>
 {{end}}

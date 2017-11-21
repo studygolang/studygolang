@@ -7,6 +7,7 @@
 package logic
 
 import (
+	"errors"
 	"model"
 	"util"
 
@@ -111,4 +112,93 @@ func (self SubjectLogic) FindFollowerTotal(ctx context.Context, sid int) int64 {
 	}
 
 	return total
+}
+
+// Follow 关注或取消关注
+func (self SubjectLogic) Follow(ctx context.Context, sid int, me *model.Me) (err error) {
+	objLog := GetLogger(ctx)
+
+	follower := &model.SubjectFollower{}
+	_, err = MasterDB.Where("sid=? AND uid=?", sid, me.Uid).Get(follower)
+	if err != nil {
+		objLog.Errorln("SubjectLogic Follow Get error:", err)
+	}
+
+	if follower.Id > 0 {
+		_, err = MasterDB.Where("sid=? AND uid=?", sid, me.Uid).Delete(new(model.SubjectFollower))
+		if err != nil {
+			objLog.Errorln("SubjectLogic Follow Delete error:", err)
+		}
+
+		return
+	}
+
+	follower.Sid = sid
+	follower.Uid = me.Uid
+	_, err = MasterDB.Insert(follower)
+	if err != nil {
+		objLog.Errorln("SubjectLogic Follow insert error:", err)
+	}
+	return
+}
+
+func (self SubjectLogic) HadFollow(ctx context.Context, sid int, me *model.Me) bool {
+	objLog := GetLogger(ctx)
+
+	num, err := MasterDB.Where("sid=? AND uid=?", sid, me.Uid).Count(new(model.SubjectFollower))
+	if err != nil {
+		objLog.Errorln("SubjectLogic Follow insert error:", err)
+	}
+
+	return num > 0
+}
+
+// Contribute 投稿
+func (self SubjectLogic) Contribute(ctx context.Context, me *model.Me, sid, articleId int) error {
+	objLog := GetLogger(ctx)
+
+	subject := self.FindOne(ctx, sid)
+	if subject.Id == 0 {
+		return errors.New("该专题不存在")
+	}
+
+	count, _ := MasterDB.Where("article_id=?", articleId).Count(new(model.SubjectArticle))
+	if count >= 5 {
+		return errors.New("该文超过 5 次投稿")
+	}
+
+	article, err := DefaultArticle.FindById(ctx, articleId)
+	if article.AuthorTxt != me.Username {
+		return errors.New("该文不是你的文章，不能投稿")
+	}
+
+	subjectArticle := &model.SubjectArticle{
+		Sid:       sid,
+		ArticleId: articleId,
+		State:     model.ContributeStateNew,
+	}
+	if subject.Uid == me.Uid {
+		subjectArticle.State = model.ContributeStateOnline
+	}
+
+	_, err = MasterDB.Insert(subjectArticle)
+	if err != nil {
+		objLog.Errorln("SubjectLogic Contribute insert error:", err)
+		return errors.New("投稿失败:" + err.Error())
+	}
+
+	return nil
+}
+
+// RemoveContribute 删除投稿
+func (self SubjectLogic) RemoveContribute(ctx context.Context, sid, articleId int) error {
+	objLog := GetLogger(ctx)
+
+	_, err := MasterDB.Where("sid=? AND article_id=?", sid, articleId).Delete(new(model.SubjectArticle))
+	if err != nil {
+		objLog.Errorln("SubjectLogic RemoveContribute delete error:", err)
+		return errors.New("删除投稿失败:" + err.Error())
+	}
+
+	return nil
 }
