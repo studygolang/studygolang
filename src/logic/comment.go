@@ -163,13 +163,13 @@ func (self CommentLogic) Publish(ctx context.Context, uid, objid int, form url.V
 
 	// 暂时只是从数据库中取出最后的评论楼层
 	tmpCmt := &model.Comment{}
-	_, err := MasterDB.Where("objid=? AND objtype=?", objid, objtype).OrderBy("ctime DESC").Get(tmpCmt)
+	_, err := MasterDB.Where("objid=? AND objtype=?", objid, objtype).OrderBy("floor DESC").Get(tmpCmt)
 	if err != nil {
-		objLog.Errorln("post comment service error:", err)
+		objLog.Errorln("post comment find last floor error:", err)
 		return nil, err
-	} else {
-		comment.Floor = tmpCmt.Floor + 1
 	}
+
+	comment.Floor = tmpCmt.Floor + 1
 
 	if tmpCmt.Uid == comment.Uid && tmpCmt.Content == comment.Content {
 		objLog.Infof("had post comment: %+v", *comment)

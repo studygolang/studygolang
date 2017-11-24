@@ -336,6 +336,9 @@ func (self ArticleLogic) Publish(ctx context.Context, me *model.Me, form url.Val
 			article.AuthorTxt = user.Username
 
 			uid = user.Uid
+
+			// 【编辑】
+			article.OpUser = me.Username
 		}
 	}
 
