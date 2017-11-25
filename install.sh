@@ -24,6 +24,7 @@ BUILD="`git symbolic-ref HEAD | cut -b 12-`-`git rev-parse HEAD`"
 go install -ldflags "-X global.Build="$BUILD server/studygolang
 go install server/indexer
 go install server/crawler
+go install server/migrator
 
 export GOPATH="$OLDGOPATH"
 export GOBIN="$OLDGOBIN"

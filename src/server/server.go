@@ -10,6 +10,8 @@ package server
 
 import (
 	"flag"
+	"fmt"
+	"os"
 	"time"
 
 	"logic"
@@ -19,10 +21,18 @@ import (
 	"github.com/robfig/cron"
 )
 
+var usageStr = `
+Usage: migrator [options]
+
+Opthions:
+	--changeVersion <version>    changeset version(1.0)
+`
+
 var (
-	manualIndex = flag.Bool("manual", false, "do manual index once or not")
-	needAll     = flag.Bool("all", false, "是否需要全量抓取，默认否")
-	whichSite   = flag.String("site", "", "抓取哪个站点（空表示所有站点）")
+	manualIndex   = flag.Bool("manual", false, "do manual index once or not")
+	needAll       = flag.Bool("all", false, "是否需要全量抓取，默认否")
+	whichSite     = flag.String("site", "", "抓取哪个站点（空表示所有站点）")
+	changeVersion = flag.String("changeVersion", "", usageStr)
 )
 
 func IndexingServer() {
@@ -92,4 +102,15 @@ func autocrawl(needAll bool, whichSite string) {
 		go logic.DefaultAutoCrawl.DoCrawl(false)
 	})
 	c.Start()
+}
+
+func MigratorServer() {
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+	if *changeVersion == "" {
+		fmt.Printf("%s\n", usageStr)
+		os.Exit(1)
+	}
+	logic.DefaultMigrator.Migrator(*changeVersion)
 }

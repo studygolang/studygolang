@@ -19,6 +19,7 @@ gofmt -w -s src
 go install server/studygolang
 go install server/indexer
 go install server/crawler
+go install server/migrator
 
 set GOPATH=%OLDGOPATH%
 
