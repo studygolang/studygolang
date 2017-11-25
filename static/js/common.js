@@ -134,6 +134,7 @@ SG.markSettingNoHightlight = function() {
 
 // 替换 `` 代码块中的 "<>& 等字符
 SG.replaceCodeChar = function(code) {
+	code = code.replace(/<code class="lang-/g, '<code class="language-');
 	return code.replace(/<code>.*<\/code>/g, function(matched, index, origin) {
 		return SG.replaceSpecialChar(matched);
 	});

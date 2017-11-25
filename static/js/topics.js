@@ -17,7 +17,7 @@
 	SG.Topics.prototype = new SG.Publisher();
 	SG.Topics.prototype.parseContent = function(selector) {
 		// 配置 marked 语法高亮
-		marked = SG.markSetting();
+		marked = SG.markSettingNoHightlight();
 
 		selector.each(function() {
 			var markdownString = $(this).text();
