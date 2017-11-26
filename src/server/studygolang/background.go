@@ -20,8 +20,11 @@ import (
 	"github.com/robfig/cron"
 )
 
-var embedIndexing = flag.Bool("embed_indexing", false, "是否嵌入 indexer 的功能，默认否")
-var embedCrawler = flag.Bool("embed_crawler", false, "是否嵌入 crawler 的功能，默认否")
+var (
+	embedIndexing = flag.Bool("embed_indexing", false, "是否嵌入 indexer 的功能，默认否")
+	embedCrawler  = flag.Bool("embed_crawler", false, "是否嵌入 crawler 的功能，默认否")
+	syncAllGCTT   = flag.Bool("sync_gctt", false, "是否全量同步 GCTT PR 一次")
+)
 
 // 后台运行的任务
 func ServeBackGround() {
@@ -158,5 +161,6 @@ func pullGCTTPR() {
 		return
 	}
 
-	logic.DefaultGithub.PullPR(repo)
+	logic.DefaultGithub.PullPR(repo, *syncAllGCTT)
+	*syncAllGCTT = false
 }

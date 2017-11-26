@@ -30,6 +30,7 @@ type GCTTGit struct {
 	Id            int `xorm:"pk autoincr"`
 	Username      string
 	Title         string
+	PR            int `xorm:"pr"`
 	TranslatingAt int64
 	TranslatedAt  int64
 	CreatedAt     time.Time `xorm:"<-"`
