@@ -92,7 +92,7 @@ func (self GithubLogic) PullPR(repo string, isAll bool) error {
 }
 
 func (self GithubLogic) pullPR(repo string, page int, directions ...string) error {
-	prListURL := fmt.Sprintf("%s/repos/%s/pulls?state=all&per_page=100&page=%d", GithubAPIBaseUrl, repo, page)
+	prListURL := fmt.Sprintf("%s/repos/%s/pulls?state=all&per_page=30&page=%d", GithubAPIBaseUrl, repo, page)
 
 	if len(directions) > 0 {
 		prListURL += "&direction=" + directions[0]
