@@ -197,6 +197,9 @@ func (self ThirdUserLogic) BindGithub(ctx context.Context, code string, me *mode
 }
 
 func (ThirdUserLogic) UnBindUser(ctx context.Context, bindId interface{}, me *model.Me) error {
+	if !DefaultUser.HasPasswd(ctx, me.Uid) {
+		return errors.New("请先设置密码！")
+	}
 	_, err := MasterDB.Where("id=? AND uid=?", bindId, me.Uid).Delete(new(model.BindUser))
 	return err
 }
