@@ -160,12 +160,15 @@ func (self GithubLogic) dealFiles(_prInfo *prInfo) error {
 
 	// 1. 领取翻译任务时，只是改变一个文件，且是 sources 目录下的，文件修改；
 	// 2. 任务完成时，删除一个文件，创建一个新文件，删除的文件是 sources 目录下的，创建的文件是 translated 目录下的
+	// 3. 翻译完成一篇，同时又领取新的一篇
 
 	length := len(filesResult.Array())
 	if length == 1 {
 		err = self.translating(filesResult, _prInfo)
 	} else if length == 2 {
 		err = self.translated(filesResult, _prInfo)
+	} else if length == 3 {
+		err = self.translateSilmu(filesResult, _prInfo)
 	}
 
 	return err
@@ -228,11 +231,63 @@ func (self GithubLogic) translated(filesResult gjson.Result, _prInfo *prInfo) er
 			} else {
 				isTranslated = false
 			}
-		}
-
-		if status == "added" {
+		} else if status == "added" {
 			if !strings.HasPrefix(filename, "translated") {
 				isTranslated = false
+			}
+		}
+
+		return true
+	})
+
+	if !isTranslated || sourceTitle == "" {
+		return nil
+	}
+
+	return self.insertOrUpdateGCCT(_prInfo, sourceTitle, true)
+}
+
+func (self GithubLogic) translateSilmu(filesResult gjson.Result, _prInfo *prInfo) error {
+	var (
+		sourceTitle  string
+		isTranslated = true
+	)
+
+	filesResult.ForEach(func(key, val gjson.Result) bool {
+		if !isTranslated {
+			return false
+		}
+
+		status := val.Get("status").String()
+		filename := val.Get("filename").String()
+
+		if status == "removed" {
+			if strings.HasPrefix(filename, "sources") {
+				filenames := strings.SplitN(filename, "/", 3)
+				if len(filenames) < 3 {
+					return true
+				}
+				sourceTitle = strings.Split(filenames[2], ".")[0]
+			} else {
+				isTranslated = false
+			}
+		} else if status == "added" {
+			if !strings.HasPrefix(filename, "translated") {
+				isTranslated = false
+			}
+		} else if status == "modified" {
+			// 提交完成，之后又领取了新的一篇
+			if strings.HasPrefix(filename, "sources") {
+				filenames := strings.SplitN(filename, "/", 3)
+				if len(filenames) < 3 {
+					return true
+				}
+				title := strings.Split(filenames[2], ".")[0]
+				if title == "" {
+					return true
+				}
+
+				self.insertOrUpdateGCCT(_prInfo, title, false)
 			}
 		}
 
