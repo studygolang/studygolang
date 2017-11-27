@@ -208,23 +208,31 @@ func (UserController) Projects(ctx echo.Context) error {
 func (UserController) Comments(ctx echo.Context) error {
 
 	username := ctx.Param("username")
-	user := logic.DefaultUser.FindOne(ctx, "username", username)
-	if user == nil || user.Uid == 0 {
-		return ctx.Redirect(http.StatusSeeOther, "/users")
+
+	userid := 0
+	querystring := ""
+
+	if username != "" {
+		user := logic.DefaultUser.FindOne(ctx, "username", username)
+		if user == nil || user.Uid == 0 {
+			return ctx.Redirect(http.StatusSeeOther, "/users")
+		}
+		querystring = "uid=?"
+		userid = user.Uid
+		username = user.Username
 	}
+
 	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
 	paginator := logic.NewPaginator(curPage)
 
-	querystring := "uid=?"
+	comments := logic.DefaultComment.FindAll(ctx, paginator, "cid DESC", querystring, userid)
 
-	comments := logic.DefaultComment.FindAll(ctx, paginator, "cid DESC", querystring, user.Uid)
-
-	total := logic.DefaultComment.Count(ctx, querystring, user.Uid)
+	total := logic.DefaultComment.Count(ctx, querystring, userid)
 
 	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
 
 	return render(ctx, "user/comments.html", map[string]interface{}{
-		"user":     user,
+		"username": username,
 		"comments": comments,
 		"page":     template.HTML(pageHtml),
 		"total":    total,
