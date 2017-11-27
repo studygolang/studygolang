@@ -24,6 +24,7 @@ func (self UserController) RegisterRoute(g *echo.Group) {
 	g.GET("/user/:username/articles", self.Articles)
 	g.GET("/user/:username/resources", self.Resources)
 	g.GET("/user/:username/projects", self.Projects)
+	g.GET("/user/:username/comments", self.Comments)
 	g.GET("/users", self.ReadList)
 	g.Match([]string{"GET", "POST"}, "/user/email/unsubscribe", self.EmailUnsub)
 }
@@ -203,4 +204,40 @@ func (UserController) Projects(ctx echo.Context) error {
 		"page":           template.HTML(pageHtml),
 		"total":          total,
 	})
+}
+func (UserController) Comments(ctx echo.Context) error {
+
+	username := ctx.Param("username")
+
+	userid := 0
+	querystring := ""
+
+	if username != "0" {
+		user := logic.DefaultUser.FindOne(ctx, "username", username)
+		if user == nil || user.Uid == 0 {
+			return ctx.Redirect(http.StatusSeeOther, "/users")
+		}
+		querystring = "uid=?"
+		userid = user.Uid
+		username = user.Username
+	} else {
+		username = ""
+	}
+
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	paginator := logic.NewPaginator(curPage)
+
+	comments := logic.DefaultComment.FindAll(ctx, paginator, "cid DESC", querystring, userid)
+
+	total := logic.DefaultComment.Count(ctx, querystring, userid)
+
+	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
+
+	return render(ctx, "user/comments.html", map[string]interface{}{
+		"username": username,
+		"comments": comments,
+		"page":     template.HTML(pageHtml),
+		"total":    total,
+	})
+
 }
