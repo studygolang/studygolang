@@ -224,11 +224,10 @@ func (UserController) Comments(ctx echo.Context) error {
 	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
 
 	return render(ctx, "user/comments.html", map[string]interface{}{
-		"user":           user,
-		"activeProjects": "active",
-		"comments":       comments,
-		"page":           template.HTML(pageHtml),
-		"total":          total,
+		"user":     user,
+		"comments": comments,
+		"page":     template.HTML(pageHtml),
+		"total":    total,
 	})
 
 }
