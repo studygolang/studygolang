@@ -212,7 +212,7 @@ func (UserController) Comments(ctx echo.Context) error {
 	userid := 0
 	querystring := ""
 
-	if username != "" {
+	if username != "0" {
 		user := logic.DefaultUser.FindOne(ctx, "username", username)
 		if user == nil || user.Uid == 0 {
 			return ctx.Redirect(http.StatusSeeOther, "/users")
@@ -220,6 +220,8 @@ func (UserController) Comments(ctx echo.Context) error {
 		querystring = "uid=?"
 		userid = user.Uid
 		username = user.Username
+	} else {
+		username = ""
 	}
 
 	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
