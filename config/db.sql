@@ -701,12 +701,14 @@ CREATE TABLE IF NOT EXISTS `gctt_git` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `username` varchar(31) NOT NULL DEFAULT '' COMMENT 'Github 用户名',
   `pr` int unsigned NOT NULL DEFAULT 0 COMMENT '完成翻译时的 PR 编号',
-  `title` varchar(127) NOT NULL DEFAULT '' COMMENT 'github 上文章名（也是文件名，无后缀）',
+  `title` varchar(127) NOT NULL DEFAULT '' COMMENT 'github 上文章名（也是文件名）',
+  `md5` char(32) NOT NULL DEFAULT '' COMMENT '标题 md5',
   `translating_at` int unsigned NOT NULL DEFAULT 0 COMMENT '开始翻译时间',
   `translated_at` int unsigned NOT NULL DEFAULT 0 COMMENT '完成翻译时间',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY (`username`,`title`)
+  UNIQUE KEY (`md5`),
+  INDEX (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'GCTT github 文章翻译信息表';
 
 

@@ -29,6 +29,7 @@ func (*GCTTUser) TableName() string {
 type GCTTGit struct {
 	Id            int `xorm:"pk autoincr"`
 	Username      string
+	Md5           string
 	Title         string
 	PR            int `xorm:"pr"`
 	TranslatingAt int64

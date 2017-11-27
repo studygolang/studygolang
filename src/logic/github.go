@@ -16,6 +16,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/polaris1119/goutils"
+
 	"github.com/polaris1119/logger"
 	"github.com/tidwall/gjson"
 	"golang.org/x/net/context"
@@ -187,7 +189,7 @@ func (self GithubLogic) translating(filesResult gjson.Result, _prInfo *prInfo) e
 		if len(filenames) < 3 {
 			return true
 		}
-		title := strings.Split(filenames[2], ".")[0]
+		title := filenames[2]
 		if title == "" {
 			return true
 		}
@@ -227,7 +229,7 @@ func (self GithubLogic) translated(filesResult gjson.Result, _prInfo *prInfo) er
 				if len(filenames) < 3 {
 					return true
 				}
-				sourceTitle = strings.Split(filenames[2], ".")[0]
+				sourceTitle = filenames[2]
 			} else {
 				isTranslated = false
 			}
@@ -267,7 +269,7 @@ func (self GithubLogic) translateSilmu(filesResult gjson.Result, _prInfo *prInfo
 				if len(filenames) < 3 {
 					return true
 				}
-				sourceTitle = strings.Split(filenames[2], ".")[0]
+				sourceTitle = filenames[2]
 			} else {
 				isTranslated = false
 			}
@@ -282,7 +284,7 @@ func (self GithubLogic) translateSilmu(filesResult gjson.Result, _prInfo *prInfo
 				if len(filenames) < 3 {
 					return true
 				}
-				title := strings.Split(filenames[2], ".")[0]
+				title := filenames[2]
 				if title == "" {
 					return true
 				}
@@ -302,11 +304,15 @@ func (self GithubLogic) translateSilmu(filesResult gjson.Result, _prInfo *prInfo
 }
 
 func (GithubLogic) insertOrUpdateGCCT(_prInfo *prInfo, title string, isTranslated bool) error {
+	md5 := goutils.Md5(title)
 	gcttGit := &model.GCTTGit{}
-	_, err := MasterDB.Where("username=? AND title=?", _prInfo.username, title).Get(gcttGit)
+	_, err := MasterDB.Where("md5=?", md5).Get(gcttGit)
 	if err != nil {
 		logger.Errorln("GithubLogic insertOrUpdateGCCT get error:", err)
 		return err
+	}
+	if gcttGit.Username != _prInfo.username {
+		return nil
 	}
 
 	gcttUser := DefaultGCTT.FindOne(nil, _prInfo.username)
@@ -346,6 +352,7 @@ func (GithubLogic) insertOrUpdateGCCT(_prInfo *prInfo, title string, isTranslate
 
 	gcttGit.Username = _prInfo.username
 	gcttGit.Title = title
+	gcttGit.Md5 = md5
 	gcttGit.TranslatingAt = _prInfo.prTime.Unix()
 	_, err = MasterDB.Insert(gcttGit)
 	if err != nil {
