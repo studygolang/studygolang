@@ -311,8 +311,10 @@ func (GithubLogic) insertOrUpdateGCCT(_prInfo *prInfo, title string, isTranslate
 		logger.Errorln("GithubLogic insertOrUpdateGCCT get error:", err)
 		return err
 	}
-	if gcttGit.Username != _prInfo.username {
-		return nil
+	if gcttGit.Id > 0 {
+		if gcttGit.Username != _prInfo.username {
+			return nil
+		}
 	}
 
 	gcttUser := DefaultGCTT.FindOne(nil, _prInfo.username)
