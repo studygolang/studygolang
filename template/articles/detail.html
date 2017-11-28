@@ -252,7 +252,9 @@ $(function(){
 </script>
 {{if .article.IsSelf}}
 <script type="text/javascript">
-$('code[class*="language-"]').parent('pre').addClass('line-numbers');
+$(function(){
+	$('code[class*="language-"]').parent('pre').addClass('line-numbers');
+});
 </script>
 <!-- <script type="text/javascript" src="/static/js/prism.js"></script> -->
 <script src="https://cdn.bootcss.com/prism/9000.0.1/prism.min.js"></script>
