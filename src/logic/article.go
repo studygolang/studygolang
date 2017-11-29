@@ -286,8 +286,11 @@ func (self ArticleLogic) ParseZhihuArticle(ctx context.Context, articleUrl strin
 	return article, nil
 }
 
+// Publish 发布文章
 func (self ArticleLogic) Publish(ctx context.Context, me *model.Me, form url.Values) (int, error) {
 	objLog := GetLogger(ctx)
+
+	var uid = me.Uid
 
 	article := &model.Article{
 		Domain:    WebsiteSetting.Domain,
@@ -316,6 +319,27 @@ func (self ArticleLogic) Publish(ctx context.Context, me *model.Me, form url.Val
 		objLog.Errorln("request_id is empty!")
 		// 理论上不会执行
 		return 0, errors.New("request_id is empty!")
+	}
+
+	// GCTT 译文，如果译者关联了本站账号，author 改为译者
+	if article.GCTT {
+		translator := form.Get("translator")
+		gcttUser := &model.GCTTUser{}
+		_, err := MasterDB.Where("username=?", translator).Get(gcttUser)
+		if err != nil {
+			objLog.Errorln("article publish find gctt user error:", err)
+		}
+
+		if gcttUser.Uid > 0 {
+			user := DefaultUser.findUser(ctx, gcttUser.Uid)
+			article.Author = user.Username
+			article.AuthorTxt = user.Username
+
+			uid = user.Uid
+
+			// 【编辑】
+			article.OpUser = me.Username
+		}
 	}
 
 	session := MasterDB.NewSession()
@@ -354,7 +378,7 @@ func (self ArticleLogic) Publish(ctx context.Context, me *model.Me, form url.Val
 
 	session.Commit()
 
-	go publishObservable.NotifyObservers(me.Uid, model.TypeArticle, article.Id)
+	go publishObservable.NotifyObservers(uid, model.TypeArticle, article.Id)
 
 	return article.Id, nil
 }

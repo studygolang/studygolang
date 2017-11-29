@@ -59,11 +59,11 @@
 					
 					{{if .article.GCTT}}
 					<hr>
-					<p>via: {{.article_gctt.URL}}</p>
+					<p>via: <a href="{{.article_gctt.URL}}" title="" target="_blank">{{.article_gctt.URL}}</a></p>
 					<p>
 						作者：<a href="{{.article_gctt.AuthorURL}}" class="ext" rel="external nofollow" target="_blank">{{.article_gctt.Author}}</a>
 						译者：<a href="https://github.com/{{.article_gctt.Translator}}" class="ext" rel="external nofollow" target="_blank">{{.article_gctt.Translator}}</a>
-						校对：<a href="https://github.com/{{.article_gctt.Translator}}" class="ext" rel="external nofollow" target="_blank">{{.article_gctt.Translator}}</a>
+						校对：{{range .article_gctt.Checkers}}<a href="https://github.com/{{.}}" class="ext" rel="external nofollow" target="_blank">{{.}}</a> {{end}}
 					</p>
 					<p>本文由 <a href="https://github.com/studygolang/GCTT" class="ext" rel="external nofollow" target="_blank">GCTT</a> 原创编译，<a href="/articles/{{.article.Id}}">{{.setting.Name}}</a> 荣誉推出</p>
 
@@ -176,14 +176,15 @@
 
 {{end}}
 {{define "css"}}
-<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
+<link href="https://cdn.bootcss.com/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet">
 <link href="/static/css/syntax_highlight/shCore.css" media="screen" rel="stylesheet" type="text/css">
 <link href="/static/css/syntax_highlight/shCoreDefault.css" media="screen" rel="stylesheet" type="text/css">
 {{if .article.Css}}
 <link href="{{.article.Css}}" media="screen" rel="stylesheet" type="text/css">
 {{end}}
 {{if .article.IsSelf}}
-<link href="/static/css/prism.css" media="screen" rel="stylesheet" type="text/css">
+<link href="https://cdn.bootcss.com/prism/9000.0.1/themes/prism-okaidia.min.css" rel="stylesheet">
+<link href="https://cdn.bootcss.com/prism/9000.0.1/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet">
 {{end}}
 <link href="/static/css/jquery.atwho.min.css" media="screen" rel="stylesheet" type="text/css">
 <style type="text/css">
@@ -198,8 +199,8 @@
 {{define "js"}}
 <script type="text/javascript" src="//cdn.ckeditor.com/4.6.2/standard-all/ckeditor.js"></script>
 <script	type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/marked/0.3.6/marked.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/jquery.caret.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/jquery.atwho.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
@@ -209,15 +210,10 @@
 <script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
 <script type="text/javascript" src="/static/js/comment.js?v=1.25"></script>
 <script type="text/javascript" src="/static/js/puploader.js?v=1.1"></script>
-{{if .article.IsSelf}}
-<script type="text/javascript">
-$('code[class*="language-"]').parent('pre').addClass('line-numbers');
-</script>
-<script type="text/javascript" src="/static/js/prism.js"></script>
-{{end}}
 {{if .article.Markdown}}
 <script type="text/javascript" src="/static/js/articles.js"></script>
 {{end}}
+
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
@@ -254,6 +250,18 @@ $(function(){
 	}
 });
 </script>
+{{if .article.IsSelf}}
+<script type="text/javascript">
+$(function(){
+	$('code[class*="language-"]').parent('pre').addClass('line-numbers');
+});
+</script>
+<!-- <script type="text/javascript" src="/static/js/prism.js"></script> -->
+<script src="https://cdn.bootcss.com/prism/9000.0.1/prism.min.js"></script>
+<script src="https://cdn.bootcss.com/prism/9000.0.1/components/prism-go.min.js"></script>
+<script src="https://cdn.bootcss.com/prism/9000.0.1/plugins/line-numbers/prism-line-numbers.min.js"></script>
+{{end}}
+
 <script type="text/javascript" src="/static/ckeditor/config.js"></script>
 <script type="text/javascript">
 $(function(){
@@ -346,12 +354,4 @@ $(function(){
 	{{end}}
 {{end}}
 
-<script>
-var baiduImagePlus = {
-noLogo:true,
-  unionId:'u2368846',
-  formList:[{formId:10}]
-};
-</script>
-<script src="//cpro.baidustatic.com/cpro/ui/i.js"></script>
 {{end}}

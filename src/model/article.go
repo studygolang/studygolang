@@ -9,6 +9,7 @@ package model
 import (
 	"encoding/json"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-xorm/xorm"
@@ -98,11 +99,18 @@ type ArticleGCTT struct {
 	Checker    string
 	URL        string `xorm:"url"`
 
-	Avatar string `xorm:"-"`
+	Avatar   string   `xorm:"-"`
+	Checkers []string `xorm:"-"`
 }
 
 func (*ArticleGCTT) TableName() string {
 	return "article_gctt"
+}
+
+func (this *ArticleGCTT) AfterSet(name string, cell xorm.Cell) {
+	if name == "checker" {
+		this.Checkers = strings.Split(this.Checker, ",")
+	}
 }
 
 // 抓取网站文章的规则

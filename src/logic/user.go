@@ -436,7 +436,7 @@ func (self UserLogic) UpdatePasswd(ctx context.Context, username, curPasswd, new
 func (UserLogic) HasPasswd(ctx context.Context, uid int) bool {
 	userLogin := &model.UserLogin{}
 	_, err := MasterDB.Where("uid=?", uid).Get(userLogin)
-	if err != nil || userLogin.Passwd != "" {
+	if err == nil && userLogin.Passwd != "" {
 		return true
 	}
 

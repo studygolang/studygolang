@@ -212,7 +212,7 @@
 							</label>&nbsp;
 							{{end}}
 						</div>
-						{{if .bind_users}}
+						{{if .bind_users AND .has_passwd}}
 						<div>
 							<button class="btn btn-danger btn-sm" type="submit">删除</button>
 						</div>

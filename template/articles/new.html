@@ -124,7 +124,8 @@
 <link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
 <link href="/static/css/syntax_highlight/shCore.css" media="screen" rel="stylesheet" type="text/css">
 <link href="/static/css/syntax_highlight/shCoreDefault.css" media="screen" rel="stylesheet" type="text/css">
-<link href="/static/css/prism.css" media="screen" rel="stylesheet" type="text/css">
+<link href="https://cdn.bootcss.com/prism/9000.0.1/themes/prism-okaidia.min.css" rel="stylesheet">
+<link href="https://cdn.bootcss.com/prism/9000.0.1/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet">
 <style type="text/css">
 #cke_myeditor { margin: 0 auto 8px; }
 </style>
@@ -148,7 +149,9 @@
 <script type="text/javascript">
 $('code[class*="language-"]').parent('pre').addClass('line-numbers');
 </script>
-<script type="text/javascript" src="/static/js/prism.js"></script>
+<script src="https://cdn.bootcss.com/prism/9000.0.1/prism.min.js"></script>
+<script src="https://cdn.bootcss.com/prism/9000.0.1/components/prism-go.min.js"></script>
+<script src="https://cdn.bootcss.com/prism/9000.0.1/plugins/line-numbers/prism-line-numbers.min.js"></script>
 <script>
 
 var hadInit = false;
@@ -216,7 +219,7 @@ $(function() {
     $('#markdown-content').on('input propertychange', function() {
         var markdownString = $(this).val();
         // 配置 marked 语法高亮
-        marked = SG.markSetting();
+        marked = SG.markSettingNoHightlight();
 
         var contentHtml = marked(markdownString);
         contentHtml = SG.replaceCodeChar(contentHtml);

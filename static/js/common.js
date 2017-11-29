@@ -107,8 +107,34 @@ SG.markSetting = function() {
 	return marked;
 }
 
+SG.markSettingNoHightlight = function() {
+	var renderer = new marked.Renderer();
+
+	// 对 html 进行处理
+	renderer.html = function(html) {
+		if (html.indexOf('<script') != -1) {
+			return html.replace(/</g, '&lt;');
+		} else if (html.indexOf('<input') != -1) {
+			return html.replace(/</g, '&lt;');
+		} else if (html.indexOf('<select') != -1) {
+			return html.replace(/</g, '&lt;');
+		} else if (html.indexOf('<textarea') != -1) {
+			return html.replace(/</g, '&lt;');
+		} else {
+			return html;
+		}
+	};
+
+	marked.setOptions({
+		renderer: renderer,
+	});
+
+	return marked;
+}
+
 // 替换 `` 代码块中的 "<>& 等字符
 SG.replaceCodeChar = function(code) {
+	code = code.replace(/<code class="lang-/g, '<code class="language-');
 	return code.replace(/<code>.*<\/code>/g, function(matched, index, origin) {
 		return SG.replaceSpecialChar(matched);
 	});

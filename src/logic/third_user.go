@@ -13,6 +13,8 @@ import (
 	"io/ioutil"
 	"model"
 
+	"github.com/polaris1119/logger"
+
 	"github.com/polaris1119/config"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
@@ -197,8 +199,21 @@ func (self ThirdUserLogic) BindGithub(ctx context.Context, code string, me *mode
 }
 
 func (ThirdUserLogic) UnBindUser(ctx context.Context, bindId interface{}, me *model.Me) error {
+	if !DefaultUser.HasPasswd(ctx, me.Uid) {
+		return errors.New("请先设置密码！")
+	}
 	_, err := MasterDB.Where("id=? AND uid=?", bindId, me.Uid).Delete(new(model.BindUser))
 	return err
+}
+
+func (ThirdUserLogic) findUid(thirdUsername string, typ int) int {
+	bindUser := &model.BindUser{}
+	_, err := MasterDB.Where("username=? AND `type`=?", thirdUsername, typ).Get(bindUser)
+	if err != nil {
+		logger.Errorln("ThirdUserLogic findUid error:", err)
+	}
+
+	return bindUser.Uid
 }
 
 func (ThirdUserLogic) githubTokenAndUser(ctx context.Context, code string) (*model.GithubUser, *oauth2.Token, error) {

@@ -157,6 +157,8 @@
 <link href="/static/css/jquery.atwho.min.css" rel="stylesheet">
 <link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
 <link href="/static/css/md_toolbar.css?v=0.1" media="screen" rel="stylesheet" type="text/css">
+<link href="https://cdn.bootcss.com/prism/9000.0.1/themes/prism-okaidia.min.css" rel="stylesheet">
+<link href="https://cdn.bootcss.com/prism/9000.0.1/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet">
 {{end}}
 {{define "js"}}
 <script type="text/javascript" src="//cdn.bootcss.com/select2/4.0.3/js/select2.min.js"></script>
@@ -173,6 +175,12 @@
 <script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
 <script type="text/javascript" src="/static/js/md_toolbar.js?v=0.1"></script>
 <script type="text/javascript" src="/static/js/puploader.js?v=1.2"></script>
+<script type="text/javascript">
+	$('code[class*="language-"]').parent('pre').addClass('line-numbers');
+</script>
+<script src="https://cdn.bootcss.com/prism/9000.0.1/prism.min.js"></script>
+<script src="https://cdn.bootcss.com/prism/9000.0.1/components/prism-go.min.js"></script>
+<script src="https://cdn.bootcss.com/prism/9000.0.1/plugins/line-numbers/prism-line-numbers.min.js"></script>
 <script type="text/javascript" src="/static/js/topics.js?v=1.2"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏

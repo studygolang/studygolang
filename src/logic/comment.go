@@ -163,13 +163,13 @@ func (self CommentLogic) Publish(ctx context.Context, uid, objid int, form url.V
 
 	// 暂时只是从数据库中取出最后的评论楼层
 	tmpCmt := &model.Comment{}
-	_, err := MasterDB.Where("objid=? AND objtype=?", objid, objtype).OrderBy("ctime DESC").Get(tmpCmt)
+	_, err := MasterDB.Where("objid=? AND objtype=?", objid, objtype).OrderBy("floor DESC").Get(tmpCmt)
 	if err != nil {
-		objLog.Errorln("post comment service error:", err)
+		objLog.Errorln("post comment find last floor error:", err)
 		return nil, err
-	} else {
-		comment.Floor = tmpCmt.Floor + 1
 	}
+
+	comment.Floor = tmpCmt.Floor + 1
 
 	if tmpCmt.Uid == comment.Uid && tmpCmt.Content == comment.Content {
 		objLog.Infof("had post comment: %+v", *comment)
@@ -329,4 +329,65 @@ type CommentObjecter interface {
 	// ids 是属主的主键 slice （comment 中的 objid）
 	// commentMap 中的 key 是属主 id
 	SetObjinfo(ids []int, commentMap map[int][]*model.Comment)
+}
+
+// FindAll 支持多页翻看
+func (self CommentLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy string, querystring string, args ...interface{}) []*model.Comment {
+	objLog := GetLogger(ctx)
+
+	comments := make([]*model.Comment, 0)
+	session := MasterDB.OrderBy(orderBy)
+	if querystring != "" {
+		session.Where(querystring, args...)
+	}
+	err := session.Limit(paginator.PerPage(), paginator.Offset()).Find(&comments)
+	if err != nil {
+		objLog.Errorln("CommentLogical FindAll error:", err)
+		return nil
+	}
+
+	cmtMap := make(map[int][]*model.Comment, len(model.PathUrlMap))
+	for _, comment := range comments {
+		self.decodeCmtContent(ctx, comment)
+
+		if _, ok := cmtMap[comment.Objtype]; !ok {
+			cmtMap[comment.Objtype] = make([]*model.Comment, 0, 10)
+		}
+
+		cmtMap[comment.Objtype] = append(cmtMap[comment.Objtype], comment)
+	}
+
+	cmtObjs := []CommentObjecter{
+		model.TypeTopic:    TopicComment{},
+		model.TypeArticle:  ArticleComment{},
+		model.TypeResource: ResourceComment{},
+		model.TypeWiki:     nil,
+		model.TypeProject:  ProjectComment{},
+		model.TypeBook:     BookComment{},
+	}
+	for cmtType, cmts := range cmtMap {
+		self.fillObjinfos(cmts, cmtObjs[cmtType])
+	}
+	return comments
+}
+
+// Count 获取用户全部评论数
+func (CommentLogic) Count(ctx context.Context, querystring string, args ...interface{}) int64 {
+	objLog := GetLogger(ctx)
+
+	var (
+		total int64
+		err   error
+	)
+	if querystring == "" {
+		total, err = MasterDB.Count(new(model.Comment))
+	} else {
+		total, err = MasterDB.Where(querystring, args...).Count(new(model.Comment))
+	}
+
+	if err != nil {
+		objLog.Errorln("CommentLogic Count error:", err)
+	}
+
+	return total
 }

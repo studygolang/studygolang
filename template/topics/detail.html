@@ -123,9 +123,10 @@
 </div>
 {{end}}
 {{define "css"}}
-<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
 <link href="/static/css/jquery.atwho.min.css" media="screen" rel="stylesheet" type="text/css">
 <link href="/static/css/table.css" media="screen" rel="stylesheet" type="text/css">
+<link href="https://cdn.bootcss.com/prism/9000.0.1/themes/prism-okaidia.min.css" rel="stylesheet">
+<link href="https://cdn.bootcss.com/prism/9000.0.1/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet">
 <style type="text/css">
 .sb-author .sb-content .avatar {margin: 0 10px 10px;}
 .edit-info {color: #3c763d;background-color: #dff0d8;border-color: #d6e9c6; margin:0 10px;}
@@ -135,14 +136,14 @@
 {{end}}
 {{define "js"}}
 <script	type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/jquery.caret.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/jquery.atwho.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/emojis.js"></script>
 <script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
-<script type="text/javascript" src="/static/js/topics.js?v=1.4"></script>
+<script type="text/javascript" src="/static/js/topics.js?v=1.5"></script>
 <script type="text/javascript" src="/static/js/comment.js?v=1.26"></script>
 <script type="text/javascript" src="/static/js/puploader.js?v=1.2"></script>
 <script type="text/javascript">
@@ -159,6 +160,8 @@ var objid = {{.topic.tid}};
 
 $(function(){
 	new SG.Topics().parseContent($('.page .content'));
+
+	$('code[class*="language-"]').parent('pre').addClass('line-numbers');
 
 	// 文本框自动伸缩
 	$('.need-autogrow').autoGrow();
@@ -190,6 +193,9 @@ $(function(){
 	});
 });
 </script>
+<script src="https://cdn.bootcss.com/prism/9000.0.1/prism.min.js"></script>
+<script src="https://cdn.bootcss.com/prism/9000.0.1/components/prism-go.min.js"></script>
+<script src="https://cdn.bootcss.com/prism/9000.0.1/plugins/line-numbers/prism-line-numbers.min.js"></script>
 
 {{if .pos_ad.right1}}
 	{{if eq .pos_ad.right1.AdType 1}}
