@@ -10,11 +10,14 @@ import (
 	"errors"
 	"model"
 	"util"
+	"net/url"
 
 	"github.com/polaris1119/slices"
 	"golang.org/x/net/context"
 
 	. "db"
+	"github.com/polaris1119/goutils"
+
 )
 
 type SubjectLogic struct{}
@@ -201,4 +204,69 @@ func (self SubjectLogic) RemoveContribute(ctx context.Context, sid, articleId in
 	}
 
 	return nil
+}
+
+func (self SubjectLogic) ExistByName(name string) bool{
+	exist,_ := MasterDB.Where("name=?",name).Exist(new(model.Subject))
+	return exist
+}
+
+// Publish 发布专题。
+func (self SubjectLogic) Publish(ctx context.Context, me *model.Me, form url.Values) (sid int, err error) {
+	objLog := GetLogger(ctx)
+
+	sid = goutils.MustInt(form.Get("tid"))
+	if sid != 0 {
+		subject := &model.Subject{}
+		_, err = MasterDB.Id(sid).Get(subject)
+		if err != nil {
+			objLog.Errorln("Publish Subject find error:", err)
+			return
+		}
+
+		_, err = self.Modify(ctx, me, form)
+		if err != nil {
+			objLog.Errorln("Publish Subject modify error:", err)
+			return
+		}
+
+	}else{
+		subject := &model.Subject{}
+		err = schemaDecoder.Decode(subject, form)
+		if err != nil {
+			objLog.Errorln("SubjectLogic Publish decode error:", err)
+			return
+		}
+		subject.Uid = me.Uid
+
+		MasterDB.Insert(subject);
+		if err != nil {
+			objLog.Errorln("SubjectLogic Publish insert error:", err)
+			return
+		}
+		sid = subject.Id
+	}
+	return
+}
+
+// Modify 修改专题
+func (SubjectLogic) Modify(ctx context.Context, user *model.Me, form url.Values) (errMsg string, err error) {
+	objLog := GetLogger(ctx)
+
+	change := map[string]interface{}{}
+
+	fields := []string{"name", "description", "cover", "contribute", "audit"}
+	for _, field := range fields {
+		change[field] = form.Get(field)
+	}
+
+	sid := form.Get("sid")
+	_, err = MasterDB.Table(new(model.Subject)).Id(sid).Update(change)
+	if err != nil {
+		objLog.Errorf("更新专题 【%s】 信息失败：%s\n", sid, err)
+		errMsg = "对不起，服务器内部错误，请稍后再试！"
+		return
+	}
+
+	return
 }
