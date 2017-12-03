@@ -11,7 +11,7 @@
 		</ol>
 		<div class="page box_white">
 			<form class="form-horizontal validate-form" method="post" role="form" action="{{if .subject.id}}/subject/modify{{else}}/subject/new{{end}}" data-redirect="/subject{{if .subject.id}}/{{.subject.id}}?r={{timestamp}}{{end}}">
-				{{if .topic.Tid}}
+				{{if .subject.id}}
 				<input type="hidden" name="sid" value="{{.subject.id}}" />
 				{{end}}
 				<div class="form-group form-group-sm">
@@ -74,7 +74,7 @@
 				</div>
 				<div class="form-group form-group-sm cell">
 					<div class="col-sm-6 col-sm-offset-5">
-						<button type="submit" class="btn btn-default btn-sm" id="submit">{{if .topic.Tid}}提交修改{{else}}发布专题{{end}}</button>
+						<button type="submit" class="btn btn-default btn-sm" id="submit">{{if .subject.id}}提交修改{{else}}发布专题{{end}}</button>
 					</div>
 				</div>
 
