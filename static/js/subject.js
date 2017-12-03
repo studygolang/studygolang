@@ -1,5 +1,8 @@
 $(function() {
     marked = SG.markSetting();
+    SG.Subjects = function(){}
+    SG.Subjects.prototype = new SG.Publisher();
+
     $('.desc').html(marked($('.desc').text().trim()));
 
     $('.noavatar').each(function() {
@@ -133,6 +136,28 @@ $(function() {
         }
     });
 
+    // 发布主题
+    $('#submit').on('click', function(evt){
+        evt.preventDefault();
+        var validator = $('.validate-form').validate();
+        if (!validator.form()) {
+            return false;
+        }
+
+        var subjects = new SG.Subjects();
+        subjects.publish(this, function(data) {
+            purgeComposeDraft(uid, 'subject');
+
+            setTimeout(function(){
+                if (data.sid) {
+                    window.location.href = '/subject/'+data.sid;
+                } else {
+                    window.location.href = '/subjects';
+                }
+            }, 1000);
+        });
+    });
+
     function fillArticles(articles) {
         var listHtml = '';
         for(var i in articles) {
@@ -152,5 +177,59 @@ $(function() {
             listHtml += '</div></li>';
         }
         $('#contribute-note-list').html(listHtml);
+    }
+
+    if (typeof plupload != "undefined") {
+        // 实例化一个plupload上传对象
+        var uploader = new plupload.Uploader({
+            browse_button : 'upload-img', // 触发文件选择对话框的按钮，为那个元素id
+            url : '/image/upload', // 服务器端的上传页面地址
+            filters: {
+                mime_types : [ //只允许上传图片
+                    { title : "图片文件", extensions : "jpg,png" }
+                ],
+                max_file_size : '500k', // 最大只能上传 500kb 的文件
+                prevent_duplicates : true // 不允许选取重复文件
+            },
+            multi_selection: false,
+            file_data_name: 'img',
+            resize: {
+                width: 80
+            }
+        });
+
+        // 在实例对象上调用init()方法进行初始化
+        uploader.init();
+
+        uploader.bind('FilesAdded',function(uploader, files){
+            // 调用实例对象的start()
+            uploader.start();
+        });
+        uploader.bind('UploadProgress',function(uploader,file){
+            // 上传进度
+        });
+        uploader.bind('FileUploaded',function(uploader,file,responseObject){
+            if (responseObject.status == 200) {
+                var data = $.parseJSON(responseObject.response);
+                if (data.ok) {
+                    var url = data.data.url;
+                    var path = data.data.uri;
+                    var $img = $('#img-preview').find('img');
+                    $img.attr('src', url);
+                    $img.attr('alt', file.name);
+                    $('#img-preview').show();
+
+                    $('#cover').val(url);
+
+                } else {
+                    comTip("上传失败："+data.error);
+                }
+            } else {
+                comTip("上传失败：HTTP状态码："+responseObject.status);
+            }
+        });
+        uploader.bind('Error',function(uploader,errObject){
+            comTip("上传出错了："+errObject.message);
+        });
     }
 });

@@ -25,6 +25,9 @@ func (self SubjectController) RegisterRoute(g *echo.Group) {
 	g.Get("/subject/my_articles", self.MyArticles, middleware.NeedLogin())
 	g.Post("/subject/contribute", self.Contribute, middleware.NeedLogin())
 	g.Post("/subject/remove_contribute", self.RemoveContribute, middleware.NeedLogin())
+
+	g.Match([]string{"GET", "POST"}, "/subject/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice())
+	g.Match([]string{"GET", "POST"}, "/subject/modify", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
 }
 
 func (SubjectController) Index(ctx echo.Context) error {
@@ -120,4 +123,56 @@ func (self SubjectController) RemoveContribute(ctx echo.Context) error {
 	}
 
 	return success(ctx, nil)
+}
+
+// Create 新建专题
+func (SubjectController) Create(ctx echo.Context) error {
+
+	name := ctx.FormValue("name")
+	// 请求新建专题页面
+	if name == "" || ctx.Request().Method() != "POST" {
+		data := map[string]interface{}{}
+		return render(ctx, "subject/new.html", data)
+	}
+
+	exist := logic.DefaultSubject.ExistByName(name)
+	if exist {
+		return fail(ctx, 1, "专题已经存在 : "+name)
+	}
+
+	me := ctx.Get("user").(*model.Me)
+	sid, err := logic.DefaultSubject.Publish(ctx, me, ctx.FormParams())
+	if err != nil {
+		return fail(ctx, 1, "内部服务错误:"+err.Error())
+	}
+
+	return success(ctx, map[string]interface{}{"sid": sid})
+}
+
+// Modify 修改专题
+func (SubjectController) Modify(ctx echo.Context) error {
+	sid := goutils.MustInt(ctx.FormValue("sid"))
+	if sid == 0 {
+		return ctx.Redirect(http.StatusSeeOther, "/subjects")
+	}
+
+	if ctx.Request().Method() != "POST" {
+		subject := logic.DefaultSubject.FindOne(ctx, sid)
+		if subject == nil {
+			return ctx.Redirect(http.StatusSeeOther, "/subjects")
+		}
+
+		data := map[string]interface{}{
+			"subject": subject,
+		}
+
+		return render(ctx, "subject/new.html", data)
+	}
+
+	me := ctx.Get("user").(*model.Me)
+	_, err := logic.DefaultSubject.Publish(ctx, me, ctx.FormParams())
+	if err != nil {
+		return fail(ctx, 2, "服务错误，请稍后重试！")
+	}
+	return success(ctx, map[string]interface{}{"sid": sid})
 }
