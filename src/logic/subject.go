@@ -9,15 +9,14 @@ package logic
 import (
 	"errors"
 	"model"
-	"util"
 	"net/url"
+	"util"
 
 	"github.com/polaris1119/slices"
 	"golang.org/x/net/context"
 
 	. "db"
 	"github.com/polaris1119/goutils"
-
 )
 
 type SubjectLogic struct{}
@@ -206,8 +205,8 @@ func (self SubjectLogic) RemoveContribute(ctx context.Context, sid, articleId in
 	return nil
 }
 
-func (self SubjectLogic) ExistByName(name string) bool{
-	exist,_ := MasterDB.Where("name=?",name).Exist(new(model.Subject))
+func (self SubjectLogic) ExistByName(name string) bool {
+	exist, _ := MasterDB.Where("name=?", name).Exist(new(model.Subject))
 	return exist
 }
 
@@ -215,7 +214,7 @@ func (self SubjectLogic) ExistByName(name string) bool{
 func (self SubjectLogic) Publish(ctx context.Context, me *model.Me, form url.Values) (sid int, err error) {
 	objLog := GetLogger(ctx)
 
-	sid = goutils.MustInt(form.Get("tid"))
+	sid = goutils.MustInt(form.Get("sid"))
 	if sid != 0 {
 		subject := &model.Subject{}
 		_, err = MasterDB.Id(sid).Get(subject)
@@ -230,7 +229,7 @@ func (self SubjectLogic) Publish(ctx context.Context, me *model.Me, form url.Val
 			return
 		}
 
-	}else{
+	} else {
 		subject := &model.Subject{}
 		err = schemaDecoder.Decode(subject, form)
 		if err != nil {
@@ -239,7 +238,7 @@ func (self SubjectLogic) Publish(ctx context.Context, me *model.Me, form url.Val
 		}
 		subject.Uid = me.Uid
 
-		MasterDB.Insert(subject);
+		_, err = MasterDB.Insert(subject)
 		if err != nil {
 			objLog.Errorln("SubjectLogic Publish insert error:", err)
 			return

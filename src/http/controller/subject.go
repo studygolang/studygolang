@@ -27,6 +27,7 @@ func (self SubjectController) RegisterRoute(g *echo.Group) {
 	g.Post("/subject/remove_contribute", self.RemoveContribute, middleware.NeedLogin())
 
 	g.Match([]string{"GET", "POST"}, "/subject/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice())
+
 }
 
 func (SubjectController) Index(ctx echo.Context) error {
@@ -135,12 +136,12 @@ func (SubjectController) Create(ctx echo.Context) error {
 	}
 
 	exist := logic.DefaultSubject.ExistByName(name)
-	if(exist){
-		return fail(ctx, 1, "专题已经存在 : " +name)
+	if exist {
+		return fail(ctx, 1, "专题已经存在 : "+name)
 	}
 
 	me := ctx.Get("user").(*model.Me)
-	sid, err := logic.DefaultSubject.Publish(ctx,me,ctx.FormParams())
+	sid, err := logic.DefaultSubject.Publish(ctx, me, ctx.FormParams())
 	if err != nil {
 		return fail(ctx, 1, "内部服务错误:"+err.Error())
 	}

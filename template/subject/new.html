@@ -1,4 +1,4 @@
-{{define "title"}}{{if .subject.id}}修改{{else}}发布{{end}}主题 {{end}}
+{{define "title"}}{{if .subject.id}}修改{{else}}发布{{end}}专题 {{end}}
 {{define "content"}}
 <div class="row">
 	<div class="col-md-9 col-sm-6">
@@ -6,7 +6,7 @@
 
 		<ol class="breadcrumb">
 			<li><a href="/">首页</a></li>
-			<li><a href="/subjects">主题</a></li>
+			<li><a href="/subjects">专题</a></li>
 			<li class="active">{{if .subject.id}}编辑{{else}}发布{{end}}</li>
 		</ol>
 		<div class="page box_white">
