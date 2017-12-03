@@ -61,8 +61,8 @@
 					<hr>
 					<p>via: <a href="{{.article_gctt.URL}}" title="" target="_blank">{{.article_gctt.URL}}</a></p>
 					<p>
-						作者：<a href="{{.article_gctt.AuthorURL}}" class="ext" rel="external nofollow" target="_blank">{{.article_gctt.Author}}</a>
-						译者：<a href="https://github.com/{{.article_gctt.Translator}}" class="ext" rel="external nofollow" target="_blank">{{.article_gctt.Translator}}</a>
+						作者：<a href="{{.article_gctt.AuthorURL}}" class="ext" rel="external nofollow" target="_blank">{{.article_gctt.Author}}</a>&nbsp;
+						译者：<a href="https://github.com/{{.article_gctt.Translator}}" class="ext" rel="external nofollow" target="_blank">{{.article_gctt.Translator}}</a>&nbsp;
 						校对：{{range .article_gctt.Checkers}}<a href="https://github.com/{{.}}" class="ext" rel="external nofollow" target="_blank">{{.}}</a> {{end}}
 					</p>
 					<p>本文由 <a href="https://github.com/studygolang/GCTT" class="ext" rel="external nofollow" target="_blank">GCTT</a> 原创编译，<a href="/articles/{{.article.Id}}">{{.setting.Name}}</a> 荣誉推出</p>
@@ -129,7 +129,7 @@
 						{{end}}
 					{{end}}
 					</div>
-					<span class="c9"><span class="cmtnum">{{.article.Cmtnum}}</span> 回复 {{if .article.Cmtnum}}&nbsp;<strong class="snow">|</strong> &nbsp;直到 {{end}}</span>
+					<span class="c9"><span class="cmtnum">{{.article.Cmtnum}}</span> 回复 {{if .article.Cmtnum}}&nbsp;<strong class="snow">|</strong> &nbsp;直到 {{.article.Lastreplytime}}{{end}}</span>
 				</div>
 				<div class="comment-list cell" data-objid="{{.article.Id}}" data-objtype="1" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
 					<div class="words hide"><div class="text-center">暂无回复</div></div>

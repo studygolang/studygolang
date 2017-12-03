@@ -12,7 +12,7 @@ if (isHttps) {
 }
 var GLaunchTime = {{timestamp .app.LaunchTime}}*1000;
 </script>
-<script src="/static/js/common.js"></script>
+<script src="/static/js/common.js?v=0.1"></script>
 <script type="text/javascript" src="/static/js/libs/paste-upload-image.js"></script>
 <script src="//cdn.bootcss.com/lscache/1.1.0/lscache.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jsrender/0.9.84/jsrender.min.js"></script>

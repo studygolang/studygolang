@@ -8,7 +8,33 @@ package model
 
 import (
 	"time"
+
+	"github.com/go-xorm/xorm"
 )
+
+const (
+	GCTTRoleTranslator = iota
+	GCTTRoleLeader
+	GCTTRoleSelecter // 选题
+	GCTTRoleChecker  // 校对
+	GCTTRoleCore     // 核心成员
+)
+
+var roleMap = map[int]string{
+	GCTTRoleTranslator: "译者",
+	GCTTRoleLeader:     "组长",
+	GCTTRoleSelecter:   "选题",
+	GCTTRoleChecker:    "校对",
+	GCTTRoleCore:       "核心成员",
+}
+
+var faMap = map[int]string{
+	GCTTRoleTranslator: "fa-user",
+	GCTTRoleLeader:     "fa-graduation-cap",
+	GCTTRoleSelecter:   "fa-user-circle",
+	GCTTRoleChecker:    "fa-user-secret",
+	GCTTRoleCore:       "fa-heart",
+}
 
 type GCTTUser struct {
 	Id        int `xorm:"pk autoincr"`
@@ -18,8 +44,20 @@ type GCTTUser struct {
 	JoinedAt  int64
 	LastAt    int64
 	Num       int
+	Words     int
 	AvgTime   int
+	Role      int
 	CreatedAt time.Time `xorm:"<-"`
+
+	RoleName string `xorm:"-"`
+	Fa       string `xorm:"-"`
+}
+
+func (this *GCTTUser) AfterSet(name string, cell xorm.Cell) {
+	if name == "role" {
+		this.RoleName = roleMap[this.Role]
+		this.Fa = faMap[this.Role]
+	}
 }
 
 func (*GCTTUser) TableName() string {
@@ -34,9 +72,21 @@ type GCTTGit struct {
 	PR            int `xorm:"pr"`
 	TranslatingAt int64
 	TranslatedAt  int64
+	Words         int
+	ArticleId     int
 	CreatedAt     time.Time `xorm:"<-"`
 }
 
 func (*GCTTGit) TableName() string {
 	return "gctt_git"
+}
+
+type GCTTTimeLine struct {
+	Id        int `xorm:"pk autoincr"`
+	Content   string
+	CreatedAt time.Time
+}
+
+func (*GCTTTimeLine) TableName() string {
+	return "gctt_timeline"
 }

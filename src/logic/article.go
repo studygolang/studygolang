@@ -516,6 +516,39 @@ func (self ArticleLogic) FindBy(ctx context.Context, limit int, lastIds ...int) 
 	return articles
 }
 
+func (self ArticleLogic) FindTaGCTTArticles(ctx context.Context, translator string) []*model.Article {
+	objLog := GetLogger(ctx)
+
+	articleGCTTs := make([]*model.ArticleGCTT, 0)
+	err := MasterDB.Where("translator=?", translator).OrderBy("article_id DESC").Find(&articleGCTTs)
+	if err != nil {
+		objLog.Errorln("ArticleLogic FindTaGCTTArticles gctt error:", err)
+		return nil
+	}
+	articleIds := make([]int, len(articleGCTTs))
+	for i, articleGCTT := range articleGCTTs {
+		articleIds[i] = articleGCTT.ArticleID
+	}
+
+	articleMap := make(map[int]*model.Article, 0)
+	err = MasterDB.In("id", articleIds).Find(&articleMap)
+	if err != nil {
+		objLog.Errorln("ArticleLogic FindTaGCTTArticles article error:", err)
+		return nil
+	}
+
+	articles := make([]*model.Article, 0, len(articleMap))
+	for _, articleGCTT := range articleGCTTs {
+		articleId := articleGCTT.ArticleID
+
+		if article, ok := articleMap[articleId]; ok {
+			articles = append(articles, article)
+		}
+	}
+
+	return articles
+}
+
 func (self ArticleLogic) FindByUser(ctx context.Context, username string, limit int) []*model.Article {
 	objLog := GetLogger(ctx)
 

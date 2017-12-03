@@ -226,6 +226,8 @@ $(function() {
         
         $('#content-preview').html(contentHtml);
 
+        Prism.highlightAll();
+
         // emoji 表情解析
         emojify.run($('#content-preview').get(0));
     });

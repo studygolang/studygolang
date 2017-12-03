@@ -38,7 +38,7 @@
 		$('.page-comment .md-toolbar .preview').on('click', function(evt){
 			evt.preventDefault();
 
-			var marked = SG.markSetting();
+			var marked = SG.markSettingNoHightlight();
 
 			$(this).addClass('cur');
 			$('.page-comment .md-toolbar .edit').removeClass('cur');
@@ -50,6 +50,7 @@
 			emojify.run($('.page-comment .content-preview').get(0));
 			$('.page-comment .content-preview').show();
 
+			Prism.highlightAll();
 		});
 
 		$('#replies').on('mouseenter', '.reply', function(evt) {
@@ -168,6 +169,8 @@
 						});
 					}
 					$('.comment-list .words').removeClass('hide');
+					$('.comment-list .words').find('code[class*="language-"]').parent('pre').addClass('line-numbers');
+					Prism.highlightAll();
 
 					// emoji 表情解析
 					emojify.run($('.comment-list .words').get(0));
@@ -182,7 +185,7 @@
 		}
 
 		var parseCmtContent = function(content) {
-			var marked = SG.markSetting();
+			var marked = SG.markSettingNoHightlight();
 			content = SG.preProcess(content);
 			content = marked(content);
 			return SG.replaceCodeChar(content);
@@ -254,6 +257,7 @@
 						}
 
 						$('.comment-list .words').append(oneCmt).removeClass('hide');
+						Prism.highlightAll();
 
 						// emoji 表情解析
 						emojify.run($('.comment-list .words .reply:last').get(0));

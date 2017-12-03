@@ -9,12 +9,64 @@
             <li class="active">成员列表</li>
         </ol>
         <div class="page box_white">
-            
+            <img src="https://raw.githubusercontent.com/studygolang/GCTT/master/logo.png" alt="" class="img-responsive center-block" width="120px">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>译者</th>
+                            <th>篇数</th>
+                            <th>贡献</th>
+                            <th>加入时间</th>
+                            <th>最近贡献时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{range $i, $user := .users}}
+                        <tr>
+                            <td>{{add $i 1}}</td>
+                            <td><a href="/gctt/{{.Username}}">{{.Username}}</a></td>
+                            <td>{{.Num}}</td>
+                            <td>{{.Words}}</td>
+                            <td>{{format .JoinedAt "2006-01-02 15:04"}}</td>
+                            <td><span class="timeago" title='{{if .LastAt}}{{format .LastAt "2006-01-02 15:04:05 +8000"}}{{else}}{{format .JoinedAt "2006-01-02 15:04:05 +8000"}}{{end}}'></span></td>
+                        </tr>
+                        {{end}}
+                    </tbody>
+                    <tfoot><tr><th> </th><th> </th><th>{{.num}}</th><th>{{.words}}</th><th> </th><th> </th></tr></tfoot>
+                </table>
+            </div>
         </div>
     </div>
     <div class="col-md-3 col-sm-6">
         <div class="sep20"></div>
 
+        <div class="box_white sidebar">
+            <div class="top">
+                <h3 class="title"><i class="glyphicon glyphicon-list"></i>&nbsp;最新翻译成果</h3>
+            </div>
+            <div class="sb-content">
+                <div class="article-list">
+                    <ul class="list-unstyled" style="margin:10px;">
+                    {{range .prs}}
+                        <li>
+                            <a href="https://github.com/studygolang/GCTT/pull/{{.PR}}" target="_blank" data-tooltip="{{.Title}}" style="font-size: 1.25rem;">{{.Title}}</a>
+                        </li>
+                    {{end}}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
+{{end}}
+
+{{define "css"}}
+<link href="https://cdn.bootcss.com/html5tooltipsjs/1.7.2/html5tooltips.min.css" rel="stylesheet">
+{{end}}
+
+{{define "js"}}
+<script src="https://cdn.bootcss.com/html5tooltipsjs/1.7.2/html5tooltips.min.js"></script>
 {{end}}

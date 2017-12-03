@@ -66,3 +66,51 @@ func (self GCTTLogic) BindUser(ctx context.Context, gcttUser *model.GCTTUser, ui
 
 	return err
 }
+
+func (self GCTTLogic) FindCoreUsers(ctx context.Context) []*model.GCTTUser {
+	objLog := GetLogger(ctx)
+
+	gcttUsers := make([]*model.GCTTUser, 0)
+	err := MasterDB.Where("role!=?", model.GCTTRoleTranslator).OrderBy("role ASC").Find(&gcttUsers)
+	if err != nil {
+		objLog.Errorln("GCTTLogic FindUsers error:", err)
+	}
+
+	return gcttUsers
+}
+
+func (self GCTTLogic) FindUsers(ctx context.Context) []*model.GCTTUser {
+	objLog := GetLogger(ctx)
+
+	gcttUsers := make([]*model.GCTTUser, 0)
+	err := MasterDB.OrderBy("num DESC,words DESC").Find(&gcttUsers)
+	if err != nil {
+		objLog.Errorln("GCTTLogic FindUsers error:", err)
+	}
+
+	return gcttUsers
+}
+
+func (self GCTTLogic) FindNewestGit(ctx context.Context) []*model.GCTTGit {
+	objLog := GetLogger(ctx)
+
+	gcttGits := make([]*model.GCTTGit, 0)
+	err := MasterDB.Where("translated_at!=0").OrderBy("translated_at DESC").
+		Limit(10).Find(&gcttGits)
+	if err != nil {
+		objLog.Errorln("GCTTLogic FindNewestGit error:", err)
+	}
+
+	return gcttGits
+}
+
+func (self GCTTLogic) FindTimeLines(ctx context.Context) []*model.GCTTTimeLine {
+	objLog := GetLogger(ctx)
+
+	gcttTimeLines := make([]*model.GCTTTimeLine, 0)
+	err := MasterDB.Find(&gcttTimeLines)
+	if err != nil {
+		objLog.Errorln("GCTTLogic FindTimeLines error:", err)
+	}
+	return gcttTimeLines
+}

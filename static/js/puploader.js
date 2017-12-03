@@ -24,7 +24,14 @@ $(function(){
 	uploader.bind('UploadProgress',function(uploader,file){
 		// 上传进度
 	});
-	uploader.bind('FileUploaded',function(uploader,file,responseObject){
+	uploader.bind('FileUploaded', function(uploader, file, responseObject) {
+		window.uploadSuccess(uploader, file, responseObject)
+	});
+	uploader.bind('Error',function(uploader,errObject){
+		comTip("上传出错了："+errObject.message);
+	});
+
+	window.uploadSuccess = function(uploader,file,responseObject){
 		if (responseObject.status == 200) {
 			var data = $.parseJSON(responseObject.response);
 			if (data.ok) {
@@ -37,8 +44,5 @@ $(function(){
 		} else {
 			comTip("上传失败：HTTP状态码："+responseObject.status);
 		}
-	});
-	uploader.bind('Error',function(uploader,errObject){
-		comTip("上传出错了："+errObject.message);
-	});
+	}
 });

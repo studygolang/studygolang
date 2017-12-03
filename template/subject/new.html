@@ -1,36 +1,36 @@
 {{define "title"}}{{if .subject.Id}}修改{{else}}发布{{end}}专题 {{end}}
 {{define "content"}}
 <div class="row">
-	<div class="col-md-9 col-sm-6">
-		<div class="sep20"></div>
+    <div class="col-md-9 col-sm-6">
+        <div class="sep20"></div>
 
-		<ol class="breadcrumb">
-			<li><a href="/">首页</a></li>
-			<li><a href="/subjects">专题</a></li>
-			<li class="active">{{if .subject.Id}}编辑{{else}}发布{{end}}</li>
-		</ol>
-		<div class="page box_white">
-			<form class="form-horizontal validate-form" method="post" role="form" action="{{if .subject.Id}}/subject/modify{{else}}/subject/new{{end}}" data-redirect="/subject{{if .subject.Id}}/{{.subject.Id}}?r={{timestamp}}{{end}}">
-				{{if .subject.Id}}
-				<input type="hidden" name="sid" value="{{.subject.Id}}" />
-				{{end}}
-				<div class="form-group form-group-sm">
-					<label class="col-sm-1 control-label" for="title"><abbr>*</abbr>名称</label>
-					<div class="col-sm-11">
-						<textarea id="name" name="name" class="form-control required" style="resize: none;" rows="1" maxlength="120" autofocus="autofocus" placeholder="请输入专题标题(最多32个字）">{{.subject.Name}}</textarea>
-					</div>
-				</div>
-				<div class="form-group form-group-sm">
-					<label class="col-sm-1 control-label" for="content">描述</label>
-					<div class="col-sm-11">
-						<textarea id="description" name="description" class="form-control" style="min-height: 15em;" rows="10" tabindex="0"
-                                  placeholder="请输入专题描述(最多1000个字）">{{.subject.Description}}</textarea>
-					</div>
-				</div>
+        <ol class="breadcrumb">
+            <li><a href="/">首页</a></li>
+            <li><a href="/subjects">专题</a></li>
+            <li class="active">{{if .subject.Id}}编辑{{else}}发布{{end}}</li>
+        </ol>
+        <div class="page box_white">
+            <form class="form-horizontal validate-form" method="post" role="form" action="{{if .subject.Id}}/subject/modify{{else}}/subject/new{{end}}" data-redirect="/subject{{if .subject.Id}}/{{.subject.Id}}?r={{timestamp}}{{end}}">
+                {{if .subject.Id}}
+                <input type="hidden" name="sid" value="{{.subject.Id}}" />
+                {{end}}
+                <div class="form-group form-group-sm">
+                    <label class="col-sm-1 control-label" for="title"><abbr>*</abbr>名称</label>
+                    <div class="col-sm-11">
+                        <textarea id="name" name="name" class="form-control required" style="resize: none;" rows="1" maxlength="120" autofocus="autofocus" placeholder="请输入专题标题(最多32个字）">{{.subject.Name}}</textarea>
+                    </div>
+                </div>
+                <div class="form-group form-group-sm">
+                    <label class="col-sm-1 control-label" for="content">描述</label>
+                    <div class="col-sm-11">
+                        <textarea id="description" name="description" class="form-control" style="min-height: 15em;" rows="10" tabindex="0"
+                                  placeholder="请输入专题描述(最多1000个字），支持 markdown 语法">{{.subject.Description}}</textarea>
+                    </div>
+                </div>
 
-				<div class="form-group form-group-sm">
-					<label class="control-label col-md-1" for="upload-img">封面</label>
-					<div class="col-md-11">
+                <div class="form-group form-group-sm">
+                    <label class="control-label col-md-1" for="upload-img">封面</label>
+                    <div class="col-md-11">
                         <div class="col-md-2" id="img-preview" class="form-group dn">
                             <div class="col-md-offset-2 col-md-10">
                                 <img src="{{.subject.Cover}}" alt="" width="80px" height="80px">
@@ -38,72 +38,99 @@
                         </div>
                         <div class="col-md-12">
                             <button id="upload-img" class="btn btn-default btn-sm">选择图片文件</button>
-                            <span class="help-block">支持500K以内的jpg/png文件</span>
-						</div>
+                            <span class="help-block">支持 500K 以内的 jpg/png 文件</span>
+                        </div>
 
-					</div>
+                    </div>
 
-					<input id="cover" name="cover" type="hidden" value="{{.subject.Cover}}">
-				</div>
+                    <input id="cover" name="cover" type="hidden" value="{{.subject.Cover}}">
+                </div>
 
-				<div class="form-group form-group-sm ">
-					<label class="col-sm-1 control-label" for="contribute"><abbr>*</abbr>投稿</label>
-					<div class="col-sm-11">
-						<label class="radio-inline">
-							<input type="radio" name="contribute" value="1" {{if .subject.Contribute}}checked{{end}}>
+                <div class="form-group form-group-sm ">
+                    <label class="col-sm-1 control-label" for="contribute"><abbr>*</abbr>投稿</label>
+                    <div class="col-sm-11">
+                        <label class="radio-inline">
+                            <input type="radio" name="contribute" value="1" {{if .subject.Contribute}}checked{{end}}>
                             允许
-						</label>
-						<label class="radio-inline">
-							<input type="radio" name="contribute" value="0" {{if not .subject.Contribute}}checked{{end}}>
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="contribute" value="0" {{if not .subject.Contribute}}checked{{end}}>
                             不允许
-						</label>
-					</div>
-				</div>
-				<div class="form-group form-group-sm ">
-					<label class="col-sm-1 control-label" for="audit"><abbr>*</abbr>审核</label>
-					<div class="col-sm-11">
-						<label class="radio-inline">
-							<input type="radio" name="audit" value="1" {{if .subject.Audit}}checked{{end}}>
-							需要
-						</label>
-						<label class="radio-inline">
-							<input type="radio" name="audit" value="0" {{if not .subject.Audit}}checked{{end}}>
-							不需要
-						</label>
-					</div>
-				</div>
-				<div class="form-group form-group-sm cell">
-					<div class="col-sm-6 col-sm-offset-5">
-						<button type="submit" class="btn btn-default btn-sm" id="submit">{{if .subject.Id}}提交修改{{else}}发布专题{{end}}</button>
-					</div>
-				</div>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group form-group-sm ">
+                    <label class="col-sm-1 control-label" for="audit"><abbr>*</abbr>审核</label>
+                    <div class="col-sm-11">
+                        <label class="radio-inline">
+                            <input type="radio" name="audit" value="1" {{if not .subject}}checked{{else}}{{if .subject.Audit}}checked{{end}}{{end}}>
+                            需要
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="audit" value="0" {{if .subject}}{{if not .subject.Audit}}checked{{end}}{{end}}>
+                            不需要
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group form-group-sm cell">
+                    <div class="col-sm-6 col-sm-offset-5">
+                        <button type="submit" class="btn btn-default btn-sm" id="submit">{{if .subject.Id}}提交修改{{else}}发布专题{{end}}</button>
+                    </div>
+                </div>
 
-			</form>
-		</div>
-	</div>
+            </form>
+        </div>
+    </div>
 
 </div>
 {{end}}
-{{define "css"}}
-<link href="//cdn.bootcss.com/select2/4.0.3/css/select2.min.css" rel="stylesheet">
-<link href="/static/css/jquery.atwho.min.css" rel="stylesheet">
-<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
-<link href="/static/css/md_toolbar.css?v=0.1" media="screen" rel="stylesheet" type="text/css">
-{{end}}
 {{define "js"}}
-<script type="text/javascript" src="//cdn.bootcss.com/select2/4.0.3/js/select2.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
 <script type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
-<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.caret.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.atwho.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/emojis.js"></script>
 <script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
-<script type="text/javascript" src="/static/js/md_toolbar.js?v=0.1"></script>
-<script type="text/javascript" src="/static/js/subject.js"></script>
+<script type="text/javascript" src="/static/js/puploader.js?v=0.1"></script>
+<script>
+$(function(){
+    SG.Subjects = function(){}
+    SG.Subjects.prototype = new SG.Publisher();
 
+    // 发布专题
+    $('#submit').on('click', function(evt){
+        evt.preventDefault();
+        var validator = $('.validate-form').validate();
+        if (!validator.form()) {
+            return false;
+        }
+
+        var subjects = new SG.Subjects();
+        subjects.publish(this, function(data) {
+            // purgeComposeDraft(uid, 'subject');
+
+            setTimeout(function(){
+                if (data.sid) {
+                    window.location.href = '/subject/'+data.sid;
+                } else {
+                    window.location.href = '/articles';
+                }
+            }, 1000);
+        });
+    });
+
+    window.uploadSuccess = function(uploader, file, responseObject){
+        if (responseObject.status == 200) {
+            var result = $.parseJSON(responseObject.response);
+            if (result.ok) {
+                $('#cover').val(result.data.uri);
+                $('#img-preview img').attr('src', result.data.url);
+                $('#img-preview').show();
+            } else {
+                comTip("上传失败："+result.error);
+            }
+        } else {
+            comTip("上传失败：HTTP状态码："+responseObject.status);
+        }
+    }
+});
+</script>
 {{end}}

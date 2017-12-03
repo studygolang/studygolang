@@ -39,7 +39,13 @@ func (self GCTTController) RegisterRoute(g *echo.Group) {
 }
 
 func (self GCTTController) Index(ctx echo.Context) error {
-	return Render(ctx, "gctt/index.html", map[string]interface{}{})
+	gcttTimeLines := logic.DefaultGCTT.FindTimeLines(ctx)
+	gcttUsers := logic.DefaultGCTT.FindCoreUsers(ctx)
+
+	return Render(ctx, "gctt/index.html", map[string]interface{}{
+		"time_lines": gcttTimeLines,
+		"users":      gcttUsers,
+	})
 }
 
 // Apply 申请成为译者
@@ -113,13 +119,36 @@ func (GCTTController) User(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusSeeOther, "/gctt")
 	}
 
+	joinDays := int(gcttUser.LastAt-gcttUser.JoinedAt)/86400 + 1
+	avgDays := fmt.Sprintf("%.1f", float64(gcttUser.AvgTime)/86400.0)
+
+	articles := logic.DefaultArticle.FindTaGCTTArticles(ctx, username)
+
 	return render(ctx, "gctt/user-info.html", map[string]interface{}{
 		"gctt_user": gcttUser,
+		"articles":  articles,
+		"join_days": joinDays,
+		"avg_days":  avgDays,
 	})
 }
 
 func (GCTTController) UserList(ctx echo.Context) error {
-	return render(ctx, "gctt/user-list.html", map[string]interface{}{})
+	users := logic.DefaultGCTT.FindUsers(ctx)
+
+	num, words := 0, 0
+	for _, user := range users {
+		num += user.Num
+		words += user.Words
+	}
+
+	prs := logic.DefaultGCTT.FindNewestGit(ctx)
+
+	return render(ctx, "gctt/user-list.html", map[string]interface{}{
+		"users": users,
+		"num":   num,
+		"words": words,
+		"prs":   prs,
+	})
 }
 
 func (GCTTController) Webhook(ctx echo.Context) error {

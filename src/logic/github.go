@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/polaris1119/goutils"
 
@@ -384,6 +385,7 @@ func (GithubLogic) statUserTime() {
 		}
 
 		var avgTime, lastAt int64
+		var words int
 		for _, gcttGit := range gcttGits {
 			if gcttGit.TranslatingAt != 0 && gcttGit.TranslatedAt != 0 {
 				avgTime += gcttGit.TranslatedAt - gcttGit.TranslatingAt
@@ -392,13 +394,21 @@ func (GithubLogic) statUserTime() {
 			if gcttGit.TranslatedAt > lastAt {
 				lastAt = gcttGit.TranslatedAt
 			}
+
+			if gcttGit.Words == 0 && gcttGit.ArticleId > 0 {
+				article, _ := DefaultArticle.FindById(nil, gcttGit.ArticleId)
+				gcttGit.Words = utf8.RuneCountInString(article.Content)
+			}
+
+			words += gcttGit.Words
 		}
 
 		// 查询是否绑定了本站账号
 		uid := DefaultThirdUser.findUid(gcttUser.Username, model.BindTypeGithub)
 
 		gcttUser.Num = len(gcttGits)
-		gcttUser.AvgTime = int(avgTime)
+		gcttUser.Words = words
+		gcttUser.AvgTime = int(avgTime) / gcttUser.Num
 		gcttUser.LastAt = lastAt
 		gcttUser.Uid = uid
 		_, err = MasterDB.Id(gcttUser.Id).Update(gcttUser)

@@ -7,10 +7,14 @@
 package controller
 
 import (
+	"global"
 	"http/middleware"
 	"logic"
 	"model"
 	"net/http"
+	"strings"
+
+	. "http"
 
 	"github.com/labstack/echo"
 	"github.com/polaris1119/goutils"
@@ -39,6 +43,14 @@ func (SubjectController) Index(ctx echo.Context) error {
 	subject := logic.DefaultSubject.FindOne(ctx, id)
 	if subject.Id == 0 {
 		return ctx.Redirect(http.StatusSeeOther, "/")
+	}
+	if !strings.HasPrefix(subject.Cover, "http") {
+		isHttps := CheckIsHttps(ctx)
+		cdnDomain := global.App.CDNHttp
+		if isHttps {
+			cdnDomain = global.App.CDNHttps
+		}
+		subject.Cover = cdnDomain + subject.Cover
 	}
 
 	orderBy := ctx.QueryParam("order_by")

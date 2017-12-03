@@ -19,16 +19,16 @@ import (
 	"github.com/polaris1119/logger"
 )
 
-type MigratorLogical struct{}
+type MigratorLogic struct{}
 
 var (
 	wg           sync.WaitGroup
 	liquibaseLib string
 )
 
-var DefaultMigrator = MigratorLogical{}
+var DefaultMigrator = MigratorLogic{}
 
-func (MigratorLogical) Migrator(changeVersion string) {
+func (MigratorLogic) Migrator(changeVersion string) {
 
 	liquibaseLib = config.ConfigFile.MustValue("migrator", "liquibase_lib_dir")
 

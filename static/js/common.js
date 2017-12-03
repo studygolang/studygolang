@@ -127,6 +127,10 @@ SG.markSettingNoHightlight = function() {
 
 	marked.setOptions({
 		renderer: renderer,
+		highlight: function (code) {
+			code = SG.replaceSpecialChar(code);
+			return code;
+		}
 	});
 
 	return marked;

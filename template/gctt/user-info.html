@@ -9,12 +9,90 @@
             <li class="active">{{.gctt_user.Username}}</li>
         </ol>
         <div class="page box_white">
-            
+            <div id="list-container">
+                <ul class="note-list">
+                {{range .articles}}
+                    <li class="{{if .Cover}}have-img{{end}}">
+                        {{if .Cover}}
+                        <a class="wrap-img" href="/articles/{{.Id}}" target="_blank">
+                            <img class="img-blur-done" src="{{.Cover}}" alt="120" height="120px">
+                        </a>
+                        {{end}}
+                        <div class="article-content">
+                            <div class="author">
+                                <a class="avatar" target="_blank" href="/gctt/{{$.gctt_user.Username}}">
+                                    <img src="{{$.gctt_user.Avatar}}&s=32" alt="{{$.gctt_user.Username}}" width="32px" height="32px">
+                                </a>
+                                <div class="info">
+                                    <a class="nickname" target="_blank" href="/gctt/{{$.gctt_user.Username}}">{{$.gctt_user.Username}}</a>
+                                    <span class="time timeago" title="{{.Ctime}}"></span>
+                                </div>
+                            </div>
+                            <a class="article-title" target="_blank" href="/articles/{{.Id}}">{{.Title}}</a>
+                            <p class="abstract">{{substring .Txt 250 "..."}}</p>
+                            <div class="article-meta">
+                                <a target="_blank" href="/articles/{{.Id}}">
+                                    <i class="fa fa-eye"></i> {{.Viewnum}}
+                                </a>
+                                <a target="_blank" href="/articles/{{.Id}}#commentForm">
+                                    <i class="fa fa-comment"></i> {{.Cmtnum}}
+                                </a>
+                                <span><i class="fa fa-heart"></i> {{.Likenum}}</span>
+                            </div>
+                        </div>
+                    </li>
+                    {{end}}
+                </ul>
+            </div>
         </div>
     </div>
     <div class="col-md-3 col-sm-6">
         <div class="sep20"></div>
 
+        <div class="box_white sidebar">
+            <div class="top">
+                <h3 class="title"><i class="glyphicon glyphicon-user"></i>&nbsp;GCTT 译者</h3>
+            </div>
+            <div class="cell">
+                <img src="{{.gctt_user.Avatar}}&s=256" alt="{{.gctt_user.Username}}" width="256px">
+                <div class="sep10"></div>
+                <p class="text-center">
+                    <a href="/gctt/{{.gctt_user.Username}}">{{.gctt_user.Username}}</a>
+                </p>
+                <div class="table-responsive">
+                    <table class="table" border="0">
+                        <tr>
+                            <td style="text-align: right;border-top:none;padding: 4px;">
+                                <a href="https://github.com/{{.gctt_user.Username}}" target="_blank" style="color: #4D8AD8;">在 GitHub 上关注我</a>
+                            </td>
+                            <td style="text-align: center;width: 2%;border-top:none;padding: 4px;"> | </td>
+                            <td style="text-align: left;border-top:none;padding: 4px;"><a href="/gctt/{{.gctt_user.Username}}" style="color: #4D8AD8;">我的 GCTT 主页</a></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right;border-top:none;padding: 4px;"><span class="num"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> {{.gctt_user.Num}}</span> 篇</td>
+                            <td style="text-align: center;border-top:none;padding: 4px;"> </td>
+                            <td style="text-align: left;border-top:none;padding: 4px;"><span class="num">{{.avg_days}}</span> 天/篇</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right;border-top:none;padding: 4px;"><span class="num"><i class="fa fa-calendar" aria-hidden="true"></i> {{.join_days}}</span> 天</td>
+                            <td style="text-align: center;border-top:none;padding: 4px;"> </td>
+                            <td style="text-align: left;border-top:none;padding: 4px; vertical-align:inherit">{{format .gctt_user.JoinedAt "2006-01-02"}}<br>{{format .gctt_user.LastAt "2006-01-02"}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+{{end}}
+
+{{define "css"}}
+<link href="/static/css/subject.css" rel="stylesheet">
+<style>
+.table .num {
+    font-size: 36px;
+    color: #FF5722;
+    font-family: sans-serif;
+}
+</style>
 {{end}}
