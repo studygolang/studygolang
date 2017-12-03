@@ -1,4 +1,4 @@
-{{define "title"}}{{if .subject.id}}修改{{else}}发布{{end}}专题 {{end}}
+{{define "title"}}{{if .subject.Id}}修改{{else}}发布{{end}}专题 {{end}}
 {{define "content"}}
 <div class="row">
 	<div class="col-md-9 col-sm-6">
@@ -7,12 +7,12 @@
 		<ol class="breadcrumb">
 			<li><a href="/">首页</a></li>
 			<li><a href="/subjects">专题</a></li>
-			<li class="active">{{if .subject.id}}编辑{{else}}发布{{end}}</li>
+			<li class="active">{{if .subject.Id}}编辑{{else}}发布{{end}}</li>
 		</ol>
 		<div class="page box_white">
-			<form class="form-horizontal validate-form" method="post" role="form" action="{{if .subject.id}}/subject/modify{{else}}/subject/new{{end}}" data-redirect="/subject{{if .subject.id}}/{{.subject.id}}?r={{timestamp}}{{end}}">
-				{{if .subject.id}}
-				<input type="hidden" name="sid" value="{{.subject.id}}" />
+			<form class="form-horizontal validate-form" method="post" role="form" action="{{if .subject.Id}}/subject/modify{{else}}/subject/new{{end}}" data-redirect="/subject{{if .subject.Id}}/{{.subject.Id}}?r={{timestamp}}{{end}}">
+				{{if .subject.Id}}
+				<input type="hidden" name="sid" value="{{.subject.Id}}" />
 				{{end}}
 				<div class="form-group form-group-sm">
 					<label class="col-sm-1 control-label" for="title"><abbr>*</abbr>名称</label>
@@ -33,7 +33,7 @@
 					<div class="col-md-11">
                         <div class="col-md-2" id="img-preview" class="form-group dn">
                             <div class="col-md-offset-2 col-md-10">
-                                <img src="" alt="" width="80px" height="80px">
+                                <img src="{{.subject.Cover}}" alt="" width="80px" height="80px">
                             </div>
                         </div>
                         <div class="col-md-12">
@@ -43,18 +43,18 @@
 
 					</div>
 
-					<input id="cover" name="cover" type="hidden" value="">
+					<input id="cover" name="cover" type="hidden" value="{{.subject.Cover}}">
 				</div>
 
 				<div class="form-group form-group-sm ">
 					<label class="col-sm-1 control-label" for="contribute"><abbr>*</abbr>投稿</label>
 					<div class="col-sm-11">
 						<label class="radio-inline">
-							<input type="radio" name="contribute" value="1" checked>
+							<input type="radio" name="contribute" value="1" {{if .subject.Contribute}}checked{{end}}>
                             允许
 						</label>
 						<label class="radio-inline">
-							<input type="radio" name="contribute" value="0">
+							<input type="radio" name="contribute" value="0" {{if not .subject.Contribute}}checked{{end}}>
                             不允许
 						</label>
 					</div>
@@ -63,18 +63,18 @@
 					<label class="col-sm-1 control-label" for="audit"><abbr>*</abbr>审核</label>
 					<div class="col-sm-11">
 						<label class="radio-inline">
-							<input type="radio" name="audit" value="1" checked>
+							<input type="radio" name="audit" value="1" {{if .subject.Audit}}checked{{end}}>
 							需要
 						</label>
 						<label class="radio-inline">
-							<input type="radio" name="audit" value="0" >
+							<input type="radio" name="audit" value="0" {{if not .subject.Audit}}checked{{end}}>
 							不需要
 						</label>
 					</div>
 				</div>
 				<div class="form-group form-group-sm cell">
 					<div class="col-sm-6 col-sm-offset-5">
-						<button type="submit" class="btn btn-default btn-sm" id="submit">{{if .subject.id}}提交修改{{else}}发布专题{{end}}</button>
+						<button type="submit" class="btn btn-default btn-sm" id="submit">{{if .subject.Id}}提交修改{{else}}发布专题{{end}}</button>
 					</div>
 				</div>
 
