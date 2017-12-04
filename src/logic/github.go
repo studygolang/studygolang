@@ -408,7 +408,9 @@ func (GithubLogic) statUserTime() {
 
 		gcttUser.Num = len(gcttGits)
 		gcttUser.Words = words
-		gcttUser.AvgTime = int(avgTime) / gcttUser.Num
+		if gcttUser.Num > 0 {
+			gcttUser.AvgTime = int(avgTime) / gcttUser.Num
+		}
 		gcttUser.LastAt = lastAt
 		gcttUser.Uid = uid
 		_, err = MasterDB.Id(gcttUser.Id).Update(gcttUser)
