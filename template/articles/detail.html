@@ -69,7 +69,7 @@
 
 					<div class="alert" role="alert" style="background-color:rgba(24,241,24,0.1);">
 						<p class="copyright" style="line-height: 1.5em;">
-							<span>本文由 GCTT 原创翻译，<a href="/articles/{{.article.Id}}">{{.setting.Name}}</a>。也想加入译者行列，为开源做一些自己的贡献么？欢迎加入 <a href="/gctt" target="_blank">GCTT</a>！<br>
+							<span>本文由 GCTT 原创翻译，<a href="/articles/{{.article.Id}}">{{.setting.Name}}</a> 首发。也想加入译者行列，为开源做一些自己的贡献么？欢迎加入 <a href="/gctt" target="_blank">GCTT</a>！<br>
 							翻译工作和译文发表仅用于学习和交流目的，翻译工作遵照 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/deed.zh" target="_blank">CC-BY-NC-SA 协议规定</a>，如果我们的工作有侵犯到您的权益，请及时联系我们。</span><br>
 							<span style="color:red;">欢迎遵照 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/deed.zh" target="_blank">CC-BY-NC-SA 协议规定</a> 转载，敬请在正文中标注并保留原文/译文链接和作者/译者等信息。</span><br>
 							<span>文章仅代表作者的知识和看法，如有不同观点，请楼下排队吐槽</span>
@@ -103,6 +103,22 @@
 				</div>
 			</div>
 			<!-- content END -->
+
+			{{if .subjects}}
+			<div class="sep20"></div>
+			<div class="box_white">
+				<div class="cell subject">
+					<div><i class="fa fa-list"></i> 被以下专题收入，发现更多相似内容</div>
+					<div class="item-list">
+					{{range .subjects}}
+						<a href="/subject/{{.Id}}" title="{{.Name}}" class="item">
+							<img src="{{imageUrl .Cover $.is_https}}" alt="{{.Name}}" width="32px" class="img-circle">&nbsp;<span>{{.Name}}</span>
+						</a>
+					{{end}}
+					</div>
+				</div>
+			</div>
+			{{end}}
 
 			<div class="sep20"></div>
 			<div class="box_white">
@@ -192,6 +208,25 @@
 	.right {
 		text-align: right;
 	}
+}
+
+.subject .item-list {
+	padding-top: 20px;
+}
+
+.subject .item {
+	display: inline-block;
+    margin: 0 12px 12px 0;
+    min-height: 32px;
+    background-color: #dcdcdc;
+    border-radius: 4px;
+    vertical-align: top;
+    overflow: hidden;
+	padding: 2px;
+}
+
+.subject a.item:hover {
+	text-decoration: none;
 }
 </style>
 

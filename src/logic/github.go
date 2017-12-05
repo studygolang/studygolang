@@ -401,6 +401,8 @@ func (GithubLogic) statUserTime() {
 			}
 
 			words += gcttGit.Words
+
+			MasterDB.Id(gcttGit.Id).Update(gcttGit)
 		}
 
 		// 查询是否绑定了本站账号

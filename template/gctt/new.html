@@ -22,6 +22,12 @@
                     </div>
                 </div>
                 <div class="form-group form-group-sm">
+                    <label class="col-sm-1 control-label" for="title">封面</label>
+                    <div class="col-sm-11">
+                        <input class="form-control" type="text" id="cover" name="cover" placeholder="封面">
+                    </div>
+                </div>
+                <div class="form-group form-group-sm">
                     <label class="col-sm-1 control-label"><abbr>*</abbr>作者</label>
                     <div class="col-sm-11">
                         <div class="row">
@@ -207,6 +213,8 @@ $(function() {
         
         $('#content-preview').html(contentHtml);
 
+        Prism.highlightAll();
+
         // emoji 表情解析
         emojify.run($('#content-preview').get(0));
     });
@@ -225,10 +233,6 @@ $(function() {
                     + selected.length);
         }
     });
-
-    setInterval(function(){
-        $('code[class*="language-"]').parent('pre').css("background", '#272822');
-    }, 1000);
 });
 </script>
 <script type="text/javascript" src="/static/js/articles.js"></script>

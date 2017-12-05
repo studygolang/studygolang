@@ -9,6 +9,7 @@ package logic
 import (
 	"context"
 	"model"
+	"time"
 
 	. "db"
 )
@@ -56,6 +57,7 @@ func (self GCTTLogic) BindUser(ctx context.Context, gcttUser *model.GCTTUser, ui
 			Username: githubUser.Username,
 			Avatar:   githubUser.Avatar,
 			Uid:      uid,
+			JoinedAt: time.Now().Unix(),
 		}
 		_, err = MasterDB.Insert(gcttUser)
 	}
@@ -83,7 +85,7 @@ func (self GCTTLogic) FindUsers(ctx context.Context) []*model.GCTTUser {
 	objLog := GetLogger(ctx)
 
 	gcttUsers := make([]*model.GCTTUser, 0)
-	err := MasterDB.OrderBy("num DESC,words DESC").Find(&gcttUsers)
+	err := MasterDB.Where("num>0").OrderBy("num DESC,words DESC").Find(&gcttUsers)
 	if err != nil {
 		objLog.Errorln("GCTTLogic FindUsers error:", err)
 	}

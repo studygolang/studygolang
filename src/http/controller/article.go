@@ -151,6 +151,8 @@ func (ArticleController) Detail(ctx echo.Context) error {
 	// 为了阅读数即时看到
 	article.Viewnum++
 
+	data["subjects"] = logic.DefaultSubject.FindArticleSubjects(ctx, article.Id)
+
 	return render(ctx, "articles/detail.html,common/comment.html", data)
 }
 

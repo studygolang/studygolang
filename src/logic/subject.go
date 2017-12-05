@@ -16,6 +16,7 @@ import (
 	"golang.org/x/net/context"
 
 	. "db"
+
 	"github.com/polaris1119/goutils"
 )
 
@@ -268,4 +269,34 @@ func (SubjectLogic) Modify(ctx context.Context, user *model.Me, form url.Values)
 	}
 
 	return
+}
+
+func (self SubjectLogic) FindArticleSubjects(ctx context.Context, articleId int) []*model.Subject {
+	objLog := GetLogger(ctx)
+
+	subjectArticles := make([]*model.SubjectArticle, 0)
+	err := MasterDB.Where("article_id=?", articleId).Find(&subjectArticles)
+	if err != nil {
+		objLog.Errorln("SubjectLogic FindArticleSubjects find error:", err)
+		return nil
+	}
+
+	subjectLen := len(subjectArticles)
+	if subjectLen == 0 {
+		return nil
+	}
+
+	sids := make([]int, subjectLen)
+	for i, subjectArticle := range subjectArticles {
+		sids[i] = subjectArticle.Sid
+	}
+
+	subjects := make([]*model.Subject, 0)
+	err = MasterDB.In("id", sids).Find(&subjects)
+	if err != nil {
+		objLog.Errorln("SubjectLogic FindArticleSubjects find subject error:", err)
+		return nil
+	}
+
+	return subjects
 }

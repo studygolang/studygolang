@@ -167,6 +167,17 @@ var funcMap = template.FuncMap{
 		return result
 	},
 	"safeHtml": util.SafeHtml,
+	"imageUrl": func(uri string, isHttps bool) string {
+		if !strings.HasPrefix(uri, "http") {
+			cdnDomain := global.App.CDNHttp
+			if isHttps {
+				cdnDomain = global.App.CDNHttps
+			}
+			return cdnDomain + uri
+		}
+
+		return uri
+	},
 }
 
 func tplInclude(file string, dot map[string]interface{}) template.HTML {

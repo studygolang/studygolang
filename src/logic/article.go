@@ -298,6 +298,7 @@ func (self ArticleLogic) Publish(ctx context.Context, me *model.Me, form url.Val
 		Author:    me.Username,
 		AuthorTxt: me.Username,
 		Title:     form.Get("title"),
+		Cover:     form.Get("cover"),
 		Content:   form.Get("content"),
 		Txt:       form.Get("txt"),
 		Markdown:  goutils.MustBool(form.Get("markdown"), false),
