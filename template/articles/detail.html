@@ -112,7 +112,7 @@
 					<div class="item-list">
 					{{range .subjects}}
 						<a href="/subject/{{.Id}}" title="{{.Name}}" class="item">
-							<img src="{{imageUrl .Cover $.is_https}}" alt="{{.Name}}" width="32px" class="img-circle">&nbsp;<span>{{.Name}}</span>
+							<img src="{{imageUrl .Cover $.is_https}}" alt="{{.Name}}" width="32px">&nbsp;<span>{{.Name}}</span>
 						</a>
 					{{end}}
 					</div>
@@ -212,17 +212,20 @@
 
 .subject .item-list {
 	padding-top: 20px;
+	padding-left: 12px;
+    padding-right: 12px;
 }
 
 .subject .item {
 	display: inline-block;
     margin: 0 12px 12px 0;
     min-height: 32px;
-    background-color: #dcdcdc;
+    border: #cccccc 1px solid;
+    background-color: #ffffff;
     border-radius: 4px;
     vertical-align: top;
     overflow: hidden;
-	padding: 2px;
+	padding-right: 5px;
 }
 
 .subject a.item:hover {
