@@ -104,21 +104,20 @@
 			</div>
 			<!-- content END -->
 
-			{{if .subjects}}
 			<div class="sep20"></div>
 			<div class="box_white">
 				<div class="cell subject">
-					<div><i class="fa fa-list"></i> 被以下专题收入，发现更多相似内容</div>
+					{{if .subjects}}<div><i class="fa fa-list"></i> 被以下专题收入，发现更多相似内容</div>{{end}}
 					<div class="item-list">
 					{{range .subjects}}
 						<a href="/subject/{{.Id}}" title="{{.Name}}" class="item">
-							<img src="{{imageUrl .Cover $.is_https}}" alt="{{.Name}}" width="32px">&nbsp;<span>{{.Name}}</span>
+							<img src="{{if .Cover}}{{imageUrl .Cover $.is_https}}{{else}}https://static.studygolang.com/logo/green-logo-1.png{{end}}" alt="{{.Name}}" width="32px">&nbsp;<span>{{.Name}}</span>
 						</a>
 					{{end}}
+						<a class="add-collection" href="javascript:"><i class="fa fa-plus"></i> 收入我的专题</a>
 					</div>
 				</div>
 			</div>
-			{{end}}
 
 			<div class="sep20"></div>
 			<div class="box_white">
@@ -186,6 +185,8 @@
 	</div>
 </div>
 
+{{include "common/modal.html" .}}
+
 <template id="content_tpl">
 {{noescape .article.Content}}
 </template>
@@ -198,10 +199,8 @@
 {{if .article.Css}}
 <link href="{{.article.Css}}" media="screen" rel="stylesheet" type="text/css">
 {{end}}
-{{if .article.IsSelf}}
 <link href="https://cdn.bootcss.com/prism/9000.0.1/themes/prism-okaidia.min.css" rel="stylesheet">
 <link href="https://cdn.bootcss.com/prism/9000.0.1/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet">
-{{end}}
 <link href="/static/css/jquery.atwho.min.css" media="screen" rel="stylesheet" type="text/css">
 <style type="text/css">
 @media (min-width: 768px) {
@@ -216,6 +215,14 @@
     padding-right: 12px;
 }
 
+.subject .item-list .add-collection {
+	display: inline-block;
+	padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #DCDCDC;
+    border-radius: 4px;
+}
+
 .subject .item {
 	display: inline-block;
     margin: 0 12px 12px 0;
@@ -228,9 +235,10 @@
 	padding-right: 5px;
 }
 
-.subject a.item:hover {
+.subject a.item:hover,.subject a.add-collection:hover {
 	text-decoration: none;
 }
+
 </style>
 
 {{end}}
@@ -246,10 +254,10 @@
 <!-- <script type="text/javascript" src="//twemoji.maxcdn.com/twemoji.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/twemojis.js"></script> -->
 <script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
-<script type="text/javascript" src="/static/js/comment.js?v=1.25"></script>
+<script type="text/javascript" src="/static/js/comment.js?v=1.27"></script>
 <script type="text/javascript" src="/static/js/puploader.js?v=1.1"></script>
 {{if .article.Markdown}}
-<script type="text/javascript" src="/static/js/articles.js"></script>
+<script type="text/javascript" src="/static/js/articles.js?v=0.1"></script>
 {{end}}
 
 <script type="text/javascript">
@@ -288,7 +296,6 @@ $(function(){
 	}
 });
 </script>
-{{if .article.IsSelf}}
 <script type="text/javascript">
 $(function(){
 	$('code[class*="language-"]').parent('pre').addClass('line-numbers');
@@ -298,10 +305,16 @@ $(function(){
 <script src="https://cdn.bootcss.com/prism/9000.0.1/prism.min.js"></script>
 <script src="https://cdn.bootcss.com/prism/9000.0.1/components/prism-go.min.js"></script>
 <script src="https://cdn.bootcss.com/prism/9000.0.1/plugins/line-numbers/prism-line-numbers.min.js"></script>
-{{end}}
 
 <script type="text/javascript" src="/static/ckeditor/config.js"></script>
 <script type="text/javascript">
+Prism.languages.xml = Prism.languages.markup;
+Prism.languages.html = Prism.languages.markup;
+Prism.languages.mathml = Prism.languages.markup;
+Prism.languages.svg = Prism.languages.markup;
+Prism.languages.text = Prism.languages.go;
+Prism.languages.golang = Prism.languages.go;
+
 $(function(){
 	CKEDITOR.plugins.addExternal('prism', '/static/ckeditor/plugins/prism/', 'plugin.js');
 	$('#edit').on('click', function(){

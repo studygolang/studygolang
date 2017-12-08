@@ -8,10 +8,13 @@ package logic
 
 import (
 	"errors"
+	"global"
 	"model"
 	"net/url"
+	"strings"
 	"util"
 
+	"github.com/polaris1119/set"
 	"github.com/polaris1119/slices"
 	"golang.org/x/net/context"
 
@@ -170,21 +173,27 @@ func (self SubjectLogic) Contribute(ctx context.Context, me *model.Me, sid, arti
 		return errors.New("该文超过 5 次投稿")
 	}
 
-	article, err := DefaultArticle.FindById(ctx, articleId)
-	if article.AuthorTxt != me.Username {
-		return errors.New("该文不是你的文章，不能投稿")
-	}
-
 	subjectArticle := &model.SubjectArticle{
 		Sid:       sid,
 		ArticleId: articleId,
 		State:     model.ContributeStateNew,
 	}
+
+	// TODO: 非创建管理员投稿不需要审核
 	if subject.Uid == me.Uid {
 		subjectArticle.State = model.ContributeStateOnline
+	} else {
+		if !subject.Contribute {
+			return errors.New("不允许投稿")
+		}
+
+		// 不需要审核
+		if !subject.Audit {
+			subjectArticle.State = model.ContributeStateOnline
+		}
 	}
 
-	_, err = MasterDB.Insert(subjectArticle)
+	_, err := MasterDB.Insert(subjectArticle)
 	if err != nil {
 		objLog.Errorln("SubjectLogic Contribute insert error:", err)
 		return errors.New("投稿失败:" + err.Error())
@@ -299,4 +308,83 @@ func (self SubjectLogic) FindArticleSubjects(ctx context.Context, articleId int)
 	}
 
 	return subjects
+}
+
+// FindMine 获取我管理的专题列表
+func (self SubjectLogic) FindMine(ctx context.Context, me *model.Me, articleId int, kw string) []map[string]interface{} {
+	objLog := GetLogger(ctx)
+
+	subjects := make([]*model.Subject, 0)
+	// 先是我创建的专题
+	session := MasterDB.Where("uid=?", me.Uid)
+	if kw != "" {
+		session.Where("name LIKE ?", "%"+kw+"%")
+	}
+	err := session.Find(&subjects)
+	if err != nil {
+		objLog.Errorln("SubjectLogic FindMine find subject error:", err)
+		return nil
+	}
+
+	adminSubjects := make([]*model.Subject, 0)
+	// 获取我管理的专题
+	strSql := "SELECT s.* FROM subject s,subject_admin sa WHERE s.id=sa.sid AND sa.uid=?"
+	if kw != "" {
+		strSql += " AND s.name LIKE '%" + kw + "%'"
+	}
+	err = MasterDB.Sql(strSql, me.Uid).Find(&adminSubjects)
+	if err != nil {
+		objLog.Errorln("SubjectLogic FindMine find admin subject error:", err)
+	}
+
+	subjectArticles := make([]*model.SubjectArticle, 0)
+	err = MasterDB.Where("article_id=?", articleId).Find(&subjectArticles)
+	if err != nil {
+		objLog.Errorln("SubjectLogic FindMine find subject article error:", err)
+	}
+	subjectArticleMap := make(map[int]struct{})
+	for _, sa := range subjectArticles {
+		subjectArticleMap[sa.Sid] = struct{}{}
+	}
+
+	uidSet := set.New(set.NonThreadSafe)
+	for _, subject := range subjects {
+		uidSet.Add(subject.Uid)
+	}
+	for _, subject := range adminSubjects {
+		uidSet.Add(subject.Uid)
+	}
+	usersMap := DefaultUser.FindUserInfos(ctx, set.IntSlice(uidSet))
+
+	subjectMapSlice := make([]map[string]interface{}, 0, len(subjects)+len(adminSubjects))
+
+	for _, subject := range subjects {
+		self.genSubjectMapSlice(subject, &subjectMapSlice, subjectArticleMap, usersMap)
+	}
+
+	for _, subject := range adminSubjects {
+		self.genSubjectMapSlice(subject, &subjectMapSlice, subjectArticleMap, usersMap)
+	}
+
+	return subjectMapSlice
+}
+
+func (self SubjectLogic) genSubjectMapSlice(subject *model.Subject, subjectMapSlice *[]map[string]interface{}, subjectArticleMap map[int]struct{}, usersMap map[int]*model.User) {
+	hadAdd := 0
+	if _, ok := subjectArticleMap[subject.Id]; ok {
+		hadAdd = 1
+	}
+
+	cover := subject.Cover
+	if !strings.HasPrefix(cover, "http") {
+		cover = global.App.CDNHttp + subject.Cover
+	}
+
+	*subjectMapSlice = append(*subjectMapSlice, map[string]interface{}{
+		"id":       subject.Id,
+		"name":     subject.Name,
+		"cover":    cover,
+		"username": usersMap[subject.Uid].Username,
+		"had_add":  hadAdd,
+	})
 }

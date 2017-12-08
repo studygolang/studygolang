@@ -7,6 +7,185 @@
     transform: translate(-50%,-50%)
 }
 
+.add-self .modal-dialog,.requests .modal-dialog {
+    width: 620px
+}
+
+.add-self .modal-body,.requests .modal-body {
+    height: 500px
+}
+
+.add-self .modal-body ul,.requests .modal-body ul {
+    margin: 0;
+    list-style: none
+}
+
+.add-self .modal-body ul .default,.requests .modal-body ul .default {
+    padding-top: 200px;
+    font-size: 15px;
+    color: #999;
+    text-align: center
+}
+
+.add-self .modal-body ul .default a,.requests .modal-body ul .default a {
+    color: #3194d0
+}
+
+.add-self .modal-body li,.requests .modal-body li {
+    position: relative;
+    padding: 20px;
+    border-bottom: 1px solid #f0f0f0;
+    line-height: normal
+}
+
+.add-self .modal-body .avatar-collection,.requests .modal-body .avatar-collection {
+    margin-right: 5px;
+    vertical-align: middle;
+    display: inline-block
+}
+
+.add-self .modal-body .collection-info,.requests .modal-body .collection-info {
+    vertical-align: middle;
+    display: inline-block
+}
+
+.add-self .modal-body .collection-name,.requests .modal-body .collection-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #333;
+    display: block
+}
+
+.add-self .modal-body .collection-name:hover,.requests .modal-body .collection-name:hover {
+    color: #2f2f2f
+}
+
+.add-self .modal-body .meta,.requests .modal-body .meta {
+    font-size: 12px;
+    color: #969696;
+    display: inline-block
+}
+
+.add-self .modal-body .author-name,.add-self .modal-body .author-name:hover,.requests .modal-body .author-name,.requests .modal-body .author-name:hover {
+    color: #3194d0
+}
+
+.add-self .modal-body .follow,.add-self .modal-body .follow-cancel,.add-self .modal-body .follow-each,.add-self .modal-body .following,.requests .modal-body .follow,.requests .modal-body .follow-cancel,.requests .modal-body .follow-each,.requests .modal-body .following {
+    float: right;
+    margin-top: 12.5px;
+    padding: 5px 20px;
+    width: 100px;
+    font-size: 15px
+}
+
+.add-self .modal-body .search,.requests .modal-body .search {
+    padding: 20px 22px 0
+}
+
+.add-self .modal-body .search input,.requests .modal-body .search input {
+    width: 100%;
+    padding: 7px 18px;
+    background-color: hsla(0,0%,71%,.25);
+    border: none;
+    border-radius: 40px;
+    font-size: 15px;
+    outline: none;
+}
+
+.add-self .modal-body .search a,.requests .modal-body .search a {
+    position: absolute;
+    top: 25px;
+    right: 37px;
+    color: #969696;
+    cursor: pointer;
+}
+
+.add-self .modal-body .status,.requests .modal-body .status {
+    font-size: 12px;
+    vertical-align: middle
+}
+
+.add-self .modal-body span.has-add,.requests .modal-body span.has-add {
+    color: #42c02e
+}
+
+.add-self .modal-body .action-btn,.requests .modal-body .action-btn {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    margin-top: -12px;
+    padding: 2px 8px;
+    font-size: 13px;
+    border-radius: 12px;
+    line-height: normal;
+    cursor: pointer;
+}
+
+.add-self .modal-body .push,.add-self .modal-body .repush,.requests .modal-body .push,.requests .modal-body .repush {
+    color: #42c02e;
+    border: 1px solid #42c02e
+}
+
+.add-self .modal-body .push:hover,.add-self .modal-body .repush:hover,.requests .modal-body .push:hover,.requests .modal-body .repush:hover {
+    background-color: rgba(66,192,46,.05)
+}
+
+.add-self .modal-body .revoke,.requests .modal-body .revoke {
+    color: #969696;
+    border: 1px solid #969696
+}
+
+.add-self .modal-body .revoke:hover,.requests .modal-body .revoke:hover {
+    background-color: hsla(0,0%,71%,.05)
+}
+
+.add-self .modal-body .remove,.requests .modal-body .remove {
+    color: #ea6f5a;
+    border: 1px solid #ea6f5a
+}
+
+.add-self .modal-body .remove:hover,.requests .modal-body .remove:hover {
+    background-color: rgba(236,97,73,.05)
+}
+
+.add-self .modal-footer,.requests .modal-footer {
+    display: none
+}
+
+.add-self .load-more,.requests .load-more {
+    width: 200px;
+    margin-bottom: 30px
+}
+
+.add-self .new-collection-btn,.requests .new-collection-btn {
+    padding-left: 10px;
+    font-size: 13px;
+    font-weight: 400;
+    vertical-align: middle
+}
+
+.add-self .new-collection-btn a,.requests .new-collection-btn a {
+    color: #42c02e
+}
+
+.add-self a:hover {
+    text-decoration: none;
+}
+
+.avatar-collection {
+    width: 48px;
+    height: 48px;
+    display: block;
+    cursor: pointer
+}
+
+.avatar-collection img {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #ddd;
+    border-radius: 10%
+}
+
 .contribute-modal .modal-dialog,.follow-list .modal-dialog {
     width: 560px;
 }
@@ -314,6 +493,54 @@
     border-radius: 20px
 }
 
+.modal-collections-placeholder {
+    padding-bottom: 20px
+}
+
+.modal-collections-placeholder .avatar {
+    position: absolute;
+    cursor: default!important;
+    margin: 20px 0 0 20px;
+    width: 48px;
+    height: 48px;
+    background-color: #eaeaea;
+    border-radius: 5px
+}
+
+.modal-collections-placeholder .wrap {
+    padding: 28px 20px 20px 78px!important;
+    border-bottom: 1px solid #f0f0f0
+}
+
+.modal-collections-placeholder .wrap .btn {
+    cursor: default!important;
+    margin-top: 5px;
+    float: right;
+    width: 38px;
+    height: 24px;
+    background-color: #eaeaea;
+    border-radius: 4px
+}
+
+.modal-collections-placeholder .wrap .name {
+    position: inherit!important;
+    width: 30px;
+    height: 15px;
+    background-color: #eaeaea
+}
+
+.modal-collections-placeholder .wrap .text {
+    margin: 7px 0;
+    width: 40%;
+    height: 12px;
+    background-color: #eaeaea;
+    animation: shortLoading 1s ease-in-out -.5s infinite;
+    -webkit-animation: shortLoading 1s ease-in-out -.5s infinite;
+    -moz-animation: shortLoading 1s ease-in-out -.5s infinite;
+    -o-animation: shortLoading 1s ease-in-out -.5s infinite;
+    -ms-animation: shortLoading 1s ease-in-out -.5s infinite
+}
+
 @media (min-width: 768px) {
     .modal-dialog {
         width:600px;
@@ -357,6 +584,38 @@
                 <div class="modal-notes-placeholder" style="display: none;">
                     <div class="text"></div>
                     <div class="btn"></div>
+                </div>
+            </div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<!-- 收入专题弹窗 -->
+<div class="modal animated add-self" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" data-dismiss="modal" class="close">×</button>
+                <h4 class="modal-title">收入到我管理的专题
+                    <span class="new-collection-btn"><a href="/subject/new" target="_blank">新建专题</a></span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="search">
+                    <input type="search" name="search-self" placeholder="搜索我管理的专题">
+                    <a class="search-btn">
+                        <i class="fa fa-search" aria-hidden="true" style="margin: 19px 15px 0 0;display: block;"></i>
+                    </a>
+                </div>
+                <ul id="self-note-list"></ul>
+                <div class="modal-collections-placeholder" style="display: none;">
+                    <div class="avatar"></div>
+                    <div class="wrap">
+                        <div class="btn"></div>
+                        <div class="name"></div>
+                        <div class="text"></div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer"></div>

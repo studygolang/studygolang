@@ -29,6 +29,7 @@ func (self SubjectController) RegisterRoute(g *echo.Group) {
 	g.Get("/subject/my_articles", self.MyArticles, middleware.NeedLogin())
 	g.Post("/subject/contribute", self.Contribute, middleware.NeedLogin())
 	g.Post("/subject/remove_contribute", self.RemoveContribute, middleware.NeedLogin())
+	g.Get("/subject/mine", self.Mine, middleware.NeedLogin())
 
 	g.Match([]string{"GET", "POST"}, "/subject/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice())
 	g.Match([]string{"GET", "POST"}, "/subject/modify", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
@@ -135,6 +136,17 @@ func (self SubjectController) RemoveContribute(ctx echo.Context) error {
 	}
 
 	return success(ctx, nil)
+}
+
+// Mine 我管理的专题
+func (self SubjectController) Mine(ctx echo.Context) error {
+	kw := ctx.QueryParam("kw")
+	articleId := goutils.MustInt(ctx.FormValue("article_id"))
+	me := ctx.Get("user").(*model.Me)
+
+	subjects := logic.DefaultSubject.FindMine(ctx, me, articleId, kw)
+
+	return success(ctx, map[string]interface{}{"subjects": subjects})
 }
 
 // Create 新建专题
