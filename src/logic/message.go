@@ -210,6 +210,8 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginato
 		switch message.Msgtype {
 		case model.MsgtypeTopicReply:
 			tidSet.Add(objid)
+		case model.MsgtypeArticleComment:
+			articleIdSet.Add(objid)
 		case model.MsgtypeResourceComment:
 			resIdSet.Add(objid)
 		case model.MsgtypeWikiComment:
