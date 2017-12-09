@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Subject 专题
+// Subject 专栏
 type Subject struct {
 	Id          int       `xorm:"pk autoincr" json:"id"`
 	Name        string    `json:"name"`
@@ -24,7 +24,7 @@ type Subject struct {
 	User *User `json:"user" xorm:"-"`
 }
 
-// SubjectAdmin 专题管理员
+// SubjectAdmin 专栏管理员
 type SubjectAdmin struct {
 	Id        int       `xorm:"pk autoincr" json:"id"`
 	Sid       int       `json:"sid"`
@@ -38,7 +38,7 @@ const (
 	ContributeStateOffline
 )
 
-// SubjectArticle 专题文章
+// SubjectArticle 专栏文章
 type SubjectArticle struct {
 	Id        int       `xorm:"pk autoincr" json:"id"`
 	Sid       int       `json:"sid"`
@@ -58,7 +58,7 @@ func (*SubjectArticles) TableName() string {
 	return "articles"
 }
 
-// SubjectFollower 专题关注者
+// SubjectFollower 专栏关注者
 type SubjectFollower struct {
 	Id        int       `xorm:"pk autoincr" json:"id"`
 	Sid       int       `json:"sid"`

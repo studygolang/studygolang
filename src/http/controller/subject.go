@@ -138,7 +138,7 @@ func (self SubjectController) RemoveContribute(ctx echo.Context) error {
 	return success(ctx, nil)
 }
 
-// Mine 我管理的专题
+// Mine 我管理的专栏
 func (self SubjectController) Mine(ctx echo.Context) error {
 	kw := ctx.QueryParam("kw")
 	articleId := goutils.MustInt(ctx.FormValue("article_id"))
@@ -149,11 +149,11 @@ func (self SubjectController) Mine(ctx echo.Context) error {
 	return success(ctx, map[string]interface{}{"subjects": subjects})
 }
 
-// Create 新建专题
+// Create 新建专栏
 func (SubjectController) Create(ctx echo.Context) error {
 
 	name := ctx.FormValue("name")
-	// 请求新建专题页面
+	// 请求新建专栏页面
 	if name == "" || ctx.Request().Method() != "POST" {
 		data := map[string]interface{}{}
 		return render(ctx, "subject/new.html", data)
@@ -161,7 +161,7 @@ func (SubjectController) Create(ctx echo.Context) error {
 
 	exist := logic.DefaultSubject.ExistByName(name)
 	if exist {
-		return fail(ctx, 1, "专题已经存在 : "+name)
+		return fail(ctx, 1, "专栏已经存在 : "+name)
 	}
 
 	me := ctx.Get("user").(*model.Me)
@@ -173,7 +173,7 @@ func (SubjectController) Create(ctx echo.Context) error {
 	return success(ctx, map[string]interface{}{"sid": sid})
 }
 
-// Modify 修改专题
+// Modify 修改专栏
 func (SubjectController) Modify(ctx echo.Context) error {
 	sid := goutils.MustInt(ctx.FormValue("sid"))
 	if sid == 0 {

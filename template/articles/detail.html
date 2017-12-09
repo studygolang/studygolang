@@ -107,14 +107,14 @@
 			<div class="sep20"></div>
 			<div class="box_white">
 				<div class="cell subject">
-					{{if .subjects}}<div><i class="fa fa-list"></i> 被以下专题收入，发现更多相似内容</div>{{end}}
+					{{if .subjects}}<div><i class="fa fa-list"></i> 被以下专栏收入，发现更多相似内容</div>{{end}}
 					<div class="item-list">
 					{{range .subjects}}
 						<a href="/subject/{{.Id}}" title="{{.Name}}" class="item">
 							<img src="{{if .Cover}}{{imageUrl .Cover $.is_https}}{{else}}https://static.studygolang.com/logo/green-logo-1.png{{end}}" alt="{{.Name}}" width="32px">&nbsp;<span>{{.Name}}</span>
 						</a>
 					{{end}}
-						<a class="add-collection" href="javascript:"><i class="fa fa-plus"></i> 收入我的专题</a>
+						<a class="add-collection" href="javascript:"><i class="fa fa-plus"></i> 收入我的专栏</a>
 					</div>
 				</div>
 			</div>

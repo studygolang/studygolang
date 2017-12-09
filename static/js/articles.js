@@ -57,7 +57,7 @@
 			}
 		});
 
-		///////////////////// 收入专题相关操作 //////////////////////////
+		///////////////////// 收入专栏相关操作 //////////////////////////
 		$('.add-collection').on('click', function(evt) {
 			evt.preventDefault();
 			
@@ -98,7 +98,7 @@
 				if (result.ok) {
 					var subjects = result.data.subjects;
 					if (subjects.length == 0) {
-						$('#self-note-list').html('<div class="default">未找到相关专题</div>');
+						$('#self-note-list').html('<div class="default">未找到相关专栏</div>');
 					} else {
 						fillSubjects(subjects);
 					}

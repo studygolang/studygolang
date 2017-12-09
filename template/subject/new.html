@@ -1,4 +1,4 @@
-{{define "title"}}{{if .subject.Id}}修改{{else}}发布{{end}}专题 {{end}}
+{{define "title"}}{{if .subject.Id}}修改{{else}}发布{{end}}专栏 {{end}}
 {{define "content"}}
 <div class="row">
     <div class="col-md-9 col-sm-6">
@@ -6,7 +6,7 @@
 
         <ol class="breadcrumb">
             <li><a href="/">首页</a></li>
-            <li><a href="/subjects">专题</a></li>
+            <li><a href="/subjects">专栏</a></li>
             <li class="active">{{if .subject.Id}}编辑{{else}}发布{{end}}</li>
         </ol>
         <div class="page box_white">
@@ -17,14 +17,14 @@
                 <div class="form-group form-group-sm">
                     <label class="col-sm-1 control-label" for="title"><abbr>*</abbr>名称</label>
                     <div class="col-sm-11">
-                        <textarea id="name" name="name" class="form-control required" style="resize: none;" rows="1" maxlength="120" autofocus="autofocus" placeholder="请输入专题标题(最多32个字）">{{.subject.Name}}</textarea>
+                        <textarea id="name" name="name" class="form-control required" style="resize: none;" rows="1" maxlength="120" autofocus="autofocus" placeholder="请输入专栏标题(最多32个字）">{{.subject.Name}}</textarea>
                     </div>
                 </div>
                 <div class="form-group form-group-sm">
                     <label class="col-sm-1 control-label" for="content">描述</label>
                     <div class="col-sm-11">
                         <textarea id="description" name="description" class="form-control" style="min-height: 15em;" rows="10" tabindex="0"
-                                  placeholder="请输入专题描述(最多1000个字），支持 markdown 语法">{{.subject.Description}}</textarea>
+                                  placeholder="请输入专栏描述(最多1000个字），支持 markdown 语法">{{.subject.Description}}</textarea>
                     </div>
                 </div>
 
@@ -74,7 +74,7 @@
                 </div>
                 <div class="form-group form-group-sm cell">
                     <div class="col-sm-6 col-sm-offset-5">
-                        <button type="submit" class="btn btn-default btn-sm" id="submit">{{if .subject.Id}}提交修改{{else}}发布专题{{end}}</button>
+                        <button type="submit" class="btn btn-default btn-sm" id="submit">{{if .subject.Id}}提交修改{{else}}发布专栏{{end}}</button>
                     </div>
                 </div>
 
@@ -95,7 +95,7 @@ $(function(){
     SG.Subjects = function(){}
     SG.Subjects.prototype = new SG.Publisher();
 
-    // 发布专题
+    // 发布专栏
     $('#submit').on('click', function(evt){
         evt.preventDefault();
         var validator = $('.validate-form').validate();

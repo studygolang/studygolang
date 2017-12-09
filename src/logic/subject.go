@@ -72,7 +72,7 @@ func (self SubjectLogic) FindArticles(ctx context.Context, sid int, orderBy stri
 	return articles
 }
 
-// FindArticleTotal 专题收录的文章数
+// FindArticleTotal 专栏收录的文章数
 func (self SubjectLogic) FindArticleTotal(ctx context.Context, sid int) int64 {
 	objLog := GetLogger(ctx)
 
@@ -84,7 +84,7 @@ func (self SubjectLogic) FindArticleTotal(ctx context.Context, sid int) int64 {
 	return total
 }
 
-// FindFollowers 专题关注的用户
+// FindFollowers 专栏关注的用户
 func (self SubjectLogic) FindFollowers(ctx context.Context, sid int) []*model.SubjectFollower {
 	objLog := GetLogger(ctx)
 
@@ -108,7 +108,7 @@ func (self SubjectLogic) FindFollowers(ctx context.Context, sid int) []*model.Su
 	return followers
 }
 
-// FindFollowerTotal 专题关注的用户数
+// FindFollowerTotal 专栏关注的用户数
 func (self SubjectLogic) FindFollowerTotal(ctx context.Context, sid int) int64 {
 	objLog := GetLogger(ctx)
 
@@ -165,7 +165,7 @@ func (self SubjectLogic) Contribute(ctx context.Context, me *model.Me, sid, arti
 
 	subject := self.FindOne(ctx, sid)
 	if subject.Id == 0 {
-		return errors.New("该专题不存在")
+		return errors.New("该专栏不存在")
 	}
 
 	count, _ := MasterDB.Where("article_id=?", articleId).Count(new(model.SubjectArticle))
@@ -220,7 +220,7 @@ func (self SubjectLogic) ExistByName(name string) bool {
 	return exist
 }
 
-// Publish 发布专题。
+// Publish 发布专栏。
 func (self SubjectLogic) Publish(ctx context.Context, me *model.Me, form url.Values) (sid int, err error) {
 	objLog := GetLogger(ctx)
 
@@ -258,7 +258,7 @@ func (self SubjectLogic) Publish(ctx context.Context, me *model.Me, form url.Val
 	return
 }
 
-// Modify 修改专题
+// Modify 修改专栏
 func (SubjectLogic) Modify(ctx context.Context, user *model.Me, form url.Values) (errMsg string, err error) {
 	objLog := GetLogger(ctx)
 
@@ -272,7 +272,7 @@ func (SubjectLogic) Modify(ctx context.Context, user *model.Me, form url.Values)
 	sid := form.Get("sid")
 	_, err = MasterDB.Table(new(model.Subject)).Id(sid).Update(change)
 	if err != nil {
-		objLog.Errorf("更新专题 【%s】 信息失败：%s\n", sid, err)
+		objLog.Errorf("更新专栏 【%s】 信息失败：%s\n", sid, err)
 		errMsg = "对不起，服务器内部错误，请稍后再试！"
 		return
 	}
@@ -310,12 +310,12 @@ func (self SubjectLogic) FindArticleSubjects(ctx context.Context, articleId int)
 	return subjects
 }
 
-// FindMine 获取我管理的专题列表
+// FindMine 获取我管理的专栏列表
 func (self SubjectLogic) FindMine(ctx context.Context, me *model.Me, articleId int, kw string) []map[string]interface{} {
 	objLog := GetLogger(ctx)
 
 	subjects := make([]*model.Subject, 0)
-	// 先是我创建的专题
+	// 先是我创建的专栏
 	session := MasterDB.Where("uid=?", me.Uid)
 	if kw != "" {
 		session.Where("name LIKE ?", "%"+kw+"%")
@@ -327,7 +327,7 @@ func (self SubjectLogic) FindMine(ctx context.Context, me *model.Me, articleId i
 	}
 
 	adminSubjects := make([]*model.Subject, 0)
-	// 获取我管理的专题
+	// 获取我管理的专栏
 	strSql := "SELECT s.* FROM subject s,subject_admin sa WHERE s.id=sa.sid AND sa.uid=?"
 	if kw != "" {
 		strSql += " AND s.name LIKE '%" + kw + "%'"
