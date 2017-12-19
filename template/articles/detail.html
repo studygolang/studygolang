@@ -302,6 +302,9 @@ $(function(){
 <!-- <script type="text/javascript" src="/static/js/prism.js"></script> -->
 <script src="https://cdn.bootcss.com/prism/9000.0.1/prism.min.js"></script>
 <script src="https://cdn.bootcss.com/prism/9000.0.1/components/prism-go.min.js"></script>
+<script src="https://cdn.bootcss.com/prism/1.9.0/components/prism-json.min.js"></script>
+<script src="https://cdn.bootcss.com/prism/9000.0.1/components/prism-bash.min.js"></script>
+<script src="https://cdn.bootcss.com/prism/9000.0.1/components/prism-nasm.min.js"></script>
 <script src="https://cdn.bootcss.com/prism/9000.0.1/plugins/line-numbers/prism-line-numbers.min.js"></script>
 
 <script type="text/javascript" src="/static/ckeditor/config.js"></script>
@@ -312,6 +315,9 @@ Prism.languages.mathml = Prism.languages.markup;
 Prism.languages.svg = Prism.languages.markup;
 Prism.languages.text = Prism.languages.go;
 Prism.languages.golang = Prism.languages.go;
+Prism.languages.none = Prism.languages.go;
+Prism.languages.console = Prism.languages.bash;
+Prism.languages.asm = Prism.languages.nasm;
 
 $(function(){
 	CKEDITOR.plugins.addExternal('prism', '/static/ckeditor/plugins/prism/', 'plugin.js');

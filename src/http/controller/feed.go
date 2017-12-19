@@ -62,17 +62,17 @@ func (self FeedController) List(ctx echo.Context) error {
 
 		switch doc.Objtype {
 		case model.TypeTopic:
-			url = fmt.Sprintf("%s/topics/%d", link, doc.Objid)
+			url = fmt.Sprintf("%stopics/%d", link, doc.Objid)
 		case model.TypeArticle:
-			url = fmt.Sprintf("%s/articles/%d", link, doc.Objid)
+			url = fmt.Sprintf("%sarticles/%d", link, doc.Objid)
 		case model.TypeResource:
-			url = fmt.Sprintf("%s/resources/%d", link, doc.Objid)
+			url = fmt.Sprintf("%sresources/%d", link, doc.Objid)
 		case model.TypeProject:
-			url = fmt.Sprintf("%s/p/%d", link, doc.Objid)
+			url = fmt.Sprintf("%sp/%d", link, doc.Objid)
 		case model.TypeWiki:
-			url = fmt.Sprintf("%s/wiki/%d", link, doc.Objid)
+			url = fmt.Sprintf("%swiki/%d", link, doc.Objid)
 		case model.TypeBook:
-			url = fmt.Sprintf("%s/book/%d", link, doc.Objid)
+			url = fmt.Sprintf("%sbook/%d", link, doc.Objid)
 		}
 		feed.Items[i] = &feeds.Item{
 			Title:       doc.Title,
