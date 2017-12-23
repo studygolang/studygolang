@@ -84,6 +84,28 @@ cd 到 studygolang 源码目录
 
 这样便编译好了 studygolang
 
+### 方式三：go run（不推荐）
+
+要求 Go 1.8+
+
+1、下载 gvt 依赖管理工具
+	
+	go get github.com/polaris1119/gvt
+	
+下载后将 gvt 加入 PATH 中。
+
+2、下载安装依赖
+
+cd 到 studygolang 源码目录	
+
+	// unix
+	./getpkg.sh
+
+3、启动studygolang，不需要步骤三
+
+    // unix
+	./run.sh
+	
 ## 步骤三
 
 在 studygolang 源码中的 bin 目录下应该有了 studygolang 可执行文件。
