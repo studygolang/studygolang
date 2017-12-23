@@ -408,6 +408,11 @@ func (self TopicLogic) FindByTid(ctx context.Context, tid int) (topicMap map[str
 		return
 	}
 
+	if topic.Flag > model.FlagNormal {
+		err = errors.New("The topic of tid is not exists or delete")
+		return
+	}
+
 	topicMap = make(map[string]interface{})
 	structs.FillMap(topic, topicMap)
 	structs.FillMap(topicInfo.TopicEx, topicMap)
