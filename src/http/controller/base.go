@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"logic"
 	"net/http"
+	"strings"
 
 	"github.com/polaris1119/goutils"
 
@@ -42,6 +43,9 @@ func success(ctx echo.Context, data interface{}) error {
 	}
 
 	oldETag := ctx.Request().Header().Get("If-None-Match")
+	if strings.HasPrefix(oldETag, "W/") {
+		oldETag = oldETag[2:]
+	}
 	newETag := goutils.Md5Buf(b)
 	if oldETag == newETag {
 		return ctx.NoContent(http.StatusNotModified)
