@@ -95,11 +95,6 @@ func getAddr() string {
 	return host + ":" + global.App.Port
 }
 
-const (
-	IfNoneMatch = "IF-NONE-MATCH"
-	Etag        = "Etag"
-)
-
 func savePid() {
 	pidFilename := ROOT + "/pid/" + filepath.Base(os.Args[0]) + ".pid"
 	pid := os.Getpid()

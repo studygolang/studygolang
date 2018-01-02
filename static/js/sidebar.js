@@ -376,7 +376,15 @@ $(function(){
 					if (limit == "") {
 						limit = 10;
 					}
-					$.getJSON(SG.SIDE_BARS[i], {limit: limit}, sbObj['func']);
+					$.ajax({
+						type:"get",
+						url: SG.SIDE_BARS[i],
+						data: {limit: limit},
+						dataType: 'json',
+						success: sbObj['func'],
+						ifModified: true
+					});
+					
 					continue;
 				}
 
@@ -389,7 +397,14 @@ $(function(){
 						params[k] = $(this).data(k);
 					}
 					
-					$.getJSON(SG.SIDE_BARS[i], params, sbObj['func']);
+					$.ajax({
+						type:"get",
+						url: SG.SIDE_BARS[i],
+						data: params,
+						dataType: 'json',
+						success: sbObj['func'],
+						ifModified: true
+					});
 				});
 			}
 		}

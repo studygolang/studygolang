@@ -11,6 +11,8 @@ import (
 	"logic"
 	"net/http"
 
+	"github.com/polaris1119/goutils"
+
 	. "http"
 
 	"github.com/labstack/echo"
@@ -39,6 +41,12 @@ func success(ctx echo.Context, data interface{}) error {
 		return err
 	}
 
+	oldETag := ctx.Request().Header().Get("If-None-Match")
+	newETag := goutils.Md5Buf(b)
+	if oldETag == newETag {
+		return ctx.NoContent(http.StatusNotModified)
+	}
+
 	go func(b []byte) {
 		if cacheKey := ctx.Get(nosql.CacheKey); cacheKey != nil {
 			nosql.DefaultLRUCache.CompressAndAdd(cacheKey, b, nosql.NewCacheData())
@@ -49,6 +57,8 @@ func success(ctx echo.Context, data interface{}) error {
 		getLogger(ctx).Flush()
 		return nil
 	}
+
+	ctx.Response().Header().Add("ETag", newETag)
 
 	return ctx.JSONBlob(http.StatusOK, b)
 }
