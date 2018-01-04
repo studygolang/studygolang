@@ -82,7 +82,7 @@ const (
 
 func init() {
 	App.Name = os.Args[0]
-	App.Version = "V3.0.0"
+	App.Version = "V3.5.0"
 	App.Build = Build
 	App.LaunchTime = time.Now()
 

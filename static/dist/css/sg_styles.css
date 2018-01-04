@@ -308,9 +308,9 @@ a.tab_current:hover {background-color: #445; color: #fff; text-decoration: none;
 
 footer#bottom { border-top: 1px solid rgba(0, 0, 0, 0.22); background-color: #fff; text-align: center; color: #999; padding: 0px 10px 0px 10px; }
 
-#gotop { display:none; width:38px;height:38px;position:fixed;right:18px;bottom:20px;background:url(../img/top.png) no-repeat; cursor: pointer;}
+#gotop { display:none; width:38px;height:38px;position:fixed;right:18px;bottom:20px;background:url(/static/img/top.png) no-repeat; cursor: pointer;}
 
-.newfuture {position: absolute;display: block;overflow: hidden;text-indent: -999px;width: 23px;height: 9px;top: 5px;right: 10px;background: url(../img/new.png) no-repeat 0 0;}
+.newfuture {position: absolute;display: block;overflow: hidden;text-indent: -999px;width: 23px;height: 9px;top: 5px;right: 10px;background: url(/static/img/new.png) no-repeat 0 0;}
 
 .truncate {-o-text-overflow: ellipsis;-moz-text-overflow: ellipsis; -webkit-text-overflow: ellipsis;text-overflow: ellipsis; overflow: hidden; white-space: nowrap;}
 
