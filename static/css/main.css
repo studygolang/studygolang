@@ -440,3 +440,7 @@ img.avatar { -moz-border-radius: 4px; border-radius: 4px; }
 .markdown-body h1, .markdown-body h2 {
     border-bottom: 1px solid #eaecef;
 }
+
+#bottom .nav-content {
+    margin: 0px auto 0px auto;
+}

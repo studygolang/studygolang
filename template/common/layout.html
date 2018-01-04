@@ -6,23 +6,17 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
 	<meta charset="utf-8">
 	<link rel="shortcut icon" href="{{.setting.Favicon}}">
-	<link rel="apple-touch-icon" type="image/png" href="/static/img/logo2.png">
+	<link rel="apple-touch-icon" type="image/png" href="{{.static_domain}}/static/img/logo2.png">
 	{{template "seo" .}}
 	<meta name="author" content="polaris <polaris@studygolang.com>">
 	<link rel="canonical" href="{{.app.BaseURL}}" />
-	
-	{{if .use_cdn}}
-		{{include "common/common.css.cdn" .}}
-	{{else}}
-		{{include "common/common.css" .}}
-	{{end}}
+
+	<link rel="stylesheet" href="//cdn.bootcss.com/bootswatch/3.2.0/css/cosmo/bootstrap.min.css">
+	<link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="{{.static_domain}}/static/dist/css/sg_libs.min.css"/>
+	<link rel="stylesheet" href="{{.static_domain}}/static/dist/css/sg_styles.min.css?v=0.4"/>
 	
 	{{template "css" .}}
-	<style type="text/css">
-	#bottom .nav-content {
-		margin: 0px auto 0px auto;
-	}
-	</style>
 
 	<!--[if lt IE 9]-->
 	<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -218,23 +212,39 @@
 	<div id="sg-overlay"></div>
 	{{end}}
 	
-	<script src="//cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
-	<script src="//cdn.bootcss.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-	<script src="//cdn.bootcss.com/jquery-timeago/1.6.1/jquery.timeago.min.js"></script>
-	
-	{{if .use_cdn}}
-		{{include "common/common.js.cdn" .}}
-	{{else}}
-		{{include "common/common.js" .}}
-	{{end}}
+	<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="https://cdn.bootcss.com/jquery-timeago/1.6.1/jquery.timeago.min.js"></script>
+	<script src="https://cdn.bootcss.com/zoom.js/0.0.1/zoom.min.js"></script>
+	<script src="https://cdn.bootcss.com/marked/0.3.6/marked.min.js"></script>
+	<script src="https://cdn.bootcss.com/Caret.js/0.3.1/jquery.caret.min.js"></script>
+	<script src="https://cdn.bootcss.com/emojify.js/1.1.0/js/emojify.min.js"></script>
+
+	<script type="text/javascript">
+	var uid = {{.me.Uid}};
+	var isHttps = {{.is_https}},
+		cdnDomain = "{{.cdn_domain}}";
+	if (isHttps) {
+		var wsUrl = 'wss://{{.wshost}}/ws?uid='+uid;
+	} else {
+		var wsUrl = 'ws://{{.wshost}}/ws?uid='+uid;
+	}
+	var GLaunchTime = {{timestamp .app.LaunchTime}}*1000;
+	</script>
+	<script src="https://cdn.bootcss.com/lscache/1.1.0/lscache.min.js"></script>
+	<script src="https://cdn.bootcss.com/jsrender/0.9.90/jsrender.min.js"></script>
+	<script src="https://cdn.bootcss.com/plupload/3.1.1/plupload.full.min.js"></script>
+	<script type="text/javascript">
+	$.views.settings.delimiters("[%", "%]");
+	// $.views.settings.debugMode(true);
+	</script>
+
+	<script src="{{.static_domain}}/static/dist/js/sg_libs.min.js"></script>
+	<script src="{{.static_domain}}/static/dist/js/sg_base.min.js?v=0.3"></script>
 
 	{{template "js" .}}
 
-	{{if .use_cdn}}
-	<script src="{{.cdn_domain}}cssjs/sidebar.js"></script>
-	{{else}}
-	<script type="text/javascript" src="/static/js/sidebar.js"></script>
-	{{end}}
+	<script type="text/javascript" src="{{.static_domain}}/static/dist/js/sidebar.min.js"></script>
 
 	{{if .is_pro}}
 		<!-- 统计分析、广告脚本等 -->

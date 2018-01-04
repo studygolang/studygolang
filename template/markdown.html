@@ -193,25 +193,28 @@ func main() {
 ![设置图片宽度](http://image-path.png =300x)
 ![设置图片高度](http://image-path.png =x200)
 </code></pre><h3 id="代码块">代码块</h3><h4 id="普通">普通</h4>
-<pre><code><span class="hljs-emphasis">*emphasize*</span>    <span class="hljs-strong">**strong**</span>
-<span class="hljs-emphasis">_emphasize_</span>    <span class="hljs-strong">__strong__</span>
+<pre><code>
+*emphasize*    **strong**
+_emphasize_    __strong__
 @a = 1
 </code></pre>
 <h4 id="语法高亮支持">语法高亮支持</h4>
 <p>如果在 ``` 后面跟随语言名称，可以有语法高亮的效果哦，比如:</p>
 <h5 id="演示 Go 代码高亮">演示 Go 代码高亮</h5>
-<pre><code class="lang-go"><span class="hljs-function"><span class="hljs-keyword">package</span> main
+<pre class="line-numbers"><code class="language-go">
+package main
 
-<span class="hljs-title">import</span> <span class="hljs-params">(
-    <span class="hljs-string">"fmt"</span>
-)</span>
+import (
+    "fmt"
+)
 
-func <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>{
-    fmt.Println(<span class="hljs-string">"Hello World!"</span>)
+func main() {
+    fmt.Println("Hello World!")
 }
 </code></pre>
 <h5 id="-json-">演示 JSON 代码高亮</h5>
-<pre><code class="lang-json">{"<span class="hljs-attribute">name</span>":<span class="hljs-value"><span class="hljs-string">"Go语言中文网"</span></span>,"<span class="hljs-attribute">url</span>":<span class="hljs-value"><span class="hljs-string">"https://studygolang.com"</span></span>}
+<pre><code class="language-json">
+{"name":"Go语言中文网","url":"https://studygolang.com"}
 </code></pre>
 
 <blockquote>
@@ -279,5 +282,9 @@ func <span class="hljs-title">main</span><span class="hljs-params">()</span> </s
 {{end}}
 
 {{define "css"}}
-<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
+{{include "cssjs/prism.css.html" .}}
+{{end}}
+
+{{define "js"}}
+{{include "cssjs/prism.js.html" .}}
 {{end}}

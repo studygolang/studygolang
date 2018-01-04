@@ -28,6 +28,7 @@ import (
 	"io"
 	"model"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -117,6 +118,18 @@ func (this *app) SetCopyright() {
 	} else {
 		this.Copyright = fmt.Sprintf("%d-%d %s", model.WebsiteSetting.StartYear, curYear, model.WebsiteSetting.Domain)
 	}
+}
+
+func (this *app) CanonicalCDN(isHTTPS bool) string {
+	cdnDomain := this.CDNHttp
+	if isHTTPS {
+		cdnDomain = this.CDNHttps
+	}
+	if !strings.HasSuffix(cdnDomain, "/") {
+		cdnDomain += "/"
+	}
+
+	return cdnDomain
 }
 
 func PrintVersion(w io.Writer) {

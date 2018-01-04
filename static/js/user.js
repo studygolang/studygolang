@@ -40,7 +40,7 @@
 			selector.each(function(){
 				var markdownString = $(this).html();
 				// 配置 marked 语法高亮
-				marked = SG.markSetting();
+				marked = SG.markSettingNoHightlight();
 
 				$(this).html(marked(markdownString));
 
@@ -192,4 +192,4 @@
 			});
 		}
 	});
-}).call(this)
+}).call(this);

@@ -192,71 +192,21 @@
 </template>
 
 {{end}}
+
 {{define "css"}}
-<link href="https://cdn.bootcss.com/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet">
-<link href="/static/css/syntax_highlight/shCore.css" media="screen" rel="stylesheet" type="text/css">
-<link href="/static/css/syntax_highlight/shCoreDefault.css" media="screen" rel="stylesheet" type="text/css">
+
 {{if .article.Css}}
 <link href="{{.article.Css}}" media="screen" rel="stylesheet" type="text/css">
 {{end}}
-<link href="https://cdn.bootcss.com/prism/9000.0.1/themes/prism-okaidia.min.css" rel="stylesheet">
-<link href="https://cdn.bootcss.com/prism/9000.0.1/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet">
-<link href="/static/css/jquery.atwho.min.css" media="screen" rel="stylesheet" type="text/css">
-<style type="text/css">
-@media (min-width: 768px) {
-	.right {
-		text-align: right;
-	}
-}
 
-.subject .item-list {
-	padding-top: 20px;
-	padding-left: 12px;
-	padding-right: 12px;
-}
-
-.subject .item-list .add-collection {
-	display: inline-block;
-	padding: 8px 12px;
-	font-size: 14px;
-	border: 1px solid #DCDCDC;
-	border-radius: 4px;
-}
-
-.subject .item {
-	display: inline-block;
-	margin: 0 12px 12px 0;
-	min-height: 32px;
-	border: #cccccc 1px solid;
-	background-color: #ffffff;
-	border-radius: 4px;
-	vertical-align: top;
-	overflow: hidden;
-	padding-right: 5px;
-}
-
-.subject a.item:hover,.subject a.add-collection:hover {
-	text-decoration: none;
-}
-
-</style>
+{{include "cssjs/prism.css.html" .}}
 
 {{end}}
+
 {{define "js"}}
-<script type="text/javascript" src="//cdn.ckeditor.com/4.6.2/standard-all/ckeditor.js"></script>
-<script	type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
-<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
-<script src="https://cdn.bootcss.com/marked/0.3.6/marked.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.caret.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.atwho.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/emojis.js"></script>
-<!-- <script type="text/javascript" src="//twemoji.maxcdn.com/twemoji.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/twemojis.js"></script> -->
-<script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
-<script type="text/javascript" src="/static/js/comment.js?v=1.27"></script>
-<script type="text/javascript" src="/static/js/puploader.js?v=1.1"></script>
-<script type="text/javascript" src="/static/js/articles.js?v=0.1"></script>
+
+{{include "cssjs/prism.js.html" .}}
+<script type="text/javascript" src="/static/js/articles.js"></script>
 
 <script type="text/javascript">
 // 需要加载的侧边栏
@@ -294,110 +244,7 @@ $(function(){
 	}
 });
 </script>
-<script type="text/javascript">
-$(function(){
-	$('code[class*="language-"]').parent('pre').addClass('line-numbers');
-});
-</script>
-<!-- <script type="text/javascript" src="/static/js/prism.js"></script> -->
-<script src="https://cdn.bootcss.com/prism/9000.0.1/prism.min.js"></script>
-<script src="https://cdn.bootcss.com/prism/9000.0.1/components/prism-go.min.js"></script>
-<script src="https://cdn.bootcss.com/prism/1.9.0/components/prism-json.min.js"></script>
-<script src="https://cdn.bootcss.com/prism/9000.0.1/components/prism-bash.min.js"></script>
-<script src="https://cdn.bootcss.com/prism/9000.0.1/components/prism-nasm.min.js"></script>
-<script src="https://cdn.bootcss.com/prism/9000.0.1/plugins/line-numbers/prism-line-numbers.min.js"></script>
-
-<script type="text/javascript" src="/static/ckeditor/config.js"></script>
-<script type="text/javascript">
-Prism.languages.xml = Prism.languages.markup;
-Prism.languages.html = Prism.languages.markup;
-Prism.languages.mathml = Prism.languages.markup;
-Prism.languages.svg = Prism.languages.markup;
-Prism.languages.text = Prism.languages.go;
-Prism.languages.golang = Prism.languages.go;
-Prism.languages.none = Prism.languages.go;
-Prism.languages.console = Prism.languages.bash;
-Prism.languages.asm = Prism.languages.nasm;
-Prism.languages.makefile = Prism.languages.bash;
-Prism.languages.protobuf = Prism.languages.clike;
-
-$(function(){
-	CKEDITOR.plugins.addExternal('prism', '/static/ckeditor/plugins/prism/', 'plugin.js');
-	$('#edit').on('click', function(){
-		var txt = $(this).text();
-		if (txt == '编辑') {
-			$('#myeditor').attr('contenteditable', true);
-			$('#myeditor').html($('#content_tpl').html());
-			if (!CKEDITOR.instances.myeditor) {
-				MyEditorConfig.extraPlugins = MyEditorExtraPlugins+',prism,sourcedialog';
-				MyEditorConfig.toolbarGroups = [
-					{ name: 'undo' },
-					{ name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
-					{ name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align' ] },
-					{ name: 'links' },
-					{ name: 'insert' },
-					{ name: 'styles' },
-					{ name: 'document', groups: [ 'mode', 'document' ] }
-				];
-				MyEditorConfig.removeButtons = 'Anchor,SpecialChar,HorizontalRule,Table,Styles,Subscript,Superscript';
-				CKEDITOR.inline( 'myeditor', MyEditorConfig );
-			}
-
-			$(this).text('完成');
-		} else {
-			if (CKEDITOR.instances.myeditor) {
-				var content = CKEDITOR.instances.myeditor.getData();
-				modify(content);
-
-				CKEDITOR.instances.myeditor.destroy();
-
-				Prism.highlightAll();
-			}
-
-			$('#myeditor').attr('contenteditable', false);
-			$(this).text('编辑');
-		}
-	});
-
-	CKEDITOR.on('instanceReady', function(evt, editor) {
-		$('#myeditor').find('.cke_widget_element').each(function(){
-			$(this).addClass('line-numbers').css('background-color', '#000');
-		});
-	});
-
-	function modify(content)
-	{
-		var url = '/articles/modify',
-			data = { id: $('#title').data('id'), content:content };
-
-		$.ajax({
-			type: "post",
-			url: url,
-			data: data,
-			dataType: 'json',
-			success: function(data){
-				if(data.ok){
-					if (typeof data.msg != "undefined") {
-						comTip(data.msg);
-					} else {
-						comTip("修改成功！");
-					}
-				}else{
-					comTip(data.error);
-				}
-			},
-			complete:function(xmlReq, textStatus){
-			},
-			error:function(xmlReq, textStatus, errorThrown){
-				if (xmlReq.status == 403) {
-					comTip("没有修改权限");
-				}
-			}
-		});
-	}
-});
-
-</script>
+{{include "cssjs/ckeditor.js.html" .}}
 
 {{if .pos_ad.right1}}
 	{{if eq .pos_ad.right1.AdType 1}}

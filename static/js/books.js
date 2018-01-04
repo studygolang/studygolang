@@ -4,7 +4,7 @@
 	SG.Book.prototype.parseDesc = function(){
 		var markdownString = $('.book .desc').text();
 		// 配置 marked 语法高亮
-		marked = SG.markSetting();
+		marked = SG.markSettingNoHightlight();
 
 		var contentHtml = marked(markdownString);
 		contentHtml = SG.replaceCodeChar(contentHtml);
@@ -56,4 +56,4 @@
 			}
 		});
 	});
-}).call(this)
+}).call(this);

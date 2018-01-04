@@ -18,12 +18,12 @@ import (
 
 // 获取头像
 func Gravatar(avatar string, emailI interface{}, size uint16, isHttps bool) string {
-	cdnDomain := global.App.CDNHttp
 	gravatarDomain := "http://gravatar.com"
 	if isHttps {
-		cdnDomain = global.App.CDNHttps
 		gravatarDomain = "https://secure.gravatar.com"
 	}
+	cdnDomain := global.App.CanonicalCDN(isHttps)
+
 	if avatar != "" {
 		if strings.HasPrefix(avatar, "http") {
 			return fmt.Sprintf("%s&s=%d", avatar, size)

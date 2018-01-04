@@ -171,4 +171,4 @@
 			$('#self-note-list').html(listHtml);
 		}
 	});
-}).call(this)
+}).call(this);

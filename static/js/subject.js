@@ -1,5 +1,5 @@
 $(function() {
-    marked = SG.markSetting();
+    marked = SG.markSettingNoHightlight();
 
     $('.desc').html(marked($('.desc').text().trim()));
 

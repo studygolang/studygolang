@@ -6051,7 +6051,7 @@ a.downloadBox:hover .filename {
 {{end}}
 
 {{define "js"}}
-<script type="text/javascript" src="/static/js/godl.js"></script>
+<script type="text/javascript" src="{{.static_domain}}/static/dist/js/godl.min.js"></script>
 <script type="text/javascript">
 $(function() {
 	$('table').addClass('table').wrap('<div class="table-responsive"></div>');

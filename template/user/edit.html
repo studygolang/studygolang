@@ -260,18 +260,11 @@
 </div>
 {{end}}
 {{define "css"}}
-<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
-<link href="/static/css/user.css" media="screen" rel="stylesheet" type="text/css">
 {{end}}
 {{define "js"}}
-<script	type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
-<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
-<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
-<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
-<script type="text/javascript" src="/static/js/user.js?v=1.3"></script>
+
+{{include "cssjs/publish.js.html" .}}
+<script type="text/javascript" src="{{.static_domain}}/static/dist/js/user.min.js"></script>
 <script type="text/javascript">
 $(function(){
 	// 文本框自动伸缩

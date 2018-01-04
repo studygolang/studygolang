@@ -51,26 +51,12 @@
 </div>
 {{end}}
 {{define "css"}}
-<link href="/static/css/jquery.atwho.min.css" rel="stylesheet">
-<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
-<link href="/static/css/md_toolbar.css" media="screen" rel="stylesheet" type="text/css">
-<link href="/static/css/message.css" media="screen" rel="stylesheet" type="text/css">
 {{end}}
 {{define "js"}}
-<script type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
-<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.caret.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.atwho.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/emojis.js"></script>
-<script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
-<script type="text/javascript" src="/static/js/md_toolbar.js"></script>
-<script type="text/javascript" src="/static/js/puploader.js?v=1.1"></script>
-<script type="text/javascript" src="/static/js/message.js"></script>
+
+{{include "cssjs/publish.js.html" .}}
+
+<script type="text/javascript" src="{{.static_domain}}/static/dist/js/message.min.js"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [];

@@ -85,11 +85,8 @@
 </div>
 {{end}}
 {{define "js"}}
-<script type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
-<script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
-<script type="text/javascript" src="/static/js/puploader.js?v=0.1"></script>
+
+{{include "cssjs/publish.js.html" .}}
 <script>
 $(function(){
     SG.Subjects = function(){}

@@ -169,10 +169,7 @@ var funcMap = template.FuncMap{
 	"safeHtml": util.SafeHtml,
 	"imageUrl": func(uri string, isHttps bool) string {
 		if !strings.HasPrefix(uri, "http") {
-			cdnDomain := global.App.CDNHttp
-			if isHttps {
-				cdnDomain = global.App.CDNHttps
-			}
+			cdnDomain := global.App.CanonicalCDN(isHttps)
 			return cdnDomain + uri
 		}
 
@@ -361,18 +358,22 @@ func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interf
 	global.App.SetCopyright()
 
 	isHttps := CheckIsHttps(ctx)
-	cdnDomain := global.App.CDNHttp
+	cdnDomain := global.App.CanonicalCDN(isHttps)
 	if isHttps {
 		global.App.BaseURL = "https://" + global.App.Domain + "/"
-		cdnDomain = global.App.CDNHttps
 	} else {
 		global.App.BaseURL = "http://" + global.App.Domain + "/"
+	}
+
+	staticDomain := ""
+	if global.OnlineEnv() {
+		staticDomain = strings.TrimRight(cdnDomain, "/")
 	}
 
 	data["app"] = global.App
 	data["is_https"] = isHttps
 	data["cdn_domain"] = cdnDomain
-	data["use_cdn"] = config.ConfigFile.MustBool("global", "use_cdn", false)
+	data["static_domain"] = staticDomain
 	data["is_pro"] = global.OnlineEnv()
 
 	data["online_users"] = map[string]int{"online": logic.Book.Len(), "maxonline": logic.MaxOnlineNum()}

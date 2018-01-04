@@ -121,8 +121,6 @@
 </div>
 {{end}}
 {{define "css"}}
-<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
-<link href="/static/css/jquery.atwho.min.css" media="screen" rel="stylesheet" type="text/css">
 <style type="text/css">
 .project .attrs {background: #f6f6f6;border: 1px solid #eee;padding: 5px 10px;margin: 15px 0;font-weight: bold;line-height: 22px;}
 .project .attrs a {font-weight: normal; color: #778088; text-decoration: none;}
@@ -130,18 +128,10 @@
 </style>
 {{end}}
 {{define "js"}}
-<script	type="text/javascript" src="/static/js/libs/jquery.githubRepoWidget.min.js"></script>
-<script	type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.caret.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.atwho.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/emojis.js"></script>
-<script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
-<script type="text/javascript" src="/static/js/projects.js?v=1.1"></script>
-<script type="text/javascript" src="/static/js/comment.js?v=1.25"></script>
-<script type="text/javascript" src="/static/js/puploader.js?v=1.1"></script>
+
+{{include "cssjs/prism.js.html" .}}
+<script type="text/javascript" src="{{.static_domain}}/static/dist/js/projects.min.js"></script>
+
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [

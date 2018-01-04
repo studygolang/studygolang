@@ -55,4 +55,4 @@
 
 		SG.registerAtEvent(false, true);
 	});
-}).call(this)
+}).call(this);

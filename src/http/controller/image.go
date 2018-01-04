@@ -15,7 +15,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 
 	. "http"
 
@@ -66,10 +65,7 @@ func (self ImageController) PasteUpload(ctx echo.Context) error {
 		return self.pasteUploadFail(ctx, "文件上传失败！")
 	}
 
-	cdnDomain := global.App.CDNHttp
-	if CheckIsHttps(ctx) {
-		cdnDomain = global.App.CDNHttps
-	}
+	cdnDomain := global.App.CanonicalCDN(CheckIsHttps(ctx))
 
 	data := map[string]interface{}{
 		"success": 1,
@@ -115,10 +111,7 @@ func (self ImageController) QuickUpload(ctx echo.Context) error {
 		return self.quickUploadFail(ctx, "文件上传失败！")
 	}
 
-	cdnDomain := global.App.CDNHttp
-	if CheckIsHttps(ctx) {
-		cdnDomain = global.App.CDNHttps
-	}
+	cdnDomain := global.App.CanonicalCDN(CheckIsHttps(ctx))
 
 	data := map[string]interface{}{
 		"uploaded": 1,
@@ -162,13 +155,7 @@ func (ImageController) Upload(ctx echo.Context) error {
 		imgDir = "avatar"
 	}
 
-	cdnDomain := global.App.CDNHttp
-	if CheckIsHttps(ctx) {
-		cdnDomain = global.App.CDNHttps
-	}
-	if !strings.HasSuffix(cdnDomain, "/") {
-		cdnDomain += "/"
-	}
+	cdnDomain := global.App.CanonicalCDN(CheckIsHttps(ctx))
 
 	file.Seek(0, io.SeekStart)
 	path, err := logic.DefaultUploader.UploadImage(ctx, file, imgDir, buf, filepath.Ext(fileHeader.Filename))
@@ -191,13 +178,7 @@ func (ImageController) Transfer(ctx echo.Context) error {
 		return fail(ctx, 2, "文件上传失败！")
 	}
 
-	cdnDomain := global.App.CDNHttp
-	if CheckIsHttps(ctx) {
-		cdnDomain = global.App.CDNHttps
-	}
-	if !strings.HasSuffix(cdnDomain, "/") {
-		cdnDomain += "/"
-	}
+	cdnDomain := global.App.CanonicalCDN(CheckIsHttps(ctx))
 
 	return success(ctx, map[string]interface{}{"url": cdnDomain + path})
 }

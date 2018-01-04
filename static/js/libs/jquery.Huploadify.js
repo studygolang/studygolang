@@ -281,4 +281,4 @@ $.fn.Huploadify = function(opts){
 	}); 
 }	
 
-})(jQuery)
+})(jQuery);

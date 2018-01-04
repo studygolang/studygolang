@@ -120,38 +120,17 @@
 </div>
 {{end}}
 {{define "css"}}
-<link href="/static/css/md_toolbar.css?v=0.1" media="screen" rel="stylesheet" type="text/css">
-<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
-<link href="/static/css/syntax_highlight/shCore.css" media="screen" rel="stylesheet" type="text/css">
-<link href="/static/css/syntax_highlight/shCoreDefault.css" media="screen" rel="stylesheet" type="text/css">
-<link href="https://cdn.bootcss.com/prism/9000.0.1/themes/prism-okaidia.min.css" rel="stylesheet">
-<link href="https://cdn.bootcss.com/prism/9000.0.1/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet">
+{{include "cssjs/prism.css.html" .}}
 <style type="text/css">
 #cke_myeditor { margin: 0 auto 8px; }
 </style>
 {{end}}
 {{define "js"}}
-<script type="text/javascript" src="//cdn.ckeditor.com/4.6.2/standard-all/ckeditor.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
-<script type="text/javascript" src="/static/ckeditor/config.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.caret.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.atwho.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/emojis.js"></script>
-<script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
-<script type="text/javascript" src="/static/js/md_toolbar.js?v=0.1"></script>
-<script type="text/javascript" src="/static/js/puploader.js?v=1.2"></script>
-<script type="text/javascript">
-$('code[class*="language-"]').parent('pre').addClass('line-numbers');
-</script>
-<script src="https://cdn.bootcss.com/prism/9000.0.1/prism.min.js"></script>
-<script src="https://cdn.bootcss.com/prism/9000.0.1/components/prism-go.min.js"></script>
-<script src="https://cdn.bootcss.com/prism/9000.0.1/plugins/line-numbers/prism-line-numbers.min.js"></script>
+
+{{include "cssjs/ckeditor.js.html" .}}
+{{include "cssjs/publish.js.html" .}}
+{{include "cssjs/prism.js.html" .}}
+
 <script>
 
 var hadInit = false;
@@ -216,37 +195,6 @@ $(function() {
         saveArticleComposeDraft();
     });
 
-    $('#markdown-content').on('input propertychange', function() {
-        var markdownString = $(this).val();
-        // 配置 marked 语法高亮
-        marked = SG.markSettingNoHightlight();
-
-        var contentHtml = marked(markdownString);
-        contentHtml = SG.replaceCodeChar(contentHtml);
-        
-        $('#content-preview').html(contentHtml);
-
-        Prism.highlightAll();
-
-        // emoji 表情解析
-        emojify.run($('#content-preview').get(0));
-    });
-
-    $('#markdown-content').on('keydown', function(e) {
-        if (e.keyCode == 9) {
-            e.preventDefault();
-            var indent = "\t";
-            var start = this.selectionStart;
-            var end = this.selectionEnd;
-            var selected = window.getSelection().toString();
-            selected = indent + selected.replace(/\n/g, '\n' + indent);
-            this.value = this.value.substring(0, start) + selected
-                    + this.value.substring(end);
-            this.setSelectionRange(start + indent.length, start
-                    + selected.length);
-        }
-    });
-
     $('input[type=radio]').on('click', function() {
         if ($(this).val() == 0) {
             isMarkdown = false;
@@ -273,5 +221,5 @@ $(function() {
     });
 });
 </script>
-<script type="text/javascript" src="/static/js/articles.js?v=0.4"></script>
+<script type="text/javascript" src="{{.static_domain}}/static/js/articles.min.js"></script>
 {{end}}

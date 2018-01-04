@@ -23,7 +23,7 @@
 					</div>
 				</div>
 				<div class="form-group form-group-sm">
-					<label class="col-sm-1 control-label" for="content">正文</label>
+					<label class="col-sm-1 control-label" for="markdown-content">正文</label>
 					<div class="col-sm-11">
 						<div class="row clearfix md-toolbar">
 							<ul class="col-md-10 list-inline">
@@ -35,7 +35,7 @@
 								<i id="upload-img" class="glyphicon glyphicon-picture upload-img tool-tip" data-toggle="tooltip" data-placement="top" title="上传图片"></i>
 							</div>
 						</div>
-						<textarea class="form-control need-autogrow main-textarea" id="content" name="content" rows="15" tabindex="0">{{.topic.Content}}</textarea>
+						<textarea class="form-control need-autogrow main-textarea" id="markdown-content" name="content" rows="15" tabindex="0">{{.topic.Content}}</textarea>
 						<div class="content-preview"></div>
 					</div>
 				</div>
@@ -153,35 +153,16 @@
 </div>
 {{end}}
 {{define "css"}}
-<link href="//cdn.bootcss.com/select2/4.0.3/css/select2.min.css" rel="stylesheet">
-<link href="/static/css/jquery.atwho.min.css" rel="stylesheet">
-<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
-<link href="/static/css/md_toolbar.css?v=0.1" media="screen" rel="stylesheet" type="text/css">
-<link href="https://cdn.bootcss.com/prism/9000.0.1/themes/prism-okaidia.min.css" rel="stylesheet">
-<link href="https://cdn.bootcss.com/prism/9000.0.1/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet">
+<link href="https://cdn.bootcss.com/select2/4.0.3/css/select2.min.css" rel="stylesheet">
+{{include "cssjs/prism.css.html" .}}
 {{end}}
 {{define "js"}}
-<script type="text/javascript" src="//cdn.bootcss.com/select2/4.0.3/js/select2.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
-<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.caret.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.atwho.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/emojis.js"></script>
-<script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
-<script type="text/javascript" src="/static/js/md_toolbar.js?v=0.1"></script>
-<script type="text/javascript" src="/static/js/puploader.js?v=1.2"></script>
-<script type="text/javascript">
-	$('code[class*="language-"]').parent('pre').addClass('line-numbers');
-</script>
-<script src="https://cdn.bootcss.com/prism/9000.0.1/prism.min.js"></script>
-<script src="https://cdn.bootcss.com/prism/9000.0.1/components/prism-go.min.js"></script>
-<script src="https://cdn.bootcss.com/prism/9000.0.1/plugins/line-numbers/prism-line-numbers.min.js"></script>
-<script type="text/javascript" src="/static/js/topics.js?v=1.2"></script>
+<script type="text/javascript" src="https://cdn.bootcss.com/select2/4.0.3/js/select2.min.js"></script>
+
+{{include "cssjs/prism.js.html" .}}
+{{include "cssjs/publish.js.html" .}}
+
+<script type="text/javascript" src="{{.static_domain}}/static/dist/js/topics.min.js"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [];
@@ -207,7 +188,7 @@ $(function(){
 		}
 
 		var title = $('#title').val(),
-			content = $('#content').val(),
+			content = $('#markdown-content').val(),
 			nid = $('#nid').val();
 
 		var objdata = {title: title, content: content, nid: nid};
@@ -222,7 +203,7 @@ $(function(){
 			var draft = loadComposeDraft(uid, 'topic');
 			if (draft) {
 				$('#title').val(draft.title);
-				$('#content').val(draft.content);
+				$('#markdown-content').val(draft.content);
 				if (draft.nid) {
 					chooseNode(draft.nid);
 				}
@@ -230,42 +211,9 @@ $(function(){
 		}
 	})();
 
-	$('#content').on('keydown', function(e) {
-		if (e.keyCode == 9) {
-			e.preventDefault();
-			var indent = "\t";
-			var start = this.selectionStart;
-			var end = this.selectionEnd;
-			var selected = window.getSelection().toString();
-			selected = indent + selected.replace(/\n/g, '\n' + indent);
-			this.value = this.value.substring(0, start) + selected
-					+ this.value.substring(end);
-			this.setSelectionRange(start + indent.length, start
-					+ selected.length);
-		}
-	});
-
-	$('#content').on('input propertychange', function() {
-		var markdownString = $(this).val();
-
-		// 配置 marked 语法高亮
-		marked = SG.markSettingNoHightlight();
-
-		var contentHtml = marked(markdownString);
-		contentHtml = SG.replaceCodeChar(contentHtml);
-		
-		$('#content-preview').html(contentHtml);
-		Prism.highlightAll();
-
-		// emoji 表情解析
-		emojify.run($('#content-preview').get(0));
-	});
-
-	$('#title,#content,#nid').on('change', function() {
+	$('#title,#markdown-content,#nid').on('change', function() {
 		saveTopicComposeDraft();
 	});
-
-	$('#content').pasteUploadImage('/image/paste_upload');
 });
 </script>
 {{end}}

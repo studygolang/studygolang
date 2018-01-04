@@ -377,7 +377,8 @@ func (self SubjectLogic) genSubjectMapSlice(subject *model.Subject, subjectMapSl
 
 	cover := subject.Cover
 	if !strings.HasPrefix(cover, "http") {
-		cover = global.App.CDNHttp + subject.Cover
+		cdnDomain := global.App.CanonicalCDN(true)
+		cover = cdnDomain + subject.Cover
 	}
 
 	*subjectMapSlice = append(*subjectMapSlice, map[string]interface{}{

@@ -1,5 +1,0 @@
-<link rel="stylesheet" href="{{.cdn_domain}}cssjs/fonts_googleapi.css">
-<link rel="stylesheet" href="//cdn.bootcss.com/bootswatch/3.2.0/css/cosmo/bootstrap.min.css">
-<link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
-<link rel="stylesheet" href="{{.cdn_domain}}cssjs/main.css">
-<link rel="stylesheet" href="{{.cdn_domain}}cssjs/zoom.css">

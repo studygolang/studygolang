@@ -72,31 +72,15 @@
 {{end}}
 {{define "css"}}
 <link href="//cdn.bootcss.com/select2/4.0.3/css/select2.min.css" rel="stylesheet">
-<link href="/static/css/jquery.atwho.min.css" rel="stylesheet">
-<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
-<link href="/static/css/md_toolbar.css?v=0.1" media="screen" rel="stylesheet" type="text/css">
+{{include "cssjs/prism.css.html" .}}
 {{end}}
 {{define "js"}}
-<script type="text/javascript" src="//cdn.bootcss.com/select2/4.0.3/js/select2.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
-<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.caret.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.atwho.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/emojify.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/emojis.js"></script>
-<script type="text/javascript" src="/static/js/libs/plupload.full.min.js"></script>
-<script type="text/javascript" src="/static/js/md_toolbar.js?v=0.1"></script>
-<script type="text/javascript" src="/static/js/puploader.js?v=1.2"></script>
-<script type="text/javascript" src="/static/js/topic_append.js"></script>
+<script type="text/javascript" src="https://cdn.bootcss.com/select2/4.0.3/js/select2.min.js"></script>
+{{include "cssjs/prism.js.html" .}}
+{{include "cssjs/publish.js.html" .}}
+<script type="text/javascript" src="{{.static_domain}}/static/dist/js/topic_append.min.js"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [];
-
-$(function(){
-});
 </script>
 {{end}}

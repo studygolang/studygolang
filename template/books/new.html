@@ -154,22 +154,14 @@
 </div>
 {{end}}
 {{define "css"}}
-<link href="/static/css/highlight/default.css" media="screen" rel="stylesheet" type="text/css">
-<link href="/static/css/Huploadify.css?v=0.1" media="screen" rel="stylesheet" type="text/css">
 <style type="text/css">
 .uploadify-button {margin:0px;}
 </style>
 {{end}}
 {{define "js"}}
-<script	type="text/javascript" src="/static/js/libs/jquery.autogrowtextarea.min.js"></script>
-<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
-<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
-<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.Huploadify.js"></script>
-<script type="text/javascript" src="/static/js/upload.js?v=1.0"></script>
-<script type="text/javascript" src="/static/js/books.js?v=1.0"></script>
+
+{{include "cssjs/publish.js.html" .}}
+<script type="text/javascript" src="/static/js/books.js"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [

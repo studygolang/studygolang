@@ -46,11 +46,7 @@ func (SubjectController) Index(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusSeeOther, "/")
 	}
 	if !strings.HasPrefix(subject.Cover, "http") {
-		isHttps := CheckIsHttps(ctx)
-		cdnDomain := global.App.CDNHttp
-		if isHttps {
-			cdnDomain = global.App.CDNHttps
-		}
+		cdnDomain := global.App.CanonicalCDN(CheckIsHttps(ctx))
 		subject.Cover = cdnDomain + subject.Cover
 	}
 

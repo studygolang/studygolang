@@ -42,3 +42,8 @@
         margin-left: 180px
     }
 }
+
+.sb-author .sb-content .avatar {margin: 0 10px 10px;}
+.edit-info {color: #3c763d;background-color: #dff0d8;border-color: #d6e9c6; margin:0 10px;}
+.subtle {background-color: #fffff9; border-left: 3px solid #fffbc1; padding: 10px; font-size: 12px; line-height: 120%; text-align: left; border-bottom: 1px solid #e2e2e2; }
+.append_content { font-size: 14px; line-height: 1.6; color: #000; word-wrap: break-word; }

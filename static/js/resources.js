@@ -18,7 +18,7 @@
 	SG.Resources.prototype.parseContent = function(selector) {
 		var markdownString = selector.text();
 		// 配置 marked 语法高亮
-		marked = SG.markSetting();
+		marked = SG.markSettingNoHightlight();
 		var contentHtml = marked(markdownString);
 		contentHtml = SG.replaceCodeChar(contentHtml);
 		selector.html(contentHtml);
@@ -75,4 +75,4 @@
 		
 		SG.registerAtEvent(false, true);
 	});
-}).call(this)
+}).call(this);

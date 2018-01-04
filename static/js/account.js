@@ -28,4 +28,4 @@
 			// new SG.Register().publish(this);
 		});
 	});
-}).call(this)
+}).call(this);

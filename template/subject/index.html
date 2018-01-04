@@ -145,15 +145,12 @@
 
 {{include "common/modal.html" .}}
 {{end}}
-{{define "css"}}
+{{define "css"}
 <link href="https://cdn.bootcss.com/html5tooltipsjs/1.7.2/html5tooltips.min.css" rel="stylesheet">
-<link href="/static/css/subject.css" rel="stylesheet">
 {{end}}
 
 {{define "js"}}
-<script src="//cdn.bootcss.com/identicon.js/2.3.1/identicon.min.js"></script>
+<script src="https://cdn.bootcss.com/identicon.js/2.3.1/identicon.min.js"></script>
 <script src="https://cdn.bootcss.com/html5tooltipsjs/1.7.2/html5tooltips.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/marked.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/highlight.min.js"></script>
-<script type="text/javascript" src="/static/js/subject.js"></script>
+<script type="text/javascript" src="{{.static_domain}}/static/dist/js/subject.min.js"></script>
 {{end}}

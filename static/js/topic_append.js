@@ -39,7 +39,7 @@
 			var markdownString = $(this).val();
 
 			// 配置 marked 语法高亮
-			marked = SG.markSetting();
+			marked = SG.markSettingNoHightlight();
 
 			var contentHtml = marked(markdownString);
 			contentHtml = SG.replaceCodeChar(contentHtml);
@@ -75,4 +75,4 @@
 
 		SG.registerAtEvent();
 	});
-}).call(this)
+}).call(this);

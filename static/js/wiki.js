@@ -4,7 +4,7 @@
 	SG.Wiki.prototype.parseDesc = function(){
 		var markdownString = $('.page .content').text();
 		// 配置 marked 语法高亮
-		marked = SG.markSetting();
+		marked = SG.markSettingNoHightlight();
 
 		var contentHtml = marked(markdownString);
 		contentHtml = SG.replaceCodeChar(contentHtml);
@@ -31,4 +31,4 @@
 			}
 		});
 	});
-}).call(this)
+}).call(this);
