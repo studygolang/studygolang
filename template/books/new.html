@@ -161,7 +161,7 @@
 {{define "js"}}
 
 {{include "cssjs/publish.js.html" .}}
-<script type="text/javascript" src="/static/js/books.js"></script>
+<script type="text/javascript" src="{{.static_domain}}/static/dist/js/books.min.js"></script>
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [

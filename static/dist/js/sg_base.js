@@ -489,7 +489,12 @@ jQuery(document).ready(function($) {
 
 	// 图片响应式
 	setTimeout(function(){
-		$('.page .content img').addClass('img-responsive').attr('data-action', 'zoom');
+		$('.page .content img').each(function(){
+			if ($(this).hasClass('emoji')) {
+				return;
+			}
+			$(this).addClass('img-responsive').attr('data-action', 'zoom');
+		})
 
 		$('.page .content img').on('click', function() {
 			$(this).parents('.box_white').css('overflow', 'visible');
