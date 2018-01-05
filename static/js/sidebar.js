@@ -327,7 +327,7 @@ $(function(){
 
 				var rankFlag = '';
 				if (pos < 4) {
-					rankFlag = '<img src="/static/img/rank_medal'+pos+'.png" width="20px">';
+					rankFlag = '<img src="'+cdnDomain+'static/img/rank_medal'+pos+'.png" width="20px">';
 				} else {
 					rankFlag = '<em>'+pos+'</em>';
 				}
