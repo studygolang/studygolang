@@ -146,7 +146,7 @@
 
 {{define "css"}}
 <link href="/static/css/admin/markdown.css" media="screen" rel="stylesheet" type="text/css">
-<link href="/static/css/jquery.cftoaster.1.0.1.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/libs/jquery.cftoaster.1.0.1.css" media="screen" rel="stylesheet" type="text/css">
 <style>
 .wmd-preview p { margin: 0px; float: none; }
 .wmd-preview a { color:blue; }
@@ -154,8 +154,8 @@
 {{end}}
 
 {{define "js"}}
-<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
-<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
+<script src="https://cdn.bootcss.com/jquery-validate/1.17.0/jquery.validate.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery-validate/1.17.0/localization/messages_zh.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/jquery.cftoaster.1.0.1.js"></script>
 <script	type="text/javascript" src="/static/js/admin/forms.js"></script>
 <script type="text/javascript" src="/static/js/admin/Markdown.Converter.js"></script>

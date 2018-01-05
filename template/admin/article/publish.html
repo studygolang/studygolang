@@ -109,16 +109,16 @@
 {{end}}
 
 {{define "css"}}
-<link href="/static/css/jquery.cftoaster.1.0.1.css" media="screen" rel="stylesheet" type="text/css">
+<link href="/static/css/libs/jquery.cftoaster.1.0.1.css" media="screen" rel="stylesheet" type="text/css">
 <link href="/static/css/Huploadify.css" media="screen" rel="stylesheet" type="text/css">
 {{end}}
 
 {{define "js"}}
-<script	type="text/javascript" src="/static/js/libs/jquery.validate.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery-validate/1.17.0/jquery.validate.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery-validate/1.17.0/localization/messages_zh.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/jquery.metadata.js"></script>
-<script	type="text/javascript" src="/static/js/libs/jquery.validate.msg.cn.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.cftoaster.1.0.1.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.cftoaster.1.0.1.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/jquery.Huploadify.js"></script>
 <script	type="text/javascript" src="/static/js/admin/forms.js"></script>
-<script type="text/javascript" src="/static/js/upload.js?v=1.0"></script>
+<script type="text/javascript" src="/static/js/base/upload.js"></script>
 {{end}}
