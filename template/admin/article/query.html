@@ -30,6 +30,11 @@
 				<td class="actions">
 					<a href="/admin/crawl/article/modify?id={{ .Id }}" target="_blank">修改</a>
 					<a data-type="ajax-submit" href="#"
+						ajax-action="/admin/crawl/article/move?id={{ .Id }}" 
+						ajax-hint="是否确定要移动?"
+						success-hint="放入主题成功"
+						callback="delCallback">放入主题</a>
+					<a data-type="ajax-submit" href="#"
 						ajax-action="/admin/crawl/article/del?id={{ .Id }}" 
 						ajax-hint="是否确定要删除?"
 						success-hint="删除成功"

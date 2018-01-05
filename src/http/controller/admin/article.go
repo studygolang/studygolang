@@ -22,6 +22,7 @@ type ArticleController struct{}
 func (self ArticleController) RegisterRoute(g *echo.Group) {
 	g.GET("/crawl/article/list", self.ArticleList)
 	g.POST("/crawl/article/query.html", self.ArticleQuery)
+	g.POST("/crawl/article/move", self.MoveToTopic)
 	g.Match([]string{"GET", "POST"}, "/crawl/article/new", self.CrawlArticle)
 	g.Match([]string{"GET", "POST"}, "/crawl/article/publish", self.Publish)
 	g.Match([]string{"GET", "POST"}, "/crawl/article/modify", self.Modify)
@@ -149,4 +150,15 @@ func (self ArticleController) Modify(ctx echo.Context) error {
 	data["langSlice"] = model.LangSlice
 
 	return render(ctx, "article/modify.html", data)
+}
+
+// MoveToTopic 放入 Topic 中
+func (self ArticleController) MoveToTopic(ctx echo.Context) error {
+	user := ctx.Get("user").(*model.Me)
+	err := logic.DefaultArticle.MoveToTopic(ctx, ctx.QueryParam("id"), user)
+
+	if err != nil {
+		return fail(ctx, 1, err.Error())
+	}
+	return success(ctx, nil)
 }

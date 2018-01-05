@@ -31,6 +31,7 @@ var BalanceTypeMap = map[int]string{
 	MissionTypeAward:    "额外赠予",
 	MissionTypeActive:   "活跃奖励",
 	MissionTypeGift:     "兑换物品",
+	MissionTypePunish:   "处罚",
 	MissionTypeSpam:     "Spam",
 }
 

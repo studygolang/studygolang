@@ -9,6 +9,7 @@ package logic
 import (
 	. "db"
 	"errors"
+	"fmt"
 	"global"
 	"model"
 	"net/url"
@@ -692,6 +693,129 @@ func (self ArticleLogic) FindByIds(ids []int) []*model.Article {
 	self.fillUser(articles)
 
 	return articles
+}
+
+// MoveToTopic 将该文章移到主题中
+// 有些用户总是将问题放在文章中发布
+func (self ArticleLogic) MoveToTopic(ctx context.Context, id interface{}, me *model.Me) error {
+	objLog := GetLogger(ctx)
+
+	article := &model.Article{}
+	_, err := MasterDB.Id(id).Get(article)
+	if err != nil {
+		objLog.Errorln("ArticleLogic MoveToTopic find article error:", err)
+		return err
+	}
+
+	if !article.IsSelf {
+		return errors.New("不是本站发布的文章，不能移动！")
+	}
+
+	user := DefaultUser.FindOne(ctx, "username", article.AuthorTxt)
+
+	session := MasterDB.NewSession()
+	defer session.Close()
+	session.Begin()
+
+	// TODO: 先不考虑内容非 markdown 格式的情况
+	topic := &model.Topic{
+		Title:     article.Title,
+		Content:   article.Content,
+		Nid:       6, // 默认放入问答节点
+		Uid:       user.Uid,
+		EditorUid: me.Uid,
+		Tags:      article.Tags,
+	}
+	_, err = session.Insert(topic)
+	if err != nil {
+		session.Rollback()
+		objLog.Errorln("ArticleLogic MoveToTopic insert Topic error:", err)
+		return err
+	}
+
+	topicEx := &model.TopicEx{
+		Tid: topic.Tid,
+	}
+
+	_, err = session.Insert(topicEx)
+	if err != nil {
+		session.Rollback()
+		objLog.Errorln("ArticleLogic MoveToTopic Insert TopicEx error:", err)
+		return err
+	}
+
+	// 修改动态信息
+	_, err = session.Table("feed").
+		Where("objid=? AND objtype=?", article.Id, model.TypeArticle).
+		Update(map[string]interface{}{
+			"objid":   topic.Tid,
+			"objtype": model.TypeTopic,
+			"nid":     topic.Nid,
+		})
+	if err != nil {
+		session.Rollback()
+		objLog.Errorln("ArticleLogic MoveToTopic Update Feed error:", err)
+		return err
+	}
+
+	// 如果有评论，更新评论属主
+	if article.Cmtnum > 0 {
+		_, err = session.Table("comments").
+			Where("objid=? AND objtype=?", article.Id, model.TypeArticle).
+			Update(map[string]interface{}{
+				"objid":   topic.Tid,
+				"objtype": model.TypeTopic,
+			})
+		if err != nil {
+			session.Rollback()
+			objLog.Errorln("ArticleLogic MoveToTopic Update Comment error:", err)
+			return err
+		}
+
+		// 处理系统消息
+		systemMsgs := make([]*model.SystemMessage, 0)
+		err = session.Where("`to`=?", user.Uid).Limit(article.Cmtnum).Find(&systemMsgs)
+		if err != nil {
+			session.Rollback()
+			objLog.Errorln("ArticleLogic MoveToTopic find system message error:", err)
+			return err
+		}
+
+		for _, msg := range systemMsgs {
+			extMap := msg.GetExt()
+
+			if val, ok := extMap["objid"]; ok {
+				objid := int(val.(float64))
+				if objid != article.Id {
+					continue
+				}
+
+				extMap["objid"] = topic.Tid
+				extMap["objtype"] = model.TypeTopic
+
+				msg.SetExt(extMap)
+
+				_, err = session.Id(msg.Id).Update(msg)
+				if err != nil {
+					session.Rollback()
+					objLog.Errorln("ArticleLogic MoveToTopic update system message error:", err)
+					return err
+				}
+			}
+		}
+	}
+
+	// 减积分处罚作者
+	award := -20
+	desc := fmt.Sprintf(`你的《%s》并非文章，应该发布到主题中，已被管理员移到主题里 <a href="/topics/%d">%s</a>`, article.Title, topic.Tid, topic.Title)
+	DefaultUserRich.IncrUserRich(user, model.MissionTypePunish, award, desc)
+
+	// 将文章删除
+	_, err = session.Id(article.Id).Delete(article)
+
+	session.Commit()
+
+	return nil
 }
 
 func (self ArticleLogic) transferImage(ctx context.Context, s *goquery.Selection, imgDeny bool, domain string) {

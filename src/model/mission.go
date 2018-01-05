@@ -39,6 +39,8 @@ const (
 	// 物品兑换
 	MissionTypeGift = 100
 
+	// 管理员操作后处罚
+	MissionTypePunish = 120
 	// 水
 	MissionTypeSpam = 127
 )
