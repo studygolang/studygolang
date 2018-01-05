@@ -719,12 +719,15 @@ func (self ArticleLogic) MoveToTopic(ctx context.Context, id interface{}, me *mo
 
 	// TODO: 先不考虑内容非 markdown 格式的情况
 	topic := &model.Topic{
-		Title:     article.Title,
-		Content:   article.Content,
-		Nid:       6, // 默认放入问答节点
-		Uid:       user.Uid,
-		EditorUid: me.Uid,
-		Tags:      article.Tags,
+		Title:         article.Title,
+		Content:       article.Content,
+		Nid:           6, // 默认放入问答节点
+		Uid:           user.Uid,
+		Lastreplyuid:  article.Lastreplyuid,
+		Lastreplytime: article.Lastreplytime,
+		EditorUid:     me.Uid,
+		Tags:          article.Tags,
+		Ctime:         article.Ctime,
 	}
 	_, err = session.Insert(topic)
 	if err != nil {
@@ -734,7 +737,10 @@ func (self ArticleLogic) MoveToTopic(ctx context.Context, id interface{}, me *mo
 	}
 
 	topicEx := &model.TopicEx{
-		Tid: topic.Tid,
+		Tid:   topic.Tid,
+		View:  article.Viewnum,
+		Reply: article.Cmtnum,
+		Like:  article.Likenum,
 	}
 
 	_, err = session.Insert(topicEx)
