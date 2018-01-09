@@ -136,6 +136,12 @@ cd 到 studygolang 源码目录
 
 * 如果之后有出现页面空白，请查看 error.log 是否有错误
 
+## FAQ
+
+Q: 提示找不到：config/env.ini 文件？  
+A: 因为 studygolang 项目本身是一个完整的项目，而且目录结构采用了 GOPATH 要求的目录结构，同时，它的安装、运行不依赖系统配置的 GOPATH，因此，请务必不要将 studygolang 目录放入你系统的 `$GOPATH/src` 下面。如果你遇到这样的错误，请尝试将 studygolang 文件夹移到 src 目录之外，比如根目录下的某个目录。
+
+
 # 使用该项目搭建的网站
 
 - [Go语言中文网](https://studygolang.com)
