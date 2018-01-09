@@ -459,7 +459,7 @@ func (ProjectLogic) ParseOneProject(projectUrl string) error {
 	})
 
 	project.Desc = strings.TrimSpace(desc)
-	project.Username = PresetUsernames[rand.Intn(4)]
+	project.Username = PresetUsernames[rand.Intn(len(PresetUsernames))]
 	project.Status = model.ProjectStatusOnline
 	project.Ctime = model.OftenTime(time.Now())
 
