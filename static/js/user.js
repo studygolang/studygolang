@@ -134,62 +134,60 @@
 			});
 		});
 
-		if (typeof plupload != "undefined") {
-			// 实例化一个plupload上传对象
-			var uploader = new plupload.Uploader({
-				browse_button : 'upload-img', // 触发文件选择对话框的按钮，为那个元素id
-				url : '/image/upload', // 服务器端的上传页面地址
-				filters: {
-					mime_types : [ //只允许上传图片
-						{ title : "图片文件", extensions : "jpg,png" }
-					],
-					max_file_size : '500k', // 最大只能上传 500kb 的文件
-					prevent_duplicates : true // 不允许选取重复文件
-				},
-				multipart_params:{
-					avatar: '1'	// 上传的是头像
-				},
-				multi_selection: false,
-				file_data_name: 'img',
-				resize: {
-					width: 600
-				}
-			});
+		// 实例化一个plupload上传对象
+		var uploader = new plupload.Uploader({
+			browse_button : 'upload-img', // 触发文件选择对话框的按钮，为那个元素id
+			url : '/image/upload', // 服务器端的上传页面地址
+			filters: {
+				mime_types : [ //只允许上传图片
+					{ title : "图片文件", extensions : "jpg,png" }
+				],
+				max_file_size : '500k', // 最大只能上传 500kb 的文件
+				prevent_duplicates : true // 不允许选取重复文件
+			},
+			multipart_params:{
+				avatar: '1'	// 上传的是头像
+			},
+			multi_selection: false,
+			file_data_name: 'img',
+			resize: {
+				width: 600
+			}
+		});
 
-			// 在实例对象上调用init()方法进行初始化
-			uploader.init();
+		// 在实例对象上调用init()方法进行初始化
+		uploader.init();
 
-			uploader.bind('FilesAdded',function(uploader, files){
-				// 调用实例对象的start()
-				uploader.start();
-			});
-			uploader.bind('UploadProgress',function(uploader,file){
-				// 上传进度
-			});
-			uploader.bind('FileUploaded',function(uploader,file,responseObject){
-				if (responseObject.status == 200) {
-					var data = $.parseJSON(responseObject.response);
-					if (data.ok) {
-						var path = data.data.uri;
-						var url = data.data.url;
-						var $img = $('#img-preview').find('img');
-						$img.attr('src', url);
-						$img.attr('alt', file.name);
-						$('#img-preview').show();
+		uploader.bind('FilesAdded',function(uploader, files){
+			// 调用实例对象的start()
+			uploader.start();
+		});
+		uploader.bind('UploadProgress',function(uploader,file){
+			// 上传进度
+		});
+		uploader.bind('FileUploaded',function(uploader,file,responseObject){
+			if (responseObject.status == 200) {
+				var data = $.parseJSON(responseObject.response);
+				if (data.ok) {
+					var path = data.data.uri;
+					var url = data.data.url;
+					var $img = $('#img-preview').find('img');
+					$img.attr('src', url);
+					$img.attr('alt', file.name);
+					$('#img-preview').show();
 
-						$('#upload-avatar').val(path.substr(7));
+					$('#upload-avatar').val(path.substr(7));
 
-						$('#upload-btn').removeAttr("disabled");
-					} else {
-						comTip("上传失败："+data.error);
-					}
+					$('#upload-btn').removeAttr("disabled");
 				} else {
-					comTip("上传失败：HTTP状态码："+responseObject.status);
+					comTip("上传失败："+data.error);
 				}
-			});
-			uploader.bind('Error',function(uploader,errObject){
-				comTip("上传出错了："+errObject.message);
-			});
-		}
+			} else {
+				comTip("上传失败：HTTP状态码："+responseObject.status);
+			}
+		});
+		uploader.bind('Error',function(uploader,errObject){
+			comTip("上传出错了："+errObject.message);
+		});
 	});
 }).call(this);
