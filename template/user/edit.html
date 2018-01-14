@@ -143,7 +143,7 @@
 						<div class="form-group">
 							<label class="control-label col-md-2" for="upload-img">选择图片文件</label>
 							<div class="col-md-2">
-								<button id="upload-img" class="btn btn-default btn-sm">选择文件</button>
+								<button id="btn-upload-avatar" class="btn btn-default btn-sm">选择文件</button>
 							</div>
 							<span class="help-block">支持500K以内的jpg/png文件</span>
 						</div>
@@ -264,7 +264,7 @@
 {{define "js"}}
 
 {{include "cssjs/publish.js.html" .}}
-<script type="text/javascript" src="{{.static_domain}}/static/dist/js/user.min.js"></script>
+<script type="text/javascript" src="{{.static_domain}}/static/dist/js/user.min.js?v=0.1"></script>
 <script type="text/javascript">
 $(function(){
 	// 文本框自动伸缩
