@@ -19,7 +19,8 @@ type IndexLogic struct{}
 
 var DefaultIndex = IndexLogic{}
 
-func (IndexLogic) FindData(ctx context.Context, tab string) map[string]interface{} {
+func (IndexLogic) FindData(ctx context.Context, tab string, paginator *Paginator) map[string]interface{} {
+
 	indexNav := GetCurIndexNav(tab)
 	if indexNav == nil {
 		indexNav = WebsiteSetting.IndexNavs[0]
@@ -40,9 +41,14 @@ func (IndexLogic) FindData(ctx context.Context, tab string) map[string]interface
 
 	switch {
 	case indexNav.DataSource == "feed":
+
 		topFeeds := DefaultFeed.FindTop(ctx)
-		feeds := DefaultFeed.FindRecent(ctx, 50)
+
+		// feeds := DefaultFeed.FindRecent(ctx, 50)
+		feeds := DefaultFeed.FindRecentWithPaginator(ctx, paginator)
+
 		data["feeds"] = append(topFeeds, feeds...)
+
 	case isNid:
 		paginator := NewPaginator(1)
 

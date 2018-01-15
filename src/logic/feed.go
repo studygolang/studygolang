@@ -23,6 +23,19 @@ type FeedLogic struct{}
 
 var DefaultFeed = FeedLogic{}
 
+func (self FeedLogic) FindRecentWithPaginator(ctx context.Context, paginator *Paginator) []*model.Feed {
+	objLog := GetLogger(ctx)
+
+	feeds := make([]*model.Feed, 0)
+	err := MasterDB.Desc("updated_at").Limit(paginator.PerPage(), paginator.Offset()).Find(&feeds)
+	if err != nil {
+		objLog.Errorln("FeedLogic FindRecent error:", err)
+		return nil
+	}
+
+	return self.fillOtherInfo(ctx, feeds, true)
+}
+
 func (self FeedLogic) FindRecent(ctx context.Context, num int) []*model.Feed {
 	objLog := GetLogger(ctx)
 
