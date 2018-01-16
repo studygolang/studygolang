@@ -143,6 +143,10 @@ func (this *Paginator) SetTotal(total int64) *Paginator {
 	return this
 }
 
+func (this *Paginator) GetTotal() int {
+	return this.total
+}
+
 func (this *Paginator) Offset() (offset int) {
 	if this.curPage > 1 {
 		offset = (this.curPage - 1) * this.perPage

@@ -19,6 +19,7 @@
 			</div>
 			{{end}}
 
+
 		{{with or .feeds .topics .articles .docs}}
 		
 			{{range $i, $feed := $.feeds}}
@@ -82,6 +83,7 @@
 						{{end}}
 					</tr>
 				</tbody></table>
+
 			</div>
 				{{if eq $i 4}}
 					{{if $.pos_ad.banner}}
@@ -277,6 +279,14 @@
 						{{end}}
 					{{end}}
 				{{end}}
+			{{end}}
+			
+			{{if $.page}}
+			<div class="box_white">
+				<div class="inner_content">
+					<nav class="text-center"><ul class="pagination pagination-sm" style="margin: 1px 0;">{{$.page}}</ul></nav>
+				</div>
+			</div>
 			{{end}}
 
 		{{else}}

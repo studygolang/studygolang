@@ -20,6 +20,7 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/polaris1119/config"
+	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 )
 
@@ -46,10 +47,22 @@ func (IndexController) Index(ctx echo.Context) error {
 	if tab == "" {
 		tab = logic.WebsiteSetting.IndexNavs[0].Tab
 	}
+	paginator := logic.NewPaginator(goutils.MustInt(ctx.QueryParam("p"), 1))
 
-	data := logic.DefaultIndex.FindData(ctx, tab)
+	data := logic.DefaultIndex.FindData(ctx, tab, paginator)
+
 	SetCookie(ctx, "INDEX_TAB", data["tab"].(string))
+
 	data["all_nodes"] = logic.GenNodes()
+
+	if tab == "all" {
+		pageHtml := paginator.SetTotal(logic.DefaultFeed.GetTotalCount(ctx)).GetPageHtml(ctx.Request().URL().Path())
+
+		data["page"] = template.HTML(pageHtml)
+
+		data["total"] = paginator.GetTotal()
+
+	}
 
 	return render(ctx, "index.html", data)
 }
