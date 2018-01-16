@@ -17,7 +17,7 @@ import (
 func TestPullPR(t *testing.T) {
 	logger.Init(config.ROOT+"/log", config.ConfigFile.MustValue("global", "log_level", "DEBUG"))
 
-	err := logic.DefaultGithub.PullPR("studygolang/GCTT", false)
+	err := logic.DefaultGithub.PullPR("studygolang/GCTT", true)
 	if err != nil {
 		t.Error("pull request error:", err)
 	}

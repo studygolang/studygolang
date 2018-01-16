@@ -183,6 +183,24 @@ func (self GithubLogic) translating(filesResult gjson.Result, _prInfo *prInfo) e
 		filename := val.Get("filename").String()
 		// 是否对原文的改动
 		if !strings.HasPrefix(filename, "sources") {
+
+			// 目前改为采用 issue 的方式选题，不再有 sources
+			if strings.HasPrefix(filename, "translated") {
+				filenames := strings.SplitN(filename, "/", 3)
+				if len(filenames) < 3 {
+					return true
+				}
+				title := filenames[2]
+				if title == "" {
+					return true
+				}
+
+				err := self.issueTranslated(_prInfo, title)
+				if err != nil {
+					outErr = err
+				}
+			}
+
 			return true
 		}
 
@@ -207,6 +225,53 @@ func (self GithubLogic) translating(filesResult gjson.Result, _prInfo *prInfo) e
 	})
 
 	return outErr
+}
+
+func (self GithubLogic) issueTranslated(_prInfo *prInfo, title string) error {
+	md5 := goutils.Md5(title)
+	gcttGit := &model.GCTTGit{}
+	_, err := MasterDB.Where("md5=?", md5).Get(gcttGit)
+	if err != nil {
+		logger.Errorln("GithubLogic insertOrUpdateGCCT get error:", err)
+		return err
+	}
+
+	if gcttGit.Id > 0 {
+		return nil
+	}
+
+	gcttUser := DefaultGCTT.FindOne(nil, _prInfo.username)
+
+	session := MasterDB.NewSession()
+	defer session.Close()
+	session.Begin()
+
+	if gcttUser.Id == 0 {
+		gcttUser.Username = _prInfo.username
+		gcttUser.Avatar = _prInfo.avatar
+		gcttUser.JoinedAt = _prInfo.prTime.Unix()
+		_, err = session.Insert(gcttUser)
+		if err != nil {
+			session.Rollback()
+			logger.Errorln("GithubLogic issueTranslated insert gctt_user error:", err)
+			return err
+		}
+	}
+
+	gcttGit.Username = _prInfo.username
+	gcttGit.Title = title
+	gcttGit.Md5 = md5
+	gcttGit.PR = _prInfo.number
+	gcttGit.TranslatedAt = _prInfo.prTime.Unix()
+	_, err = MasterDB.Insert(gcttGit)
+	if err != nil {
+		session.Rollback()
+		logger.Errorln("GithubLogic issueTranslated insert error:", err)
+		return err
+	}
+
+	session.Commit()
+	return nil
 }
 
 func (self GithubLogic) translated(filesResult gjson.Result, _prInfo *prInfo) error {
