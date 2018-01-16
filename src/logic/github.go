@@ -443,7 +443,7 @@ func (GithubLogic) statUserTime() {
 
 	for _, gcttUser := range gcttUsers {
 		gcttGits := make([]*model.GCTTGit, 0)
-		err = MasterDB.Where("username=?", gcttUser.Username).OrderBy("id ASC").Find(&gcttGits)
+		err = MasterDB.Where("username=? AND pr!=0", gcttUser.Username).OrderBy("id ASC").Find(&gcttGits)
 		if err != nil {
 			logger.Errorln("GithubLogic find gctt git error:", err)
 			continue
