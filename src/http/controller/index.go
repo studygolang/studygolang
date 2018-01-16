@@ -52,13 +52,17 @@ func (IndexController) Index(ctx echo.Context) error {
 	data := logic.DefaultIndex.FindData(ctx, tab, paginator)
 
 	SetCookie(ctx, "INDEX_TAB", data["tab"].(string))
+
 	data["all_nodes"] = logic.GenNodes()
 
-	pageHtml := paginator.SetTotal(200).GetPageHtml(ctx.Request().URL().Path())
+	if tab == "all" {
+		pageHtml := paginator.SetTotal(logic.DefaultFeed.GetTotalCount(ctx)).GetPageHtml(ctx.Request().URL().Path())
 
-	data["page"] = template.HTML(pageHtml)
+		data["page"] = template.HTML(pageHtml)
 
-	data["total"] = 200
+		data["total"] = paginator.GetTotal()
+
+	}
 
 	return render(ctx, "index.html", data)
 }

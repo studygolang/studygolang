@@ -23,6 +23,16 @@ type FeedLogic struct{}
 
 var DefaultFeed = FeedLogic{}
 
+func (self FeedLogic) GetTotalCount(ctx context.Context) int64 {
+	objLog := GetLogger(ctx)
+	count, err := MasterDB.Where("state=0").Count(new(model.Feed))
+	if err != nil {
+		objLog.Errorln("FeedLogic Count error:", err)
+		return 0
+	}
+	return count
+}
+
 func (self FeedLogic) FindRecentWithPaginator(ctx context.Context, paginator *Paginator) []*model.Feed {
 	objLog := GetLogger(ctx)
 
