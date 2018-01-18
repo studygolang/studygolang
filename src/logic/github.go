@@ -732,7 +732,7 @@ func (self GithubLogic) insertIssue(id int64, title, label string) error {
 func (self GithubLogic) findUserEmail(githubUser string) string {
 	uid := DefaultThirdUser.findUid(githubUser, model.BindTypeGithub)
 	if uid != 0 {
-		user := DefaultUser.FindOne(nil, "uid", uid)
+		user := DefaultUser.findUser(nil, uid)
 		if strings.HasSuffix(user.Email, "@github.com") {
 			return user.Email
 		}
