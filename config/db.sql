@@ -724,6 +724,21 @@ CREATE TABLE IF NOT EXISTS `gctt_timeline` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'GCTT 大事记';
 
 
+CREATE TABLE IF NOT EXISTS `gctt_issue` (
+  `id` int unsigned NOT NULL DEFAULT 0 COMMENT '选题的 issue 编号',
+  `translator` varchar(31) NOT NULL DEFAULT '' COMMENT '译者 Github 用户名',
+  `email` varchar(63) NOT NULL DEFAULT '' COMMENT '译者邮箱', 
+  `title` varchar(127) NOT NULL DEFAULT '' COMMENT 'issue 标题',
+  `translating_at` int unsigned NOT NULL DEFAULT 0 COMMENT '开始翻译时间（认领时间）',
+  `translated_at` int unsigned NOT NULL DEFAULT 0 COMMENT '完成翻译时间（close 时间）',
+  `label` varchar(31) NOT NULL DEFAULT '' COMMENT '标签，如：已认领，待认领',
+  `state` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '0-opened；1-closed',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX (`label`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'GCTT github 选题 issue 列表';
+
+
 CREATE TABLE IF NOT EXISTS `subject` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '专栏ID',
   `name` varchar(31) NOT NULL DEFAULT '' COMMENT '专栏名',

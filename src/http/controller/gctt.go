@@ -10,19 +10,20 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"fmt"
+	"html/template"
 	. "http"
 	"http/middleware"
 	"io/ioutil"
 	"logic"
 	"model"
 	"net/http"
-
-	"github.com/polaris1119/config"
-
-	"github.com/polaris1119/logger"
+	"strconv"
 
 	"github.com/labstack/echo"
+	"github.com/polaris1119/config"
 	"github.com/polaris1119/echoutils"
+	"github.com/polaris1119/goutils"
+	"github.com/polaris1119/logger"
 )
 
 type GCTTController struct{}
@@ -31,6 +32,7 @@ type GCTTController struct{}
 func (self GCTTController) RegisterRoute(g *echo.Group) {
 	g.Get("/gctt", self.Index)
 	g.Get("/gctt-list", self.UserList)
+	g.Get("/gctt-issue", self.IssueList)
 	g.Get("/gctt/:username", self.User)
 	g.Get("/gctt-apply", self.Apply, middleware.NeedLogin())
 	g.Match([]string{"GET", "POST"}, "/gctt-new", self.Create, middleware.NeedLogin())
@@ -41,10 +43,12 @@ func (self GCTTController) RegisterRoute(g *echo.Group) {
 func (self GCTTController) Index(ctx echo.Context) error {
 	gcttTimeLines := logic.DefaultGCTT.FindTimeLines(ctx)
 	gcttUsers := logic.DefaultGCTT.FindCoreUsers(ctx)
+	gcttIssues := logic.DefaultGCTT.FindUnTranslateIssues(ctx, 10)
 
 	return Render(ctx, "gctt/index.html", map[string]interface{}{
 		"time_lines": gcttTimeLines,
 		"users":      gcttUsers,
+		"issues":     gcttIssues,
 	})
 }
 
@@ -151,6 +155,44 @@ func (GCTTController) UserList(ctx echo.Context) error {
 	})
 }
 
+func (GCTTController) IssueList(ctx echo.Context) error {
+	querystring, arg := "", ""
+
+	label := ctx.QueryParam("label")
+
+	translator := ctx.QueryParam("translator")
+	if translator != "" {
+		querystring = "translator=?"
+		arg = translator
+	} else {
+		if label == model.LabelUnClaim {
+			querystring = "label=?"
+			arg = label
+		} else if label == model.LabelClaimed {
+			querystring = "label=? AND state=" + strconv.Itoa(model.IssueOpened)
+			arg = label
+		}
+	}
+
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	paginator := logic.NewPaginator(curPage)
+
+	issues := logic.DefaultGCTT.FindIssues(ctx, paginator, querystring, arg)
+
+	total := logic.DefaultGCTT.IssueCount(ctx, querystring, arg)
+	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
+
+	prs := logic.DefaultGCTT.FindNewestGit(ctx)
+
+	return render(ctx, "gctt/issue-list.html", map[string]interface{}{
+		"issues":     issues,
+		"prs":        prs,
+		"page":       template.HTML(pageHtml),
+		"translator": translator,
+		"label":      label,
+	})
+}
+
 func (GCTTController) Webhook(ctx echo.Context) error {
 	body, err := ioutil.ReadAll(Request(ctx).Body)
 	if err != nil {
@@ -171,6 +213,10 @@ func (GCTTController) Webhook(ctx echo.Context) error {
 	switch event {
 	case "pull_request":
 		return logic.DefaultGithub.PullRequestEvent(ctx, body)
+	case "issue_comment":
+		return logic.DefaultGithub.IssueCommentEvent(ctx, body)
+	case "issues":
+		return logic.DefaultGithub.IssueEvent(ctx, body)
 	default:
 		fmt.Println("not deal event:", event)
 	}

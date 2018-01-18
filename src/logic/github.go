@@ -13,6 +13,7 @@ import (
 	"io/ioutil"
 	"model"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -64,6 +65,91 @@ func (self GithubLogic) PullRequestEvent(ctx context.Context, body []byte) error
 	return err
 }
 
+// IssueEvent 处理 issue 的 GitHub 事件
+func (self GithubLogic) IssueEvent(ctx context.Context, body []byte) error {
+	objLog := GetLogger(ctx)
+
+	var err error
+
+	result := gjson.ParseBytes(body)
+	id := result.Get("issue.number").Int()
+
+	labels := result.Get("issue.labels").Array()
+	label := ""
+	if len(labels) > 0 {
+		label = labels[0].Get("name").String()
+	}
+
+	title := result.Get("issue.title").String()
+
+	action := result.Get("action").String()
+	if action == "opened" {
+		err = self.insertIssue(id, title, label)
+	} else if action == "labeled" || action == "unlabeled" {
+		gcttIssue := &model.GCTTIssue{}
+		MasterDB.Id(id).Get(gcttIssue)
+		if gcttIssue.Id == 0 {
+			self.insertIssue(id, title, label)
+		} else {
+			if label == model.LabelUnClaim {
+				gcttIssue.Translator = ""
+				gcttIssue.TranslatingAt = 0
+			}
+
+			gcttIssue.Label = label
+			_, err = MasterDB.Id(id).Update(gcttIssue)
+		}
+	} else if action == "closed" {
+		_, err = MasterDB.Id(id).Update(map[string]interface{}{"state": model.IssueClosed})
+	} else if action == "reopened" {
+		_, err = MasterDB.Id(id).Update(map[string]interface{}{"state": model.IssueClosed})
+	}
+
+	if err != nil {
+		objLog.Errorln("GithubLogic IssueEvent error:", err)
+	}
+
+	return nil
+}
+
+// IssueCommentEvent 处理 issue Comment 的 GitHub 事件
+func (self GithubLogic) IssueCommentEvent(ctx context.Context, body []byte) error {
+	objLog := GetLogger(ctx)
+	var err error
+
+	result := gjson.ParseBytes(body)
+
+	id := result.Get("issue.number").Int()
+	action := result.Get("action").String()
+
+	if action == "created" {
+		comments := result.Get("issue.comments").Int()
+		// 第一个评论，认为是认领
+		if comments == 1 {
+			githubUser := result.Get("comment.user.login").String()
+			email := self.findUserEmail(githubUser)
+
+			gcttIssue := &model.GCTTIssue{
+				Email:         email,
+				Translator:    result.Get("comment.user.login").String(),
+				TranslatingAt: result.Get("comment.created_at").Time().Unix(),
+			}
+			_, err = MasterDB.Id(id).Update(gcttIssue)
+		}
+	}
+
+	if err != nil {
+		objLog.Errorln("GithubLogic IssueCommentEvent error:", err)
+	}
+
+	return nil
+}
+
+// RemindTranslator 提醒译者注认领任的翻译进度，避免认领了长时间不翻译
+func (self GithubLogic) RemindTranslator() error {
+	return nil
+}
+
 func (self GithubLogic) PullPR(repo string, isAll bool) error {
 	if !isAll {
 		err := self.pullPR(repo, 1)
@@ -94,12 +180,161 @@ func (self GithubLogic) PullPR(repo string, isAll bool) error {
 	return err
 }
 
+func (self GithubLogic) SyncIssues(repo string, isAll bool) error {
+	if !isAll {
+		err := self.syncIssues(repo, 1)
+		return err
+	}
+
+	var (
+		err  error
+		page = 1
+	)
+
+	for {
+		err = self.syncIssues(repo, page, "asc")
+		if err == noMoreDataErr {
+			break
+		}
+
+		page++
+	}
+
+	return err
+}
+
+func (self GithubLogic) syncIssues(repo string, page int, directions ...string) error {
+	issueListURL := fmt.Sprintf("%s/repos/%s/issues?state=all&per_page=30&page=%d", GithubAPIBaseUrl, repo, page)
+	if len(directions) > 0 {
+		issueListURL += "&direction=" + directions[0]
+	}
+
+	issueListURL = self.addBasicAuth(issueListURL)
+
+	fmt.Println(issueListURL)
+	return nil
+
+	resp, err := http.Get(issueListURL)
+	if err != nil {
+		logger.Errorln("GithubLogic syncIssues http get error:", err)
+		return err
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+	if err != nil {
+		logger.Errorln("GithubLogic syncIssues read all error:", err)
+		return err
+	}
+
+	result := gjson.ParseBytes(body)
+
+	if len(result.Array()) == 0 {
+		return noMoreDataErr
+	}
+
+	var outErr error
+
+	result.ForEach(func(key, val gjson.Result) bool {
+		// pr 也是 issue，不处理
+		if val.Get("pull_request").Exists() {
+			return true
+		}
+
+		labels := val.Get("labels").Array()
+		label := ""
+		if len(labels) > 0 {
+			label = labels[0].Get("name").String()
+		}
+
+		if label != model.LabelUnClaim && label != model.LabelClaimed {
+			return true
+		}
+
+		id := val.Get("number").Int()
+
+		gcttIssue := &model.GCTTIssue{}
+
+		_, err := MasterDB.Id(id).Get(gcttIssue)
+		if err != nil {
+			outErr = err
+			return true
+		}
+
+		var state uint8 = model.IssueClosed
+		issueState := val.Get("state").String()
+		if issueState == "open" {
+			state = model.IssueOpened
+		} else {
+			gcttIssue.TranslatedAt = val.Get("closed_at").Time().Unix()
+
+			if gcttIssue.State == model.IssueClosed {
+				return true
+			}
+		}
+		gcttIssue.State = state
+		gcttIssue.Title = val.Get("title").String()
+		gcttIssue.Label = label
+
+		if label == model.LabelClaimed {
+			translator, createdAt := self.findTranslatorComment(val.Get("comments_url").String())
+			if translator == "" {
+				translator = val.Get("user.login").String()
+				createdAt = val.Get("created_at").Time().Unix()
+			}
+
+			gcttIssue.Translator = translator
+			gcttIssue.TranslatingAt = createdAt
+
+			gcttIssue.Email = self.findUserEmail(translator)
+		}
+
+		if gcttIssue.Id > 0 {
+			_, outErr = MasterDB.Id(id).Update(gcttIssue)
+		} else {
+			gcttIssue.Id = int(id)
+			_, outErr = MasterDB.Insert(gcttIssue)
+		}
+
+		return true
+	})
+
+	return outErr
+}
+
+func (self GithubLogic) findTranslatorComment(commentsURL string) (string, int64) {
+	commentsURL = self.addBasicAuth(commentsURL)
+	resp, err := http.Get(commentsURL)
+	if err != nil {
+		logger.Errorln("github fetch comments error:", err, "url:", commentsURL)
+		return "", 0
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+	if err != nil {
+		logger.Errorln("github read comments resp error:", err)
+		return "", 0
+	}
+	commentsResult := gjson.ParseBytes(body)
+	if len(commentsResult.Array()) == 0 {
+		return "", 0
+	}
+
+	translatorComment := commentsResult.Array()[0]
+	// 第一个为译者
+	translator := translatorComment.Get("user.login").String()
+	createdAt := translatorComment.Get("created_at").Time()
+
+	return translator, createdAt.Unix()
+}
+
 func (self GithubLogic) pullPR(repo string, page int, directions ...string) error {
 	prListURL := fmt.Sprintf("%s/repos/%s/pulls?state=all&per_page=30&page=%d", GithubAPIBaseUrl, repo, page)
 
 	if len(directions) > 0 {
 		prListURL += "&direction=" + directions[0]
 	}
+
+	prListURL = self.addBasicAuth(prListURL)
 
 	resp, err := http.Get(prListURL)
 	if err != nil {
@@ -147,7 +382,7 @@ func (self GithubLogic) dealFiles(_prInfo *prInfo) error {
 		return nil
 	}
 
-	filesURL := _prInfo.prURL + "/files"
+	filesURL := self.addBasicAuth(_prInfo.prURL + "/files")
 	resp, err := http.Get(filesURL)
 	if err != nil {
 		logger.Errorln("github fetch files error:", err, "url:", filesURL)
@@ -485,4 +720,37 @@ func (GithubLogic) statUserTime() {
 			logger.Errorln("GithubLogic update gctt user error:", err)
 		}
 	}
+}
+
+func (self GithubLogic) insertIssue(id int64, title, label string) error {
+	gcttIssue := &model.GCTTIssue{
+		Id:    int(id),
+		Title: title,
+		Label: label,
+	}
+	_, err := MasterDB.Insert(gcttIssue)
+	return err
+}
+
+func (self GithubLogic) findUserEmail(githubUser string) string {
+	uid := DefaultThirdUser.findUid(githubUser, model.BindTypeGithub)
+	if uid != 0 {
+		user := DefaultUser.FindOne(nil, "uid", uid)
+		if strings.HasSuffix(user.Email, "@github.com") {
+			return user.Email
+		}
+	}
+
+	gcttIssue := &model.GCTTIssue{}
+	MasterDB.Where("translator=? AND email!=''", githubUser).Get(gcttIssue)
+	return gcttIssue.Email
+}
+
+func (self GithubLogic) addBasicAuth(netURL string) string {
+	password, ok := os.LookupEnv("GITHUB_PASSWORD")
+	if ok {
+		return netURL[:8] + "polaris1119:" + password + "@" + netURL[8:]
+	}
+
+	return netURL
 }

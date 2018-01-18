@@ -61,6 +61,9 @@ func ServeBackGround() {
 
 			// 给用户发邮件，如通知网站最近的动态，每周的晨读汇总等
 			c.AddFunc("0 0 0 * * *", logic.DefaultEmail.EmailNotice)
+
+			// webhook 方式增量，每天补漏
+			c.AddFunc("@daily", syncGCTTRepo)
 		}
 
 		// 取消置顶
@@ -69,8 +72,6 @@ func ServeBackGround() {
 		// 每天对活跃用户奖励铜币
 		c.AddFunc("@daily", logic.DefaultUserRich.AwardCooper)
 
-		// webhook 方式增量，每天补漏
-		c.AddFunc("@daily", pullGCTTPR)
 	}
 
 	// 两分钟刷一次浏览数（TODO：重启丢失问题？信号控制重启？）
@@ -155,12 +156,13 @@ func unsetTop() {
 	logic.DefaultTopic.AutoUnsetTop()
 }
 
-func pullGCTTPR() {
+func syncGCTTRepo() {
 	repo := config.ConfigFile.MustValue("gctt", "repo")
 	if repo == "" {
 		return
 	}
 
 	logic.DefaultGithub.PullPR(repo, *syncAllGCTT)
+	logic.DefaultGithub.SyncIssues(repo, *syncAllGCTT)
 	*syncAllGCTT = false
 }

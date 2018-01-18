@@ -22,3 +22,12 @@ func TestPullPR(t *testing.T) {
 		t.Error("pull request error:", err)
 	}
 }
+
+func TestSyncIssues(t *testing.T) {
+	logger.Init(config.ROOT+"/log", config.ConfigFile.MustValue("global", "log_level", "DEBUG"))
+
+	err := logic.DefaultGithub.SyncIssues("studygolang/GCTT", true)
+	if err != nil {
+		t.Error("SyncIssues error:", err)
+	}
+}

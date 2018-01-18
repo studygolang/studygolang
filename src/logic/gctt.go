@@ -93,6 +93,57 @@ func (self GCTTLogic) FindUsers(ctx context.Context) []*model.GCTTUser {
 	return gcttUsers
 }
 
+func (self GCTTLogic) FindUnTranslateIssues(ctx context.Context, limit int) []*model.GCTTIssue {
+	objLog := GetLogger(ctx)
+
+	gcttIssues := make([]*model.GCTTIssue, 0)
+
+	err := MasterDB.Where("state=?", model.IssueOpened).
+		Limit(limit).OrderBy("id DESC").Find(&gcttIssues)
+	if err != nil {
+		objLog.Errorln("GCTTLogic FindUnTranslateIssues error:", err)
+	}
+
+	return gcttIssues
+}
+
+func (self GCTTLogic) FindIssues(ctx context.Context, paginator *Paginator, querysring string, args ...interface{}) []*model.GCTTIssue {
+	objLog := GetLogger(ctx)
+
+	gcttIssues := make([]*model.GCTTIssue, 0)
+
+	session := MasterDB.OrderBy("id DESC")
+	if querysring != "" {
+		session.Where(querysring, args...)
+	}
+	err := session.Limit(paginator.PerPage(), paginator.Offset()).Find(&gcttIssues)
+	if err != nil {
+		objLog.Errorln("GCTTLogic FindIssues error:", err)
+	}
+
+	return gcttIssues
+}
+
+func (self GCTTLogic) IssueCount(ctx context.Context, querystring string, args ...interface{}) int64 {
+	objLog := GetLogger(ctx)
+
+	var (
+		total int64
+		err   error
+	)
+	if querystring == "" {
+		total, err = MasterDB.Count(new(model.GCTTIssue))
+	} else {
+		total, err = MasterDB.Where(querystring, args...).Count(new(model.GCTTIssue))
+	}
+
+	if err != nil {
+		objLog.Errorln("GCTTLogic Count error:", err)
+	}
+
+	return total
+}
+
 func (self GCTTLogic) FindNewestGit(ctx context.Context) []*model.GCTTGit {
 	objLog := GetLogger(ctx)
 

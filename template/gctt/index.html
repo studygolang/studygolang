@@ -62,6 +62,21 @@
             </div>
         </div>
 
+        <div class="box_white sidebar">
+            <div class="top">
+                <h3 class="title"><i class="glyphicon glyphicon-list"></i>&nbsp;<a href="/gctt-issue" title="选题列表">选题列表</a></h3>
+            </div>
+            <div class="sb-content">
+                <div class="article-list" data-limit="10">
+                    <ul class="list-unstyled">
+                        {{range .issues}}
+                        <li><a href="https://github.com/studygolang/GCTT/issues/{{.Id}}" target="_blank" data-tooltip="{{.Title}}">{{.Title}}</a></li>
+                        {{end}}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 {{end}}
@@ -94,4 +109,10 @@
     visibility: visible
 }
 </style>
+
+<link href="https://cdn.bootcss.com/html5tooltipsjs/1.7.2/html5tooltips.min.css" rel="stylesheet">
+{{end}}
+
+{{define "js"}}
+<script src="https://cdn.bootcss.com/html5tooltipsjs/1.7.2/html5tooltips.min.js"></script>
 {{end}}

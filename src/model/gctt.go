@@ -20,6 +20,16 @@ const (
 	GCTTRoleCore     // 核心成员
 )
 
+const (
+	IssueOpened = iota
+	IssueClosed
+)
+
+const (
+	LabelUnClaim = "待认领"
+	LabelClaimed = "已认领"
+)
+
 var roleMap = map[int]string{
 	GCTTRoleTranslator: "译者",
 	GCTTRoleLeader:     "组长",
@@ -79,6 +89,22 @@ type GCTTGit struct {
 
 func (*GCTTGit) TableName() string {
 	return "gctt_git"
+}
+
+type GCTTIssue struct {
+	Id            int `xorm:"pk autoincr"`
+	Translator    string
+	Email         string
+	Title         string
+	TranslatingAt int64
+	TranslatedAt  int64
+	Label         string
+	State         uint8
+	CreatedAt     time.Time `xorm:"<-"`
+}
+
+func (*GCTTIssue) TableName() string {
+	return "gctt_issue"
 }
 
 type GCTTTimeLine struct {
