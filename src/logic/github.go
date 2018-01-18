@@ -736,7 +736,7 @@ func (self GithubLogic) findUserEmail(githubUser string) string {
 	uid := DefaultThirdUser.findUid(githubUser, model.BindTypeGithub)
 	if uid != 0 {
 		user := DefaultUser.findUser(nil, uid)
-		if strings.HasSuffix(user.Email, "@github.com") {
+		if !strings.HasSuffix(user.Email, "@github.com") {
 			return user.Email
 		}
 	}
