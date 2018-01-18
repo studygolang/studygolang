@@ -211,9 +211,6 @@ func (self GithubLogic) syncIssues(repo string, page int, directions ...string) 
 
 	issueListURL = self.addBasicAuth(issueListURL)
 
-	fmt.Println(issueListURL)
-	return nil
-
 	resp, err := http.Get(issueListURL)
 	if err != nil {
 		logger.Errorln("GithubLogic syncIssues http get error:", err)
