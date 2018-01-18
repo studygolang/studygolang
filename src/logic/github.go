@@ -127,8 +127,8 @@ func (self GithubLogic) IssueCommentEvent(ctx context.Context, body []byte) erro
 
 	if action == "created" {
 		comments := result.Get("issue.comments").Int()
-		// 第一个评论，认为是认领
-		if comments == 1 {
+		// 这是第一个评论，认为是认领
+		if comments == 0 {
 			githubUser := result.Get("comment.user.login").String()
 			email := self.findUserEmail(githubUser)
 
