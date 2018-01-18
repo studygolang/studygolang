@@ -210,6 +210,7 @@ func (GCTTController) Webhook(ctx echo.Context) error {
 	}
 
 	event := header.Get("X-GitHub-Event")
+	logger.Infoln("GCTTController Webhook event:", event)
 	switch event {
 	case "pull_request":
 		return logic.DefaultGithub.PullRequestEvent(ctx, body)

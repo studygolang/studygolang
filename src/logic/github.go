@@ -100,9 +100,9 @@ func (self GithubLogic) IssueEvent(ctx context.Context, body []byte) error {
 			_, err = MasterDB.Id(id).Update(gcttIssue)
 		}
 	} else if action == "closed" {
-		_, err = MasterDB.Id(id).Update(map[string]interface{}{"state": model.IssueClosed})
+		_, err = MasterDB.Table(new(model.GCTTIssue)).Id(id).Update(map[string]interface{}{"state": model.IssueClosed})
 	} else if action == "reopened" {
-		_, err = MasterDB.Id(id).Update(map[string]interface{}{"state": model.IssueClosed})
+		_, err = MasterDB.Table(new(model.GCTTIssue)).Id(id).Update(map[string]interface{}{"state": model.IssueClosed})
 	}
 
 	if err != nil {
