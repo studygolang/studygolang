@@ -733,9 +733,14 @@ func (self GithubLogic) insertIssue(id int64, title, label string) error {
 }
 
 func (self GithubLogic) findUserEmail(githubUser string) string {
-	uid := DefaultThirdUser.findUid(githubUser, model.BindTypeGithub)
-	if uid != 0 {
-		user := DefaultUser.findUser(nil, uid)
+	bindUser := &model.BindUser{}
+	MasterDB.Where("username=? AND `type`=?", githubUser, model.BindTypeGithub).Get(bindUser)
+	if !strings.HasSuffix(bindUser.Email, "@github.com") {
+		return bindUser.Email
+	}
+
+	if bindUser.Uid != 0 {
+		user := DefaultUser.findUser(nil, bindUser.Uid)
 		if !strings.HasSuffix(user.Email, "@github.com") {
 			return user.Email
 		}
