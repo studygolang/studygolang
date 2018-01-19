@@ -34,6 +34,19 @@ var DefaultEmail = EmailLogic{}
 func (EmailLogic) SendMail(subject, content string, tos []string) (err error) {
 	emailConfig, _ := config.ConfigFile.GetSection("email")
 
+	for _, to := range tos {
+		if strings.HasSuffix(to, "163.com") || strings.HasSuffix(to, "126.com") {
+			email163Config, _ := config.ConfigFile.GetSection("email.163")
+			emailConfig["from_email"] = email163Config["from_email"]
+			emailConfig["smtp_username"] = email163Config["smtp_username"]
+			emailConfig["smtp_password"] = email163Config["smtp_password"]
+			emailConfig["smtp_host"] = email163Config["smtp_host"]
+			emailConfig["smtp_port"] = email163Config["smtp_port"]
+
+			break
+		}
+	}
+
 	e := email.NewEmail()
 	e.From = WebsiteSetting.Name + ` <` + emailConfig["from_email"] + `>`
 	e.To = tos
