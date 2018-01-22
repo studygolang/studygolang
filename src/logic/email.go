@@ -34,32 +34,38 @@ var DefaultEmail = EmailLogic{}
 func (EmailLogic) SendMail(subject, content string, tos []string) (err error) {
 	emailConfig, _ := config.ConfigFile.GetSection("email")
 
+	fromEmail := emailConfig["from_email"]
+	smtpUsername := emailConfig["smtp_username"]
+	smtpPassword := emailConfig["smtp_password"]
+	smtpHost := emailConfig["smtp_host"]
+	smtpPort := emailConfig["smtp_port"]
+
 	for _, to := range tos {
 		if strings.HasSuffix(to, "163.com") || strings.HasSuffix(to, "126.com") {
 			email163Config, _ := config.ConfigFile.GetSection("email.163")
-			emailConfig["from_email"] = email163Config["from_email"]
-			emailConfig["smtp_username"] = email163Config["smtp_username"]
-			emailConfig["smtp_password"] = email163Config["smtp_password"]
-			emailConfig["smtp_host"] = email163Config["smtp_host"]
-			emailConfig["smtp_port"] = email163Config["smtp_port"]
+			fromEmail = email163Config["from_email"]
+			smtpUsername = email163Config["smtp_username"]
+			smtpPassword = email163Config["smtp_password"]
+			smtpHost = email163Config["smtp_host"]
+			smtpPort = email163Config["smtp_port"]
 
 			break
 		}
 	}
 
 	e := email.NewEmail()
-	e.From = WebsiteSetting.Name + ` <` + emailConfig["from_email"] + `>`
+	e.From = WebsiteSetting.Name + ` <` + fromEmail + `>`
 	e.To = tos
 	e.Subject = subject
 	e.HTML = []byte(content)
 
-	auth := smtp.PlainAuth("", emailConfig["smtp_username"], emailConfig["smtp_password"], emailConfig["smtp_host"])
-	smtpAddr := emailConfig["smtp_host"] + ":" + emailConfig["smtp_port"]
+	auth := smtp.PlainAuth("", smtpUsername, smtpPassword, smtpHost)
+	smtpAddr := smtpHost + ":" + smtpPort
 
 	if goutils.MustBool(emailConfig["tls"]) {
 		tlsConfig := &tls.Config{
 			InsecureSkipVerify: true,
-			ServerName:         emailConfig["smtp_host"],
+			ServerName:         smtpHost,
 		}
 
 		err = e.SendWithTLS(smtpAddr, auth, tlsConfig)
