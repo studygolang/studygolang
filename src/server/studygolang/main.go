@@ -54,6 +54,8 @@ func main() {
 	go logic.Book.ClearRedisUser()
 
 	go ServeBackGround()
+	// go pprof
+	Pprof(ConfigFile.MustValue("global", "pprof", "127.0.0.1:8096"))
 
 	e := echo.New()
 
