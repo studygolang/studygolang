@@ -23,7 +23,7 @@ type TopicController struct{}
 
 // 注册路由
 func (self TopicController) RegisterRoute(g *echo.Group) {
-	g.GET("/topics", self.Topics)
+	g.GET("/topics", self.TopicList)
 	g.GET("/topics/no_reply", self.TopicsNoReply)
 	g.GET("/topics/last", self.TopicsLast)
 	g.GET("/topic/detail", self.Detail)
@@ -31,6 +31,18 @@ func (self TopicController) RegisterRoute(g *echo.Group) {
 
 	g.Match([]string{"GET", "POST"}, "/topics/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.PublishNotice())
 	g.Match([]string{"GET", "POST"}, "/topics/modify", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
+}
+
+func (self TopicController) TopicList(ctx echo.Context) error {
+	tab := ctx.QueryParam("tab")
+	if tab != "" && tab != "all" {
+		nid := logic.GetNidByEname(tab)
+		if nid > 0 {
+			return self.topicList(ctx, tab, "topics.mtime DESC", "nid=? AND top!=1", nid)
+		}
+	}
+
+	return self.topicList(ctx, "all", "topics.mtime DESC", "top!=1")
 }
 
 func (self TopicController) Topics(ctx echo.Context) error {
@@ -45,17 +57,23 @@ func (self TopicController) TopicsLast(ctx echo.Context) error {
 	return self.topicList(ctx, "last", "ctime DESC", "")
 }
 
-func (TopicController) topicList(ctx echo.Context, view, orderBy, querystring string, args ...interface{}) error {
+func (TopicController) topicList(ctx echo.Context, tab, orderBy, querystring string, args ...interface{}) error {
 	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
 	paginator := logic.NewPaginator(curPage)
+
+	// 置顶的topic
+	topTopics := logic.DefaultTopic.FindAll(ctx, paginator, "ctime DESC", "top=1")
 
 	topics := logic.DefaultTopic.FindAll(ctx, paginator, orderBy, querystring, args...)
 	total := logic.DefaultTopic.Count(ctx, querystring, args...)
 	hasMore := paginator.SetTotal(total).HasMorePage()
 
+	hotNodes := logic.DefaultTopic.FindHotNodes(ctx)
+
 	data := map[string]interface{}{
-		"topics":   topics,
-		"view":     view,
+		"topics":   append(topTopics, topics...),
+		"tab":      tab,
+		"tab_list": hotNodes,
 		"has_more": hasMore,
 	}
 

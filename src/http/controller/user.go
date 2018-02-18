@@ -13,6 +13,7 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/polaris1119/goutils"
+	"github.com/polaris1119/slices"
 )
 
 type UserController struct{}
@@ -233,11 +234,17 @@ func (UserController) Comments(ctx echo.Context) error {
 
 	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
 
-	return render(ctx, "user/comments.html", map[string]interface{}{
-		"username": username,
+	data := map[string]interface{}{
 		"comments": comments,
 		"page":     template.HTML(pageHtml),
 		"total":    total,
-	})
+	}
+
+	if username == "" {
+		uids := slices.StructsIntSlice(comments, "Uid")
+		data["users"] = logic.DefaultUser.FindUserInfos(ctx, uids)
+	}
+
+	return render(ctx, "user/comments.html", data)
 
 }

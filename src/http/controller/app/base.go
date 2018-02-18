@@ -25,7 +25,7 @@ func getLogger(ctx echo.Context) *logger.Logger {
 func success(ctx echo.Context, data interface{}) error {
 	result := map[string]interface{}{
 		"code": 0,
-		"msg":  "操作成功",
+		"msg":  "ok",
 		"data": data,
 	}
 

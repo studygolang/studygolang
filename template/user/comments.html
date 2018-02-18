@@ -19,10 +19,26 @@
 				{{range .comments}}
 				<li>
 					<div class="objinfo">
-						<span class="info"><abbr class="timeago" title="{{.Ctime}}"></abbr> 评论了<strong>{{.Objinfo.type_name}}</strong></span>
+						<span class="info">
+						{{if $.users}}
+							{{with $user := index $.users .Uid}}
+							<a href="/user/{{$user.Username}}">{{$user.Username}}</a>
+							{{end}}
+						{{end}}
+							<abbr class="timeago" title="{{.Ctime}}"></abbr> 评论了<strong>{{.Objinfo.type_name}}</strong>
+						</span>
 						<a href="{{.Objinfo.uri}}{{.Objid}}" title="{{.Objinfo.title}}">{{substring .Objinfo.title 60 "..."}}</a>
 					</div>
-					<div class="content">{{noescape .Content}}</div>
+					<div class="content">
+						<div class="md-content">{{substring .Content 100 "..."}}</div>
+						
+						<div style="font-size: 80%;text-align: center;">
+							{{if eq .Objtype 0}}
+							<a href="/topics/{{.Objid}}/comment/{{.Cid}}">查看详情</a>
+							{{else if eq .Objtype 1}}
+							<a href="/articles/{{.Objid}}/comment/{{.Cid}}">查看详情</a>
+							{{end}}
+						</div>
 				</li>
 				{{else}}
 				<p class="no-record text-center">暂无</p>
@@ -42,12 +58,6 @@
 		<div class="sep20"></div>
 
 		{{include "common/my_info.html" .}}
-
-		<div class="box_white sidebar">
-			<div class="sb-content text-center" style="padding: 15px 0;">
-				<a href="/project/new" class="btn btn-default">发布项目</a>
-			</div>
-		</div>
 	
 		{{if .username}}
 		<div class="box_white sidebar">
@@ -70,11 +80,37 @@
 </div>
 {{end}}
 {{define "css"}}
+
+{{include "cssjs/prism.css.html" .}}
+
 {{end}}
 {{define "js"}}
+
+{{include "cssjs/prism.js.html" .}}
+
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [];
+
+$(function() {
+	$('.md-content').each(function() {
+		var selector = $(this);
+		var markdownString = selector.text();
+		var marked = SG.markSettingNoHightlight();
+
+		var contentHtml = marked(markdownString);
+		contentHtml = SG.replaceCodeChar(contentHtml);
+		
+		selector.html(contentHtml);
+
+		// emoji 表情解析
+		emojify.run(selector.get(0));
+
+		selector.find('code[class*="language-"]').parent('pre').addClass('line-numbers');
+
+		Prism.highlightAll();
+	});
+});
 </script>
 
 {{end}}

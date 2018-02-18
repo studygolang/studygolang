@@ -7,6 +7,7 @@
 package controller
 
 import (
+	"errors"
 	"http/middleware"
 	"logic"
 	"model"
@@ -26,6 +27,9 @@ func (self CommentController) RegisterRoute(g *echo.Group) {
 	g.Get("/at/users", self.AtUsers)
 	g.Post("/comment/:objid", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice())
 	g.Get("/object/comments", self.CommentList)
+
+	g.Get("/topics/:objid/comment/:cid", self.TopicDetail)
+	g.Get("/articles/:objid/comment/:cid", self.ArticleDetail)
 }
 
 // AtUsers 评论或回复 @ 某人 suggest
@@ -76,4 +80,75 @@ func (CommentController) CommentList(ctx echo.Context) error {
 	}
 
 	return success(ctx, result)
+}
+
+func (self CommentController) TopicDetail(ctx echo.Context) error {
+	objid := goutils.MustInt(ctx.Param("objid"))
+	cid := goutils.MustInt(ctx.Param("cid"))
+
+	topicMaps := logic.DefaultTopic.FindFullinfoByTids([]int{objid})
+	if len(topicMaps) < 1 {
+		return ctx.Redirect(http.StatusSeeOther, "/topics")
+	}
+
+	topic := topicMaps[0]
+	topic["node"] = logic.GetNode(topic["nid"].(int))
+
+	data := map[string]interface{}{
+		"topic": topic,
+	}
+	data["appends"] = logic.DefaultTopic.FindAppend(ctx, objid)
+
+	err := self.fillCommentAndUser(ctx, data, cid, objid, model.TypeTopic)
+
+	if err != nil {
+		return ctx.Redirect(http.StatusSeeOther, "/topics/"+strconv.Itoa(objid))
+	}
+
+	return render(ctx, "topics/comment.html", data)
+}
+
+func (self CommentController) ArticleDetail(ctx echo.Context) error {
+	objid := goutils.MustInt(ctx.Param("objid"))
+	cid := goutils.MustInt(ctx.Param("cid"))
+
+	article, err := logic.DefaultArticle.FindById(ctx, objid)
+	if err != nil {
+		return ctx.Redirect(http.StatusSeeOther, "/articles")
+	}
+	articleGCTT := logic.DefaultArticle.FindArticleGCTT(ctx, article)
+
+	data := map[string]interface{}{
+		"article":      article,
+		"article_gctt": articleGCTT,
+	}
+
+	err = self.fillCommentAndUser(ctx, data, cid, objid, model.TypeArticle)
+
+	if err != nil {
+		return ctx.Redirect(http.StatusSeeOther, "/articles/"+strconv.Itoa(objid))
+	}
+
+	return render(ctx, "articles/comment.html", data)
+}
+
+func (CommentController) fillCommentAndUser(ctx echo.Context, data map[string]interface{}, cid, objid, objtype int) error {
+	comment, comments := logic.DefaultComment.FindComment(ctx, cid, objid, model.TypeArticle)
+
+	if comment.Cid == 0 {
+		return errors.New("comment not exists!")
+	}
+
+	uids := make([]int, 1+len(comments))
+	uids[0] = comment.Uid
+	for i, comment := range comments {
+		uids[i+1] = comment.Uid
+	}
+	users := logic.DefaultUser.FindUserInfos(ctx, uids)
+
+	data["comment"] = comment
+	data["comments"] = comments
+	data["users"] = users
+
+	return nil
 }

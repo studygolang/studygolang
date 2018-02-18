@@ -97,7 +97,7 @@ func (self GithubLogic) IssueEvent(ctx context.Context, body []byte) error {
 			}
 
 			gcttIssue.Label = label
-			_, err = MasterDB.Id(id).Update(gcttIssue)
+			_, err = MasterDB.Id(id).Cols("translator", "translating_at", "label").Update(gcttIssue)
 		}
 	} else if action == "closed" {
 		closedAt := result.Get("issue.closed_at").Time().Unix()

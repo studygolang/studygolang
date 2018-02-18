@@ -1,0 +1,291 @@
+{{define "title"}}{{.article.Title}} {{end}}
+{{define "seo"}}<meta name="keywords" content="{{.setting.SeoKeywords}}">
+<meta name="description" content="{{substring .comment.Content 200 ""}}">{{end}}
+{{define "content"}}
+<div class="row">
+	<div class="col-md-9 col-sm-6">
+		<div class="sep20"></div>
+		<ol class="breadcrumb">
+			<li><a href="/">首页</a></li>
+			<li><a href="/articles">文章</a></li>
+		</ol>
+		<div class="page">
+			<div class="box_white">
+				<div class="title">
+					{{if .article.IsSelf}}
+					<div class="pull-right">
+						{{if .article.GCTT}}
+							<a href="/gctt/{{.article_gctt.Translator}}" title="{{.article_gctt.Translator}}">
+								<img src="{{.article_gctt.Avatar}}" alt="{{.article_gctt.Translator}}" width="62px" height="62px">
+							</a>
+						{{else}}
+							<a href="/user/{{.article.User.Username}}" title="{{.article.User.Username}}">
+								<img src="{{gravatar .article.User.Avatar .article.User.Email 62 .is_https}}" alt="{{if .article.User.Name}}{{.article.User.Name}}{{else}}{{.article.User.Username}}{{end}}" width="62px" height="62px">
+							</a>
+						{{end}}
+					</div>
+					{{end}}
+					<h1 id="title" data-id="{{.article.Id}}">
+						{{.article.Title}}
+					</h1>
+					<small class="c9">
+					{{if .article.GCTT}}
+						<a href="/gctt/{{.article_gctt.Translator}}">{{.article_gctt.Translator}}</a>
+					{{else}}
+						{{if .article.IsSelf}}
+						<a href="/user/{{.article.User.Username}}">{{.article.User.Username}}</a>
+						{{else}}
+						<span>{{.article.AuthorTxt}}</span>
+						{{end}}
+					{{end}}
+						· <span title="{{.article.Ctime}}" class="timeago"></span>
+					</small>
+				</div>
+				<div class="cell article-content collapsed">
+					{{if .article.Markdown}}
+					<div class="content markdown-body">{{.article.Content}}</div>
+					
+					{{if .article.GCTT}}
+					<hr>
+					<p>via: <a href="{{.article_gctt.URL}}" title="" target="_blank">{{.article_gctt.URL}}</a></p>
+					<p>
+						作者：<a href="{{.article_gctt.AuthorURL}}" class="ext" rel="external nofollow" target="_blank">{{.article_gctt.Author}}</a>&nbsp;
+						译者：<a href="https://github.com/{{.article_gctt.Translator}}" class="ext" rel="external nofollow" target="_blank">{{.article_gctt.Translator}}</a>&nbsp;
+						校对：{{range .article_gctt.Checkers}}<a href="https://github.com/{{.}}" class="ext" rel="external nofollow" target="_blank">{{.}}</a> {{end}}
+					</p>
+					<p>本文由 <a href="https://github.com/studygolang/GCTT" class="ext" rel="external nofollow" target="_blank">GCTT</a> 原创编译，<a href="/articles/{{.article.Id}}">{{.setting.Name}}</a> 荣誉推出</p>
+
+					<div class="alert" role="alert" style="background-color:rgba(24,241,24,0.1);">
+						<p class="copyright" style="line-height: 1.5em;">
+							<span>本文由 GCTT 原创翻译，<a href="/articles/{{.article.Id}}">{{.setting.Name}}</a> 首发。也想加入译者行列，为开源做一些自己的贡献么？欢迎加入 <a href="/gctt" target="_blank">GCTT</a>！<br>
+							翻译工作和译文发表仅用于学习和交流目的，翻译工作遵照 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/deed.zh" target="_blank">CC-BY-NC-SA 协议规定</a>，如果我们的工作有侵犯到您的权益，请及时联系我们。</span><br>
+							<span style="color:red;">欢迎遵照 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/deed.zh" target="_blank">CC-BY-NC-SA 协议规定</a> 转载，敬请在正文中标注并保留原文/译文链接和作者/译者等信息。</span><br>
+							<span>文章仅代表作者的知识和看法，如有不同观点，请楼下排队吐槽</span>
+						</p>
+					</div>
+
+					{{end}}
+
+					{{else}}
+					<div id="myeditor" class="content article-entry">
+						{{noescape .article.Content}}
+					</div>
+					{{end}}
+
+					{{if not .article.IsSelf}}
+					<div class="row orig-info">
+						<p>本文来自：<a href="/wr?u=http://{{.article.Domain}}" target="_blank" title="{{.article.Name}}">{{.article.Name}}</a></p>
+						<p>感谢作者：{{noescape .article.AuthorTxt}}</p>
+						<p>查看原文：<a href="/wr?u={{.article.Url}}" target="_blank" title="{{.article.Title}}">{{.article.Title}}</a></p>
+					</div>
+					{{end}}
+
+				</div>
+
+				<div class="readall-box">
+					<div class="read-more-mask">
+						<a class="read-more" href="javascript:">阅读全文 <i class="fa fa-angle-double-down" aria-hidden="true"></i></a>
+					</div>
+				</div>
+				
+			</div>
+			<!-- content END -->
+
+			<div class="sep10"></div>
+
+			<div class="box_white cell view-all" style="text-align: center;">
+				<a href="/articles/{{.article.Id}}#replies">查看全部 {{.article.Cmtnum}} 个评论</a>
+			</div>
+
+			<div class="sep10"></div>
+
+			<div class="box_white cmt">
+				<div class="cell">
+					<div class="author">
+						{{with $user := index .users .comment.Uid}}
+						<a class="avatar" target="_blank" href="/user/{{$user.Username}}">
+							<img src="{{gravatar $user.Avatar $user.Email 48 $.is_https}}" alt="">
+						</a>
+						<div class="info">
+							<a target="_blank" href="/user/{{$user.Username}}">{{$user.Username}}</a>
+							<div class="monlog">{{$user.Monlog}}</div>
+						</div>
+						{{end}}
+					</div>
+					<div class="cmt-md-body">{{.comment.Content}}</div>
+					<div>
+
+					</div>
+					<span class="floor">#{{$.comment.Floor}}</span>
+				</div>
+
+				<div class="cell" style="text-align: center;">
+					<a href="/articles/{{.article.Id}}#commentForm" class="btn btn-default btn-sm">我要评论</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-3 col-sm-6">
+		<div class="sep20"></div>
+		{{include "common/my_info.html" .}}
+
+		{{if .pos_ad.right1}}
+		<div class="box_white sidebar" id="ad-right1">
+			{{if eq .pos_ad.right1.AdType 0}}
+				{{noescape .pos_ad.right1.Code}}
+			{{end}}
+		</div>
+		{{end}}
+
+		{{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"今日阅读排行","objtype":1,"limit":10,"rank_type":"today"}`)}}
+		
+		{{if .pos_ad.right2}}
+		<div class="box_white sidebar" id="ad-right2">
+			{{if eq .pos_ad.right2.AdType 0}}
+				{{noescape .pos_ad.right2.Code}}
+			{{end}}
+		</div>
+		{{end}}
+
+		{{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"一周阅读排行","objtype":1,"limit":10,"rank_type":"week"}`)}}
+		
+	</div>
+</div>
+
+<template id="content_tpl">
+{{noescape .article.Content}}
+</template>
+
+{{end}}
+
+{{define "css"}}
+
+<style>
+.readall-box {
+	position: relative;
+	z-index: 100;
+	text-align: center;
+}
+
+.collapsed {
+	max-height: 40px;
+}
+
+.read-more-mask {
+	height: 30px;
+	background: -moz-linear-gradient(bottom,rgba(255,255,255,.1),rgba(255,255,255,0));
+	background: -webkit-gradient(linear,0 top,0 bottom,from(rgba(255,255,255,0)),to(#fff));
+	background: -o-linear-gradient(bottom,rgba(255,255,255,.1),rgba(255,255,255,0))
+}
+
+.cmt {
+	position: relative;
+}
+
+.cmt .author .avatar img {
+	border-radius: 5px;
+}
+
+.cmt .author .info {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.cmt .author .info .monlog {
+	font-size: 10px;
+	color: #999;
+	margin-top: 5px;
+}
+
+.cmt .floor {
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	color: #ccc;
+}
+
+.cmt .cmt-md-body {
+	margin: 5px 0;
+}
+</style>
+
+{{if .article.Css}}
+<link href="{{.article.Css}}" media="screen" rel="stylesheet" type="text/css">
+{{end}}
+
+{{include "cssjs/prism.css.html" .}}
+
+{{end}}
+
+{{define "js"}}
+
+{{include "cssjs/prism.js.html" .}}
+<script type="text/javascript" src="{{.static_domain}}/static/dist/js/articles.min.js"></script>
+
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/rank/view",
+];
+
+
+$(function(){
+	{{if .article.Markdown}}
+	new SG.Articles().parseContent($('.page .content'));
+	{{end}}
+
+	var selector = $('.cmt-md-body');
+	var markdownString = selector.text();
+	var marked = SG.markSettingNoHightlight();
+
+	var contentHtml = marked(markdownString);
+	contentHtml = SG.replaceCodeChar(contentHtml);
+	
+	selector.html(contentHtml);
+
+	// emoji 表情解析
+	emojify.run(selector.get(0));
+
+	selector.find('code[class*="language-"]').parent('pre').addClass('line-numbers');
+
+	Prism.highlightAll();
+	
+	// 文本框自动伸缩
+	$('.need-autogrow').autoGrow();
+
+	var flag = 1;
+	$('.read-more').on('click', function() {
+		if (flag) {
+			flag = 0;
+			$('.article-content').removeClass('collapsed');
+
+			$(this).html('折叠文章 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
+
+			$('.view-all').hide();
+		} else {
+			flag = 1;
+			$('.article-content').addClass('collapsed');
+
+			$(this).html('阅读全文 <i class="fa fa-angle-double-down" aria-hidden="true"></i>');
+
+			$('.view-all').show();
+		}
+		return false;
+	});
+});
+</script>
+{{include "cssjs/ckeditor.js.html" .}}
+
+{{if .pos_ad.right1}}
+	{{if eq .pos_ad.right1.AdType 1}}
+		{{noescape .pos_ad.right1.Code}}
+	{{end}}
+{{end}}
+
+{{if .pos_ad.right2}}
+	{{if eq .pos_ad.right2.AdType 1}}
+		{{noescape .pos_ad.right2.Code}}
+	{{end}}
+{{end}}
+
+{{end}}

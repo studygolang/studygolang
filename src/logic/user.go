@@ -114,8 +114,15 @@ func (self UserLogic) Update(ctx context.Context, me *model.Me, form url.Values)
 		cols += ",email,status"
 		user.Status = model.UserStatusNoAudit
 	}
-	_, err = MasterDB.Id(me.Uid).Cols(cols).Update(user)
+
+	session := MasterDB.NewSession()
+	defer session.Close()
+	session.Begin()
+
+	_, err = session.Id(me.Uid).Cols(cols).Update(user)
 	if err != nil {
+		session.Rollback()
+
 		objLog.Errorf("更新用户 【%d】 信息失败：%s", me.Uid, err)
 		if strings.Contains(err.Error(), "Error 1062: Duplicate entry") {
 			// TODO：被恶意注册？
@@ -125,6 +132,17 @@ func (self UserLogic) Update(ctx context.Context, me *model.Me, form url.Values)
 		}
 		return
 	}
+
+	_, err = session.Table(new(model.UserLogin)).
+		Where("uid=?", me.Uid).Update(map[string]interface{}{"email": me.Email})
+	if err != nil {
+		session.Rollback()
+		objLog.Errorf("更新用户 【%d】 信息失败：%s", me.Uid, err)
+		errMsg = "对不起，服务器内部错误，请稍后再试！"
+		return
+	}
+
+	session.Commit()
 
 	// 修改用户资料，活跃度+1
 	go self.IncrUserWeight("uid", me.Uid, 1)

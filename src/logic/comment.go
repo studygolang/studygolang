@@ -75,10 +75,36 @@ func (self CommentLogic) FindObjectComments(ctx context.Context, objid, objtype 
 	}
 
 	for _, comment := range commentList {
-		self.decodeCmtContentForShow(ctx, comment)
+		self.decodeCmtContentForShow(ctx, comment, true)
 	}
 
 	return
+}
+
+// FindComment 获得评论和额外两个评论
+func (self CommentLogic) FindComment(ctx context.Context, cid, objid, objtype int) (*model.Comment, []*model.Comment) {
+	objLog := GetLogger(ctx)
+
+	comment := &model.Comment{}
+	_, err := MasterDB.Where("cid=?", cid).Get(comment)
+	if err != nil {
+		objLog.Errorln("CommentLogic FindComment error:", err)
+		return comment, nil
+	}
+	self.decodeCmtContentForShow(ctx, comment, false)
+
+	comments := make([]*model.Comment, 0)
+	err = MasterDB.Where("objid=? AND objtype=? AND cid!=?", objid, objtype, cid).
+		Limit(2).Find(&comments)
+	if err != nil {
+		objLog.Errorln("CommentLogic FindComment Find more error:", err)
+		return comment, nil
+	}
+	for _, cmt := range comments {
+		self.decodeCmtContentForShow(ctx, cmt, false)
+	}
+
+	return comment, comments
 }
 
 // Total 评论总数(objtypes[0] 取某一类型的评论总数)
@@ -90,7 +116,6 @@ func (CommentLogic) Total(objtypes ...int) int64 {
 	if len(objtypes) > 0 {
 		total, err = MasterDB.Where("objtype=?", objtypes[0]).Count(new(model.Comment))
 	} else {
-
 		total, err = MasterDB.Count(new(model.Comment))
 	}
 	if err != nil {
@@ -182,7 +207,7 @@ func (self CommentLogic) Publish(ctx context.Context, uid, objid int, form url.V
 		objLog.Errorln("post comment service error:", err)
 		return nil, err
 	}
-	self.decodeCmtContentForShow(ctx, comment)
+	self.decodeCmtContentForShow(ctx, comment, true)
 
 	// 回调，不关心处理结果（有些对象可能不需要回调）
 	if commenter, ok := commenters[objtype]; ok {
@@ -305,7 +330,7 @@ func (CommentLogic) decodeCmtContent(ctx context.Context, comment *model.Comment
 }
 
 // decodeCmtContentForShow 采用引用的方式显示对其他楼层的回复
-func (CommentLogic) decodeCmtContentForShow(ctx context.Context, comment *model.Comment) {
+func (CommentLogic) decodeCmtContentForShow(ctx context.Context, comment *model.Comment, isEscape bool) {
 	// 安全过滤
 	content := template.HTMLEscapeString(comment.Content)
 
@@ -349,7 +374,6 @@ func (self CommentLogic) FindAll(ctx context.Context, paginator *Paginator, orde
 	cmtMap := make(map[int][]*model.Comment, len(model.PathUrlMap))
 	for _, comment := range comments {
 		self.decodeCmtContent(ctx, comment)
-
 		if _, ok := cmtMap[comment.Objtype]; !ok {
 			cmtMap[comment.Objtype] = make([]*model.Comment, 0, 10)
 		}

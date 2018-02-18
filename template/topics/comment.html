@@ -1,0 +1,251 @@
+{{define "title"}}{{.topic.title}} {{end}}
+{{define "seo"}}<meta name="keywords" content="{{.setting.SeoKeywords}}">
+<meta name="description" content="{{substring .topic.content 200 ""}}">{{end}}
+{{define "content"}}
+<div class="row">
+	<div class="col-md-9 col-sm-6">
+		<div class="sep20"></div>
+
+		<ol class="breadcrumb">
+			<li><a href="/">首页</a></li>
+			<li><a href="/topics">主题</a></li>
+			<li><a href="{{if .topic.node.ename}}/go/{{.topic.node.ename}}{{else}}/topics/node/{{.topic.node.nid}}{{end}}">{{.topic.node.name}}</a></li>
+		</ol>
+		<div class="page">
+			<div class="box_white">
+				<div class="title">
+					<div class="pull-right">
+						<a href="/user/{{.topic.user.Username}}" title="{{.topic.user.Username}}">
+							<img src="{{gravatar .topic.user.Avatar .topic.user.Email 62 .is_https}}" alt="{{if .topic.user.Name}}{{.topic.user.Name}}{{else}}{{.topic.user.Username}}{{end}}" width="62px" height="62px">
+						</a>
+					</div>
+					<h1>
+						{{.topic.title}}
+					</h1>
+					<small class="c9">
+						<a href="/user/{{.topic.user.Username}}">{{.topic.user.Username}}</a> · <span title="{{.topic.ctime}}" class="timeago"></span> · {{add .topic.view 1}} 次点击
+					</small>
+				</div>
+				<div class="topic-content collapsed">
+					<div class="cell">
+						{{if or (not .topic.permission) .me.Status}}
+						<div class="content">{{.topic.content}}</div>
+						{{else}}
+						<div style="font-size: 1.2em;">作者设置必须登录才能查看，<a href="/account/login?redirect_uri=/topics/{{.topic.tid}}">请登录</a>；如没有账号，<a href="/account/register">请注册</a></div>
+						{{end}}
+					</div>
+					{{range $i, $append := .appends}}
+					<div class="subtle">
+						<span class="cc">第 {{add $i 1}} 条附言 &nbsp;·&nbsp; <span class="timeago" title="{{$append.CreatedAt}}"></span></span>
+						<div class="sep5"></div>
+						
+						<div class="append_content">
+							<div class="content markdown-body">{{$append.Content}}</div>
+						</div>
+						
+					</div>
+					{{end}}
+				</div>
+				
+				<div class="readall-box">
+					<div class="read-more-mask">
+						<a class="read-more" href="javascript:">阅读全文 <i class="fa fa-angle-double-down" aria-hidden="true"></i></a>
+					</div>
+				</div>
+			</div>
+			<!-- content END -->
+			<div class="sep10"></div>
+
+			<div class="box_white cell view-all" style="text-align: center;">
+				<a href="/topics/{{.topic.tid}}#replies">查看全部 {{.topic.reply}} 个评论</a>
+			</div>
+
+			<div class="sep10"></div>
+
+			<!-- 评论列表 -->
+			<div class="box_white cmt">
+				<div class="cell">
+					<div class="author">
+						{{with $user := index .users .comment.Uid}}
+						<a class="avatar" target="_blank" href="/user/{{$user.Username}}">
+							<img src="{{gravatar $user.Avatar $user.Email 48 $.is_https}}" alt="">
+						</a>
+						<div class="info">
+							<a target="_blank" href="/user/{{$user.Username}}">{{$user.Username}}</a>
+							<div class="monlog">{{$user.Monlog}}</div>
+						</div>
+						{{end}}
+					</div>
+					<div class="cmt-md-body">{{.comment.Content}}</div>
+					<div>
+
+					</div>
+					<span class="floor">#{{$.comment.Floor}}</span>
+				</div>
+
+				<div class="cell" style="text-align: center;">
+					<a href="/topics/{{.topic.tid}}#commentForm" class="btn btn-default btn-sm">我要评论</a>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+	<div class="col-md-3 col-sm-6">
+		<div class="sep20"></div>
+
+		{{include "common/my_info.html" .}}
+
+		{{if .pos_ad.right1}}
+		<div class="box_white sidebar" id="ad-right1">
+			{{if eq .pos_ad.right1.AdType 0}}
+				{{noescape .pos_ad.right1.Code}}
+			{{end}}
+		</div>
+		{{end}}
+		
+		{{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"今日阅读排行","objtype":0,"limit":10,"rank_type":"today"}`)}}
+
+		{{if .pos_ad.right2}}
+		<div class="box_white sidebar" id="ad-right2">
+			{{if eq .pos_ad.right2.AdType 0}}
+				{{noescape .pos_ad.right2.Code}}
+			{{end}}
+		</div>
+		{{end}}
+
+		{{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"一周阅读排行","objtype":0,"limit":10,"rank_type":"week"}`)}}
+		
+	</div>
+</div>
+{{end}}
+{{define "css"}}
+<style>
+.readall-box {
+	position: relative;
+	z-index: 100;
+	text-align: center;
+}
+
+.collapsed {
+	max-height: 40px;
+}
+
+.read-more-mask {
+	height: 30px;
+	background: -moz-linear-gradient(bottom,rgba(255,255,255,.1),rgba(255,255,255,0));
+	background: -webkit-gradient(linear,0 top,0 bottom,from(rgba(255,255,255,0)),to(#fff));
+	background: -o-linear-gradient(bottom,rgba(255,255,255,.1),rgba(255,255,255,0))
+}
+
+.cmt {
+	position: relative;
+}
+
+.cmt .author .avatar img {
+	border-radius: 5px;
+}
+
+.cmt .author .info {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.cmt .author .info .monlog {
+	font-size: 10px;
+	color: #999;
+	margin-top: 5px;
+}
+
+.cmt .floor {
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	color: #ccc;
+}
+
+.cmt .cmt-md-body {
+	margin: 5px 0;
+}
+</style>
+
+<link href="{{.static_domain}}/static/dist/css/table.min.css" media="screen" rel="stylesheet" type="text/css">
+{{include "cssjs/prism.css.html" .}}
+
+{{end}}
+
+{{define "js"}}
+<script type="text/javascript" src="{{.static_domain}}/static/dist/js/topics.min.js"></script>
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+	"/topics/recent",
+	"/articles/recent",
+	"/resources/recent",
+	"/rank/view"
+];
+
+$(function(){
+	new SG.Topics().parseContent($('.page .content'));
+
+	var selector = $('.cmt-md-body');
+	var markdownString = selector.text();
+	var marked = SG.markSettingNoHightlight();
+
+	var contentHtml = marked(markdownString);
+	contentHtml = SG.replaceCodeChar(contentHtml);
+	
+	selector.html(contentHtml);
+
+	// emoji 表情解析
+	emojify.run(selector.get(0));
+
+	selector.find('code[class*="language-"]').parent('pre').addClass('line-numbers');
+
+	Prism.highlightAll();
+
+	// 文本框自动伸缩
+	$('.need-autogrow').autoGrow();
+
+	// 链接，add target=_blank
+	$('#wrapper .content').on('mousedown', 'a', function(evt){
+		var url = $(this).attr('href');
+		$(this).attr('target', '_blank');
+	});
+
+	var flag = 1;
+	$('.read-more').on('click', function() {
+		if (flag) {
+			flag = 0;
+			$('.topic-content').removeClass('collapsed');
+
+			$(this).html('折叠主题 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
+
+			$('.view-all').hide();
+		} else {
+			flag = 1;
+			$('.topic-content').addClass('collapsed');
+
+			$(this).html('阅读全文 <i class="fa fa-angle-double-down" aria-hidden="true"></i>');
+
+			$('.view-all').show();
+		}
+		return false;
+	});
+});
+</script>
+
+{{include "cssjs/prism.js.html" .}}
+
+{{if .pos_ad.right1}}
+	{{if eq .pos_ad.right1.AdType 1}}
+		{{noescape .pos_ad.right1.Code}}
+	{{end}}
+{{end}}
+
+{{if .pos_ad.right2}}
+	{{if eq .pos_ad.right2.AdType 1}}
+		{{noescape .pos_ad.right2.Code}}
+	{{end}}
+{{end}}
+
+{{end}}

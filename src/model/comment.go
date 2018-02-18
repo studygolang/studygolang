@@ -16,6 +16,15 @@ const (
 	TypeBook            // 图书
 )
 
+const (
+	TopicURI    = "topics"
+	ArticleURI  = "articles"
+	ResourceURI = "resources"
+	WikiURI     = "wiki"
+	ProjectURI  = "p"
+	BookURI     = "book"
+)
+
 var PathUrlMap = map[int]string{
 	TypeTopic:    "/topics/",
 	TypeArticle:  "/articles/",
