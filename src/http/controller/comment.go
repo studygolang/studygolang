@@ -133,7 +133,7 @@ func (self CommentController) ArticleDetail(ctx echo.Context) error {
 }
 
 func (CommentController) fillCommentAndUser(ctx echo.Context, data map[string]interface{}, cid, objid, objtype int) error {
-	comment, comments := logic.DefaultComment.FindComment(ctx, cid, objid, model.TypeArticle)
+	comment, comments := logic.DefaultComment.FindComment(ctx, cid, objid, objtype)
 
 	if comment.Cid == 0 {
 		return errors.New("comment not exists!")
