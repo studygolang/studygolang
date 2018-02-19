@@ -180,16 +180,17 @@ func (GCTTController) IssueList(ctx echo.Context) error {
 	issues := logic.DefaultGCTT.FindIssues(ctx, paginator, querystring, arg)
 
 	total := logic.DefaultGCTT.IssueCount(ctx, querystring, arg)
-	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
+	pageHTML := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
 
 	prs := logic.DefaultGCTT.FindNewestGit(ctx)
 
 	return render(ctx, "gctt/issue-list.html", map[string]interface{}{
 		"issues":     issues,
 		"prs":        prs,
-		"page":       template.HTML(pageHtml),
+		"page":       template.HTML(pageHTML),
 		"translator": translator,
 		"label":      label,
+		"total":      total,
 	})
 }
 

@@ -26,10 +26,10 @@
                     <a href="/gctt-issue"> 全部</a>
                 </li>
                 <li class='{{if eq .label "待认领"}}active{{end}}'>
-                    <a href="/gctt-issue?label=待认领"> 待认领</a>
+                    <a href="/gctt-issue?label=待认领"> 待认领{{if eq .label "待认领"}}({{.total}}){{end}}</a>
                 </li>
                 <li class='{{if eq .label "已认领"}}active{{end}}'>
-                    <a href="/gctt-issue?label=已认领"> 翻译中</a>
+                    <a href="/gctt-issue?label=已认领"> 翻译中{{if eq .label "已认领"}}({{.total}}){{end}}</a>
                 </li>
             </ul>
             <div class="table-responsive">

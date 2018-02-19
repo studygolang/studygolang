@@ -112,7 +112,13 @@ func (self GCTTLogic) FindIssues(ctx context.Context, paginator *Paginator, quer
 
 	gcttIssues := make([]*model.GCTTIssue, 0)
 
-	session := MasterDB.OrderBy("id DESC")
+	session := MasterDB.Limit(paginator.PerPage(), paginator.Offset())
+	if args[0] == model.LabelClaimed {
+		session.OrderBy("translating_at DESC")
+	} else {
+		session.OrderBy("id DESC")
+	}
+
 	if querysring != "" {
 		session.Where(querysring, args...)
 	}
