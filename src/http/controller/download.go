@@ -8,6 +8,8 @@ package controller
 
 import (
 	"fmt"
+	"logic"
+	"model"
 	"net/http"
 	"regexp"
 	"strings"
@@ -17,7 +19,7 @@ import (
 	"github.com/polaris1119/config"
 )
 
-const GoStoragePrefix = "https://storage.googleapis.com/golang/"
+const GoStoragePrefix = "https://dl.google.com/go/"
 
 type DownloadController struct{}
 
@@ -29,9 +31,49 @@ func (self DownloadController) RegisterRoute(g *echo.Group) {
 
 // GoDl Go 语言安装包下载
 func (DownloadController) GoDl(ctx echo.Context) error {
+	downloads := logic.DefaultDownload.FindAll(ctx)
+
+	featured := make([]*model.Download, 0, 4)
+	stables := make(map[string][]*model.Download)
+	stableVersions := make([]string, 0, 2)
+	unstables := make(map[string][]*model.Download)
+	archiveds := make(map[string][]*model.Download)
+	archivedVersions := make([]string, 0, 20)
+
+	for _, download := range downloads {
+		version := download.Version
+		if download.Category == model.DLStable {
+			if _, ok := stables[version]; !ok {
+				stableVersions = append(stableVersions, version)
+				stables[version] = make([]*model.Download, 0, 15)
+			}
+			stables[version] = append(stables[version], download)
+
+			if download.IsRecommend && len(featured) < 4 {
+				featured = append(featured, download)
+			}
+		} else if download.Category == model.DLUnstable {
+			if _, ok := unstables[version]; !ok {
+				unstables[version] = make([]*model.Download, 0, 15)
+			}
+			unstables[version] = append(unstables[version], download)
+		} else if download.Category == model.DLArchived {
+			if _, ok := archiveds[version]; !ok {
+				archivedVersions = append(archivedVersions, version)
+				archiveds[version] = make([]*model.Download, 0, 15)
+			}
+			archiveds[version] = append(archiveds[version], download)
+		}
+	}
 
 	data := map[string]interface{}{
-		"activeDl": "active",
+		"activeDl":          "active",
+		"featured":          featured,
+		"stables":           stables,
+		"stable_versions":   stableVersions,
+		"unstables":         unstables,
+		"archiveds":         archiveds,
+		"archived_versions": archivedVersions,
 	}
 
 	return render(ctx, "download/go.html", data)

@@ -783,3 +783,19 @@ CREATE TABLE IF NOT EXISTS `subject_follower` (
   UNIQUE KEY (`sid`,`uid`),
   INDEX (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '专栏关注者';
+
+CREATE TABLE IF NOT EXISTS `download` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '自增',
+  `version` varchar(31) NOT NULL DEFAULT '' COMMENT '版本号',
+  `filename` varchar(63) NOT NULL DEFAULT '' COMMENT '文件名', 
+  `kind` varchar(31) NOT NULL DEFAULT '' COMMENT '类型',
+  `os` varchar(31) NOT NULL DEFAULT '' COMMENT '操作系统',
+  `arch` varchar(31) NOT NULL DEFAULT '' COMMENT '架构',
+  `size` int unsigned NOT NULL DEFAULT 0 COMMENT '大小，单位 MB',
+  `checksum` varchar(64) NOT NULL DEFAULT '' COMMENT 'SHA1/256 校验和',
+  `is_recommend` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否推荐（推荐的高亮显示）',
+  `category` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '0-Archived versions; 1-Stable versions; 2-Unstable versions;', 
+  `seq` int unsigned NOT NULL DEFAULT 0 COMMENT '排序，越大越靠前',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '下载信息表';
