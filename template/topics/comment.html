@@ -78,10 +78,39 @@
 					</div>
 					<div class="cmt-md-body">{{.comment.Content}}</div>
 					<div>
-
+						<a href="/topics/{{.topic.tid}}/comment/{{.comment.Cid}}">评论于 {{.comment.Ctime}}</a>
 					</div>
-					<span class="floor">#{{$.comment.Floor}}</span>
+					<span class="floor">#{{.comment.Floor}}</span>
 				</div>
+			</div>
+
+			<div class="sep10"></div>
+
+			<div class="box_white cmt">
+				{{if .comments}}
+				<div class="more-reply">更多评论</div>
+				{{end}}
+
+				{{range .comments}}
+				<div class="cell">
+					<div class="author">
+						{{with $user := index $.users .Uid}}
+						<a class="avatar" target="_blank" href="/user/{{$user.Username}}">
+							<img src="{{gravatar $user.Avatar $user.Email 48 $.is_https}}" alt="">
+						</a>
+						<div class="info">
+							<a target="_blank" href="/user/{{$user.Username}}">{{$user.Username}}</a>
+							<div class="monlog">{{$user.Monlog}}</div>
+						</div>
+						{{end}}
+					</div>
+					<div class="cmt-md-body">{{.comment.Content}}</div>
+					<div>
+						<a href="/topics/{{$.topic.tid}}/comment/{{.Cid}}">评论于 {{.Ctime}}</a>
+					</div>
+					<span class="floor">#{{.comment.Floor}}</span>
+				</div>
+				{{end}}
 
 				<div class="cell" style="text-align: center;">
 					<a href="/topics/{{.topic.tid}}#commentForm" class="btn btn-default btn-sm">我要评论</a>
@@ -137,12 +166,17 @@
 	background: -o-linear-gradient(bottom,rgba(255,255,255,.1),rgba(255,255,255,0))
 }
 
-.cmt {
+.cmt .cell {
 	position: relative;
 }
 
 .cmt .author .avatar img {
 	border-radius: 5px;
+}
+
+.cmt .more-reply {
+	text-align: center;
+	margin: 5px auto;
 }
 
 .cmt .author .info {
@@ -156,7 +190,7 @@
 	margin-top: 5px;
 }
 
-.cmt .floor {
+.cmt .cell .floor {
 	position: absolute;
 	top: 4px;
 	right: 4px;
@@ -187,21 +221,23 @@ SG.SIDE_BARS = [
 $(function(){
 	new SG.Topics().parseContent($('.page .content'));
 
-	var selector = $('.cmt-md-body');
-	var markdownString = selector.text();
-	var marked = SG.markSettingNoHightlight();
+	$('.cmt-md-body').each(function() {
+		var selector = $(this);
+		var markdownString = selector.text();
+		var marked = SG.markSettingNoHightlight();
 
-	var contentHtml = marked(markdownString);
-	contentHtml = SG.replaceCodeChar(contentHtml);
-	
-	selector.html(contentHtml);
+		var contentHtml = marked(markdownString);
+		contentHtml = SG.replaceCodeChar(contentHtml);
+		
+		selector.html(contentHtml);
 
-	// emoji 表情解析
-	emojify.run(selector.get(0));
+		// emoji 表情解析
+		emojify.run(selector.get(0));
 
-	selector.find('code[class*="language-"]').parent('pre').addClass('line-numbers');
+		selector.find('code[class*="language-"]').parent('pre').addClass('line-numbers');
 
-	Prism.highlightAll();
+		Prism.highlightAll();
+	});
 
 	// 文本框自动伸缩
 	$('.need-autogrow').autoGrow();
