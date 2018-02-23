@@ -36,7 +36,8 @@ func (IndexController) Home(ctx echo.Context) error {
 	if tab == "" {
 		tab = logic.WebsiteSetting.IndexNavs[0].Tab
 	}
-	paginator := logic.NewPaginator(goutils.MustInt(ctx.QueryParam("p"), 1))
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
 
 	data := logic.DefaultIndex.FindData(ctx, tab, paginator)
 

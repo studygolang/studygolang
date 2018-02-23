@@ -59,7 +59,7 @@ func (self TopicController) TopicsLast(ctx echo.Context) error {
 
 func (TopicController) topicList(ctx echo.Context, tab, orderBy, querystring string, args ...interface{}) error {
 	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
-	paginator := logic.NewPaginator(curPage)
+	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
 
 	// 置顶的topic
 	topTopics := logic.DefaultTopic.FindAll(ctx, paginator, "ctime DESC", "top=1")

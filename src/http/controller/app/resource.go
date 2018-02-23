@@ -27,7 +27,7 @@ func (self ResourceController) RegisterRoute(g *echo.Group) {
 // ReadList 资源索引页
 func (ResourceController) ReadList(ctx echo.Context) error {
 	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
-	paginator := logic.NewPaginator(curPage)
+	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
 
 	resources, total := logic.DefaultResource.FindAll(ctx, paginator, "resource.mtime", "")
 	hasMore := paginator.SetTotal(total).HasMorePage()

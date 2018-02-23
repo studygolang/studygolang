@@ -18,6 +18,8 @@ import (
 	. "http"
 )
 
+const perPage = 12
+
 func getLogger(ctx echo.Context) *logger.Logger {
 	return logic.GetLogger(ctx)
 }
