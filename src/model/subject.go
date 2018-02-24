@@ -19,7 +19,9 @@ type Subject struct {
 	Uid         int       `json:"uid"`
 	Contribute  bool      `json:"contribute"`
 	Audit       bool      `json:"audit"`
-	CreatedAt   time.Time `json:"created_at" xorm:"<-"`
+	ArticleNum  int       `json:"article_num"`
+	CreatedAt   OftenTime `json:"created_at" xorm:"created"`
+	UpdatedAt   OftenTime `json:"updated_at" xorm:"<-"`
 
 	User *User `json:"user" xorm:"-"`
 }

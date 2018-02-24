@@ -50,13 +50,18 @@ func (SubjectController) Index(ctx echo.Context) error {
 		subject.Cover = cdnDomain + subject.Cover
 	}
 
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	paginator := logic.NewPaginator(curPage)
+
 	orderBy := ctx.QueryParam("order_by")
-	articles := logic.DefaultSubject.FindArticles(ctx, id, orderBy)
+	articles := logic.DefaultSubject.FindArticles(ctx, id, paginator, orderBy)
 	if orderBy == "" {
 		orderBy = "added_at"
 	}
 
 	articleNum := logic.DefaultSubject.FindArticleTotal(ctx, id)
+
+	pageHtml := paginator.SetTotal(articleNum).GetPageHtml(ctx.Request().URL().Path())
 
 	followers := logic.DefaultSubject.FindFollowers(ctx, id)
 	followerNum := logic.DefaultSubject.FindFollowerTotal(ctx, id)
@@ -76,6 +81,7 @@ func (SubjectController) Index(ctx echo.Context) error {
 		"follower_num": followerNum,
 		"order_by":     orderBy,
 		"followed":     followed,
+		"page":         pageHtml,
 	}
 
 	return render(ctx, "subject/index.html", data)

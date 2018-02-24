@@ -45,7 +45,7 @@ func (IndexLogic) FindData(ctx context.Context, tab string, paginator *Paginator
 		feeds := DefaultFeed.FindRecentWithPaginator(ctx, paginator)
 		data["feeds"] = append(topFeeds, feeds...)
 	case isNid:
-		paginator := NewPaginator(1)
+		paginator = NewPaginator(1)
 
 		node := GetNode(nid)
 		if node["pid"].(int) == 0 {
@@ -75,7 +75,7 @@ func (IndexLogic) FindData(ctx context.Context, tab string, paginator *Paginator
 		if len(nids) > 0 {
 			questions := strings.TrimSuffix(strings.Repeat("?,", len(nids)), ",")
 			querystring := "nid in(" + questions + ")"
-			paginator := NewPaginator(1)
+			paginator = NewPaginator(1)
 			topics := DefaultTopic.FindAll(ctx, paginator, "topics.mtime DESC", querystring, nids...)
 			if len(topics) > 0 {
 				hasData = true
@@ -125,6 +125,8 @@ func (IndexLogic) FindData(ctx context.Context, tab string, paginator *Paginator
 		data["cur_nav"] = newIndexNav
 	case indexNav.DataSource == "article":
 		data["articles"] = DefaultArticle.FindBy(ctx, 50)
+	case indexNav.DataSource == "subject":
+		data["subjects"] = DefaultSubject.FindBy(ctx, paginator)
 	}
 
 	return data

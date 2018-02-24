@@ -89,6 +89,14 @@
                     </li>
                     {{end}}
                 </ul>
+
+                {{if .page}}
+                <div class="box_white">
+                    <div class="inner_content">
+                        <nav class="text-center"><ul class="pagination pagination-sm" style="margin: 1px 0;">{{noescape $.page}}</ul></nav>
+                    </div>
+                </div>
+                {{end}}
             </div>
         </div>
     </div>

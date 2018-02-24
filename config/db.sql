@@ -747,7 +747,9 @@ CREATE TABLE IF NOT EXISTS `subject` (
   `uid` int unsigned NOT NULL DEFAULT 0 COMMENT '创建者UID',
   `contribute` tinyint unsigned NOT NULL DEFAULT 1 COMMENT '是否允许投稿, 0-不允许；1-允许',
   `audit` tinyint unsigned NOT NULL DEFAULT 1 COMMENT '投稿是否需要审核, 0-不需要；1-需要',
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `article_num` int unsigned NOT NULL DEFAULT 0 COMMENT '收录的文章数',
+  `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '专栏';

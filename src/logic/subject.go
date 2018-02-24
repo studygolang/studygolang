@@ -27,6 +27,34 @@ type SubjectLogic struct{}
 
 var DefaultSubject = SubjectLogic{}
 
+func (self SubjectLogic) FindBy(ctx context.Context, paginator *Paginator) []*model.Subject {
+	objLog := GetLogger(ctx)
+
+	subjects := make([]*model.Subject, 0)
+	err := MasterDB.OrderBy("article_num DESC").Limit(paginator.PerPage(), paginator.Offset()).
+		Find(&subjects)
+	if err != nil {
+		objLog.Errorln("SubjectLogic FindBy error:", err)
+	}
+
+	if len(subjects) > 0 {
+
+		uidSet := set.New(set.NonThreadSafe)
+
+		for _, subject := range subjects {
+			uidSet.Add(subject.Uid)
+		}
+
+		usersMap := DefaultUser.FindUserInfos(ctx, set.IntSlice(uidSet))
+
+		for _, subject := range subjects {
+			subject.User = usersMap[subject.Uid]
+		}
+	}
+
+	return subjects
+}
+
 func (self SubjectLogic) FindOne(ctx context.Context, sid int) *model.Subject {
 	objLog := GetLogger(ctx)
 
@@ -43,7 +71,7 @@ func (self SubjectLogic) FindOne(ctx context.Context, sid int) *model.Subject {
 	return subject
 }
 
-func (self SubjectLogic) FindArticles(ctx context.Context, sid int, orderBy string) []*model.Article {
+func (self SubjectLogic) FindArticles(ctx context.Context, sid int, paginator *Paginator, orderBy string) []*model.Article {
 	objLog := GetLogger(ctx)
 
 	order := "subject_article.created_at DESC"
@@ -53,7 +81,9 @@ func (self SubjectLogic) FindArticles(ctx context.Context, sid int, orderBy stri
 
 	subjectArticles := make([]*model.SubjectArticles, 0)
 	err := MasterDB.Join("INNER", "subject_article", "subject_article.article_id = articles.id").
-		Where("sid=? AND state=?", sid, model.ContributeStateOnline).OrderBy(order).Find(&subjectArticles)
+		Where("sid=? AND state=?", sid, model.ContributeStateOnline).
+		Limit(paginator.PerPage(), paginator.Offset()).
+		OrderBy(order).Find(&subjectArticles)
 	if err != nil {
 		objLog.Errorln("SubjectLogic FindArticles Find subject_article error:", err)
 		return nil
@@ -193,11 +223,25 @@ func (self SubjectLogic) Contribute(ctx context.Context, me *model.Me, sid, arti
 		}
 	}
 
-	_, err := MasterDB.Insert(subjectArticle)
+	session := MasterDB.NewSession()
+	defer session.Close()
+	session.Begin()
+
+	_, err := session.Insert(subjectArticle)
 	if err != nil {
+		session.Rollback()
 		objLog.Errorln("SubjectLogic Contribute insert error:", err)
 		return errors.New("投稿失败:" + err.Error())
 	}
+
+	_, err = session.Id(sid).Incr("article_num", 1).Update(new(model.Subject))
+	if err != nil {
+		session.Rollback()
+		objLog.Errorln("SubjectLogic Contribute update subject article num error:", err)
+		return errors.New("投稿失败:" + err.Error())
+	}
+
+	session.Commit()
 
 	return nil
 }
@@ -206,11 +250,25 @@ func (self SubjectLogic) Contribute(ctx context.Context, me *model.Me, sid, arti
 func (self SubjectLogic) RemoveContribute(ctx context.Context, sid, articleId int) error {
 	objLog := GetLogger(ctx)
 
-	_, err := MasterDB.Where("sid=? AND article_id=?", sid, articleId).Delete(new(model.SubjectArticle))
+	session := MasterDB.NewSession()
+	defer session.Close()
+	session.Begin()
+
+	_, err := session.Where("sid=? AND article_id=?", sid, articleId).Delete(new(model.SubjectArticle))
 	if err != nil {
+		session.Rollback()
 		objLog.Errorln("SubjectLogic RemoveContribute delete error:", err)
 		return errors.New("删除投稿失败:" + err.Error())
 	}
+
+	_, err = session.Id(sid).Decr("article_num", 1).Update(new(model.Subject))
+	if err != nil {
+		session.Rollback()
+		objLog.Errorln("SubjectLogic RemoveContribute update subject article num error:", err)
+		return errors.New("删除投稿失败:" + err.Error())
+	}
+
+	session.Commit()
 
 	return nil
 }

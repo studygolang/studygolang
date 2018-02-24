@@ -20,7 +20,7 @@
 			{{end}}
 
 
-		{{with or .feeds .topics .articles .docs}}
+		{{with or .feeds .topics .articles .docs .subjects}}
 		
 			{{range $i, $feed := $.feeds}}
 			<div class="cell item">
@@ -266,6 +266,49 @@
 						</td>
 						{{end}}
 
+					</tr>
+				</tbody></table>
+			</div>
+				{{if eq $i 4}}
+					{{if $.pos_ad.other_banner}}
+						{{if eq $.pos_ad.other_banner.AdType 0}}
+							{{noescape $.pos_ad.other_banner.Code}}
+						{{else}}
+							<div id="other-banner">
+							</div>
+						{{end}}
+					{{end}}
+				{{end}}
+			{{end}}
+
+			{{range $i, $subject := $.subjects}}
+			<div class="cell item">
+				<table cellpadding="0" cellspacing="0" border="0" width="100%">
+					<tbody><tr>
+						
+						<td width="48" valign="top" align="center">
+							<a href="/user/{{.User.Username}}"><img src="{{gravatar .User.Avatar .User.Email 48 $.is_https}}" class="avatar" width="48px"></a>
+						</td>
+						<td width="10"></td>
+						
+						<td width="auto" valign="middle">
+						<span class="item_title"><a href="/subject/{{.Id}}" class="noul">{{.Name}}</a></span>
+						<div class="sep5"></div>
+						<span class="small cc">
+							<a class="node" href="/subject/{{.Id}}">专栏</a> &nbsp;•&nbsp;
+							<strong><a href="/user/{{.User.Username}}" class="noul">{{.User.Username}}</a></strong>
+							&nbsp;•&nbsp;
+						{{if .ArticleNum}}
+							<span title="{{.UpdatedAt}}" class="timeago"></span> 有新文章
+						{{else}}
+							创建于<span title="{{.CreatedAt}}" class="timeago"></span>
+						{{end}}
+						</td>
+						{{if .ArticleNum}}
+						<td width="70" align="right" valign="middle">
+							<a href="/subject/{{.Id}}" class="count_livid" title="{{.ArticleNum}}">{{.ArticleNum}}</a>
+						</td>
+						{{end}}
 					</tr>
 				</tbody></table>
 			</div>
