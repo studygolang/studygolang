@@ -16,7 +16,11 @@
             <div class="subject-header">
                 <div class="subject-info">
                     <a href="/subject/{{.subject.Id}}">
+                    {{if .subject.Cover}}
                         <img class="img-rounded" src="{{.subject.Cover}}" alt="" width="80px">
+                    {{else}}
+                        <img class="img-rounded" src="{{gravatar .subject.User.Avatar .subject.User.Email 80 $.is_https}}" alt="" width="80px">
+                    {{end}}
                     </a>
                     <div class="subject-meta">
                         <p class="title">{{.subject.Name}}</p>

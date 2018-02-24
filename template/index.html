@@ -287,7 +287,13 @@
 					<tbody><tr>
 						
 						<td width="48" valign="top" align="center">
-							<a href="/user/{{.User.Username}}"><img src="{{gravatar .User.Avatar .User.Email 48 $.is_https}}" class="avatar" width="48px"></a>
+							<a href="/subject/{{.Id}}">
+							{{if .Cover}}
+								<img src="{{$.cdn_domain}}{{.Cover}}?imageView2/2/w/48" class="avatar" width="48px">
+							{{else}}
+								<img src="{{gravatar .User.Avatar .User.Email 48 $.is_https}}" class="avatar" width="48px">
+							{{end}}
+							</a>
 						</td>
 						<td width="10"></td>
 						
