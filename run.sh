@@ -21,6 +21,6 @@ export GOPATH=$DIRPWD
 
 cd src/server/studygolang
 
-go run main.go background.go graceful_unix.go static.go >> $DIRPWD/log/panic.log 2>&1 &
+go run main.go background.go graceful_unix.go static.go pprof.go >> $DIRPWD/log/panic.log 2>&1 &
 
 echo "finished"
