@@ -434,7 +434,10 @@ func (self SubjectLogic) genSubjectMapSlice(subject *model.Subject, subjectMapSl
 	}
 
 	cover := subject.Cover
-	if !strings.HasPrefix(cover, "http") {
+	if cover == "" {
+		user := usersMap[subject.Uid]
+		cover = util.Gravatar(user.Avatar, user.Email, 48, true)
+	} else if !strings.HasPrefix(cover, "http") {
 		cdnDomain := global.App.CanonicalCDN(true)
 		cover = cdnDomain + subject.Cover
 	}
