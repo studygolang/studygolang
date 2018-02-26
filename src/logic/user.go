@@ -370,6 +370,8 @@ func (UserLogic) Total() int64 {
 var (
 	ErrUsername = errors.New("用户名不存在")
 	ErrPasswd   = errors.New("密码错误")
+
+	ErrUnameOrPwd = errors.New("用户名或密码错误")
 )
 
 // Login 登录；成功返回用户登录信息(user_login)
@@ -385,7 +387,7 @@ func (self UserLogic) Login(ctx context.Context, username, passwd string) (*mode
 	// 校验用户
 	if userLogin.Uid == 0 {
 		objLog.Infof("user %q is not exists!", username)
-		return nil, ErrUsername
+		return nil, ErrUnameOrPwd
 	}
 
 	// 检验用户状态是否正常（未激活的可以登录，但不能发布信息）
@@ -405,7 +407,7 @@ func (self UserLogic) Login(ctx context.Context, username, passwd string) (*mode
 	objLog.Debugf("passwd: %s, passcode: %s, md5passwd: %s, dbpasswd: %s", passwd, userLogin.Passcode, md5Passwd, userLogin.Passwd)
 	if md5Passwd != userLogin.Passwd {
 		objLog.Infof("用户名 %q 填写的密码错误", username)
-		return nil, ErrPasswd
+		return nil, ErrUnameOrPwd
 	}
 
 	go func() {
