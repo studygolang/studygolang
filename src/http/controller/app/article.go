@@ -26,44 +26,20 @@ func (this *ArticleController) RegisterRoute(g *echo.Group) {
 
 // ReadList 网友文章列表页
 func (ArticleController) ReadList(ctx echo.Context) error {
-	limit := 20
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
 
-	lastId := goutils.MustInt(ctx.QueryParam("base"))
-	articles := logic.DefaultArticle.FindBy(ctx, limit+5, lastId)
-	if articles == nil {
-		return fail(ctx, "获取失败")
-	}
+	// 置顶的 article
+	topArticles := logic.DefaultArticle.FindAll(ctx, paginator, "id DESC", "top=1")
 
-	articleList := make([]map[string]interface{}, 0, len(articles))
-	for _, article := range articles {
-		if lastId > 0 {
-			if article.Top == 1 {
-				continue
-			}
-		}
-		articleList = append(articleList, map[string]interface{}{
-			"id":       article.Id,
-			"name":     article.Name,
-			"title":    article.Title,
-			"pub_date": article.PubDate,
-			"tags":     article.Tags,
-			"viewnum":  article.Viewnum,
-			"cmtnum":   article.Cmtnum,
-			"likenum":  article.Likenum,
-			"top":      article.Top,
-			"author":   article.AuthorTxt,
-		})
-	}
+	articles := logic.DefaultArticle.FindAll(ctx, paginator, "id DESC", "")
 
-	hasMore := false
-	if len(articleList) > limit {
-		hasMore = true
-		articleList = articleList[:limit]
-	}
+	total := logic.DefaultArticle.Count(ctx, "")
+	hasMore := paginator.SetTotal(total).HasMorePage()
 
 	data := map[string]interface{}{
+		"articles": append(topArticles, articles...),
 		"has_more": hasMore,
-		"articles": articleList,
 	}
 
 	return success(ctx, data)
@@ -85,9 +61,17 @@ func (ArticleController) Detail(ctx echo.Context) error {
 	// 为了阅读数即时看到
 	article.Viewnum++
 
+	// 回复信息（评论）
+	replies, _, lastReplyUser := logic.DefaultComment.FindObjComments(ctx, article.Id, model.TypeArticle, 0, article.Lastreplyuid)
+	// 有人回复
+	if article.Lastreplyuid != 0 {
+		article.LastReplyUser = lastReplyUser
+	}
+
 	article.Txt = ""
 	data := map[string]interface{}{
 		"article": article,
+		"replies": replies,
 	}
 
 	// TODO: 暂时不用

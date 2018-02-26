@@ -20,6 +20,7 @@ type IndexController struct{}
 // 注册路由
 func (self IndexController) RegisterRoute(g *echo.Group) {
 	g.GET("/home", self.Home)
+	g.GET("/stat/site", self.WebsiteStat)
 }
 
 // Home 首页
@@ -50,4 +51,27 @@ func (IndexController) Home(ctx echo.Context) error {
 
 	}
 	return success(ctx, nil)
+}
+
+// WebsiteStat 网站统计信息
+func (IndexController) WebsiteStat(ctx echo.Context) error {
+	articleTotal := logic.DefaultArticle.Total()
+	projectTotal := logic.DefaultProject.Total()
+	topicTotal := logic.DefaultTopic.Total()
+	cmtTotal := logic.DefaultComment.Total()
+	resourceTotal := logic.DefaultResource.Total()
+	bookTotal := logic.DefaultGoBook.Total()
+	userTotal := logic.DefaultUser.Total()
+
+	data := map[string]interface{}{
+		"article":  articleTotal,
+		"project":  projectTotal,
+		"topic":    topicTotal,
+		"resource": resourceTotal,
+		"book":     bookTotal,
+		"comment":  cmtTotal,
+		"user":     userTotal,
+	}
+
+	return success(ctx, data)
 }

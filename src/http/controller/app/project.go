@@ -26,45 +26,17 @@ func (self ProjectController) RegisterRoute(g *echo.Group) {
 
 // ReadList 开源项目列表页
 func (ProjectController) ReadList(ctx echo.Context) error {
-	limit := 20
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
 
-	lastId := goutils.MustInt(ctx.QueryParam("base"))
-	projects := logic.DefaultProject.FindBy(ctx, limit+5, lastId)
-	if projects == nil {
-		return fail(ctx, "获取失败")
-	}
+	projects := logic.DefaultProject.FindAll(ctx, paginator, "id DESC", "")
 
-	projectList := make([]map[string]interface{}, 0, len(projects))
-	for _, project := range projects {
-		if lastId > 0 {
-			// TODO: 推荐？
-			// if project.Top == 1 {
-			// 	continue
-			// }
-		}
-		projectList = append(projectList, map[string]interface{}{
-			"id":       project.Id,
-			"name":     project.Name,
-			"category": project.Category,
-			"logo":     project.Logo,
-			"tags":     project.Tags,
-			"viewnum":  project.Viewnum,
-			"cmtnum":   project.Cmtnum,
-			"likenum":  project.Likenum,
-			"author":   project.Author,
-			"ctime":    project.Ctime,
-		})
-	}
-
-	hasMore := false
-	if len(projectList) > limit {
-		hasMore = true
-		projectList = projectList[:limit]
-	}
+	total := logic.DefaultProject.Count(ctx, "")
+	hasMore := paginator.SetTotal(total).HasMorePage()
 
 	data := map[string]interface{}{
+		"projects": projects,
 		"has_more": hasMore,
-		"projects": projectList,
 	}
 
 	return success(ctx, data)
@@ -83,5 +55,15 @@ func (ProjectController) Detail(ctx echo.Context) error {
 	// 为了阅读数即时看到
 	project.Viewnum++
 
-	return success(ctx, map[string]interface{}{"project": project})
+	// 回复信息（评论）
+	replies, _, lastReplyUser := logic.DefaultComment.FindObjComments(ctx, project.Id, model.TypeProject, 0, project.Lastreplyuid)
+	// 有人回复
+	if project.Lastreplyuid != 0 {
+		project.LastReplyUser = lastReplyUser
+	}
+
+	return success(ctx, map[string]interface{}{
+		"project": project,
+		"replies": replies,
+	})
 }

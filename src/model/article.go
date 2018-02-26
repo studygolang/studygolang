@@ -58,7 +58,7 @@ type Article struct {
 	User   *User `json:"-" xorm:"-"`
 	// 排行榜阅读量
 	RankView      int   `json:"rank_view" xorm:"-"`
-	LastReplyUser *User `json:"-" xorm:"-"`
+	LastReplyUser *User `json:"last_reply_user" xorm:"-"`
 }
 
 func (this *Article) AfterSet(name string, cell xorm.Cell) {
