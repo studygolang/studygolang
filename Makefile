@@ -19,3 +19,6 @@ stop:
 
 migrate:
 	./bin/migrator --changeVersion=${v}
+
+run-studygolang:
+	cd src/server/studygolang; go run `ls  | grep -v windows`; cd -	
