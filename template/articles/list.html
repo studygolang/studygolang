@@ -83,6 +83,14 @@
 			<li class="next"><a href="/articles?lastid={{.page.next_id}}">下一页 &rarr;</a></li>
 			{{end}}
 		</ul>
+        <div class="sep20"></div>
+		{{if .page}}
+			<div class="box_white">
+				<div class="inner_content">
+					<nav class="text-center"><ul class="pagination pagination-sm" style="margin: 1px 0;">{{.page}}</ul></nav>
+				</div>
+			</div>
+		{{end}}
 	</div>
 	<div class="col-md-3 col-sm-6">
 		<div class="sep20"></div>
