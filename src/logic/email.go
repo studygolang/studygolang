@@ -31,7 +31,7 @@ type EmailLogic struct{}
 var DefaultEmail = EmailLogic{}
 
 // SendMail 发送电子邮件
-func (EmailLogic) SendMail(subject, content string, tos []string) (err error) {
+func (EmailLogic) SendMail(subject, content string, tos []string, isRegs ...bool) (err error) {
 	emailConfig, _ := config.ConfigFile.GetSection("email")
 
 	fromEmail := emailConfig["from_email"]
@@ -40,16 +40,19 @@ func (EmailLogic) SendMail(subject, content string, tos []string) (err error) {
 	smtpHost := emailConfig["smtp_host"]
 	smtpPort := emailConfig["smtp_port"]
 
-	for _, to := range tos {
-		if strings.HasSuffix(to, "163.com") || strings.HasSuffix(to, "126.com") {
-			email163Config, _ := config.ConfigFile.GetSection("email.163")
-			fromEmail = email163Config["from_email"]
-			smtpUsername = email163Config["smtp_username"]
-			smtpPassword = email163Config["smtp_password"]
-			smtpHost = email163Config["smtp_host"]
-			smtpPort = email163Config["smtp_port"]
+	// 注册才区别使用 163，尽可能确保能收到
+	if len(isRegs) > 0 && isRegs[0] {
+		for _, to := range tos {
+			if strings.HasSuffix(to, "163.com") || strings.HasSuffix(to, "126.com") {
+				email163Config, _ := config.ConfigFile.GetSection("email.163")
+				fromEmail = email163Config["from_email"]
+				smtpUsername = email163Config["smtp_username"]
+				smtpPassword = email163Config["smtp_password"]
+				smtpHost = email163Config["smtp_host"]
+				smtpPort = email163Config["smtp_port"]
 
-			break
+				break
+			}
 		}
 	}
 
@@ -104,7 +107,7 @@ func (self EmailLogic) SendActivateMail(email, uuid string, isHttps ...bool) {
 感谢您选择了` + WebsiteSetting.Name + `，请点击下面的地址激活你在` + WebsiteSetting.Name + `的帐号（有效期4小时）：<br/><br/>
 <a href="` + activeUrl + `">` + activeUrl + `</a><br/><br/>
 <div style="text-align:right;">&copy;` + global.App.Copyright + ` ` + WebsiteSetting.Name + `</div>`
-	self.SendMail(WebsiteSetting.Name+"帐号激活邮件", content, []string{email})
+	self.SendMail(WebsiteSetting.Name+"帐号激活邮件", content, []string{email}, true)
 }
 
 func (EmailLogic) genActivateSign(email, uuid string, ts int64) string {
@@ -131,7 +134,7 @@ func (self EmailLogic) SendResetpwdMail(email, uuid string, isHttps ...bool) {
 如果您有任何疑问，可以回复这封邮件向我们提问。谢谢！<br/><br/>
 
 <div style="text-align:right;">&copy;` + global.App.Copyright + ` ` + WebsiteSetting.Name + `</div>`
-	self.SendMail("【"+WebsiteSetting.Name+"】重设密码 ", content, []string{email})
+	self.SendMail("【"+WebsiteSetting.Name+"】重设密码 ", content, []string{email}, true)
 }
 
 // 自定义模板函数
