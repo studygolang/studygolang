@@ -60,6 +60,7 @@ func (ArticleController) ReadList(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusSeeOther, "/articles")
 	}
 
+	// 旧的分页
 	var (
 		hasPrev, hasNext bool
 		prevId, nextId   int
@@ -98,6 +99,13 @@ func (ArticleController) ReadList(ctx echo.Context) error {
 		"has_next": hasNext,
 		"next_id":  nextId,
 	}
+
+	// 新分页
+	//curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	//paginator := logic.NewPaginator(curPage)
+	//total := logic.DefaultArticle.Count(ctx, "")
+	//pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
+	//pageInfo := template.HTML(pageHtml)
 
 	// 获取当前用户喜欢对象信息
 	me, ok := ctx.Get("user").(*model.Me)
