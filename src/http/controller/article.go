@@ -17,6 +17,7 @@ import (
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 
+	"html/template"
 	. "http"
 	"model"
 )
@@ -45,8 +46,14 @@ func (self ArticleController) RegisterRoute(g *echo.Group) {
 func (ArticleController) ReadList(ctx echo.Context) error {
 	limit := 20
 
-	lastId := goutils.MustInt(ctx.QueryParam("lastid"))
-	articles := logic.DefaultArticle.FindBy(ctx, limit+5, lastId)
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	paginator := logic.NewPaginator(curPage)
+	paginator.SetPerPage(limit)
+
+	// TODO: 参考的 topics 的处理方式，但是感觉不应该这样做
+	topArticles := logic.DefaultArticle.FindAll(ctx, paginator, "id DESC", "top=1")
+	unTopArticles := logic.DefaultArticle.FindAll(ctx, paginator, "id DESC", "top!=1")
+	articles := append(topArticles, unTopArticles...)
 	if articles == nil {
 		logger.Errorln("article controller: find article error")
 		return ctx.Redirect(http.StatusSeeOther, "/articles")
@@ -54,64 +61,38 @@ func (ArticleController) ReadList(ctx echo.Context) error {
 
 	num := len(articles)
 	if num == 0 {
-		if lastId == 0 {
+		if curPage == 1 {
 			return render(ctx, "articles/list.html", map[string]interface{}{"articles": articles, "activeArticles": "active"})
 		}
 		return ctx.Redirect(http.StatusSeeOther, "/articles")
 	}
 
-	// 旧的分页
-	var (
-		hasPrev, hasNext bool
-		prevId, nextId   int
-	)
-
-	if lastId != 0 {
-		prevId = lastId
-
-		firstNoTopId := articles[0].Id
-		for i := 0; i < num; i++ {
-			if articles[i].Top != 1 {
-				firstNoTopId = articles[i].Id
-				break
-			}
-		}
-		// 避免因为文章下线，导致判断错误（所以 > 5）
-		if prevId-firstNoTopId > 5 {
-			hasPrev = false
-		} else {
-			prevId += limit
-			hasPrev = true
-		}
-	}
-
-	if num > limit {
-		hasNext = true
-		articles = articles[:limit]
-		nextId = articles[limit-1].Id
-	} else {
-		nextId = articles[num-1].Id
-	}
-
-	pageInfo := map[string]interface{}{
-		"has_prev": hasPrev,
-		"prev_id":  prevId,
-		"has_next": hasNext,
-		"next_id":  nextId,
-	}
-
-	// 新分页
-	//curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
-	//paginator := logic.NewPaginator(curPage)
-	//total := logic.DefaultArticle.Count(ctx, "")
-	//pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
-	//pageInfo := template.HTML(pageHtml)
+	total := logic.DefaultArticle.Count(ctx, "")
+	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
+	pageInfo := template.HTML(pageHtml)
 
 	// 获取当前用户喜欢对象信息
 	me, ok := ctx.Get("user").(*model.Me)
-	var likeFlags map[int]int
+	var topLikeFlags map[int]int
+	var unTopLikeFlags map[int]int
+	likeFlags := map[int]int{}
+
 	if ok {
-		likeFlags, _ = logic.DefaultLike.FindUserLikeObjects(ctx, me.Uid, model.TypeArticle, articles[0].Id, nextId)
+		topArticlesNum := len(topArticles)
+		if topArticlesNum > 0 {
+			topLikeFlags, _ = logic.DefaultLike.FindUserLikeObjects(ctx, me.Uid, model.TypeArticle, topArticles[0].Id, topArticles[topArticlesNum-1].Id)
+			for k, v := range topLikeFlags {
+				likeFlags[k] = v
+			}
+		}
+
+		unTopArticlesNum := len(unTopArticles)
+		if unTopArticlesNum > 0 {
+			unTopLikeFlags, _ = logic.DefaultLike.FindUserLikeObjects(ctx, me.Uid, model.TypeArticle, unTopArticles[0].Id, unTopArticles[unTopArticlesNum-1].Id)
+			for k, v := range unTopLikeFlags {
+				likeFlags[k] = v
+			}
+		}
 	}
 
 	return render(ctx, "articles/list.html", map[string]interface{}{"articles": articles, "activeArticles": "active", "page": pageInfo, "likeflags": likeFlags})

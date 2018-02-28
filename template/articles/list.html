@@ -75,14 +75,6 @@
 			<div class="row">暂无博文，<a class="btn btn-default btn-sm" href="/articles/new">撰写文章</a></div>
 		</article>
 		{{end}}
-		<ul class="pager">
-			{{if .page.has_prev}}
-			<li class="previous"><a href="/articles?lastid={{.page.prev_id}}">&larr; 上一页</a></li>
-			{{end}}
-			{{if .page.has_next}}
-			<li class="next"><a href="/articles?lastid={{.page.next_id}}">下一页 &rarr;</a></li>
-			{{end}}
-		</ul>
         <div class="sep20"></div>
 		{{if .page}}
 			<div class="box_white">
