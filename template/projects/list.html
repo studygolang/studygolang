@@ -36,10 +36,10 @@
 					</a>
 					{{if $.likeflags}}
 					{{$likeFlag := index $.likeflags .Id}}
-					<a href="#" class="like{{if $likeFlag}} hadlike{{end}}" title="{{if $likeFlag}}取消喜欢{{else}}我喜欢{{end}}" data-objid="{{.Id}}" data-objtype="1" data-flag="{{if $likeFlag}}{{$likeFlag}}{{else}}0{{end}}">
+					<a href="#" class="like{{if $likeFlag}} hadlike{{end}}" title="{{if $likeFlag}}取消喜欢{{else}}我喜欢{{end}}" data-objid="{{.Id}}" data-objtype="4" data-flag="{{if $likeFlag}}{{$likeFlag}}{{else}}0{{end}}">
 						<i class="glyphicon glyphicon-heart{{if not $likeFlag}}-empty{{end}}"></i>
 					{{else}}
-					<a href="#" class="like" title="我喜欢" data-objid="{{.Id}}" data-objtype="1" data-flag="0">
+					<a href="#" class="like" title="我喜欢" data-objid="{{.Id}}" data-objtype="4" data-flag="0">
 						<i class="glyphicon glyphicon-heart-empty"></i>
 					{{end}}
 						<span class="likenum">{{.Likenum}}</span>人喜欢
@@ -52,14 +52,14 @@
 			<div class="row">暂无开源项目，<a class="btn btn-default btn-sm" href="/project/new">发布一个</a></div>
 		</article>
 		{{end}}
-		<ul class="pager">
-			{{if .page.has_prev}}
-			<li class="previous"><a href="/projects?lastid={{.page.prev_id}}">&larr; 上一页</a></li>
-			{{end}}
-			{{if .page.has_next}}
-			<li class="next"><a href="/projects?lastid={{.page.next_id}}">下一页 &rarr;</a></li>
-			{{end}}
-		</ul>
+        <div class="sep20"></div>
+		{{if .page}}
+			<div class="box_white">
+				<div class="inner_content">
+					<nav class="text-center"><ul class="pagination pagination-sm" style="margin: 1px 0;">{{.page}}</ul></nav>
+				</div>
+			</div>
+		{{end}}
 	</div>
 	<div class="col-md-3 col-sm-6">
 		<div class="sep20"></div>

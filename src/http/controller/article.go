@@ -49,6 +49,9 @@ func (ArticleController) ReadList(ctx echo.Context) error {
 	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
 	paginator := logic.NewPaginator(curPage)
 	paginator.SetPerPage(limit)
+	total := logic.DefaultArticle.Count(ctx, "")
+	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
+	pageInfo := template.HTML(pageHtml)
 
 	// TODO: 参考的 topics 的处理方式，但是感觉不应该这样做
 	topArticles := logic.DefaultArticle.FindAll(ctx, paginator, "id DESC", "top=1")
@@ -61,15 +64,11 @@ func (ArticleController) ReadList(ctx echo.Context) error {
 
 	num := len(articles)
 	if num == 0 {
-		if curPage == 1 {
+		if curPage == int(total) {
 			return render(ctx, "articles/list.html", map[string]interface{}{"articles": articles, "activeArticles": "active"})
 		}
 		return ctx.Redirect(http.StatusSeeOther, "/articles")
 	}
-
-	total := logic.DefaultArticle.Count(ctx, "")
-	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
-	pageInfo := template.HTML(pageHtml)
 
 	// 获取当前用户喜欢对象信息
 	me, ok := ctx.Get("user").(*model.Me)

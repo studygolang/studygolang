@@ -14,6 +14,7 @@ import (
 	"github.com/labstack/echo"
 	"github.com/polaris1119/goutils"
 
+	"html/template"
 	. "http"
 	"model"
 )
@@ -39,55 +40,30 @@ func (self ProjectController) RegisterRoute(g *echo.Group) {
 // ReadList 开源项目列表页
 func (ProjectController) ReadList(ctx echo.Context) error {
 	limit := 20
-	lastId := goutils.MustInt(ctx.QueryParam("lastid"))
-	projects := logic.DefaultProject.FindBy(ctx, limit+5, lastId)
+
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	paginator := logic.NewPaginator(curPage)
+	paginator.SetPerPage(limit)
+	total := logic.DefaultProject.Count(ctx, "")
+	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
+	pageInfo := template.HTML(pageHtml)
+
+	projects := logic.DefaultProject.FindAll(ctx, paginator, "id DESC", "status IN(?,?)", model.ProjectStatusNew, model.ProjectStatusOnline)
 
 	num := len(projects)
 	if num == 0 {
-		if lastId == 0 {
+		if curPage == int(total) {
 			return render(ctx, "projects/list.html", map[string]interface{}{"projects": projects, "activeProjects": "active"})
 		} else {
 			return ctx.Redirect(http.StatusSeeOther, "/projects")
 		}
 	}
 
-	var (
-		hasPrev, hasNext bool
-		prevId, nextId   int
-	)
-
-	if lastId > 0 {
-		prevId = lastId
-
-		// 避免因为项目下线，导致判断错误（所以 > 5）
-		if prevId-projects[0].Id > 5 {
-			hasPrev = false
-		} else {
-			prevId += limit
-			hasPrev = true
-		}
-	}
-
-	if num > limit {
-		hasNext = true
-		projects = projects[:limit]
-		nextId = projects[limit-1].Id
-	} else {
-		nextId = projects[num-1].Id
-	}
-
-	pageInfo := map[string]interface{}{
-		"has_prev": hasPrev,
-		"prev_id":  prevId,
-		"has_next": hasNext,
-		"next_id":  nextId,
-	}
-
 	// 获取当前用户喜欢对象信息
 	me, ok := ctx.Get("user").(*model.Me)
 	var likeFlags map[int]int
 	if ok {
-		likeFlags, _ = logic.DefaultLike.FindUserLikeObjects(ctx, me.Uid, model.TypeProject, projects[0].Id, nextId)
+		likeFlags, _ = logic.DefaultLike.FindUserLikeObjects(ctx, me.Uid, model.TypeProject, projects[0].Id, projects[num-1].Id)
 	}
 
 	return render(ctx, "projects/list.html", map[string]interface{}{"projects": projects, "activeProjects": "active", "page": pageInfo, "likeflags": likeFlags})
