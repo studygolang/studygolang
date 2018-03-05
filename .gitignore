@@ -43,6 +43,7 @@ studygolang_data.sql
 welcome.png
 
 *.json
+!package.json
 
 .DS_Store
 /env.ini
