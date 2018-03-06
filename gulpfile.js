@@ -23,7 +23,7 @@ gulp.task('minifycss', function() {
         .pipe(minifycss())                    // 压缩文件
         .pipe(gulp.dest('static/dist/css'))            // 输出文件目录
         // .pipe(rev.manifest()) // 收集原始文件名和版本号文件名对应关系
-        .pipe(gulp.dest('static/dist/rev/js')) // 对应文件输出
+        // .pipe(gulp.dest('static/dist/rev/js')) // 对应文件输出
         .pipe(notify({message:'css task ok'}))   // 提示成功
     
     gulp.src('static/css/libs/*.css')      // 设置 css
@@ -60,7 +60,7 @@ gulp.task('minifyjs',function(){
        .pipe(uglify())                    // 压缩
        .pipe(gulp.dest('static/dist/js')) // 输出
        // .pipe(rev.manifest()) // 收集原始文件名和版本号文件名对应关系
-       .pipe(gulp.dest('static/dist/rev/css')) // 对应文件输出
+       // .pipe(gulp.dest('static/dist/rev/css')) // 对应文件输出
        .pipe(notify({message:"js base task ok"}));    // 提示成功
     
     ///////// 只是压缩 /////////////

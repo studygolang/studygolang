@@ -564,12 +564,8 @@ $(function(){
 		}
 
 		// 控制导航栏
-		var $nav = $('.navbar')
-		if ($(window).scrollTop() > 0) {
-			$nav.css('position', 'fixed')
-		} else {
-			$nav.css('position', 'static')
-		}
+		$('.navbar').css('position', $(window).scrollTop() > 0 ? 'fixed' : 'static')
+
 	});
 
 	$('#login-pop .close').on('click', function() {
