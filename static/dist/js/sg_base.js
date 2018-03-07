@@ -564,7 +564,7 @@ $(function(){
 		}
 
 		// 控制导航栏
-		$('.navbar').css('position', $(window).scrollTop() > 0 ? 'fixed' : 'static')
+		$('.navbar').css('position', $(window).scrollTop() > 0 ? 'fixed' : 'relative')
 
 	});
 
