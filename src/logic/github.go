@@ -653,6 +653,7 @@ func (GithubLogic) insertOrUpdateGCCT(_prInfo *prInfo, title string, isTranslate
 		return nil
 	}
 
+	gcttGit.PR = _prInfo.number
 	gcttGit.Username = _prInfo.username
 	gcttGit.Title = title
 	gcttGit.Md5 = md5
