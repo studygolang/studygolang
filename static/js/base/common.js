@@ -562,6 +562,10 @@ $(function(){
 				// openPop("#login-pop");
 			}
 		}
+
+		// 控制导航栏
+		$('.navbar').css('position', $(window).scrollTop() > 0 ? 'fixed' : 'relative')
+
 	});
 
 	$('#login-pop .close').on('click', function() {

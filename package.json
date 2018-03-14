@@ -1,0 +1,34 @@
+{
+  "name": "studygolang",
+  "version": "1.0.0",
+  "description": "studygolang =========== [![Build Status](https://travis-ci.org/studygolang/studygolang.svg?branch=master)](https://travis-ci.org/studygolang/studygolang)",
+  "main": "gulpfile.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/studygolang/studygolang.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/studygolang/studygolang/issues"
+  },
+  "homepage": "https://github.com/studygolang/studygolang#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-jshint": "^2.1.0",
+    "gulp-minify-css": "^1.2.4",
+    "gulp-notify": "^3.2.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-rev-ayou": "^1.0.1",
+    "gulp-rev-collector-ayou": "^1.0.0",
+    "gulp-uglify": "^3.0.0",
+    "jshint": "^2.9.5"
+  }
+}

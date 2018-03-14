@@ -146,7 +146,7 @@ func (MissionLogic) FindLoginMission(ctx context.Context, me *model.Me) *model.U
 }
 
 // Complete 完成任务（非每日任务）
-func (MissionLogic) Complete(ctx context.Context, me *model.Me, id interface{}) error {
+func (MissionLogic) Complete(ctx context.Context, me *model.Me, id string) error {
 	objLog := GetLogger(ctx)
 
 	mission := &model.Mission{}
@@ -163,7 +163,7 @@ func (MissionLogic) Complete(ctx context.Context, me *model.Me, id interface{}) 
 	user := DefaultUser.FindOne(ctx, "uid", me.Uid)
 
 	// 初始任务，不允许重复提交
-	if id == model.InitialMissionId {
+	if id == strconv.Itoa(model.InitialMissionId) {
 		if user.Balance > 0 {
 			objLog.Errorln("repeat claim init award", user.Username)
 			return nil
