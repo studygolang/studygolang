@@ -40,7 +40,7 @@ a.tab_current:hover {background-color: #445; color: #fff; text-decoration: none;
 .navbar-header .navbar-brand { margin-top: -5px; }
 .navbar-header .navbar-brand img { width: 123px;height: 29px; }
 
-/* .wrapper {margin-top: 52px;} */
+.wrapper {margin-top: -20px;}
 
 .box_white { background: #FFF; clear: both; overflow: hidden; margin-left: -5px; margin-right: -5px; }
 

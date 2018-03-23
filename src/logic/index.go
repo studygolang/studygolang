@@ -19,7 +19,7 @@ type IndexLogic struct{}
 
 var DefaultIndex = IndexLogic{}
 
-func (IndexLogic) FindData(ctx context.Context, tab string, paginator *Paginator) map[string]interface{} {
+func (self IndexLogic) FindData(ctx context.Context, tab string, paginator *Paginator) map[string]interface{} {
 
 	indexNav := GetCurIndexNav(tab)
 	if indexNav == nil {
@@ -41,9 +41,7 @@ func (IndexLogic) FindData(ctx context.Context, tab string, paginator *Paginator
 
 	switch {
 	case indexNav.DataSource == "feed":
-		topFeeds := DefaultFeed.FindTop(ctx)
-		feeds := DefaultFeed.FindRecentWithPaginator(ctx, paginator)
-		data["feeds"] = append(topFeeds, feeds...)
+		data["feeds"] = self.findFeeds(ctx, paginator)
 	case isNid:
 		paginator = NewPaginator(1)
 
@@ -127,7 +125,15 @@ func (IndexLogic) FindData(ctx context.Context, tab string, paginator *Paginator
 		data["articles"] = DefaultArticle.FindBy(ctx, 50)
 	case indexNav.DataSource == "subject":
 		data["subjects"] = DefaultSubject.FindBy(ctx, paginator)
+	default:
+		data["feeds"] = self.findFeeds(ctx, paginator)
 	}
 
 	return data
+}
+
+func (self IndexLogic) findFeeds(ctx context.Context, paginator *Paginator) []*model.Feed {
+	topFeeds := DefaultFeed.FindTop(ctx)
+	feeds := DefaultFeed.FindRecentWithPaginator(ctx, paginator)
+	return append(topFeeds, feeds...)
 }

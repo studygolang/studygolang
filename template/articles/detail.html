@@ -187,9 +187,11 @@
 
 {{include "common/modal.html" .}}
 
+{{if not .article.Markdown}}
 <template id="content_tpl">
 {{noescape .article.Content}}
 </template>
+{{end}}
 
 {{end}}
 

@@ -7,11 +7,18 @@
 package logic
 
 import (
+	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"model"
 	"strings"
 	"time"
+	"util"
+
+	. "db"
+
+	"github.com/tidwall/gjson"
 
 	"golang.org/x/net/context"
 
@@ -21,6 +28,77 @@ import (
 type WechatLogic struct{}
 
 var DefaultWechat = WechatLogic{}
+
+var jscodeRUL = "https://api.weixin.qq.com/sns/jscode2session"
+
+// CheckSession 微信小程序登录凭证校验
+func (self WechatLogic) CheckSession(ctx context.Context, code string) (*model.WechatUser, error) {
+	objLog := GetLogger(ctx)
+
+	appid := config.ConfigFile.MustValue("wechat.xcx", "appid")
+	appsecret := config.ConfigFile.MustValue("wechat.xcx", "appsecret")
+
+	checkLoginURL := fmt.Sprintf("%s?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code",
+		jscodeRUL, appid, appsecret, code)
+
+	body, err := util.DoGet(checkLoginURL)
+	if err != nil {
+		return nil, err
+	}
+
+	result := gjson.ParseBytes(body)
+
+	openidResult := result.Get("openid")
+	if !openidResult.Exists() {
+		objLog.Errorln("WechatLogic WxLogin error:", result.Raw)
+		return nil, errors.New(result.Get("errmsg").String())
+	}
+
+	openid := openidResult.String()
+	wechatUser := &model.WechatUser{}
+	_, err = MasterDB.Where("openid=?", openid).Get(wechatUser)
+	if err != nil {
+		objLog.Errorln("WechatLogic WxLogin find wechat user error:", err)
+		return nil, err
+	}
+
+	if wechatUser.Id == 0 {
+		wechatUser.Openid = openid
+		wechatUser.SessionKey = result.Get("session_key").String()
+		_, err = MasterDB.Insert(wechatUser)
+		if err != nil {
+			objLog.Errorln("WechatLogic WxLogin insert wechat user error:", err)
+			return nil, err
+		}
+	}
+
+	return wechatUser, nil
+}
+
+func (self WechatLogic) Bind(ctx context.Context, id, uid int, userInfo string) (*model.WechatUser, error) {
+	objLog := GetLogger(ctx)
+
+	user := make(map[string]string)
+	err := json.Unmarshal([]byte(userInfo), &user)
+	if err != nil {
+		objLog.Errorln("WechatLogic Bind Unmarshal error:", err)
+		return nil, err
+	}
+
+	wechatUser := &model.WechatUser{
+		Uid:      uid,
+		Nickname: user["nickName"],
+		Avatar:   user["avatarUrl"],
+		Openid:   userInfo,
+	}
+	_, err = MasterDB.Id(id).Update(wechatUser)
+	if err != nil {
+		objLog.Errorln("WechatLogic Bind update error:", err)
+		return nil, err
+	}
+
+	return wechatUser, nil
+}
 
 func (self WechatLogic) AutoReply(ctx context.Context, reqData []byte) (*model.WechatReply, error) {
 	objLog := GetLogger(ctx)

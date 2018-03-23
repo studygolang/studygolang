@@ -801,3 +801,19 @@ CREATE TABLE IF NOT EXISTS `download` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '下载信息表';
+
+CREATE TABLE `wechat_user` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `openid` varchar(127) NOT NULL DEFAULT '' COMMENT '用户的标识，对当前公众号/小程序唯一',
+  `nickname` varchar(127) NOT NULL DEFAULT '' COMMENT '用户的昵称',
+  `session_key` varchar(127) NOT NULL DEFAULT '' COMMENT '小程序返回的 session_key',
+  `avatar` varchar(255) NOT NULL DEFAULT '' COMMENT '用户微信头像',
+  `open_info` varchar(1024) NOT NULL DEFAULT '' COMMENT '用户微信的其他信息，json格式',
+  `uid` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '用户UID',
+  `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `openid` (`openid`),
+  KEY `uid` (`uid`),
+  KEY `updated_at` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='微信用户绑定表';
