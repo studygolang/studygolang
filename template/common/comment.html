@@ -1,6 +1,7 @@
 {{define "comment"}}
 <div class="sep10"></div>
 <div class="box_white page-comment">
+	<input type="hidden" name="me-uid" value="{{.me.Uid}}"/>
 	<div class="cell">添加一条新回复
 	{{if not .me.Uid}}
 	<span class="h2-tip">
@@ -9,9 +10,9 @@
 	</div>
 	<div class="cell">
 		<div class="row clearfix md-toolbar">
-			<ul class="col-md-10 list-inline">
-				<li class="edit cur"><a href="#" class="op">编辑</a></li>
-				<li class="preview"><a href="#" class="op">预览</a></li>
+			<ul class="col-md-10 list-inline comment-tab-menu" data-comment-group="default">
+				<li class="comment-edit-tab cur"><a href="#" class="op">编辑</a></li>
+				<li class="comment-preview-tab"><a href="#" class="op">预览</a></li>
 				<li>
 					<div class="nav reply-to dn" data-floor="" data-username="">
 						<i class="fa fa-mail-reply" title=""></i>
@@ -25,10 +26,10 @@
 			</div>
 		</div>
 		<div class="submit" id="commentForm">
-			<div class="text">
-				<textarea id="comment-content" name="content" class="main-textarea need-autogrow" rows="8"></textarea>
+			<div class="comment-content-text" data-comment-group="default">
+				<textarea id="comment-content" name="content" class="comment-textarea main-textarea need-autogrow" rows="8"></textarea>
 			</div>
-			<div class="content-preview cell"></div>
+			<div class="comment-content-preview cell" data-comment-group="default"></div>
 			<div class="sub row">
 				<ul class="help-block col-md-10">
 					<li>请尽量让自己的回复能够对别人有帮助</li>
@@ -185,6 +186,25 @@ a.close:hover {
     margin-left: 5px;
     margin-top: 1px;
 }
+.edit-wrapper {
+	display: none;
+	border: 1px solid #c0d3eb;
+	padding: 8px;
+	border-radius: 4px;
+}
+
+.edit-textarea {
+	resize: none;
+	width: 100%;
+	color: #000;
+	font-size: 14px;
+	border: 1px solid #E5E5E5;
+	padding: 5px;
+}
+.btn-edit {
+	cursor: pointer;
+}
+
 
 </style>
 
@@ -201,6 +221,9 @@ a.close:hover {
 					<abbr class="timeago" title="[%:comment.ctime%]">[%:comment.cmt_time%]</abbr>
 					<span class="opts pull-right">
 						<span class="op-reply hideable">
+							[%if me.uid == user.uid %]
+								<a data-floor="[%:comment.floor%]" title="编辑" class="btn-edit glyphicon glyphicon-edit"></a>
+							[%/if%]
 						  <a data-floor="[%:comment.floor%]" data-username="[%:user.username%]" title="回复此楼" class="btn-reply fa fa-mail-reply" href="#"></a>
 						</span>
 						<!-- <a title="赞" data-count="0" data-state="" data-type="Reply" data-id="323365" class="likeable " href="#"><i class="fa fa-heart"></i> <span></span></a> -->
@@ -221,8 +244,27 @@ a.close:hover {
 				</div>
 				[%/if%]
 
-			<div class="markdown">
-				<p>[%:comment.content%]</p>
+			<div class="markdown" data-floor="[%:comment.floor%]">
+				<div class="content">[%:comment.content%]</div>
+				<div class="edit-wrapper">
+					<div class="row clearfix md-toolbar">
+						<ul class="col-md-10 list-inline comment-tab-menu" data-comment-group="[%:comment.floor%]">
+								<li class="comment-edit-tab cur"><a href="#" class="op">编辑</a></li>
+								<li class="comment-preview-tab"><a href="#" class="op">预览</a></li>
+						</ul>
+						<div class="col-md-2 text-right">
+							<i id="upload-img" class="glyphicon glyphicon-picture upload-img tool-tip" data-toggle="tooltip" data-placement="top" title="上传图片"></i>
+						</div>
+					</div>
+					<div class="comment-content-text" data-comment-group="[%:comment.floor%]">
+						<textarea data-raw-content="[%:comment.rawContent%]" name="content" class="comment-textarea" rows="8">[%:comment.rawContent%]</textarea>
+					</div>
+					<div class="comment-content-preview cell" data-comment-group="[%:comment.floor%]"></div>
+					<div class="text-right">
+						<button type="submit" title="提交" data-cid="[%:comment.cid%]" data-floor="[%:comment.floor%]" class="submit btn btn-default">提交</button>
+						<button title="取消" data-floor="[%:comment.floor%]" class="cancel btn btn-default">取消</button>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
