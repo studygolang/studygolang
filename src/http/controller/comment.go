@@ -27,6 +27,7 @@ func (self CommentController) RegisterRoute(g *echo.Group) {
 	g.Get("/at/users", self.AtUsers)
 	g.Post("/comment/:objid", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice())
 	g.Get("/object/comments", self.CommentList)
+	// g.Post("/object/comments/:cid", self.EditComment, middleware.NeedLogin, )
 
 	g.Get("/topics/:objid/comment/:cid", self.TopicDetail)
 	g.Get("/articles/:objid/comment/:cid", self.ArticleDetail)

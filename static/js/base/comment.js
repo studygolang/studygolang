@@ -29,29 +29,38 @@
 			}
 		})();
 
-		$('.page-comment .md-toolbar .edit').on('click', function(evt){
+		// 编辑 tab
+		$('.page').on('click', '.comment-edit-tab', function(evt){
 			evt.preventDefault();
 			
-			$(this).addClass('cur');
-			$('.page-comment .md-toolbar .preview').removeClass('cur');
+			var $this = $(this);
+			var $tabMenu = $this.parent()
+			var commentGroup = $tabMenu.data('comment-group')
+			$this.addClass('cur');
+			$tabMenu.children('.comment-preview-tab').removeClass('cur')
 
-			$('.page-comment .content-preview').hide();
-			$('.page-comment #commentForm .text').show();
+			$('.comment-content-preview[data-comment-group="' + commentGroup + '"]').hide();
+			$('.comment-content-text[data-comment-group="' + commentGroup + '"]').show();
 		});
-		$('.page-comment .md-toolbar .preview').on('click', function(evt){
+		// 点击预览 tab
+		$('.page').on('click', '.comment-preview-tab', function(evt){
 			evt.preventDefault();
 
 			var marked = SG.markSettingNoHightlight();
 
-			$(this).addClass('cur');
-			$('.page-comment .md-toolbar .edit').removeClass('cur');
+			var $this = $(this).addClass('cur');
+			var $tabMenu = $this.parent();
+			var commentGroup = $tabMenu.data('comment-group')
+			var $preview = $('.comment-content-preview[data-comment-group="' + commentGroup + '"]')
+			var $text = $('.comment-content-text[data-comment-group="' + commentGroup + '"]')
+			$tabMenu.children('.comment-edit-tab').removeClass('cur');
 
-			$('.page-comment #commentForm .text').hide();
-			var content = $('.page-comment #commentForm textarea').val();
-			$('.page-comment .content-preview').html(marked(content));
+			$text.hide();
+			var content = $text.children('textarea').val();
+			$preview.html(marked(content));
 			// emoji 表情解析
-			emojify.run($('.page-comment .content-preview').get(0));
-			$('.page-comment .content-preview').show();
+			emojify.run($preview.get(0));
+			$preview.show();
 
 			Prism.highlightAll();
 		});
@@ -69,6 +78,54 @@
 			}
 		});
 
+		// 切换显示评论和编辑评论
+		function toggleCommentShowOrEdit(floor, show) {
+			var $markdown = $('.markdown[data-floor="' + floor + '"]')
+			var $content = $markdown.children('.content')
+			var $editWrapper = $markdown.children('.edit-wrapper')
+			if (show) {
+				$content.show()
+				$editWrapper.hide()
+			} else {
+				$content.hide()
+				$editWrapper.show()
+				var $textarea = $editWrapper.children('textarea')
+				$textarea.val($textarea.data('raw-content')).focus()
+			}
+		}
+
+		// 点击编辑评论按钮
+		$('#replies').on('click', '.btn-edit', function(evt) {
+			evt.preventDefault();
+			var floor = $(this).data('floor');
+			toggleCommentShowOrEdit(floor, false)
+		});
+
+		// 点击取消编辑评论按钮
+		$('#replies').on('click', '.btn.cancel', function(evt) {
+			evt.stopPropagation();
+			var floor = $(this).data('floor');
+			toggleCommentShowOrEdit(floor, true)
+		})
+
+		// 点击提交编辑后的评论
+		$('#replies').on('click', '.btn.submit', function(evt) {
+			evt.stopPropagation();
+			var floor = $(this).data('floor');
+			var $markdown = $('.markdown[data-floor="' + floor + '"]')
+			var $submitBtn = $(this);
+			var $editWrapper = $markdown.children('.edit-wrapper')
+			var $textarea = $editWrapper.children('textarea')
+			var content = $textarea.val()
+			var cid = $submitBtn.data("cid")
+
+			editComment($submitBtn, cid, content, function() {
+				$textarea.data('raw-content', content)
+				toggleCommentShowOrEdit(floor, true)
+			})
+		})
+		
+		// 点击回复某人
 		$('#replies').on('click', '.btn-reply', function(evt) {
 			evt.preventDefault();
 
@@ -124,6 +181,7 @@
 					var content = '';
 					for(var i in comments) {
 						var comment = comments[i],
+							meUid = $('[name="me-uid"]').val(),
 							user = data[comment.uid];
 
 						var avatar = user.avatar;
@@ -150,10 +208,9 @@
 							comment.reply_user = data[replyComment.uid];
 							comment.reply_content = replyComment.content;
 						}
-
+						comment.rawContent = comment.content
 						comment.content = parseCmtContent(comment.content);
-
-						content += $.templates('#one-comment').render({comment: comment, user: user});
+						content += $.templates('#one-comment').render({comment: comment, user: user, me: {uid: meUid}});
 					}
 
 					if (content != '') {
@@ -217,6 +274,18 @@
 			}
 		});
 
+		var editComment = function(thiss, id, content, callback) {
+			thiss.text("稍等").addClass("disabled").attr({"title":'稍等',"disabled":"disabled"});
+
+			setTimeout(function() {
+				comTip("修改成功！");
+				callback()
+			}, 1500)
+
+
+			thiss.text("提交").removeClass("disabled").removeAttr("disabled").attr({"title":'提交'});
+		}
+
 		var postComment = function(thiss, content, callback){
 			thiss.text("稍等").addClass("disabled").attr({"title":'稍等',"disabled":"disabled"});
 
@@ -239,6 +308,7 @@
 						var comment = data.data;
 
 						var $pageComment = $('.comment-list'),
+							meUid = $('[name="me-uid"]').val(),
 							user = {};
 						
 						user.username = $pageComment.data('username'),
@@ -251,7 +321,7 @@
 						comment.reply_floor = 0;
 						comment.content = parseCmtContent(comment.content);
 
-						var oneCmt = $.templates('#one-comment').render({comment: comment, user: user, is_new: true});
+						var oneCmt = $.templates('#one-comment').render({comment: comment, user: user, is_new: true, me: {uid: meUid}});
 
 						var $cmtNumObj = $('#replies .cmtnum'),
 							cmtNum = parseInt($cmtNumObj.text(), 10);
