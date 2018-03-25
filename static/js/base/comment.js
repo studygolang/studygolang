@@ -99,6 +99,14 @@
 			evt.preventDefault();
 			var floor = $(this).data('floor');
 			toggleCommentShowOrEdit(floor, false)
+
+			var $uploadBtn = $('.upload-img[data-floor="' + floor + '"]') 
+			window.initPLUpload({
+				ele: $uploadBtn[0], 
+				fileUploaded: function () {
+					console.log(1214)
+				}
+			})
 		});
 
 		// 点击取消编辑评论按钮
@@ -113,14 +121,16 @@
 			evt.stopPropagation();
 			var floor = $(this).data('floor');
 			var $markdown = $('.markdown[data-floor="' + floor + '"]')
-			var $submitBtn = $(this);
+			var $submitBtn = $(this)
 			var $editWrapper = $markdown.children('.edit-wrapper')
-			var $textarea = $editWrapper.children('textarea')
-			var content = $textarea.val()
+			var $textarea = $editWrapper.find('textarea')
+			var $content = $markdown.children('.content')
+			var content = $textarea.val()		
 			var cid = $submitBtn.data("cid")
 
 			editComment($submitBtn, cid, content, function() {
 				$textarea.data('raw-content', content)
+				$content.html(content)
 				toggleCommentShowOrEdit(floor, true)
 			})
 		})
@@ -280,10 +290,8 @@
 			setTimeout(function() {
 				comTip("修改成功！");
 				callback()
+				thiss.text("提交").removeClass("disabled").removeAttr("disabled").attr({"title":'提交'});
 			}, 1500)
-
-
-			thiss.text("提交").removeClass("disabled").removeAttr("disabled").attr({"title":'提交'});
 		}
 
 		var postComment = function(thiss, content, callback){
