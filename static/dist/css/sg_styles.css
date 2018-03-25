@@ -301,7 +301,7 @@ a.tab_current:hover {background-color: #445; color: #fff; text-decoration: none;
 ul.comment-tab-menu { margin-bottom:2px; }
 ul.comment-tab-menu a.op {-moz-border-radius: 8px;-webkit-border-radius: 8px;border-radius: 8px;padding: 0 5px;line-height: 18px;font-size: 12px;margin-right: 6px;text-shadow: 0;color: #444;border: 1px solid #fff;}
 ul.comment-tab-menu a.op:hover { text-decoration: none; }
-ul.comment-tab-menu .cur a.op:hover { background: #fff;border: 1px solid #ddd;color: #666;}
+ul.comment-tab-menu .cur a.op { background: #fff;border: 1px solid #ddd;color: #666;}
 
 .page .page-comment .md-toolbar .upload-img { cursor: pointer;}
 .page .page-comment .submit {border-bottom: solid 1px #ECECEC;}

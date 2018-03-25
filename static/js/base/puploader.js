@@ -1,7 +1,15 @@
-$(function(){
+window.initPLUpload = function (options) {
+	options = options || {}
+	options.ele = options.ele || 'upload-img'
+	options.fileUploaded = options.fileUploaded || function(data) {
+		var text = $('.main-textarea').val();
+		text += '!['+file.name+']('+data.data.url+')';
+		$('.main-textarea').val(text);
+	}
+	
 	// 实例化一个plupload上传对象
 	var uploader = new plupload.Uploader({
-		browse_button : 'upload-img', // 触发文件选择对话框的按钮，为那个元素id
+		browse_button : options.ele, // 触发文件选择对话框的按钮，为那个元素id
 		url : '/image/upload', // 服务器端的上传页面地址
 		filters: {
 			mime_types : [ //只允许上传图片
@@ -25,24 +33,22 @@ $(function(){
 		// 上传进度
 	});
 	uploader.bind('FileUploaded', function(uploader, file, responseObject) {
-		window.uploadSuccess(uploader, file, responseObject)
-	});
-	uploader.bind('Error',function(uploader,errObject){
-		comTip("上传出错了："+errObject.message);
-	});
-
-	window.uploadSuccess = function(uploader,file,responseObject){
 		if (responseObject.status == 200) {
 			var data = $.parseJSON(responseObject.response);
 			if (data.ok) {
-				var text = $('.main-textarea').val();
-				text += '!['+file.name+']('+data.data.url+')';
-				$('.main-textarea').val(text);
+				options.fileUploaded(data)
 			} else {
 				comTip("上传失败："+data.error);
 			}
 		} else {
 			comTip("上传失败：HTTP状态码："+responseObject.status);
 		}
-	}
+	});
+	uploader.bind('Error',function(uploader,errObject){
+		comTip("上传出错了："+errObject.message);
+	});
+}
+
+$(function(){
+	initPLUpload()
 });
