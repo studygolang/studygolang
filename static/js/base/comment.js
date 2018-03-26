@@ -96,17 +96,35 @@
 
 		// 点击编辑评论按钮
 		$('#replies').on('click', '.btn-edit', function(evt) {
-			evt.preventDefault();
-			var floor = $(this).data('floor');
+			evt.preventDefault()
+			var floor = $(this).data('floor')
+			var $markdown = $('.markdown[data-floor="' + floor + '"]')
+			var $editWrapper = $markdown.children('.edit-wrapper')
+			var $textarea = $editWrapper.children('textarea')
 			toggleCommentShowOrEdit(floor, false)
 
-			var $uploadBtn = $('.upload-img[data-floor="' + floor + '"]') 
-			window.initPLUpload({
-				ele: $uploadBtn[0], 
-				fileUploaded: function () {
-					console.log(1214)
-				}
-			})
+			var $uploadBtn = $('.upload-img[data-floor="' + floor + '"]')
+			
+			// 复制上传
+			// 防止重复上传
+			var pasteUpload = $textarea.data('paste-uploader')
+			if (!pasteUpload) {
+				pasteUpload = $textarea.pasteUploadImage('/image/paste_upload')
+				$textarea.data('paste-uploader', pasteUpload)
+			}
+
+			// 点击按钮上传
+			// 防止重复上传
+			var uploader = $uploadBtn.data('uploader')
+			if (!uploader) {
+				uploader = window.initPLUpload({
+					ele: $uploadBtn[0], 
+					fileUploaded: function () {
+						console.log(1214)
+					}
+				})
+				$uploadBtn.data('uploader', uploader)
+			}
 		});
 
 		// 点击取消编辑评论按钮

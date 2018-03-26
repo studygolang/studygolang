@@ -32,6 +32,7 @@
                 }
             }
         });
+        return true
     };
 
     pasteText = function (text) {

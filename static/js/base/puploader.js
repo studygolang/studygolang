@@ -47,6 +47,8 @@ window.initPLUpload = function (options) {
 	uploader.bind('Error',function(uploader,errObject){
 		comTip("上传出错了："+errObject.message);
 	});
+
+	return uploader;
 }
 
 $(function(){
