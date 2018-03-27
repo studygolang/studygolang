@@ -335,7 +335,7 @@ func (CommentLogic) decodeCmtContentForShow(ctx context.Context, comment *model.
 	content := template.HTMLEscapeString(comment.Content)
 
 	// 回复某一楼层
-	reg := regexp.MustCompile(`#(\d+)楼 @([a-zA-Z0-9_]+)`)
+	reg := regexp.MustCompile(`#(\d+)楼 @([a-zA-Z0-9_-]+)`)
 	matches := reg.FindStringSubmatch(content)
 	if len(matches) > 2 {
 		comment.ReplyFloor = goutils.MustInt(matches[1])
