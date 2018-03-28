@@ -360,6 +360,7 @@
 							comment.content = content.substr(1);
 						}
 						comment.reply_floor = 0;
+						comment.rawContent = comment.content
 						comment.content = parseCmtContent(comment.content);
 
 						var oneCmt = $.templates('#one-comment').render({comment: comment, user: user, is_new: true, me: {uid: meUid}});
