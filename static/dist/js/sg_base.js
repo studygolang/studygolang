@@ -1013,14 +1013,29 @@ jQuery(document).ready(function(){
 			}
 		});
 
-		var editComment = function(thiss, id, content, callback) {
+		var editComment = function(thiss, cid, content, callback) {
 			thiss.text("稍等").addClass("disabled").attr({"title":'稍等',"disabled":"disabled"});
-
-			setTimeout(function() {
-				comTip("修改成功！");
-				callback()
-				thiss.text("提交").removeClass("disabled").removeAttr("disabled").attr({"title":'提交'});
-			}, 1500)
+			
+			$.ajax({
+				type:"post",
+				url: '/object/comments/' + cid,
+				data: {
+					"content": content,
+				},
+				dataType: 'json',
+				success: function(data){
+					if(data.ok) {
+						comTip("修改成功！");
+						callback()
+						thiss.text("提交").removeClass("disabled").removeAttr("disabled").attr({"title":'提交'});
+					} else {
+						alert(data.error);
+					}
+				},
+				error: function() {
+					thiss.text("提交").removeClass("disabled").removeAttr("disabled").attr({"title":'提交'});
+				}
+			})
 		}
 
 		var postComment = function(thiss, content, callback){

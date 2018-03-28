@@ -67,7 +67,6 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 	}
 
 	canEditTime := time.Duration(UserSetting["can_edit_time"]) * time.Second
-
 	switch entity := curModel.(type) {
 	case *model.Topic:
 		if me.Uid != entity.Uid && me.IsAdmin && roleCanEdit(model.TopicAdmin, me) {
@@ -137,11 +136,21 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 		if me.Uid == entity.Uid {
 			return true
 		}
+	case *model.Comment:
+		if me.IsAdmin && roleCanEdit(model.Administrator, me) {
+			return true
+		}
+		if time.Now().Sub(time.Time(entity.Ctime)) > canEditTime {
+			return false
+		}
+
+		if me.Uid == entity.Uid {
+			return true
+		}
 	case map[string]interface{}:
 		if adminCanEdit(entity, me) {
 			return true
 		}
-
 		if ctime, ok := entity["ctime"]; ok {
 			if time.Now().Sub(time.Time(ctime.(model.OftenTime))) > canEditTime {
 				return false
