@@ -83,7 +83,7 @@ func (self WechatLogic) Bind(ctx context.Context, id, uid int, userInfo string) 
 		Uid:      uid,
 		Nickname: result.Get("nickName").String(),
 		Avatar:   result.Get("avatarUrl").String(),
-		Openid:   userInfo,
+		OpenInfo: userInfo,
 	}
 	_, err := MasterDB.Id(id).Update(wechatUser)
 	if err != nil {
