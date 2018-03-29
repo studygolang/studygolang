@@ -22,7 +22,7 @@ type WechatController struct{}
 func (self WechatController) RegisterRoute(g *echo.Group) {
 	g.GET("/wechat/check_session", self.CheckSession)
 	g.POST("/wechat/register", self.Register)
-	g.GET("/wechat/login", self.Login)
+	g.POST("/wechat/login", self.Login)
 }
 
 // CheckSession 校验小程序 session
