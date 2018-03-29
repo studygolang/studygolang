@@ -7,7 +7,6 @@
 package logic
 
 import (
-	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -78,20 +77,15 @@ func (self WechatLogic) CheckSession(ctx context.Context, code string) (*model.W
 func (self WechatLogic) Bind(ctx context.Context, id, uid int, userInfo string) (*model.WechatUser, error) {
 	objLog := GetLogger(ctx)
 
-	user := make(map[string]string)
-	err := json.Unmarshal([]byte(userInfo), &user)
-	if err != nil {
-		objLog.Errorln("WechatLogic Bind Unmarshal error:", err)
-		return nil, err
-	}
+	result := gjson.Parse(userInfo)
 
 	wechatUser := &model.WechatUser{
 		Uid:      uid,
-		Nickname: user["nickName"],
-		Avatar:   user["avatarUrl"],
+		Nickname: result.Get("nickName").String(),
+		Avatar:   result.Get("avatarUrl").String(),
 		Openid:   userInfo,
 	}
-	_, err = MasterDB.Id(id).Update(wechatUser)
+	_, err := MasterDB.Id(id).Update(wechatUser)
 	if err != nil {
 		objLog.Errorln("WechatLogic Bind update error:", err)
 		return nil, err
