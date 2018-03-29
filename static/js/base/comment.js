@@ -148,7 +148,7 @@
 
 			editComment($submitBtn, cid, content, function() {
 				$textarea.data('raw-content', content)
-				$content.html(content)
+				$content.html(parseCmtContent(content))
 				toggleCommentShowOrEdit(floor, true)
 			})
 		})
