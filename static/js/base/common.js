@@ -566,6 +566,11 @@ $(function(){
 		// 控制导航栏
 		$('.navbar').css('position', $(window).scrollTop() > 0 ? 'fixed' : 'relative')
 
+		if ($(window).scrollTop() > 0) {
+			$('#wrapper').css('margin-top', '52px');
+		} else {
+			$('#wrapper').css('margin-top', '-20px');
+		}
 	});
 
 	$('#login-pop .close').on('click', function() {

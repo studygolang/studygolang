@@ -89,10 +89,10 @@ func (this *UploaderLogic) uploadLocalFile(localFile, key string) (err error) {
 
 	var ret io.PutRet
 	var extra = &io.PutExtra{
-		// Params:   params,
-		// MimeType: mieType,
-		// Crc32:    crc32,
-		// CheckCrc: CheckCrc,
+	// Params:   params,
+	// MimeType: mieType,
+	// Crc32:    crc32,
+	// CheckCrc: CheckCrc,
 	}
 
 	// ret       变量用于存取返回的信息，详情见 io.PutRet
@@ -119,10 +119,10 @@ func (this *UploaderLogic) uploadMemoryFile(r gio.Reader, key string, size int) 
 
 	var ret io.PutRet
 	var extra = &io.PutExtra{
-		// Params:   params,
-		// MimeType: mieType,
-		// Crc32:    crc32,
-		// CheckCrc: CheckCrc,
+	// Params:   params,
+	// MimeType: mieType,
+	// Crc32:    crc32,
+	// CheckCrc: CheckCrc,
 	}
 
 	// ret       变量用于存取返回的信息，详情见 io.PutRet

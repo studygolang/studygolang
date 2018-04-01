@@ -118,10 +118,7 @@
 			var uploader = $uploadBtn.data('uploader')
 			if (!uploader) {
 				uploader = window.initPLUpload({
-					ele: $uploadBtn[0], 
-					fileUploaded: function () {
-						console.log(1214)
-					}
+					ele: $uploadBtn[0]
 				})
 				$uploadBtn.data('uploader', uploader)
 			}

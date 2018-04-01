@@ -1,10 +1,14 @@
 window.initPLUpload = function (options) {
 	options = options || {}
 	options.ele = options.ele || 'upload-img'
-	options.fileUploaded = options.fileUploaded || function(data) {
-		var text = $('.main-textarea').val();
+	options.fileUploaded = options.fileUploaded || function(file, data) {
+		var $textarea = $(options.ele).parents('.md-toolbar').next().children('textarea');
+		if ($textarea.length == 0) {
+			$textarea = $('.main-textarea');
+		}
+		var text = $textarea.val();
 		text += '!['+file.name+']('+data.data.url+')';
-		$('.main-textarea').val(text);
+		$textarea.val(text);
 	}
 	
 	// 实例化一个plupload上传对象
@@ -36,7 +40,7 @@ window.initPLUpload = function (options) {
 		if (responseObject.status == 200) {
 			var data = $.parseJSON(responseObject.response);
 			if (data.ok) {
-				options.fileUploaded(data)
+				options.fileUploaded(file, data)
 			} else {
 				comTip("上传失败："+data.error);
 			}

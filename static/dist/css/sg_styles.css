@@ -134,7 +134,7 @@ a.tab_current:hover {background-color: #445; color: #fff; text-decoration: none;
 .clr:after {clear: both;content: '\0020';display: block;visibility: hidden;height: 0;}
 
 /* nav */
-.navbar-default { position: static; z-index: 1000; }
+.navbar-default { position: relative; z-index: 1000; }
 .navbar-default .navbar-nav>li>a { color: #bbbbbb; }
 .navbar-default .navbar-nav>.active>a { color: #ffffff; }
 

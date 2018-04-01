@@ -1,4 +1,8 @@
 $(function(){
+	var safeStr = function(str) {
+		return str.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+	}
+
 	$('.sidebar .top ul li').on('mouseenter', function(evt){
 		
 		if (evt.target.tagName != 'LI') {
@@ -53,8 +57,9 @@ $(function(){
 
 			var content = '';
 			for(var i in data) {
+				var title = safeStr(data[i].title);
 				content += '<li class="truncate">'+
-						'<i></i><a href="/topics/'+data[i].tid+'?fr=sidebar" title="'+data[i].title+'">'+data[i].title+'</a>'+
+						'<i></i><a href="/topics/'+data[i].tid+'?fr=sidebar" title="'+title+'">'+title+'</a>'+
 						'</li>'
 			}
 			$('.sb-content .topic-list ul').html(content);
@@ -68,8 +73,9 @@ $(function(){
 
 			var content = '';
 			for(var i in data) {
+				var title = safeStr(data[i].title);
 				content += '<li class="truncate">'+
-						'<i></i><a href="/articles/'+data[i].id+'?fr=sidebar" title="'+data[i].title+'">'+data[i].title+'</a>'+
+						'<i></i><a href="/articles/'+data[i].id+'?fr=sidebar" title="'+title+'">'+title+'</a>'+
 						'</li>'
 			}
 			$('.sb-content .article-list ul').html(content);
@@ -91,6 +97,7 @@ $(function(){
 				var title = data[i].category + ' ' + data[i].name;
 				var logo = data[i].logo;
 
+				title = safeStr(title);
 				content += '<li>'+
 					'<a href="/p/'+uri+'">'+
 						'<div class="logo"><img src="'+logo+'" alt="'+data[i].name+'" width="48px"/></div>'+
@@ -113,8 +120,9 @@ $(function(){
 
 			var content = '';
 			for(var i in data) {
+				var title = safeStr(data[i].title);
 				content += '<li class="truncate">'+
-						'<i></i><a href="/resources/'+data[i].id+'?fr=sidebar" title="'+data[i].title+'">'+data[i].title+'</a>'+
+						'<i></i><a href="/resources/'+data[i].id+'?fr=sidebar" title="'+title+'">'+title+'</a>'+
 						'</li>'
 			}
 			$('.sb-content .resource-list ul').html(content);
@@ -323,6 +331,8 @@ $(function(){
 					title = list[i].name;
 					break;
 				}
+				title = safeStr(title);
+
 				var pos = parseInt(i, 10) + 1;
 
 				var rankFlag = '';

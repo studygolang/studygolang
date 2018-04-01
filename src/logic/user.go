@@ -37,11 +37,13 @@ func (self UserLogic) CreateUser(ctx context.Context, form url.Values) (errMsg s
 	objLog := GetLogger(ctx)
 
 	if self.UserExists(ctx, "email", form.Get("email")) {
-		err = errors.New("该邮箱已注册过")
+		errMsg = "该邮箱已注册过"
+		err = errors.New(errMsg)
 		return
 	}
 	if self.UserExists(ctx, "username", form.Get("username")) {
-		err = errors.New("用户名已存在")
+		errMsg = "用户名已存在"
+		err = errors.New(errMsg)
 		return
 	}
 
