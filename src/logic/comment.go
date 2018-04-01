@@ -303,14 +303,14 @@ func (CommentLogic) findByIds(cids []int) map[int]*model.Comment {
 	return comments
 }
 
-func (CommentLogic) findById(cid int) *model.Comment {
+func (CommentLogic) FindById(cid int) (*model.Comment, error) {
 	comment := &model.Comment{}
 	_, err := MasterDB.Where("cid=?", cid).Get(comment)
 	if err != nil {
 		logger.Errorln("CommentLogic findById error:", err)
 	}
 
-	return comment
+	return comment, err
 }
 
 func (CommentLogic) decodeCmtContent(ctx context.Context, comment *model.Comment) string {

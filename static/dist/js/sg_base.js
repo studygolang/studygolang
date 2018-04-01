@@ -625,10 +625,18 @@ $(function(){
 	});
 }).call(this);
 
-$(function(){
+window.initPLUpload = function (options) {
+	options = options || {}
+	options.ele = options.ele || 'upload-img'
+	options.fileUploaded = options.fileUploaded || function(data) {
+		var text = $('.main-textarea').val();
+		text += '!['+file.name+']('+data.data.url+')';
+		$('.main-textarea').val(text);
+	}
+	
 	// 实例化一个plupload上传对象
 	var uploader = new plupload.Uploader({
-		browse_button : 'upload-img', // 触发文件选择对话框的按钮，为那个元素id
+		browse_button : options.ele, // 触发文件选择对话框的按钮，为那个元素id
 		url : '/image/upload', // 服务器端的上传页面地址
 		filters: {
 			mime_types : [ //只允许上传图片
@@ -652,26 +660,26 @@ $(function(){
 		// 上传进度
 	});
 	uploader.bind('FileUploaded', function(uploader, file, responseObject) {
-		window.uploadSuccess(uploader, file, responseObject)
-	});
-	uploader.bind('Error',function(uploader,errObject){
-		comTip("上传出错了："+errObject.message);
-	});
-
-	window.uploadSuccess = function(uploader,file,responseObject){
 		if (responseObject.status == 200) {
 			var data = $.parseJSON(responseObject.response);
 			if (data.ok) {
-				var text = $('.main-textarea').val();
-				text += '!['+file.name+']('+data.data.url+')';
-				$('.main-textarea').val(text);
+				options.fileUploaded(data)
 			} else {
 				comTip("上传失败："+data.error);
 			}
 		} else {
 			comTip("上传失败：HTTP状态码："+responseObject.status);
 		}
-	}
+	});
+	uploader.bind('Error',function(uploader,errObject){
+		comTip("上传出错了："+errObject.message);
+	});
+
+	return uploader;
+}
+
+$(function(){
+	initPLUpload()
 });
 jQuery(document).ready(function(){
 	
@@ -732,29 +740,38 @@ jQuery(document).ready(function(){
 			}
 		})();
 
-		$('.page-comment .md-toolbar .edit').on('click', function(evt){
+		// 编辑 tab
+		$('.page').on('click', '.comment-edit-tab', function(evt){
 			evt.preventDefault();
 			
-			$(this).addClass('cur');
-			$('.page-comment .md-toolbar .preview').removeClass('cur');
+			var $this = $(this);
+			var $tabMenu = $this.parent()
+			var commentGroup = $tabMenu.data('comment-group')
+			$this.addClass('cur');
+			$tabMenu.children('.comment-preview-tab').removeClass('cur')
 
-			$('.page-comment .content-preview').hide();
-			$('.page-comment #commentForm .text').show();
+			$('.comment-content-preview[data-comment-group="' + commentGroup + '"]').hide();
+			$('.comment-content-text[data-comment-group="' + commentGroup + '"]').show();
 		});
-		$('.page-comment .md-toolbar .preview').on('click', function(evt){
+		// 点击预览 tab
+		$('.page').on('click', '.comment-preview-tab', function(evt){
 			evt.preventDefault();
 
 			var marked = SG.markSettingNoHightlight();
 
-			$(this).addClass('cur');
-			$('.page-comment .md-toolbar .edit').removeClass('cur');
+			var $this = $(this).addClass('cur');
+			var $tabMenu = $this.parent();
+			var commentGroup = $tabMenu.data('comment-group')
+			var $preview = $('.comment-content-preview[data-comment-group="' + commentGroup + '"]')
+			var $text = $('.comment-content-text[data-comment-group="' + commentGroup + '"]')
+			$tabMenu.children('.comment-edit-tab').removeClass('cur');
 
-			$('.page-comment #commentForm .text').hide();
-			var content = $('.page-comment #commentForm textarea').val();
-			$('.page-comment .content-preview').html(marked(content));
+			$text.hide();
+			var content = $text.children('textarea').val();
+			$preview.html(marked(content));
 			// emoji 表情解析
-			emojify.run($('.page-comment .content-preview').get(0));
-			$('.page-comment .content-preview').show();
+			emojify.run($preview.get(0));
+			$preview.show();
 
 			Prism.highlightAll();
 		});
@@ -772,6 +789,82 @@ jQuery(document).ready(function(){
 			}
 		});
 
+		// 切换显示评论和编辑评论
+		function toggleCommentShowOrEdit(floor, show) {
+			var $markdown = $('.markdown[data-floor="' + floor + '"]')
+			var $content = $markdown.children('.content')
+			var $editWrapper = $markdown.children('.edit-wrapper')
+			if (show) {
+				$content.show()
+				$editWrapper.hide()
+			} else {
+				$content.hide()
+				$editWrapper.show()
+				var $textarea = $editWrapper.children('textarea')
+				$textarea.val($textarea.data('raw-content')).focus()
+			}
+		}
+
+		// 点击编辑评论按钮
+		$('#replies').on('click', '.btn-edit', function(evt) {
+			evt.preventDefault()
+			var floor = $(this).data('floor')
+			var $markdown = $('.markdown[data-floor="' + floor + '"]')
+			var $editWrapper = $markdown.children('.edit-wrapper')
+			var $textarea = $editWrapper.children('textarea')
+			toggleCommentShowOrEdit(floor, false)
+
+			var $uploadBtn = $('.upload-img[data-floor="' + floor + '"]')
+			
+			// 复制上传
+			// 防止重复上传
+			var pasteUpload = $textarea.data('paste-uploader')
+			if (!pasteUpload) {
+				pasteUpload = $textarea.pasteUploadImage('/image/paste_upload')
+				$textarea.data('paste-uploader', pasteUpload)
+			}
+
+			// 点击按钮上传
+			// 防止重复上传
+			var uploader = $uploadBtn.data('uploader')
+			if (!uploader) {
+				uploader = window.initPLUpload({
+					ele: $uploadBtn[0], 
+					fileUploaded: function () {
+						console.log(1214)
+					}
+				})
+				$uploadBtn.data('uploader', uploader)
+			}
+		});
+
+		// 点击取消编辑评论按钮
+		$('#replies').on('click', '.btn.cancel', function(evt) {
+			evt.stopPropagation();
+			var floor = $(this).data('floor');
+			toggleCommentShowOrEdit(floor, true)
+		})
+
+		// 点击提交编辑后的评论
+		$('#replies').on('click', '.btn.submit', function(evt) {
+			evt.stopPropagation();
+			var floor = $(this).data('floor');
+			var $markdown = $('.markdown[data-floor="' + floor + '"]')
+			var $submitBtn = $(this)
+			var $editWrapper = $markdown.children('.edit-wrapper')
+			var $textarea = $editWrapper.find('textarea')
+			var $content = $markdown.children('.content')
+			var content = $textarea.val()		
+			var cid = $submitBtn.data("cid")
+
+			editComment($submitBtn, cid, content, function() {
+				$textarea.data('raw-content', content)
+				$content.html(parseCmtContent(content))
+				toggleCommentShowOrEdit(floor, true)
+			})
+		})
+		
+		// 点击回复某人
 		$('#replies').on('click', '.btn-reply', function(evt) {
 			evt.preventDefault();
 
@@ -827,6 +920,7 @@ jQuery(document).ready(function(){
 					var content = '';
 					for(var i in comments) {
 						var comment = comments[i],
+							meUid = $('[name="me-uid"]').val(),
 							user = data[comment.uid];
 
 						var avatar = user.avatar;
@@ -853,10 +947,9 @@ jQuery(document).ready(function(){
 							comment.reply_user = data[replyComment.uid];
 							comment.reply_content = replyComment.content;
 						}
-
+						comment.rawContent = comment.content
 						comment.content = parseCmtContent(comment.content);
-
-						content += $.templates('#one-comment').render({comment: comment, user: user});
+						content += $.templates('#one-comment').render({comment: comment, user: user, me: {uid: meUid}});
 					}
 
 					if (content != '') {
@@ -920,6 +1013,31 @@ jQuery(document).ready(function(){
 			}
 		});
 
+		var editComment = function(thiss, cid, content, callback) {
+			thiss.text("稍等").addClass("disabled").attr({"title":'稍等',"disabled":"disabled"});
+			
+			$.ajax({
+				type:"post",
+				url: '/object/comments/' + cid,
+				data: {
+					"content": content,
+				},
+				dataType: 'json',
+				success: function(data){
+					if(data.ok) {
+						comTip("修改成功！");
+						callback()
+						thiss.text("提交").removeClass("disabled").removeAttr("disabled").attr({"title":'提交'});
+					} else {
+						alert(data.error);
+					}
+				},
+				error: function() {
+					thiss.text("提交").removeClass("disabled").removeAttr("disabled").attr({"title":'提交'});
+				}
+			})
+		}
+
 		var postComment = function(thiss, content, callback){
 			thiss.text("稍等").addClass("disabled").attr({"title":'稍等',"disabled":"disabled"});
 
@@ -942,6 +1060,7 @@ jQuery(document).ready(function(){
 						var comment = data.data;
 
 						var $pageComment = $('.comment-list'),
+							meUid = $('[name="me-uid"]').val(),
 							user = {};
 						
 						user.username = $pageComment.data('username'),
@@ -952,9 +1071,10 @@ jQuery(document).ready(function(){
 							comment.content = content.substr(1);
 						}
 						comment.reply_floor = 0;
+						comment.rawContent = comment.content
 						comment.content = parseCmtContent(comment.content);
 
-						var oneCmt = $.templates('#one-comment').render({comment: comment, user: user, is_new: true});
+						var oneCmt = $.templates('#one-comment').render({comment: comment, user: user, is_new: true, me: {uid: meUid}});
 
 						var $cmtNumObj = $('#replies .cmtnum'),
 							cmtNum = parseInt($cmtNumObj.text(), 10);

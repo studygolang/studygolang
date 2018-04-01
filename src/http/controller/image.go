@@ -27,6 +27,7 @@ import (
 type ImageController struct{}
 
 func (self ImageController) RegisterRoute(g *echo.Group) {
+	// todo 这三个upload差不多啊
 	g.POST("/image/upload", self.Upload)
 	g.POST("/image/paste_upload", self.PasteUpload)
 	g.POST("/image/quick_upload", self.QuickUpload)

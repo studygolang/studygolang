@@ -184,7 +184,7 @@ func (UserRichObserver) Update(action string, uid, objtype, objid int) {
 	if action == actionPublish || action == actionComment {
 		var comment *model.Comment
 		if action == actionComment {
-			comment = DefaultComment.findById(objid)
+			comment, _ = DefaultComment.FindById(objid)
 			if comment.Cid != objid {
 				return
 			}

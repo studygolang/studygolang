@@ -17,6 +17,7 @@ import (
 	. "http"
 
 	"github.com/labstack/echo"
+	"github.com/polaris1119/echoutils"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/slices"
 )
@@ -27,6 +28,7 @@ func (self CommentController) RegisterRoute(g *echo.Group) {
 	g.Get("/at/users", self.AtUsers)
 	g.Post("/comment/:objid", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice())
 	g.Get("/object/comments", self.CommentList)
+	g.Post("/object/comments/:cid", self.Modify, middleware.NeedLogin(), middleware.Sensivite(), middleware.PublishNotice())
 
 	g.Get("/topics/:objid/comment/:cid", self.TopicDetail)
 	g.Get("/articles/:objid/comment/:cid", self.ArticleDetail)
@@ -55,6 +57,34 @@ func (CommentController) Create(ctx echo.Context) error {
 	}
 
 	return success(ctx, comment)
+}
+
+// 修改评论
+func (CommentController) Modify(ctx echo.Context) error {
+	cid := goutils.MustInt(ctx.Param("cid"))
+	content := ctx.FormValue("content")
+	comment, err := logic.DefaultComment.FindById(cid)
+
+	if err != nil {
+		return fail(ctx, 2, "评论不存在")
+	}
+
+	if content == "" {
+		return fail(ctx, 1, "内容不能为空")
+	}
+
+	me := ctx.Get("user").(*model.Me)
+	// CanEdit 已包含修改时间限制
+	if !logic.CanEdit(me, comment) {
+		return fail(ctx, 3, "没有修改权限")
+	}
+
+	errMsg, err := logic.DefaultComment.Modify(echoutils.WrapEchoContext(ctx), cid, content)
+	if err != nil {
+		return fail(ctx, 4, errMsg)
+	}
+
+	return success(ctx, map[string]interface{}{"cid": cid})
 }
 
 // CommentList 获取某对象的评论信息
