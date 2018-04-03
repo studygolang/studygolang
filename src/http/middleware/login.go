@@ -52,7 +52,7 @@ func AutoLogin() echo.MiddlewareFunc {
 				getCurrentUser(username)
 			} else {
 				// App（手机） 登录
-				uid, ok := ParseToken(ctx.QueryParam("token"))
+				uid, ok := ParseToken(ctx.FormValue("token"))
 				if ok {
 					getCurrentUser(uid)
 				}
