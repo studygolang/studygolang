@@ -8,7 +8,7 @@
 
 公众号：Go 语言中文网 是一个订阅号，每天可以发布一篇消息。主要发布 GCTT 的译文，目前从 https://studygolang.com/subject/1 和 https://studygolang.com/subject/2 （这是一个教程系列） 获取文章，发布顺序按照从旧到新，避免发重复。后续看情况可以一次发多篇图文。
 
-因为涉及到排版问题，而 GCTT 的原始译文都是 Markdown 格式，所以，推荐大家使用 Markdown-here 浏览器插件（参考：https://www.jianshu.com/p/4bbe8b439dad 和 https://www.jianshu.com/p/e766a7ea063a）。
+因为涉及到排版问题，而 GCTT 的原始译文都是 Markdown 格式，所以，推荐大家使用 Markdown-here 浏览器插件（参考：https://www.jianshu.com/p/4bbe8b439dad 和 https://www.jianshu.com/p/e766a7ea063a ）。
 
 说一下我的发布流程：
 
