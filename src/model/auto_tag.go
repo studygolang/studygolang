@@ -9,7 +9,6 @@ package model
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -43,8 +42,8 @@ func AutoTag(title, content string, num int) string {
 		recover()
 	}()
 	key := "baidu_access_token"
-	client_id := "geogVB0En5UM936L6Llf5EWr"
-	client_secret := "ec120xF6SItrEU4sjZk5s3av61eWde2X&"
+	client_id := ""
+	client_secret := ""
 
 	// 取百度token
 	redisClient := nosql.NewRedisClient()
@@ -53,25 +52,21 @@ func AutoTag(title, content string, num int) string {
 	if token == "" {
 		resp, err := http.Get("https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=" + client_id + "client_secret=" + client_secret)
 		if err != nil {
-			fmt.Println(err)
 			return strings.Join(keyword.ExtractWithTitle(title, content, num), ",")
 		}
 		defer resp.Body.Close()
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			fmt.Println(err)
 			return strings.Join(keyword.ExtractWithTitle(title, content, num), ",")
 		}
 		var data resTokenData
 		err = json.Unmarshal(body, &data)
 		if err != nil {
-			fmt.Println(err)
 			return strings.Join(keyword.ExtractWithTitle(title, content, num), ",")
 		}
 		token = data.Access_token
 		err = redisClient.SET(key, token, data.Expires_in)
 		if err != nil {
-			fmt.Println(err)
 			return strings.Join(keyword.ExtractWithTitle(title, content, num), ",")
 		}
 	}
@@ -86,6 +81,7 @@ func AutoTag(title, content string, num int) string {
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
+	// 请求百度接口,提取标签
 	resp, err := client.Do(req)
 	if err != nil {
 		return strings.Join(keyword.ExtractWithTitle(title, content, num), ",")
