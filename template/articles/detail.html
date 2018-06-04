@@ -221,6 +221,7 @@ var objid = {{.article.Id}};
 $(function(){
 	{{if .article.Markdown}}
 	new SG.Articles().parseContent($('.page .content'));
+	location.href=location.href;
 	{{end}}
 	
 	// 文本框自动伸缩
