@@ -196,6 +196,8 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginato
 	// 评论ID
 	cidSet := set.New(set.NonThreadSafe)
 	uidSet := set.New(set.NonThreadSafe)
+	// subject id
+	sidSet := set.New(set.NonThreadSafe)
 
 	ids := make([]int, 0, len(messages))
 	for _, message := range messages {
@@ -234,6 +236,9 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginato
 			case model.TypeBook:
 				bookIdSet.Add(objid)
 			}
+		case model.MsgtypeSubjectContribute:
+			articleIdSet.Add(objid)
+			sidSet.Add(int(ext["sid"].(float64)))
 		}
 		if val, ok := ext["cid"]; ok {
 			cidSet.Add(int(val.(float64)))
@@ -253,6 +258,7 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginato
 	wikiMap := DefaultWiki.findByIds(set.IntSlice(wikiIdSet))
 	projectMap := DefaultProject.findByIds(set.IntSlice(pidSet))
 	bookMap := DefaultGoBook.findByIds(set.IntSlice(bookIdSet))
+	subjectMap := DefaultSubject.findByIds(set.IntSlice(sidSet))
 
 	result := make([]map[string]interface{}, len(messages))
 	for i, message := range messages {
@@ -368,6 +374,16 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginato
 				}
 
 				title += "时提到了你："
+
+			case model.MsgtypeSubjectContribute:
+				subject := subjectMap[int(ext["sid"].(float64))]
+				article := articleMap[objid]
+				objTitle = article.Title
+				objUrl = "/articles/" + strconv.Itoa(article.Id)
+				title += "收录了新文章"
+				tmpMap["sprefix"] = "的专栏"
+				tmpMap["surl"] = "/subject/" + strconv.Itoa(subject.Id)
+				tmpMap["stitle"] = subject.Name
 			}
 			tmpMap["objtitle"] = objTitle
 			tmpMap["objurl"] = objUrl

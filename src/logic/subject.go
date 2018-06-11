@@ -71,6 +71,20 @@ func (self SubjectLogic) FindOne(ctx context.Context, sid int) *model.Subject {
 	return subject
 }
 
+func (self SubjectLogic) findByIds(ids []int) map[int]*model.Subject {
+	if len(ids) == 0 {
+		return nil
+	}
+
+	subjects := make(map[int]*model.Subject)
+	err := MasterDB.In("id", ids).Find(&subjects)
+	if err != nil {
+		return nil
+	}
+
+	return subjects
+}
+
 func (self SubjectLogic) FindArticles(ctx context.Context, sid int, paginator *Paginator, orderBy string) []*model.Article {
 	objLog := GetLogger(ctx)
 
@@ -135,6 +149,12 @@ func (self SubjectLogic) FindFollowers(ctx context.Context, sid int) []*model.Su
 		follower.TimeAgo = util.TimeAgo(follower.CreatedAt)
 	}
 
+	return followers
+}
+
+func (self SubjectLogic) findFollowersBySid(sid int) []*model.SubjectFollower {
+	followers := make([]*model.SubjectFollower, 0)
+	MasterDB.Where("sid=?", sid).Find(&followers)
 	return followers
 }
 
@@ -241,9 +261,24 @@ func (self SubjectLogic) Contribute(ctx context.Context, me *model.Me, sid, arti
 		return errors.New("投稿失败:" + err.Error())
 	}
 
-	session.Commit()
+	if err := session.Commit(); err == nil {
+		// 成功，发送站内系统消息给关注者
+		go self.sendMsgForFollower(ctx, subject, sid, articleId)
+	}
 
 	return nil
+}
+
+// sendMsgForFollower 专栏投稿发送消息给关注者
+func (self SubjectLogic) sendMsgForFollower(ctx context.Context, subject *model.Subject, sid, articleId int) {
+	followers := self.findFollowersBySid(sid)
+	for _, f := range followers {
+		DefaultMessage.SendSystemMsgTo(ctx, f.Uid, model.MsgtypeSubjectContribute, map[string]interface{}{
+			"uid":   subject.Uid,
+			"objid": articleId,
+			"sid":   sid,
+		})
+	}
 }
 
 // RemoveContribute 删除投稿

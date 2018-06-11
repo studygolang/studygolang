@@ -45,6 +45,8 @@ const (
 
 	MsgtypeAtMe        = 10 // 评论 @提到我
 	MsgtypePublishAtMe = 11 // 发布时提到我
+
+	MsgtypeSubjectContribute = 12 //专栏投稿
 )
 
 // 系统消息
