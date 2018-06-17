@@ -207,6 +207,7 @@ func (self AutoCrawlLogic) parseArticleList(strUrl string, autoCrawlConf *model.
 }
 
 func (self AutoCrawlLogic) fetchArticleListFromApi(strUrl string, autoCrawlConf *model.AutoCrawlRule, isSearch bool) error {
+	logger.Infoln("parse api url:", strUrl)
 
 	req, err := http.NewRequest("GET", strUrl, nil)
 	if err != nil {
