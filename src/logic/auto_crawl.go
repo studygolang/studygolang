@@ -209,7 +209,8 @@ func (self AutoCrawlLogic) parseArticleList(strUrl string, autoCrawlConf *model.
 func (self AutoCrawlLogic) fetchArticleListFromApi(strUrl string, autoCrawlConf *model.AutoCrawlRule, isSearch bool) error {
 	logger.Infoln("parse api url:", strUrl)
 
-	req, err := http.NewRequest("GET", strUrl, nil)
+	// jianshu must be POST
+	req, err := http.NewRequest("POST", strUrl, nil)
 	if err != nil {
 		return err
 	}
