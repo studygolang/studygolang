@@ -76,7 +76,7 @@ func NeedLogin() echo.MiddlewareFunc {
 				method := ctx.Request().Method()
 				if util.IsAjax(ctx) {
 					if !strings.HasPrefix(ctx.Path(), "/account") {
-						return ctx.JSON(http.StatusForbidden, `{"ok":0,"error":"403 Forbidden"}`)
+						return ctx.JSON(http.StatusForbidden, map[string]interface{}{"ok": 0, "error": "403 Forbidden"})
 					}
 				} else {
 					if method == "POST" {
@@ -137,6 +137,5 @@ func AppNeedLogin() echo.MiddlewareFunc {
 
 func outputAppJSON(ctx echo.Context, code int, msg string) error {
 	AccessControl(ctx)
-	respJSON := `{"code":` + strconv.Itoa(code) + `,"msg":"` + msg + `}`
-	return ctx.JSON(http.StatusForbidden, respJSON)
+	return ctx.JSON(http.StatusForbidden, map[string]interface{}{"code": strconv.Itoa(code), "msg": msg})
 }
