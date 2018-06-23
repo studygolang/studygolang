@@ -38,8 +38,8 @@
 						<span>{{.article.AuthorTxt}}</span>
 						{{end}}
 					{{end}}
-						 · <span title="{{.article.Ctime}}" class="timeago"></span> · {{.article.Viewnum}} 次点击 · 
-						<span class="read-time"></span> · 
+						 · <span title="{{.article.Ctime}}" class="timeago"></span> · {{.article.Viewnum}} 次点击 ·
+						<span class="read-time"></span> ·
 						<span class="timeago" title="{{.cur_time}}"></span> 开始浏览 &nbsp; &nbsp;
 					{{if canEdit .me .article}}
 						{{if .article.Markdown}}
@@ -56,7 +56,7 @@
 				<div class="cell">
 					{{if .article.Markdown}}
 					<div class="content markdown-body">{{.article.Content}}</div>
-					
+
 					{{if .article.GCTT}}
 					<hr>
 					<p>via: <a href="{{.article_gctt.URL}}" title="" target="_blank">{{.article_gctt.URL}}</a></p>
@@ -92,10 +92,10 @@
 					</div>
 					{{end}}
 				</div>
-				
+
 				<div class="content-buttons">
 					<div class="pull-right c9 f11" style="line-height: 12px; padding-top: 3px; text-shadow: 0px 1px 0px #fff;">{{.article.Viewnum}} 次点击 &nbsp;{{if .article.Likenum}}∙&nbsp; {{.article.Likenum}} 赞 &nbsp; {{end}}</div>
-					<a class="tb collect" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}" data-objid="{{.article.Id}}" data-objtype="1" data-collect="{{.hadcollect}}">{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}</a> 
+					<a class="tb collect" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}" data-objid="{{.article.Id}}" data-objtype="1" data-collect="{{.hadcollect}}">{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}</a>
 					<a href="javascript:" onclick="window.open('http://service.weibo.com/share/share.php?url=http{{if .is_https}}s{{end}}://{{.setting.Domain}}/articles/{{.article.Id}}&title='+encodeURIComponent('{{.setting.Name}} - {{.article.Title}} by {{.article.AuthorTxt}} #golang#'), '_blank', 'width=550,height=370');" class="tb">微博</a>
 					<div id="content-thank">
 						<a class="tb" href="javascript:;" title="{{if .likeflag}}取消赞{{else}}赞{{end}}" data-objid="{{.article.Id}}" data-objtype="1" data-flag="{{.likeflag}}">{{if .likeflag}}取消赞{{else}}赞{{end}}</a>
@@ -155,7 +155,7 @@
 			{{template "comment" .}}
 
 			{{include "common/view_stat.html" .}}
-			
+
 		</div>
 	</div>
 	<div class="col-md-3 col-sm-6">
@@ -171,7 +171,7 @@
 		{{end}}
 
 		{{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"今日阅读排行","objtype":1,"limit":10,"rank_type":"today"}`)}}
-		
+
 		{{if .pos_ad.right2}}
 		<div class="box_white sidebar" id="ad-right2">
 			{{if eq .pos_ad.right2.AdType 0}}
@@ -181,7 +181,7 @@
 		{{end}}
 
 		{{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"一周阅读排行","objtype":1,"limit":10,"rank_type":"week"}`)}}
-		
+
 	</div>
 </div>
 
@@ -196,6 +196,9 @@
 {{end}}
 
 {{define "css"}}
+<style>
+pre .line { margin: auto; line-height: 20px; border-bottom: none; }
+</style>
 
 {{if .article.Css}}
 <link href="{{.article.Css}}" media="screen" rel="stylesheet" type="text/css">
@@ -222,10 +225,10 @@ $(function(){
 	{{if .article.Markdown}}
 	new SG.Articles().parseContent($('.page .content'));
 	{{end}}
-	
+
 	// 文本框自动伸缩
 	$('.need-autogrow').autoGrow();
-	
+
 	loadComments();
 
 	// 文章链接，在本站的 iframe 中打开

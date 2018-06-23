@@ -80,7 +80,7 @@ func (self FeedController) List(ctx echo.Context) error {
 			Author:      &feeds.Author{Name: doc.Author},
 			Description: doc.Content,
 			Created:     time.Time(doc.SortTime),
-			Updated:     time.Time(doc.UpdatedAt),
+			Updated:     time.Time(doc.SortTime),
 		}
 	}
 
