@@ -32,6 +32,7 @@ type Document struct {
 	Lastreplyuid  int       `json:"lastreplyuid"`
 	Lastreplytime OftenTime `json:"lastreplytime"`
 
+	CreatedAt OftenTime `json:"created_at"`
 	UpdatedAt OftenTime `json:"updated_at"`
 
 	// 排序用的时间
@@ -88,6 +89,7 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 			Top:           objdoc.Top,
 			Lastreplyuid:  objdoc.Lastreplyuid,
 			Lastreplytime: objdoc.Lastreplytime,
+			CreatedAt:     objdoc.Ctime,
 			UpdatedAt:     objdoc.Mtime,
 			SortTime:      sortTime,
 		}
@@ -123,6 +125,7 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 			Top:           objdoc.Top,
 			Lastreplyuid:  objdoc.Lastreplyuid,
 			Lastreplytime: objdoc.Lastreplytime,
+			CreatedAt:     objdoc.Ctime,
 			UpdatedAt:     objdoc.Mtime,
 			SortTime:      sortTime,
 		}
@@ -162,6 +165,7 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 			Top:           0,
 			Lastreplyuid:  objdoc.Lastreplyuid,
 			Lastreplytime: objdoc.Lastreplytime,
+			CreatedAt:     objdoc.Ctime,
 			UpdatedAt:     objdoc.Mtime,
 			SortTime:      sortTime,
 		}
@@ -193,6 +197,7 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 			Top:           0,
 			Lastreplyuid:  objdoc.Lastreplyuid,
 			Lastreplytime: objdoc.Lastreplytime,
+			CreatedAt:     objdoc.Ctime,
 			UpdatedAt:     objdoc.Mtime,
 			SortTime:      sortTime,
 		}

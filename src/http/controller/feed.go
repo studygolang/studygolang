@@ -79,8 +79,8 @@ func (self FeedController) List(ctx echo.Context) error {
 			Link:        &feeds.Link{Href: url},
 			Author:      &feeds.Author{Name: doc.Author},
 			Description: doc.Content,
-			Created:     time.Time(doc.SortTime),
-			Updated:     time.Time(doc.SortTime),
+			Created:     time.Time(doc.CreatedAt),
+			Updated:     time.Time(doc.CreatedAt),
 		}
 	}
 

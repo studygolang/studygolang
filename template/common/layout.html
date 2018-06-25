@@ -15,7 +15,7 @@
 	<link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
 	<link rel="stylesheet" href="{{.static_domain}}/static/dist/css/sg_libs.min.css?v=20180305"/>
 	<link rel="stylesheet" href="{{.static_domain}}/static/dist/css/sg_styles.min.css?v=20180305"/>
-	
+
 	{{template "css" .}}
 
 	<!--[if lt IE 9]-->
@@ -137,10 +137,10 @@
 	<footer id="bottom">
 		<div class="container nav-content">
 			<div class="inner_content">
-				<div class="sep10"></div>   
+				<div class="sep10"></div>
 				<strong>
 					{{range $i, $el := .setting.FooterNavs}}
-					<a href="{{.Url}}" class="dark">{{.Name}}</a> &nbsp; <span class="snow">•</span> &nbsp; 
+					<a href="{{.Url}}" class="dark">{{.Name}}</a> &nbsp; <span class="snow">•</span> &nbsp;
 					{{end}}
 					<span id="onlineusers">{{.online_users.online}}</span> 人在线
 				</strong>
@@ -148,7 +148,7 @@
 				<div class="sep20"></div>
 				&copy;{{.app.Copyright}} {{.setting.Slogan}}
 				<div class="sep5"></div>
-				Powered by <a href="https://github.com/studygolang/studygolang">StudyGolang(Golang + MySQL)</a> &nbsp;<span class="snow">•</span>&nbsp;服务器由 <a href="http://www.ucai.cn" class="dark" target="_blank">优才学院</a> 赞助 &nbsp;<span class="snow">·</span>&nbsp;CDN 由 <a href="https://portal.qiniu.com/signup?code=3lfz4at7pxfma" title="七牛云" class="dark" target="_blank">七牛云</a> 赞助
+				Powered by <a href="https://github.com/studygolang/studygolang">StudyGolang(Golang + MySQL)</a> &nbsp;<span class="snow">•</span>&nbsp;<span class="snow">·</span>&nbsp;CDN 采用 <a href="https://portal.qiniu.com/signup?code=3lfz4at7pxfma" title="七牛云" class="dark" target="_blank">七牛云</a>
 				<div class="sep20"></div>
 				<span class="small cc">VERSION: {{.app.Version}}&nbsp;<span class="snow">·</span>&nbsp;{{.resp_time}}&nbsp;<span class="snow">·</span>&nbsp;<strong>为了更好的体验，本站推荐使用 Chrome 或 Firefox 浏览器</strong></span>
 				<div class="sep20"></div>
@@ -211,7 +211,7 @@
 	</div>
 	<div id="sg-overlay"></div>
 	{{end}}
-	
+
 	<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
 	<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<script src="https://cdn.bootcss.com/jquery-timeago/1.6.1/jquery.timeago.min.js"></script>
