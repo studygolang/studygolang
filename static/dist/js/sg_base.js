@@ -44,7 +44,7 @@ SG.Publisher.prototype = {
 						callback(data.data);
 						return;
 					}
-					
+
 					setTimeout(function(){
 						var redirect = $form.data('redirect');
 						if (redirect) {
@@ -154,11 +154,11 @@ SG.preProcess = function(content) {
 // 分析 @ 的用户
 SG.analyzeAt = function(text) {
 	var usernames = [];
-	
+
 	String(text).replace(/[^@]*@([^\s@]{4,20})\s*/g, function (match, username) {
 		usernames.push(username);
 	});
-	
+
 	return usernames;
 }
 
@@ -176,7 +176,7 @@ SG.registerAtEvent = function(isAt, isEmoji, selector) {
 	if (typeof selector == "undefined") {
 		selector = $('form textarea');
 	}
-	
+
 	if (isAt) {
 		var cachequeryMentions = {}, itemsMentions;
 		// @ 本站其他人
@@ -248,7 +248,7 @@ jQuery(document).ready(function($) {
 		$(this).css("background","url(/static/img/top.gif) no-repeat -70px 0px");
 	});
 	*/
-	
+
 	goTop();// 实现回到顶部元素的渐显与渐隐
 
 	//全局淡入淡出提示框 comTip
@@ -313,7 +313,7 @@ jQuery(document).ready(function($) {
 			$('#form_passwd').parent().addClass('has-error');
 			return;
 		}
-		
+
 		$.post('/account/login', $(this).serialize(), function(data){
 			if (data.ok) {
 				location.reload();
@@ -331,7 +331,7 @@ jQuery(document).ready(function($) {
 			openPop("#login-pop");
 			return;
 		}
-		
+
 		var objid = $(that).data('objid'),
 			objtype = $(that).data('objtype'),
 			likeFlag = parseInt($(that).data('flag'), 10);
@@ -344,9 +344,9 @@ jQuery(document).ready(function($) {
 
 		$.post('/like/'+objid, {objtype:objtype, flag:likeFlag}, function(data){
 			if (data.ok) {
-				
+
 				$(that).data('flag', likeFlag);
-				
+
 				var likeNum = parseInt($(that).children('.likenum').text(), 10);
 				// 已喜欢
 				if (likeFlag) {
@@ -367,7 +367,7 @@ jQuery(document).ready(function($) {
 			}
 		});
 	}
-	
+
 	// 详情页喜欢(取消喜欢)
 	$('.page #content-thank a').on('click', function(evt){
 		evt.preventDefault();
@@ -391,7 +391,7 @@ jQuery(document).ready(function($) {
 			}
 		});
 	});
-	
+
 	// 收藏(取消收藏)
 	var postFavorite = function(that, callback) {
 
@@ -399,7 +399,7 @@ jQuery(document).ready(function($) {
 			openPop("#login-pop");
 			return;
 		}
-		
+
 		var objid = $(that).data('objid'),
 			objtype = $(that).data('objtype'),
 			hadCollect = parseInt($(that).data('collect'), 10);
@@ -426,7 +426,7 @@ jQuery(document).ready(function($) {
 		var that = this;
 		postFavorite(that, function(hadCollect){
 			$('.page .collect').data('collect', hadCollect);
-			
+
 			if (hadCollect) {
 				comTip("感谢收藏！");
 				$('.page .collect').attr('title', '取消收藏').text('取消收藏');
@@ -493,6 +493,11 @@ jQuery(document).ready(function($) {
 			if ($(this).hasClass('emoji')) {
 				return;
 			}
+
+			if ($(this).hasClass('no-zoom')) {
+				return;
+			}
+
 			$(this).addClass('img-responsive').attr('data-action', 'zoom');
 		})
 
@@ -505,7 +510,7 @@ jQuery(document).ready(function($) {
 	setTimeout(function() {
 		$('.page .content table').addClass('table').wrap('<div class="table-responsive"></div>');
 	}, 2000);
-	
+
 });
 
 // 在线人数统计
@@ -544,7 +549,7 @@ if (window.WebSocket) {
 			break;
 		}
 	}
-	
+
 	websocket.onerror = function(evt) {
 		// console.log(evt);
 	}
@@ -577,6 +582,7 @@ $(function(){
 		closePop();
 	});
 });
+
 // markdown tool bar 相关功能
 (function(){
 	jQuery(document).ready(function($) {
