@@ -82,9 +82,10 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 	}
 
 	// 知乎特殊处理
-	if domain == "zhuanlan.zhihu.com" {
-		return self.ParseZhihuArticle(ctx, articleUrl, rule)
-	}
+	// 已经恢复和其他一样了 2018-08-11
+	// if domain == "zhuanlan.zhihu.com" {
+	// return self.ParseZhihuArticle(ctx, articleUrl, rule)
+	// }
 
 	var doc *goquery.Document
 	if doc, err = goquery.NewDocument(articleUrl); err != nil {
