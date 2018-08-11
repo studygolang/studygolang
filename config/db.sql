@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS `user_login` (
   UNIQUE KEY (`email`),
   KEY `logintime` (`login_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户登录表';
-   
+
 CREATE TABLE IF NOT EXISTS `bind_user` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `uid` int unsigned NOT NULL DEFAULT 0 COMMENT '本站用户UID',
@@ -692,7 +692,7 @@ CREATE TABLE IF NOT EXISTS `gctt_user` (
   `num` int unsigned NOT NULl DEFAULT 0 COMMENT '翻译的文章数',
   `words` int unsigned NOT NULl DEFAULT 0 COMMENT '翻译的字数',
   `avg_time` int unsigned NOT NULl DEFAULT 0 COMMENT '平均每篇用时（秒）',
-  `role` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '角色，如 组长、选题、校对等',
+  `role` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '角色，如 组长、选题、校对等。0-译者；1-组长；2-选题；3-校对；4-核心成员',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY (`username`),
@@ -727,7 +727,7 @@ CREATE TABLE IF NOT EXISTS `gctt_timeline` (
 CREATE TABLE IF NOT EXISTS `gctt_issue` (
   `id` int unsigned NOT NULL DEFAULT 0 COMMENT '选题的 issue 编号',
   `translator` varchar(31) NOT NULL DEFAULT '' COMMENT '译者 Github 用户名',
-  `email` varchar(63) NOT NULL DEFAULT '' COMMENT '译者邮箱', 
+  `email` varchar(63) NOT NULL DEFAULT '' COMMENT '译者邮箱',
   `title` varchar(127) NOT NULL DEFAULT '' COMMENT 'issue 标题',
   `translating_at` int unsigned NOT NULL DEFAULT 0 COMMENT '开始翻译时间（认领时间）',
   `translated_at` int unsigned NOT NULL DEFAULT 0 COMMENT '完成翻译时间（close 时间）',
@@ -789,14 +789,14 @@ CREATE TABLE IF NOT EXISTS `subject_follower` (
 CREATE TABLE IF NOT EXISTS `download` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '自增',
   `version` varchar(31) NOT NULL DEFAULT '' COMMENT '版本号',
-  `filename` varchar(63) NOT NULL DEFAULT '' COMMENT '文件名', 
+  `filename` varchar(63) NOT NULL DEFAULT '' COMMENT '文件名',
   `kind` varchar(31) NOT NULL DEFAULT '' COMMENT '类型',
   `os` varchar(31) NOT NULL DEFAULT '' COMMENT '操作系统',
   `arch` varchar(31) NOT NULL DEFAULT '' COMMENT '架构',
   `size` int unsigned NOT NULL DEFAULT 0 COMMENT '大小，单位 MB',
   `checksum` varchar(64) NOT NULL DEFAULT '' COMMENT 'SHA1/256 校验和',
   `is_recommend` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否推荐（推荐的高亮显示）',
-  `category` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '0-Archived versions; 1-Stable versions; 2-Unstable versions;', 
+  `category` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '0-Archived versions; 1-Stable versions; 2-Unstable versions;',
   `seq` int unsigned NOT NULL DEFAULT 0 COMMENT '排序，越大越靠前',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)

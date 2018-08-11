@@ -32,6 +32,7 @@ func (self IndexController) RegisterRoute(g *echo.Group) {
 	g.GET("/wr", self.WrapUrl)
 	g.GET("/pkgdoc", self.Pkgdoc)
 	g.GET("/markdown", self.Markdown)
+	g.GET("/link", self.Link)
 }
 
 func (IndexController) Index(ctx echo.Context) error {
@@ -198,4 +199,10 @@ func (IndexController) Pkgdoc(ctx echo.Context) error {
 
 func (IndexController) Markdown(ctx echo.Context) error {
 	return render(ctx, "markdown.html", nil)
+}
+
+// Link 用于重定向外部链接，比如广告链接
+func (IndexController) Link(ctx echo.Context) error {
+	tUrl := ctx.QueryParam("url")
+	return ctx.Redirect(http.StatusSeeOther, tUrl)
 }
