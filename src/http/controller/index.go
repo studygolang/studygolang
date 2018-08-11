@@ -137,7 +137,7 @@ func (IndexController) WrapUrl(ctx echo.Context) error {
 	} else {
 		tUrl += "?"
 	}
-	tUrl += "hmsr=studygolang.com&utm_medium=studygolang.com&utm_source=studygolang.com"
+	tUrl += "utm_campaign=studygolang.com&utm_medium=studygolang.com&utm_source=studygolang.com"
 
 	if CheckIsHttps(ctx) {
 		return ctx.Redirect(http.StatusSeeOther, tUrl)
@@ -204,5 +204,11 @@ func (IndexController) Markdown(ctx echo.Context) error {
 // Link 用于重定向外部链接，比如广告链接
 func (IndexController) Link(ctx echo.Context) error {
 	tUrl := ctx.QueryParam("url")
+	if strings.Contains(tUrl, "?") {
+		tUrl += "&"
+	} else {
+		tUrl += "?"
+	}
+	tUrl += "utm_campaign=studygolang.com&utm_medium=studygolang.com&utm_source=studygolang.com"
 	return ctx.Redirect(http.StatusSeeOther, tUrl)
 }
