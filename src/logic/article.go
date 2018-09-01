@@ -127,10 +127,10 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 		}
 
 		tmpTitle := strings.TrimSpace(selection.Text())
-		tmpTitle = strings.TrimSpace(strings.TrimPrefix(tmpTitle, "原"))
-		tmpTitle = strings.TrimSpace(strings.TrimPrefix(tmpTitle, "荐"))
-		tmpTitle = strings.TrimSpace(strings.TrimPrefix(tmpTitle, "转"))
-		tmpTitle = strings.TrimSpace(strings.TrimPrefix(tmpTitle, "顶"))
+		tmpTitle = strings.TrimSpace(strings.Trim(tmpTitle, "原"))
+		tmpTitle = strings.TrimSpace(strings.Trim(tmpTitle, "荐"))
+		tmpTitle = strings.TrimSpace(strings.Trim(tmpTitle, "转"))
+		tmpTitle = strings.TrimSpace(strings.Trim(tmpTitle, "顶"))
 		if tmpTitle != "" {
 			title = tmpTitle
 		}
