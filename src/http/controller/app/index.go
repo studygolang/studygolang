@@ -50,7 +50,7 @@ func (IndexController) Home(ctx echo.Context) error {
 		data["total"] = paginator.GetTotal()
 
 	}
-	return success(ctx, nil)
+	return success(ctx, data)
 }
 
 // WebsiteStat 网站统计信息
