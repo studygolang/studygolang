@@ -58,6 +58,21 @@
                 <textarea id="myeditor" name="ckeditor-content" cols="102" rows="22" style="margin-left: 5px;display: none;"></textarea>
                 {{end}}
 
+                {{if .captchaId}}
+                <div class="form-group form-group-sm">
+                    <label class="col-sm-1 control-label" for="captchaSolution"><abbr>*</abbr>验证码</label>
+                    <div class="col-sm-4">
+                        <input type="hidden" name="captchaid" value="{{.captchaId}}">
+                        <div class="input-group">
+                            <input type="text" id="captchaSolution" name="captchaSolution" class="form-control" placeholder="请输入右侧验证码" />
+                            <span class="input-group-btn">
+                                <img id="reload-captcha" src="/captcha/{{.captchaId}}.png" alt="验证码" title="看不清，点击" />
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {{end}}
+
                 <div class="form-group form-group-sm">
                     <label class="col-sm-5 control-label">&nbsp;</label>
                     <div class="col-sm-6">
@@ -90,7 +105,7 @@
     </div>
     <div class="col-md-3 col-sm-6">
         <div class="sep20"></div>
-        
+
         <div class="box_white sidebar sb-author">
             <div class="top">
                 <h3 class="title"><i class="glyphicon glyphicon-list-alt"></i>&nbsp;发布文章说明</h3>
@@ -186,7 +201,7 @@ $(function() {
                 $('#title').val(draft.title);
                 $('#markdown-content').val(draft.content);
             }
-            
+
             $('.need-autogrow').autoGrow();
         }
     })();

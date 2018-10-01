@@ -145,6 +145,9 @@ func (*TodayActiveObserver) Update(action string, uid, objtype, objid int) {
 	switch action {
 	case actionPublish:
 		weight = 20
+		// 记录当天发布次数和上次发布时时间
+		incrPublishTimes(uid)
+		recordLastPubishTime(uid)
 	case actionModify:
 		weight = 2
 	case actionComment:

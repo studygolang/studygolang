@@ -299,16 +299,17 @@ func (self UserLogic) FindCurrentUser(ctx context.Context, username interface{})
 	}
 
 	me := &model.Me{
-		Uid:      user.Uid,
-		Username: user.Username,
-		Name:     user.Name,
-		Monlog:   user.Monlog,
-		Email:    user.Email,
-		Avatar:   user.Avatar,
-		Status:   user.Status,
-		IsRoot:   user.IsRoot,
-		MsgNum:   DefaultMessage.FindNotReadMsgNum(ctx, user.Uid),
-		DauAuth:  user.DauAuth,
+		Uid:       user.Uid,
+		Username:  user.Username,
+		Name:      user.Name,
+		Monlog:    user.Monlog,
+		Email:     user.Email,
+		Avatar:    user.Avatar,
+		Status:    user.Status,
+		IsRoot:    user.IsRoot,
+		MsgNum:    DefaultMessage.FindNotReadMsgNum(ctx, user.Uid),
+		DauAuth:   user.DauAuth,
+		CreatedAt: time.Time(user.Ctime),
 
 		Balance: user.Balance,
 		Gold:    user.Gold,

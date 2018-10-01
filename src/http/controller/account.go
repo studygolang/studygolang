@@ -61,7 +61,7 @@ func (self AccountController) Register(ctx echo.Context) error {
 	data := map[string]interface{}{
 		"username":  username,
 		"email":     ctx.FormValue("email"),
-		"captchaId": captcha.NewLen(4),
+		"captchaId": captcha.NewLen(util.CaptchaLen),
 	}
 
 	disallowUsers := config.ConfigFile.MustValueArray("account", "disallow_user", ",")
@@ -72,9 +72,11 @@ func (self AccountController) Register(ctx echo.Context) error {
 		}
 	}
 
+	captchaId := ctx.FormValue("captchaid")
 	// 校验验证码
-	if !captcha.VerifyString(ctx.FormValue("captchaid"), ctx.FormValue("captchaSolution")) {
-		data["error"] = "验证码错误"
+	if !captcha.VerifyString(captchaId, ctx.FormValue("captchaSolution")) {
+		data["error"] = "验证码错误，记得刷新验证码"
+		util.SetCaptcha(captchaId)
 		return render(ctx, registerTpl, data)
 	}
 

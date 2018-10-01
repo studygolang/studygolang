@@ -506,6 +506,16 @@ jQuery(document).ready(function($) {
 		});
 	}, 1000);
 
+	var origSrc = '';
+	$('#reload-captcha').on('click', function(evt){
+		evt.preventDefault();
+
+		if (origSrc == '') {
+			origSrc = $(this).attr("src");
+		}
+		$(this).attr("src", origSrc+"?reload=" + (new Date()).getTime());
+	});
+
 	// 表格响应式
 	setTimeout(function() {
 		$('.page .content table').addClass('table').wrap('<div class="table-responsive"></div>');

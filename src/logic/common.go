@@ -12,11 +12,15 @@ import (
 	"model"
 	"os"
 	"regexp"
+	"strconv"
 	"time"
 	"util"
 
 	"github.com/gorilla/schema"
+	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
+	"github.com/polaris1119/nosql"
+	"github.com/polaris1119/times"
 	"golang.org/x/net/context"
 )
 
@@ -66,7 +70,7 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 		return false
 	}
 
-	canEditTime := time.Duration(UserSetting["can_edit_time"]) * time.Second
+	canEditTime := time.Duration(UserSetting[model.KeyCanEditTime]) * time.Second
 	switch entity := curModel.(type) {
 	case *model.Topic:
 		if me.Uid != entity.Uid && me.IsAdmin && roleCanEdit(model.TopicAdmin, me) {
@@ -204,6 +208,60 @@ func CanPublish(dauAuth, objtype int) bool {
 	default:
 		return true
 	}
+}
+
+// NeedCaptcha 是否需要验证码：
+//  - 新客注册后一段时间内需要
+//  - 发布内容太频繁（一天次数太多、间隔太快）
+func NeedCaptcha(user *model.Me) bool {
+	// 注册后 30 分钟内发布需要验证码
+	if user.CreatedAt.Add(30 * time.Minute).After(time.Now()) {
+		return true
+	}
+
+	// 发布内容是否太频繁
+	redis := nosql.NewRedisFromPool()
+	defer redis.Close()
+
+	publishTimes := redis.GET(getPublishTimesKey(user.Uid))
+	if goutils.MustInt(publishTimes) > UserSetting[model.KeyPublishTimes] {
+		return true
+	}
+
+	lastTimestampStr := redis.GET(getLastPublishTimeKey(user.Uid))
+	lastTimestamp := goutils.MustInt64(lastTimestampStr)
+	if time.Now().Unix()-lastTimestamp < int64(UserSetting[model.KeyPublishInterval]) {
+		return true
+	}
+
+	return false
+}
+
+// incrPublishTimes 增加用户发布次数
+func incrPublishTimes(uid int) {
+	redis := nosql.NewRedisFromPool()
+	defer redis.Close()
+
+	key := getPublishTimesKey(uid)
+	redis.INCR(key)
+	redis.EXPIRE(key, 86401)
+}
+
+// recordLastPubishTime 记录用户上次发布时间
+func recordLastPubishTime(uid int) {
+	redis := nosql.NewRedisFromPool()
+	defer redis.Close()
+
+	key := getLastPublishTimeKey(uid)
+	redis.SET(key, time.Now().Unix(), 86400)
+}
+
+func getPublishTimesKey(uid int) string {
+	return "publish:times:user:" + strconv.Itoa(uid) + ":date:" + times.Format("Ymd")
+}
+
+func getLastPublishTimeKey(uid int) string {
+	return "last:publish:time:user:" + strconv.Itoa(uid)
 }
 
 func website() string {

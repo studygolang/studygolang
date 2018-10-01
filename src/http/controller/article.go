@@ -11,7 +11,9 @@ import (
 	"logic"
 	"net/http"
 	"strings"
+	"util"
 
+	"github.com/dchest/captcha"
 	"github.com/labstack/echo"
 	"github.com/polaris1119/echoutils"
 	"github.com/polaris1119/goutils"
@@ -38,7 +40,7 @@ func (self ArticleController) RegisterRoute(g *echo.Group) {
 
 	g.Get("/articles/:id", self.Detail)
 
-	g.Match([]string{"GET", "POST"}, "/articles/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice())
+	g.Match([]string{"GET", "POST"}, "/articles/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice(), middleware.CheckCaptcha())
 	g.Match([]string{"GET", "POST"}, "/articles/modify", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
 }
 
@@ -146,16 +148,21 @@ func (ArticleController) Detail(ctx echo.Context) error {
 
 // Create 发布新文章
 func (ArticleController) Create(ctx echo.Context) error {
+	me := ctx.Get("user").(*model.Me)
+
 	title := ctx.FormValue("title")
 	if title == "" || ctx.Request().Method() != "POST" {
-		return render(ctx, "articles/new.html", map[string]interface{}{"activeArticles": "active"})
+		data := map[string]interface{}{"activeArticles": "active"}
+		if logic.NeedCaptcha(me) {
+			data["captchaId"] = captcha.NewLen(util.CaptchaLen)
+		}
+		return render(ctx, "articles/new.html", data)
 	}
 
 	if ctx.FormValue("content") == "" {
 		return fail(ctx, 1, "内容不能为空")
 	}
 
-	me := ctx.Get("user").(*model.Me)
 	id, err := logic.DefaultArticle.Publish(echoutils.WrapEchoContext(ctx), me, ctx.FormParams())
 	if err != nil {
 		return fail(ctx, 2, "内部服务错误")

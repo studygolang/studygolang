@@ -10,7 +10,9 @@ import (
 	"http/middleware"
 	"logic"
 	"net/http"
+	"util"
 
+	"github.com/dchest/captcha"
 	"github.com/labstack/echo"
 	"github.com/polaris1119/goutils"
 
@@ -31,7 +33,7 @@ type ProjectController struct{}
 // 注册路由
 func (self ProjectController) RegisterRoute(g *echo.Group) {
 	g.GET("/projects", self.ReadList)
-	g.Match([]string{"GET", "POST"}, "/project/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice())
+	g.Match([]string{"GET", "POST"}, "/project/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice(), middleware.CheckCaptcha())
 	g.Match([]string{"GET", "POST"}, "/project/modify", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
 	g.GET("/p/:uri", self.Detail)
 	g.GET("/project/uri", self.CheckExist)
@@ -71,15 +73,22 @@ func (ProjectController) ReadList(ctx echo.Context) error {
 
 // Create 新建项目
 func (ProjectController) Create(ctx echo.Context) error {
+	me := ctx.Get("user").(*model.Me)
+
 	name := ctx.FormValue("name")
 	// 请求新建项目页面
 	if name == "" || ctx.Request().Method() != "POST" {
 		project := &model.OpenProject{}
-		return render(ctx, "projects/new.html", map[string]interface{}{"project": project, "activeProjects": "active"})
+
+		data := map[string]interface{}{"project": project, "activeProjects": "active"}
+		if logic.NeedCaptcha(me) {
+			data["captchaId"] = captcha.NewLen(util.CaptchaLen)
+		}
+
+		return render(ctx, "projects/new.html", data)
 	}
 
-	user := ctx.Get("user").(*model.Me)
-	err := logic.DefaultProject.Publish(ctx, user, ctx.FormParams())
+	err := logic.DefaultProject.Publish(ctx, me, ctx.FormParams())
 	if err != nil {
 		return fail(ctx, 1, "内部服务错误！")
 	}

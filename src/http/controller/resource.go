@@ -11,7 +11,9 @@ import (
 	"http/middleware"
 	"logic"
 	"net/http"
+	"util"
 
+	"github.com/dchest/captcha"
 	"github.com/labstack/echo"
 	"github.com/polaris1119/goutils"
 
@@ -33,7 +35,7 @@ func (self ResourceController) RegisterRoute(g *echo.Group) {
 	g.GET("/resources", self.ReadList)
 	g.GET("/resources/cat/:catid", self.ReadCatResources)
 	g.GET("/resources/:id", self.Detail)
-	g.Match([]string{"GET", "POST"}, "/resources/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice())
+	g.Match([]string{"GET", "POST"}, "/resources/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice(), middleware.CheckCaptcha())
 	g.Match([]string{"GET", "POST"}, "/resources/modify", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
 }
 
@@ -96,10 +98,16 @@ func (ResourceController) Detail(ctx echo.Context) error {
 
 // Create 发布新资源
 func (ResourceController) Create(ctx echo.Context) error {
+	me := ctx.Get("user").(*model.Me)
+
 	title := ctx.FormValue("title")
 	// 请求新建资源页面
 	if title == "" || ctx.Request().Method() != "POST" {
-		return render(ctx, "resources/new.html", map[string]interface{}{"activeResources": "active", "categories": logic.AllCategory})
+		data := map[string]interface{}{"activeResources": "active", "categories": logic.AllCategory}
+		if logic.NeedCaptcha(me) {
+			data["captchaId"] = captcha.NewLen(util.CaptchaLen)
+		}
+		return render(ctx, "resources/new.html", data)
 	}
 
 	errMsg := ""
@@ -117,7 +125,6 @@ func (ResourceController) Create(ctx echo.Context) error {
 		return fail(ctx, 1, errMsg)
 	}
 
-	me := ctx.Get("user").(*model.Me)
 	err := logic.DefaultResource.Publish(ctx, me, ctx.FormParams())
 	if err != nil {
 		return fail(ctx, 2, "内部服务错误，请稍候再试！")

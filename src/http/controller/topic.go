@@ -13,9 +13,11 @@ import (
 	"model"
 	"net/http"
 	"strconv"
+	"util"
 
 	. "http"
 
+	"github.com/dchest/captcha"
 	"github.com/labstack/echo"
 	"github.com/polaris1119/goutils"
 )
@@ -39,7 +41,7 @@ func (self TopicController) RegisterRoute(g *echo.Group) {
 	g.GET("/go/:node", self.GoNodeTopics)
 	g.GET("/nodes", self.Nodes)
 
-	g.Match([]string{"GET", "POST"}, "/topics/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice())
+	g.Match([]string{"GET", "POST"}, "/topics/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice(), middleware.CheckCaptcha())
 	g.Match([]string{"GET", "POST"}, "/topics/modify", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
 
 	g.POST("/topics/set_top", self.SetTop, middleware.NeedLogin())
@@ -184,6 +186,8 @@ func (TopicController) Detail(ctx echo.Context) error {
 func (TopicController) Create(ctx echo.Context) error {
 	nid := goutils.MustInt(ctx.FormValue("nid"))
 
+	me := ctx.Get("user").(*model.Me)
+
 	title := ctx.FormValue("title")
 	// 请求新建主题页面
 	if title == "" || ctx.Request().Method() != "POST" {
@@ -194,6 +198,11 @@ func (TopicController) Create(ctx echo.Context) error {
 			"nid":          nid,
 			"tab_list":     hotNodes,
 		}
+
+		if logic.NeedCaptcha(me) {
+			data["captchaId"] = captcha.NewLen(util.CaptchaLen)
+		}
+
 		hadRecommend := false
 		if len(logic.AllRecommendNodes) > 0 {
 			hadRecommend = true
@@ -212,10 +221,9 @@ func (TopicController) Create(ctx echo.Context) error {
 		return fail(ctx, 1, "没有选择节点！")
 	}
 
-	me := ctx.Get("user").(*model.Me)
 	tid, err := logic.DefaultTopic.Publish(ctx, me, ctx.FormParams())
 	if err != nil {
-		return fail(ctx, 1, "内部服务错误:"+err.Error())
+		return fail(ctx, 3, "内部服务错误:"+err.Error())
 	}
 
 	return success(ctx, map[string]interface{}{"tid": tid})

@@ -132,17 +132,18 @@ func (this *User) AfterSet(name string, cell xorm.Cell) {
 
 // Me 代表当前用户
 type Me struct {
-	Uid      int    `json:"uid"`
-	Username string `json:"username"`
-	Name     string `json:"name"`
-	Monlog   string `json:"monlog"`
-	Email    string `json:"email"`
-	Avatar   string `json:"avatar"`
-	Status   int    `json:"status"`
-	MsgNum   int    `json:"msgnum"`
-	IsAdmin  bool   `json:"isadmin"`
-	IsRoot   bool   `json:"is_root"`
-	DauAuth  int    `json:"dau_auth"`
+	Uid       int       `json:"uid"`
+	Username  string    `json:"username"`
+	Name      string    `json:"name"`
+	Monlog    string    `json:"monlog"`
+	Email     string    `json:"email"`
+	Avatar    string    `json:"avatar"`
+	Status    int       `json:"status"`
+	MsgNum    int       `json:"msgnum"`
+	IsAdmin   bool      `json:"isadmin"`
+	IsRoot    bool      `json:"is_root"`
+	DauAuth   int       `json:"dau_auth"`
+	CreatedAt time.Time `json:"created_at"`
 
 	Balance int `json:"balance"`
 	Gold    int `json:"gold"`
