@@ -23,7 +23,7 @@
 						{{.topic.title}}
 					</h1>
 					<small class="c9">
-						<a href="/user/{{.topic.user.Username}}">{{.topic.user.Username}}</a> · <span title="{{.topic.ctime}}" class="timeago"></span> · {{add .topic.view 1}} 次点击 · 
+						<a href="/user/{{.topic.user.Username}}">{{.topic.user.Username}}</a> · <span title="{{.topic.ctime}}" class="timeago"></span> · {{add .topic.view 1}} 次点击 ·
 						<span class="timeago" title="{{.cur_time}}"></span> 开始浏览&nbsp; &nbsp;
 						{{if canEdit .me .topic}}
 						<a class="op" href="/topics/modify?tid={{.topic.tid}}" title="编辑">编辑</a>
@@ -49,17 +49,17 @@
 				<div class="subtle">
 					<span class="cc">第 {{add $i 1}} 条附言 &nbsp;·&nbsp; <span class="timeago" title="{{$append.CreatedAt}}"></span></span>
 					<div class="sep5"></div>
-					
+
 					<div class="append_content">
 						<div class="content markdown-body">{{$append.Content}}</div>
 					</div>
-					
+
 				</div>
 				{{end}}
-				
+
 				<div class="content-buttons">
 					<div class="pull-right c9 f11" style="line-height: 12px; padding-top: 3px; text-shadow: 0px 1px 0px #fff;">{{add .topic.view 1}} 次点击 &nbsp;{{if .topic.like}}∙&nbsp; {{.topic.like}} 赞 &nbsp; {{end}}</div>
-					<a class="tb collect" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}" data-objid="{{.topic.tid}}" data-objtype="0" data-collect="{{.hadcollect}}">{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}</a> 
+					<a class="tb collect" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}" data-objid="{{.topic.tid}}" data-objtype="0" data-collect="{{.hadcollect}}">{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}</a>
 					<a href="javascript:" onclick="window.open('http://service.weibo.com/share/share.php?url=http{{if .is_https}}s{{end}}://{{.setting.Domain}}/topics/{{.topic.tid}}&title='+encodeURIComponent('{{.setting.Name}} - {{.topic.title}} by {{.topic.user.Username}} #golang#'), '_blank', 'width=550,height=370');" class="tb">微博</a>
 					<div id="content-thank">
 						<a class="tb" href="javascript:;" title="{{if .likeflag}}取消赞{{else}}赞{{end}}" data-objid="{{.topic.tid}}" data-objtype="0" data-flag="{{.likeflag}}">{{if .likeflag}}取消赞{{else}}赞{{end}}</a>
@@ -82,6 +82,26 @@
 					</div>
 					<span class="c9"><span class="cmtnum">{{.topic.reply}}</span> 回复 {{if .topic.reply}}&nbsp;<strong class="snow">|</strong> &nbsp;直到 {{.topic.lastreplytime}}{{end}}</span>
 				</div>
+				<div class="cell" style="background-image: url('https://www.v2ex.com/static/img/shadow_light.png'); background-size: 20px 20px; background-repeat: repeat-x;padding: 10px;
+				font-size: 14px;
+				line-height: 120%;
+				text-align: left;
+				border-bottom: 1px solid #e2e2e2;">
+					<table cellpadding="0" cellspacing="0" border="0" width="100%">
+						<tbody><tr>
+							<td width="92%" align="left"><a href="?p=1" class="page_normal">1</a> &nbsp;<a href="?p=2" class="page_normal">2</a> &nbsp;<a href="?p=3" class="page_current">3</a> &nbsp; <input type="number" class="page_input" autocomplete="off" value="3" min="1" max="3" onkeydown="if (event.keyCode == 13)
+									location.href = '?p=' + this.value"></td>
+							<td width="8%" align="right">
+								<table cellpadding="0" cellspacing="0" border="0" width="100%">
+									<tbody><tr>
+										<td width="50%" align="center" class="super normal button" style="border-right: none; border-top-right-radius: 0px; border-bottom-right-radius: 0px;" onclick="location.href='?p=2';" onmouseover="$(this).addClass('hover_now');" onmousedown="$(this).addClass('active_now');" onmouseleave="$(this).removeClass('hover_now'); $(this).removeClass('active_now');" title="上一页">❮</td>
+										<td width="50%" align="center" class="super normal_page_right button disable_now" style="border-top-left-radius: 0px; border-bottom-left-radius: 0px;">❯</td>
+									</tr>
+								</tbody></table>
+							</td>
+						</tr>
+					</tbody></table>
+				</div>
 				<div class="comment-list cell" data-objid="{{.topic.tid}}" data-objtype="0" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
 					<div class="words hide"><div class="text-center">暂无回复</div></div>
 				</div>
@@ -91,7 +111,7 @@
 			{{template "comment" .}}
 
 			{{include "common/view_stat.html" .}}
-			
+
 		</div>
 	</div>
 	<div class="col-md-3 col-sm-6">
@@ -106,7 +126,7 @@
 			{{end}}
 		</div>
 		{{end}}
-		
+
 		{{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"今日阅读排行","objtype":0,"limit":10,"rank_type":"today"}`)}}
 
 		{{if .pos_ad.right2}}
@@ -118,7 +138,7 @@
 		{{end}}
 
 		{{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"一周阅读排行","objtype":0,"limit":10,"rank_type":"week"}`)}}
-		
+
 	</div>
 </div>
 {{end}}
@@ -148,7 +168,7 @@ $(function(){
 
 	// 文本框自动伸缩
 	$('.need-autogrow').autoGrow();
-	
+
 	// 有权限查看才加载评论
 	{{if or (not .topic.permission) .me.Status}}
 	loadComments();

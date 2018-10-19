@@ -91,23 +91,35 @@ func (CommentController) Modify(ctx echo.Context) error {
 func (CommentController) CommentList(ctx echo.Context) error {
 	objid := goutils.MustInt(ctx.QueryParam("objid"))
 	objtype := goutils.MustInt(ctx.QueryParam("objtype"))
+	p := goutils.MustInt(ctx.QueryParam("p"))
 
-	commentList, err := logic.DefaultComment.FindObjectComments(ctx, objid, objtype)
+	commentList, replyComments, pageNum, err := logic.DefaultComment.FindObjectComments(ctx, objid, objtype, p)
 	if err != nil {
 		return fail(ctx, 1, "服务器内部错误")
 	}
 
 	uids := slices.StructsIntSlice(commentList, "Uid")
+	if len(replyComments) > 0 {
+		replyUids := slices.StructsIntSlice(replyComments, "Uid")
+		uids = append(uids, replyUids...)
+	}
 	users := logic.DefaultUser.FindUserInfos(ctx, uids)
 
 	result := map[string]interface{}{
 		"comments": commentList,
+		"page_num": pageNum,
 	}
 
 	// json encode 不支持 map[int]...
 	for uid, user := range users {
 		result[strconv.Itoa(uid)] = user
 	}
+
+	replyMap := make(map[string]interface{})
+	for _, comment := range replyComments {
+		replyMap[strconv.Itoa(comment.Floor)] = comment
+	}
+	result["reply_comments"] = replyMap
 
 	return success(ctx, result)
 }
