@@ -165,13 +165,15 @@ func (self UserLogic) Update(ctx context.Context, me *model.Me, form url.Values)
 }
 
 // UpdateUserStatus 更新用户状态
-func (UserLogic) UpdateUserStatus(ctx context.Context, uid, status int) {
+func (UserLogic) UpdateUserStatus(ctx context.Context, uid, status int) error {
 	objLog := GetLogger(ctx)
 
 	_, err := MasterDB.Table(new(model.User)).Id(uid).Update(map[string]interface{}{"status": status})
 	if err != nil {
 		objLog.Errorf("更新用户 【%d】 状态失败：%s", uid, err)
 	}
+
+	return err
 }
 
 // ChangeAvatar 更换头像
@@ -320,7 +322,8 @@ func (self UserLogic) FindCurrentUser(ctx context.Context, username interface{})
 	}
 
 	// TODO: 先每次都记录登录时间
-	go self.RecordLoginTime(user.Username)
+	ip := ctx.Value("ip")
+	go self.RecordLogin(user.Username, ip)
 
 	if user.IsRoot {
 		me.IsAdmin = true
@@ -425,7 +428,8 @@ func (self UserLogic) Login(ctx context.Context, username, passwd string) (*mode
 
 	go func() {
 		self.IncrUserWeight("uid", userLogin.Uid, 1)
-		self.RecordLoginTime(username)
+		ip := ctx.Value("ip")
+		self.RecordLogin(username, ip)
 	}()
 
 	return userLogin, nil
@@ -546,12 +550,18 @@ func (UserLogic) DecrUserWeight(field string, value interface{}, divide int) {
 	}
 }
 
-// RecordLoginTime 记录用户最后登录时间
-func (UserLogic) RecordLoginTime(username string) error {
+// RecordLogin 记录用户最后登录时间和 IP
+func (UserLogic) RecordLogin(username string, ipinter interface{}) error {
+	change := map[string]interface{}{
+		"login_time": time.Now(),
+	}
+	if ip, ok := ipinter.(string); ok && ip != "" {
+		change["login_ip"] = ip
+	}
 	_, err := MasterDB.Table(new(model.UserLogin)).Where("username=?", username).
-		Update(map[string]interface{}{"login_time": time.Now()})
+		Update(change)
 	if err != nil {
-		logger.Errorf("记录用户 %q 登录时间错误：%s", username, err)
+		logger.Errorf("记录用户 %q 登录错误：%s", username, err)
 	}
 	return err
 }

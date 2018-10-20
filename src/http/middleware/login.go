@@ -21,6 +21,9 @@ import (
 
 	"github.com/gorilla/context"
 	"github.com/labstack/echo"
+	"github.com/polaris1119/goutils"
+
+	netcontext "golang.org/x/net/context"
 )
 
 // AutoLogin 用于 echo 框架的自动登录和通过 cookie 获取用户信息
@@ -33,9 +36,16 @@ func AutoLogin() echo.MiddlewareFunc {
 			ctx.Set("req_start_time", time.Now())
 
 			var getCurrentUser = func(usernameOrId interface{}) {
+				ip := goutils.RemoteIp(Request(ctx))
+				// IP 黑名单，不让登录
+				if logic.DefaultRisk.IsBlackIP(ip) {
+					return
+				}
+
 				if db.MasterDB != nil {
+					valCtx := netcontext.WithValue(ctx, "ip", ip)
 					// TODO: 考虑缓存，或延迟查询，避免每次都查询
-					user := logic.DefaultUser.FindCurrentUser(ctx, usernameOrId)
+					user := logic.DefaultUser.FindCurrentUser(valCtx, usernameOrId)
 					if user.Uid != 0 {
 						ctx.Set("user", user)
 

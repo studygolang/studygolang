@@ -20,10 +20,11 @@ import (
 type UserLogin struct {
 	Uid       int       `json:"uid" xorm:"pk"`
 	Username  string    `json:"username"`
+	Passcode  string    `json:"passcode"` // 加密随机串
 	Passwd    string    `json:"passwd"`
 	Email     string    `json:"email"`
+	LoginIp   string    `json:"login_ip"`
 	LoginTime time.Time `json:"login_time" xorm:"<-"`
-	Passcode  string    `json:"passcode"` // 加密随机串
 }
 
 func (this *UserLogin) TableName() string {

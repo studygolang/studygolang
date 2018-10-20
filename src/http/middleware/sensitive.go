@@ -14,7 +14,9 @@ import (
 	"model"
 
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/engine/standard"
 	"github.com/polaris1119/config"
+	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 )
 
@@ -43,6 +45,8 @@ func Sensivite() echo.MiddlewareFunc {
 						// 把账号冻结
 						logic.DefaultUser.UpdateUserStatus(ctx, user.Uid, model.UserStatusFreeze)
 						logger.Infoln("user=", user.Uid, "publish ad, title=", title, ". freeze")
+						// IP 加入黑名单
+						addBlackIP(ctx)
 						return ctx.String(http.StatusOK, `{"ok":0,"error":"对不起，您的账号已被冻结！"}`)
 					}
 				}
@@ -52,6 +56,8 @@ func Sensivite() echo.MiddlewareFunc {
 				// 把账号冻结
 				logic.DefaultUser.UpdateUserStatus(ctx, user.Uid, model.UserStatusFreeze)
 				logger.Infoln("user=", user.Uid, "publish ad, title=", title, ";content=", content, ". freeze")
+				// IP 加入黑名单
+				addBlackIP(ctx)
 				return ctx.String(http.StatusOK, `{"ok":0,"error":"对不起，您的账号已被冻结！"}`)
 			}
 
@@ -96,4 +102,12 @@ func hasSensitiveChar(title, sensitive string) bool {
 	}
 
 	return true
+}
+
+func addBlackIP(ctx echo.Context) {
+	req := ctx.Request().(*standard.Request).Request
+
+	ip := goutils.RemoteIp(req)
+
+	logic.DefaultRisk.AddBlackIP(ip)
 }

@@ -25,6 +25,11 @@
 				<td>{{ .Ctime }}</td>
 				<td class="actions">
 					<a href="/admin/user/user/detail?uid={{ .Uid }}" target="_blank">详情</a>
+					<a data-type="ajax-submit" href="#"
+						ajax-action="/admin/user/user/add_black?uid={{ .Uid }}"
+						ajax-hint="是否确认要加黑？"
+						success-hint="加黑成功"
+						callback="delCallback">加黑</a>
 				</td>
 			</tr>
 		{{end}}
