@@ -155,9 +155,13 @@ func (TopicController) Detail(ctx echo.Context) error {
 		"activeTopics": "active",
 		"topic":        topic,
 		"replies":      replies,
+		"appends":      []*model.TopicAppend{},
 	}
 
 	me, ok := ctx.Get("user").(*model.Me)
+	if topic["permission"] == 0 || (topic["permission"] == 1 && ok) {
+		data["appends"] = logic.DefaultTopic.FindAppend(ctx, tid)
+	}
 	if ok {
 		tid := topic["tid"].(int)
 		data["likeflag"] = logic.DefaultLike.HadLike(ctx, me.Uid, tid, model.TypeTopic)
@@ -176,8 +180,6 @@ func (TopicController) Detail(ctx echo.Context) error {
 	} else {
 		logic.Views.Incr(Request(ctx), model.TypeTopic, tid)
 	}
-
-	data["appends"] = logic.DefaultTopic.FindAppend(ctx, tid)
 
 	return render(ctx, "topics/detail.html,common/comment.html", data)
 }
