@@ -12,6 +12,7 @@ import (
 	"global"
 	"html/template"
 	"logic"
+	"math"
 	"math/rand"
 	"model"
 	"net/http"
@@ -128,6 +129,9 @@ var funcMap = template.FuncMap{
 
 		return num1 % num2
 	},
+	"divide": func(num1, num2 int) int {
+		return int(math.Ceil(float64(num1) / float64(num2)))
+	},
 	"explode": func(s, sep string) []string {
 		return strings.Split(s, sep)
 	},
@@ -174,6 +178,19 @@ var funcMap = template.FuncMap{
 		}
 
 		return uri
+	},
+	"genList": func(n int, steps ...int) []int {
+		step := 1
+		if len(steps) > 0 {
+			step = steps[0]
+		}
+		num := int(math.Ceil(float64(n) / float64(step)))
+		nums := make([]int, num)
+		for i := 0; i < num; i++ {
+			nums[i] = i + 1
+		}
+
+		return nums
 	},
 }
 
@@ -379,6 +396,9 @@ func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interf
 	data["online_users"] = map[string]int{"online": logic.Book.Len(), "maxonline": logic.MaxOnlineNum()}
 
 	data["setting"] = logic.WebsiteSetting
+
+	// 评论每页显示多少个
+	data["cmt_per_num"] = logic.CommentPerNum
 
 	// 记录处理时间
 	data["resp_time"] = time.Since(ctx.Get("req_start_time").(time.Time))

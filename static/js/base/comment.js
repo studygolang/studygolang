@@ -190,13 +190,17 @@
 		});
 
 		// 异步加载 评论
-		window.loadComments = function() {
+		window.loadComments = function(p) {
+			// 默认取最后一页
+			p = p || 0;
+
 			var objid = $('.comment-list').data('objid'),
 				objtype = $('.comment-list').data('objtype');
 
 			var params = {
 				'objid': objid,
-				'objtype': objtype
+				'objtype': objtype,
+				'p': p
 			};
 			$.getJSON('/object/comments', params, function(data){
 				if (data.ok) {
@@ -399,4 +403,74 @@
 			});
 		}
 	});
+
+	////// 评论翻页 ///////////
+	$('.page_input').on('keydown', function(event) {
+		if (event.keyCode == 13) {
+			var p = $(this).val();
+			$('.cmt-page .page-num a:nth-child('+p+')').trigger('click');
+		}
+	});
+
+	$('.ctrl-page button').on('click', function() {
+		var p = $('.cmt-page .page_input').val();
+
+		if ($(this).hasClass('prev-page')) {
+			p--;
+		} else {
+			p++;
+		}
+
+		$('.cmt-page .page-num a:nth-child('+p+')').trigger('click');
+	});
+
+	$('.ctrl-page button').on('mouseover', function() {
+		if (!$(this).hasClass('disable_now')) {
+			$(this).addClass('hover_now');
+		}
+	});
+
+	$('.ctrl-page button').on('mousedown', function() {
+		$(this).addClass('active_now');
+	});
+
+	$('.ctrl-page button').on('mouseleave', function() {
+		$(this).removeClass('hover_now');
+		$(this).removeClass('active_now');
+	});
+
+	$('.cmt-page .page-num a').on('click', function(evt) {
+		evt.preventDefault();
+		$('.page-num .page_current').removeClass('page_current').addClass('page_normal');
+
+		var p = $(this).data('page'),
+			pageMax = $('.cmt-page .page_input').attr("max");
+
+		$('.cmt-page .page-num a:nth-child('+p+')').removeClass('page_normal').addClass('page_current')
+		$('.page-num .page_input').val(p);
+
+		$('.cmt-page .ctrl-page button')
+			.removeClass('disable_now')
+			.removeAttr("disabled");
+
+		if (p == 1) {
+			$('.cmt-page .prev-page')
+				.removeClass('hover_now')
+				.removeClass('active_now')
+				.addClass('disable_now')
+				.attr("disabled", "disabled");
+		} else if (p == pageMax) {
+			$('.cmt-page .next-page')
+				.removeClass('hover_now')
+				.removeClass('active_now')
+				.addClass('disable_now')
+				.attr("disabled", "disabled");
+		}
+
+		loadComments(p);
+
+		return false;
+	});
+	/////////// 评论翻页 end //////////////
+
 }).call(this);

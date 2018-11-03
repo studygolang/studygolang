@@ -3,148 +3,131 @@
 <meta name="description" content="{{substring .topic.content 200 ""}}">{{end}}
 {{define "content"}}
 <div class="row">
-	<div class="col-md-9 col-sm-6">
-		<div class="sep20"></div>
+    <div class="col-md-9 col-sm-6">
+        <div class="sep20"></div>
 
-		<ol class="breadcrumb">
-			<li><a href="/">首页</a></li>
-			<li><a href="/topics">主题</a></li>
-			<li><a href="{{if .topic.node.ename}}/go/{{.topic.node.ename}}{{else}}/topics/node/{{.topic.node.nid}}{{end}}">{{.topic.node.name}}</a></li>
-		</ol>
-		<div class="page">
-			<div class="box_white">
-				<div class="title">
-					<div class="pull-right">
-						<a href="/user/{{.topic.user.Username}}" title="{{.topic.user.Username}}">
-							<img src="{{gravatar .topic.user.Avatar .topic.user.Email 62 .is_https}}" alt="{{if .topic.user.Name}}{{.topic.user.Name}}{{else}}{{.topic.user.Username}}{{end}}" width="62px" height="62px">
-						</a>
-					</div>
-					<h1>
-						{{.topic.title}}
-					</h1>
-					<small class="c9">
-						<a href="/user/{{.topic.user.Username}}">{{.topic.user.Username}}</a> · <span title="{{.topic.ctime}}" class="timeago"></span> · {{add .topic.view 1}} 次点击 ·
-						<span class="timeago" title="{{.cur_time}}"></span> 开始浏览&nbsp; &nbsp;
-						{{if canEdit .me .topic}}
-						<a class="op" href="/topics/modify?tid={{.topic.tid}}" title="编辑">编辑</a>
-						{{else if and (eq .me.Uid .topic.user.Uid) (lt (len .appends) 3) }}
-						<a class="op" href="/append/topic/{{.topic.tid}}" title="附言">附言</a>
-						{{end}}
-						{{if and (canPublish .me.DauAuth 101) (not .topic.top)}}
-						<a id="set-top" class="op" href="/topics/set_top?tid={{.topic.tid}}" title="置顶">置顶</a>
-						{{end}}
-					</small>
-				</div>
-				{{if gt (distanceDay .topic.ctime) 100 }}
-				<div class="outdated">这是一个创建于 <span title="{{.topic.ctime}}" class="timeago"></span> 的主题，其中的信息可能已经有所发展或是发生改变。</div>
-				{{end}}
-				<div class="cell">
-					{{if or (not .topic.permission) .me.Status}}
-					<div class="content">{{.topic.content}}</div>
-					{{else}}
-					<div style="font-size: 1.2em;">作者设置必须登录才能查看，<a href="/account/login?redirect_uri=/topics/{{.topic.tid}}">请登录</a>；如没有账号，<a href="/account/register">请注册</a></div>
-					{{end}}
-				</div>
-				{{range $i, $append := .appends}}
-				<div class="subtle">
-					<span class="cc">第 {{add $i 1}} 条附言 &nbsp;·&nbsp; <span class="timeago" title="{{$append.CreatedAt}}"></span></span>
-					<div class="sep5"></div>
+        <ol class="breadcrumb">
+            <li><a href="/">首页</a></li>
+            <li><a href="/topics">主题</a></li>
+            <li><a href="{{if .topic.node.ename}}/go/{{.topic.node.ename}}{{else}}/topics/node/{{.topic.node.nid}}{{end}}">{{.topic.node.name}}</a></li>
+        </ol>
+        <div class="page">
+            <div class="box_white">
+                <div class="title">
+                    <div class="pull-right">
+                        <a href="/user/{{.topic.user.Username}}" title="{{.topic.user.Username}}">
+                            <img src="{{gravatar .topic.user.Avatar .topic.user.Email 62 .is_https}}" alt="{{if .topic.user.Name}}{{.topic.user.Name}}{{else}}{{.topic.user.Username}}{{end}}" width="62px" height="62px">
+                        </a>
+                    </div>
+                    <h1>
+                        {{.topic.title}}
+                    </h1>
+                    <small class="c9">
+                        <a href="/user/{{.topic.user.Username}}">{{.topic.user.Username}}</a> · <span title="{{.topic.ctime}}" class="timeago"></span> · {{add .topic.view 1}} 次点击 ·
+                        <span class="timeago" title="{{.cur_time}}"></span> 开始浏览&nbsp; &nbsp;
+                        {{if canEdit .me .topic}}
+                        <a class="op" href="/topics/modify?tid={{.topic.tid}}" title="编辑">编辑</a>
+                        {{else if and (eq .me.Uid .topic.user.Uid) (lt (len .appends) 3) }}
+                        <a class="op" href="/append/topic/{{.topic.tid}}" title="附言">附言</a>
+                        {{end}}
+                        {{if and (canPublish .me.DauAuth 101) (not .topic.top)}}
+                        <a id="set-top" class="op" href="/topics/set_top?tid={{.topic.tid}}" title="置顶">置顶</a>
+                        {{end}}
+                    </small>
+                </div>
+                {{if gt (distanceDay .topic.ctime) 100 }}
+                <div class="outdated">这是一个创建于 <span title="{{.topic.ctime}}" class="timeago"></span> 的主题，其中的信息可能已经有所发展或是发生改变。</div>
+                {{end}}
+                <div class="cell">
+                    {{if or (not .topic.permission) .me.Status}}
+                    <div class="content">{{.topic.content}}</div>
+                    {{else}}
+                    <div style="font-size: 1.2em;">作者设置必须登录才能查看，<a href="/account/login?redirect_uri=/topics/{{.topic.tid}}">请登录</a>；如没有账号，<a href="/account/register">请注册</a></div>
+                    {{end}}
+                </div>
+                {{range $i, $append := .appends}}
+                <div class="subtle">
+                    <span class="cc">第 {{add $i 1}} 条附言 &nbsp;·&nbsp; <span class="timeago" title="{{$append.CreatedAt}}"></span></span>
+                    <div class="sep5"></div>
 
-					<div class="append_content">
-						<div class="content markdown-body">{{$append.Content}}</div>
-					</div>
+                    <div class="append_content">
+                        <div class="content markdown-body">{{$append.Content}}</div>
+                    </div>
 
-				</div>
-				{{end}}
+                </div>
+                {{end}}
 
-				<div class="content-buttons">
-					<div class="pull-right c9 f11" style="line-height: 12px; padding-top: 3px; text-shadow: 0px 1px 0px #fff;">{{add .topic.view 1}} 次点击 &nbsp;{{if .topic.like}}∙&nbsp; {{.topic.like}} 赞 &nbsp; {{end}}</div>
-					<a class="tb collect" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}" data-objid="{{.topic.tid}}" data-objtype="0" data-collect="{{.hadcollect}}">{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}</a>
-					<a href="javascript:" onclick="window.open('http://service.weibo.com/share/share.php?url=http{{if .is_https}}s{{end}}://{{.setting.Domain}}/topics/{{.topic.tid}}&title='+encodeURIComponent('{{.setting.Name}} - {{.topic.title}} by {{.topic.user.Username}} #golang#'), '_blank', 'width=550,height=370');" class="tb">微博</a>
-					<div id="content-thank">
-						<a class="tb" href="javascript:;" title="{{if .likeflag}}取消赞{{else}}赞{{end}}" data-objid="{{.topic.tid}}" data-objtype="0" data-flag="{{.likeflag}}">{{if .likeflag}}取消赞{{else}}赞{{end}}</a>
-					</div>
-				</div>
-			</div>
-			<!-- content END -->
-			<div class="sep20"></div>
+                <div class="content-buttons">
+                    <div class="pull-right c9 f11" style="line-height: 12px; padding-top: 3px; text-shadow: 0px 1px 0px #fff;">{{add .topic.view 1}} 次点击 &nbsp;{{if .topic.like}}∙&nbsp; {{.topic.like}} 赞 &nbsp; {{end}}</div>
+                    <a class="tb collect" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}" data-objid="{{.topic.tid}}" data-objtype="0" data-collect="{{.hadcollect}}">{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}</a>
+                    <a href="javascript:" onclick="window.open('http://service.weibo.com/share/share.php?url=http{{if .is_https}}s{{end}}://{{.setting.Domain}}/topics/{{.topic.tid}}&title='+encodeURIComponent('{{.setting.Name}} - {{.topic.title}} by {{.topic.user.Username}} #golang#'), '_blank', 'width=550,height=370');" class="tb">微博</a>
+                    <div id="content-thank">
+                        <a class="tb" href="javascript:;" title="{{if .likeflag}}取消赞{{else}}赞{{end}}" data-objid="{{.topic.tid}}" data-objtype="0" data-flag="{{.likeflag}}">{{if .likeflag}}取消赞{{else}}赞{{end}}</a>
+                    </div>
+                </div>
+            </div>
+            <!-- content END -->
+            <div class="sep20"></div>
 
-			<!-- 评论列表 -->
-			<div id="replies" class="box_white">
-				<div class="cell">
-					<div class="pull-right" style="margin: -3px -5px 0px 0px;">
-					{{if .topic.tags}}
-						{{$tags := explode .topic.tags ","}}
-						{{range $tags}}
-						<a href="/tag/{{.}}" class="tag"><li class="fa fa-tag"></li> {{.}}</a>
-						{{end}}
-					{{end}}
-					</div>
-					<span class="c9"><span class="cmtnum">{{.topic.reply}}</span> 回复 {{if .topic.reply}}&nbsp;<strong class="snow">|</strong> &nbsp;直到 {{.topic.lastreplytime}}{{end}}</span>
-				</div>
-				<div class="cell" style="background-image: url('https://www.v2ex.com/static/img/shadow_light.png'); background-size: 20px 20px; background-repeat: repeat-x;padding: 10px;
-				font-size: 14px;
-				line-height: 120%;
-				text-align: left;
-				border-bottom: 1px solid #e2e2e2;">
-					<table cellpadding="0" cellspacing="0" border="0" width="100%">
-						<tbody><tr>
-							<td width="92%" align="left"><a href="?p=1" class="page_normal">1</a> &nbsp;<a href="?p=2" class="page_normal">2</a> &nbsp;<a href="?p=3" class="page_current">3</a> &nbsp; <input type="number" class="page_input" autocomplete="off" value="3" min="1" max="3" onkeydown="if (event.keyCode == 13)
-									location.href = '?p=' + this.value"></td>
-							<td width="8%" align="right">
-								<table cellpadding="0" cellspacing="0" border="0" width="100%">
-									<tbody><tr>
-										<td width="50%" align="center" class="super normal button" style="border-right: none; border-top-right-radius: 0px; border-bottom-right-radius: 0px;" onclick="location.href='?p=2';" onmouseover="$(this).addClass('hover_now');" onmousedown="$(this).addClass('active_now');" onmouseleave="$(this).removeClass('hover_now'); $(this).removeClass('active_now');" title="上一页">❮</td>
-										<td width="50%" align="center" class="super normal_page_right button disable_now" style="border-top-left-radius: 0px; border-bottom-left-radius: 0px;">❯</td>
-									</tr>
-								</tbody></table>
-							</td>
-						</tr>
-					</tbody></table>
-				</div>
-				<div class="comment-list cell" data-objid="{{.topic.tid}}" data-objtype="0" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
-					<div class="words hide"><div class="text-center">暂无回复</div></div>
-				</div>
-			</div>
+            <!-- 评论列表 -->
+            <div id="replies" class="box_white">
+                <div class="cell">
+                    <div class="pull-right" style="margin: -3px -5px 0px 0px;">
+                    {{if .topic.tags}}
+                        {{$tags := explode .topic.tags ","}}
+                        {{range $tags}}
+                        <a href="/tag/{{.}}" class="tag"><li class="fa fa-tag"></li> {{.}}</a>
+                        {{end}}
+                    {{end}}
+                    </div>
+                    <span class="c9"><span class="cmtnum">{{.topic.reply}}</span> 回复 {{if .topic.reply}}&nbsp;<strong class="snow">|</strong> &nbsp;直到 {{.topic.lastreplytime}}{{end}}</span>
+                </div>
+                {{include "common/comment-page.html" .}}
+                <div class="comment-list cell" data-objid="{{.topic.tid}}" data-objtype="0" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
+                    <div class="words hide"><div class="text-center">暂无回复</div></div>
+                </div>
+                {{include "common/comment-page.html" .}}
+            </div>
 
-			<!-- 评论框 -->
-			{{template "comment" .}}
+            <!-- 评论框 -->
+            {{template "comment" .}}
 
-			{{include "common/view_stat.html" .}}
+            {{include "common/view_stat.html" .}}
 
-		</div>
-	</div>
-	<div class="col-md-3 col-sm-6">
-		<div class="sep20"></div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="sep20"></div>
 
-		{{include "common/my_info.html" .}}
+        {{include "common/my_info.html" .}}
 
-		{{if .pos_ad.right1}}
-		<div class="box_white sidebar" id="ad-right1">
-			{{if eq .pos_ad.right1.AdType 0}}
-				{{noescape .pos_ad.right1.Code}}
-			{{end}}
-		</div>
-		{{end}}
+        {{if .pos_ad.right1}}
+        <div class="box_white sidebar" id="ad-right1">
+            {{if eq .pos_ad.right1.AdType 0}}
+                {{noescape .pos_ad.right1.Code}}
+            {{end}}
+        </div>
+        {{end}}
 
-		{{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"今日阅读排行","objtype":0,"limit":10,"rank_type":"today"}`)}}
+        {{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"今日阅读排行","objtype":0,"limit":10,"rank_type":"today"}`)}}
 
-		{{if .pos_ad.right2}}
-		<div class="box_white sidebar" id="ad-right2">
-			{{if eq .pos_ad.right2.AdType 0}}
-				{{noescape .pos_ad.right2.Code}}
-			{{end}}
-		</div>
-		{{end}}
+        {{if .pos_ad.right2}}
+        <div class="box_white sidebar" id="ad-right2">
+            {{if eq .pos_ad.right2.AdType 0}}
+                {{noescape .pos_ad.right2.Code}}
+            {{end}}
+        </div>
+        {{end}}
 
-		{{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"一周阅读排行","objtype":0,"limit":10,"rank_type":"week"}`)}}
+        {{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"一周阅读排行","objtype":0,"limit":10,"rank_type":"week"}`)}}
 
-	</div>
+    </div>
 </div>
 {{end}}
 {{define "css"}}
 <link href="{{.static_domain}}/static/dist/css/table.min.css" media="screen" rel="stylesheet" type="text/css">
 {{include "cssjs/prism.css.html" .}}
+
 {{end}}
 
 {{define "js"}}
@@ -152,63 +135,63 @@
 <script type="text/javascript">
 // 需要加载的侧边栏
 SG.SIDE_BARS = [
-	"/topics/recent",
-	"/articles/recent",
-	"/resources/recent",
-	"/rank/view"
+    "/topics/recent",
+    "/articles/recent",
+    "/resources/recent",
+    "/rank/view"
 ];
 
 var keyprefix = 'topic';
 var objid = {{.topic.tid}};
 
 $(function(){
-	new SG.Topics().parseContent($('.page .content'));
+    new SG.Topics().parseContent($('.page .content'));
 
-	$('code[class*="language-"]').parent('pre').addClass('line-numbers');
+    $('code[class*="language-"]').parent('pre').addClass('line-numbers');
 
-	// 文本框自动伸缩
-	$('.need-autogrow').autoGrow();
+    // 文本框自动伸缩
+    $('.need-autogrow').autoGrow();
 
-	// 有权限查看才加载评论
-	{{if or (not .topic.permission) .me.Status}}
-	loadComments();
-	{{end}}
+    // 有权限查看才加载评论
+    {{if or (not .topic.permission) .me.Status}}
+    loadComments();
+    {{end}}
 
-	// 链接，add target=_blank
-	$('#wrapper .content').on('mousedown', 'a', function(evt){
-		var url = $(this).attr('href');
-		$(this).attr('target', '_blank');
-	});
+    // 链接，add target=_blank
+    $('#wrapper .content').on('mousedown', 'a', function(evt){
+        var url = $(this).attr('href');
+        $(this).attr('target', '_blank');
+    });
 
-	$('#set-top').on('click', function(evt) {
-		evt.preventDefault();
+    $('#set-top').on('click', function(evt) {
+        evt.preventDefault();
 
-		var url = $(this).attr('href');
-		$.post(url, {}, function(result) {
-			if (result.ok) {
-				comTip("置顶成功！");
-			} else {
-				comTip(result.msg);
-			}
-		});
+        var url = $(this).attr('href');
+        $.post(url, {}, function(result) {
+            if (result.ok) {
+                comTip("置顶成功！");
+            } else {
+                comTip(result.msg);
+            }
+        });
 
-		return false;
-	});
+        return false;
+    });
 });
 </script>
 
 {{include "cssjs/prism.js.html" .}}
 
 {{if .pos_ad.right1}}
-	{{if eq .pos_ad.right1.AdType 1}}
-		{{noescape .pos_ad.right1.Code}}
-	{{end}}
+    {{if eq .pos_ad.right1.AdType 1}}
+        {{noescape .pos_ad.right1.Code}}
+    {{end}}
 {{end}}
 
 {{if .pos_ad.right2}}
-	{{if eq .pos_ad.right2.AdType 1}}
-		{{noescape .pos_ad.right2.Code}}
-	{{end}}
+    {{if eq .pos_ad.right2.AdType 1}}
+        {{noescape .pos_ad.right2.Code}}
+    {{end}}
 {{end}}
 
 {{end}}

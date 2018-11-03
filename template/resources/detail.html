@@ -34,10 +34,10 @@
 				<div class="cell">
 					<div class="content">{{if eq .resource.form "只是链接"}}传送门： {{if hasPrefix .resource.url "/r/golang/"}}https://reddit.com{{end}}{{.resource.url}}{{else}}{{.resource.content}}{{end}}</div>
 				</div>
-				
+
 				<div class="content-buttons">
 					<div class="pull-right c9 f11" style="line-height: 12px; padding-top: 3px; text-shadow: 0px 1px 0px #fff;">{{add .resource.viewnum 1}} 次点击 &nbsp;{{if .resource.likenum}}∙&nbsp; {{.resource.likenum}} 赞 &nbsp; {{end}}</div>
-					<a class="tb collect" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}" data-objid="{{.resource.id}}" data-objtype="2" data-collect="{{.hadcollect}}">{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}</a> 
+					<a class="tb collect" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}" data-objid="{{.resource.id}}" data-objtype="2" data-collect="{{.hadcollect}}">{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}</a>
 					<a href="javascript:" onclick="window.open('http://service.weibo.com/share/share.php?url=http{{if .is_https}}s{{end}}://{{.setting.Domain}}/resources/{{.resource.id}}&title='+encodeURIComponent('{{.setting.Name}} - {{.resource.title}} by {{.resource.user.Username}} #golang#'), '_blank', 'width=550,height=370');" class="tb">微博</a>
 					<div id="content-thank">
 						<a class="tb" href="javascript:;" title="{{if .likeflag}}取消赞{{else}}赞{{end}}" data-objid="{{.resource.id}}" data-objtype="2" data-flag="{{.likeflag}}">{{if .likeflag}}取消赞{{else}}赞{{end}}</a>
@@ -60,14 +60,16 @@
 					</div>
 					<span class="c9"><span class="cmtnum">{{.resource.cmtnum}}</span> 回复 {{if .resource.cmtnum}}&nbsp;<strong class="snow">|</strong> &nbsp;直到 {{end}}</span>
 				</div>
+				{{include "common/comment-page.html" .}}
 				<div class="comment-list cell" data-objid="{{.resource.id}}" data-objtype="2" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
 					<div class="words hide"><div class="text-center">暂无回复</div></div>
 				</div>
+				{{include "common/comment-page.html" .}}
 			</div>
 
 			<!-- 评论框 -->
 			{{template "comment" .}}
-			
+
 			{{include "common/view_stat.html" .}}
 		</div>
 	</div>
@@ -85,7 +87,7 @@
 		{{end}}
 
 		{{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"今日阅读排行","objtype":2,"limit":10,"rank_type":"today"}`)}}
-		
+
 		{{if .pos_ad.right2}}
 		<div class="box_white sidebar" id="ad-right2">
 			{{if eq .pos_ad.right2.AdType 0}}
@@ -95,9 +97,9 @@
 		{{end}}
 
 		{{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"一周阅读排行","objtype":2,"limit":10,"rank_type":"week"}`)}}
-		
+
 		{{include "sidebar/topic.html" .}}
-		
+
 	</div>
 </div>
 {{end}}
@@ -129,7 +131,7 @@ $(function(){
 
 	// 文本框自动伸缩
 	$('.need-autogrow').autoGrow();
-	
+
 	loadComments();
 
 	// 链接，add target=_blank

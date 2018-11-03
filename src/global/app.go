@@ -36,7 +36,7 @@ import (
 )
 
 const (
-	DefaultCDNHttp  = "http://studygolang.qiniudn.com/"
+	DefaultCDNHttp  = "http://test.static.studygolang.com/"
 	DefaultCDNHttps = "https://static.studygolang.com/"
 )
 

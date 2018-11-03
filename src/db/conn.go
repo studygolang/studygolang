@@ -35,6 +35,11 @@ func init() {
 	if err = initEngine(); err != nil {
 		panic(err)
 	}
+
+	// 测试数据库连接是否 OK
+	if err = MasterDB.Ping(); err != nil {
+		panic(err)
+	}
 }
 
 var (
@@ -83,9 +88,7 @@ func TestDB() error {
 	}
 
 	// 初始化 MasterDB
-	Init()
-
-	return nil
+	return Init()
 }
 
 func Init() error {

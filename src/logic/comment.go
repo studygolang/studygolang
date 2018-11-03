@@ -64,7 +64,7 @@ func (self CommentLogic) FindObjComments(ctx context.Context, objid, objtype int
 	return
 }
 
-const CommentPerNum = 5
+const CommentPerNum = 50
 
 // FindObjectComments 获得某个对象的所有评论（新版）
 func (self CommentLogic) FindObjectComments(ctx context.Context, objid, objtype, p int) (commentList []*model.Comment, replyComments []*model.Comment, pageNum int, err error) {
