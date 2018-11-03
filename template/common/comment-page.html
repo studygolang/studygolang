@@ -1,0 +1,56 @@
+<!-- 评论翻页 -->
+{{if .topic}}
+
+{{if gt .topic.reply $.cmt_per_num }}
+<div class="cell cmt-page row">
+    <div class="col-md-10 col-sm-8 page-num">
+    {{with $pageMax := divide .topic.reply .cmt_per_num}}
+        {{range $i, $v := genList $.topic.reply $.cmt_per_num}}
+        <a href="#" data-page="{{$v}}" class="{{if eq $v $pageMax}}page_current{{else}}page_normal{{end}}">{{$v}}</a>
+        {{end}}
+        <input type="number" class="page_input" autocomplete="off" value="{{$pageMax}}" min="1" max="{{$pageMax}}">
+    {{end}}
+    </div>
+    <div class="col-md-2 col-sm-4 ctrl-page text-right">
+        <button class="super normal button prev-page" style="border-right: none;" title="上一页">❮</button><button class="super normal normal_page_right button disable_now next-page" disabled="disabled" title="下一页">❯</button>
+    </div>
+</div>
+{{end}}
+
+{{else if .resource}}
+
+{{if gt .resource.cmtnum $.cmt_per_num }}
+<div class="cell cmt-page row">
+    <div class="col-md-10 col-sm-8 page-num">
+    {{with $pageMax := divide .resource.cmtnum .cmt_per_num}}
+        {{range $i, $v := genList $.resource.cmtnum $.cmt_per_num}}
+        <a href="#" data-page="{{$v}}" class="{{if eq $v $pageMax}}page_current{{else}}page_normal{{end}}">{{$v}}</a>
+        {{end}}
+        <input type="number" class="page_input" autocomplete="off" value="{{$pageMax}}" min="1" max="{{$pageMax}}">
+    {{end}}
+    </div>
+    <div class="col-md-2 col-sm-4 ctrl-page text-right">
+        <button class="super normal button prev-page" style="border-right: none;" title="上一页">❮</button><button class="super normal normal_page_right button disable_now next-page" disabled="disabled" title="下一页">❯</button>
+    </div>
+</div>
+{{end}}
+
+{{else if .article}}
+
+{{if gt .article.Cmtnum $.cmt_per_num }}
+<div class="cell cmt-page row">
+    <div class="col-md-10 col-sm-8 page-num">
+    {{with $pageMax := divide .article.Cmtnum .cmt_per_num}}
+        {{range $i, $v := genList $.article.Cmtnum $.cmt_per_num}}
+        <a href="#" data-page="{{$v}}" class="{{if eq $v $pageMax}}page_current{{else}}page_normal{{end}}">{{$v}}</a>
+        {{end}}
+        <input type="number" class="page_input" autocomplete="off" value="{{$pageMax}}" min="1" max="{{$pageMax}}">
+    {{end}}
+    </div>
+    <div class="col-md-2 col-sm-4 ctrl-page text-right">
+        <button class="super normal button prev-page" style="border-right: none;" title="上一页">❮</button><button class="super normal normal_page_right button disable_now next-page" disabled="disabled" title="下一页">❯</button>
+    </div>
+</div>
+{{end}}
+
+{{end}}

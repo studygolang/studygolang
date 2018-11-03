@@ -146,9 +146,11 @@
 					</div>
 					<span class="c9"><span class="cmtnum">{{.article.Cmtnum}}</span> 回复 {{if .article.Cmtnum}}&nbsp;<strong class="snow">|</strong> &nbsp;直到 {{.article.Lastreplytime}}{{end}}</span>
 				</div>
+				{{include "common/comment-page.html" .}}
 				<div class="comment-list cell" data-objid="{{.article.Id}}" data-objtype="1" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
 					<div class="words hide"><div class="text-center">暂无回复</div></div>
 				</div>
+				{{include "common/comment-page.html" .}}
 			</div>
 
 			<!-- 评论框 -->

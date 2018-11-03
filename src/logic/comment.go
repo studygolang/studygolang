@@ -9,6 +9,7 @@ package logic
 import (
 	"fmt"
 	"html/template"
+	"math"
 	"model"
 	"net/url"
 	"regexp"
@@ -63,19 +64,43 @@ func (self CommentLogic) FindObjComments(ctx context.Context, objid, objtype int
 	return
 }
 
+const CommentPerNum = 50
+
 // FindObjectComments 获得某个对象的所有评论（新版）
-// TODO:分页暂不做
-func (self CommentLogic) FindObjectComments(ctx context.Context, objid, objtype int) (commentList []*model.Comment, err error) {
+func (self CommentLogic) FindObjectComments(ctx context.Context, objid, objtype, p int) (commentList []*model.Comment, replyComments []*model.Comment, pageNum int, err error) {
 	objLog := GetLogger(ctx)
 
+	total, err := MasterDB.Where("objid=? AND objtype=?", objid, objtype).Count(new(model.Comment))
+	if err != nil {
+		objLog.Errorln("comment logic FindObjectComments count Error:", err)
+		return
+	}
+
+	pageNum = int(math.Ceil(float64(total) / CommentPerNum))
+	if p == 0 {
+		p = pageNum
+	}
+
 	commentList = make([]*model.Comment, 0)
-	err = MasterDB.Where("objid=? AND objtype=?", objid, objtype).Asc("cid").Find(&commentList)
+	err = MasterDB.Where("objid=? AND objtype=?", objid, objtype).Asc("cid").
+		Limit(CommentPerNum, (p-1)*CommentPerNum).
+		Find(&commentList)
 	if err != nil {
 		objLog.Errorln("comment logic FindObjectComments Error:", err)
 	}
 
+	floors := make([]interface{}, 0, len(commentList))
 	for _, comment := range commentList {
 		self.decodeCmtContentForShow(ctx, comment, true)
+
+		if comment.ReplyFloor > 0 {
+			floors = append(floors, comment.ReplyFloor)
+		}
+	}
+
+	if len(floors) > 0 {
+		replyComments = make([]*model.Comment, 0)
+		err = MasterDB.Where("objid=? AND objtype=?", objid, objtype).In("floor", floors...).Find(&replyComments)
 	}
 
 	return

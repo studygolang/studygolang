@@ -768,7 +768,7 @@ jQuery(document).ready(function(){
 		// 编辑 tab
 		$('.page').on('click', '.comment-edit-tab', function(evt){
 			evt.preventDefault();
-			
+
 			var $this = $(this);
 			var $tabMenu = $this.parent()
 			var commentGroup = $tabMenu.data('comment-group')
@@ -840,7 +840,7 @@ jQuery(document).ready(function(){
 			toggleCommentShowOrEdit(floor, false)
 
 			var $uploadBtn = $('.upload-img[data-floor="' + floor + '"]')
-			
+
 			// 复制上传
 			// 防止重复上传
 			var pasteUpload = $textarea.data('paste-uploader')
@@ -876,7 +876,7 @@ jQuery(document).ready(function(){
 			var $editWrapper = $markdown.children('.edit-wrapper')
 			var $textarea = $editWrapper.find('textarea')
 			var $content = $markdown.children('.content')
-			var content = $textarea.val()		
+			var content = $textarea.val()
 			var cid = $submitBtn.data("cid")
 
 			editComment($submitBtn, cid, content, function() {
@@ -885,7 +885,7 @@ jQuery(document).ready(function(){
 				toggleCommentShowOrEdit(floor, true)
 			})
 		})
-		
+
 		// 点击回复某人
 		$('#replies').on('click', '.btn-reply', function(evt) {
 			evt.preventDefault();
@@ -926,18 +926,23 @@ jQuery(document).ready(function(){
 		});
 
 		// 异步加载 评论
-		window.loadComments = function() {
+		window.loadComments = function(p) {
+			// 默认取最后一页
+			p = p || 0;
+
 			var objid = $('.comment-list').data('objid'),
 				objtype = $('.comment-list').data('objtype');
-			
+
 			var params = {
 				'objid': objid,
-				'objtype': objtype
+				'objtype': objtype,
+				'p': p
 			};
 			$.getJSON('/object/comments', params, function(data){
 				if (data.ok) {
 					data = data.data;
-					var comments = data.comments;
+					var comments = data.comments,
+						replyComments = data.reply_comments;
 
 					var content = '';
 					for(var i in comments) {
@@ -965,7 +970,7 @@ jQuery(document).ready(function(){
 						}
 
 						if (comment.reply_floor > 0) {
-							var replyComment = comments[comment.reply_floor-1]
+							var replyComment = replyComments[comment.reply_floor]
 							comment.reply_user = data[replyComment.uid];
 							comment.reply_content = replyComment.content;
 						}
@@ -1037,7 +1042,7 @@ jQuery(document).ready(function(){
 
 		var editComment = function(thiss, cid, content, callback) {
 			thiss.text("稍等").addClass("disabled").attr({"title":'稍等',"disabled":"disabled"});
-			
+
 			$.ajax({
 				type:"post",
 				url: '/object/comments/' + cid,
@@ -1067,7 +1072,7 @@ jQuery(document).ready(function(){
 				objtype = $('.comment-list').data('objtype');
 
 			var usernames = SG.analyzeAt(content);
-			
+
 			$.ajax({
 				type:"post",
 				url: '/comment/'+objid,
@@ -1084,7 +1089,7 @@ jQuery(document).ready(function(){
 						var $pageComment = $('.comment-list'),
 							meUid = $('[name="me-uid"]').val(),
 							user = {};
-						
+
 						user.username = $pageComment.data('username'),
 						user.uid = $pageComment.data('uid'),
 						user.avatar = $pageComment.data('avatar'),
@@ -1109,14 +1114,14 @@ jQuery(document).ready(function(){
 
 						// emoji 表情解析
 						emojify.run($('.comment-list .words .reply:last').get(0));
-						
+
 						// 注册@
 						SG.registerAtEvent(true, true, $('.page-comment textarea'));
 
 						cmtNum++;
 
 						$cmtNumObj.text(cmtNum);
-						
+
 						setTimeout(function(){
 							$('.comment-list .words .reply').removeClass('light');
 						}, 2000);
@@ -1134,4 +1139,74 @@ jQuery(document).ready(function(){
 			});
 		}
 	});
+
+	////// 评论翻页 ///////////
+	$('.page_input').on('keydown', function(event) {
+		if (event.keyCode == 13) {
+			var p = $(this).val();
+			$('.cmt-page .page-num a:nth-child('+p+')').trigger('click');
+		}
+	});
+
+	$('.ctrl-page button').on('click', function() {
+		var p = $('.cmt-page .page_input').val();
+
+		if ($(this).hasClass('prev-page')) {
+			p--;
+		} else {
+			p++;
+		}
+
+		$('.cmt-page .page-num a:nth-child('+p+')').trigger('click');
+	});
+
+	$('.ctrl-page button').on('mouseover', function() {
+		if (!$(this).hasClass('disable_now')) {
+			$(this).addClass('hover_now');
+		}
+	});
+
+	$('.ctrl-page button').on('mousedown', function() {
+		$(this).addClass('active_now');
+	});
+
+	$('.ctrl-page button').on('mouseleave', function() {
+		$(this).removeClass('hover_now');
+		$(this).removeClass('active_now');
+	});
+
+	$('.cmt-page .page-num a').on('click', function(evt) {
+		evt.preventDefault();
+		$('.page-num .page_current').removeClass('page_current').addClass('page_normal');
+
+		var p = $(this).data('page'),
+			pageMax = $('.cmt-page .page_input').attr("max");
+
+		$('.cmt-page .page-num a:nth-child('+p+')').removeClass('page_normal').addClass('page_current')
+		$('.page-num .page_input').val(p);
+
+		$('.cmt-page .ctrl-page button')
+			.removeClass('disable_now')
+			.removeAttr("disabled");
+
+		if (p == 1) {
+			$('.cmt-page .prev-page')
+				.removeClass('hover_now')
+				.removeClass('active_now')
+				.addClass('disable_now')
+				.attr("disabled", "disabled");
+		} else if (p == pageMax) {
+			$('.cmt-page .next-page')
+				.removeClass('hover_now')
+				.removeClass('active_now')
+				.addClass('disable_now')
+				.attr("disabled", "disabled");
+		}
+
+		loadComments(p);
+
+		return false;
+	});
+	/////////// 评论翻页 end //////////////
+
 }).call(this);
