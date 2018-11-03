@@ -58,7 +58,7 @@ func (self SearcherLogic) IndexingArticle(isAll bool) {
 		if isAll {
 			err = MasterDB.Where("id>?", id).Limit(self.maxRows).OrderBy("id ASC").Find(&articleList)
 		} else {
-			timeAgo := time.Now().Add(-5 * time.Minute).Format("2006-01-02 15:04:05")
+			timeAgo := time.Now().Add(-2 * time.Minute).Format("2006-01-02 15:04:05")
 			err = MasterDB.Where("mtime>?", timeAgo).Find(&articleList)
 		}
 		if err != nil {
@@ -120,7 +120,7 @@ func (self SearcherLogic) IndexingTopic(isAll bool) {
 		if isAll {
 			err = MasterDB.Where("tid>?", id).OrderBy("tid ASC").Limit(self.maxRows).Find(&topicList)
 		} else {
-			timeAgo := time.Now().Add(-5 * time.Minute).Format("2006-01-02 15:04:05")
+			timeAgo := time.Now().Add(-2 * time.Minute).Format("2006-01-02 15:04:05")
 			err = MasterDB.Where("mtime>?", timeAgo).Find(&topicList)
 		}
 		if err != nil {
@@ -189,7 +189,7 @@ func (self SearcherLogic) IndexingResource(isAll bool) {
 		if isAll {
 			err = MasterDB.Where("id>?", id).OrderBy("id ASC").Limit(self.maxRows).Find(&resourceList)
 		} else {
-			timeAgo := time.Now().Add(-5 * time.Minute).Format("2006-01-02 15:04:05")
+			timeAgo := time.Now().Add(-2 * time.Minute).Format("2006-01-02 15:04:05")
 			err = MasterDB.Where("mtime>?", timeAgo).Find(&resourceList)
 		}
 		if err != nil {
@@ -256,7 +256,7 @@ func (self SearcherLogic) IndexingOpenProject(isAll bool) {
 		if isAll {
 			err = MasterDB.Where("id>?", id).OrderBy("id ASC").Limit(self.maxRows).Find(&projectList)
 		} else {
-			timeAgo := time.Now().Add(-5 * time.Minute).Format("2006-01-02 15:04:05")
+			timeAgo := time.Now().Add(-2 * time.Minute).Format("2006-01-02 15:04:05")
 			err = MasterDB.Where("mtime>?", timeAgo).Find(&projectList)
 		}
 		if err != nil {

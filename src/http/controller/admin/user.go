@@ -8,6 +8,7 @@ package admin
 
 import (
 	"logic"
+	"model"
 
 	"github.com/labstack/echo"
 	"github.com/polaris1119/goutils"
@@ -21,6 +22,7 @@ func (self UserController) RegisterRoute(g *echo.Group) {
 	g.POST("/user/user/query.html", self.UserQuery)
 	g.GET("/user/user/detail", self.Detail)
 	g.POST("/user/user/modify", self.Modify)
+	g.POST("/user/user/add_black", self.AddBlack)
 }
 
 // UserList 所有用户（分页）
@@ -76,5 +78,18 @@ func (UserController) Modify(ctx echo.Context) error {
 	} else {
 		logic.DefaultUser.SetDauAuth(ctx, uid, ctx.FormParams())
 	}
+	return success(ctx, nil)
+}
+
+func (UserController) AddBlack(ctx echo.Context) error {
+	uid := goutils.MustInt(ctx.FormValue("uid"))
+	err := logic.DefaultUser.UpdateUserStatus(ctx, uid, model.UserStatusOutage)
+	if err != nil {
+		return fail(ctx, 1, err.Error())
+	}
+
+	// 获取用户上次登录 IP
+	logic.DefaultRisk.AddBlackIPByUID(uid)
+
 	return success(ctx, nil)
 }
