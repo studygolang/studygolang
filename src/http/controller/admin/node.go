@@ -7,6 +7,7 @@
 package admin
 
 import (
+	"global"
 	"logic"
 	"model"
 
@@ -54,6 +55,7 @@ func (NodeController) Modify(ctx echo.Context) error {
 		if err != nil {
 			return fail(ctx, 1, err.Error())
 		}
+		global.TopicNodeChan <- struct{}{}
 		return success(ctx, nil)
 	}
 
