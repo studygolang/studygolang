@@ -100,6 +100,8 @@ func loadData() {
 			logic.LoadRoleAuthorities()
 		case <-global.UserSettingChan:
 			logic.LoadUserSetting()
+		case <-global.TopicNodeChan:
+			logic.LoadNodes()
 		}
 	}
 }
