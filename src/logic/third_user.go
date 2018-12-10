@@ -66,12 +66,14 @@ func (self ThirdUserLogic) LoginFromGithub(ctx context.Context, code string) (*m
 
 	if bindUser.Uid > 0 {
 		// 更新 token 信息
-		bindUser.AccessToken = token.AccessToken
-		bindUser.RefreshToken = token.RefreshToken
-		if !token.Expiry.IsZero() {
-			bindUser.Expire = int(token.Expiry.Unix())
+		change := map[string]interface{}{
+			"access_token":  token.AccessToken,
+			"refresh_token": token.RefreshToken,
 		}
-		_, err = MasterDB.Where("uid=?", bindUser.Uid).Update(bindUser)
+		if !token.Expiry.IsZero() {
+			change["expire"] = int(token.Expiry.Unix())
+		}
+		_, err = MasterDB.Table(new(model.BindUser)).Where("uid=?", bindUser.Uid).Update(change)
 		if err != nil {
 			objLog.Errorln("LoginFromGithub update token error:", err)
 			return nil, err

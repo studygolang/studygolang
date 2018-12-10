@@ -828,6 +828,8 @@ func (self ArticleLogic) MoveToTopic(ctx context.Context, id interface{}, me *mo
 func (self ArticleLogic) transferImage(ctx context.Context, s *goquery.Selection, imgDeny bool, domain string) {
 	if v, ok := s.Attr("data-original-src"); ok {
 		self.setImgSrc(ctx, v, imgDeny, s)
+	} else if v, ok := s.Attr("data-original"); ok {
+		self.setImgSrc(ctx, v, imgDeny, s)
 	} else if v, ok := s.Attr("data-src"); ok {
 		self.setImgSrc(ctx, v, imgDeny, s)
 	} else if v, ok := s.Attr("src"); ok {
@@ -843,7 +845,7 @@ func (self ArticleLogic) setImgSrc(ctx context.Context, v string, imgDeny bool, 
 	if imgDeny {
 		path, err := DefaultUploader.TransferUrl(ctx, v)
 		if err == nil {
-			s.SetAttr("src", global.App.CDNHttp+path)
+			s.SetAttr("src", global.App.CDNHttps+path)
 		} else {
 			s.SetAttr("src", v)
 		}
