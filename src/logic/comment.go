@@ -16,6 +16,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/labstack/echo"
+
 	. "db"
 
 	"github.com/fatih/structs"
@@ -64,12 +66,26 @@ func (self CommentLogic) FindObjComments(ctx context.Context, objid, objtype int
 	return
 }
 
-const CommentPerNum = 50
+const CommentPerNum = 5
 
 // FindObjectComments 获得某个对象的所有评论（新版）
-func (self CommentLogic) FindObjectComments(ctx context.Context, objid, objtype, p int) (commentList []*model.Comment, replyComments []*model.Comment, pageNum int, err error) {
+func (self CommentLogic) FindObjectComments(ctx echo.Context, objid, objtype, p int) (commentList []*model.Comment, replyComments []*model.Comment, pageNum int, permission bool, err error) {
 	objLog := GetLogger(ctx)
 
+	permission = true
+	if _, ok := ctx.Get("user").(*model.Me); !ok {
+		topic := &model.Topic{}
+		_, err = MasterDB.Where("tid=?", objid).Get(topic)
+		if err != nil {
+			objLog.Errorln("comment logic FindObjectComments get error:", err)
+			return
+		}
+		// 未登录
+		if topic.Permission == 1 {
+			permission = false
+			return
+		}
+	}
 	total, err := MasterDB.Where("objid=? AND objtype=?", objid, objtype).Count(new(model.Comment))
 	if err != nil {
 		objLog.Errorln("comment logic FindObjectComments count Error:", err)

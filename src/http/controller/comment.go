@@ -93,7 +93,10 @@ func (CommentController) CommentList(ctx echo.Context) error {
 	objtype := goutils.MustInt(ctx.QueryParam("objtype"))
 	p := goutils.MustInt(ctx.QueryParam("p"))
 
-	commentList, replyComments, pageNum, err := logic.DefaultComment.FindObjectComments(ctx, objid, objtype, p)
+	commentList, replyComments, pageNum, permission, err := logic.DefaultComment.FindObjectComments(ctx, objid, objtype, p)
+	if !permission {
+		return fail(ctx, 1, "您需要登陆才能看到回复")
+	}
 	if err != nil {
 		return fail(ctx, 1, "服务器内部错误")
 	}

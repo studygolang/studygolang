@@ -152,15 +152,18 @@ func (TopicController) Detail(ctx echo.Context) error {
 	}
 
 	data := map[string]interface{}{
-		"activeTopics": "active",
-		"topic":        topic,
-		"replies":      replies,
-		"appends":      []*model.TopicAppend{},
+		"activeTopics":    "active",
+		"topic":           topic,
+		"replies":         replies,
+		"appends":         []*model.TopicAppend{},
+		"topicPermission": false,
 	}
 
 	me, ok := ctx.Get("user").(*model.Me)
 	if topic["permission"] == 0 || (topic["permission"] == 1 && ok) {
 		data["appends"] = logic.DefaultTopic.FindAppend(ctx, tid)
+		//主题有权限,尝试渲染分页器
+		data["topicPermission"] = true
 	}
 	if ok {
 		tid := topic["tid"].(int)
