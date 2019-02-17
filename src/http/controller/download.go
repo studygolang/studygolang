@@ -27,6 +27,7 @@ type DownloadController struct{}
 func (self DownloadController) RegisterRoute(g *echo.Group) {
 	g.Get("/dl", self.GoDl)
 	g.Get("/dl/golang/:filename", self.FetchGoInstallPackage)
+	g.Get("/dl/add_new_version", self.AddNewDownload)
 }
 
 // GoDl Go 语言安装包下载
@@ -115,6 +116,26 @@ func (self DownloadController) FetchGoInstallPackage(ctx echo.Context) error {
 	getLogger(ctx).Infoln("download:", filename, "from the site static directory")
 
 	return ctx.Redirect(http.StatusSeeOther, "/static/"+filePath)
+}
+
+func (DownloadController) AddNewDownload(ctx echo.Context) error {
+	version := ctx.QueryParam("version")
+	selector := ctx.QueryParam("selector")
+
+	if version == "" {
+		return fail(ctx, 1, "version is empty")
+	}
+
+	if selector == "" {
+		selector = "toggleVisible"
+	}
+
+	err := logic.DefaultDownload.AddNewDownload(ctx, version, selector)
+	if err != nil {
+		return fail(ctx, 1, err.Error())
+	}
+
+	return success(ctx, nil)
 }
 
 func (DownloadController) headWithTimeout(dlUrl string) (*http.Response, error) {
