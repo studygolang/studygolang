@@ -799,6 +799,7 @@ CREATE TABLE IF NOT EXISTS `download` (
   `is_recommend` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否推荐（推荐的高亮显示）',
   `category` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '0-Archived versions; 1-Stable versions; 2-Unstable versions;',
   `seq` int unsigned NOT NULL DEFAULT 0 COMMENT '排序，越大越靠前',
+  `times` int unsigned NOT NULl DEFAULT 0 COMMENT '下载次数',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '下载信息表';

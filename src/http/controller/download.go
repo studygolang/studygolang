@@ -84,6 +84,8 @@ var filenameReg = regexp.MustCompile(`\d+\.\d[a-z\.]*\d+`)
 func (self DownloadController) FetchGoInstallPackage(ctx echo.Context) error {
 	filename := ctx.Param("filename")
 
+	go logic.DefaultDownload.RecordDLTimes(ctx, filename)
+
 	officalUrl := GoStoragePrefix + filename
 	resp, err := self.headWithTimeout(officalUrl)
 	if err == nil && resp.StatusCode == http.StatusOK {

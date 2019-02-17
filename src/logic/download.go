@@ -29,3 +29,9 @@ func (DownloadLogic) FindAll(ctx context.Context) []*model.Download {
 
 	return downloads
 }
+
+func (DownloadLogic) RecordDLTimes(ctx context.Context, filename string) error {
+	MasterDB.Where("filename=?", filename).Incr("times", 1).Update(new(model.Download))
+
+	return nil
+}
