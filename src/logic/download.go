@@ -65,6 +65,8 @@ func (DownloadLogic) AddNewDownload(ctx context.Context, version, selector strin
 			return
 		}
 
+		downloads := make([]*model.Download, 0, 20)
+
 		versionSel.Find("table tbody tr").Each(func(j int, dlSel *goquery.Selection) {
 			download := &model.Download{
 				Version: version,
@@ -97,11 +99,15 @@ func (DownloadLogic) AddNewDownload(ctx context.Context, version, selector strin
 				return
 			}
 
-			_, err = MasterDB.Insert(download)
+			downloads = append(downloads, download)
+		})
+
+		for i := len(downloads) - 1; i >= 0; i-- {
+			_, err = MasterDB.Insert(downloads[i])
 			if err != nil {
 				objLog.Errorln("insert download error:", err, "version:", version)
 			}
-		})
+		}
 
 		MasterDB.Exec("UPDATE download SET seq=id WHERE seq=0")
 	})
