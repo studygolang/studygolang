@@ -94,6 +94,10 @@ func (DownloadLogic) AddNewDownload(ctx context.Context, version, selector strin
 				}
 			})
 
+			if download.Kind == "" {
+				return
+			}
+
 			has, err := MasterDB.Where("filename=?", download.Filename).Exist(new(model.Download))
 			if err != nil || has {
 				return
