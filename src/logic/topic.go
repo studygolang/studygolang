@@ -19,6 +19,7 @@ import (
 	. "db"
 
 	"github.com/fatih/structs"
+	"github.com/go-xorm/xorm"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	"github.com/polaris1119/set"
@@ -308,6 +309,7 @@ func (self TopicLogic) FindAll(ctx context.Context, paginator *Paginator, orderB
 	if querystring != "" {
 		session.Where(querystring, args...)
 	}
+	self.addFlagWhere(session)
 	err := session.OrderBy(orderBy).Limit(paginator.PerPage(), paginator.Offset()).Find(&topicInfos)
 	if err != nil {
 		objLog.Errorln("TopicLogic FindAll error:", err)
@@ -326,11 +328,12 @@ func (TopicLogic) FindLastList(beginTime string, limit int) ([]*model.Topic, err
 }
 
 // FindRecent 获得最近的主题(uids[0]，则获取某个用户最近的主题)
-func (TopicLogic) FindRecent(limit int, uids ...int) []*model.Topic {
+func (self TopicLogic) FindRecent(limit int, uids ...int) []*model.Topic {
 	dbSession := MasterDB.OrderBy("ctime DESC").Limit(limit)
 	if len(uids) > 0 {
 		dbSession.Where("uid=?", uids[0])
 	}
+	self.addFlagWhere(dbSession)
 
 	topics := make([]*model.Topic, 0)
 	if err := dbSession.Find(&topics); err != nil {
@@ -347,7 +350,7 @@ func (TopicLogic) FindByNid(ctx context.Context, nid, curTid string) []*model.To
 	objLog := GetLogger(ctx)
 
 	topics := make([]*model.Topic, 0)
-	err := MasterDB.Where("nid=? AND tid!=?", nid, curTid).Limit(10).Find(&topics)
+	err := MasterDB.Where("nid=? AND tid!=? AND flag<?", nid, curTid, model.FlagAuditDelete).Limit(10).Find(&topics)
 	if err != nil {
 		objLog.Errorln("TopicLogic FindByNid Error:", err)
 	}
@@ -628,14 +631,15 @@ func (TopicLogic) JSEscape(topics []*model.Topic) []*model.Topic {
 func (TopicLogic) Count(ctx context.Context, querystring string, args ...interface{}) int64 {
 	objLog := GetLogger(ctx)
 
+	session := MasterDB.Where("flag<?", model.FlagAuditDelete)
 	var (
 		total int64
 		err   error
 	)
 	if querystring == "" {
-		total, err = MasterDB.Count(new(model.Topic))
+		total, err = session.Count(new(model.Topic))
 	} else {
-		total, err = MasterDB.Where(querystring, args...).Count(new(model.Topic))
+		total, err = session.Where(querystring, args...).Count(new(model.Topic))
 	}
 
 	if err != nil {
@@ -662,6 +666,10 @@ func (TopicLogic) decodeTopicContent(ctx context.Context, topic *model.Topic) st
 
 	// @别人
 	return parseAtUser(ctx, content)
+}
+
+func (TopicLogic) addFlagWhere(session *xorm.Session) {
+	session.Where("flag<?", model.FlagAuditDelete)
 }
 
 // 话题回复（评论）
@@ -710,6 +718,9 @@ func (self TopicComment) SetObjinfo(ids []int, commentMap map[int][]*model.Comme
 	}
 
 	for _, topic := range topics {
+		if topic.Flag > model.FlagNormal {
+			continue
+		}
 		objinfo := make(map[string]interface{})
 		objinfo["title"] = topic.Title
 		objinfo["uri"] = model.PathUrlMap[model.TypeTopic]

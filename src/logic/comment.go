@@ -192,7 +192,7 @@ func (self CommentLogic) FindRecent(ctx context.Context, uid, objtype, limit int
 		self.fillObjinfos(cmts, cmtObjs[cmtType])
 	}
 
-	return comments
+	return self.filterDelObjectCmt(comments)
 }
 
 // Publish 发表评论（或回复）。
@@ -417,7 +417,8 @@ func (self CommentLogic) FindAll(ctx context.Context, paginator *Paginator, orde
 	for cmtType, cmts := range cmtMap {
 		self.fillObjinfos(cmts, cmtObjs[cmtType])
 	}
-	return comments
+
+	return self.filterDelObjectCmt(comments)
 }
 
 // Count 获取用户全部评论数
@@ -439,4 +440,14 @@ func (CommentLogic) Count(ctx context.Context, querystring string, args ...inter
 	}
 
 	return total
+}
+
+func (CommentLogic) filterDelObjectCmt(comments []*model.Comment) []*model.Comment {
+	resultCmts := make([]*model.Comment, 0, len(comments))
+	for _, comment := range comments {
+		if comment.Objinfo != nil && len(comment.Objinfo) > 0 {
+			resultCmts = append(resultCmts, comment)
+		}
+	}
+	return resultCmts
 }

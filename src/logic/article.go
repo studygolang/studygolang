@@ -18,6 +18,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-xorm/xorm"
 	"github.com/polaris1119/slices"
 
 	"github.com/PuerkitoBio/goquery"
@@ -556,7 +557,7 @@ func (self ArticleLogic) FindByUser(ctx context.Context, username string, limit 
 	objLog := GetLogger(ctx)
 
 	articles := make([]*model.Article, 0)
-	err := MasterDB.Where("author_txt=?", username).OrderBy("id DESC").Limit(limit).Find(&articles)
+	err := MasterDB.Where("author_txt=? AND status<?", username, model.ArticleStatusOffline).OrderBy("id DESC").Limit(limit).Find(&articles)
 	if err != nil {
 		objLog.Errorln("ArticleLogic FindByUser Error:", err)
 		return nil
@@ -619,6 +620,7 @@ func (self ArticleLogic) FindAll(ctx context.Context, paginator *Paginator, orde
 	if querystring != "" {
 		session.Where(querystring, args...)
 	}
+	self.addStatusWhere(session)
 	err := session.Limit(paginator.PerPage(), paginator.Offset()).Find(&articles)
 	if err != nil {
 		objLog.Errorln("ArticleLogic FindAll error:", err)
@@ -633,14 +635,15 @@ func (self ArticleLogic) FindAll(ctx context.Context, paginator *Paginator, orde
 func (ArticleLogic) Count(ctx context.Context, querystring string, args ...interface{}) int64 {
 	objLog := GetLogger(ctx)
 
+	session := MasterDB.Where("status<?", model.ArticleStatusOffline)
 	var (
 		total int64
 		err   error
 	)
 	if querystring == "" {
-		total, err = MasterDB.Count(new(model.Article))
+		total, err = session.Count(new(model.Article))
 	} else {
-		total, err = MasterDB.Where(querystring, args...).Count(new(model.Article))
+		total, err = session.Where(querystring, args...).Count(new(model.Article))
 	}
 
 	if err != nil {
@@ -1057,6 +1060,10 @@ func (ArticleLogic) getOwner(id int) int {
 	return 0
 }
 
+func (ArticleLogic) addStatusWhere(session *xorm.Session) {
+	session.Where("status<?", model.ArticleStatusOffline)
+}
+
 // 博文评论
 type ArticleComment struct{}
 
@@ -1086,6 +1093,9 @@ func (self ArticleComment) SetObjinfo(ids []int, commentMap map[int][]*model.Com
 	}
 
 	for _, article := range articles {
+		if article.Status < model.ArticleStatusOffline {
+			continue
+		}
 		objinfo := make(map[string]interface{})
 		objinfo["title"] = article.Title
 		objinfo["uri"] = model.PathUrlMap[model.TypeArticle]
