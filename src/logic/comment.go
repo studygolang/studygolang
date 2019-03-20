@@ -444,8 +444,10 @@ func (CommentLogic) Count(ctx context.Context, querystring string, args ...inter
 
 func (CommentLogic) filterDelObjectCmt(comments []*model.Comment) []*model.Comment {
 	resultCmts := make([]*model.Comment, 0, len(comments))
+	fmt.Println("comments len:", len(comments))
 	for _, comment := range comments {
 		if comment.Objinfo != nil && len(comment.Objinfo) > 0 {
+			fmt.Println("result len:", len(resultCmts))
 			resultCmts = append(resultCmts, comment)
 		}
 	}

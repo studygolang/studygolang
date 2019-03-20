@@ -1093,7 +1093,7 @@ func (self ArticleComment) SetObjinfo(ids []int, commentMap map[int][]*model.Com
 	}
 
 	for _, article := range articles {
-		if article.Status < model.ArticleStatusOffline {
+		if article.Status >= model.ArticleStatusOffline {
 			continue
 		}
 		objinfo := make(map[string]interface{})
