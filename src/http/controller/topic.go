@@ -156,12 +156,23 @@ func (TopicController) Detail(ctx echo.Context) error {
 		"topic":        topic,
 		"replies":      replies,
 		"appends":      []*model.TopicAppend{},
+		"can_view":     true,
 	}
 
 	me, ok := ctx.Get("user").(*model.Me)
-	if topic["permission"] == 0 || (topic["permission"] == 1 && ok) {
+	// 当前用户是否对付费内容可见
+	if topic["permission"] == model.PermissionPay {
+		if !ok || (!me.IsVip && !me.IsRoot && topic["uid"].(int) != me.Uid) {
+			data["can_view"] = false
+		}
+	}
+
+	if topic["permission"] == model.PermissionPublic ||
+		(topic["permission"] == model.PermissionLogin && ok) ||
+		(topic["permission"] == model.PermissionPay && ok && (me.IsVip || me.IsRoot)) {
 		data["appends"] = logic.DefaultTopic.FindAppend(ctx, tid)
 	}
+
 	if ok {
 		tid := topic["tid"].(int)
 		data["likeflag"] = logic.DefaultLike.HadLike(ctx, me.Uid, tid, model.TypeTopic)

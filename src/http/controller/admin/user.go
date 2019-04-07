@@ -75,9 +75,9 @@ func (UserController) Modify(ctx echo.Context) error {
 	amount := goutils.MustInt(ctx.FormValue("amount"))
 	if amount > 0 {
 		logic.DefaultUserRich.Recharge(ctx, uid, ctx.FormParams())
-	} else {
-		logic.DefaultUser.SetDauAuth(ctx, uid, ctx.FormParams())
 	}
+	logic.DefaultUser.AdminUpdateUser(ctx, uid, ctx.FormParams())
+
 	return success(ctx, nil)
 }
 

@@ -89,6 +89,8 @@ type User struct {
 	Balance     int       `json:"balance"`
 	IsThird     int       `json:"is_third"`
 	DauAuth     int       `json:"dau_auth"`
+	IsVip       bool      `json:"is_vip"`
+	VipExpire   int       `json:"vip_expire"`
 	Status      int       `json:"status"`
 	IsRoot      bool      `json:"is_root"`
 	Ctime       OftenTime `json:"ctime" xorm:"created"`
@@ -144,6 +146,7 @@ type Me struct {
 	IsAdmin   bool      `json:"isadmin"`
 	IsRoot    bool      `json:"is_root"`
 	DauAuth   int       `json:"dau_auth"`
+	IsVip     bool      `json:"is_vip"`
 	CreatedAt time.Time `json:"created_at"`
 
 	Balance int `json:"balance"`
