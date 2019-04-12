@@ -1,4 +1,5 @@
 .userinfo { padding:10px; }
+.userinfo .user-prosign{width: 80px;position: absolute;z-index: 2;right: 20px;top: 105px;background-color: #6f42c1;border-radius: 2px;box-shadow: inset 0 -1px 0 rgba(27, 31, 35, 0.12);color: #fff;display: inline-block;font-weight: 600;line-height: 1;padding: 3px 4px;text-align: center;}
 .userinfo .pull-right { width:80px; }
 .userinfo .pull-right a.btn { margin: 5px 10px 0px 4px; }
 .userinfo ul {}

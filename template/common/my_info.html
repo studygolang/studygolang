@@ -11,7 +11,11 @@
 			<div class="sep5"></div>
 			{{else}}
 			<p></p>
-			<p class="user-name"><a href="/user/{{.me.Username}}">{{.me.Username}}</a></p>
+ 		<p class="user-name"><a href="/user/{{.me.Username}}">{{.me.Username}}</a>
+                {{if .me.IsVip}}
+                <span class="pro-sign"> &#9733 PRO</span>
+                {{end}}
+			</p>
 			{{end}}
 			<p><a href="/account/edit">个人资料设置</a></p>
 		</div>

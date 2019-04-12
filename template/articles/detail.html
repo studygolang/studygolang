@@ -21,6 +21,9 @@
 						{{else}}
 							<a href="/user/{{.article.User.Username}}" title="{{.article.User.Username}}">
 								<img src="{{gravatar .article.User.Avatar .article.User.Email 62 .is_https}}" alt="{{if .article.User.Name}}{{.article.User.Name}}{{else}}{{.article.User.Username}}{{end}}" width="62px" height="62px">
+									{{if .article.User.IsVip}}
+										<span class="article-prosign"> &#9733 PRO</span>
+									{{end}}
 							</a>
 						{{end}}
 					</div>
