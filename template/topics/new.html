@@ -79,6 +79,9 @@
 						<select id="permission" name="permission" class="form-control" style="width: 30%;">
 							<option value="0" {{if not .topic.Permission}}selected{{end}}>公开</option>
 							<option value="1" {{if .topic.Permission}}selected{{end}}>登录可见</option>
+							{{if or .me.IsRoot .me.IsVip}}
+								<option value="3" {{if $.topic.Permission}} selected{{end}}>付费可见</option>
+							{{end}}
 						</select>
 					</div>
 				</div>
@@ -156,7 +159,7 @@
 							<div class="sep10"></div>
 							<div>在最后，请为你的主题选择一个节点。恰当的归类会让你发布的信息更加有用。</div>
 							<div class="sep10"></div>
-							<div>你可以在主题发布后 600 秒内，对标题或者正文进行编辑。同时，在 600 秒内，你可以重新为主题选择节点。</div>
+							<div>你可以在主题发布后 2 天内，对标题或者正文进行编辑。同时，在 2 天内，你可以重新为主题选择节点。</div>
 							<div class="sep10"></div>
 						</li>
 					</ul>

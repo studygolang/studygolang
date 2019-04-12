@@ -108,6 +108,20 @@ func (TopicController) Detail(ctx echo.Context) error {
 		return fail(ctx, "服务器异常")
 	}
 
+	me, ok := ctx.Get("user").(*model.Me)
+
+	permission := topic["permission"].(int)
+	switch permission {
+	case model.PermissionLogin:
+		if !ok {
+			topic["content"] = "登录用户可见！"
+		}
+	case model.PermissionPay:
+		if !ok || !me.IsVip || !me.IsRoot {
+			topic["content"] = "付费用户可见！"
+		}
+	}
+
 	logic.Views.Incr(Request(ctx), model.TypeTopic, tid)
 
 	data := map[string]interface{}{

@@ -127,7 +127,7 @@ func (DownloadController) AddNewDownload(ctx echo.Context) error {
 	}
 
 	if selector == "" {
-		selector = "toggleVisible"
+		selector = ".toggleVisible"
 	}
 
 	err := logic.DefaultDownload.AddNewDownload(ctx, version, selector)

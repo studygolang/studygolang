@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `topics` (
   `top` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '置顶，0否，1置顶',
   `top_time` int unsigned NOT NULL DEFAULT 0 COMMENT '置顶时间',
   `tags` varchar(63) NOT NULL DEFAULT '' COMMENT 'tag，逗号分隔',
-  `permission` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '访问权限：0-公开；1-登录用户可见；2-关注的人可见',
+  `permission` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '访问权限：0-公开；1-登录用户可见；2-关注的人可见；3-付费用户可见',
   `ctime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`tid`),
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS `topics_node` (
   `show_index` tinyint(3) unsigned NOT NULL DEFAULT '1' COMMENT '主题是否在首页显示',
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`nid`),
-  INDEX `idx_ename` (`ename`)
+  KEY `idx_ename` (`ename`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '帖子节点表';
 
 CREATE TABLE IF NOT EXISTS `recommend_node` (
@@ -138,7 +138,7 @@ CREATE TABLE IF NOT EXISTS `bind_user` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_user_type` (`username`,`type`),
-  INDEX idx_uid (`uid`)
+  KEY idx_uid (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '第三方绑定表';
 
 CREATE TABLE IF NOT EXISTS `user_info` (
@@ -159,6 +159,8 @@ CREATE TABLE IF NOT EXISTS `user_info` (
   `is_third` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否通过第三方账号注册',
   `balance` int unsigned NOT NULL DEFAULT 0 COMMENT '财富余额（铜币）',
   `dau_auth` int unsigned NOT NULL DEFAULT 0 COMMENT '控制用户权限，如能否发文章等',
+  `is_vip` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否是VIP付费用户',
+  `vip_expire` int unsigned NOT NULL DEFAULT 0 COMMENT 'VIP到期日期，格式20200301',
   `status` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '用户账号状态。0-默认；1-已审核；2-拒绝；3-冻结；4-停号',
   `is_root` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否超级用户，不受权限控制：1-是',
   `ctime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -561,7 +563,7 @@ CREATE TABLE IF NOT EXISTS `user_balance_detail` (
   `desc` varchar(1022) NOT NULL DEFAULT '' COMMENT '具体原因，支持html格式',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  INDEX `idx_uid`(`uid`)
+  KEY `idx_uid`(`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户余额明细';
 
 CREATE TABLE IF NOT EXISTS `mission` (
@@ -595,7 +597,7 @@ CREATE TABLE IF NOT EXISTS `user_recharge` (
   `remark` varchar(255) NOT NULL DEFAULT '' COMMENT '充值备注',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '充值时间',
   PRIMARY KEY (`id`),
-  INDEX `idx_uid`(`uid`)
+  KEY `idx_uid`(`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户充值记录表';
 
 CREATE TABLE IF NOT EXISTS `feed` (
@@ -616,7 +618,7 @@ CREATE TABLE IF NOT EXISTS `feed` (
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_objid_type` (`objid`, `objtype`),
-  INDEX `idx_updated_at` (`updated_at`)
+  KEY `idx_updated_at` (`updated_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='网站关键资源动态表';
 
 CREATE TABLE `view_record` (
@@ -627,7 +629,7 @@ CREATE TABLE `view_record` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_obj_uid` (`objid`,`objtype`,`uid`),
-  INDEX `idx_uid` (`uid`)
+  KEY `idx_uid` (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户浏览记录表';
 
 CREATE TABLE `view_source` (
@@ -679,8 +681,8 @@ CREATE TABLE `user_exchange_record` (
   `expire_time` int unsigned NOT NULL DEFAULT 0 COMMENT '过期时间',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  INDEX `idx_gid` (`gift_id`),
-  INDEX `idx_uid` (`uid`)
+  KEY `idx_gid` (`gift_id`),
+  KEY `idx_uid` (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '物品用户兑换记录';
 
 CREATE TABLE IF NOT EXISTS `gctt_user` (
@@ -697,7 +699,7 @@ CREATE TABLE IF NOT EXISTS `gctt_user` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY (`username`),
-  INDEX idx_uid (`uid`)
+  KEY idx_uid (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'GCTT 用户表';
 
 CREATE TABLE IF NOT EXISTS `gctt_git` (
@@ -713,7 +715,7 @@ CREATE TABLE IF NOT EXISTS `gctt_git` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY (`md5`),
-  INDEX (`username`)
+  KEY (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'GCTT github 文章翻译信息表';
 
 
@@ -736,7 +738,7 @@ CREATE TABLE IF NOT EXISTS `gctt_issue` (
   `state` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '0-opened；1-closed',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  INDEX (`label`)
+  KEY (`label`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'GCTT github 选题 issue 列表';
 
 
@@ -784,7 +786,7 @@ CREATE TABLE IF NOT EXISTS `subject_follower` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY (`sid`,`uid`),
-  INDEX (`uid`)
+  KEY (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '专栏关注者';
 
 CREATE TABLE IF NOT EXISTS `download` (

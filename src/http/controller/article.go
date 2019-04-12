@@ -66,10 +66,7 @@ func (ArticleController) ReadList(ctx echo.Context) error {
 
 	num := len(articles)
 	if num == 0 {
-		if curPage == int(total) {
-			return render(ctx, "articles/list.html", map[string]interface{}{"articles": articles, "activeArticles": "active"})
-		}
-		return ctx.Redirect(http.StatusSeeOther, "/articles")
+		return render(ctx, "articles/list.html", map[string]interface{}{"articles": articles, "activeArticles": "active"})
 	}
 
 	// 获取当前用户喜欢对象信息

@@ -1,7 +1,8 @@
 {{define "content"}}
 <div class="pageheader notab">
 	<h1 class="pagetitle">用户详情</h1>
-</div><!--pageheader-->
+</div>
+<!--pageheader-->
 
 <div id="contentwraapper" class="contentwrapper">
 	<div id="tooltip" class="red"></div>
@@ -137,14 +138,14 @@
 			<p>
 				<label for="dau">&nbsp;</label>
 				<span class="field">
-					发布主题：<input type="checkbox" name="topic" value="1" {{if canPublish .user.DauAuth 0}}checked{{end}}>&nbsp;&nbsp;
-					发布文章：<input type="checkbox" name="article" value="1" {{if canPublish .user.DauAuth 1}}checked{{end}}>&nbsp;&nbsp;
-					分享资源：<input type="checkbox" name="resource" value="1" {{if canPublish .user.DauAuth 2}}checked{{end}}>&nbsp;&nbsp;
-					发布Wiki：<input type="checkbox" name="wiki" value="1" {{if canPublish .user.DauAuth 3}}checked{{end}}>&nbsp;&nbsp;
-					发布项目：<input type="checkbox" name="project" value="1" {{if canPublish .user.DauAuth 4}}checked{{end}}>&nbsp;&nbsp;
-					发布图书：<input type="checkbox" name="book" value="1" {{if canPublish .user.DauAuth 5}}checked{{end}}>&nbsp;&nbsp;
-					发布评论：<input type="checkbox" name="comment" value="1" {{if canPublish .user.DauAuth 100}}checked{{end}}>&nbsp;&nbsp;
-					置顶：<input type="checkbox" name="top" value="1" {{if canPublish .user.DauAuth 101}}checked{{end}}>
+					发布主题：<input type="checkbox" name="topic" value="1" {{if canPublish .user.DauAuth 0}} checked{{end}}>&nbsp;&nbsp;
+					发布文章：<input type="checkbox" name="article" value="1" {{if canPublish .user.DauAuth 1}} checked{{end}}>&nbsp;&nbsp;
+					分享资源：<input type="checkbox" name="resource" value="1" {{if canPublish .user.DauAuth 2}} checked{{end}}>&nbsp;&nbsp;
+					发布Wiki：<input type="checkbox" name="wiki" value="1" {{if canPublish .user.DauAuth 3}} checked{{end}}>&nbsp;&nbsp;
+					发布项目：<input type="checkbox" name="project" value="1" {{if canPublish .user.DauAuth 4}} checked{{end}}>&nbsp;&nbsp;
+					发布图书：<input type="checkbox" name="book" value="1" {{if canPublish .user.DauAuth 5}} checked{{end}}>&nbsp;&nbsp;
+					发布评论：<input type="checkbox" name="comment" value="1" {{if canPublish .user.DauAuth 100}} checked{{end}}>&nbsp;&nbsp;
+					置顶：<input type="checkbox" name="top" value="1" {{if canPublish .user.DauAuth 101}} checked{{end}}>
 				</span>
 			</p>
 		</div>
@@ -159,6 +160,21 @@
 					<input id="copper" type="text" name="copper" class="smallinput" placeholder="输入获得铜币" />
 					<input id="channel" type="text" name="channel" class="smallinput" placeholder="输入充值渠道" />
 					<input id="time" type="text" name="time" class="smallinput" placeholder="输入充值时间" />
+				</span>
+			</p>
+			<p>
+				<label for="is_vip">是否付费用户</label>
+				<span class="field">
+					<select id="is_vip" name="is_vip" class="uniformselect">
+						<option value="0" {{if not .user.IsVip}} selected{{end}}>否</option>
+						<option value="1" {{if .user.IsVip}} selected{{end}}>是</option>
+					</select>
+				</span>
+			</p>
+			<p>
+				<label for="vip_expire">付费有效期到</label>
+				<span class="field">
+					<input id="vip_expire" type="text" name="vip_expire" class="smallinput" value="{{.user.VipExpire}}">
 				</span>
 			</p>
 		</div>
@@ -189,12 +205,14 @@
 		</div>
 		<div style="margin: 0 auto; width: 500px;"><input class="submit_btn" type="submit" name="save" value="提交" /></a></div>
 	</form>
-	<img id="loaders" src="/static/img/loaders/loader7.gif" alt="" class="hide"><blockquote></blockquote>
-</div><!--contentwrapper-->
+	<img id="loaders" src="/static/img/loaders/loader7.gif" alt="" class="hide">
+	<blockquote></blockquote>
+</div>
+<!--contentwrapper-->
 {{end}}
 
 {{define "js"}}
 <script src="https://cdn.bootcss.com/jquery-validate/1.17.0/jquery.validate.min.js"></script>
 <script src="https://cdn.bootcss.com/jquery-validate/1.17.0/localization/messages_zh.min.js"></script>
-<script	type="text/javascript" src="/static/js/admin/forms.js"></script>
+<script type="text/javascript" src="/static/js/admin/forms.js"></script>
 {{end}}

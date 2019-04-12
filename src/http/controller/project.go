@@ -54,11 +54,7 @@ func (ProjectController) ReadList(ctx echo.Context) error {
 
 	num := len(projects)
 	if num == 0 {
-		if curPage == int(total) {
-			return render(ctx, "projects/list.html", map[string]interface{}{"projects": projects, "activeProjects": "active"})
-		} else {
-			return ctx.Redirect(http.StatusSeeOther, "/projects")
-		}
+		return render(ctx, "projects/list.html", map[string]interface{}{"projects": projects, "activeProjects": "active"})
 	}
 
 	// 获取当前用户喜欢对象信息

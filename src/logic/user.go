@@ -16,6 +16,8 @@ import (
 	"time"
 	"util"
 
+	"github.com/polaris1119/times"
+
 	"github.com/polaris1119/slices"
 
 	"github.com/go-validator/validator"
@@ -300,6 +302,11 @@ func (self UserLogic) FindCurrentUser(ctx context.Context, username interface{})
 		return &model.Me{}
 	}
 
+	isVip := user.IsVip
+	if user.VipExpire < goutils.MustInt(times.Format("Ymd")) {
+		isVip = false
+	}
+
 	me := &model.Me{
 		Uid:       user.Uid,
 		Username:  user.Username,
@@ -311,6 +318,7 @@ func (self UserLogic) FindCurrentUser(ctx context.Context, username interface{})
 		IsRoot:    user.IsRoot,
 		MsgNum:    DefaultMessage.FindNotReadMsgNum(ctx, user.Uid),
 		DauAuth:   user.DauAuth,
+		IsVip:     isVip,
 		CreatedAt: time.Time(user.Ctime),
 
 		Balance: user.Balance,
@@ -633,7 +641,7 @@ func (UserLogic) FindUserByPage(ctx context.Context, conds map[string]string, cu
 	return userList, int(total)
 }
 
-func (self UserLogic) SetDauAuth(ctx context.Context, uid string, form url.Values) {
+func (self UserLogic) AdminUpdateUser(ctx context.Context, uid string, form url.Values) {
 	user := self.FindOne(ctx, "uid", uid)
 	user.DauAuth = 0
 
@@ -658,7 +666,10 @@ func (self UserLogic) SetDauAuth(ctx context.Context, uid string, form url.Value
 		}
 	}
 
-	MasterDB.Id(user.Uid).Update(user)
+	user.IsVip = goutils.MustBool(form.Get("is_vip"), false)
+	user.VipExpire = goutils.MustInt(form.Get("vip_expire"))
+
+	MasterDB.Id(user.Uid).UseBool("is_vip").Update(user)
 }
 
 // GetUserMentions 获取 @ 的 suggest 列表
