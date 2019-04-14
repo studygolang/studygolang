@@ -25,10 +25,10 @@
     "gulp-jshint": "^2.1.0",
     "gulp-minify-css": "^1.2.4",
     "gulp-notify": "^3.2.0",
-    "gulp-rename": "^1.2.2",
+    "gulp-rename": "^1.4.0",
     "gulp-rev-ayou": "^1.0.1",
     "gulp-rev-collector-ayou": "^1.0.0",
-    "gulp-uglify": "^3.0.0",
-    "jshint": "^2.9.5"
+    "gulp-uglify": "^3.0.2",
+    "jshint": "^2.10.2"
   }
 }
