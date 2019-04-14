@@ -14,7 +14,7 @@
 				<h2>重置密码邮件已发出</h2>
 				{{.success}}
 			{{else}}
-			<form class="form-horizontal validate-form" role="form" action="/account/forgetpwd" method="POST">
+			<form class="form-horizontal" role="form" action="/account/forgetpwd" method="POST">
 				<fieldset>
 					<legend>忘记密码</legend>
 					{{if .error}}
@@ -53,10 +53,4 @@
 		</div>
 	</div>
 </div>
-{{end}}
-{{define "css"}}
-{{end}}
-{{define "js"}}
-{{include "cssjs/publish.js.html" .}}
-<script type="text/javascript" src="{{.static_domain}}/static/dist/js/user.min.js"></script>
 {{end}}

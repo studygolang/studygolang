@@ -2,7 +2,14 @@
 	{{if .me.Uid}}
 	<div class="box">
 		<div class="avatar-area pull-left">
-			<span class="avatar"><a href="/account/edit#change-avatar"><img alt="个人首页" width="80px" height="80px" src="{{gravatar .me.Avatar .me.Email 80 .is_https}}" class="img-circle tool-tip" data-toggle="tooltip" data-placement="left" title="更换头像"></a></span>
+			<span class="avatar">
+                <a href="/account/edit#change-avatar">
+                    <img alt="个人首页" width="80px" height="80px" src="{{gravatar .me.Avatar .me.Email 80 .is_https}}" class="img-circle tool-tip" data-toggle="tooltip" data-placement="left" title="更换头像">
+                    {{if .me.IsVip}}
+						<span class="pro-sign"> &#9733 VIP</span>
+					{{end}}
+                </a>
+			</span>
 		</div>
 		<div class="profile-show pull-left">
 			{{if .me.Monlog}}
@@ -11,11 +18,7 @@
 			<div class="sep5"></div>
 			{{else}}
 			<p></p>
- 		<p class="user-name"><a href="/user/{{.me.Username}}">{{.me.Username}}</a>
-                {{if .me.IsVip}}
-                <span class="pro-sign"> &#9733 PRO</span>
-                {{end}}
-			</p>
+			<p class="user-name"><a href="/user/{{.me.Username}}">{{.me.Username}}</a></p>
 			{{end}}
 			<p><a href="/account/edit">个人资料设置</a></p>
 		</div>
@@ -33,9 +36,9 @@
 		{{if canPublish .me.DauAuth 2}}
 		<a class="btn btn-default btn-sm" href="/resources/new">分享资源</a>&nbsp;
 		{{end}}
-		
+
 		{{if and (canPublish .me.DauAuth 0) (canPublish .me.DauAuth 1) (canPublish .me.DauAuth 2)}}
-		
+
 		{{else}}
 			{{if canPublish .me.DauAuth 4}}
 			<a class="btn btn-default btn-sm" href="/project/new">发布项目</a>&nbsp;

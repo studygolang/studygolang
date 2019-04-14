@@ -155,6 +155,10 @@ func (self SearcherLogic) IndexingTopic(isAll bool) {
 				}
 			}
 
+			if topic.Permission == model.PermissionPay {
+				topic.Content = "付费用户可见！"
+			}
+
 			topicEx := topicExList[topic.Tid]
 
 			document := model.NewDocument(topic, topicEx)

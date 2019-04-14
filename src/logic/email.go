@@ -30,9 +30,19 @@ type EmailLogic struct{}
 
 var DefaultEmail = EmailLogic{}
 
-// SendMail 发送电子邮件
-func (EmailLogic) SendMail(subject, content string, tos []string, isRegs ...bool) (err error) {
-	emailConfig, _ := config.ConfigFile.GetSection("email")
+// SendMail 发送普通（通知）电子邮件
+func (e EmailLogic) SendMail(subject, content string, tos []string) (err error) {
+	return e.sendMail(subject, content, tos, "email")
+}
+
+// SendAuthMail 发送验证电子邮件
+func (e EmailLogic) SendAuthMail(subject, content string, tos []string) error {
+	return e.sendMail(subject, content, tos, "email.auth")
+}
+
+// sendMail 发送电子邮件
+func (EmailLogic) sendMail(subject, content string, tos []string, section string) (err error) {
+	emailConfig, _ := config.ConfigFile.GetSection(section)
 
 	fromEmail := emailConfig["from_email"]
 	smtpUsername := emailConfig["smtp_username"]
@@ -40,27 +50,11 @@ func (EmailLogic) SendMail(subject, content string, tos []string, isRegs ...bool
 	smtpHost := emailConfig["smtp_host"]
 	smtpPort := emailConfig["smtp_port"]
 
-	// 注册才区别使用 163，尽可能确保能收到
-	if len(isRegs) > 0 && isRegs[0] {
-		for _, to := range tos {
-			if strings.HasSuffix(to, "163.com") || strings.HasSuffix(to, "126.com") {
-				email163Config, _ := config.ConfigFile.GetSection("email.163")
-				fromEmail = email163Config["from_email"]
-				smtpUsername = email163Config["smtp_username"]
-				smtpPassword = email163Config["smtp_password"]
-				smtpHost = email163Config["smtp_host"]
-				smtpPort = email163Config["smtp_port"]
-
-				break
-			}
-		}
-	}
-
-	e := email.NewEmail()
-	e.From = WebsiteSetting.Name + ` <` + fromEmail + `>`
-	e.To = tos
-	e.Subject = subject
-	e.HTML = []byte(content)
+	mail := email.NewEmail()
+	mail.From = WebsiteSetting.Name + ` <` + fromEmail + `>`
+	mail.To = tos
+	mail.Subject = subject
+	mail.HTML = []byte(content)
 
 	auth := smtp.PlainAuth("", smtpUsername, smtpPassword, smtpHost)
 	smtpAddr := smtpHost + ":" + smtpPort
@@ -71,9 +65,9 @@ func (EmailLogic) SendMail(subject, content string, tos []string, isRegs ...bool
 			ServerName:         smtpHost,
 		}
 
-		err = e.SendWithTLS(smtpAddr, auth, tlsConfig)
+		err = mail.SendWithTLS(smtpAddr, auth, tlsConfig)
 	} else {
-		err = e.Send(smtpAddr, auth)
+		err = mail.Send(smtpAddr, auth)
 	}
 
 	if err != nil {
@@ -107,7 +101,7 @@ func (self EmailLogic) SendActivateMail(email, uuid string, isHttps ...bool) {
 感谢您选择了` + WebsiteSetting.Name + `，请点击下面的地址激活你在` + WebsiteSetting.Name + `的帐号（有效期4小时）：<br/><br/>
 <a href="` + activeUrl + `">` + activeUrl + `</a><br/><br/>
 <div style="text-align:right;">&copy;` + global.App.Copyright + ` ` + WebsiteSetting.Name + `</div>`
-	self.SendMail(WebsiteSetting.Name+"帐号激活邮件", content, []string{email}, true)
+	self.SendAuthMail(WebsiteSetting.Name+"帐号激活邮件", content, []string{email})
 }
 
 func (EmailLogic) genActivateSign(email, uuid string, ts int64) string {
@@ -134,7 +128,7 @@ func (self EmailLogic) SendResetpwdMail(email, uuid string, isHttps ...bool) {
 如果您有任何疑问，可以回复这封邮件向我们提问。谢谢！<br/><br/>
 
 <div style="text-align:right;">&copy;` + global.App.Copyright + ` ` + WebsiteSetting.Name + `</div>`
-	self.SendMail("【"+WebsiteSetting.Name+"】重设密码 ", content, []string{email}, true)
+	self.SendAuthMail("【"+WebsiteSetting.Name+"】重设密码 ", content, []string{email})
 }
 
 // 自定义模板函数

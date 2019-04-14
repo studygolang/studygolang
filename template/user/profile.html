@@ -14,7 +14,7 @@
 				<div class="pull-right">
 					<a href="/user/{{.user.Username}}" title="{{.user.Username}}"><img alt="{{.user.Username}}" src="{{gravatar .user.Avatar .user.Email 80 .is_https}}" width="80px" height="80px" class="img-rounded{{if not .user.IsOnline}} gray{{end}}">
 						{{if .user.IsVip}}
-						<span class="user-prosign"> &#9733 PRO</span>
+						<span class="user-prosign"> &#9733 VIP</span>
 						{{end}}
 						</a>
 					{{if .me.Username}}

@@ -7,6 +7,8 @@ if [ ! -f install.sh ]; then
 	exit 1
 fi
 
+export GO111MODULE=off
+
 CURDIR=`pwd`
 OLDGOPATH="$GOPATH"
 OLDGOBIN="$GOBIN"

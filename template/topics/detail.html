@@ -17,6 +17,9 @@
                     <div class="pull-right">
                         <a href="/user/{{.topic.user.Username}}" title="{{.topic.user.Username}}">
                             <img src="{{gravatar .topic.user.Avatar .topic.user.Email 62 .is_https}}" alt="{{if .topic.user.Name}}{{.topic.user.Name}}{{else}}{{.topic.user.Username}}{{end}}" width="62px" height="62px">
+                            {{if .topic.user.IsVip}}
+                                <span class="article-prosign"> &#9733 VIP</span>
+                            {{end}}
                         </a>
                     </div>
                     <h1>
