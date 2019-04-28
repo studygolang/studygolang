@@ -50,10 +50,10 @@ func IndexingServer() {
 	c.AddFunc("@every 1m", func() {
 		indexing(false)
 	})
-	// 一天一次全量
-	c.AddFunc("@daily", func() {
+	// 一周一次全量（周六晚上2点开始）
+	c.AddFunc("0 0 2 * * 6", func() {
 		indexing(true)
-	})
+	}
 
 	c.Start()
 }
