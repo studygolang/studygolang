@@ -53,7 +53,7 @@ func IndexingServer() {
 	// 一周一次全量（周六晚上2点开始）
 	c.AddFunc("0 0 2 * * 6", func() {
 		indexing(true)
-	}
+	})
 
 	c.Start()
 }
