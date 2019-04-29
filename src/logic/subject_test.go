@@ -38,7 +38,7 @@ func TestFindArticles(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			self := logic.SubjectLogic{}
-			if got := self.FindArticles(tt.args.ctx, tt.args.sid, ""); !reflect.DeepEqual(got, tt.want) {
+			if got := self.FindArticles(tt.args.ctx, tt.args.sid, nil, ""); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("SubjectLogic.FindArticles() = %v, want %v", got, tt.want)
 			}
 		})
