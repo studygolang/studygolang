@@ -187,6 +187,10 @@ func (this *UploaderLogic) TransferUrl(ctx context.Context, origUrl string, pref
 		return origUrl, errors.New("origin image is empty or is " + WebsiteSetting.Domain)
 	}
 
+	if !strings.HasPrefix(origUrl, "http") {
+		origUrl = "https:"+origUrl
+	}
+
 	resp, err := http.Get(origUrl)
 	if err != nil {
 		return origUrl, errors.New("获取图片失败")
