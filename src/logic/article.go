@@ -56,7 +56,7 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 
 	tmpArticle := &model.Article{}
 	_, err := MasterDB.Where("url=?", articleUrl).Get(tmpArticle)
-	if err != nil || tmpArticle.Id != 0 {
+	if err != nil || (tmpArticle.Id != 0 && auto) {
 		logger.Infoln(articleUrl, "has exists:", err)
 		return nil, errors.New("has exists!")
 	}
@@ -79,7 +79,7 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 	}
 
 	if rule.Id == 0 {
-		return self.ParseArticleByAccuracy(articleUrl)
+		return self.ParseArticleByAccuracy(articleUrl, tmpArticle, auto)
 	}
 
 	// 知乎特殊处理
@@ -220,6 +220,15 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	if !auto && tmpArticle.Id > 0 {
+		_, err = MasterDB.Id(tmpArticle.Id).Update(article)
+		if err != nil {
+			logger.Errorln("upadate article error:", err)
+			return nil, err
+		}
+		return article, nil
 	}
 
 	_, err = MasterDB.Insert(article)

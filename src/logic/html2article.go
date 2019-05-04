@@ -18,7 +18,7 @@ import (
 	"github.com/sundy-li/html2article"
 )
 
-func (self ArticleLogic) ParseArticleByAccuracy(articleUrl string) (*model.Article, error) {
+func (self ArticleLogic) ParseArticleByAccuracy(articleUrl string, tmpArticle *model.Article, auto bool) (*model.Article, error) {
 	htmlArticle, err := html2article.FromUrl(articleUrl)
 	if err != nil {
 		logger.Errorln("html2article from url:", articleUrl, "error:", err)
@@ -59,6 +59,15 @@ func (self ArticleLogic) ParseArticleByAccuracy(articleUrl string) (*model.Artic
 		Txt:       htmlArticle.Content,
 		PubDate:   pubDate,
 		Url:       articleUrl,
+	}
+
+	if !auto && tmpArticle.Id > 0 {
+		_, err = MasterDB.Id(tmpArticle.Id).Update(article)
+		if err != nil {
+			logger.Errorln("upadate article error:", err)
+			return nil, err
+		}
+		return article, nil
 	}
 
 	_, err = MasterDB.Insert(article)
