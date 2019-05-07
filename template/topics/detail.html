@@ -49,16 +49,16 @@
                             <div style="font-size: 1.2em;">作者设置必须登录才能查看，<a href="/account/login?redirect_uri=/topics/{{.topic.tid}}">请登录</a>；如没有账号，<a href="/account/register">请注册</a></div>
                         {{end}}
                     {{else if eq .topic.permission 3}}
-                        {{if or .me.IsVip .me.IsRoot (eq .topic.uid .me.Uid)}}
-                            <div class="content">{{.topic.content}}</div>
-                        {{else}}
-                            <div style="font-size: 1.2em;">
-                                <p>作者设置付费用户才能查看，加入Go中文网创建的<a href="https://t.zsxq.com/BM72RZR" title="知识星球" target="_blank">知识星球</a>自动成为付费用户（加入后星球私信告知网站用户名）。</p>
-                                <img src="{{.static_domain}}/static/img/zsxq.jpg" alt="知识星球" class="img-responsive">
-                                <p>或者给我们转账成为付费用户，有效期一年，限时优惠：68元/年</p>
-                                <img src="{{.static_domain}}/static/img/wxpay68.jpg" alt="转账付费" class="img-responsive">
-                            </div>
-                        {{end}}
+                    {{if or .me.IsVip .me.IsRoot (eq .topic.uid .me.Uid)}}
+                    <div class="content">{{.topic.content}}</div>
+                    {{else}}
+                    <div style="font-size: 1.2em;">
+                        <p>作者设置付费用户才能查看，加入Go中文网创建的<a href="https://t.zsxq.com/BM72RZR" title="知识星球" target="_blank">知识星球</a>自动成为付费用户（加入后星球私信告知网站用户名）。</p>
+                        <img src="{{.static_domain}}/static/img/zsxq.jpg" alt="知识星球" class="img-responsive">
+                        <p>或者给我们转账成为付费用户，有效期一年，限时优惠：99元/年</p>
+                        <img src="{{.static_domain}}/static/img/wxpay99.jpg" alt="转账付费" class="img-responsive">
+                    </div>
+                    {{end}}
                     {{else}}
                         <div class="content">{{.topic.content}}</div>
                     {{end}}
