@@ -188,7 +188,7 @@ func (this *UploaderLogic) TransferUrl(ctx context.Context, origUrl string, pref
 	}
 
 	if !strings.HasPrefix(origUrl, "http") {
-		origUrl = "https:"+origUrl
+		origUrl = "https:" + origUrl
 	}
 
 	resp, err := http.Get(origUrl)

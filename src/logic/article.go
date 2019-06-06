@@ -114,6 +114,22 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 
 			author = strings.TrimSpace(author)
 			authorTxt = strings.TrimSpace(authorSelection.Text())
+		} else if strings.HasPrefix(rule.Author, "/") {
+			// 正则表达式
+			re, err := regexp.Compile(rule.Author[1:])
+			if err != nil {
+				logger.Errorln("author regexp error:", err)
+				return nil, err
+			}
+			body, _ := doc.Find("body").Html()
+			authorResult := re.FindStringSubmatch(body)
+			if len(authorResult) < 2 {
+				logger.Errorln("no author found:", rule.Domain)
+				return nil, errors.New("no author found!")
+			}
+
+			author = authorResult[1]
+			authorTxt = author
 		} else {
 			// 某些个人博客，页面中没有作者的信息，因此，规则中 author 即为 作者
 			author = rule.Author
