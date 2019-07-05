@@ -431,7 +431,7 @@ func (ProjectLogic) ParseOneProject(projectUrl string) error {
 	project.Category = strings.TrimSpace(category)
 	project.Uri = uri
 	project.Src = project.Download
-	
+
 	if strings.HasPrefix(project.Src, "https://github.com/") {
 		project.Repo = project.Src[len("https://github.com/"):]
 	} else {
