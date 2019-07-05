@@ -314,12 +314,11 @@ func (self ProjectLogic) ParseProjectList(pUrl string) error {
 	}
 
 	// 最后面的先入库处理
-	projectsSelection := doc.Find(".news-list").Children()
+	projectsSelection := doc.Find("#projectList .list-container").Children()
 
 	for i := projectsSelection.Length() - 1; i >= 0; i-- {
-
 		contentSelection := goquery.NewDocumentFromNode(projectsSelection.Get(i)).Selection
-		projectUrl, ok := contentSelection.Find(".box-aw a").First().Attr("href")
+		projectUrl, ok := contentSelection.Find(".content .header a").First().Attr("href")
 
 		if !ok || projectUrl == "" {
 			logger.Errorln("project url is empty")

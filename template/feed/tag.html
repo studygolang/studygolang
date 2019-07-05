@@ -20,10 +20,10 @@
 						<td width="48" valign="top" align="center">
 						{{if .Uid}}
 						{{$user := index $.users .Uid}}
-						<a href="/user/{{$user.Username}}"><img src="{{gravatar $user.Avatar $user.Email 48 $.is_https}}" class="avatar"></a>
+						<a href="/user/{{$user.Username}}"><img src="{{gravatar $user.Avatar $user.Email 48 $.is_https}}" class="avatar" style="width:48px;"></a>
 						{{else}}
 						<a href="javascript:">
-							<img class="noavatar" alt="" src="https://secure.gravatar.com/avatar/3bf6178897766ebadaa830073e87374d?s=48" data-objid="{{.Objid}}" data-objtype="{{.Objtype}}" data-author="{{.Author}}">
+							<img class="noavatar" alt="" src="https://secure.gravatar.com/avatar/3bf6178897766ebadaa830073e87374d?s=48" data-objid="{{.Objid}}" data-objtype="{{.Objtype}}" data-author="{{.Author}}" style="width:48px;">
 						</a>
 						{{end}}
 						</td>
