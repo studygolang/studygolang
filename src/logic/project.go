@@ -336,7 +336,7 @@ func (self ProjectLogic) ParseProjectList(pUrl string) error {
 	return err
 }
 
-const OsChinaDomain = "http://www.oschina.net"
+const OsChinaDomain = "https://www.oschina.net"
 
 // ProjectLogoPrefix 开源项目 logo 前缀
 const ProjectLogoPrefix = "plogo"
@@ -360,8 +360,8 @@ func (ProjectLogic) ParseOneProject(projectUrl string) error {
 	}
 
 	// 标题
-	category := strings.TrimSpace(doc.Find("#v-header header .box-aw h1").Text())
-	name := strings.TrimSpace(doc.Find("#v-header header .box-aw h1 span").Text())
+	category := strings.TrimSpace(doc.Find(".detail-header h1 .project-title").Text())
+	name := strings.TrimSpace(doc.Find(".detail-header h1 .project-name").Text())
 	if category == "" && name == "" {
 		return errors.New("projectUrl:" + projectUrl + " category and name are empty")
 	}
@@ -383,8 +383,8 @@ func (ProjectLogic) ParseOneProject(projectUrl string) error {
 		return nil
 	}
 
-	logoSelection := doc.Find("#v-header header .logo img")
-	if logoSelection.AttrOr("title", "") != "" {
+	logoSelection := doc.Find(".detail-header .logo-wrap img")
+	if logoSelection.AttrOr("alt", "") != "" {
 		project.Logo = logoSelection.AttrOr("src", "")
 
 		if !strings.HasPrefix(project.Logo, "http") {
@@ -400,19 +400,19 @@ func (ProjectLogic) ParseOneProject(projectUrl string) error {
 	}
 
 	// 获取项目相关链接
-	doc.Find("#v-details .urls a").Each(func(i int, aSelection *goquery.Selection) {
-		uri := util.FetchRealUrl(OsChinaDomain + aSelection.AttrOr("href", ""))
-		switch aSelection.Find("span").Text() {
+	doc.Find(".related-links a").Each(func(i int, aSelection *goquery.Selection) {
+		uri := aSelection.AttrOr("href", "")
+		switch aSelection.Text() {
 		case "软件首页":
 			project.Home = uri
 		case "软件文档":
 			project.Doc = uri
-		case "软件下载":
+		case "官方下载":
 			project.Download = uri
 		}
 	})
 
-	doc.Find("#v-basic .list .box").Each(func(i int, liSelection *goquery.Selection) {
+	doc.Find(".info-list .box .info-item").Each(func(i int, liSelection *goquery.Selection) {
 		aSelection := liSelection.Find("span")
 		txt := strings.TrimSpace(aSelection.Text())
 		if i == 0 {
@@ -431,8 +431,13 @@ func (ProjectLogic) ParseOneProject(projectUrl string) error {
 	project.Name = name
 	project.Category = strings.TrimSpace(category)
 	project.Uri = uri
-	project.Repo = strings.TrimSpace(doc.Find("#v-details .github-widget").AttrOr("data-repo", ""))
-	project.Src = "https://github.com/" + project.Repo
+	project.Src = project.Download
+	
+	if strings.HasPrefix(project.Src, "https://github.com/") {
+		project.Repo = project.Src[len("https://github.com/"):]
+	} else {
+		project.Repo = project.Src[len("https://gitee.com/"):]
+	}
 
 	pos := strings.Index(project.Repo, "/")
 	if pos > -1 {
@@ -447,7 +452,10 @@ func (ProjectLogic) ParseOneProject(projectUrl string) error {
 	}
 
 	desc := ""
-	doc.Find("#v-details .detail").Find("p").Each(func(i int, domSelection *goquery.Selection) {
+	doc.Find(".project-body").Children().Each(func(i int, domSelection *goquery.Selection) {
+		if domSelection.HasClass("ad-wrap") {
+			return
+		}
 		doc.FindSelection(domSelection).WrapHtml(`<div id="tmp` + strconv.Itoa(i) + `"></div>`)
 		domHtml, _ := doc.Find("#tmp" + strconv.Itoa(i)).Html()
 		if domSelection.Is("pre") {
