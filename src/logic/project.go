@@ -434,8 +434,10 @@ func (ProjectLogic) ParseOneProject(projectUrl string) error {
 
 	if strings.HasPrefix(project.Src, "https://github.com/") {
 		project.Repo = project.Src[len("https://github.com/"):]
-	} else {
+	} else if strings.HasPrefix(project.Src, "https://gitee.com/") {
 		project.Repo = project.Src[len("https://gitee.com/"):]
+	} else {
+		return nil
 	}
 
 	pos := strings.Index(project.Repo, "/")
