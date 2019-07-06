@@ -22,11 +22,7 @@ func AdminAuth() echo.MiddlewareFunc {
 				return ctx.HTML(http.StatusForbidden, `403 Forbidden`)
 			}
 
-			if err := next(ctx); err != nil {
-				return err
-			}
-
-			return nil
+			return next(ctx)
 		}
 	}
 }

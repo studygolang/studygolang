@@ -62,6 +62,7 @@ func main() {
 	serveStatic(e)
 
 	e.Use(thirdmw.EchoLogger())
+	e.Use(pwm.CsrfRefererFilter())
 	e.Use(mw.Recover())
 	e.Use(pwm.Installed(filterPrefixs))
 	e.Use(pwm.HTTPError())
