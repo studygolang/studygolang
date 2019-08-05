@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `website_setting` (
   `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '创建时间',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='网站设置信息';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='网站设置信息';
 
 CREATE TABLE IF NOT EXISTS `topics` (
   `tid` int unsigned NOT NULL AUTO_INCREMENT,
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `topics` (
   PRIMARY KEY (`tid`),
   KEY `uid` (`uid`),
   KEY `nid` (`nid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '主题内容表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '主题内容表';
 
 CREATE TABLE IF NOT EXISTS `topics_ex` (
   `tid` int unsigned NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS `topics_ex` (
   `like` int unsigned NOT NULL DEFAULT 0 COMMENT '喜欢数',
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`tid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '主题扩展表（计数）';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '主题扩展表（计数）';
 
 CREATE TABLE IF NOT EXISTS `topic_append` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `topic_append` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `tid` (`tid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '主题附言表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '主题附言表';
 
 CREATE TABLE IF NOT EXISTS `topics_node` (
   `nid` int unsigned NOT NULL AUTO_INCREMENT,
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS `topics_node` (
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`nid`),
   KEY `idx_ename` (`ename`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '帖子节点表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '帖子节点表';
 
 CREATE TABLE IF NOT EXISTS `recommend_node` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS `recommend_node` (
   `seq` smallint(6) NOT NULL DEFAULT '0' COMMENT '节点排序，小的在前',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '导航推荐节点';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '导航推荐节点';
 
 CREATE TABLE IF NOT EXISTS `comments` (
   `cid` int unsigned NOT NULL AUTO_INCREMENT,
@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS `comments` (
   PRIMARY KEY (`cid`),
   UNIQUE KEY (`objid`,`objtype`,`floor`),
   KEY (`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '评论表（帖子回复、博客文章评论等，统一处理）';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '评论表（帖子回复、博客文章评论等，统一处理）';
 
 CREATE TABLE IF NOT EXISTS `likes` (
   `uid` int unsigned NOT NULL DEFAULT 0 COMMENT '喜欢人的uid',
@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS `likes` (
   `flag` tinyint unsigned NOT NULL DEFAULT 1 COMMENT '1-喜欢；2-不喜欢（暂时不支持）',
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`uid`,`objtype`,`objid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '喜欢表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '喜欢表';
 
 CREATE TABLE IF NOT EXISTS `user_login` (
   `uid` int unsigned NOT NULL,
@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS `user_login` (
   UNIQUE KEY (`username`),
   UNIQUE KEY (`email`),
   KEY `logintime` (`login_time`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户登录表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '用户登录表';
 
 CREATE TABLE IF NOT EXISTS `bind_user` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -139,7 +139,7 @@ CREATE TABLE IF NOT EXISTS `bind_user` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_user_type` (`username`,`type`),
   KEY idx_uid (`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '第三方绑定表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '第三方绑定表';
 
 CREATE TABLE IF NOT EXISTS `user_info` (
   `uid` int unsigned NOT NULL AUTO_INCREMENT,
@@ -168,7 +168,7 @@ CREATE TABLE IF NOT EXISTS `user_info` (
   PRIMARY KEY (`uid`),
   UNIQUE KEY (`username`),
   UNIQUE KEY (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户信息表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '用户信息表';
 
 CREATE TABLE IF NOT EXISTS `user_active` (
   `uid` int unsigned NOT NULL,
@@ -180,7 +180,7 @@ CREATE TABLE IF NOT EXISTS `user_active` (
   PRIMARY KEY (`uid`),
   UNIQUE KEY (`username`),
   UNIQUE KEY (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '活跃用户表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '活跃用户表';
 
 CREATE TABLE IF NOT EXISTS `role` (
   `roleid` int unsigned NOT NULL AUTO_INCREMENT,
@@ -190,7 +190,7 @@ CREATE TABLE IF NOT EXISTS `role` (
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`roleid`),
   UNIQUE KEY (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '角色表，常驻内存';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '角色表，常驻内存';
 
 CREATE TABLE IF NOT EXISTS `authority` (
   `aid` int unsigned NOT NULL AUTO_INCREMENT,
@@ -203,7 +203,7 @@ CREATE TABLE IF NOT EXISTS `authority` (
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`aid`),
   KEY (`route`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '权限表，常驻内存';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '权限表，常驻内存';
 
 CREATE TABLE IF NOT EXISTS `role_authority` (
   `roleid` int unsigned NOT NULL,
@@ -211,14 +211,14 @@ CREATE TABLE IF NOT EXISTS `role_authority` (
   `op_user` varchar(20) NOT NULL DEFAULT '' COMMENT '操作人',
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`roleid`, `aid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '角色拥有的权限表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '角色拥有的权限表';
 
 CREATE TABLE IF NOT EXISTS `user_role` (
   `uid` int unsigned NOT NULL,
   `roleid` int unsigned NOT NULL,
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`uid`, `roleid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户角色表（用户是什么角色，可以多个角色）';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '用户角色表（用户是什么角色，可以多个角色）';
 
 
 CREATE TABLE IF NOT EXISTS `message` (
@@ -233,7 +233,7 @@ CREATE TABLE IF NOT EXISTS `message` (
   PRIMARY KEY (`id`),
   KEY (`to`),
   KEY (`from`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'message 短消息（私信）';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT 'message 短消息（私信）';
 
 CREATE TABLE IF NOT EXISTS `system_message` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -244,7 +244,7 @@ CREATE TABLE IF NOT EXISTS `system_message` (
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY (`to`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'system_message 系统消息表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT 'system_message 系统消息表';
 
 CREATE TABLE IF NOT EXISTS `wiki` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -259,7 +259,7 @@ CREATE TABLE IF NOT EXISTS `wiki` (
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uri` (`uri`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'wiki页';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT 'wiki页';
 
 CREATE TABLE IF NOT EXISTS `resource` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -276,7 +276,7 @@ CREATE TABLE IF NOT EXISTS `resource` (
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY (`url`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '资源';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '资源';
 
 CREATE TABLE IF NOT EXISTS `resource_ex` (
   `id` int unsigned NOT NULL,
@@ -285,7 +285,7 @@ CREATE TABLE IF NOT EXISTS `resource_ex` (
   `likenum` int unsigned NOT NULL DEFAULT 0 COMMENT '喜欢数',
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '资源扩展表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '资源扩展表';
 
 CREATE TABLE IF NOT EXISTS `resource_category` (
   `catid` int unsigned NOT NULL AUTO_INCREMENT,
@@ -293,7 +293,7 @@ CREATE TABLE IF NOT EXISTS `resource_category` (
   `intro` varchar(50) NOT NULL DEFAULT '' COMMENT '分类简介',
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`catid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '资源分类表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '资源分类表';
 
 CREATE TABLE IF NOT EXISTS `articles` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -328,7 +328,7 @@ CREATE TABLE IF NOT EXISTS `articles` (
   KEY (`author_txt`),
   KEY (`domain`),
   KEY (`mtime`)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '网络文章聚合表';
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '网络文章聚合表';
 
 CREATE TABLE IF NOT EXISTS `article_gctt` (
   `article_id` int unsigned NOT NULL COMMENT '文章ID',
@@ -339,7 +339,7 @@ CREATE TABLE IF NOT EXISTS `article_gctt` (
   `url` varchar(255) NOT NULL DEFAULT '' COMMENT '原文链接',
   PRIMARY KEY (`article_id`),
   UNIQUE KEY (`url`)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'gctt 翻译文章信息表';
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT 'gctt 翻译文章信息表';
 
 CREATE TABLE IF NOT EXISTS `crawl_rule` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -358,7 +358,7 @@ CREATE TABLE IF NOT EXISTS `crawl_rule` (
   PRIMARY KEY (`id`),
   UNIQUE KEY (`domain`,`subpath`),
   KEY (`ctime`)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '网站抓取规则表';
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '网站抓取规则表';
 
 CREATE TABLE IF NOT EXISTS `auto_crawl_rule` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -377,7 +377,7 @@ CREATE TABLE IF NOT EXISTS `auto_crawl_rule` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `website` (`website`),
   KEY `mtime` (`mtime`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='网站自动抓取规则表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='网站自动抓取规则表';
 
 CREATE TABLE IF NOT EXISTS `dynamic` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -388,7 +388,7 @@ CREATE TABLE IF NOT EXISTS `dynamic` (
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY (`seq`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '动态表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '动态表';
 
 CREATE TABLE IF NOT EXISTS `search_stat` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -398,7 +398,7 @@ CREATE TABLE IF NOT EXISTS `search_stat` (
   PRIMARY KEY (`id`),
   UNIQUE KEY (`keyword`),
   KEY (`times`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '搜索词统计';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '搜索词统计';
 
 CREATE TABLE IF NOT EXISTS `favorites` (
   `uid` int unsigned NOT NULL DEFAULT 0 COMMENT '用户uid',
@@ -406,7 +406,7 @@ CREATE TABLE IF NOT EXISTS `favorites` (
   `objid` int unsigned NOT NULL DEFAULT 0 COMMENT '对象id，属主',
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`uid`,`objtype`,`objid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户收藏';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '用户收藏';
 
 CREATE TABLE IF NOT EXISTS `open_project` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '项目id',
@@ -436,7 +436,7 @@ CREATE TABLE IF NOT EXISTS `open_project` (
   `mtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY (`uri`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '开源项目';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '开源项目';
 
 CREATE TABLE IF NOT EXISTS `morning_reading` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -449,7 +449,7 @@ CREATE TABLE IF NOT EXISTS `morning_reading` (
   `username` varchar(20) NOT NULL DEFAULT '' COMMENT '发布人',
   `ctime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '技术晨读表';
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '技术晨读表';
 
 CREATE TABLE IF NOT EXISTS `image` (
   `pid` int unsigned NOT NULL AUTO_INCREMENT,
@@ -462,7 +462,7 @@ CREATE TABLE IF NOT EXISTS `image` (
   PRIMARY KEY (`pid`),
   UNIQUE KEY `md5` (`md5`),
   KEY `created_at` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='图片表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='图片表';
 
 CREATE TABLE IF NOT EXISTS `book` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -492,7 +492,7 @@ CREATE TABLE IF NOT EXISTS `book` (
   PRIMARY KEY (`id`),
   KEY `name` (`name`),
   KEY `created_at` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='图书表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='图书表';
 
 CREATE TABLE IF NOT EXISTS `advertisement` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -503,7 +503,7 @@ CREATE TABLE IF NOT EXISTS `advertisement` (
   `is_online` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '是否在线：0-下线；1-在线',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '广告表';
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '广告表';
 
 CREATE TABLE IF NOT EXISTS  `page_ad` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -514,7 +514,7 @@ CREATE TABLE IF NOT EXISTS  `page_ad` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_path` (`path`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='页面广告管理表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='页面广告管理表';
 
 CREATE TABLE IF NOT EXISTS `friend_link` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -524,7 +524,7 @@ CREATE TABLE IF NOT EXISTS `friend_link` (
   `logo` varchar(63) NOT NULL DEFAULT '' COMMENT 'LOGO url',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '友情链接';
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '友情链接';
 
 CREATE TABLE IF NOT EXISTS `learning_material` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -535,14 +535,14 @@ CREATE TABLE IF NOT EXISTS `learning_material` (
   `first_url` varchar(63) NOT NULL DEFAULT '' COMMENT '开始学习的url',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '成体系的学习资料';
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '成体系的学习资料';
 
 CREATE TABLE IF NOT EXISTS `default_avatar` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `filename` varchar(31) NOT NULL DEFAULT '' COMMENT '图像文件名',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '默认头像';
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '默认头像';
 
 CREATE TABLE IF NOT EXISTS `user_setting` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -552,7 +552,7 @@ CREATE TABLE IF NOT EXISTS `user_setting` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE `uniq_key`(`key`)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户行为信息设置';
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '用户行为信息设置';
 
 CREATE TABLE IF NOT EXISTS `user_balance_detail` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -564,7 +564,7 @@ CREATE TABLE IF NOT EXISTS `user_balance_detail` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_uid`(`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户余额明细';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '用户余额明细';
 
 CREATE TABLE IF NOT EXISTS `mission` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -577,7 +577,7 @@ CREATE TABLE IF NOT EXISTS `mission` (
   `state` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '状态: 0-正常，未完成；1-已过期；2-已下线',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '任务表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '任务表';
 
 CREATE TABLE IF NOT EXISTS `user_login_mission` (
   `uid` int unsigned NOT NULL DEFAULT 0 COMMENT '用户UID',
@@ -587,7 +587,7 @@ CREATE TABLE IF NOT EXISTS `user_login_mission` (
   `total_days` int unsigned NOT NULL DEFAULT 0 COMMENT '总登录领取天数',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
   PRIMARY KEY (`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户登录任务';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '用户登录任务';
 
 CREATE TABLE IF NOT EXISTS `user_recharge` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -598,7 +598,7 @@ CREATE TABLE IF NOT EXISTS `user_recharge` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '充值时间',
   PRIMARY KEY (`id`),
   KEY `idx_uid`(`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户充值记录表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '用户充值记录表';
 
 CREATE TABLE IF NOT EXISTS `feed` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -619,7 +619,7 @@ CREATE TABLE IF NOT EXISTS `feed` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_objid_type` (`objid`, `objtype`),
   KEY `idx_updated_at` (`updated_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='网站关键资源动态表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='网站关键资源动态表';
 
 CREATE TABLE `view_record` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -630,7 +630,7 @@ CREATE TABLE `view_record` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_obj_uid` (`objid`,`objtype`,`uid`),
   KEY `idx_uid` (`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户浏览记录表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '用户浏览记录表';
 
 CREATE TABLE `view_source` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -645,7 +645,7 @@ CREATE TABLE `view_source` (
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_obj` (`objid`,`objtype`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='浏览来源表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='浏览来源表';
 
 CREATE TABLE `gift` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -661,7 +661,7 @@ CREATE TABLE `gift` (
   `state` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '状态,0-未上线;1-已上线;2-已下线;3-过期',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '物品表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '物品表';
 
 CREATE TABLE `gift_redeem` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -671,7 +671,7 @@ CREATE TABLE `gift_redeem` (
   `uid` int unsigned NOT NULL DEFAULT 0 COMMENT '兑换者UID',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '物品兑换码';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '物品兑换码';
 
 CREATE TABLE `user_exchange_record` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -683,7 +683,7 @@ CREATE TABLE `user_exchange_record` (
   PRIMARY KEY (`id`),
   KEY `idx_gid` (`gift_id`),
   KEY `idx_uid` (`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '物品用户兑换记录';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '物品用户兑换记录';
 
 CREATE TABLE IF NOT EXISTS `gctt_user` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -700,7 +700,7 @@ CREATE TABLE IF NOT EXISTS `gctt_user` (
   PRIMARY KEY (`id`),
   UNIQUE KEY (`username`),
   KEY idx_uid (`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'GCTT 用户表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT 'GCTT 用户表';
 
 CREATE TABLE IF NOT EXISTS `gctt_git` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -716,7 +716,7 @@ CREATE TABLE IF NOT EXISTS `gctt_git` (
   PRIMARY KEY (`id`),
   UNIQUE KEY (`md5`),
   KEY (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'GCTT github 文章翻译信息表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT 'GCTT github 文章翻译信息表';
 
 
 CREATE TABLE IF NOT EXISTS `gctt_timeline` (
@@ -724,7 +724,7 @@ CREATE TABLE IF NOT EXISTS `gctt_timeline` (
   `content` varchar(1022) NOT NULL DEFAULT '' COMMENT '内容',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'GCTT 大事记';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT 'GCTT 大事记';
 
 
 CREATE TABLE IF NOT EXISTS `gctt_issue` (
@@ -739,7 +739,7 @@ CREATE TABLE IF NOT EXISTS `gctt_issue` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY (`label`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT 'GCTT github 选题 issue 列表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT 'GCTT github 选题 issue 列表';
 
 
 CREATE TABLE IF NOT EXISTS `subject` (
@@ -755,7 +755,7 @@ CREATE TABLE IF NOT EXISTS `subject` (
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '专栏';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '专栏';
 
 
 CREATE TABLE IF NOT EXISTS `subject_admin` (
@@ -765,7 +765,7 @@ CREATE TABLE IF NOT EXISTS `subject_admin` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY (`sid`,`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '专栏管理员（不包括创建者）';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '专栏管理员（不包括创建者）';
 
 
 CREATE TABLE IF NOT EXISTS `subject_article` (
@@ -776,7 +776,7 @@ CREATE TABLE IF NOT EXISTS `subject_article` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY (`sid`,`article_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '专栏文章列表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '专栏文章列表';
 
 
 CREATE TABLE IF NOT EXISTS `subject_follower` (
@@ -787,7 +787,7 @@ CREATE TABLE IF NOT EXISTS `subject_follower` (
   PRIMARY KEY (`id`),
   UNIQUE KEY (`sid`,`uid`),
   KEY (`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '专栏关注者';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '专栏关注者';
 
 CREATE TABLE IF NOT EXISTS `download` (
   `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '自增',
@@ -804,7 +804,7 @@ CREATE TABLE IF NOT EXISTS `download` (
   `times` int unsigned NOT NULl DEFAULT 0 COMMENT '下载次数',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '下载信息表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '下载信息表';
 
 CREATE TABLE `wechat_user` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
@@ -820,4 +820,4 @@ CREATE TABLE `wechat_user` (
   UNIQUE KEY `openid` (`openid`),
   KEY `uid` (`uid`),
   KEY `updated_at` (`updated_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='微信用户绑定表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='微信用户绑定表';

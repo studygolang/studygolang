@@ -50,7 +50,7 @@
                         {{end}}
                     {{else if eq .topic.permission 3}}
                     {{if or .me.IsVip .me.IsRoot (eq .topic.uid .me.Uid)}}
-                    <div class="content">{{.topic.content}}</div>
+                    <div class="content markdown-body">{{.topic.content}}</div>
                     {{else}}
                     <div style="font-size: 1.2em;">
                         <p>作者设置付费用户才能查看，加入Go中文网创建的<a href="https://t.zsxq.com/BM72RZR" title="知识星球" target="_blank">知识星球</a>自动成为付费用户（加入后星球私信告知网站用户名）。</p>

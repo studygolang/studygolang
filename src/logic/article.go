@@ -855,22 +855,21 @@ func (self ArticleLogic) MoveToTopic(ctx context.Context, id interface{}, me *mo
 
 func (self ArticleLogic) transferImage(ctx context.Context, s *goquery.Selection, imgDeny bool, domain string) {
 	if v, ok := s.Attr("data-original-src"); ok {
-		self.setImgSrc(ctx, v, imgDeny, s)
+		self.setImgSrc(ctx, v, imgDeny, s, domain)
 	} else if v, ok := s.Attr("data-original"); ok {
-		self.setImgSrc(ctx, v, imgDeny, s)
+		self.setImgSrc(ctx, v, imgDeny, s, domain)
 	} else if v, ok := s.Attr("data-src"); ok {
-		self.setImgSrc(ctx, v, imgDeny, s)
+		self.setImgSrc(ctx, v, imgDeny, s, domain)
 	} else if v, ok := s.Attr("src"); ok {
-		if !strings.HasPrefix(v, "http") {
-			v = "http://" + domain + "/" + v
-		}
-
-		self.setImgSrc(ctx, v, imgDeny, s)
+		self.setImgSrc(ctx, v, imgDeny, s, domain)
 	}
 }
 
-func (self ArticleLogic) setImgSrc(ctx context.Context, v string, imgDeny bool, s *goquery.Selection) {
+func (self ArticleLogic) setImgSrc(ctx context.Context, v string, imgDeny bool, s *goquery.Selection, domain string) {
 	if imgDeny {
+		if !strings.HasPrefix(v, "http") {
+			v = "http://" + domain + "/" + v
+		}
 		path, err := DefaultUploader.TransferUrl(ctx, v)
 		if err == nil {
 			s.SetAttr("src", global.App.CDNHttps+path)
