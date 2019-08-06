@@ -9,24 +9,25 @@ package controller
 import (
 	"net/http"
 
+	"github.com/studygolang/studygolang/modules/context"
+	. "github.com/studygolang/studygolang/modules/http"
 	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
-	. "github.com/studygolang/studygolang/modules/http"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 )
 
 type OAuthController struct{}
 
 // 注册路由
 func (self OAuthController) RegisterRoute(g *echo.Group) {
-	g.Get("/oauth/github/callback", self.GithubCallback)
-	g.Get("/oauth/github/login", self.GithubLogin)
+	g.GET("/oauth/github/callback", self.GithubCallback)
+	g.GET("/oauth/github/login", self.GithubLogin)
 }
 
 func (OAuthController) GithubLogin(ctx echo.Context) error {
 	uri := ctx.QueryParam("uri")
-	url := logic.DefaultThirdUser.GithubAuthCodeUrl(ctx, uri)
+	url := logic.DefaultThirdUser.GithubAuthCodeUrl(context.EchoContext(ctx), uri)
 	return ctx.Redirect(http.StatusSeeOther, url)
 }
 
@@ -36,7 +37,7 @@ func (OAuthController) GithubCallback(ctx echo.Context) error {
 	me, ok := ctx.Get("user").(*model.Me)
 	if ok {
 		// 已登录用户，绑定 github
-		logic.DefaultThirdUser.BindGithub(ctx, code, me)
+		logic.DefaultThirdUser.BindGithub(context.EchoContext(ctx), code, me)
 
 		redirectURL := ctx.QueryParam("redirect_url")
 		if redirectURL == "" {
@@ -45,7 +46,7 @@ func (OAuthController) GithubCallback(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusSeeOther, redirectURL)
 	}
 
-	user, err := logic.DefaultThirdUser.LoginFromGithub(ctx, code)
+	user, err := logic.DefaultThirdUser.LoginFromGithub(context.EchoContext(ctx), code)
 	if err != nil || user.Uid == 0 {
 		var errMsg = ""
 		if err != nil {

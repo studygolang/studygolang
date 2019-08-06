@@ -7,9 +7,10 @@
 package controller
 
 import (
+	"github.com/studygolang/studygolang/modules/context"
 	"github.com/studygolang/studygolang/modules/logic"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 )
 
 type LinkController struct{}
@@ -22,7 +23,7 @@ func (self LinkController) RegisterRoute(g *echo.Group) {
 // FindLinks 友情链接
 func (LinkController) FindLinks(ctx echo.Context) error {
 
-	friendLinks := logic.DefaultFriendLink.FindAll(ctx)
+	friendLinks := logic.DefaultFriendLink.FindAll(context.EchoContext(ctx))
 
 	return render(ctx, "link.html", map[string]interface{}{"links": friendLinks})
 }

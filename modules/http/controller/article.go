@@ -12,10 +12,11 @@ import (
 	"strings"
 
 	"github.com/dchest/captcha"
-	"github.com/labstack/echo"
-	"github.com/polaris1119/echoutils"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
+	"github.com/studygolang/studygolang/modules/context"
+	"github.com/studygolang/studygolang/modules/echoutils"
 
 	. "github.com/studygolang/studygolang/modules/http"
 	"github.com/studygolang/studygolang/modules/http/middleware"
@@ -35,10 +36,10 @@ type ArticleController struct{}
 
 // 注册路由
 func (self ArticleController) RegisterRoute(g *echo.Group) {
-	g.Get("/articles", self.ReadList)
-	g.Get("/articles/crawl", self.Crawl)
+	g.GET("/articles", self.ReadList)
+	g.GET("/articles/crawl", self.Crawl)
 
-	g.Get("/articles/:id", self.Detail)
+	g.GET("/articles/:id", self.Detail)
 
 	g.Match([]string{"GET", "POST"}, "/articles/new", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice(), middleware.CheckCaptcha())
 	g.Match([]string{"GET", "POST"}, "/articles/modify", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
@@ -51,13 +52,13 @@ func (ArticleController) ReadList(ctx echo.Context) error {
 	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
 	paginator := logic.NewPaginator(curPage)
 	paginator.SetPerPage(limit)
-	total := logic.DefaultArticle.Count(ctx, "")
-	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
+	total := logic.DefaultArticle.Count(context.EchoContext(ctx), "")
+	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL.Path)
 	pageInfo := template.HTML(pageHtml)
 
 	// TODO: 参考的 topics 的处理方式，但是感觉不应该这样做
-	topArticles := logic.DefaultArticle.FindAll(ctx, paginator, "id DESC", "top=1")
-	unTopArticles := logic.DefaultArticle.FindAll(ctx, paginator, "id DESC", "top!=1")
+	topArticles := logic.DefaultArticle.FindAll(context.EchoContext(ctx), paginator, "id DESC", "top=1")
+	unTopArticles := logic.DefaultArticle.FindAll(context.EchoContext(ctx), paginator, "id DESC", "top!=1")
 	articles := append(topArticles, unTopArticles...)
 	if articles == nil {
 		logger.Errorln("article controller: find article error")
@@ -78,7 +79,7 @@ func (ArticleController) ReadList(ctx echo.Context) error {
 	if ok {
 		topArticlesNum := len(topArticles)
 		if topArticlesNum > 0 {
-			topLikeFlags, _ = logic.DefaultLike.FindUserLikeObjects(ctx, me.Uid, model.TypeArticle, topArticles[0].Id, topArticles[topArticlesNum-1].Id)
+			topLikeFlags, _ = logic.DefaultLike.FindUserLikeObjects(context.EchoContext(ctx), me.Uid, model.TypeArticle, topArticles[0].Id, topArticles[topArticlesNum-1].Id)
 			for k, v := range topLikeFlags {
 				likeFlags[k] = v
 			}
@@ -86,7 +87,7 @@ func (ArticleController) ReadList(ctx echo.Context) error {
 
 		unTopArticlesNum := len(unTopArticles)
 		if unTopArticlesNum > 0 {
-			unTopLikeFlags, _ = logic.DefaultLike.FindUserLikeObjects(ctx, me.Uid, model.TypeArticle, unTopArticles[0].Id, unTopArticles[unTopArticlesNum-1].Id)
+			unTopLikeFlags, _ = logic.DefaultLike.FindUserLikeObjects(context.EchoContext(ctx), me.Uid, model.TypeArticle, unTopArticles[0].Id, unTopArticles[unTopArticlesNum-1].Id)
 			for k, v := range unTopLikeFlags {
 				likeFlags[k] = v
 			}
@@ -98,7 +99,7 @@ func (ArticleController) ReadList(ctx echo.Context) error {
 
 // Detail 文章详细页
 func (ArticleController) Detail(ctx echo.Context) error {
-	article, prevNext, err := logic.DefaultArticle.FindByIdAndPreNext(ctx, goutils.MustInt(ctx.Param("id")))
+	article, prevNext, err := logic.DefaultArticle.FindByIdAndPreNext(context.EchoContext(ctx), goutils.MustInt(ctx.Param("id")))
 	if err != nil {
 		return ctx.Redirect(http.StatusSeeOther, "/articles")
 	}
@@ -107,7 +108,7 @@ func (ArticleController) Detail(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusSeeOther, "/articles")
 	}
 
-	articleGCTT := logic.DefaultArticle.FindArticleGCTT(ctx, article)
+	articleGCTT := logic.DefaultArticle.FindArticleGCTT(context.EchoContext(ctx), article)
 	data := map[string]interface{}{
 		"activeArticles": "active",
 		"article":        article,
@@ -118,8 +119,8 @@ func (ArticleController) Detail(ctx echo.Context) error {
 
 	me, ok := ctx.Get("user").(*model.Me)
 	if ok {
-		data["likeflag"] = logic.DefaultLike.HadLike(ctx, me.Uid, article.Id, model.TypeArticle)
-		data["hadcollect"] = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, article.Id, model.TypeArticle)
+		data["likeflag"] = logic.DefaultLike.HadLike(context.EchoContext(ctx), me.Uid, article.Id, model.TypeArticle)
+		data["hadcollect"] = logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), me.Uid, article.Id, model.TypeArticle)
 
 		logic.Views.Incr(Request(ctx), model.TypeArticle, article.Id, me.Uid)
 
@@ -128,8 +129,8 @@ func (ArticleController) Detail(ctx echo.Context) error {
 		}
 
 		if me.IsRoot || (article.IsSelf && me.Uid == article.User.Uid) {
-			data["view_user_num"] = logic.DefaultViewRecord.FindUserNum(ctx, article.Id, model.TypeArticle)
-			data["view_source"] = logic.DefaultViewSource.FindOne(ctx, article.Id, model.TypeArticle)
+			data["view_user_num"] = logic.DefaultViewRecord.FindUserNum(context.EchoContext(ctx), article.Id, model.TypeArticle)
+			data["view_source"] = logic.DefaultViewSource.FindOne(context.EchoContext(ctx), article.Id, model.TypeArticle)
 		}
 	} else {
 		logic.Views.Incr(Request(ctx), model.TypeArticle, article.Id)
@@ -138,7 +139,7 @@ func (ArticleController) Detail(ctx echo.Context) error {
 	// 为了阅读数即时看到
 	article.Viewnum++
 
-	data["subjects"] = logic.DefaultSubject.FindArticleSubjects(ctx, article.Id)
+	data["subjects"] = logic.DefaultSubject.FindArticleSubjects(context.EchoContext(ctx), article.Id)
 
 	return render(ctx, "articles/detail.html,common/comment.html", data)
 }
@@ -148,7 +149,7 @@ func (ArticleController) Create(ctx echo.Context) error {
 	me := ctx.Get("user").(*model.Me)
 
 	title := ctx.FormValue("title")
-	if title == "" || ctx.Request().Method() != "POST" {
+	if title == "" || ctx.Request().Method != "POST" {
 		data := map[string]interface{}{"activeArticles": "active"}
 		if logic.NeedCaptcha(me) {
 			data["captchaId"] = captcha.NewLen(util.CaptchaLen)
@@ -160,7 +161,8 @@ func (ArticleController) Create(ctx echo.Context) error {
 		return fail(ctx, 1, "内容不能为空")
 	}
 
-	id, err := logic.DefaultArticle.Publish(echoutils.WrapEchoContext(ctx), me, ctx.FormParams())
+	forms, _ := ctx.FormParams()
+	id, err := logic.DefaultArticle.Publish(echoutils.WrapEchoContext(ctx), me, forms)
 	if err != nil {
 		return fail(ctx, 2, "内部服务错误")
 	}
@@ -171,9 +173,9 @@ func (ArticleController) Create(ctx echo.Context) error {
 // Modify 修改文章
 func (ArticleController) Modify(ctx echo.Context) error {
 	id := ctx.FormValue("id")
-	article, err := logic.DefaultArticle.FindById(ctx, id)
+	article, err := logic.DefaultArticle.FindById(context.EchoContext(ctx), id)
 
-	if ctx.Request().Method() != "POST" {
+	if ctx.Request().Method != "POST" {
 		if err != nil {
 			return ctx.Redirect(http.StatusSeeOther, "/articles/"+id)
 		}
@@ -197,7 +199,8 @@ func (ArticleController) Modify(ctx echo.Context) error {
 		return fail(ctx, 3, "没有修改权限")
 	}
 
-	errMsg, err := logic.DefaultArticle.Modify(echoutils.WrapEchoContext(ctx), me, ctx.FormParams())
+	forms, _ := ctx.FormParams()
+	errMsg, err := logic.DefaultArticle.Modify(echoutils.WrapEchoContext(ctx), me, forms)
 	if err != nil {
 		return fail(ctx, 4, errMsg)
 	}
@@ -213,7 +216,7 @@ func (ArticleController) Crawl(ctx echo.Context) error {
 		err    error
 	)
 	strUrl = strings.TrimSpace(strUrl)
-	_, err = logic.DefaultArticle.ParseArticle(ctx, strUrl, false)
+	_, err = logic.DefaultArticle.ParseArticle(context.EchoContext(ctx), strUrl, false)
 	if err != nil {
 		errMsg = err.Error()
 	}

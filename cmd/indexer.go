@@ -7,9 +7,6 @@
 package cmd
 
 import (
-	"math/rand"
-	"time"
-
 	"github.com/studygolang/studygolang/modules/server"
 
 	"github.com/polaris1119/config"

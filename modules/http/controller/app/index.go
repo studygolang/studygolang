@@ -7,11 +7,12 @@
 package app
 
 import (
-	"github.com/labstack/echo"
-	"github.com/polaris1119/goutils"
-
-	"github.com/studygolang/studygolang/modules/logic"
+	"github.com/studygolang/studygolang/modules/context"
 	. "github.com/studygolang/studygolang/modules/http"
+	"github.com/studygolang/studygolang/modules/logic"
+
+	echo "github.com/labstack/echo/v4"
+	"github.com/polaris1119/goutils"
 )
 
 type IndexController struct{}
@@ -39,7 +40,7 @@ func (IndexController) Home(ctx echo.Context) error {
 	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
 	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
 
-	data := logic.DefaultIndex.FindData(ctx, tab, paginator)
+	data := logic.DefaultIndex.FindData(context.EchoContext(ctx), tab, paginator)
 
 	SetCookie(ctx, "INDEX_TAB", data["tab"].(string))
 

@@ -7,11 +7,12 @@
 package admin
 
 import (
+	"github.com/studygolang/studygolang/modules/context"
 	"github.com/studygolang/studygolang/modules/global"
 	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
 )
 
@@ -21,12 +22,12 @@ type NodeController struct{}
 func (self NodeController) RegisterRoute(g *echo.Group) {
 	g.GET("/community/node/list", self.List)
 	g.Match([]string{"GET", "POST"}, "/community/node/modify", self.Modify)
-	g.Post("/community/node/modify_seq", self.ModifySeq)
+	g.POST("/community/node/modify_seq", self.ModifySeq)
 }
 
 // List 所有主题节点
 func (NodeController) List(ctx echo.Context) error {
-	treeNodes := logic.DefaultNode.FindParallelTree(ctx)
+	treeNodes := logic.DefaultNode.FindParallelTree(context.EchoContext(ctx))
 
 	nidMap := make(map[int]int)
 	keySlice := make([]int, len(treeNodes))
@@ -51,7 +52,8 @@ func (NodeController) List(ctx echo.Context) error {
 
 func (NodeController) Modify(ctx echo.Context) error {
 	if ctx.FormValue("submit") == "1" {
-		err := logic.DefaultNode.Modify(ctx, ctx.FormParams())
+		forms, _ := ctx.FormParams()
+		err := logic.DefaultNode.Modify(context.EchoContext(ctx), forms)
 		if err != nil {
 			return fail(ctx, 1, err.Error())
 		}
@@ -59,7 +61,7 @@ func (NodeController) Modify(ctx echo.Context) error {
 		return success(ctx, nil)
 	}
 
-	treeNodes := logic.DefaultNode.FindParallelTree(ctx)
+	treeNodes := logic.DefaultNode.FindParallelTree(context.EchoContext(ctx))
 
 	data := map[string]interface{}{
 		"nodes": treeNodes,
@@ -87,7 +89,7 @@ func (NodeController) Modify(ctx echo.Context) error {
 func (NodeController) ModifySeq(ctx echo.Context) error {
 	nid := goutils.MustInt(ctx.FormValue("nid"))
 	seq := goutils.MustInt(ctx.FormValue("seq"))
-	err := logic.DefaultNode.ModifySeq(ctx, nid, seq)
+	err := logic.DefaultNode.ModifySeq(context.EchoContext(ctx), nid, seq)
 	if err != nil {
 		return fail(ctx, 1, err.Error())
 	}

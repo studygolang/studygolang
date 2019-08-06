@@ -1,9 +1,10 @@
 package controller
 
 import (
+	"github.com/studygolang/studygolang/modules/context"
 	"github.com/studygolang/studygolang/modules/logic"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
 )
 
@@ -12,7 +13,7 @@ type SearchController struct{}
 // 注册路由
 func (self SearchController) RegisterRoute(g *echo.Group) {
 	g.GET("/search", self.Search)
-	g.Get("/tag/:name", self.TagList)
+	g.GET("/tag/:name", self.TagList)
 }
 
 // Search
@@ -51,7 +52,7 @@ func (SearchController) TagList(ctx echo.Context) error {
 	rows := 50
 
 	respBody, err := logic.DefaultSearcher.DoSearch(q, field, (p-1)*rows, rows)
-	users, nodes := logic.DefaultSearcher.FillNodeAndUser(ctx, respBody)
+	users, nodes := logic.DefaultSearcher.FillNodeAndUser(context.EchoContext(ctx), respBody)
 
 	data := map[string]interface{}{
 		"respBody": respBody,

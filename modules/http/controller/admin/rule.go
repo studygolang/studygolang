@@ -7,11 +7,13 @@
 package admin
 
 import (
-	"github.com/studygolang/studygolang/modules/logic"
-	"github.com/studygolang/studygolang/modules/model"
 	"net/http"
 
-	"github.com/labstack/echo"
+	"github.com/studygolang/studygolang/modules/context"
+	"github.com/studygolang/studygolang/modules/logic"
+	"github.com/studygolang/studygolang/modules/model"
+
+	echo "github.com/labstack/echo/v4"
 )
 
 type RuleController struct{}
@@ -29,7 +31,7 @@ func (self RuleController) RegisterRoute(g *echo.Group) {
 func (RuleController) RuleList(ctx echo.Context) error {
 	curPage, limit := parsePage(ctx)
 
-	rules, total := logic.DefaultRule.FindBy(ctx, nil, curPage, limit)
+	rules, total := logic.DefaultRule.FindBy(context.EchoContext(ctx), nil, curPage, limit)
 
 	if rules == nil {
 		return ctx.HTML(http.StatusInternalServerError, "500")
@@ -51,7 +53,7 @@ func (RuleController) Query(ctx echo.Context) error {
 	curPage, limit := parsePage(ctx)
 	conds := parseConds(ctx, []string{"domain"})
 
-	rules, total := logic.DefaultRule.FindBy(ctx, conds, curPage, limit)
+	rules, total := logic.DefaultRule.FindBy(context.EchoContext(ctx), conds, curPage, limit)
 
 	if rules == nil {
 		return ctx.HTML(http.StatusInternalServerError, "500")
@@ -73,8 +75,8 @@ func (RuleController) New(ctx echo.Context) error {
 
 	if ctx.FormValue("submit") == "1" {
 		user := ctx.Get("user").(*model.Me)
-
-		errMsg, err := logic.DefaultRule.Save(ctx, ctx.FormParams(), user.Username)
+		forms, _ := ctx.FormParams()
+		errMsg, err := logic.DefaultRule.Save(context.EchoContext(ctx), forms, user.Username)
 		if err != nil {
 			return fail(ctx, 1, errMsg)
 		}
@@ -90,15 +92,15 @@ func (self RuleController) Modify(ctx echo.Context) error {
 
 	if ctx.FormValue("submit") == "1" {
 		user := ctx.Get("user").(*model.Me)
-
-		errMsg, err := logic.DefaultRule.Save(ctx, ctx.FormParams(), user.Username)
+		forms, _ := ctx.FormParams()
+		errMsg, err := logic.DefaultRule.Save(context.EchoContext(ctx), forms, user.Username)
 		if err != nil {
 			return fail(ctx, 1, errMsg)
 		}
 		return success(ctx, nil)
 	}
 
-	rule := logic.DefaultRule.FindById(ctx, ctx.QueryParam("id"))
+	rule := logic.DefaultRule.FindById(context.EchoContext(ctx), ctx.QueryParam("id"))
 	if rule == nil {
 		return ctx.Redirect(http.StatusSeeOther, ctx.Echo().URI(echo.HandlerFunc(self.RuleList)))
 	}
@@ -109,7 +111,7 @@ func (self RuleController) Modify(ctx echo.Context) error {
 }
 
 func (RuleController) Del(ctx echo.Context) error {
-	err := logic.DefaultRule.Delete(ctx, ctx.FormValue("id"))
+	err := logic.DefaultRule.Delete(context.EchoContext(ctx), ctx.FormValue("id"))
 	if err != nil {
 		return fail(ctx, 1, "删除失败")
 	}

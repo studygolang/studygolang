@@ -10,14 +10,15 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/studygolang/studygolang/modules/util"
+	"github.com/studygolang/studygolang/modules/context"
+	. "github.com/studygolang/studygolang/modules/http"
 	"github.com/studygolang/studygolang/modules/http/middleware"
 	"github.com/studygolang/studygolang/modules/logic"
-	. "github.com/studygolang/studygolang/modules/http"
 	"github.com/studygolang/studygolang/modules/model"
+	"github.com/studygolang/studygolang/modules/util"
 
 	"github.com/dchest/captcha"
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
 )
 
@@ -50,8 +51,8 @@ func (ResourceController) ReadCatResources(ctx echo.Context) error {
 	paginator := logic.NewPaginator(curPage)
 	catid := goutils.MustInt(ctx.Param("catid"))
 
-	resources, total := logic.DefaultResource.FindByCatid(ctx, paginator, catid)
-	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
+	resources, total := logic.DefaultResource.FindByCatid(context.EchoContext(ctx), paginator, catid)
+	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL.Path)
 
 	return render(ctx, "resources/index.html", map[string]interface{}{"activeResources": "active", "resources": resources, "categories": logic.AllCategory, "page": template.HTML(pageHtml), "curCatid": catid})
 }
@@ -62,7 +63,7 @@ func (ResourceController) Detail(ctx echo.Context) error {
 	if id == 0 {
 		return ctx.Redirect(http.StatusSeeOther, "/resources/cat/1")
 	}
-	resource, comments := logic.DefaultResource.FindById(ctx, id)
+	resource, comments := logic.DefaultResource.FindById(context.EchoContext(ctx), id)
 	if len(resource) == 0 {
 		return ctx.Redirect(http.StatusSeeOther, "/resources/cat/1")
 	}
@@ -76,8 +77,8 @@ func (ResourceController) Detail(ctx echo.Context) error {
 	me, ok := ctx.Get("user").(*model.Me)
 	if ok {
 		id := resource["id"].(int)
-		data["likeflag"] = logic.DefaultLike.HadLike(ctx, me.Uid, id, model.TypeResource)
-		data["hadcollect"] = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, id, model.TypeResource)
+		data["likeflag"] = logic.DefaultLike.HadLike(context.EchoContext(ctx), me.Uid, id, model.TypeResource)
+		data["hadcollect"] = logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), me.Uid, id, model.TypeResource)
 
 		logic.Views.Incr(Request(ctx), model.TypeResource, id, me.Uid)
 
@@ -86,8 +87,8 @@ func (ResourceController) Detail(ctx echo.Context) error {
 		}
 
 		if me.IsRoot || me.Uid == resource["uid"].(int) {
-			data["view_user_num"] = logic.DefaultViewRecord.FindUserNum(ctx, id, model.TypeResource)
-			data["view_source"] = logic.DefaultViewSource.FindOne(ctx, id, model.TypeResource)
+			data["view_user_num"] = logic.DefaultViewRecord.FindUserNum(context.EchoContext(ctx), id, model.TypeResource)
+			data["view_source"] = logic.DefaultViewSource.FindOne(context.EchoContext(ctx), id, model.TypeResource)
 		}
 	} else {
 		logic.Views.Incr(Request(ctx), model.TypeResource, id)
@@ -102,7 +103,7 @@ func (ResourceController) Create(ctx echo.Context) error {
 
 	title := ctx.FormValue("title")
 	// 请求新建资源页面
-	if title == "" || ctx.Request().Method() != "POST" {
+	if title == "" || ctx.Request().Method != "POST" {
 		data := map[string]interface{}{"activeResources": "active", "categories": logic.AllCategory}
 		if logic.NeedCaptcha(me) {
 			data["captchaId"] = captcha.NewLen(util.CaptchaLen)
@@ -125,7 +126,8 @@ func (ResourceController) Create(ctx echo.Context) error {
 		return fail(ctx, 1, errMsg)
 	}
 
-	err := logic.DefaultResource.Publish(ctx, me, ctx.FormParams())
+	forms, _ := ctx.FormParams()
+	err := logic.DefaultResource.Publish(context.EchoContext(ctx), me, forms)
 	if err != nil {
 		return fail(ctx, 2, "内部服务错误，请稍候再试！")
 	}
@@ -141,13 +143,14 @@ func (ResourceController) Modify(ctx echo.Context) error {
 	}
 
 	// 请求编辑資源页面
-	if ctx.Request().Method() != "POST" {
-		resource := logic.DefaultResource.FindResource(ctx, id)
+	if ctx.Request().Method != "POST" {
+		resource := logic.DefaultResource.FindResource(context.EchoContext(ctx), id)
 		return render(ctx, "resources/new.html", map[string]interface{}{"resource": resource, "activeResources": "active", "categories": logic.AllCategory})
 	}
 
 	me := ctx.Get("user").(*model.Me)
-	err := logic.DefaultResource.Publish(ctx, me, ctx.FormParams())
+	forms, _ := ctx.FormParams()
+	err := logic.DefaultResource.Publish(context.EchoContext(ctx), me, forms)
 	if err != nil {
 		if err == logic.NotModifyAuthorityErr {
 			return ctx.String(http.StatusForbidden, "没有权限修改")

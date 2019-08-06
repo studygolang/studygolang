@@ -7,24 +7,25 @@
 package controller
 
 import (
-	"github.com/studygolang/studygolang/modules/logic"
+	"github.com/studygolang/studygolang/modules/context"
 	"github.com/studygolang/studygolang/modules/http/middleware"
+	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 )
 
 type UserRichController struct{}
 
 // 注册路由
 func (self UserRichController) RegisterRoute(g *echo.Group) {
-	g.Get("/balance", self.MyBalance, middleware.NeedLogin())
-	g.Get("/balance/add", self.Add, middleware.NeedLogin())
+	g.GET("/balance", self.MyBalance, middleware.NeedLogin())
+	g.GET("/balance/add", self.Add, middleware.NeedLogin())
 }
 
 func (UserRichController) MyBalance(ctx echo.Context) error {
 	me := ctx.Get("user").(*model.Me)
-	balanceDetails := logic.DefaultUserRich.FindBalanceDetail(ctx, me)
+	balanceDetails := logic.DefaultUserRich.FindBalanceDetail(context.EchoContext(ctx), me)
 
 	data := map[string]interface{}{
 		"details": balanceDetails,
@@ -34,9 +35,9 @@ func (UserRichController) MyBalance(ctx echo.Context) error {
 
 func (UserRichController) Add(ctx echo.Context) error {
 	me := ctx.Get("user").(*model.Me)
-	balanceDetails := logic.DefaultUserRich.FindBalanceDetail(ctx, me, model.MissionTypeAdd)
+	balanceDetails := logic.DefaultUserRich.FindBalanceDetail(context.EchoContext(ctx), me, model.MissionTypeAdd)
 
-	rechargeAmount := logic.DefaultUserRich.FindRecharge(ctx, me)
+	rechargeAmount := logic.DefaultUserRich.FindRecharge(context.EchoContext(ctx), me)
 
 	data := map[string]interface{}{
 		"details":         balanceDetails,

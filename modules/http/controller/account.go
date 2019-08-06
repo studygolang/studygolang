@@ -20,10 +20,11 @@ import (
 	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
 	"github.com/studygolang/studygolang/modules/util"
+	"github.com/studygolang/studygolang/modules/context"
 
 	"github.com/dchest/captcha"
 	"github.com/gorilla/sessions"
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
@@ -35,15 +36,15 @@ type AccountController struct{}
 // 注册路由
 func (self AccountController) RegisterRoute(g *echo.Group) {
 	g.Any("/account/register", self.Register)
-	g.Post("/account/send_activate_email", self.SendActivateEmail)
-	g.Get("/account/activate", self.Activate)
+	g.POST("/account/send_activate_email", self.SendActivateEmail)
+	g.GET("/account/activate", self.Activate)
 	g.Any("/account/login", self.Login)
 	g.Any("/account/edit", self.Edit, middleware.NeedLogin())
-	g.Post("/account/change_avatar", self.ChangeAvatar, middleware.NeedLogin())
-	g.Post("/account/changepwd", self.ChangePwd, middleware.NeedLogin())
+	g.POST("/account/change_avatar", self.ChangeAvatar, middleware.NeedLogin())
+	g.POST("/account/changepwd", self.ChangePwd, middleware.NeedLogin())
 	g.Any("/account/forgetpwd", self.ForgetPasswd)
 	g.Any("/account/resetpwd", self.ResetPasswd)
-	g.Get("/account/logout", self.Logout, middleware.NeedLogin())
+	g.GET("/account/logout", self.Logout, middleware.NeedLogin())
 	g.POST("/account/social/unbind", self.Unbind, middleware.NeedLogin())
 }
 
@@ -55,7 +56,7 @@ func (self AccountController) Register(ctx echo.Context) error {
 	registerTpl := "register.html"
 	username := ctx.FormValue("username")
 	// 请求注册页面
-	if username == "" || ctx.Request().Method() != "POST" {
+	if username == "" || ctx.Request().Method != "POST" {
 		return render(ctx, registerTpl, map[string]interface{}{"captchaId": captcha.NewLen(4)})
 	}
 
@@ -93,7 +94,7 @@ func (self AccountController) Register(ctx echo.Context) error {
 	}
 
 	// 入库
-	errMsg, err := logic.DefaultUser.CreateUser(ctx, form)
+	errMsg, err := logic.DefaultUser.CreateUser(context.EchoContext(ctx), form)
 	if err != nil {
 		// bugfix：http://studygolang.com/topics/255
 		if errMsg == "" {
@@ -191,7 +192,7 @@ func (AccountController) Activate(ctx echo.Context) error {
 		return render(ctx, contentTpl, data)
 	}
 
-	user, err := logic.DefaultUser.Activate(ctx, email, uuid, timestamp, sign)
+	user, err := logic.DefaultUser.Activate(context.EchoContext(ctx), email, uuid, timestamp, sign)
 	if err != nil {
 		data["error"] = err.Error()
 		return render(ctx, contentTpl, data)
@@ -227,14 +228,14 @@ func (AccountController) Login(ctx echo.Context) error {
 	data := make(map[string]interface{})
 
 	username := ctx.FormValue("username")
-	if username == "" || ctx.Request().Method() != "POST" {
+	if username == "" || ctx.Request().Method != "POST" {
 		data["redirect_uri"] = uri
 		return render(ctx, contentTpl, data)
 	}
 
 	// 处理用户登录
 	passwd := ctx.FormValue("passwd")
-	userLogin, err := logic.DefaultUser.Login(ctx, username, passwd)
+	userLogin, err := logic.DefaultUser.Login(context.EchoContext(ctx), username, passwd)
 	if err != nil {
 		data["username"] = username
 		data["error"] = err.Error()
@@ -260,19 +261,20 @@ func (AccountController) Login(ctx echo.Context) error {
 func (self AccountController) Edit(ctx echo.Context) error {
 	me := ctx.Get("user").(*model.Me)
 
-	if ctx.Request().Method() != "POST" {
-		user := logic.DefaultUser.FindOne(ctx, "uid", me.Uid)
-		bindUsers := logic.DefaultUser.FindBindUsers(ctx, me.Uid)
+	if ctx.Request().Method != "POST" {
+		user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", me.Uid)
+		bindUsers := logic.DefaultUser.FindBindUsers(context.EchoContext(ctx), me.Uid)
 		return render(ctx, "user/edit.html", map[string]interface{}{
 			"user":            user,
 			"default_avatars": logic.DefaultAvatars,
-			"has_passwd":      logic.DefaultUser.HasPasswd(ctx, me.Uid),
+			"has_passwd":      logic.DefaultUser.HasPasswd(context.EchoContext(ctx), me.Uid),
 			"bind_users":      bindUsers,
 		})
 	}
 
+	forms, _ := ctx.FormParams()
 	// 更新信息
-	errMsg, err := logic.DefaultUser.Update(ctx, me, ctx.Request().FormParams())
+	errMsg, err := logic.DefaultUser.Update(context.EchoContext(ctx), me, forms)
 	if err != nil {
 		return fail(ctx, 1, errMsg)
 	}
@@ -294,7 +296,7 @@ func (AccountController) ChangeAvatar(ctx echo.Context) error {
 
 	// avatar 为空时，表示使用 gravater 头像
 	avatar := ctx.FormValue("avatar")
-	err := logic.DefaultUser.ChangeAvatar(ctx, curUser.Uid, avatar)
+	err := logic.DefaultUser.ChangeAvatar(context.EchoContext(ctx), curUser.Uid, avatar)
 	if err != nil {
 		objLog.Errorln("account controller change avatar error:", err)
 
@@ -310,7 +312,7 @@ func (AccountController) ChangePwd(ctx echo.Context) error {
 
 	curPasswd := ctx.FormValue("cur_passwd")
 	newPasswd := ctx.FormValue("passwd")
-	errMsg, err := logic.DefaultUser.UpdatePasswd(ctx, curUser.Username, curPasswd, newPasswd)
+	errMsg, err := logic.DefaultUser.UpdatePasswd(context.EchoContext(ctx), curUser.Username, curPasswd, newPasswd)
 	if err != nil {
 		return fail(ctx, 1, errMsg)
 	}
@@ -330,12 +332,12 @@ func (AccountController) ForgetPasswd(ctx echo.Context) error {
 	data := map[string]interface{}{"activeUsers": "active"}
 
 	email := ctx.FormValue("email")
-	if email == "" || ctx.Request().Method() != "POST" {
+	if email == "" || ctx.Request().Method != "POST" {
 		return render(ctx, contentTpl, data)
 	}
 
 	// 校验email是否存在
-	if logic.DefaultUser.UserExists(ctx, "email", email) {
+	if logic.DefaultUser.UserExists(context.EchoContext(ctx), "email", email) {
 		var uuid string
 		for {
 			uuid = guuid.NewV4().String()
@@ -377,7 +379,7 @@ func (AccountController) ResetPasswd(ctx echo.Context) error {
 	contentTpl := "user/reset_pwd.html"
 	data := map[string]interface{}{"activeUsers": "active"}
 
-	method := ctx.Request().Method()
+	method := ctx.Request().Method
 
 	passwd := ctx.FormValue("passwd")
 	email, ok := resetPwdMap[uuid]
@@ -402,7 +404,7 @@ func (AccountController) ResetPasswd(ctx echo.Context) error {
 			data["error"] = "两次密码输入不一致"
 		} else {
 			// 更新密码
-			_, err := logic.DefaultUser.ResetPasswd(ctx, email, passwd)
+			_, err := logic.DefaultUser.ResetPasswd(context.EchoContext(ctx), email, passwd)
 			if err != nil {
 				data["error"] = "对不起，服务器错误，请重试！"
 			} else {
@@ -427,7 +429,7 @@ func (AccountController) Logout(ctx echo.Context) error {
 func (AccountController) Unbind(ctx echo.Context) error {
 	bindId := ctx.FormValue("bind_id")
 	me := ctx.Get("user").(*model.Me)
-	logic.DefaultThirdUser.UnBindUser(ctx, bindId, me)
+	logic.DefaultThirdUser.UnBindUser(context.EchoContext(ctx), bindId, me)
 
 	return ctx.Redirect(http.StatusSeeOther, "/account/edit#connection")
 }

@@ -4,11 +4,11 @@ package main
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/facebookgo/grace/gracehttp"
-	"github.com/labstack/echo/engine/standard"
 )
 
-func gracefulRun(std *standard.Server) {
-	log.Fatal(gracehttp.Serve(std.Server))
+func gracefulRun(server *http.Server) {
+	log.Fatal(gracehttp.Serve(server))
 }

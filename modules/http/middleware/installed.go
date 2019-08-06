@@ -12,7 +12,7 @@ import (
 
 	"github.com/studygolang/studygolang/modules/db"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 )
 
 // Installed 用于 echo 框架，判断是否已经安装了
@@ -24,7 +24,7 @@ func Installed(filterPrefixs []string) echo.MiddlewareFunc {
 			if db.MasterDB == nil {
 				shouldRedirect := true
 
-				uri := ctx.Request().URI()
+				uri := ctx.Request().RequestURI
 				for _, prefix := range filterPrefixs {
 					if strings.HasPrefix(uri, prefix) {
 						shouldRedirect = false

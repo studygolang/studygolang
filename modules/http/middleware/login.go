@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	mycontext "github.com/studygolang/studygolang/modules/context"
 	"github.com/studygolang/studygolang/modules/db"
 	. "github.com/studygolang/studygolang/modules/http"
 	"github.com/studygolang/studygolang/modules/logic"
@@ -20,10 +21,8 @@ import (
 	"github.com/studygolang/studygolang/modules/util"
 
 	"github.com/gorilla/context"
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
-
-	netcontext "golang.org/x/net/context"
 )
 
 // AutoLogin 用于 echo 框架的自动登录和通过 cookie 获取用户信息
@@ -43,9 +42,9 @@ func AutoLogin() echo.MiddlewareFunc {
 				}
 
 				if db.MasterDB != nil {
-					valCtx := netcontext.WithValue(ctx, "ip", ip)
+					ctx.Set("ip", ip)
 					// TODO: 考虑缓存，或延迟查询，避免每次都查询
-					user := logic.DefaultUser.FindCurrentUser(valCtx, usernameOrId)
+					user := logic.DefaultUser.FindCurrentUser(mycontext.EchoContext(ctx), usernameOrId)
 					if user.Uid != 0 {
 						ctx.Set("user", user)
 
@@ -83,7 +82,7 @@ func NeedLogin() echo.MiddlewareFunc {
 		return func(ctx echo.Context) error {
 			user, ok := ctx.Get("user").(*model.Me)
 			if !ok || user.Status != model.UserStatusAudit {
-				method := ctx.Request().Method()
+				method := ctx.Request().Method
 				if util.IsAjax(ctx) {
 					if !strings.HasPrefix(ctx.Path(), "/account") {
 						return ctx.JSON(http.StatusForbidden, map[string]interface{}{"ok": 0, "error": "403 Forbidden"})
@@ -94,10 +93,10 @@ func NeedLogin() echo.MiddlewareFunc {
 					}
 
 					if !ok {
-						reqURL := ctx.Request().URL()
-						uri := reqURL.Path()
-						if reqURL.QueryString() != "" {
-							uri += "?" + reqURL.QueryString()
+						reqURL := ctx.Request().URL
+						uri := reqURL.Path
+						if reqURL.RawQuery != "" {
+							uri += "?" + reqURL.RawQuery
 						}
 						return ctx.Redirect(http.StatusSeeOther, "/account/login?redirect_uri="+url.QueryEscape(uri))
 					} else {

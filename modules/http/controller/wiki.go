@@ -9,12 +9,13 @@ package controller
 import (
 	"net/http"
 
+	"github.com/studygolang/studygolang/modules/context"
+	. "github.com/studygolang/studygolang/modules/http"
 	"github.com/studygolang/studygolang/modules/http/middleware"
 	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
-	. "github.com/studygolang/studygolang/modules/http"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 )
@@ -40,12 +41,13 @@ func (self WikiController) RegisterRoute(g *echo.Group) {
 func (WikiController) Create(ctx echo.Context) error {
 	title := ctx.FormValue("title")
 	// 请求新建 wiki 页面
-	if title == "" || ctx.Request().Method() != "POST" {
+	if title == "" || ctx.Request().Method != "POST" {
 		return render(ctx, "wiki/new.html", map[string]interface{}{"activeWiki": "active"})
 	}
 
 	me := ctx.Get("user").(*model.Me)
-	err := logic.DefaultWiki.Create(ctx, me, ctx.FormParams())
+	forms, _ := ctx.FormParams()
+	err := logic.DefaultWiki.Create(context.EchoContext(ctx), me, forms)
 	if err != nil {
 		return fail(ctx, 1, "内部服务错误")
 	}
@@ -60,8 +62,8 @@ func (WikiController) Modify(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusSeeOther, "/wiki")
 	}
 
-	if ctx.Request().Method() != "POST" {
-		wiki := logic.DefaultWiki.FindById(ctx, id)
+	if ctx.Request().Method != "POST" {
+		wiki := logic.DefaultWiki.FindById(context.EchoContext(ctx), id)
 		if wiki.Id == 0 {
 			return ctx.Redirect(http.StatusSeeOther, "/wiki")
 		}
@@ -70,7 +72,8 @@ func (WikiController) Modify(ctx echo.Context) error {
 	}
 
 	me := ctx.Get("user").(*model.Me)
-	err := logic.DefaultWiki.Modify(ctx, me, ctx.FormParams())
+	forms, _ := ctx.FormParams()
+	err := logic.DefaultWiki.Modify(context.EchoContext(ctx), me, forms)
 	if err != nil {
 		return fail(ctx, 1, "内部服务错误")
 	}
@@ -80,7 +83,7 @@ func (WikiController) Modify(ctx echo.Context) error {
 
 // Detail 展示wiki页
 func (WikiController) Detail(ctx echo.Context) error {
-	wiki := logic.DefaultWiki.FindOne(ctx, ctx.Param("uri"))
+	wiki := logic.DefaultWiki.FindOne(context.EchoContext(ctx), ctx.Param("uri"))
 	if wiki == nil {
 		return ctx.Redirect(http.StatusSeeOther, "/wiki")
 	}
@@ -105,7 +108,7 @@ func (WikiController) ReadList(ctx echo.Context) error {
 	limit := 20
 
 	lastId := goutils.MustInt(ctx.QueryParam("lastid"))
-	wikis := logic.DefaultWiki.FindBy(ctx, limit+5, lastId)
+	wikis := logic.DefaultWiki.FindBy(context.EchoContext(ctx), limit+5, lastId)
 	if wikis == nil {
 		logger.Errorln("wiki controller: find wikis error")
 		return ctx.Redirect(http.StatusSeeOther, "/wiki")

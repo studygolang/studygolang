@@ -7,13 +7,13 @@
 package app
 
 import (
-	"github.com/studygolang/studygolang/modules/logic"
-
-	"github.com/labstack/echo"
-	"github.com/polaris1119/goutils"
-
+	"github.com/studygolang/studygolang/modules/context"
 	. "github.com/studygolang/studygolang/modules/http"
+	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
+
+	echo "github.com/labstack/echo/v4"
+	"github.com/polaris1119/goutils"
 )
 
 type ResourceController struct{}
@@ -29,7 +29,7 @@ func (ResourceController) ReadList(ctx echo.Context) error {
 	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
 	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
 
-	resources, total := logic.DefaultResource.FindAll(ctx, paginator, "resource.mtime", "")
+	resources, total := logic.DefaultResource.FindAll(context.EchoContext(ctx), paginator, "resource.mtime", "")
 	hasMore := paginator.SetTotal(total).HasMorePage()
 
 	data := map[string]interface{}{
@@ -43,7 +43,7 @@ func (ResourceController) ReadList(ctx echo.Context) error {
 // Detail 某个资源详细页
 func (ResourceController) Detail(ctx echo.Context) error {
 	id := goutils.MustInt(ctx.QueryParam("id"))
-	resource, comments := logic.DefaultResource.FindById(ctx, id)
+	resource, comments := logic.DefaultResource.FindById(context.EchoContext(ctx), id)
 	if len(resource) == 0 {
 		return fail(ctx, "获取失败")
 	}

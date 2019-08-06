@@ -9,12 +9,13 @@ package controller
 // 喜欢系统
 
 import (
+	"github.com/studygolang/studygolang/modules/context"
 	"github.com/studygolang/studygolang/modules/http/middleware"
 	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
 	"github.com/studygolang/studygolang/modules/util"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
 )
 
@@ -27,7 +28,7 @@ func (self LikeController) RegisterRoute(g *echo.Group) {
 
 // Like 喜欢（或取消喜欢）
 func (LikeController) Like(ctx echo.Context) error {
-	form := ctx.FormParams()
+	form, _ := ctx.FormParams()
 	if !util.CheckInt(form, "objtype") || !util.CheckInt(form, "flag") {
 		return fail(ctx, 1, "参数错误")
 	}
@@ -37,7 +38,7 @@ func (LikeController) Like(ctx echo.Context) error {
 	objtype := goutils.MustInt(ctx.FormValue("objtype"))
 	likeFlag := goutils.MustInt(ctx.FormValue("flag"))
 
-	err := logic.DefaultLike.LikeObject(ctx, user.Uid, objid, objtype, likeFlag)
+	err := logic.DefaultLike.LikeObject(context.EchoContext(ctx), user.Uid, objid, objtype, likeFlag)
 	if err != nil {
 		return fail(ctx, 2, "服务器内部错误")
 	}

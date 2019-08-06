@@ -10,11 +10,12 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/studygolang/studygolang/modules/context"
 	"github.com/studygolang/studygolang/modules/http/middleware"
 	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/times"
 )
 
@@ -22,14 +23,14 @@ type MissionController struct{}
 
 // 注册路由
 func (self MissionController) RegisterRoute(g *echo.Group) {
-	g.Get("/mission/daily", self.Daily, middleware.NeedLogin())
-	g.Get("/mission/daily/redeem", self.DailyRedeem, middleware.NeedLogin())
-	g.Get("/mission/complete/:id", self.Complete, middleware.NeedLogin())
+	g.GET("/mission/daily", self.Daily, middleware.NeedLogin())
+	g.GET("/mission/daily/redeem", self.DailyRedeem, middleware.NeedLogin())
+	g.GET("/mission/complete/:id", self.Complete, middleware.NeedLogin())
 }
 
 func (MissionController) Daily(ctx echo.Context) error {
 	me := ctx.Get("user").(*model.Me)
-	userLoginMission := logic.DefaultMission.FindLoginMission(ctx, me)
+	userLoginMission := logic.DefaultMission.FindLoginMission(context.EchoContext(ctx), me)
 	userLoginMission.Uid = me.Uid
 
 	data := map[string]interface{}{"login_mission": userLoginMission}
@@ -49,7 +50,7 @@ func (MissionController) Daily(ctx echo.Context) error {
 
 func (MissionController) DailyRedeem(ctx echo.Context) error {
 	me := ctx.Get("user").(*model.Me)
-	logic.DefaultMission.RedeemLoginAward(ctx, me)
+	logic.DefaultMission.RedeemLoginAward(context.EchoContext(ctx), me)
 
 	return ctx.Redirect(http.StatusSeeOther, "/mission/daily?fr=redeem")
 }
@@ -57,7 +58,7 @@ func (MissionController) DailyRedeem(ctx echo.Context) error {
 func (MissionController) Complete(ctx echo.Context) error {
 	me := ctx.Get("user").(*model.Me)
 	id := ctx.Param("id")
-	logic.DefaultMission.Complete(ctx, me, id)
+	logic.DefaultMission.Complete(context.EchoContext(ctx), me, id)
 
 	return ctx.Redirect(http.StatusSeeOther, "/balance")
 }

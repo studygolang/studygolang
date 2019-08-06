@@ -8,10 +8,12 @@ package controller
 
 import (
 	"io/ioutil"
-	"github.com/studygolang/studygolang/modules/logic"
 	"net/http"
 
-	"github.com/labstack/echo"
+	"github.com/studygolang/studygolang/modules/context"
+	"github.com/studygolang/studygolang/modules/logic"
+
+	echo "github.com/labstack/echo/v4"
 )
 
 type WechatController struct{}
@@ -27,7 +29,7 @@ func (self WechatController) AutoReply(ctx echo.Context) error {
 		return ctx.String(http.StatusOK, ctx.QueryParam("echostr"))
 	}
 
-	body, err := ioutil.ReadAll(ctx.Request().Body())
+	body, err := ioutil.ReadAll(ctx.Request().Body)
 	if err != nil {
 		return ctx.String(http.StatusOK, "")
 	}
@@ -36,7 +38,7 @@ func (self WechatController) AutoReply(ctx echo.Context) error {
 		return ctx.String(http.StatusOK, "")
 	}
 
-	wechatReply, err := logic.DefaultWechat.AutoReply(ctx, body)
+	wechatReply, err := logic.DefaultWechat.AutoReply(context.EchoContext(ctx), body)
 	if err != nil {
 		return ctx.String(http.StatusOK, "")
 	}

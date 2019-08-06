@@ -7,13 +7,13 @@
 package app
 
 import (
-	"github.com/studygolang/studygolang/modules/logic"
-
-	"github.com/labstack/echo"
-	"github.com/polaris1119/goutils"
-
+	"github.com/studygolang/studygolang/modules/context"
 	. "github.com/studygolang/studygolang/modules/http"
+	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
+
+	echo "github.com/labstack/echo/v4"
+	"github.com/polaris1119/goutils"
 )
 
 type ProjectController struct{}
@@ -29,9 +29,9 @@ func (ProjectController) ReadList(ctx echo.Context) error {
 	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
 	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
 
-	projects := logic.DefaultProject.FindAll(ctx, paginator, "id DESC", "")
+	projects := logic.DefaultProject.FindAll(context.EchoContext(ctx), paginator, "id DESC", "")
 
-	total := logic.DefaultProject.Count(ctx, "")
+	total := logic.DefaultProject.Count(context.EchoContext(ctx), "")
 	hasMore := paginator.SetTotal(total).HasMorePage()
 
 	data := map[string]interface{}{
@@ -45,7 +45,7 @@ func (ProjectController) ReadList(ctx echo.Context) error {
 // Detail 项目详情
 func (ProjectController) Detail(ctx echo.Context) error {
 	id := goutils.MustInt(ctx.QueryParam("id"))
-	project := logic.DefaultProject.FindOne(ctx, id)
+	project := logic.DefaultProject.FindOne(context.EchoContext(ctx), id)
 	if project == nil || project.Id == 0 {
 		return fail(ctx, "获取失败或已下线")
 	}
@@ -56,7 +56,7 @@ func (ProjectController) Detail(ctx echo.Context) error {
 	project.Viewnum++
 
 	// 回复信息（评论）
-	replies, _, lastReplyUser := logic.DefaultComment.FindObjComments(ctx, project.Id, model.TypeProject, 0, project.Lastreplyuid)
+	replies, _, lastReplyUser := logic.DefaultComment.FindObjComments(context.EchoContext(ctx), project.Id, model.TypeProject, 0, project.Lastreplyuid)
 	// 有人回复
 	if project.Lastreplyuid != 0 {
 		project.LastReplyUser = lastReplyUser

@@ -7,11 +7,13 @@
 package admin
 
 import (
-	"github.com/studygolang/studygolang/modules/logic"
-	"github.com/studygolang/studygolang/modules/model"
 	"net/http"
 
-	"github.com/labstack/echo"
+	"github.com/studygolang/studygolang/modules/context"
+	"github.com/studygolang/studygolang/modules/logic"
+	"github.com/studygolang/studygolang/modules/model"
+
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
 )
 
@@ -28,7 +30,7 @@ func (self ReadingController) RegisterRoute(g *echo.Group) {
 func (ReadingController) ReadingList(ctx echo.Context) error {
 	curPage, limit := parsePage(ctx)
 
-	readings, total := logic.DefaultReading.FindReadingByPage(ctx, nil, curPage, limit)
+	readings, total := logic.DefaultReading.FindReadingByPage(context.EchoContext(ctx), nil, curPage, limit)
 	if readings == nil {
 		return ctx.HTML(http.StatusInternalServerError, "500")
 	}
@@ -49,7 +51,7 @@ func (ReadingController) ReadingQuery(ctx echo.Context) error {
 	curPage, limit := parsePage(ctx)
 	conds := parseConds(ctx, []string{"id", "rtype"})
 
-	readings, total := logic.DefaultReading.FindReadingByPage(ctx, conds, curPage, limit)
+	readings, total := logic.DefaultReading.FindReadingByPage(context.EchoContext(ctx), conds, curPage, limit)
 	if readings == nil {
 		return ctx.HTML(http.StatusInternalServerError, "500")
 	}
@@ -71,7 +73,8 @@ func (ReadingController) Publish(ctx echo.Context) error {
 
 	if ctx.FormValue("submit") == "1" {
 		user := ctx.Get("user").(*model.Me)
-		errMsg, err := logic.DefaultReading.SaveReading(ctx, ctx.FormParams(), user.Username)
+		forms, _ := ctx.FormParams()
+		errMsg, err := logic.DefaultReading.SaveReading(context.EchoContext(ctx), forms, user.Username)
 		if err != nil {
 			return fail(ctx, 1, errMsg)
 		}
@@ -80,7 +83,7 @@ func (ReadingController) Publish(ctx echo.Context) error {
 
 	id := goutils.MustInt(ctx.QueryParam("id"))
 	if id != 0 {
-		reading := logic.DefaultReading.FindById(ctx, id)
+		reading := logic.DefaultReading.FindById(context.EchoContext(ctx), id)
 		if reading != nil {
 			data["reading"] = reading
 		}

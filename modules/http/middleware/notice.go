@@ -8,10 +8,12 @@ package middleware
 
 import (
 	"fmt"
+
+	"github.com/studygolang/studygolang/modules/context"
 	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 )
 
 // PublishNotice 用于 echo 框架，用户发布内容邮件通知站长
@@ -29,10 +31,10 @@ func PublishNotice() echo.MiddlewareFunc {
 
 			title := ctx.FormValue("title")
 			content := ctx.FormValue("content")
-			if ctx.Request().Method() == "POST" && (title != "" || content != "") {
-				requestURI := ctx.Request().URI()
+			if ctx.Request().Method == "POST" && (title != "" || content != "") {
+				requestURI := ctx.Request().RequestURI
 				go func() {
-					user := logic.DefaultUser.FindOne(ctx, "is_root", 1)
+					user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "is_root", 1)
 					if user.Uid == 0 {
 						return
 					}

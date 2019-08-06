@@ -10,11 +10,12 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/studygolang/studygolang/modules/context"
 	"github.com/studygolang/studygolang/modules/http/middleware"
 	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/slices"
 )
@@ -23,8 +24,8 @@ type FavoriteController struct{}
 
 // 注册路由
 func (self FavoriteController) RegisterRoute(g *echo.Group) {
-	g.Post("/favorite/:objid", self.Create, middleware.NeedLogin())
-	g.Get("/favorites/:username", self.ReadList)
+	g.POST("/favorite/:objid", self.Create, middleware.NeedLogin())
+	g.GET("/favorites/:username", self.ReadList)
 }
 
 // Create 收藏(取消收藏)
@@ -37,9 +38,9 @@ func (FavoriteController) Create(ctx echo.Context) error {
 
 	var err error
 	if collect == 1 {
-		err = logic.DefaultFavorite.Save(ctx, user.Uid, objid, objtype)
+		err = logic.DefaultFavorite.Save(context.EchoContext(ctx), user.Uid, objid, objtype)
 	} else {
-		err = logic.DefaultFavorite.Cancel(ctx, user.Uid, objid, objtype)
+		err = logic.DefaultFavorite.Cancel(context.EchoContext(ctx), user.Uid, objid, objtype)
 	}
 
 	if err != nil {
@@ -52,7 +53,7 @@ func (FavoriteController) Create(ctx echo.Context) error {
 // ReadList 我的(某人的)收藏
 func (FavoriteController) ReadList(ctx echo.Context) error {
 	username := ctx.Param("username")
-	user := logic.DefaultUser.FindOne(ctx, "username", username)
+	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "username", username)
 	if user == nil || user.Uid == 0 {
 		return ctx.Redirect(http.StatusSeeOther, "/")
 	}
@@ -66,7 +67,7 @@ func (FavoriteController) ReadList(ctx echo.Context) error {
 	if rows > 20 {
 		rows = 20
 	}
-	favorites, total := logic.DefaultFavorite.FindUserFavorites(ctx, user.Uid, objtype, (p-1)*rows, rows)
+	favorites, total := logic.DefaultFavorite.FindUserFavorites(context.EchoContext(ctx), user.Uid, objtype, (p-1)*rows, rows)
 	if total > 0 {
 		objids := slices.StructsIntSlice(favorites, "Objid")
 

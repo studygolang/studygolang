@@ -7,10 +7,12 @@
 package admin
 
 import (
-	"github.com/studygolang/studygolang/modules/logic"
 	"net/http"
 
-	"github.com/labstack/echo"
+	"github.com/studygolang/studygolang/modules/context"
+	"github.com/studygolang/studygolang/modules/logic"
+
+	echo "github.com/labstack/echo/v4"
 )
 
 type AuthorityController struct{}
@@ -47,7 +49,7 @@ func (AuthorityController) AuthQuery(ctx echo.Context) error {
 
 	conds := parseConds(ctx, []string{"route", "name"})
 
-	authorities, total := logic.DefaultAuthority.FindAuthoritiesByPage(ctx, conds, curPage, limit)
+	authorities, total := logic.DefaultAuthority.FindAuthoritiesByPage(context.EchoContext(ctx), conds, curPage, limit)
 
 	if authorities == nil {
 		return ctx.HTML(http.StatusInternalServerError, "500")

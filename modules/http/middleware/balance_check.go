@@ -7,11 +7,12 @@
 package middleware
 
 import (
-	"github.com/studygolang/studygolang/modules/model"
 	"net/http"
+
+	"github.com/studygolang/studygolang/modules/model"
 	"github.com/studygolang/studygolang/modules/util"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 )
 
 // BalanceCheck 用于 echo 框架，用户发布内容校验余额是否足够
@@ -25,7 +26,7 @@ func BalanceCheck() echo.MiddlewareFunc {
 
 				title := ctx.FormValue("title")
 				content := ctx.FormValue("content")
-				if ctx.Request().Method() == "POST" && (title != "" || content != "") {
+				if ctx.Request().Method == "POST" && (title != "" || content != "") {
 					if ctx.Path() == "/comment/:objid" {
 						if curUser.Balance < 5 {
 							return ctx.String(http.StatusOK, `{"ok":0,"error":"对不起，您的账号余额不足，可以领取初始资本！"}`)

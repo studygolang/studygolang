@@ -10,19 +10,19 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/studygolang/studygolang/modules/logic"
+	"github.com/studygolang/studygolang/modules/context"
 	. "github.com/studygolang/studygolang/modules/http"
-)
-	"github.com/labstack/echo"
+	"github.com/studygolang/studygolang/modules/logic"
+
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/logger"
 	"github.com/polaris1119/nosql"
-
-	
+)
 
 const perPage = 12
 
 func getLogger(ctx echo.Context) *logger.Logger {
-	return logic.GetLogger(ctx)
+	return logic.GetLogger(context.EchoContext(ctx))
 }
 
 func success(ctx echo.Context, data interface{}) error {
@@ -45,7 +45,7 @@ func success(ctx echo.Context, data interface{}) error {
 
 	AccessControl(ctx)
 
-	if ctx.Response().Committed() {
+	if ctx.Response().Committed {
 		getLogger(ctx).Flush()
 		return nil
 	}
@@ -56,7 +56,7 @@ func success(ctx echo.Context, data interface{}) error {
 func fail(ctx echo.Context, msg string, codes ...int) error {
 	AccessControl(ctx)
 
-	if ctx.Response().Committed() {
+	if ctx.Response().Committed {
 		getLogger(ctx).Flush()
 		return nil
 	}

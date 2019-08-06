@@ -7,10 +7,10 @@
 package controller
 
 import (
+	"github.com/studygolang/studygolang/modules/context"
 	"github.com/studygolang/studygolang/modules/logic"
 
-	"github.com/labstack/echo"
-
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/times"
 )
 
@@ -18,8 +18,8 @@ type TopController struct{}
 
 // 注册路由
 func (self TopController) RegisterRoute(g *echo.Group) {
-	g.Get("/top/dau", self.TopDAU)
-	g.Get("/top/rich", self.TopRich)
+	g.GET("/top/dau", self.TopDAU)
+	g.GET("/top/rich", self.TopRich)
 }
 
 func (TopController) TopDAU(ctx echo.Context) error {
@@ -27,15 +27,15 @@ func (TopController) TopDAU(ctx echo.Context) error {
 		"today": times.Format("Ymd"),
 	}
 
-	data["users"] = logic.DefaultRank.FindDAURank(ctx, 10)
-	data["active_num"] = logic.DefaultRank.TotalDAUUser(ctx)
+	data["users"] = logic.DefaultRank.FindDAURank(context.EchoContext(ctx), 10)
+	data["active_num"] = logic.DefaultRank.TotalDAUUser(context.EchoContext(ctx))
 
 	return render(ctx, "top/dau.html", data)
 }
 
 func (TopController) TopRich(ctx echo.Context) error {
 	data := map[string]interface{}{
-		"users": logic.DefaultRank.FindRichRank(ctx),
+		"users": logic.DefaultRank.FindRichRank(context.EchoContext(ctx)),
 	}
 
 	return render(ctx, "top/rich.html", data)
