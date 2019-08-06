@@ -29,7 +29,6 @@ require (
 	github.com/issue9/assert v1.3.3 // indirect
 	github.com/jaytaylor/html2text v0.0.0-20190408195923-01ec452cbe43
 	github.com/jmcvetta/randutil v0.0.0-20150817122601-2bb1b664bcff // indirect
-	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/echo/v4 v4.1.8
 	github.com/lunny/html2md v0.0.0-20181018071239-7d234de44546
 	github.com/mattn/go-runewidth v0.0.4 // indirect
@@ -40,7 +39,6 @@ require (
 	github.com/polaris1119/goutils v0.0.0-20160602032428-582c98b3184b
 	github.com/polaris1119/keyword v0.0.0-20170608075927-96ae6735f2f2
 	github.com/polaris1119/logger v0.0.0-20170422061149-0233d014769e
-	github.com/polaris1119/middleware v0.0.0-20170422072158-4876473158db
 	github.com/polaris1119/nosql v0.0.0-20181019111233-3852ef28d084
 	github.com/polaris1119/set v0.1.1-0.20160423093427-654439414ced
 	github.com/polaris1119/slices v0.0.0-20160517071324-6ecacdb3cd38
