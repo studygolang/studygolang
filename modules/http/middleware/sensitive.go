@@ -7,14 +7,14 @@
 package middleware
 
 import (
-	"github.com/studygolang/studygolang/modules/logic"
 	"net/http"
 	"strings"
 
+	"github.com/studygolang/studygolang/modules/context"
+	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
 
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/engine/standard"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
@@ -43,7 +43,7 @@ func Sensivite() echo.MiddlewareFunc {
 				for _, s := range titleSensitives {
 					if hasSensitiveChar(title, s) {
 						// 把账号冻结
-						logic.DefaultUser.UpdateUserStatus(ctx, user.Uid, model.UserStatusFreeze)
+						logic.DefaultUser.UpdateUserStatus(context.EchoContext(ctx), user.Uid, model.UserStatusFreeze)
 						logger.Infoln("user=", user.Uid, "publish ad, title=", title, ". freeze")
 						// IP 加入黑名单
 						addBlackIP(ctx)
@@ -54,7 +54,7 @@ func Sensivite() echo.MiddlewareFunc {
 
 			if hasSensitive(title, contentSensitives) || hasSensitive(content, contentSensitives) {
 				// 把账号冻结
-				logic.DefaultUser.UpdateUserStatus(ctx, user.Uid, model.UserStatusFreeze)
+				logic.DefaultUser.UpdateUserStatus(context.EchoContext(ctx), user.Uid, model.UserStatusFreeze)
 				logger.Infoln("user=", user.Uid, "publish ad, title=", title, ";content=", content, ". freeze")
 				// IP 加入黑名单
 				addBlackIP(ctx)
@@ -105,9 +105,7 @@ func hasSensitiveChar(title, sensitive string) bool {
 }
 
 func addBlackIP(ctx echo.Context) {
-	req := ctx.Request().(*standard.Request).Request
-
-	ip := goutils.RemoteIp(req)
+	ip := goutils.RemoteIp(ctx.Request())
 
 	logic.DefaultRisk.AddBlackIP(ip)
 }

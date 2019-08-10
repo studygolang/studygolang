@@ -7,12 +7,14 @@
 package admin
 
 import (
-	"github.com/studygolang/studygolang/modules/logic"
-	"github.com/studygolang/studygolang/modules/model"
 	"net/http"
 	"strings"
 
-	"github.com/labstack/echo"
+	"github.com/studygolang/studygolang/modules/context"
+	"github.com/studygolang/studygolang/modules/logic"
+	"github.com/studygolang/studygolang/modules/model"
+
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
 )
 
@@ -31,7 +33,7 @@ func (self ArticleController) RegisterRoute(g *echo.Group) {
 // ArticleList 所有文章（分页）
 func (ArticleController) ArticleList(ctx echo.Context) error {
 	curPage, limit := parsePage(ctx)
-	articles, total := logic.DefaultArticle.FindArticleByPage(ctx, nil, curPage, limit)
+	articles, total := logic.DefaultArticle.FindArticleByPage(context.EchoContext(ctx), nil, curPage, limit)
 
 	if articles == nil {
 		return ctx.HTML(http.StatusInternalServerError, "500")
@@ -53,7 +55,7 @@ func (ArticleController) ArticleQuery(ctx echo.Context) error {
 	curPage, limit := parsePage(ctx)
 	conds := parseConds(ctx, []string{"id", "domain", "title"})
 
-	articles, total := logic.DefaultArticle.FindArticleByPage(ctx, conds, curPage, limit)
+	articles, total := logic.DefaultArticle.FindArticleByPage(context.EchoContext(ctx), conds, curPage, limit)
 
 	if articles == nil {
 		return ctx.HTML(http.StatusInternalServerError, "500")
@@ -85,7 +87,7 @@ func (ArticleController) CrawlArticle(ctx echo.Context) error {
 			url = strings.TrimSpace(url)
 
 			if strings.HasPrefix(url, "http") {
-				_, err = logic.DefaultArticle.ParseArticle(ctx, url, false)
+				_, err = logic.DefaultArticle.ParseArticle(context.EchoContext(ctx), url, false)
 			} else {
 				isAll := false
 				websiteInfo := strings.Split(url, ":")
@@ -115,7 +117,8 @@ func (self ArticleController) Publish(ctx echo.Context) error {
 
 	if ctx.FormValue("submit") == "1" {
 		user := ctx.Get("user").(*model.Me)
-		err := logic.DefaultArticle.PublishFromAdmin(ctx, user, ctx.FormParams())
+		forms, _ := ctx.FormParams()
+		err := logic.DefaultArticle.PublishFromAdmin(context.EchoContext(ctx), user, forms)
 		if err != nil {
 			return fail(ctx, 1, err.Error())
 		}
@@ -134,13 +137,14 @@ func (self ArticleController) Modify(ctx echo.Context) error {
 
 	if ctx.FormValue("submit") == "1" {
 		user := ctx.Get("user").(*model.Me)
-		errMsg, err := logic.DefaultArticle.Modify(ctx, user, ctx.FormParams())
+		forms, _ := ctx.FormParams()
+		errMsg, err := logic.DefaultArticle.Modify(context.EchoContext(ctx), user, forms)
 		if err != nil {
 			return fail(ctx, 1, errMsg)
 		}
 		return success(ctx, nil)
 	}
-	article, err := logic.DefaultArticle.FindById(ctx, ctx.QueryParam("id"))
+	article, err := logic.DefaultArticle.FindById(context.EchoContext(ctx), ctx.QueryParam("id"))
 	if err != nil {
 		return ctx.Redirect(http.StatusSeeOther, ctx.Echo().URI(echo.HandlerFunc(self.ArticleList)))
 	}
@@ -155,7 +159,7 @@ func (self ArticleController) Modify(ctx echo.Context) error {
 // MoveToTopic 放入 Topic 中
 func (self ArticleController) MoveToTopic(ctx echo.Context) error {
 	user := ctx.Get("user").(*model.Me)
-	err := logic.DefaultArticle.MoveToTopic(ctx, ctx.QueryParam("id"), user)
+	err := logic.DefaultArticle.MoveToTopic(context.EchoContext(ctx), ctx.QueryParam("id"), user)
 
 	if err != nil {
 		return fail(ctx, 1, err.Error())

@@ -14,12 +14,13 @@ import (
 	"runtime"
 	"strconv"
 
+	"github.com/studygolang/studygolang/modules/context"
 	"github.com/studygolang/studygolang/modules/db"
 	"github.com/studygolang/studygolang/modules/global"
 	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 )
@@ -37,7 +38,7 @@ func (self InstallController) RegisterRoute(g *echo.Group) {
 func (self InstallController) SetupConfig(ctx echo.Context) error {
 	// config/env.ini 存在
 	if db.MasterDB != nil {
-		if logic.DefaultInstall.IsTableExist(ctx) {
+		if logic.DefaultInstall.IsTableExist(context.EchoContext(ctx)) {
 			return ctx.Redirect(http.StatusSeeOther, "/")
 		}
 		return ctx.Redirect(http.StatusSeeOther, "/install/do")
@@ -73,8 +74,8 @@ func (self InstallController) DoInstall(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusSeeOther, "/install")
 	}
 
-	if logic.DefaultInstall.IsTableExist(ctx) {
-		if logic.DefaultInstall.HadRootUser(ctx) {
+	if logic.DefaultInstall.IsTableExist(context.EchoContext(ctx)) {
+		if logic.DefaultInstall.HadRootUser(context.EchoContext(ctx)) {
 			return ctx.Redirect(http.StatusSeeOther, "/")
 		}
 	}
@@ -105,13 +106,13 @@ func (self InstallController) DoInstall(ctx echo.Context) error {
 			return renderInstall(ctx, "install/install.html", data)
 		}
 
-		err := logic.DefaultInstall.CreateTable(ctx)
+		err := logic.DefaultInstall.CreateTable(context.EchoContext(ctx))
 		if err != nil {
 			data["err"] = "创建数据表失败！"
 			return renderInstall(ctx, "install/install.html", data)
 		}
 
-		err = logic.DefaultInstall.InitTable(ctx)
+		err = logic.DefaultInstall.InitTable(context.EchoContext(ctx))
 		if err != nil {
 			data["err"] = "初始化数据表失败！"
 			return renderInstall(ctx, "install/install.html", data)
@@ -130,7 +131,7 @@ func (self InstallController) DoInstall(ctx echo.Context) error {
 			"is_root":  {"true"},
 			"status":   {strconv.Itoa(model.UserStatusAudit)},
 		}
-		errMsg, err := logic.DefaultUser.CreateUser(ctx, form)
+		errMsg, err := logic.DefaultUser.CreateUser(context.EchoContext(ctx), form)
 		if err != nil {
 			data["err"] = errMsg
 			return renderInstall(ctx, "install/install.html", data)
@@ -164,7 +165,7 @@ func (InstallController) SetupOptions(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusSeeOther, "/")
 	}
 
-	if ctx.Request().Method() == "POST" {
+	if ctx.Request().Method == "POST" {
 		config.ConfigFile.SetSectionComments("email", "用于注册发送激活码等")
 		emailFields := []string{"smtp_host", "smtp_port", "smtp_username", "smtp_password", "from_email"}
 		for _, field := range emailFields {
@@ -278,7 +279,7 @@ func renderInstall(ctx echo.Context, filename string, data map[string]interface{
 
 	filename = config.TemplateDir + filename
 
-	requestURI := ctx.Request().URI()
+	requestURI := ctx.Request().RequestURI
 	tpl, err := template.ParseFiles(filename)
 	if err != nil {
 		objLog.Errorf("解析模板出错（ParseFiles）：[%q] %s\n", requestURI, err)

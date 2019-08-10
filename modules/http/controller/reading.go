@@ -7,11 +7,13 @@
 package controller
 
 import (
-	"github.com/studygolang/studygolang/modules/logic"
-	"github.com/studygolang/studygolang/modules/model"
 	"net/http"
 
-	"github.com/labstack/echo"
+	"github.com/studygolang/studygolang/modules/context"
+	"github.com/studygolang/studygolang/modules/logic"
+	"github.com/studygolang/studygolang/modules/model"
+
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
 )
 
@@ -29,7 +31,7 @@ func (ReadingController) ReadingList(ctx echo.Context) error {
 	lastId := goutils.MustInt(ctx.QueryParam("lastid"))
 	rtype := goutils.MustInt(ctx.QueryParam("rtype"), model.RtypeGo)
 
-	readings := logic.DefaultReading.FindBy(ctx, limit+5, rtype, lastId)
+	readings := logic.DefaultReading.FindBy(context.EchoContext(ctx), limit+5, rtype, lastId)
 	num := len(readings)
 	if num == 0 {
 		if lastId == 0 {
@@ -75,6 +77,6 @@ func (ReadingController) ReadingList(ctx echo.Context) error {
 
 // IReading 点击 【我要晨读】，记录点击数，跳转
 func (ReadingController) IReading(ctx echo.Context) error {
-	uri := logic.DefaultReading.IReading(ctx, goutils.MustInt(ctx.Param("id")))
+	uri := logic.DefaultReading.IReading(context.EchoContext(ctx), goutils.MustInt(ctx.Param("id")))
 	return ctx.Redirect(http.StatusSeeOther, uri)
 }

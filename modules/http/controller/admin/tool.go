@@ -9,7 +9,7 @@ package admin
 import (
 	"github.com/studygolang/studygolang/modules/logic"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 )
 
 type ToolController struct{}

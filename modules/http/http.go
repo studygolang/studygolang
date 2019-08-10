@@ -17,14 +17,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/studygolang/studygolang/modules/context"
 	"github.com/studygolang/studygolang/modules/global"
 	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
 	"github.com/studygolang/studygolang/modules/util"
 
 	"github.com/gorilla/sessions"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/engine/standard"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
@@ -76,11 +76,11 @@ func GetCookieSession(ctx echo.Context) *sessions.Session {
 }
 
 func Request(ctx echo.Context) *http.Request {
-	return ctx.Request().(*standard.Request).Request
+	return ctx.Request()
 }
 
 func ResponseWriter(ctx echo.Context) http.ResponseWriter {
-	return ctx.Response().(*standard.Response).ResponseWriter
+	return ctx.Response()
 }
 
 // 自定义模板函数
@@ -241,7 +241,7 @@ func Render(ctx echo.Context, contentTpl string, data map[string]interface{}) er
 		data = map[string]interface{}{}
 	}
 
-	objLog := logic.GetLogger(ctx)
+	objLog := logic.GetLogger(context.EchoContext(ctx))
 
 	contentTpl = LayoutTpl + "," + contentTpl
 	// 为了使用自定义的模板函数，首先New一个以第一个模板文件名为模板名。
@@ -257,7 +257,7 @@ func Render(ctx echo.Context, contentTpl string, data map[string]interface{}) er
 		return err
 	}
 
-	data["pos_ad"] = logic.DefaultAd.FindAll(ctx, ctx.Path())
+	data["pos_ad"] = logic.DefaultAd.FindAll(context.EchoContext(ctx), ctx.Path())
 	data["cur_time"] = times.Format("Y-m-d H:i:s")
 	data["path"] = ctx.Path()
 	data["filter"] = false
@@ -270,7 +270,7 @@ func Render(ctx echo.Context, contentTpl string, data map[string]interface{}) er
 	me, ok := ctx.Get("user").(*model.Me)
 	if ok {
 		// 每日登录奖励
-		hasLoginMisson = logic.DefaultMission.HasLoginMission(ctx, me)
+		hasLoginMisson = logic.DefaultMission.HasLoginMission(context.EchoContext(ctx), me)
 	}
 	data["has_login_misson"] = hasLoginMisson
 
@@ -283,7 +283,7 @@ func RenderAdmin(ctx echo.Context, contentTpl string, data map[string]interface{
 		data = map[string]interface{}{}
 	}
 
-	objLog := logic.GetLogger(ctx)
+	objLog := logic.GetLogger(context.EchoContext(ctx))
 
 	contentTpl = AdminLayoutTpl + "," + contentTpl
 	// 为了使用自定义的模板函数，首先New一个以第一个模板文件名为模板名。
@@ -303,7 +303,7 @@ func RenderAdmin(ctx echo.Context, contentTpl string, data map[string]interface{
 	// 当前用户信息
 	curUser := ctx.Get("user").(*model.Me)
 
-	if menu1, menu2, curMenu1 := logic.DefaultAuthority.GetUserMenu(ctx, curUser, requestURI); menu2 != nil {
+	if menu1, menu2, curMenu1 := logic.DefaultAuthority.GetUserMenu(context.EchoContext(ctx), curUser, requestURI); menu2 != nil {
 		data["menu1"] = menu1
 		data["menu2"] = menu2
 		data["uri"] = requestURI
@@ -315,7 +315,7 @@ func RenderAdmin(ctx echo.Context, contentTpl string, data map[string]interface{
 
 // 后台 query 查询返回结果
 func RenderQuery(ctx echo.Context, contentTpl string, data map[string]interface{}) error {
-	objLog := logic.GetLogger(ctx)
+	objLog := logic.GetLogger(context.EchoContext(ctx))
 
 	contentTpl = "common_query.html," + contentTpl
 	contentTpls := strings.Split(contentTpl, ",")
@@ -341,7 +341,7 @@ func RenderQuery(ctx echo.Context, contentTpl string, data map[string]interface{
 }
 
 func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interface{}) error {
-	objLog := logic.GetLogger(ctx)
+	objLog := logic.GetLogger(context.EchoContext(ctx))
 
 	// 如果没有定义css和js模板，则定义之
 	if jsTpl := tpl.Lookup("js"); jsTpl == nil {
@@ -415,7 +415,7 @@ func executeTpl(ctx echo.Context, tpl *template.Template, data map[string]interf
 }
 
 func CheckIsHttps(ctx echo.Context) bool {
-	isHttps := goutils.MustBool(ctx.Request().Header().Get("X-Https"))
+	isHttps := goutils.MustBool(ctx.Request().Header.Get("X-Https"))
 	if logic.WebsiteSetting.OnlyHttps {
 		isHttps = true
 	}

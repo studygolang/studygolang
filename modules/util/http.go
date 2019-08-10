@@ -15,7 +15,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 )
 
 // FetchRealUrl 获取链接真实的URL（获取重定向一次的结果URL）
@@ -40,7 +40,7 @@ func FetchRealUrl(uri string) (realUrl string) {
 const XRequestedWith = "X-Requested-With"
 
 func IsAjax(ctx echo.Context) bool {
-	if ctx.Request().Header().Get(XRequestedWith) == "XMLHttpRequest" {
+	if ctx.Request().Header.Get(XRequestedWith) == "XMLHttpRequest" {
 		return true
 	}
 	return false

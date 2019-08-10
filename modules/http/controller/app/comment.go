@@ -7,18 +7,19 @@
 package app
 
 import (
+	"github.com/studygolang/studygolang/modules/context"
 	"github.com/studygolang/studygolang/modules/http/middleware"
 	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
 )
 
 type CommentController struct{}
 
 func (self CommentController) RegisterRoute(g *echo.Group) {
-	g.Post("/comment/:objid", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.PublishNotice())
+	g.POST("/comment/:objid", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.PublishNotice())
 }
 
 // Create 评论（或回复）
@@ -30,7 +31,8 @@ func (CommentController) Create(ctx echo.Context) error {
 	if objid == 0 {
 		return fail(ctx, "参数有误，请刷新后重试！", 1)
 	}
-	comment, err := logic.DefaultComment.Publish(ctx, user.Uid, objid, ctx.FormParams())
+	forms, _ := ctx.FormParams()
+	comment, err := logic.DefaultComment.Publish(context.EchoContext(ctx), user.Uid, objid, forms)
 	if err != nil {
 		return fail(ctx, "服务器内部错误", 2)
 	}

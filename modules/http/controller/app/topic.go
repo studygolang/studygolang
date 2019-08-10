@@ -10,12 +10,13 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/studygolang/studygolang/modules/context"
 	. "github.com/studygolang/studygolang/modules/http"
 	"github.com/studygolang/studygolang/modules/http/middleware"
 	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
 )
 
@@ -62,13 +63,13 @@ func (TopicController) topicList(ctx echo.Context, tab, orderBy, querystring str
 	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
 
 	// 置顶的topic
-	topTopics := logic.DefaultTopic.FindAll(ctx, paginator, "ctime DESC", "top=1")
+	topTopics := logic.DefaultTopic.FindAll(context.EchoContext(ctx), paginator, "ctime DESC", "top=1")
 
-	topics := logic.DefaultTopic.FindAll(ctx, paginator, orderBy, querystring, args...)
-	total := logic.DefaultTopic.Count(ctx, querystring, args...)
+	topics := logic.DefaultTopic.FindAll(context.EchoContext(ctx), paginator, orderBy, querystring, args...)
+	total := logic.DefaultTopic.Count(context.EchoContext(ctx), querystring, args...)
 	hasMore := paginator.SetTotal(total).HasMorePage()
 
-	hotNodes := logic.DefaultTopic.FindHotNodes(ctx)
+	hotNodes := logic.DefaultTopic.FindHotNodes(context.EchoContext(ctx))
 
 	data := map[string]interface{}{
 		"topics":   append(topTopics, topics...),
@@ -86,9 +87,9 @@ func (TopicController) NodeTopics(ctx echo.Context) error {
 	paginator := logic.NewPaginator(curPage)
 
 	querystring, nid := "nid=?", goutils.MustInt(ctx.Param("nid"))
-	topics := logic.DefaultTopic.FindAll(ctx, paginator, "topics.mtime DESC", querystring, nid)
-	total := logic.DefaultTopic.Count(ctx, querystring, nid)
-	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
+	topics := logic.DefaultTopic.FindAll(context.EchoContext(ctx), paginator, "topics.mtime DESC", querystring, nid)
+	total := logic.DefaultTopic.Count(context.EchoContext(ctx), querystring, nid)
+	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL.Path)
 
 	// 当前节点信息
 	node := logic.GetNode(nid)
@@ -103,7 +104,7 @@ func (TopicController) Detail(ctx echo.Context) error {
 		return fail(ctx, "tid 非法")
 	}
 
-	topic, replies, err := logic.DefaultTopic.FindByTid(ctx, tid)
+	topic, replies, err := logic.DefaultTopic.FindByTid(context.EchoContext(ctx), tid)
 	if err != nil {
 		return fail(ctx, "服务器异常")
 	}
@@ -138,12 +139,13 @@ func (TopicController) Create(ctx echo.Context) error {
 
 	title := ctx.FormValue("title")
 	// 请求新建主题页面
-	if title == "" || ctx.Request().Method() != "POST" {
+	if title == "" || ctx.Request().Method != "POST" {
 		return success(ctx, map[string]interface{}{"nodes": nodes, "activeTopics": "active"})
 	}
 
 	me := ctx.Get("user").(*model.Me)
-	tid, err := logic.DefaultTopic.Publish(ctx, me, ctx.FormParams())
+	forms, _ := ctx.FormParams()
+	tid, err := logic.DefaultTopic.Publish(context.EchoContext(ctx), me, forms)
 	if err != nil {
 		return fail(ctx, "内部服务错误", 1)
 	}
@@ -160,7 +162,7 @@ func (TopicController) Modify(ctx echo.Context) error {
 
 	nodes := logic.GenNodes()
 
-	if ctx.Request().Method() != "POST" {
+	if ctx.Request().Method != "POST" {
 		topics := logic.DefaultTopic.FindByTids([]int{tid})
 		if len(topics) == 0 {
 			return ctx.Redirect(http.StatusSeeOther, "/topics")
@@ -170,7 +172,8 @@ func (TopicController) Modify(ctx echo.Context) error {
 	}
 
 	me := ctx.Get("user").(*model.Me)
-	_, err := logic.DefaultTopic.Publish(ctx, me, ctx.FormParams())
+	forms, _ := ctx.FormParams()
+	_, err := logic.DefaultTopic.Publish(context.EchoContext(ctx), me, forms)
 	if err != nil {
 		if err == logic.NotModifyAuthorityErr {
 			return fail(ctx, "没有权限操作", 1)

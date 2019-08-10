@@ -6,7 +6,7 @@
 
 package app
 
-import "github.com/labstack/echo"
+import echo "github.com/labstack/echo/v4"
 
 func RegisterRoutes(g *echo.Group) {
 	new(IndexController).RegisterRoute(g)

@@ -8,14 +8,16 @@ package controller
 
 import (
 	"fmt"
-	"github.com/studygolang/studygolang/modules/logic"
-	"github.com/studygolang/studygolang/modules/model"
 	"net/http"
 	"regexp"
 	"strings"
 	"time"
 
-	"github.com/labstack/echo"
+	"github.com/studygolang/studygolang/modules/context"
+	"github.com/studygolang/studygolang/modules/logic"
+	"github.com/studygolang/studygolang/modules/model"
+
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/config"
 )
 
@@ -25,14 +27,14 @@ type DownloadController struct{}
 
 // 注册路由
 func (self DownloadController) RegisterRoute(g *echo.Group) {
-	g.Get("/dl", self.GoDl)
-	g.Get("/dl/golang/:filename", self.FetchGoInstallPackage)
-	g.Get("/dl/add_new_version", self.AddNewDownload)
+	g.GET("/dl", self.GoDl)
+	g.GET("/dl/golang/:filename", self.FetchGoInstallPackage)
+	g.GET("/dl/add_new_version", self.AddNewDownload)
 }
 
 // GoDl Go 语言安装包下载
 func (DownloadController) GoDl(ctx echo.Context) error {
-	downloads := logic.DefaultDownload.FindAll(ctx)
+	downloads := logic.DefaultDownload.FindAll(context.EchoContext(ctx))
 
 	featured := make([]*model.Download, 0, 4)
 	stables := make(map[string][]*model.Download)
@@ -85,7 +87,7 @@ var filenameReg = regexp.MustCompile(`\d+\.\d[a-z\.]*\d+`)
 func (self DownloadController) FetchGoInstallPackage(ctx echo.Context) error {
 	filename := ctx.Param("filename")
 
-	go logic.DefaultDownload.RecordDLTimes(ctx, filename)
+	go logic.DefaultDownload.RecordDLTimes(context.EchoContext(ctx), filename)
 
 	officalUrl := GoStoragePrefix + filename
 	resp, err := self.headWithTimeout(officalUrl)
@@ -130,7 +132,7 @@ func (DownloadController) AddNewDownload(ctx echo.Context) error {
 		selector = ".toggleVisible"
 	}
 
-	err := logic.DefaultDownload.AddNewDownload(ctx, version, selector)
+	err := logic.DefaultDownload.AddNewDownload(context.EchoContext(ctx), version, selector)
 	if err != nil {
 		return fail(ctx, 1, err.Error())
 	}

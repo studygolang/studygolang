@@ -11,27 +11,28 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/studygolang/studygolang/modules/context"
 	. "github.com/studygolang/studygolang/modules/http"
 	"github.com/studygolang/studygolang/modules/http/middleware"
 	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
 
-	"github.com/labstack/echo"
-	"github.com/polaris1119/echoutils"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/slices"
+	"github.com/studygolang/studygolang/modules/echoutils"
 )
 
 type CommentController struct{}
 
 func (self CommentController) RegisterRoute(g *echo.Group) {
-	g.Get("/at/users", self.AtUsers)
-	g.Post("/comment/:objid", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice())
-	g.Get("/object/comments", self.CommentList)
-	g.Post("/object/comments/:cid", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
+	g.GET("/at/users", self.AtUsers)
+	g.POST("/comment/:objid", self.Create, middleware.NeedLogin(), middleware.Sensivite(), middleware.BalanceCheck(), middleware.PublishNotice())
+	g.GET("/object/comments", self.CommentList)
+	g.POST("/object/comments/:cid", self.Modify, middleware.NeedLogin(), middleware.Sensivite())
 
-	g.Get("/topics/:objid/comment/:cid", self.TopicDetail)
-	g.Get("/articles/:objid/comment/:cid", self.ArticleDetail)
+	g.GET("/topics/:objid/comment/:cid", self.TopicDetail)
+	g.GET("/articles/:objid/comment/:cid", self.ArticleDetail)
 }
 
 // AtUsers 评论或回复 @ 某人 suggest
@@ -51,7 +52,8 @@ func (CommentController) Create(ctx echo.Context) error {
 	if objid == 0 {
 		return fail(ctx, 1, "参数有误，请刷新后重试！")
 	}
-	comment, err := logic.DefaultComment.Publish(ctx, user.Uid, objid, ctx.FormParams())
+	forms, _ := ctx.FormParams()
+	comment, err := logic.DefaultComment.Publish(context.EchoContext(ctx), user.Uid, objid, forms)
 	if err != nil {
 		return fail(ctx, 2, "服务器内部错误")
 	}
@@ -93,7 +95,7 @@ func (CommentController) CommentList(ctx echo.Context) error {
 	objtype := goutils.MustInt(ctx.QueryParam("objtype"))
 	p := goutils.MustInt(ctx.QueryParam("p"))
 
-	commentList, replyComments, pageNum, err := logic.DefaultComment.FindObjectComments(ctx, objid, objtype, p)
+	commentList, replyComments, pageNum, err := logic.DefaultComment.FindObjectComments(context.EchoContext(ctx), objid, objtype, p)
 	if err != nil {
 		return fail(ctx, 1, "服务器内部错误")
 	}
@@ -103,7 +105,7 @@ func (CommentController) CommentList(ctx echo.Context) error {
 		replyUids := slices.StructsIntSlice(replyComments, "Uid")
 		uids = append(uids, replyUids...)
 	}
-	users := logic.DefaultUser.FindUserInfos(ctx, uids)
+	users := logic.DefaultUser.FindUserInfos(context.EchoContext(ctx), uids)
 
 	result := map[string]interface{}{
 		"comments": commentList,
@@ -139,7 +141,7 @@ func (self CommentController) TopicDetail(ctx echo.Context) error {
 	data := map[string]interface{}{
 		"topic": topic,
 	}
-	data["appends"] = logic.DefaultTopic.FindAppend(ctx, objid)
+	data["appends"] = logic.DefaultTopic.FindAppend(context.EchoContext(ctx), objid)
 
 	err := self.fillCommentAndUser(ctx, data, cid, objid, model.TypeTopic)
 
@@ -154,11 +156,11 @@ func (self CommentController) ArticleDetail(ctx echo.Context) error {
 	objid := goutils.MustInt(ctx.Param("objid"))
 	cid := goutils.MustInt(ctx.Param("cid"))
 
-	article, err := logic.DefaultArticle.FindById(ctx, objid)
+	article, err := logic.DefaultArticle.FindById(context.EchoContext(ctx), objid)
 	if err != nil {
 		return ctx.Redirect(http.StatusSeeOther, "/articles")
 	}
-	articleGCTT := logic.DefaultArticle.FindArticleGCTT(ctx, article)
+	articleGCTT := logic.DefaultArticle.FindArticleGCTT(context.EchoContext(ctx), article)
 
 	data := map[string]interface{}{
 		"article":      article,
@@ -175,7 +177,7 @@ func (self CommentController) ArticleDetail(ctx echo.Context) error {
 }
 
 func (CommentController) fillCommentAndUser(ctx echo.Context, data map[string]interface{}, cid, objid, objtype int) error {
-	comment, comments := logic.DefaultComment.FindComment(ctx, cid, objid, objtype)
+	comment, comments := logic.DefaultComment.FindComment(context.EchoContext(ctx), cid, objid, objtype)
 
 	if comment.Cid == 0 {
 		return errors.New("comment not exists!")
@@ -186,7 +188,7 @@ func (CommentController) fillCommentAndUser(ctx echo.Context, data map[string]in
 	for i, comment := range comments {
 		uids[i+1] = comment.Uid
 	}
-	users := logic.DefaultUser.FindUserInfos(ctx, uids)
+	users := logic.DefaultUser.FindUserInfos(context.EchoContext(ctx), uids)
 
 	data["comment"] = comment
 	data["comments"] = comments

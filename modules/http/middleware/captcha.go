@@ -7,13 +7,14 @@
 package middleware
 
 import (
+	"net/http"
+
 	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
-	"net/http"
 	"github.com/studygolang/studygolang/modules/util"
 
 	"github.com/dchest/captcha"
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 )
 
 // CheckCaptcha 用于 echo 框架校验发布验证码
@@ -23,7 +24,7 @@ func CheckCaptcha() echo.MiddlewareFunc {
 
 			curUser := ctx.Get("user").(*model.Me)
 
-			if ctx.Request().Method() == "POST" {
+			if ctx.Request().Method == "POST" {
 				if logic.NeedCaptcha(curUser) {
 					captchaId := ctx.FormValue("captchaid")
 					if !captcha.VerifyString(captchaId, ctx.FormValue("captchaSolution")) {

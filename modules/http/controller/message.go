@@ -11,11 +11,12 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/studygolang/studygolang/modules/context"
 	"github.com/studygolang/studygolang/modules/http/middleware"
 	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
 )
 
@@ -42,14 +43,14 @@ func (MessageController) Send(ctx echo.Context) error {
 
 	content := ctx.FormValue("content")
 	// 请求发送消息页面
-	if content == "" || ctx.Request().Method() != "POST" {
+	if content == "" || ctx.Request().Method != "POST" {
 		username := ctx.FormValue("username")
 		if username == "" {
 			return ctx.Redirect(http.StatusSeeOther, "/")
 		}
 
-		message := logic.DefaultMessage.FindMsgById(ctx, ctx.FormValue("id"))
-		user := logic.DefaultUser.FindOne(ctx, "username", username)
+		message := logic.DefaultMessage.FindMsgById(context.EchoContext(ctx), ctx.FormValue("id"))
+		user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "username", username)
 
 		if message != nil {
 			if message.To != me.Uid || message.From != user.Uid {
@@ -64,7 +65,7 @@ func (MessageController) Send(ctx echo.Context) error {
 	}
 
 	to := goutils.MustInt(ctx.FormValue("to"))
-	ok := logic.DefaultMessage.SendMessageTo(ctx, me.Uid, to, content)
+	ok := logic.DefaultMessage.SendMessageTo(context.EchoContext(ctx), me.Uid, to, content)
 	if !ok {
 		return fail(ctx, 1, "对不起，发送失败，请稍候再试！")
 	}
@@ -89,14 +90,14 @@ func (MessageController) ReadList(ctx echo.Context) error {
 	)
 	switch msgtype {
 	case "system":
-		messages = logic.DefaultMessage.FindSysMsgsByUid(ctx, user.Uid, paginator)
-		total = logic.DefaultMessage.SysMsgCount(ctx, user.Uid)
+		messages = logic.DefaultMessage.FindSysMsgsByUid(context.EchoContext(ctx), user.Uid, paginator)
+		total = logic.DefaultMessage.SysMsgCount(context.EchoContext(ctx), user.Uid)
 	case "inbox":
-		messages = logic.DefaultMessage.FindToMsgsByUid(ctx, user.Uid, paginator)
-		total = logic.DefaultMessage.ToMsgCount(ctx, user.Uid)
+		messages = logic.DefaultMessage.FindToMsgsByUid(context.EchoContext(ctx), user.Uid, paginator)
+		total = logic.DefaultMessage.ToMsgCount(context.EchoContext(ctx), user.Uid)
 	case "outbox":
-		messages = logic.DefaultMessage.FindFromMsgsByUid(ctx, user.Uid, paginator)
-		total = logic.DefaultMessage.FromMsgCount(ctx, user.Uid)
+		messages = logic.DefaultMessage.FindFromMsgsByUid(context.EchoContext(ctx), user.Uid, paginator)
+		total = logic.DefaultMessage.FromMsgCount(context.EchoContext(ctx), user.Uid)
 	default:
 		return ctx.Redirect(http.StatusSeeOther, "/")
 	}
@@ -110,7 +111,7 @@ func (MessageController) ReadList(ctx echo.Context) error {
 func (MessageController) Delete(ctx echo.Context) error {
 	id := ctx.FormValue("id")
 	msgtype := ctx.FormValue("msgtype")
-	if !logic.DefaultMessage.DeleteMessage(ctx, id, msgtype) {
+	if !logic.DefaultMessage.DeleteMessage(context.EchoContext(ctx), id, msgtype) {
 		return fail(ctx, 1, "对不起，删除失败，请稍候再试！")
 	}
 

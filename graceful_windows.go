@@ -2,12 +2,12 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"time"
 
-	"github.com/labstack/echo/engine/standard"
 	"github.com/tylerb/graceful"
 )
 
-func gracefulRun(std *standard.Server) {
-	log.Fatal(graceful.ListenAndServe(std.Server, 5*time.Second))
+func gracefulRun(server *http.Server) {
+	log.Fatal(graceful.ListenAndServe(server, 5*time.Second))
 }

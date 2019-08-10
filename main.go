@@ -14,22 +14,21 @@ import (
 	"strconv"
 	"time"
 
-	. "github.com/polaris1119/config"
-
 	"github.com/studygolang/studygolang/modules/global"
 	pwm "github.com/studygolang/studygolang/modules/http/middleware"
 	"github.com/studygolang/studygolang/modules/http/controller"
 	"github.com/studygolang/studygolang/modules/http/controller/admin"
 	"github.com/studygolang/studygolang/modules/http/controller/app"
 	"github.com/studygolang/studygolang/modules/logic"
+	"github.com/studygolang/studygolang/cmd"
+	thirdmw "github.com/studygolang/studygolang/modules/middleware"
 
 	"github.com/fatih/structs"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/engine/standard"
-	mw "github.com/labstack/echo/middleware"
+	echo "github.com/labstack/echo/v4"
+	mw "github.com/labstack/echo/v4/middleware"
 	"github.com/polaris1119/keyword"
 	"github.com/polaris1119/logger"
-	thirdmw "github.com/polaris1119/middleware"
+	. "github.com/polaris1119/config"
 )
 
 func init() {
@@ -94,10 +93,8 @@ func main() {
 	appG := e.Group("/app")
 	app.RegisterRoutes(appG)
 
-	std := standard.New(getAddr())
-	std.SetHandler(e)
-
-	gracefulRun(std)
+	e.Server.Addr = getAddr()
+	gracefulRun(e.Server)
 }
 
 func getAddr() string {

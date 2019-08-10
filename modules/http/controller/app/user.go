@@ -9,11 +9,11 @@ package app
 import (
 	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
-
-	"github.com/labstack/echo"
-
+	"github.com/studygolang/studygolang/modules/context"
 	. "github.com/studygolang/studygolang/modules/http"
 	. "github.com/studygolang/studygolang/modules/http/internal/helper"
+
+	echo "github.com/labstack/echo/v4"
 )
 
 type UserController struct{}
@@ -41,7 +41,7 @@ func (UserController) Center(ctx echo.Context) error {
 // Me 用户信息
 func (UserController) Me(ctx echo.Context) error {
 	if me, ok := ctx.Get("user").(*model.Me); ok {
-		user := logic.DefaultUser.FindOne(ctx, "uid", me.Uid)
+		user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", me.Uid)
 		return success(ctx, map[string]interface{}{
 			"user":            user,
 			"default_avatars": logic.DefaultAvatars,
@@ -63,7 +63,7 @@ func (UserController) Login(ctx echo.Context) error {
 
 	// 处理用户登录
 	passwd := ctx.FormValue("passwd")
-	userLogin, err := logic.DefaultUser.Login(ctx, username, passwd)
+	userLogin, err := logic.DefaultUser.Login(context.EchoContext(ctx), username, passwd)
 	if err != nil {
 		return fail(ctx, err.Error())
 	}
@@ -82,8 +82,10 @@ func (UserController) Modify(ctx echo.Context) error {
 		return fail(ctx, "请先登录", NeedReLoginCode)
 	}
 
+	forms, _ := ctx.FormParams()
+
 	// 更新信息
-	errMsg, err := logic.DefaultUser.Update(ctx, me, ctx.Request().FormParams())
+	errMsg, err := logic.DefaultUser.Update(context.EchoContext(ctx), me, forms)
 	if err != nil {
 		return fail(ctx, errMsg)
 	}

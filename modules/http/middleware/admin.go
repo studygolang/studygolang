@@ -10,7 +10,7 @@ import (
 	"github.com/studygolang/studygolang/modules/model"
 	"net/http"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 )
 
 // AdminAuth 用于 echo 框架的判断用户是否有管理后台权限

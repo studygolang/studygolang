@@ -7,11 +7,13 @@
 package admin
 
 import (
-	"github.com/studygolang/studygolang/modules/logic"
-	"github.com/studygolang/studygolang/modules/model"
 	"net/http"
 
-	"github.com/labstack/echo"
+	"github.com/studygolang/studygolang/modules/context"
+	"github.com/studygolang/studygolang/modules/logic"
+	"github.com/studygolang/studygolang/modules/model"
+
+	echo "github.com/labstack/echo/v4"
 )
 
 type TopicController struct{}
@@ -26,7 +28,7 @@ func (self TopicController) RegisterRoute(g *echo.Group) {
 // List 所有主题（分页）
 func (TopicController) List(ctx echo.Context) error {
 	curPage, limit := parsePage(ctx)
-	topics, total := logic.DefaultTopic.FindByPage(ctx, nil, curPage, limit)
+	topics, total := logic.DefaultTopic.FindByPage(context.EchoContext(ctx), nil, curPage, limit)
 
 	if topics == nil {
 		return ctx.HTML(http.StatusInternalServerError, "500")
@@ -48,7 +50,7 @@ func (TopicController) Query(ctx echo.Context) error {
 	curPage, limit := parsePage(ctx)
 	conds := parseConds(ctx, []string{"tid", "title", "uid"})
 
-	articles, total := logic.DefaultTopic.FindByPage(ctx, conds, curPage, limit)
+	articles, total := logic.DefaultTopic.FindByPage(context.EchoContext(ctx), conds, curPage, limit)
 
 	if articles == nil {
 		return ctx.HTML(http.StatusInternalServerError, "500")
@@ -71,13 +73,14 @@ func (self TopicController) Modify(ctx echo.Context) error {
 
 	if ctx.FormValue("submit") == "1" {
 		user := ctx.Get("user").(*model.Me)
-		errMsg, err := logic.DefaultArticle.Modify(ctx, user, ctx.FormParams())
+		forms, _ := ctx.FormParams()
+		errMsg, err := logic.DefaultArticle.Modify(context.EchoContext(ctx), user, forms)
 		if err != nil {
 			return fail(ctx, 1, errMsg)
 		}
 		return success(ctx, nil)
 	}
-	article, err := logic.DefaultArticle.FindById(ctx, ctx.QueryParam("id"))
+	article, err := logic.DefaultArticle.FindById(context.EchoContext(ctx), ctx.QueryParam("id"))
 	if err != nil {
 		return ctx.Redirect(http.StatusSeeOther, ctx.Echo().URI(echo.HandlerFunc(self.List)))
 	}

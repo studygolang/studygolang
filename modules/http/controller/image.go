@@ -14,11 +14,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/studygolang/studygolang/modules/logic"
+	"github.com/studygolang/studygolang/modules/context"
 	"github.com/studygolang/studygolang/modules/global"
 	. "github.com/studygolang/studygolang/modules/http"
+	"github.com/studygolang/studygolang/modules/logic"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/times"
 )
@@ -61,7 +62,7 @@ func (self ImageController) PasteUpload(ctx echo.Context) error {
 
 	imgDir := times.Format("ymd")
 	file.Seek(0, io.SeekStart)
-	path, err := logic.DefaultUploader.UploadImage(ctx, file, imgDir, buf, filepath.Ext(fileHeader.Filename))
+	path, err := logic.DefaultUploader.UploadImage(context.EchoContext(ctx), file, imgDir, buf, filepath.Ext(fileHeader.Filename))
 	if err != nil {
 		return self.pasteUploadFail(ctx, "文件上传失败！")
 	}
@@ -107,7 +108,7 @@ func (self ImageController) QuickUpload(ctx echo.Context) error {
 	fileName := goutils.Md5Buf(buf) + filepath.Ext(fileHeader.Filename)
 	imgDir := times.Format("ymd")
 	file.Seek(0, io.SeekStart)
-	path, err := logic.DefaultUploader.UploadImage(ctx, file, imgDir, buf, filepath.Ext(fileHeader.Filename))
+	path, err := logic.DefaultUploader.UploadImage(context.EchoContext(ctx), file, imgDir, buf, filepath.Ext(fileHeader.Filename))
 	if err != nil {
 		return self.quickUploadFail(ctx, "文件上传失败！")
 	}
@@ -159,7 +160,7 @@ func (ImageController) Upload(ctx echo.Context) error {
 	cdnDomain := global.App.CanonicalCDN(CheckIsHttps(ctx))
 
 	file.Seek(0, io.SeekStart)
-	path, err := logic.DefaultUploader.UploadImage(ctx, file, imgDir, buf, filepath.Ext(fileHeader.Filename))
+	path, err := logic.DefaultUploader.UploadImage(context.EchoContext(ctx), file, imgDir, buf, filepath.Ext(fileHeader.Filename))
 	if err != nil {
 		return fail(ctx, 5, "文件上传失败！")
 	}
@@ -174,7 +175,7 @@ func (ImageController) Transfer(ctx echo.Context) error {
 		return fail(ctx, 1, "url不能为空！")
 	}
 
-	path, err := logic.DefaultUploader.TransferUrl(ctx, origUrl)
+	path, err := logic.DefaultUploader.TransferUrl(context.EchoContext(ctx), origUrl)
 	if err != nil {
 		return fail(ctx, 2, "文件上传失败！")
 	}

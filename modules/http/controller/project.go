@@ -7,18 +7,19 @@
 package controller
 
 import (
-	"net/http"
 	"html/template"
+	"net/http"
 
 	"github.com/dchest/captcha"
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
-	
-	"github.com/studygolang/studygolang/modules/util"
+
+	"github.com/studygolang/studygolang/modules/context"
+	. "github.com/studygolang/studygolang/modules/http"
 	"github.com/studygolang/studygolang/modules/http/middleware"
 	"github.com/studygolang/studygolang/modules/logic"
-	. "github.com/studygolang/studygolang/modules/http"
 	"github.com/studygolang/studygolang/modules/model"
+	"github.com/studygolang/studygolang/modules/util"
 )
 
 // 在需要评论（喜欢）且要回调的地方注册评论（喜欢）对象
@@ -46,11 +47,11 @@ func (ProjectController) ReadList(ctx echo.Context) error {
 	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
 	paginator := logic.NewPaginator(curPage)
 	paginator.SetPerPage(limit)
-	total := logic.DefaultProject.Count(ctx, "")
-	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL().Path())
+	total := logic.DefaultProject.Count(context.EchoContext(ctx), "")
+	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL.Path)
 	pageInfo := template.HTML(pageHtml)
 
-	projects := logic.DefaultProject.FindAll(ctx, paginator, "id DESC", "status IN(?,?)", model.ProjectStatusNew, model.ProjectStatusOnline)
+	projects := logic.DefaultProject.FindAll(context.EchoContext(ctx), paginator, "id DESC", "status IN(?,?)", model.ProjectStatusNew, model.ProjectStatusOnline)
 
 	num := len(projects)
 	if num == 0 {
@@ -61,7 +62,7 @@ func (ProjectController) ReadList(ctx echo.Context) error {
 	me, ok := ctx.Get("user").(*model.Me)
 	var likeFlags map[int]int
 	if ok {
-		likeFlags, _ = logic.DefaultLike.FindUserLikeObjects(ctx, me.Uid, model.TypeProject, projects[0].Id, projects[num-1].Id)
+		likeFlags, _ = logic.DefaultLike.FindUserLikeObjects(context.EchoContext(ctx), me.Uid, model.TypeProject, projects[0].Id, projects[num-1].Id)
 	}
 
 	return render(ctx, "projects/list.html", map[string]interface{}{"projects": projects, "activeProjects": "active", "page": pageInfo, "likeflags": likeFlags})
@@ -73,7 +74,7 @@ func (ProjectController) Create(ctx echo.Context) error {
 
 	name := ctx.FormValue("name")
 	// 请求新建项目页面
-	if name == "" || ctx.Request().Method() != "POST" {
+	if name == "" || ctx.Request().Method != "POST" {
 		project := &model.OpenProject{}
 
 		data := map[string]interface{}{"project": project, "activeProjects": "active"}
@@ -84,7 +85,8 @@ func (ProjectController) Create(ctx echo.Context) error {
 		return render(ctx, "projects/new.html", data)
 	}
 
-	err := logic.DefaultProject.Publish(ctx, me, ctx.FormParams())
+	forms, _ := ctx.FormParams()
+	err := logic.DefaultProject.Publish(context.EchoContext(ctx), me, forms)
 	if err != nil {
 		return fail(ctx, 1, "内部服务错误！")
 	}
@@ -99,13 +101,14 @@ func (ProjectController) Modify(ctx echo.Context) error {
 	}
 
 	// 请求编辑项目页面
-	if ctx.Request().Method() != "POST" {
-		project := logic.DefaultProject.FindOne(ctx, id)
+	if ctx.Request().Method != "POST" {
+		project := logic.DefaultProject.FindOne(context.EchoContext(ctx), id)
 		return render(ctx, "projects/new.html", map[string]interface{}{"project": project, "activeProjects": "active"})
 	}
 
 	user := ctx.Get("user").(*model.Me)
-	err := logic.DefaultProject.Publish(ctx, user, ctx.FormParams())
+	forms, _ := ctx.FormParams()
+	err := logic.DefaultProject.Publish(context.EchoContext(ctx), user, forms)
 	if err != nil {
 		if err == logic.NotModifyAuthorityErr {
 			return ctx.String(http.StatusForbidden, "没有权限")
@@ -117,7 +120,7 @@ func (ProjectController) Modify(ctx echo.Context) error {
 
 // Detail 项目详情
 func (ProjectController) Detail(ctx echo.Context) error {
-	project := logic.DefaultProject.FindOne(ctx, ctx.Param("uri"))
+	project := logic.DefaultProject.FindOne(context.EchoContext(ctx), ctx.Param("uri"))
 	if project == nil || project.Id == 0 {
 		return ctx.Redirect(http.StatusSeeOther, "/projects")
 	}
@@ -129,8 +132,8 @@ func (ProjectController) Detail(ctx echo.Context) error {
 
 	me, ok := ctx.Get("user").(*model.Me)
 	if ok {
-		data["likeflag"] = logic.DefaultLike.HadLike(ctx, me.Uid, project.Id, model.TypeProject)
-		data["hadcollect"] = logic.DefaultFavorite.HadFavorite(ctx, me.Uid, project.Id, model.TypeProject)
+		data["likeflag"] = logic.DefaultLike.HadLike(context.EchoContext(ctx), me.Uid, project.Id, model.TypeProject)
+		data["hadcollect"] = logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), me.Uid, project.Id, model.TypeProject)
 
 		logic.Views.Incr(Request(ctx), model.TypeProject, project.Id, me.Uid)
 
@@ -139,8 +142,8 @@ func (ProjectController) Detail(ctx echo.Context) error {
 		}
 
 		if me.IsRoot || me.Uid == project.User.Uid {
-			data["view_user_num"] = logic.DefaultViewRecord.FindUserNum(ctx, project.Id, model.TypeProject)
-			data["view_source"] = logic.DefaultViewSource.FindOne(ctx, project.Id, model.TypeProject)
+			data["view_user_num"] = logic.DefaultViewRecord.FindUserNum(context.EchoContext(ctx), project.Id, model.TypeProject)
+			data["view_source"] = logic.DefaultViewSource.FindOne(context.EchoContext(ctx), project.Id, model.TypeProject)
 		}
 	} else {
 		logic.Views.Incr(Request(ctx), model.TypeProject, project.Id)
@@ -159,7 +162,7 @@ func (ProjectController) CheckExist(ctx echo.Context) error {
 		return ctx.JSON(http.StatusOK, `true`)
 	}
 
-	if logic.DefaultProject.UriExists(ctx, uri) {
+	if logic.DefaultProject.UriExists(context.EchoContext(ctx), uri) {
 		return ctx.JSON(http.StatusOK, `false`)
 	}
 	return ctx.JSON(http.StatusOK, `true`)

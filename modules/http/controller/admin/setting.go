@@ -7,9 +7,10 @@
 package admin
 
 import (
+	"github.com/studygolang/studygolang/modules/context"
 	"github.com/studygolang/studygolang/modules/logic"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 )
 
 type SettingController struct{}
@@ -24,7 +25,8 @@ func (self SettingController) RegisterRoute(g *echo.Group) {
 // GenneralModify 常规选项修改
 func (self SettingController) GenneralModify(ctx echo.Context) error {
 	if ctx.FormValue("submit") == "1" {
-		err := logic.DefaultSetting.Update(ctx, ctx.FormParams())
+		forms, _ := ctx.FormParams()
+		err := logic.DefaultSetting.Update(context.EchoContext(ctx), forms)
 		if err != nil {
 			return fail(ctx, 1, err.Error())
 		}
@@ -38,7 +40,8 @@ func (self SettingController) GenneralModify(ctx echo.Context) error {
 // NavModify 菜单、导航修改
 func (self SettingController) NavModify(ctx echo.Context) error {
 	if ctx.FormValue("submit") == "1" {
-		err := logic.DefaultSetting.Update(ctx, ctx.FormParams())
+		forms, _ := ctx.FormParams()
+		err := logic.DefaultSetting.Update(context.EchoContext(ctx), forms)
 		if err != nil {
 			return fail(ctx, 1, err.Error())
 		}
@@ -50,7 +53,8 @@ func (self SettingController) NavModify(ctx echo.Context) error {
 
 func (self SettingController) IndexTabChildren(ctx echo.Context) error {
 	if ctx.FormValue("submit") == "1" {
-		err := logic.DefaultSetting.UpdateIndexTabChildren(ctx, ctx.FormParams())
+		forms, _ := ctx.FormParams()
+		err := logic.DefaultSetting.UpdateIndexTabChildren(context.EchoContext(ctx), forms)
 		if err != nil {
 			return fail(ctx, 1, err.Error())
 		}

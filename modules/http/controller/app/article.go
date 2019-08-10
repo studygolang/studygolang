@@ -7,11 +7,12 @@
 package app
 
 import (
+	"github.com/studygolang/studygolang/modules/context"
 	. "github.com/studygolang/studygolang/modules/http"
 	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
 )
 
@@ -19,8 +20,8 @@ type ArticleController struct{}
 
 // 注册路由
 func (this *ArticleController) RegisterRoute(g *echo.Group) {
-	g.Get("/articles", this.ReadList)
-	g.Get("/article/detail", this.Detail)
+	g.GET("/articles", this.ReadList)
+	g.GET("/article/detail", this.Detail)
 }
 
 // ReadList 网友文章列表页
@@ -29,11 +30,11 @@ func (ArticleController) ReadList(ctx echo.Context) error {
 	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
 
 	// 置顶的 article
-	topArticles := logic.DefaultArticle.FindAll(ctx, paginator, "id DESC", "top=1")
+	topArticles := logic.DefaultArticle.FindAll(context.EchoContext(ctx), paginator, "id DESC", "top=1")
 
-	articles := logic.DefaultArticle.FindAll(ctx, paginator, "id DESC", "")
+	articles := logic.DefaultArticle.FindAll(context.EchoContext(ctx), paginator, "id DESC", "")
 
-	total := logic.DefaultArticle.Count(ctx, "")
+	total := logic.DefaultArticle.Count(context.EchoContext(ctx), "")
 	hasMore := paginator.SetTotal(total).HasMorePage()
 
 	data := map[string]interface{}{
@@ -46,7 +47,7 @@ func (ArticleController) ReadList(ctx echo.Context) error {
 
 // Detail 文章详细页
 func (ArticleController) Detail(ctx echo.Context) error {
-	article, prevNext, err := logic.DefaultArticle.FindByIdAndPreNext(ctx, goutils.MustInt(ctx.QueryParam("id")))
+	article, prevNext, err := logic.DefaultArticle.FindByIdAndPreNext(context.EchoContext(ctx), goutils.MustInt(ctx.QueryParam("id")))
 	if err != nil {
 		return fail(ctx, err.Error())
 	}
@@ -61,7 +62,7 @@ func (ArticleController) Detail(ctx echo.Context) error {
 	article.Viewnum++
 
 	// 回复信息（评论）
-	replies, _, lastReplyUser := logic.DefaultComment.FindObjComments(ctx, article.Id, model.TypeArticle, 0, article.Lastreplyuid)
+	replies, _, lastReplyUser := logic.DefaultComment.FindObjComments(context.EchoContext(ctx), article.Id, model.TypeArticle, 0, article.Lastreplyuid)
 	// 有人回复
 	if article.Lastreplyuid != 0 {
 		article.LastReplyUser = lastReplyUser

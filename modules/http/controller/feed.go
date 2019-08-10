@@ -11,20 +11,20 @@ import (
 	"net/http"
 	"time"
 
+	. "github.com/studygolang/studygolang/modules/http"
 	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
-	. "github.com/studygolang/studygolang/modules/http"
 
 	"github.com/gorilla/feeds"
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 )
 
 type FeedController struct{}
 
 // 注册路由
 func (self FeedController) RegisterRoute(g *echo.Group) {
-	g.Get("/feed.html", self.Atom)
-	g.Get("/feed.xml", self.List)
+	g.GET("/feed.html", self.Atom)
+	g.GET("/feed.xml", self.List)
 }
 
 func (self FeedController) Atom(ctx echo.Context) error {

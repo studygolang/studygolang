@@ -17,7 +17,7 @@ import (
 	. "github.com/studygolang/studygolang/modules/http"
 	"github.com/studygolang/studygolang/modules/logic"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
 )
 

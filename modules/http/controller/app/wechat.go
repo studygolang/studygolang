@@ -7,13 +7,14 @@
 package app
 
 import (
-	"github.com/studygolang/studygolang/modules/logic"
 	"net/url"
 	"strconv"
 
-	"github.com/labstack/echo"
-
+	"github.com/studygolang/studygolang/modules/context"
 	. "github.com/studygolang/studygolang/modules/http"
+	"github.com/studygolang/studygolang/modules/logic"
+
+	echo "github.com/labstack/echo/v4"
 )
 
 type WechatController struct{}
@@ -29,7 +30,7 @@ func (self WechatController) RegisterRoute(g *echo.Group) {
 func (WechatController) CheckSession(ctx echo.Context) error {
 	code := ctx.QueryParam("code")
 
-	wechatUser, err := logic.DefaultWechat.CheckSession(ctx, code)
+	wechatUser, err := logic.DefaultWechat.CheckSession(context.EchoContext(ctx), code)
 	if err != nil {
 		return fail(ctx, err.Error())
 	}
@@ -67,14 +68,14 @@ func (WechatController) Login(ctx echo.Context) error {
 
 	// 处理用户登录
 	passwd := ctx.FormValue("passwd")
-	userLogin, err := logic.DefaultUser.Login(ctx, username, passwd)
+	userLogin, err := logic.DefaultUser.Login(context.EchoContext(ctx), username, passwd)
 	if err != nil {
 		return fail(ctx, err.Error())
 	}
 
 	userInfo := ctx.FormValue("userInfo")
 
-	wechatUser, err := logic.DefaultWechat.Bind(ctx, id, userLogin.Uid, userInfo)
+	wechatUser, err := logic.DefaultWechat.Bind(context.EchoContext(ctx), id, userLogin.Uid, userInfo)
 	if err != nil {
 		return fail(ctx, err.Error())
 	}
@@ -110,7 +111,7 @@ func (WechatController) Register(ctx echo.Context) error {
 	}
 	form.Set("id", strconv.Itoa(id))
 
-	errMsg, err := logic.DefaultUser.CreateUser(ctx, form)
+	errMsg, err := logic.DefaultUser.CreateUser(context.EchoContext(ctx), form)
 	if err != nil {
 		return fail(ctx, errMsg, 2)
 	}

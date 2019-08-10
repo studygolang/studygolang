@@ -14,11 +14,12 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/studygolang/studygolang/modules/context"
 	. "github.com/studygolang/studygolang/modules/http"
 	"github.com/studygolang/studygolang/modules/logic"
 	"github.com/studygolang/studygolang/modules/model"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
@@ -50,14 +51,14 @@ func (IndexController) Index(ctx echo.Context) error {
 	}
 	paginator := logic.NewPaginator(goutils.MustInt(ctx.QueryParam("p"), 1))
 
-	data := logic.DefaultIndex.FindData(ctx, tab, paginator)
+	data := logic.DefaultIndex.FindData(context.EchoContext(ctx), tab, paginator)
 
 	SetCookie(ctx, "INDEX_TAB", data["tab"].(string))
 
 	data["all_nodes"] = logic.GenNodes()
 
 	if tab == "all" {
-		pageHtml := paginator.SetTotal(logic.DefaultFeed.GetTotalCount(ctx)).GetPageHtml(ctx.Request().URL().Path())
+		pageHtml := paginator.SetTotal(logic.DefaultFeed.GetTotalCount(context.EchoContext(ctx))).GetPageHtml(ctx.Request().URL.Path)
 
 		data["page"] = template.HTML(pageHtml)
 
@@ -75,31 +76,31 @@ func (IndexController) OldIndex(ctx echo.Context) error {
 	topicsList := make([]map[string]interface{}, num)
 
 	// 置顶的topic
-	topTopics := logic.DefaultTopic.FindAll(ctx, paginator, "ctime DESC", "top=1")
+	topTopics := logic.DefaultTopic.FindAll(context.EchoContext(ctx), paginator, "ctime DESC", "top=1")
 	if len(topTopics) < num {
 		// 获取最新帖子
 		paginator.SetPerPage(num - len(topTopics))
-		newTopics := logic.DefaultTopic.FindAll(ctx, paginator, "ctime DESC", "top=0")
+		newTopics := logic.DefaultTopic.FindAll(context.EchoContext(ctx), paginator, "ctime DESC", "top=0")
 
 		topicsList = append(topTopics, newTopics...)
 	}
 
 	// 获得最新博文
-	recentArticles := logic.DefaultArticle.FindBy(ctx, 10)
+	recentArticles := logic.DefaultArticle.FindBy(context.EchoContext(ctx), 10)
 	// 获取当前用户喜欢对象信息
 	var likeFlags map[int]int
 
 	if len(recentArticles) > 0 {
 		curUser, ok := ctx.Get("user").(*model.Me)
 		if ok {
-			likeFlags, _ = logic.DefaultLike.FindUserLikeObjects(ctx, curUser.Uid, model.TypeArticle, recentArticles[0].Id, recentArticles[len(recentArticles)-1].Id)
+			likeFlags, _ = logic.DefaultLike.FindUserLikeObjects(context.EchoContext(ctx), curUser.Uid, model.TypeArticle, recentArticles[0].Id, recentArticles[len(recentArticles)-1].Id)
 		}
 	}
 
 	// 资源
-	resources := logic.DefaultResource.FindBy(ctx, 10)
+	resources := logic.DefaultResource.FindBy(context.EchoContext(ctx), 10)
 
-	books := logic.DefaultGoBook.FindBy(ctx, 24)
+	books := logic.DefaultGoBook.FindBy(context.EchoContext(ctx), 24)
 	if len(books) > 8 {
 		bookNum := 8
 		bookStart := rand.Intn(len(books) - bookNum)
@@ -107,7 +108,7 @@ func (IndexController) OldIndex(ctx echo.Context) error {
 	}
 
 	// 学习资料
-	materials := logic.DefaultLearningMaterial.FindAll(ctx)
+	materials := logic.DefaultLearningMaterial.FindAll(context.EchoContext(ctx))
 
 	return render(ctx, "index.html",
 		map[string]interface{}{

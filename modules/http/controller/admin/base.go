@@ -10,10 +10,11 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/studygolang/studygolang/modules/logic"
+	"github.com/studygolang/studygolang/modules/context"
 	. "github.com/studygolang/studygolang/modules/http"
+	"github.com/studygolang/studygolang/modules/logic"
 
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	"github.com/polaris1119/nosql"
@@ -38,7 +39,7 @@ func parseConds(ctx echo.Context, fields []string) map[string]string {
 }
 
 func getLogger(ctx echo.Context) *logger.Logger {
-	return logic.GetLogger(ctx)
+	return logic.GetLogger(context.EchoContext(ctx))
 }
 
 // render html 输出
@@ -68,7 +69,7 @@ func success(ctx echo.Context, data interface{}) error {
 		}
 	}(b)
 
-	if ctx.Response().Committed() {
+	if ctx.Response().Committed {
 		getLogger(ctx).Flush()
 		return nil
 	}
@@ -77,7 +78,7 @@ func success(ctx echo.Context, data interface{}) error {
 }
 
 func fail(ctx echo.Context, code int, msg string) error {
-	if ctx.Response().Committed() {
+	if ctx.Response().Committed {
 		getLogger(ctx).Flush()
 		return nil
 	}

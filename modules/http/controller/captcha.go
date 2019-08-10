@@ -8,8 +8,9 @@ package controller
 
 import (
 	. "github.com/studygolang/studygolang/modules/http"
+
 	"github.com/dchest/captcha"
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 )
 
 var captchaHandler = captcha.Server(100, 40)
@@ -18,7 +19,7 @@ var captchaHandler = captcha.Server(100, 40)
 type CaptchaController struct{}
 
 func (self CaptchaController) RegisterRoute(g *echo.Group) {
-	g.Get("/captcha/*", self.Server)
+	g.GET("/captcha/*", self.Server)
 }
 
 func (CaptchaController) Server(ctx echo.Context) error {

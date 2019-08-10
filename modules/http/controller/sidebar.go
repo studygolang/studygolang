@@ -7,12 +7,14 @@
 package controller
 
 import (
-	"github.com/studygolang/studygolang/modules/logic"
-	"github.com/studygolang/studygolang/modules/model"
 	"strconv"
 	"time"
 
-	"github.com/labstack/echo"
+	"github.com/studygolang/studygolang/modules/context"
+	"github.com/studygolang/studygolang/modules/logic"
+	"github.com/studygolang/studygolang/modules/model"
+
+	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/slices"
 	"github.com/polaris1119/times"
@@ -41,7 +43,7 @@ func (self SidebarController) RegisterRoute(g *echo.Group) {
 // RecentReading 技术晨读
 func (SidebarController) RecentReading(ctx echo.Context) error {
 	limit := goutils.MustInt(ctx.QueryParam("limit"), 7)
-	readings := logic.DefaultReading.FindBy(ctx, limit, model.RtypeGo)
+	readings := logic.DefaultReading.FindBy(context.EchoContext(ctx), limit, model.RtypeGo)
 	if len(readings) == 1 {
 		// 首页，三天内的晨读才显示
 		if time.Time(readings[0].Ctime).Before(time.Now().Add(-3 * 24 * time.Hour)) {
@@ -53,7 +55,7 @@ func (SidebarController) RecentReading(ctx echo.Context) error {
 
 // OtherTopics 某节点下其他帖子
 func (SidebarController) OtherTopics(ctx echo.Context) error {
-	topics := logic.DefaultTopic.FindByNid(ctx, ctx.Param("nid"), ctx.QueryParam("tid"))
+	topics := logic.DefaultTopic.FindByNid(context.EchoContext(ctx), ctx.Param("nid"), ctx.QueryParam("tid"))
 	topics = logic.DefaultTopic.JSEscape(topics)
 	return success(ctx, topics)
 }
@@ -83,7 +85,7 @@ func (SidebarController) WebsiteStat(ctx echo.Context) error {
 
 // RecentDynamic 社区最新公告或go最新动态
 func (SidebarController) RecentDynamic(ctx echo.Context) error {
-	dynamics := logic.DefaultDynamic.FindBy(ctx, 0, 3)
+	dynamics := logic.DefaultDynamic.FindBy(context.EchoContext(ctx), 0, 3)
 	return success(ctx, dynamics)
 }
 
@@ -97,31 +99,31 @@ func (SidebarController) RecentTopic(ctx echo.Context) error {
 // RecentArticle 最新博文
 func (SidebarController) RecentArticle(ctx echo.Context) error {
 	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
-	recentArticles := logic.DefaultArticle.FindBy(ctx, limit)
+	recentArticles := logic.DefaultArticle.FindBy(context.EchoContext(ctx), limit)
 	return success(ctx, recentArticles)
 }
 
 // RecentProject 最新开源项目
 func (SidebarController) RecentProject(ctx echo.Context) error {
 	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
-	recentProjects := logic.DefaultProject.FindBy(ctx, limit)
+	recentProjects := logic.DefaultProject.FindBy(context.EchoContext(ctx), limit)
 	return success(ctx, recentProjects)
 }
 
 // RecentResource 最新资源
 func (SidebarController) RecentResource(ctx echo.Context) error {
 	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
-	recentResources := logic.DefaultResource.FindBy(ctx, limit)
+	recentResources := logic.DefaultResource.FindBy(context.EchoContext(ctx), limit)
 	return success(ctx, recentResources)
 }
 
 // RecentComment 最新评论
 func (SidebarController) RecentComment(ctx echo.Context) error {
 	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
-	recentComments := logic.DefaultComment.FindRecent(ctx, 0, -1, limit)
+	recentComments := logic.DefaultComment.FindRecent(context.EchoContext(ctx), 0, -1, limit)
 
 	uids := slices.StructsIntSlice(recentComments, "Uid")
-	users := logic.DefaultUser.FindUserInfos(ctx, uids)
+	users := logic.DefaultUser.FindUserInfos(context.EchoContext(ctx), uids)
 
 	result := map[string]interface{}{
 		"comments": recentComments,
@@ -137,7 +139,7 @@ func (SidebarController) RecentComment(ctx echo.Context) error {
 
 // HotNodes 社区热门节点
 func (SidebarController) HotNodes(ctx echo.Context) error {
-	nodes := logic.DefaultTopic.FindHotNodes(ctx)
+	nodes := logic.DefaultTopic.FindHotNodes(context.EchoContext(ctx))
 	return success(ctx, nodes)
 }
 
@@ -145,19 +147,19 @@ func (SidebarController) HotNodes(ctx echo.Context) error {
 func (SidebarController) ActiveUser(ctx echo.Context) error {
 	// activeUsers := logic.DefaultUser.FindActiveUsers(ctx, 9)
 	// return success(ctx, activeUsers)
-	activeUsers := logic.DefaultRank.FindDAURank(ctx, 9)
+	activeUsers := logic.DefaultRank.FindDAURank(context.EchoContext(ctx), 9)
 	return success(ctx, activeUsers)
 }
 
 // NewestUser 新加入会员
 func (SidebarController) NewestUser(ctx echo.Context) error {
-	newestUsers := logic.DefaultUser.FindNewUsers(ctx, 9)
+	newestUsers := logic.DefaultUser.FindNewUsers(context.EchoContext(ctx), 9)
 	return success(ctx, newestUsers)
 }
 
 // FriendLinks 友情链接
 func (SidebarController) FriendLinks(ctx echo.Context) error {
-	friendLinks := logic.DefaultFriendLink.FindAll(ctx, 5)
+	friendLinks := logic.DefaultFriendLink.FindAll(context.EchoContext(ctx), 5)
 	return success(ctx, friendLinks)
 }
 
@@ -173,14 +175,14 @@ func (SidebarController) ViewRank(ctx echo.Context) error {
 	}
 	switch rankType {
 	case "today":
-		result["list"] = logic.DefaultRank.FindDayRank(ctx, objtype, times.Format("ymd"), limit)
+		result["list"] = logic.DefaultRank.FindDayRank(context.EchoContext(ctx), objtype, times.Format("ymd"), limit)
 	case "yesterday":
 		yesterday := time.Now().Add(-1 * 24 * time.Hour)
-		result["list"] = logic.DefaultRank.FindDayRank(ctx, objtype, times.Format("ymd", yesterday), limit)
+		result["list"] = logic.DefaultRank.FindDayRank(context.EchoContext(ctx), objtype, times.Format("ymd", yesterday), limit)
 	case "week":
-		result["list"] = logic.DefaultRank.FindWeekRank(ctx, objtype, limit)
+		result["list"] = logic.DefaultRank.FindWeekRank(context.EchoContext(ctx), objtype, limit)
 	case "month":
-		result["list"] = logic.DefaultRank.FindMonthRank(ctx, objtype, limit)
+		result["list"] = logic.DefaultRank.FindMonthRank(context.EchoContext(ctx), objtype, limit)
 	}
 
 	result["path"] = model.PathUrlMap[objtype]
