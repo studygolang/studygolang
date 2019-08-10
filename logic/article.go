@@ -7,13 +7,13 @@
 package logic
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
-	"context"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -28,9 +28,9 @@ import (
 	"github.com/tidwall/gjson"
 	"golang.org/x/text/encoding/simplifiedchinese"
 
+	. "github.com/studygolang/studygolang/db"
 	"github.com/studygolang/studygolang/global"
 	"github.com/studygolang/studygolang/model"
-	. "github.com/studygolang/studygolang/db"
 )
 
 type ArticleLogic struct{}

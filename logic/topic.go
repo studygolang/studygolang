@@ -9,12 +9,12 @@ package logic
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"github.com/studygolang/studygolang/model"
+	"github.com/studygolang/studygolang/util"
+	"html/template"
 	"net/url"
 	"sync"
 	"time"
-	"github.com/studygolang/studygolang/util"
 
 	. "github.com/studygolang/studygolang/db"
 

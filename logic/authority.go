@@ -10,9 +10,9 @@ import (
 	"net/url"
 	"strconv"
 
+	. "github.com/studygolang/studygolang/db"
 	"github.com/studygolang/studygolang/global"
 	"github.com/studygolang/studygolang/model"
-	. "github.com/studygolang/studygolang/db"
 
 	"github.com/polaris1119/logger"
 	"golang.org/x/net/context"

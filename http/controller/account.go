@@ -12,15 +12,14 @@ import (
 	"net/url"
 	"strings"
 	"time"
-	
 
-	. "github.com/studygolang/studygolang/http/internal/helper"
+	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/http"
+	. "github.com/studygolang/studygolang/http/internal/helper"
 	"github.com/studygolang/studygolang/http/middleware"
 	"github.com/studygolang/studygolang/logic"
 	"github.com/studygolang/studygolang/model"
 	"github.com/studygolang/studygolang/util"
-	"github.com/studygolang/studygolang/context"
 
 	"github.com/dchest/captcha"
 	"github.com/gorilla/sessions"

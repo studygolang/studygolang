@@ -2,8 +2,8 @@ package logic
 
 import (
 	"bytes"
-	"io/ioutil"
 	"github.com/studygolang/studygolang/model"
+	"io/ioutil"
 
 	"github.com/polaris1119/config"
 	"golang.org/x/net/context"

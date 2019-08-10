@@ -7,8 +7,8 @@
 package logic
 
 import (
-	"github.com/studygolang/studygolang/model"
 	. "github.com/studygolang/studygolang/db"
+	"github.com/studygolang/studygolang/model"
 
 	"github.com/polaris1119/set"
 	"golang.org/x/net/context"

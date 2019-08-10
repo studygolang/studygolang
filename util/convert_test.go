@@ -7,8 +7,8 @@
 package util_test
 
 import (
-	"testing"
 	. "github.com/studygolang/studygolang/util"
+	"testing"
 )
 
 type model struct {

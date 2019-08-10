@@ -11,15 +11,15 @@ import (
 	"net/url"
 	"strings"
 
+	. "github.com/studygolang/studygolang/db"
 	"github.com/studygolang/studygolang/global"
 	"github.com/studygolang/studygolang/model"
 	"github.com/studygolang/studygolang/util"
-	. "github.com/studygolang/studygolang/db"
 
+	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/set"
 	"github.com/polaris1119/slices"
 	"golang.org/x/net/context"
-	"github.com/polaris1119/goutils"
 )
 
 type SubjectLogic struct{}

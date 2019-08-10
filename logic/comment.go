@@ -15,8 +15,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/studygolang/studygolang/model"
 	. "github.com/studygolang/studygolang/db"
+	"github.com/studygolang/studygolang/model"
 
 	"github.com/fatih/structs"
 	"github.com/polaris1119/goutils"

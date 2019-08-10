@@ -22,9 +22,9 @@ import (
 	"strings"
 	"sync"
 	"time"
-	
-	"github.com/studygolang/studygolang/model"
+
 	. "github.com/studygolang/studygolang/db"
+	"github.com/studygolang/studygolang/model"
 
 	"golang.org/x/net/context"
 

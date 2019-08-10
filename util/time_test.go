@@ -7,9 +7,9 @@
 package util_test
 
 import (
+	"github.com/studygolang/studygolang/util"
 	"testing"
 	"time"
-	"github.com/studygolang/studygolang/util"
 )
 
 func TestTimeAgo(t *testing.T) {

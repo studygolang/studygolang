@@ -10,13 +10,13 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/studygolang/studygolang/model"
 	. "github.com/studygolang/studygolang/db"
+	"github.com/studygolang/studygolang/model"
 
-	"golang.org/x/net/context"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
+	"golang.org/x/net/context"
 )
 
 type DownloadLogic struct{}

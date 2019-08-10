@@ -1,17 +1,11 @@
 language: go
 
 go:
-  - 1.8.x
-  - 1.9.x
+  - 1.11.x
+  - 1.12.x
   - tip
 
 sudo: false
 
-install:
-  - export GOPATH=$HOME/gopath/src/github.com/studygolang/studygolang
-  - export PATH=$PATH:$HOME/gopath/src/github.com/studygolang/studygolang/bin/
-  - go get -v github.com/FiloSottile/gvt
-
 script:
-  - sh getpkg.sh
-  - sh install.sh
+  - make build

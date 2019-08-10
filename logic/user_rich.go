@@ -10,9 +10,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/studygolang/studygolang/model"
+	"github.com/studygolang/studygolang/util"
 	"net/url"
 	"time"
-	"github.com/studygolang/studygolang/util"
 
 	. "github.com/studygolang/studygolang/db"
 

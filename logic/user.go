@@ -9,12 +9,12 @@ package logic
 import (
 	"errors"
 	"fmt"
-	"math/rand"
 	"github.com/studygolang/studygolang/model"
+	"github.com/studygolang/studygolang/util"
+	"math/rand"
 	"net/url"
 	"strings"
 	"time"
-	"github.com/studygolang/studygolang/util"
 
 	"github.com/polaris1119/times"
 

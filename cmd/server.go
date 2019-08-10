@@ -20,9 +20,9 @@ import (
 )
 
 var (
-	manualIndex   = flag.Bool("manual", false, "do manual index once or not")
-	needAll       = flag.Bool("all", false, "是否需要全量抓取，默认否")
-	whichSite     = flag.String("site", "", "抓取哪个站点（空表示所有站点）")
+	manualIndex = flag.Bool("manual", false, "do manual index once or not")
+	needAll     = flag.Bool("all", false, "是否需要全量抓取，默认否")
+	whichSite   = flag.String("site", "", "抓取哪个站点（空表示所有站点）")
 )
 
 func IndexingServer() {

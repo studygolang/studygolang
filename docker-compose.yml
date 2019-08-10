@@ -1,0 +1,23 @@
+version: '3'
+services:
+  studygolang:
+    container_name: studygolang
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8088:8088
+    networks:
+      - default
+      - app_net
+    external_links:
+      - redis:redis
+      - mysql:mysql
+    volumes:
+      - ./static:/app/studygolang/static
+      - ./template:/app/studygolang/template
+      - ./log:/app/studygolang/log
+
+networks:
+  app_net:
+    external: true

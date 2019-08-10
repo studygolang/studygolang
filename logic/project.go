@@ -14,8 +14,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/studygolang/studygolang/model"
 	. "github.com/studygolang/studygolang/db"
+	"github.com/studygolang/studygolang/model"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/lunny/html2md"
