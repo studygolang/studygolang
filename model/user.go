@@ -159,12 +159,12 @@ type Me struct {
 
 // 活跃用户信息
 // 活跃度规则：
-//	1、注册成功后 +2
-//	2、登录一次 +1
-//	3、修改资料 +1
-//	4、发帖子 + 10
-//	5、评论 +5
-//	6、创建Wiki页 +10
+// 	1、注册成功后 +2
+// 	2、登录一次 +1
+// 	3、修改资料 +1
+// 	4、发帖子 + 10
+// 	5、评论 +5
+// 	6、创建Wiki页 +10
 type UserActive struct {
 	Uid      int       `json:"uid" xorm:"pk"`
 	Username string    `json:"username"`

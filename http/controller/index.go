@@ -57,13 +57,12 @@ func (IndexController) Index(ctx echo.Context) error {
 
 	data["all_nodes"] = logic.GenNodes()
 
-	if tab == "all" {
+	if tab == model.TabAll || tab == model.TabRecommend {
 		pageHtml := paginator.SetTotal(logic.DefaultFeed.GetTotalCount(context.EchoContext(ctx))).GetPageHtml(ctx.Request().URL.Path)
 
 		data["page"] = template.HTML(pageHtml)
 
 		data["total"] = paginator.GetTotal()
-
 	}
 
 	return render(ctx, "index.html", data)

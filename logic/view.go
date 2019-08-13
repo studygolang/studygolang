@@ -121,6 +121,8 @@ func (this *views) Incr(req *http.Request, objtype, objid int, uids ...int) {
 
 	if len(uids) > 0 {
 		ViewObservable.NotifyObservers(uids[0], objtype, objid)
+	} else {
+		ViewObservable.NotifyObservers(0, objtype, objid)
 	}
 }
 

@@ -74,7 +74,7 @@ func ServeBackGround() {
 		c.AddFunc("@daily", logic.DefaultUserRich.AwardCooper)
 
 		// 首页推荐自动调整
-		c.AddFunc("@every 2m", logic.DefaultFeed.Recommend)
+		c.AddFunc("@daily", logic.DefaultFeed.AutoUpdateSeq)
 
 	}
 

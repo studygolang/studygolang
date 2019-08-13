@@ -7,6 +7,8 @@
 package model
 
 import (
+	"github.com/polaris1119/config"
+
 	"github.com/studygolang/studygolang/db"
 
 	"github.com/polaris1119/logger"
@@ -27,7 +29,6 @@ type Feed struct {
 	Tags          string
 	Cmtnum        int
 	Top           uint8
-	Recommend     bool
 	Seq           int
 	State         int
 	CreatedAt     OftenTime `xorm:"created"`
@@ -143,15 +144,22 @@ func PublishFeed(object interface{}, objectExt interface{}, me *Me) {
 			Uid:           objdoc.Uid,
 			Tags:          objdoc.Tags,
 			Cmtnum:        objdoc.Cmtnum,
-			Recommend:     true,
 			Lastreplyuid:  objdoc.Lastreplyuid,
 			Lastreplytime: objdoc.Lastreplytime,
 			UpdatedAt:     objdoc.UpdatedAt,
 		}
+
+		if me == nil {
+			me = &Me{
+				IsAdmin: true,
+			}
+		}
 	}
 
+	feedDay := config.ConfigFile.MustInt("global", "feed_day", 7)
+	feed.Seq = feedDay * 24
 	if me != nil && me.IsAdmin {
-		feed.Recommend = true
+		feed.Seq += 100000
 	}
 
 	_, err := db.MasterDB.Insert(feed)

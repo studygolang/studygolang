@@ -8,8 +8,9 @@ package logic
 
 import (
 	"fmt"
-	"github.com/studygolang/studygolang/model"
 	"unicode/utf8"
+
+	"github.com/studygolang/studygolang/model"
 )
 
 var (
@@ -40,6 +41,7 @@ func init() {
 	ViewObservable = NewConcreteObservable(actionView)
 	ViewObservable.AddObserver(&UserWeightObserver{})
 	ViewObservable.AddObserver(&TodayActiveObserver{})
+	ViewObservable.AddObserver(&FeedSeqObserver{})
 
 	appendObservable = NewConcreteObservable(actionAppend)
 	appendObservable.AddObserver(&UserWeightObserver{})
@@ -113,11 +115,15 @@ func (this *ConcreteObservable) NotifyObservers(uid, objtype, objid int) {
 	}
 }
 
-/////////////////////////// 具体观察者 ////////////////////////////////////////
+// ///////////////////////// 具体观察者 ////////////////////////////////////////
 
 type UserWeightObserver struct{}
 
 func (this *UserWeightObserver) Update(action string, uid, objtype, objid int) {
+	if uid == 0 {
+		return
+	}
+
 	var weight int
 	switch action {
 	case actionPublish:
@@ -140,6 +146,10 @@ func (this *UserWeightObserver) Update(action string, uid, objtype, objid int) {
 type TodayActiveObserver struct{}
 
 func (*TodayActiveObserver) Update(action string, uid, objtype, objid int) {
+	if uid == 0 {
+		return
+	}
+
 	var weight int
 
 	switch action {
@@ -176,6 +186,10 @@ var objType2MissType = map[int]int{
 
 // Update 如果是回复，则 objid 是 cid
 func (UserRichObserver) Update(action string, uid, objtype, objid int) {
+	if uid == 0 {
+		return
+	}
+
 	user := DefaultUser.FindOne(nil, "uid", uid)
 
 	var (
@@ -384,4 +398,16 @@ func (UserRichObserver) Update(action string, uid, objtype, objid int) {
 	}
 
 	DefaultUserRich.IncrUserRich(user, typ, award, desc)
+}
+
+type FeedSeqObserver struct{}
+
+func (this *FeedSeqObserver) Update(action string, uid, objtype, objid int) {
+	if objid == 0 {
+		return
+	}
+
+	if action == actionView {
+		DefaultFeed.updateSeq(objid, objtype, 0, 0, 1)
+	}
 }

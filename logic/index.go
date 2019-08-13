@@ -41,7 +41,7 @@ func (self IndexLogic) FindData(ctx context.Context, tab string, paginator *Pagi
 
 	switch {
 	case indexNav.DataSource == "feed":
-		data["feeds"] = self.findFeeds(ctx, paginator)
+		data["feeds"] = self.findFeeds(ctx, paginator, tab)
 	case isNid:
 		paginator = NewPaginator(1)
 
@@ -126,14 +126,14 @@ func (self IndexLogic) FindData(ctx context.Context, tab string, paginator *Pagi
 	case indexNav.DataSource == "subject":
 		data["subjects"] = DefaultSubject.FindBy(ctx, paginator)
 	default:
-		data["feeds"] = self.findFeeds(ctx, paginator)
+		data["feeds"] = self.findFeeds(ctx, paginator, tab)
 	}
 
 	return data
 }
 
-func (self IndexLogic) findFeeds(ctx context.Context, paginator *Paginator) []*model.Feed {
+func (self IndexLogic) findFeeds(ctx context.Context, paginator *Paginator, tab string) []*model.Feed {
 	topFeeds := DefaultFeed.FindTop(ctx)
-	feeds := DefaultFeed.FindRecentWithPaginator(ctx, paginator)
+	feeds := DefaultFeed.FindRecentWithPaginator(ctx, paginator, tab)
 	return append(topFeeds, feeds...)
 }

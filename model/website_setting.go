@@ -34,6 +34,11 @@ type FooterNav struct {
 	OuterSite bool   `json:"outer_site"`
 }
 
+const (
+	TabRecommend = "recommend"
+	TabAll       = "all"
+)
+
 type IndexNav struct {
 	Tab        string           `json:"tab"`
 	Name       string           `json:"name"`

@@ -9,6 +9,7 @@ package logic
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	. "github.com/studygolang/studygolang/db"
 
@@ -123,6 +124,8 @@ func (LikeLogic) LikeObject(ctx context.Context, uid, objid, objtype, likeFlag i
 	if affectedRows > 0 {
 		if liker, ok := likers[objtype]; ok {
 			go liker.UpdateLike(objid, 1)
+
+			DefaultFeed.updateLike(objid, objtype, uid, time.Now())
 		}
 	}
 

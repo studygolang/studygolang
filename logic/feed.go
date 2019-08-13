@@ -11,6 +11,9 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/polaris1119/config"
+	"github.com/polaris1119/logger"
+
 	. "github.com/studygolang/studygolang/db"
 	"github.com/studygolang/studygolang/model"
 	"github.com/studygolang/studygolang/util"
@@ -33,11 +36,15 @@ func (self FeedLogic) GetTotalCount(ctx context.Context) int64 {
 	return count
 }
 
-func (self FeedLogic) FindRecentWithPaginator(ctx context.Context, paginator *Paginator) []*model.Feed {
+func (self FeedLogic) FindRecentWithPaginator(ctx context.Context, paginator *Paginator, tab string) []*model.Feed {
 	objLog := GetLogger(ctx)
 
 	feeds := make([]*model.Feed, 0)
-	err := MasterDB.Where("recommend=1").Desc("seq").Desc("updated_at").Limit(paginator.PerPage(), paginator.Offset()).Find(&feeds)
+	session := MasterDB.Limit(paginator.PerPage(), paginator.Offset())
+	if tab == model.TabRecommend {
+		session.Desc("seq")
+	}
+	err := session.Desc("updated_at").Find(&feeds)
 	if err != nil {
 		objLog.Errorln("FeedLogic FindRecent error:", err)
 		return nil
@@ -72,12 +79,43 @@ func (self FeedLogic) FindTop(ctx context.Context) []*model.Feed {
 	return self.fillOtherInfo(ctx, feeds, false)
 }
 
-// 首页按规则调整：推荐
-// 暂定规则：在一定时间内发布
-// 	1. 超过 7 天，排序值置为 0；
-// 	2.
-func (self FeedLogic) Recommend() {
+// AutoUpdateSeq 每天自动更新一次动态的排序（校准）
+func (self FeedLogic) AutoUpdateSeq() {
+	feedDay := config.ConfigFile.MustInt("global", "feed_day", 7)
 
+	var err error
+	offset, limit := 0, 100
+	for {
+		feeds := make([]*model.Feed, 0)
+		err = MasterDB.Where("seq>0").Limit(limit, offset).Find(&feeds)
+		if err != nil || len(feeds) == 0 {
+			return
+		}
+
+		offset += limit
+
+		for _, feed := range feeds {
+			if feed.State == model.FeedOffline {
+				continue
+			}
+
+			elaspe := int(time.Now().Sub(time.Time(feed.CreatedAt)).Hours())
+
+			if feed.Uid > 0 {
+				user := DefaultUser.FindOne(nil, "uid", feed.Uid)
+				if DefaultUser.IsAdmin(user) {
+					elaspe = int(time.Now().Sub(time.Time(feed.UpdatedAt)).Hours())
+				}
+			}
+
+			if elaspe > feedDay*24 {
+				MasterDB.Table(new(model.Feed)).Where("id=?", feed.Id).Update(map[string]interface{}{
+					"updated_at": time.Time(feed.UpdatedAt),
+					"seq":        0,
+				})
+			}
+		}
+	}
 }
 
 func (FeedLogic) fillOtherInfo(ctx context.Context, feeds []*model.Feed, filterTop bool) []*model.Feed {
@@ -140,7 +178,51 @@ func (FeedLogic) publish(object interface{}, objectExt interface{}, me *model.Me
 }
 
 func (self FeedLogic) updateSeq(objid, objtype, cmtnum, likenum, viewnum int) {
-	
+	go func() {
+		feed := &model.Feed{}
+		_, err := MasterDB.Where("objid=? AND objtype=?", objid, objtype).Get(feed)
+		if err != nil {
+			return
+		}
+
+		if feed.State == model.FeedOffline {
+			return
+		}
+
+		feedDay := config.ConfigFile.MustInt("global", "feed_day", 7)
+		elaspe := int(time.Now().Sub(time.Time(feed.CreatedAt)).Hours())
+
+		if feed.Uid > 0 {
+			user := DefaultUser.FindOne(nil, "uid", feed.Uid)
+			if DefaultUser.IsAdmin(user) {
+				elaspe = int(time.Now().Sub(time.Time(feed.UpdatedAt)).Hours())
+			}
+		}
+
+		seq := 0
+
+		if elaspe > feedDay*24 {
+			if feed.Seq == 0 {
+				return
+			}
+		} else {
+			if feed.Seq == 0 {
+				seq = elaspe + (feed.Cmtnum+cmtnum)*100 + likenum*100 + viewnum*5
+			} else {
+				seq = feed.Seq - elaspe + cmtnum*100 + likenum*100 + viewnum*5
+			}
+		}
+
+		_, err = MasterDB.Table(new(model.Feed)).Where("objid=? AND objtype=?", objid, objtype).Update(map[string]interface{}{
+			"updated_at": time.Time(feed.UpdatedAt),
+			"seq":        seq,
+		})
+
+		if err != nil {
+			logger.Errorln("update feed seq error:", err)
+			return
+		}
+	}()
 }
 
 // setTop 置顶或取消置顶
@@ -154,14 +236,21 @@ func (FeedLogic) setTop(session *xorm.Session, objid, objtype int, top int) erro
 }
 
 // updateComment 更新动态评论数据
-func (FeedLogic) updateComment(objid, objtype, uid int, cmttime time.Time) {
+func (self FeedLogic) updateComment(objid, objtype, uid int, cmttime time.Time) {
 	go func() {
 		MasterDB.Table(new(model.Feed)).Where("objid=? AND objtype=?", objid, objtype).
 			Incr("cmtnum", 1).Update(map[string]interface{}{
 			"lastreplyuid":  uid,
 			"lastreplytime": cmttime,
 		})
+
+		self.updateSeq(objid, objtype, 1, 0, 0)
 	}()
+}
+
+// updateLike 更新动态赞数据（暂时没存）
+func (self FeedLogic) updateLike(objid, objtype, uid int, liketime time.Time) {
+	self.updateSeq(objid, objtype, 0, 1, 0)
 }
 
 func (self FeedLogic) modifyTopicNode(tid, nid int) {

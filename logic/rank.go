@@ -25,6 +25,23 @@ type RankLogic struct{}
 var DefaultRank = RankLogic{}
 
 func (self RankLogic) GenDayRank(objtype, objid, num int) {
+	if objtype == model.TypeTopic {
+		topic := &model.Topic{}
+		_, err := MasterDB.Where("tid=?", objid).Get(topic)
+		if err != nil {
+			return
+		}
+
+		topicNode := &model.TopicNode{}
+		_, err = MasterDB.Where("nid=?", topic.Nid).Get(topicNode)
+		if err != nil {
+			return
+		}
+		if !topicNode.ShowIndex {
+			return
+		}
+	}
+
 	redisClient := nosql.NewRedisClient()
 	defer redisClient.Close()
 	key := self.getDayRankKey(objtype, times.Format("ymd"))

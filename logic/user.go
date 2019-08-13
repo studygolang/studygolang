@@ -393,6 +393,20 @@ func (UserLogic) Total() int64 {
 	return total
 }
 
+func (UserLogic) IsAdmin(user *model.User) bool {
+	if user.IsRoot {
+		return true
+	}
+
+	for _, roleId := range user.Roleids {
+		if roleId <= model.AdminMinRoleId {
+			return true
+		}
+	}
+
+	return false
+}
+
 var (
 	ErrUsername = errors.New("用户名不存在")
 	ErrPasswd   = errors.New("密码错误")
