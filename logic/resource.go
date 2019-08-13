@@ -112,7 +112,7 @@ func (ResourceLogic) Publish(ctx context.Context, me *model.Me, form url.Values)
 		}
 
 		// 发布动态
-		DefaultFeed.publish(resource, resourceEx)
+		DefaultFeed.publish(resource, resourceEx, me)
 
 		// 给 被@用户 发系统消息
 		ext := map[string]interface{}{

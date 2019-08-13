@@ -37,7 +37,7 @@ func (self FeedLogic) FindRecentWithPaginator(ctx context.Context, paginator *Pa
 	objLog := GetLogger(ctx)
 
 	feeds := make([]*model.Feed, 0)
-	err := MasterDB.Desc("updated_at").Limit(paginator.PerPage(), paginator.Offset()).Find(&feeds)
+	err := MasterDB.Where("recommend=1").Desc("seq").Desc("updated_at").Limit(paginator.PerPage(), paginator.Offset()).Find(&feeds)
 	if err != nil {
 		objLog.Errorln("FeedLogic FindRecent error:", err)
 		return nil
@@ -70,6 +70,14 @@ func (self FeedLogic) FindTop(ctx context.Context) []*model.Feed {
 	}
 
 	return self.fillOtherInfo(ctx, feeds, false)
+}
+
+// 首页按规则调整：推荐
+// 暂定规则：在一定时间内发布
+// 	1. 超过 7 天，排序值置为 0；
+// 	2.
+func (self FeedLogic) Recommend() {
+
 }
 
 func (FeedLogic) fillOtherInfo(ctx context.Context, feeds []*model.Feed, filterTop bool) []*model.Feed {
@@ -127,8 +135,12 @@ func (FeedLogic) fillOtherInfo(ctx context.Context, feeds []*model.Feed, filterT
 }
 
 // publish 发布动态
-func (FeedLogic) publish(object interface{}, objectExt interface{}) {
-	go model.PublishFeed(object, objectExt)
+func (FeedLogic) publish(object interface{}, objectExt interface{}, me *model.Me) {
+	go model.PublishFeed(object, objectExt, me)
+}
+
+func (self FeedLogic) updateSeq(objid, objtype, cmtnum, likenum, viewnum int) {
+	
 }
 
 // setTop 置顶或取消置顶

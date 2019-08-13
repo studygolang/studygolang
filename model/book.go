@@ -48,7 +48,7 @@ func (this *Book) AfterInsert() {
 		// AfterInsert 时，自增 ID 还未赋值，这里 sleep 一会，确保自增 ID 有值
 		for {
 			if this.Id > 0 {
-				PublishFeed(this, nil)
+				PublishFeed(this, nil, nil)
 				return
 			}
 			time.Sleep(100 * time.Millisecond)

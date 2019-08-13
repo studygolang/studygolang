@@ -42,6 +42,7 @@ type Topic struct {
 	TopTime       int64     `json:"top_time"`
 	Tags          string    `json:"tags"`
 	Permission    int       `json:"permission"`
+	CloseReply    bool      `json:"close_reply"`
 	Ctime         OftenTime `json:"ctime" xorm:"created"`
 	Mtime         OftenTime `json:"mtime" xorm:"<-"`
 

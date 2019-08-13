@@ -215,7 +215,8 @@ func (this *RedditLogic) dealRedditOneResource(contentSelection *goquery.Selecti
 		}
 		session.Commit()
 
-		DefaultFeed.publish(resource, resourceEx)
+		me := &model.Me{IsAdmin: true}
+		DefaultFeed.publish(resource, resourceEx, me)
 	} else {
 		if _, err = MasterDB.Id(resource.Id).Update(resource); err != nil {
 			return errors.New("update resource:" + strconv.Itoa(resource.Id) + " error:" + err.Error())

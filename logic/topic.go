@@ -134,7 +134,7 @@ func (self TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Value
 		}()
 
 		// 发布动态
-		DefaultFeed.publish(topic, topicEx)
+		DefaultFeed.publish(topic, topicEx, me)
 
 		// 给 被@用户 发系统消息
 		ext := map[string]interface{}{

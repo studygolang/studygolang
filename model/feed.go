@@ -27,6 +27,8 @@ type Feed struct {
 	Tags          string
 	Cmtnum        int
 	Top           uint8
+	Recommend     bool
+	Seq           int
 	State         int
 	CreatedAt     OftenTime `xorm:"created"`
 	UpdatedAt     OftenTime `json:"updated_at" xorm:"<-"`
@@ -38,7 +40,7 @@ type Feed struct {
 }
 
 // PublishFeed 发布动态
-func PublishFeed(object interface{}, objectExt interface{}) {
+func PublishFeed(object interface{}, objectExt interface{}, me *Me) {
 	var feed *Feed
 	switch objdoc := object.(type) {
 	case *Topic:
@@ -76,7 +78,14 @@ func PublishFeed(object interface{}, objectExt interface{}) {
 			userLogin := &UserLogin{}
 			db.MasterDB.Where("username=?", objdoc.AuthorTxt).Get(userLogin)
 			uid = userLogin.Uid
+		} else {
+			if me == nil {
+				me = &Me{
+					IsAdmin: true,
+				}
+			}
 		}
+
 		feed = &Feed{
 			Objid:         objdoc.Id,
 			Objtype:       TypeArticle,
@@ -134,10 +143,15 @@ func PublishFeed(object interface{}, objectExt interface{}) {
 			Uid:           objdoc.Uid,
 			Tags:          objdoc.Tags,
 			Cmtnum:        objdoc.Cmtnum,
+			Recommend:     true,
 			Lastreplyuid:  objdoc.Lastreplyuid,
 			Lastreplytime: objdoc.Lastreplytime,
 			UpdatedAt:     objdoc.UpdatedAt,
 		}
+	}
+
+	if me != nil && me.IsAdmin {
+		feed.Recommend = true
 	}
 
 	_, err := db.MasterDB.Insert(feed)

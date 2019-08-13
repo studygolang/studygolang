@@ -73,6 +73,9 @@ func ServeBackGround() {
 		// 每天对活跃用户奖励铜币
 		c.AddFunc("@daily", logic.DefaultUserRich.AwardCooper)
 
+		// 首页推荐自动调整
+		c.AddFunc("@every 2m", logic.DefaultFeed.Recommend)
+
 	}
 
 	// 两分钟刷一次浏览数（TODO：重启丢失问题？信号控制重启？）

@@ -44,23 +44,29 @@
                 <div class="cell">
                     {{if eq .topic.permission 1}}
                         {{if .me.Status}}
-                            <div class="content">{{.topic.content}}</div>
+                            <div class="content markdown-body">{{.topic.content}}</div>
                         {{else}}
                             <div style="font-size: 1.2em;">作者设置必须登录才能查看，<a href="/account/login?redirect_uri=/topics/{{.topic.tid}}">请登录</a>；如没有账号，<a href="/account/register">请注册</a></div>
                         {{end}}
                     {{else if eq .topic.permission 3}}
-                    {{if or .me.IsVip .me.IsRoot (eq .topic.uid .me.Uid)}}
-                    <div class="content markdown-body">{{.topic.content}}</div>
+                        {{if or .me.IsVip .me.IsRoot (eq .topic.uid .me.Uid)}}
+                            <div class="content markdown-body">{{.topic.content}}</div>
+                        {{else if .me.Status}}
+                            <div style="font-size: 1.2em;">
+                                <p>作者设置付费用户才能查看，加入Go中文网创建的<a href="https://t.zsxq.com/BM72RZR" title="知识星球" target="_blank">知识星球</a>自动成为付费用户（加入后星球私信告知网站用户名）。</p>
+                                <img src="{{.static_domain}}/static/img/zsxq.jpg?imageView2/2/w/380" alt="知识星球" class="img-responsive">
+                                <!--
+                                <p>或者给我们转账成为付费用户，有效期一年，限时优惠：99元/年</p>
+                                <img src="{{.static_domain}}/static/img/wxpay99.jpg?imageView2/2/w/380" alt="转账付费" class="img-responsive">
+                                -->
+                            </div>
+                        {{else}}
+                            <div style="font-size: 1.2em;">
+                                <div style="font-size: 1.2em;">作者设置必须登录才能查看，<a href="/account/login?redirect_uri=/topics/{{.topic.tid}}">请登录</a>；如没有账号，<a href="/account/register">请注册</a></div>
+                            </div>
+                        {{end}}
                     {{else}}
-                    <div style="font-size: 1.2em;">
-                        <p>作者设置付费用户才能查看，加入Go中文网创建的<a href="https://t.zsxq.com/BM72RZR" title="知识星球" target="_blank">知识星球</a>自动成为付费用户（加入后星球私信告知网站用户名）。</p>
-                        <img src="{{.static_domain}}/static/img/zsxq.jpg?imageView2/2/w/380" alt="知识星球" class="img-responsive">
-                        <p>或者给我们转账成为付费用户，有效期一年，限时优惠：99元/年</p>
-                        <img src="{{.static_domain}}/static/img/wxpay99.jpg?imageView2/2/w/380" alt="转账付费" class="img-responsive">
-                    </div>
-                    {{end}}
-                    {{else}}
-                        <div class="content">{{.topic.content}}</div>
+                        <div class="content markdown-body">{{.topic.content}}</div>
                     {{end}}
                 </div>
                 {{range $i, $append := .appends}}
@@ -98,7 +104,11 @@
                         {{end}}
                     {{end}}
                     </div>
-                    <span class="c9"><span class="cmtnum">{{.topic.reply}}</span> 回复 {{if .topic.reply}}&nbsp;<strong class="snow">|</strong> &nbsp;直到 {{.topic.lastreplytime}}{{end}}</span>
+                    {{if .topic.close_reply}}
+                        <span class="c9">作者关闭了回复功能</span>
+                    {{else}}
+                        <span class="c9"><span class="cmtnum">{{.topic.reply}}</span> 回复 {{if .topic.reply}}&nbsp;<strong class="snow">|</strong> &nbsp;直到 {{.topic.lastreplytime}}{{end}}</span>
+                    {{end}}
                 </div>
                 {{include "common/comment-page.html" .}}
                 <div class="comment-list cell" data-objid="{{.topic.tid}}" data-objtype="0" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
@@ -108,8 +118,10 @@
             </div>
 
             {{if .can_view}}
+                {{if not .topic.close_reply}}
                 <!-- 评论框 -->
                 {{template "comment" .}}
+                {{end}}
             {{end}}
 
             {{include "common/view_stat.html" .}}
@@ -174,7 +186,9 @@ $(function(){
 
     // 有权限查看才加载评论
     {{if .can_view}}
-        loadComments();
+        {{if not .topic.close_reply}}
+            loadComments();
+        {{end}}
     {{end}}
 
     // 链接，add target=_blank

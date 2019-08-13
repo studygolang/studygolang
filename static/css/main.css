@@ -172,7 +172,7 @@ a.tab_current:hover {background-color: #445; color: #fff; text-decoration: none;
 .page .tags .list-inline li a {padding: 4px 12px;color: #fff;font-family: "NSimSun";font-size: 12px;background: #9F9F9F;border-radius: 3px;}
 .page .tags .list-inline li a:hover {background: #ED5565;text-decoration: none;}
 .page .content { font-size: 14px; line-height: 1.6; color: #000; word-wrap: break-word; }
-.page .content a { font-weight: bold; }
+.page .content a { font-weight: bold; color: #3194d0; }
 .page .content .container {max-width: 780px !important;}
 .page .orig-info {margin: 20px 30px 0 30px; border: 1px dashed #D5D5D5; padding: 10px; font-size: 13px; font-style: italic;}
 .page .active {border-bottom: 1px dotted #d8d8d8;padding-bottom: 20px;padding-top: 20px;margin: 0 30px;}
