@@ -12,7 +12,11 @@ type echoCtx struct {
 }
 
 func (c *echoCtx) Value(key interface{}) interface{} {
-	return c.ctx.Get(key.(string))
+	if k, ok := key.(string); ok {
+		return c.ctx.Get(k)
+	}
+
+	return c.Value(key)
 }
 
 func EchoContext(ctx echo.Context) context.Context {
