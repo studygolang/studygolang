@@ -16,7 +16,7 @@ func (c *echoCtx) Value(key interface{}) interface{} {
 		return c.ctx.Get(k)
 	}
 
-	return c.Value(key)
+	return c.Context.Value(key)
 }
 
 func EchoContext(ctx echo.Context) context.Context {
