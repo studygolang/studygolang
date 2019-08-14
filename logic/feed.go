@@ -99,21 +99,24 @@ func (self FeedLogic) AutoUpdateSeq() {
 				continue
 			}
 
-			elaspe := int(time.Now().Sub(time.Time(feed.CreatedAt)).Hours())
+			elapse := int(time.Now().Sub(time.Time(feed.CreatedAt)).Hours())
 
 			if feed.Uid > 0 {
 				user := DefaultUser.FindOne(nil, "uid", feed.Uid)
 				if DefaultUser.IsAdmin(user) {
-					elaspe = int(time.Now().Sub(time.Time(feed.UpdatedAt)).Hours())
+					elapse = int(time.Now().Sub(time.Time(feed.UpdatedAt)).Hours())
 				}
 			}
 
-			if elaspe > feedDay*24 {
-				MasterDB.Table(new(model.Feed)).Where("id=?", feed.Id).Update(map[string]interface{}{
-					"updated_at": time.Time(feed.UpdatedAt),
-					"seq":        0,
-				})
+			seq := 0
+			if elapse <= feedDay*24 {
+				seq = feed.Seq - elapse
 			}
+
+			MasterDB.Table(new(model.Feed)).Where("id=?", feed.Id).Update(map[string]interface{}{
+				"updated_at": time.Time(feed.UpdatedAt),
+				"seq":        seq,
+			})
 		}
 	}
 }
@@ -190,26 +193,26 @@ func (self FeedLogic) updateSeq(objid, objtype, cmtnum, likenum, viewnum int) {
 		}
 
 		feedDay := config.ConfigFile.MustInt("global", "feed_day", 7)
-		elaspe := int(time.Now().Sub(time.Time(feed.CreatedAt)).Hours())
+		elapse := int(time.Now().Sub(time.Time(feed.CreatedAt)).Hours())
 
 		if feed.Uid > 0 {
 			user := DefaultUser.FindOne(nil, "uid", feed.Uid)
 			if DefaultUser.IsAdmin(user) {
-				elaspe = int(time.Now().Sub(time.Time(feed.UpdatedAt)).Hours())
+				elapse = int(time.Now().Sub(time.Time(feed.UpdatedAt)).Hours())
 			}
 		}
 
 		seq := 0
 
-		if elaspe > feedDay*24 {
+		if elapse > feedDay*24 {
 			if feed.Seq == 0 {
 				return
 			}
 		} else {
 			if feed.Seq == 0 {
-				seq = elaspe + (feed.Cmtnum+cmtnum)*100 + likenum*100 + viewnum*5
+				seq = feedDay*24 - elapse + (feed.Cmtnum+cmtnum)*100 + likenum*100 + viewnum*5
 			} else {
-				seq = feed.Seq - elaspe + cmtnum*100 + likenum*100 + viewnum*5
+				seq = feed.Seq + cmtnum*100 + likenum*100 + viewnum*5
 			}
 		}
 
