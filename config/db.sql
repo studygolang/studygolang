@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS `website_setting` (
   `project_df_logo` varchar(255) NOT NULL DEFAULT '' COMMENT '开源项目默认logo',
   `seo_keywords` varchar(63) NOT NULL DEFAULT '' COMMENT '页面 seo 通用keywords',
   `seo_description` varchar(255) NOT NULL DEFAULT '' COMMENT '页面 seo 通用description',
-  `index_nav` varchar(2044) NOT NULL DEFAULT '' COMMENT '首页顶部导航，json 格式',
+  `index_nav` varchar(4088) NOT NULL DEFAULT '' COMMENT '首页顶部导航，json 格式',
   `created_at` timestamp NOT NULL DEFAULT '2013-03-15 14:38:09' COMMENT '创建时间',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
   PRIMARY KEY (`id`)

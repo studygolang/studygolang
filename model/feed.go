@@ -79,12 +79,6 @@ func PublishFeed(object interface{}, objectExt interface{}, me *Me) {
 			userLogin := &UserLogin{}
 			db.MasterDB.Where("username=?", objdoc.AuthorTxt).Get(userLogin)
 			uid = userLogin.Uid
-		} else {
-			if me == nil {
-				me = &Me{
-					IsAdmin: true,
-				}
-			}
 		}
 
 		feed = &Feed{
