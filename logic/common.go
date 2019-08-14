@@ -70,6 +70,10 @@ func CanEdit(me *model.Me, curModel interface{}) bool {
 		return false
 	}
 
+	if me.IsRoot {
+		return true
+	}
+
 	canEditTime := time.Duration(UserSetting[model.KeyCanEditTime]) * time.Second
 	switch entity := curModel.(type) {
 	case *model.Topic:

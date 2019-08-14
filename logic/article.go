@@ -846,7 +846,7 @@ func (self ArticleLogic) MoveToTopic(ctx context.Context, id interface{}, me *mo
 	DefaultUserRich.IncrUserRich(user, model.MissionTypePunish, award, desc)
 
 	// 将文章删除
-	_, err = session.Id(article.Id).Delete(article)
+	_, err = session.ID(article.Id).Delete(article)
 
 	session.Commit()
 

@@ -81,7 +81,7 @@ func (self FeedLogic) FindTop(ctx context.Context) []*model.Feed {
 
 // AutoUpdateSeq 每天自动更新一次动态的排序（校准）
 func (self FeedLogic) AutoUpdateSeq() {
-	feedDay := config.ConfigFile.MustInt("global", "feed_day", 7)
+	feedDay := config.ConfigFile.MustInt("feed", "day", 7)
 
 	var err error
 	offset, limit := 0, 100
@@ -181,6 +181,10 @@ func (FeedLogic) publish(object interface{}, objectExt interface{}, me *model.Me
 }
 
 func (self FeedLogic) updateSeq(objid, objtype, cmtnum, likenum, viewnum int) {
+	cmtWeight := config.ConfigFile.MustInt("feed", "cmt_weight", 80)
+	likeWeight := config.ConfigFile.MustInt("feed", "like_weight", 60)
+	viewWeight := config.ConfigFile.MustInt("feed", "view_weight", 5)
+
 	go func() {
 		feed := &model.Feed{}
 		_, err := MasterDB.Where("objid=? AND objtype=?", objid, objtype).Get(feed)
@@ -192,7 +196,7 @@ func (self FeedLogic) updateSeq(objid, objtype, cmtnum, likenum, viewnum int) {
 			return
 		}
 
-		feedDay := config.ConfigFile.MustInt("global", "feed_day", 7)
+		feedDay := config.ConfigFile.MustInt("feed", "day", 7)
 		elapse := int(time.Now().Sub(time.Time(feed.CreatedAt)).Hours())
 
 		if feed.Uid > 0 {
@@ -210,9 +214,9 @@ func (self FeedLogic) updateSeq(objid, objtype, cmtnum, likenum, viewnum int) {
 			}
 		} else {
 			if feed.Seq == 0 {
-				seq = feedDay*24 - elapse + (feed.Cmtnum+cmtnum)*100 + likenum*100 + viewnum*5
+				seq = feedDay*24 - elapse + (feed.Cmtnum+cmtnum)*cmtWeight + likenum*likeWeight + viewnum*viewWeight
 			} else {
-				seq = feed.Seq + cmtnum*100 + likenum*100 + viewnum*5
+				seq = feed.Seq + cmtnum*cmtWeight + likenum*likeWeight + viewnum*viewWeight
 			}
 		}
 

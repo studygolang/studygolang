@@ -150,7 +150,7 @@ func PublishFeed(object interface{}, objectExt interface{}, me *Me) {
 		}
 	}
 
-	feedDay := config.ConfigFile.MustInt("global", "feed_day", 7)
+	feedDay := config.ConfigFile.MustInt("feed", "day", 7)
 	feed.Seq = feedDay * 24
 	if me != nil && me.IsAdmin {
 		feed.Seq += 100000
