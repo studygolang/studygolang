@@ -44,15 +44,10 @@ func (ResourceLogic) Publish(ctx context.Context, me *model.Me, form url.Values)
 			return
 		}
 
-		fields := []string{"title", "catid", "form", "url", "content"}
 		if form.Get("form") == model.LinkForm {
 			form.Set("content", "")
 		} else {
 			form.Set("url", "")
-		}
-
-		for _, field := range fields {
-			form.Del(field)
 		}
 
 		err = schemaDecoder.Decode(resource, form)
@@ -60,7 +55,7 @@ func (ResourceLogic) Publish(ctx context.Context, me *model.Me, form url.Values)
 			objLog.Errorln("ResourceLogic Publish decode error:", err)
 			return
 		}
-		_, err = MasterDB.Id(id).Update(resource)
+		_, err = MasterDB.ID(id).Update(resource)
 		if err != nil {
 			objLog.Errorf("更新资源 【%s】 信息失败：%s\n", id, err)
 			return

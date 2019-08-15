@@ -867,7 +867,9 @@ func (self ArticleLogic) transferImage(ctx context.Context, s *goquery.Selection
 
 func (self ArticleLogic) setImgSrc(ctx context.Context, v string, imgDeny bool, s *goquery.Selection, domain string) {
 	if imgDeny {
-		if !strings.HasPrefix(v, "http") {
+		if strings.HasPrefix(v, "//") {
+			v = "https:" + v
+		} else if !strings.HasPrefix(v, "http") {
 			v = "http://" + domain + "/" + v
 		}
 		path, err := DefaultUploader.TransferUrl(ctx, v)

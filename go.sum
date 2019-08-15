@@ -158,6 +158,8 @@ github.com/polaris1119/email v0.0.0-20171030115359-9c57dd3e3e7d h1:5Tx8BuKqRGhit
 github.com/polaris1119/email v0.0.0-20171030115359-9c57dd3e3e7d/go.mod h1:3S7Km+d2GftzOJJgrvIGHDtRxm5eUZamHaoUzLZNJX0=
 github.com/polaris1119/goutils v0.0.0-20160602032428-582c98b3184b h1:THcO90yP3NaMbkQmcnKyu8wJBS1iSO3Z7eAo5axqVbA=
 github.com/polaris1119/goutils v0.0.0-20160602032428-582c98b3184b/go.mod h1:yHb+G3YG7G0Hf0EIXCjbOe/Aus8TXZtYa/ZPEqyMxXU=
+github.com/polaris1119/goutils v0.0.0-20190815094239-73c47df9b896 h1:BYTbNGq/6Y28744ZVeOcD9s0qkeuTrDka8PCbaXPs4g=
+github.com/polaris1119/goutils v0.0.0-20190815094239-73c47df9b896/go.mod h1:yHb+G3YG7G0Hf0EIXCjbOe/Aus8TXZtYa/ZPEqyMxXU=
 github.com/polaris1119/keyword v0.0.0-20170608075927-96ae6735f2f2 h1:63TyJE7nj3eUsJ/1jbzrnH8gxw1z3oV/su2RIyVHlRQ=
 github.com/polaris1119/keyword v0.0.0-20170608075927-96ae6735f2f2/go.mod h1:YYx1sYXgS43cG1iH0cXYFcibESl8azhUrA6W10gYb9E=
 github.com/polaris1119/logger v0.0.0-20170422061149-0233d014769e h1:HSeLmpKe7eny4fT5tdnYfQffWvx6aKCdzIcW/MZWt3I=

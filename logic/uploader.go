@@ -219,12 +219,12 @@ func (this *UploaderLogic) TransferUrl(ctx context.Context, origUrl string, pref
 		exts, err := mime.ExtensionsByType(contentType)
 		if err != nil {
 			logger.Errorln("detect extension error:", err, "orig url:", origUrl)
-		} else  if len(exts) > 0 {
+		} else if len(exts) > 0 {
 			ext = exts[0]
 		}
 	}
 
-	if ext == "" || !strings.Contains("png,jpg,jpeg,gif,bmp", strings.ToLower(ext)) {
+	if ext == "" && !strings.Contains("png,jpg,jpeg,gif,bmp", strings.ToLower(ext)) {
 		logger.Errorln("can't fetch extension, url:", origUrl)
 		return origUrl, errors.New("can't fetch extension")
 	}
