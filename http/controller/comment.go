@@ -23,6 +23,12 @@ import (
 	"github.com/studygolang/studygolang/echoutils"
 )
 
+// 在需要喜欢且要回调的地方注册喜欢对象
+func init() {
+	// 注册喜欢对象
+	logic.RegisterLikeObject(model.TypeComment, logic.CommentLike{})
+}
+
 type CommentController struct{}
 
 func (self CommentController) RegisterRoute(g *echo.Group) {

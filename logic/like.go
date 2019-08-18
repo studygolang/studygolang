@@ -9,7 +9,6 @@ package logic
 import (
 	"errors"
 	"fmt"
-	"time"
 
 	. "github.com/studygolang/studygolang/db"
 
@@ -72,9 +71,6 @@ func (LikeLogic) FindUserLikeObjects(ctx context.Context, uid, objtype int, obji
 func (LikeLogic) LikeObject(ctx context.Context, uid, objid, objtype, likeFlag int) error {
 	objLog := GetLogger(ctx)
 
-	// 点喜欢，活跃度+3
-	go DefaultUser.IncrUserWeight("uid", uid, 3)
-
 	like := &model.Like{}
 	_, err := MasterDB.Where("uid=? AND objid=? AND objtype=?", uid, objid, objtype).Get(like)
 	if err != nil {
@@ -101,6 +97,8 @@ func (LikeLogic) LikeObject(ctx context.Context, uid, objid, objtype, likeFlag i
 			// 取消喜欢成功，更新对象的喜欢数
 			if liker, ok := likers[objtype]; ok {
 				go liker.UpdateLike(objid, -1)
+
+				DefaultFeed.updateLike(objid, objtype, uid, -1)
 			}
 
 			return nil
@@ -125,8 +123,10 @@ func (LikeLogic) LikeObject(ctx context.Context, uid, objid, objtype, likeFlag i
 		if liker, ok := likers[objtype]; ok {
 			go liker.UpdateLike(objid, 1)
 
-			DefaultFeed.updateLike(objid, objtype, uid, time.Now())
+			DefaultFeed.updateLike(objid, objtype, uid, 1)
 		}
+
+		go likeObservable.NotifyObservers(uid, objtype, objid)
 	}
 
 	// TODO: 给被喜欢对象所有者发系统消息

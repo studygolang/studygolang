@@ -451,3 +451,20 @@ func (CommentLogic) filterDelObjectCmt(comments []*model.Comment) []*model.Comme
 	}
 	return resultCmts
 }
+
+// 回复赞（喜欢）
+type CommentLike struct{}
+
+// 更新该回复的赞
+// objid：被喜欢对象id；num: 喜欢数(负数表示取消喜欢)
+func (self CommentLike) UpdateLike(objid, num int) {
+	// 更新喜欢数（TODO：暂时每次都更新表）
+	_, err := MasterDB.Where("id=?", objid).Incr("likenum", num).Update(new(model.Comment))
+	if err != nil {
+		logger.Errorln("更新回复喜欢数失败：", err)
+	}
+}
+
+func (self CommentLike) String() string {
+	return "comment"
+}

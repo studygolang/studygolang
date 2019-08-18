@@ -106,6 +106,14 @@ func NeedLogin() echo.MiddlewareFunc {
 						}
 					}
 				}
+			} else {
+				newUserWait := time.Duration(logic.UserSetting[model.KeyNewUserWait]) * time.Second
+				if newUserWait > 0 {
+					elapse := time.Now().Sub(user.CreatedAt)
+					if elapse <= newUserWait {
+						return echo.NewHTTPError(http.StatusForbidden, `您需要再等待`+(newUserWait-elapse).String()+"才能进行此操作")
+					}
+				}
 			}
 
 			if err := next(ctx); err != nil {

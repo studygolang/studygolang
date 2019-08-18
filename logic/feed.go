@@ -314,9 +314,14 @@ func (self FeedLogic) updateComment(objid, objtype, uid int, cmttime time.Time) 
 	}()
 }
 
-// updateLike 更新动态赞数据（暂时没存）
-func (self FeedLogic) updateLike(objid, objtype, uid int, liketime time.Time) {
-	self.updateSeq(objid, objtype, 0, 1, 0)
+// updateLike 更新动态赞数据
+func (self FeedLogic) updateLike(objid, objtype, uid, num int) {
+	go func() {
+		MasterDB.Where("objid=? AND objtype=?", objid, objtype).
+			Incr("likenum", num).SetExpr("updated_at", "updated_at").
+			Update(new(model.Feed))
+	}()
+	self.updateSeq(objid, objtype, 0, num, 0)
 }
 
 func (self FeedLogic) modifyTopicNode(tid, nid int) {

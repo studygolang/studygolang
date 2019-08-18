@@ -62,12 +62,6 @@ const (
 	DauAuthTop     // 置顶
 )
 
-// 置顶
-const (
-	TypeComment = 100
-	TypeTop     = 101
-)
-
 const DefaultAuth = DauAuthTopic | DauAuthArticle | DauAuthResource | DauAuthProject | DauAuthComment
 
 // 用户基本信息

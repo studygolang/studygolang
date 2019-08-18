@@ -2,6 +2,22 @@
 {{define "seo"}}<meta name="keywords" content="{{.setting.Name}},{{.setting.SeoKeywords}},主题,资源,文章,图书,开源项目">
 <meta name="description" content="{{.setting.SeoDescription}}">{{end}}
 {{define "content"}}
+
+	<style type="text/css">
+		.zan-wrap {
+			background-color: rgba(1,126,102,0.08);
+			color: #db6d4c;
+			padding: 0;
+			display: inline-block;
+			height: 24px;
+			width: 24px;
+			line-height: 24px;
+			text-align: center;
+			margin-right: 5px;
+			border-radius: 12px;
+			margin-bottom: 1px;
+		}
+	</style>
 <div class="row">
 	<div class="col-md-9 col-sm-6">
 		<div class="sep20"></div>
@@ -45,6 +61,11 @@
 							{{if .Top}}
 							<span style="color: #ff7700; border: 1px solid #ff7700;">置顶</span> • 
 							{{end}}
+
+							<span class="zan-wrap">
+								<i class="fa fa-thumbs-up "></i>
+							</span>
+
 							{{if eq .Objtype 0}}
 							<a class="node" href="/go/{{.Node.ename}}">{{.Node.name}}</a>
 							{{else if eq .Objtype 1}}

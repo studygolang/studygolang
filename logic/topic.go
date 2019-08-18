@@ -684,7 +684,7 @@ func (self TopicComment) UpdateComment(cid, objid, uid int, cmttime time.Time) {
 	session.Begin()
 
 	// 更新最后回复信息
-	_, err := session.Table(new(model.Topic)).Id(objid).Update(map[string]interface{}{
+	_, err := session.Table(new(model.Topic)).ID(objid).Update(map[string]interface{}{
 		"lastreplyuid":  uid,
 		"lastreplytime": cmttime,
 	})
