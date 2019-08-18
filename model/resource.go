@@ -6,6 +6,8 @@
 
 package model
 
+import "time"
+
 const (
 	LinkForm    = "只是链接"
 	ContentForm = "包括内容"
@@ -41,11 +43,11 @@ func (this *Resource) BeforeInsert() {
 
 // 资源扩展（计数）信息
 type ResourceEx struct {
-	Id      int    `json:"-" xorm:"pk"`
-	Viewnum int    `json:"viewnum"`
-	Cmtnum  int    `json:"cmtnum"`
-	Likenum int    `json:"likenum"`
-	Mtime   string `json:"mtime" xorm:"<-"`
+	Id      int       `json:"-" xorm:"pk"`
+	Viewnum int       `json:"viewnum"`
+	Cmtnum  int       `json:"cmtnum"`
+	Likenum int       `json:"likenum"`
+	Mtime   time.Time `json:"mtime" xorm:"<-"`
 }
 
 type ResourceInfo struct {

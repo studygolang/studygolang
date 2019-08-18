@@ -79,9 +79,16 @@ func (self FeedLogic) FindTop(ctx context.Context) []*model.Feed {
 	return self.fillOtherInfo(ctx, feeds, false)
 }
 
-// AutoUpdateSeq 每天自动更新一次动态的排序（校准）
+// AutoUpdateSeq 自动更新动态的排序（校准）
 func (self FeedLogic) AutoUpdateSeq() {
-	feedDay := config.ConfigFile.MustInt("feed", "day", 7)
+	curHour := time.Now().Hour()
+	if curHour < 7 {
+		return
+	}
+
+	feedDay := config.ConfigFile.MustInt("feed", "day", 3)
+	cmtWeight := config.ConfigFile.MustInt("feed", "cmt_weight", 80)
+	viewWeight := config.ConfigFile.MustInt("feed", "view_weight", 80)
 
 	var err error
 	offset, limit := 0, 100
@@ -99,7 +106,11 @@ func (self FeedLogic) AutoUpdateSeq() {
 				continue
 			}
 
+			// 当天（不到24小时）发布的，不降
 			elapse := int(time.Now().Sub(time.Time(feed.CreatedAt)).Hours())
+			if elapse < 24 {
+				continue
+			}
 
 			if feed.Uid > 0 {
 				user := DefaultUser.FindOne(nil, "uid", feed.Uid)
@@ -110,7 +121,7 @@ func (self FeedLogic) AutoUpdateSeq() {
 
 			seq := 0
 			if elapse <= feedDay*24 {
-				seq = feed.Seq - elapse
+				seq = self.calcChangeSeq(feed, cmtWeight, viewWeight)
 			}
 
 			MasterDB.Table(new(model.Feed)).Where("id=?", feed.Id).Update(map[string]interface{}{
@@ -119,6 +130,54 @@ func (self FeedLogic) AutoUpdateSeq() {
 			})
 		}
 	}
+}
+
+func (self FeedLogic) calcChangeSeq(feed *model.Feed, cmtWeight int, viewWeight int) int {
+	seq := 0
+
+	// 最近有评论（时间更新）的，降 1/10 个评论数
+	if int(time.Now().Sub(time.Time(feed.UpdatedAt)).Hours()) < 1 {
+		seq = feed.Seq - cmtWeight/10
+	} else {
+		// 最近有没有其他变动（赞、阅读等）
+		var updatedAt time.Time
+		switch feed.Objtype {
+		case model.TypeTopic:
+			topicEx := &model.TopicEx{}
+			MasterDB.Where("tid=?", feed.Objid).Get(topicEx)
+			updatedAt = topicEx.Mtime
+		case model.TypeArticle:
+			article := &model.Article{}
+			MasterDB.ID(feed.Objid).Get(article)
+			updatedAt = time.Time(article.Mtime)
+		case model.TypeResource:
+			resourceEx := &model.ResourceEx{}
+			MasterDB.ID(feed.Objid).Get(resourceEx)
+			updatedAt = resourceEx.Mtime
+		case model.TypeProject:
+			project := &model.OpenProject{}
+			MasterDB.ID(feed.Objid).Get(project)
+			updatedAt = time.Time(project.Mtime)
+		case model.TypeBook:
+			book := &model.Book{}
+			MasterDB.ID(feed.Objid).Get(book)
+			updatedAt = time.Time(book.UpdatedAt)
+		}
+
+		dynamicElapse := int(time.Now().Sub(updatedAt).Hours())
+
+		if dynamicElapse < 1 {
+			seq = feed.Seq - viewWeight
+		} else {
+			seq = feed.Seq / 2
+		}
+	}
+
+	if seq < 20 {
+		seq = 20
+	}
+
+	return seq
 }
 
 func (FeedLogic) fillOtherInfo(ctx context.Context, feeds []*model.Feed, filterTop bool) []*model.Feed {
@@ -196,7 +255,7 @@ func (self FeedLogic) updateSeq(objid, objtype, cmtnum, likenum, viewnum int) {
 			return
 		}
 
-		feedDay := config.ConfigFile.MustInt("feed", "day", 7)
+		feedDay := config.ConfigFile.MustInt("feed", "day", 3)
 		elapse := int(time.Now().Sub(time.Time(feed.CreatedAt)).Hours())
 
 		if feed.Uid > 0 {
