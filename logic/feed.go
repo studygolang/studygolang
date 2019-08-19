@@ -167,7 +167,7 @@ func (self FeedLogic) calcChangeSeq(feed *model.Feed, cmtWeight int, viewWeight 
 		dynamicElapse := int(time.Now().Sub(updatedAt).Hours())
 
 		if dynamicElapse < 1 {
-			seq = feed.Seq - viewWeight
+			seq = feed.Seq - viewWeight*10
 		} else {
 			seq = feed.Seq / 2
 		}
