@@ -9,7 +9,6 @@ package controller
 import (
 	"bytes"
 	"html/template"
-	"math/rand"
 	"net/http"
 	"net/url"
 	"strings"
@@ -19,7 +18,7 @@ import (
 	"github.com/studygolang/studygolang/logic"
 	"github.com/studygolang/studygolang/model"
 
-	echo "github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4"
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
@@ -66,58 +65,6 @@ func (IndexController) Index(ctx echo.Context) error {
 	}
 
 	return render(ctx, "index.html", data)
-}
-
-// Index 首页
-func (IndexController) OldIndex(ctx echo.Context) error {
-	num := 10
-	paginator := logic.NewPaginatorWithPerPage(1, num)
-	topicsList := make([]map[string]interface{}, num)
-
-	// 置顶的topic
-	topTopics := logic.DefaultTopic.FindAll(context.EchoContext(ctx), paginator, "ctime DESC", "top=1")
-	if len(topTopics) < num {
-		// 获取最新帖子
-		paginator.SetPerPage(num - len(topTopics))
-		newTopics := logic.DefaultTopic.FindAll(context.EchoContext(ctx), paginator, "ctime DESC", "top=0")
-
-		topicsList = append(topTopics, newTopics...)
-	}
-
-	// 获得最新博文
-	recentArticles := logic.DefaultArticle.FindBy(context.EchoContext(ctx), 10)
-	// 获取当前用户喜欢对象信息
-	var likeFlags map[int]int
-
-	if len(recentArticles) > 0 {
-		curUser, ok := ctx.Get("user").(*model.Me)
-		if ok {
-			likeFlags, _ = logic.DefaultLike.FindUserLikeObjects(context.EchoContext(ctx), curUser.Uid, model.TypeArticle, recentArticles[0].Id, recentArticles[len(recentArticles)-1].Id)
-		}
-	}
-
-	// 资源
-	resources := logic.DefaultResource.FindBy(context.EchoContext(ctx), 10)
-
-	books := logic.DefaultGoBook.FindBy(context.EchoContext(ctx), 24)
-	if len(books) > 8 {
-		bookNum := 8
-		bookStart := rand.Intn(len(books) - bookNum)
-		books = books[bookStart : bookStart+bookNum]
-	}
-
-	// 学习资料
-	materials := logic.DefaultLearningMaterial.FindAll(context.EchoContext(ctx))
-
-	return render(ctx, "index.html",
-		map[string]interface{}{
-			"topics":    topicsList,
-			"articles":  recentArticles,
-			"likeflags": likeFlags,
-			"resources": resources,
-			"books":     books,
-			"materials": materials,
-		})
 }
 
 // WrapUrl 包装链接

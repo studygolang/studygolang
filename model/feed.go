@@ -28,6 +28,7 @@ type Feed struct {
 	Lastreplytime OftenTime
 	Tags          string
 	Cmtnum        int
+	Likenum       int
 	Top           uint8
 	Seq           int
 	State         int

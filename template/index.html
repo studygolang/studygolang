@@ -2,22 +2,6 @@
 {{define "seo"}}<meta name="keywords" content="{{.setting.Name}},{{.setting.SeoKeywords}},主题,资源,文章,图书,开源项目">
 <meta name="description" content="{{.setting.SeoDescription}}">{{end}}
 {{define "content"}}
-
-	<style type="text/css">
-		.zan-wrap {
-			background-color: rgba(1,126,102,0.08);
-			color: #db6d4c;
-			padding: 0;
-			display: inline-block;
-			height: 24px;
-			width: 24px;
-			line-height: 24px;
-			text-align: center;
-			margin-right: 5px;
-			border-radius: 12px;
-			margin-bottom: 1px;
-		}
-	</style>
 <div class="row">
 	<div class="col-md-9 col-sm-6">
 		<div class="sep20"></div>
@@ -55,47 +39,57 @@
 						<td width="10"></td>
 						
 						<td width="auto" valign="middle">
-						<span class="item_title"><a href="{{.Uri}}#reply{{.Cmtnum}}" class="noul">{{.Title}}</a></span>
-						<div class="sep5"></div>
-						<span class="small cc">
-							{{if .Top}}
-							<span style="color: #ff7700; border: 1px solid #ff7700;">置顶</span> • 
-							{{end}}
+							<span class="item_title"><a href="{{.Uri}}#reply{{.Cmtnum}}" class="noul">{{.Title}}</a></span>
+							<div class="sep5"></div>
+							<span class="small cc">
+								{{if .Top}}
+								<span style="color: #ff7700; border: 1px solid #ff7700;">置顶</span> •
+								{{end}}
 
-							<span class="zan-wrap">
-								<i class="fa fa-thumbs-up "></i>
+								{{if eq .Objtype 0}}
+								<a class="node" href="/go/{{.Node.ename}}">{{.Node.name}}</a>
+								{{else if eq .Objtype 1}}
+								{{if .Tags}}
+									{{$tags := explode .Tags ","}}
+									<a class="node" href="/tag/{{index $tags 0}}">{{index $tags 0}}</a>
+								{{else}}
+									<a class="node" href="/articles">文章</a>
+								{{end}}
+								{{else if eq .Objtype 2}}
+								<a class="node" href="/resources/cat/{{.Nid}}">{{.Node.name}}</a>
+								{{else if eq .Objtype 3}}
+								<a class="node" href="/wiki">WIKI</a>
+								{{else if eq .Objtype 4}}
+								<a class="node" href="/projects">开源项目</a>
+								{{else if eq .Objtype 5}}
+								<a class="node" href="/books">图书</a>
+								{{end}}
+								&nbsp;•&nbsp;
+
+								{{if .Uid}}
+								<strong><a href="/user/{{.User.Username}}" class="noul">{{.User.Username}}</a></strong>
+								{{else}}
+								<span>{{.Author}}</span>
+								{{end}}
+								&nbsp;•&nbsp;
+								{{if .Lastreplyuid}}
+								<span title="{{.Lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp;最后回复来自 <strong><a href="/user/{{.Lastreplyuser.Username}}" class="noul">{{.Lastreplyuser.Username}}</a></strong>
+								{{else}}
+								<span title="{{.CreatedAt}}" class="timeago"></span>发布
+								{{end}}
+								&nbsp;•&nbsp;
+								{{$likeFlag := index $.likeflags .Objid .Objtype}}
+								<span class="zan-operation {{if $likeFlag}}active{{end}}" data-objid="{{.Objid}}" data-objtype="{{.Objtype}}" data-flag="{{$likeFlag}}">
+									<span class="zan-wrap">
+										<i class="fa fa-thumbs-up"></i>
+									</span>
+									{{if .Likenum}}
+									<span class="zan-num">{{.Likenum}}</span>
+									<span class="dot">·</span>
+									{{end}}
+									<span class="zan-word">{{if $likeFlag}}已赞{{else}}赞{{end}}</span>
+								</span>
 							</span>
-
-							{{if eq .Objtype 0}}
-							<a class="node" href="/go/{{.Node.ename}}">{{.Node.name}}</a>
-							{{else if eq .Objtype 1}}
-							{{if .Tags}}
-								{{$tags := explode .Tags ","}}
-								<a class="node" href="/tag/{{index $tags 0}}">{{index $tags 0}}</a>
-							{{else}}
-								<a class="node" href="/articles">文章</a>
-							{{end}}
-							{{else if eq .Objtype 2}}
-							<a class="node" href="/resources/cat/{{.Nid}}">{{.Node.name}}</a>
-							{{else if eq .Objtype 3}}
-							<a class="node" href="/wiki">WIKI</a>
-							{{else if eq .Objtype 4}}
-							<a class="node" href="/projects">开源项目</a>
-							{{else if eq .Objtype 5}}
-							<a class="node" href="/books">图书</a>
-							{{end}}
-							&nbsp;•&nbsp;
-							{{if .Uid}}
-							<strong><a href="/user/{{.User.Username}}" class="noul">{{.User.Username}}</a></strong>
-							{{else}}
-							<span>{{.Author}}</span>
-							{{end}}
-							&nbsp;•&nbsp;
-							{{if .Lastreplyuid}}
-							<span title="{{.Lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp;最后回复来自 <strong><a href="/user/{{.Lastreplyuser.Username}}" class="noul">{{.Lastreplyuser.Username}}</a></strong>
-							{{else}}
-							<span title="{{.CreatedAt}}" class="timeago"></span>发布
-							{{end}}
 						</td>
 						{{if .Cmtnum}}
 						<td width="70" align="right" valign="middle">
@@ -129,19 +123,32 @@
 						<td width="10"></td>
 						
 						<td width="auto" valign="middle">
-						<span class="item_title"><a href="/topics/{{.tid}}{{if .reply}}#reply{{.reply}}{{end}}" class="noul">{{.title}}</a></span>
-						<div class="sep5"></div>
-						<span class="small cc">
-							{{if .top}}
-							<span style="color: #ff7700; border: 1px solid #ff7700;">置顶</span> • 
-							{{end}}
-							<a class="node" href="/go/{{.node.Ename}}">{{.node.Name}}</a> &nbsp;•&nbsp;
-							<strong><a href="/user/{{.user.Username}}" class="noul">{{.user.Username}}</a></strong> &nbsp;•&nbsp;
-							{{if .lastreplyuid}}
-							<span title="{{.lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp;最后回复来自 <strong><a href="/user/{{.lastreplyusername}}" class="noul">{{.lastreplyusername}}</a></strong>
-							{{else}}
-							<span title="{{.ctime}}" class="timeago"></span> 发布
-							{{end}}
+							<span class="item_title"><a href="/topics/{{.tid}}{{if .reply}}#reply{{.reply}}{{end}}" class="noul">{{.title}}</a></span>
+							<div class="sep5"></div>
+							<span class="small cc">
+								{{if .top}}
+								<span style="color: #ff7700; border: 1px solid #ff7700;">置顶</span> •
+								{{end}}
+								<a class="node" href="/go/{{.node.Ename}}">{{.node.Name}}</a> &nbsp;•&nbsp;
+								<strong><a href="/user/{{.user.Username}}" class="noul">{{.user.Username}}</a></strong> &nbsp;•&nbsp;
+								{{if .lastreplyuid}}
+								<span title="{{.lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp;最后回复来自 <strong><a href="/user/{{.lastreplyusername}}" class="noul">{{.lastreplyusername}}</a></strong>
+								{{else}}
+								<span title="{{.ctime}}" class="timeago"></span> 发布
+								{{end}}
+								&nbsp;•&nbsp;
+								{{$likeFlag := index $.likeflags .tid 0}}
+								<span class="zan-operation {{if $likeFlag}}active{{end}}" data-objid="{{.tid}}" data-objtype="0" data-flag="{{$likeFlag}}">
+									<span class="zan-wrap">
+										<i class="fa fa-thumbs-up"></i>
+									</span>
+									{{if .likenum}}
+									<span class="zan-num">{{.likenum}}</span>
+									<span class="dot">·</span>
+									{{end}}
+									<span class="zan-word">{{if $likeFlag}}已赞{{else}}赞{{end}}</span>
+								</span>
+							</span>
 						</td>
 						{{if .reply}}
 						<td width="70" align="right" valign="middle">
@@ -180,29 +187,42 @@
 						<td width="10"></td>
 						
 						<td width="auto" valign="middle">
-						<span class="item_title"><a href="/articles/{{.Id}}" class="noul">{{.Title}}</a></span>
-						<div class="sep5"></div>
-						<span class="small cc">
-							{{if .Top}}
-							<span style="color: #ff7700; border: 1px solid #ff7700;">置顶</span> • 
-							{{end}}
-							{{if .Tags}}
-								{{$tags := explode .Tags ","}}
-								<a class="node" href="/tag/{{index $tags 0}}">{{index $tags 0}}</a>
-							{{else}}
-								<a class="node" href="/articles">文章</a> &nbsp;•&nbsp;
-							{{end}}
-							{{if and .IsSelf .User}}
-							<strong><a href="/user/{{.User.Username}}" class="noul">{{.User.Username}}</a></strong>
-							{{else}}
-							<span>{{.AuthorTxt}}</span>
-							{{end}}
-							&nbsp;•&nbsp;
-							{{if .Lastreplyuid}}
-							<span title="{{.Lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp;最后回复来自 <strong><a href="/user/{{.LastReplyUser.Username}}" class="noul">{{.LastReplyUser.Username}}</a></strong>
-							{{else}}
-							<span title="{{.Ctime}}" class="timeago"></span> 发布
-							{{end}}
+							<span class="item_title"><a href="/articles/{{.Id}}" class="noul">{{.Title}}</a></span>
+							<div class="sep5"></div>
+							<span class="small cc">
+								{{if .Top}}
+								<span style="color: #ff7700; border: 1px solid #ff7700;">置顶</span> •
+								{{end}}
+								{{if .Tags}}
+									{{$tags := explode .Tags ","}}
+									<a class="node" href="/tag/{{index $tags 0}}">{{index $tags 0}}</a>
+								{{else}}
+									<a class="node" href="/articles">文章</a> &nbsp;•&nbsp;
+								{{end}}
+								{{if and .IsSelf .User}}
+								<strong><a href="/user/{{.User.Username}}" class="noul">{{.User.Username}}</a></strong>
+								{{else}}
+								<span>{{.AuthorTxt}}</span>
+								{{end}}
+								&nbsp;•&nbsp;
+								{{if .Lastreplyuid}}
+								<span title="{{.Lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp;最后回复来自 <strong><a href="/user/{{.LastReplyUser.Username}}" class="noul">{{.LastReplyUser.Username}}</a></strong>
+								{{else}}
+								<span title="{{.Ctime}}" class="timeago"></span> 发布
+								{{end}}
+								&nbsp;•&nbsp;
+								{{$likeFlag := index $.likeflags .Id 1}}
+								<span class="zan-operation {{if $likeFlag}}active{{end}}" data-objid="{{.Objid}}" data-objtype="1" data-flag="{{$likeFlag}}">
+									<span class="zan-wrap">
+										<i class="fa fa-thumbs-up"></i>
+									</span>
+									{{if .Likenum}}
+									<span class="zan-num">{{.Likenum}}</span>
+									<span class="dot">·</span>
+									{{end}}
+									<span class="zan-word">{{if $likeFlag}}已赞{{else}}赞{{end}}</span>
+								</span>
+							</span>
 						</td>
 						{{if .Cmtnum}}
 						<td width="70" align="right" valign="middle">
@@ -279,6 +299,18 @@
 							{{else}}
 								<span title="{{.PubTime}}" class="timeago"></span> 发布
 							{{end}}
+								&nbsp;•&nbsp;
+								{{$likeFlag := index $.likeflags .Objid .Objtype}}
+								<span class="zan-operation {{if $likeFlag}}active{{end}}" data-objid="{{.Objid}}" data-objtype="{{.Objtype}}" data-flag="{{$likeFlag}}">
+									<span class="zan-wrap">
+										<i class="fa fa-thumbs-up"></i>
+									</span>
+									{{if .Likenum}}
+										<span class="zan-num">{{.Likenum}}</span>
+										<span class="dot">·</span>
+									{{end}}
+									<span class="zan-word">{{if $likeFlag}}已赞{{else}}赞{{end}}</span>
+								</span>
 							</span>
 						</td>
 						{{if .Cmtnum}}
@@ -319,17 +351,18 @@
 						<td width="10"></td>
 						
 						<td width="auto" valign="middle">
-						<span class="item_title"><a href="/subject/{{.Id}}" class="noul">{{.Name}}</a></span>
-						<div class="sep5"></div>
-						<span class="small cc">
-							<a class="node" href="/subject/{{.Id}}">专栏</a> &nbsp;•&nbsp;
-							<strong><a href="/user/{{.User.Username}}" class="noul">{{.User.Username}}</a></strong>
-							&nbsp;•&nbsp;
-						{{if .ArticleNum}}
-							<span title="{{.UpdatedAt}}" class="timeago"></span> 有新文章
-						{{else}}
-							创建于<span title="{{.CreatedAt}}" class="timeago"></span>
-						{{end}}
+							<span class="item_title"><a href="/subject/{{.Id}}" class="noul">{{.Name}}</a></span>
+							<div class="sep5"></div>
+							<span class="small cc">
+								<a class="node" href="/subject/{{.Id}}">专栏</a> &nbsp;•&nbsp;
+								<strong><a href="/user/{{.User.Username}}" class="noul">{{.User.Username}}</a></strong>
+								&nbsp;•&nbsp;
+							{{if .ArticleNum}}
+								<span title="{{.UpdatedAt}}" class="timeago"></span> 有新文章
+							{{else}}
+								创建于<span title="{{.CreatedAt}}" class="timeago"></span>
+							{{end}}
+							</span>
 						</td>
 						{{if .ArticleNum}}
 						<td width="70" align="right" valign="middle">

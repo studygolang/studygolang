@@ -368,6 +368,49 @@ jQuery(document).ready(function($) {
 		});
 	}
 
+	// 用于列表页发送喜欢(取消喜欢)
+	var postListLike = function(that, callback){
+		if ($('#is_login_status').val() != 1) {
+			openPop("#login-pop");
+			return;
+		}
+
+		var objid = $(that).data('objid'),
+			objtype = $(that).data('objtype'),
+			likeFlag = parseInt($(that).data('flag'), 10);
+
+		if (likeFlag) {
+			likeFlag = 0;
+		} else {
+			likeFlag = 1;
+		}
+
+		$.post('/like/'+objid, {objtype:objtype, flag:likeFlag}, function(data){
+			if (data.ok) {
+
+				$(that).data('flag', likeFlag);
+
+				var likeNum = parseInt($(that).children('.zan-num').text(), 10);
+				// 已喜欢
+				if (likeFlag) {
+					comTip("感谢赞！");
+					$(that).children('.zan-word').text('已赞');
+					likeNum++;
+				} else {
+					comTip("已取消赞！");
+					$(that).children('.zan-word').text('赞');
+					likeNum--;
+				}
+
+				$(that).children('.zan-num').text(likeNum);
+
+				callback(likeNum, likeFlag);
+			} else {
+				alert(data.error);
+			}
+		});
+	}
+
 	// 详情页喜欢(取消喜欢)
 	$('.page #content-thank a').on('click', function(evt){
 		evt.preventDefault();
@@ -388,6 +431,20 @@ jQuery(document).ready(function($) {
 				$(that).children('i').removeClass('glyphicon-heart-empty').addClass('glyphicon-heart');
 			} else {
 				$(that).children('i').removeClass('glyphicon-heart').addClass('glyphicon-heart-empty');
+			}
+		});
+	});
+
+	// 通用列表页点赞（取消赞）
+	$('.zan-operation').on('click', function(evt) {
+		evt.preventDefault();
+		
+		var that = this;
+		postListLike(that, function(likeNum, likeFlag){
+			if (likeFlag) {
+				$(that).addClass('active');
+			} else {
+				$(that).removeClass('active');
 			}
 		});
 	});

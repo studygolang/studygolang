@@ -9,6 +9,7 @@ package logic
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	. "github.com/studygolang/studygolang/db"
 
@@ -60,6 +61,32 @@ func (LikeLogic) FindUserLikeObjects(ctx context.Context, uid, objtype int, obji
 	likeFlags := make(map[int]int, len(likes))
 	for _, like := range likes {
 		likeFlags[like.Objid] = like.Flag
+	}
+
+	return likeFlags, nil
+}
+
+// FindUserRecentLikes 获取用户最近喜欢的对象（不过滤对象）
+func (LikeLogic) FindUserRecentLikes(ctx context.Context, uid, limit int) (map[int]map[int]int, error) {
+	objLog := GetLogger(ctx)
+
+	likes := make([]*model.Like, 0)
+	// 过去 7 天内的
+	err := MasterDB.Where("uid=? AND ctime>?", uid, time.Now().Add(-7*86400e9)).Limit(limit).Find(&likes)
+	if err != nil {
+		objLog.Errorln("LikeLogic FindUserRecentLikes error:", err)
+		return nil, err
+	}
+
+	likeFlags := make(map[int]map[int]int, len(likes))
+	for _, like := range likes {
+		if _, ok := likeFlags[like.Objid]; ok {
+			likeFlags[like.Objid][like.Objtype] = like.Flag
+		} else {
+			likeFlags[like.Objid] = map[int]int{
+				like.Objtype: like.Flag,
+			}
+		}
 	}
 
 	return likeFlags, nil
