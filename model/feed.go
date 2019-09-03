@@ -28,6 +28,7 @@ type Feed struct {
 	Lastreplytime OftenTime
 	Tags          string
 	Cmtnum        int
+	Likenum       int
 	Top           uint8
 	Seq           int
 	State         int
@@ -150,10 +151,10 @@ func PublishFeed(object interface{}, objectExt interface{}, me *Me) {
 		}
 	}
 
-	feedDay := config.ConfigFile.MustInt("global", "feed_day", 7)
+	feedDay := config.ConfigFile.MustInt("feed", "day", 3)
 	feed.Seq = feedDay * 24
 	if me != nil && me.IsAdmin {
-		feed.Seq += 100000
+		feed.Seq += 1000
 	}
 
 	_, err := db.MasterDB.Insert(feed)

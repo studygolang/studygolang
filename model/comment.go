@@ -17,6 +17,12 @@ const (
 )
 
 const (
+	TypeComment = 100
+	// 置顶
+	TypeTop = 101
+)
+
+const (
 	TopicURI    = "topics"
 	ArticleURI  = "articles"
 	ResourceURI = "resources"

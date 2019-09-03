@@ -36,7 +36,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.1 // indirect
 	github.com/polaris1119/config v0.0.0-20160609095218-06a751e884f3
 	github.com/polaris1119/email v0.0.0-20171030115359-9c57dd3e3e7d
-	github.com/polaris1119/goutils v0.0.0-20160602032428-582c98b3184b
+	github.com/polaris1119/goutils v0.0.0-20190815094239-73c47df9b896
 	github.com/polaris1119/keyword v0.0.0-20170608075927-96ae6735f2f2
 	github.com/polaris1119/logger v0.0.0-20170422061149-0233d014769e
 	github.com/polaris1119/nosql v0.0.0-20181019111233-3852ef28d084

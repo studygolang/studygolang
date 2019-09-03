@@ -129,6 +129,14 @@ func (self IndexLogic) FindData(ctx context.Context, tab string, paginator *Pagi
 		data["feeds"] = self.findFeeds(ctx, paginator, tab)
 	}
 
+	// 获取当前用户喜欢对象信息，有可能出现喜欢过，但是前端页面没正确显示
+	me, ok := ctx.Value("user").(*model.Me)
+	likeFlags := make(map[int]map[int]int)
+	if ok {
+		likeFlags, _ = DefaultLike.FindUserRecentLikes(ctx, me.Uid, 100)
+	}
+	data["likeflags"] = likeFlags
+
 	return data
 }
 

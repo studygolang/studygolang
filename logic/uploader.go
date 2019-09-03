@@ -23,10 +23,10 @@ import (
 	"sync"
 	"time"
 
+	"golang.org/x/net/context"
+
 	. "github.com/studygolang/studygolang/db"
 	"github.com/studygolang/studygolang/model"
-
-	"golang.org/x/net/context"
 
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
@@ -197,7 +197,10 @@ func (this *UploaderLogic) TransferUrl(ctx context.Context, origUrl string, pref
 	}
 	defer resp.Body.Close()
 
-	buf, _ := ioutil.ReadAll(resp.Body)
+	buf, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return origUrl, errors.New("获取图片内容失败")
+	}
 
 	md5 := goutils.Md5Buf(buf)
 	objImage, err := this.findImage(md5)
@@ -213,10 +216,17 @@ func (this *UploaderLogic) TransferUrl(ctx context.Context, origUrl string, pref
 	ext := filepath.Ext(origUrl)
 	if ext == "" {
 		contentType := http.DetectContentType(buf)
-		exts, _ := mime.ExtensionsByType(contentType)
-		if len(exts) > 0 {
+		exts, err := mime.ExtensionsByType(contentType)
+		if err != nil {
+			logger.Errorln("detect extension error:", err, "orig url:", origUrl)
+		} else if len(exts) > 0 {
 			ext = exts[0]
 		}
+	}
+
+	if ext == "" && !strings.Contains("png,jpg,jpeg,gif,bmp", strings.ToLower(ext)) {
+		logger.Errorln("can't fetch extension, url:", origUrl)
+		return origUrl, errors.New("can't fetch extension")
 	}
 
 	prefix := times.Format("ymd")

@@ -456,3 +456,47 @@ img.avatar { -moz-border-radius: 4px; border-radius: 4px; }
 #bottom .nav-content {
     margin: 0px auto 0px auto;
 }
+
+.zan-operation {
+    cursor: pointer;
+}
+.zan-operation:hover {
+    color: #ce7358;
+}
+
+.zan-operation .zan-wrap {
+    background-color: rgba(1,126,102,0.08);
+    color: #df957e;
+    padding: 0;
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+    line-height: 20px;
+    text-align: center;
+    margin-right: 5px;
+    border-radius: 10px;
+    margin-bottom: 1px;
+}
+.zan-operation:hover .zan-wrap, .zan-operation.active .zan-wrap {
+    background-color: #ce7358;
+    color: #FFF
+}
+.zan-operation .fa {
+    font-size: 12px !important;
+    vertical-align: baseline;
+}
+.zan-operation .fa:hover {
+    color: #FFF !important;
+}
+.zan-operation .zan-num {
+    color: #df957e;
+    font-weight: bold;
+}
+.zan-operation .zan-num::before {
+    content: 'x ';
+    font-size: 12px;
+}
+.dot {
+    color: #999;
+    font-weight: normal;
+}

@@ -20,6 +20,7 @@ var (
 	ViewObservable    Observable
 	appendObservable  Observable
 	topObservable     Observable
+	likeObservable    Observable
 )
 
 func init() {
@@ -52,6 +53,11 @@ func init() {
 	topObservable.AddObserver(&UserWeightObserver{})
 	topObservable.AddObserver(&TodayActiveObserver{})
 	topObservable.AddObserver(&UserRichObserver{})
+
+	likeObservable = NewConcreteObservable(actionLike)
+	likeObservable.AddObserver(&UserWeightObserver{})
+	likeObservable.AddObserver(&TodayActiveObserver{})
+	likeObservable.AddObserver(&UserRichObserver{})
 }
 
 type Observer interface {
@@ -73,7 +79,8 @@ const (
 	actionComment = "comment"
 	actionView    = "view"
 	actionAppend  = "append"
-	actionTop     = "top" // 置顶
+	actionTop     = "top"  // 置顶
+	actionLike    = "like" // 喜欢（赞）
 )
 
 type ConcreteObservable struct {
@@ -138,6 +145,8 @@ func (this *UserWeightObserver) Update(action string, uid, objtype, objid int) {
 		weight = 15
 	case actionTop:
 		weight = 5
+	case actionLike:
+		weight = 3
 	}
 
 	DefaultUser.IncrUserWeight("uid", uid, weight)
@@ -167,6 +176,8 @@ func (*TodayActiveObserver) Update(action string, uid, objtype, objid int) {
 	case actionAppend:
 		weight = 15
 	case actionTop:
+		weight = 5
+	case actionLike:
 		weight = 5
 	}
 
@@ -395,6 +406,9 @@ func (UserRichObserver) Update(action string, uid, objtype, objid int) {
 				article.Id,
 				article.Title)
 		}
+	} else if action == actionLike {
+		// TODO: 暂时不处理
+		return
 	}
 
 	DefaultUserRich.IncrUserRich(user, typ, award, desc)

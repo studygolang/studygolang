@@ -66,8 +66,11 @@ VALUES
 
 INSERT INTO `user_setting` (`id`, `key`, `value`, `remark`, `created_at`)
 VALUES
-	(1, 'new_user_wait', 0, '新用户注册多久能发布帖子，单位秒，0表示没限制', '2017-05-30 18:11:31'),
-	(2, 'can_edit_time', 300, '发布后多久内能够编辑，单位秒', '2017-05-30 18:12:53');
+	(1, 'new_user_wait', 0, '新用户注册多久才能发布帖子，单位秒，0表示没限制', '2017-05-30 10:11:31'),
+	(2, 'can_edit_time', 172800, '发布后多久内能够编辑，单位秒', '2017-05-30 10:12:53'),
+	(3, 'publish_times', 3, '一天发布次数大于该值，需要验证码', '2018-10-01 10:47:23'),
+	(4, 'publish_interval', 60, '发布时间间隔在该值内，需要验证码，单位秒', '2018-10-01 10:56:18');
+
 
 INSERT INTO `mission` (`id`, `name`, `type`, `fixed`, `min`, `max`, `incr`, `state`, `created_at`)
 VALUES
