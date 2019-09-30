@@ -10,7 +10,7 @@
 			<li><a href="/articles">文章</a></li>
 		</ol>
 		<div class="page">
-			<div class="box_white">
+			<div class="box_white" style="overflow: visible;">
 				<div class="title">
 					{{if .article.IsSelf}}
 					<div class="pull-right">
@@ -95,6 +95,9 @@
 					</div>
 					{{end}}
 				</div>
+
+				<!-- 加群等 -->
+				{{include "common/promotion.html" .}}
 
 				<div class="content-buttons">
 					<div class="pull-right c9 f11" style="line-height: 12px; padding-top: 3px; text-shadow: 0px 1px 0px #fff;">{{.article.Viewnum}} 次点击 &nbsp;{{if .article.Likenum}}∙&nbsp; {{.article.Likenum}} 赞 &nbsp; {{end}}</div>
@@ -260,6 +263,13 @@ $(function(){
 	} else {
 		$('.read-time').text('预计阅读时间不到 1 分钟');
 	}
+
+	$('.qrcode').on('mouseover', function(evt) {
+		$('.qrcode-pop').show();
+	});
+	$('.qrcode').on('mouseout', function(evt) {
+		$('.qrcode-pop').hide();
+	});
 });
 </script>
 {{include "cssjs/ckeditor.js.html" .}}

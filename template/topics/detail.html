@@ -12,7 +12,7 @@
             <li><a href="{{if .topic.node.ename}}/go/{{.topic.node.ename}}{{else}}/topics/node/{{.topic.node.nid}}{{end}}">{{.topic.node.name}}</a></li>
         </ol>
         <div class="page">
-            <div class="box_white">
+            <div class="box_white" style="overflow: visible;">
                 <div class="title">
                     <div class="pull-right">
                         <a href="/user/{{.topic.user.Username}}" title="{{.topic.user.Username}}">
@@ -80,6 +80,9 @@
 
                 </div>
                 {{end}}
+
+                <!-- 加群等 -->
+				{{include "common/promotion.html" .}}
 
                 <div class="content-buttons">
                     <div class="pull-right c9 f11" style="line-height: 12px; padding-top: 3px; text-shadow: 0px 1px 0px #fff;">{{add .topic.view 1}} 次点击 &nbsp;{{if .topic.like}}∙&nbsp; {{.topic.like}} 赞 &nbsp; {{end}}</div>
@@ -211,6 +214,13 @@ $(function(){
 
         return false;
     });
+
+	$('.qrcode').on('mouseover', function(evt) {
+		$('.qrcode-pop').show();
+	});
+	$('.qrcode').on('mouseout', function(evt) {
+		$('.qrcode-pop').hide();
+	});
 });
 </script>
 
