@@ -35,6 +35,9 @@
 					<div class="content">{{if eq .resource.form "只是链接"}}传送门： {{if hasPrefix .resource.url "/r/golang/"}}https://reddit.com{{end}}{{.resource.url}}{{else}}{{.resource.content}}{{end}}</div>
 				</div>
 
+				<!-- 加群等 -->
+				{{include "common/promotion.html" .}}
+
 				<div class="content-buttons">
 					<div class="pull-right c9 f11" style="line-height: 12px; padding-top: 3px; text-shadow: 0px 1px 0px #fff;">{{add .resource.viewnum 1}} 次点击 &nbsp;{{if .resource.likenum}}∙&nbsp; {{.resource.likenum}} 赞 &nbsp; {{end}}</div>
 					<a class="tb collect" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}" data-objid="{{.resource.id}}" data-objtype="2" data-collect="{{.hadcollect}}">{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}</a>
@@ -138,6 +141,13 @@ $(function(){
 	$('#wrapper .content').on('mousedown', 'a', function(evt){
 		var url = $(this).attr('href');
 		$(this).attr('target', '_blank');
+	});
+
+	$('.qrcode').on('mouseover', function(evt) {
+		$('.qrcode-pop').show();
+	});
+	$('.qrcode').on('mouseout', function(evt) {
+		$('.qrcode-pop').hide();
 	});
 });
 </script>
