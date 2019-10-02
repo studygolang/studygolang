@@ -1,0 +1,152 @@
+<div class="suspended-panel">
+    {{if .article}}
+    <div badge="{{.article.Likenum}}"
+        class="like-btn panel-btn like-adjust {{if .article.Likenum}}with-badge{{end}} {{if .likeflag}}active{{end}}"></div>
+    <div badge="{{.article.Cmtnum}}"
+        class="comment-btn panel-btn comment-adjust {{if .article.Cmtnum}}with-badge{{end}}"></div>
+    {{else if .topic}}
+    <div badge="{{.topic.like}}"
+        class="like-btn panel-btn like-adjust {{if .topic.like}}with-badge{{end}} {{if .likeflag}}active{{end}}"></div>
+    <div badge="{{.topic.reply}}"
+        class="comment-btn panel-btn comment-adjust {{if .topic.reply}}with-badge{{end}}"></div>
+    {{else if .resource}}
+    <div badge="{{.resource.likenum}}"
+        class="like-btn panel-btn like-adjust {{if .resource.likenum}}with-badge{{end}} {{if .likeflag}}active{{end}}"></div>
+    <div badge="{{.resource.cmtnum}}"
+        class="comment-btn panel-btn comment-adjust {{if .resource.cmtnum}}with-badge{{end}}"></div>
+    {{end}}
+    <div class="collect-btn panel-btn {{if .hadcollect}}active{{end}}"><!----></div>
+    <div class="share-title">分享</div>
+    <div class="weibo-btn share-btn panel-btn"></div>
+    <!-- <div class="qq-btn share-btn panel-btn"></div> -->
+    <div class="wechat-btn share-btn panel-btn"></div>
+</div>
+
+<style type="text/css">
+.suspended-panel {
+	position: fixed;
+	top: 16rem;
+	margin-left: -6rem;
+}
+
+.panel-btn {
+    position: relative;
+    margin-bottom: .75rem;
+    width: 3rem;
+    height: 3rem;
+    background-color: #fff;
+    background-position: 50%;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,.04);
+    cursor: pointer
+}
+
+.panel-btn:not(.share-btn).active.with-badge:after {
+    background-color: #74ca46
+}
+
+.panel-btn.with-badge:after {
+    content: attr(badge);
+    position: absolute;
+    top: 0;
+    left: 75%;
+    padding: .1rem .4rem;
+    font-size: 1rem;
+    text-align: center;
+    line-height: 1;
+    white-space: nowrap;
+    color: #fff;
+    background-color: #b2bac2;
+    border-radius: .7rem;
+    transform-origin: left top;
+    transform: scale(.75)
+}
+
+.panel-btn.like-btn {
+    background-image: url({{.static_domain}}/static/img/zan.svg)
+}
+
+.panel-btn.like-btn:hover {
+    background-image: url({{.static_domain}}/static/img/zan-hover.svg)
+}
+
+.panel-btn.like-btn.active {
+    background-image: url({{.static_domain}}/static/img/zan-active.svg)
+}
+
+.panel-btn.like-btn.like-adjust {
+    background-position: 53% 46%;
+}
+
+.panel-btn.comment-btn {
+    background-image: url({{.static_domain}}/static/img/comment.svg)
+}
+
+.panel-btn.comment-btn:hover {
+    background-image: url({{.static_domain}}/static/img/comment-hover.svg)
+}
+
+.panel-btn.comment-btn.comment-adjust {
+    background-position: 50% 55%
+}
+
+.panel-btn.collect-btn {
+    background-image: url({{.static_domain}}/static/img/collect.svg)
+}
+
+.panel-btn.collect-btn.active {
+    background-image: url({{.static_domain}}/static/img/collect-active.svg)
+}
+
+.panel-btn.collect-btn.open,.panel-btn.collect-btn:hover {
+    background-image: url({{.static_domain}}/static/img/collect-hover.svg)
+}
+
+.panel-btn.weibo-btn {
+    background-image: url({{.static_domain}}/static/img/weibo.svg)
+}
+
+.panel-btn.weibo-btn:hover {
+    background-image: url({{.static_domain}}/static/img/weibo-hover.svg)
+}
+
+.panel-btn.qq-btn {
+    background-image: url({{.static_domain}}/static/img/qq.svg)
+}
+
+.panel-btn.qq-btn:hover {
+    background-image: url({{.static_domain}}/static/img/qq-hover.svg)
+}
+
+.panel-btn.wechat-btn {
+    background-image: url({{.static_domain}}/static/img/wechat.svg)
+}
+
+.panel-btn.wechat-btn:hover {
+    background-image: url({{.static_domain}}/static/img/wechat-hover.svg)
+}
+
+.panel-btn.wechat-btn:hover .wechat-qr-code-img {
+    display: block
+}
+
+.share-title {
+    margin: 2.5rem 0 1rem;
+    font-size: 1rem;
+    text-align: center;
+    color: #c6c6c6;
+    user-select: none
+}
+
+.wechat-btn img {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 8rem;
+    height: 8rem;
+    margin-top: 1rem;
+    border: .5rem solid #fff;
+    transform: translateX(-50%);
+}
+</style>

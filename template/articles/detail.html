@@ -2,6 +2,9 @@
 {{define "seo"}}<meta name="keywords" content="{{.setting.SeoKeywords}}">
 <meta name="description" content="{{substring .article.Txt 200 ""}}">{{end}}
 {{define "content"}}
+
+{{include "common/suspend.html" .}}
+
 <div class="row">
 	<div class="col-md-9 col-sm-6">
 		<div class="sep20"></div>
@@ -102,7 +105,7 @@
 				<div class="content-buttons">
 					<div class="pull-right c9 f11" style="line-height: 12px; padding-top: 3px; text-shadow: 0px 1px 0px #fff;">{{.article.Viewnum}} 次点击 &nbsp;{{if .article.Likenum}}∙&nbsp; {{.article.Likenum}} 赞 &nbsp; {{end}}</div>
 					<a class="tb collect" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}" data-objid="{{.article.Id}}" data-objtype="1" data-collect="{{.hadcollect}}">{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}</a>
-					<a href="javascript:" onclick="window.open('http://service.weibo.com/share/share.php?url=http{{if .is_https}}s{{end}}://{{.setting.Domain}}/articles/{{.article.Id}}&title='+encodeURIComponent('{{.setting.Name}} - {{.article.Title}} by {{.article.AuthorTxt}} #golang#'), '_blank', 'width=550,height=370');" class="tb">微博</a>
+					<a href="javascript:" class="tb weibo-btn">微博</a>
 					<div id="content-thank">
 						<a class="tb" href="javascript:;" title="{{if .likeflag}}取消赞{{else}}赞{{end}}" data-objid="{{.article.Id}}" data-objtype="1" data-flag="{{.likeflag}}">{{if .likeflag}}取消赞{{else}}赞{{end}}</a>
 					</div>
@@ -196,6 +199,8 @@
 
 		{{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"一周阅读排行","objtype":1,"limit":10,"rank_type":"week"}`)}}
 
+		{{include "sidebar/concern.html" .}}
+
 	</div>
 </div>
 
@@ -264,11 +269,10 @@ $(function(){
 		$('.read-time').text('预计阅读时间不到 1 分钟');
 	}
 
-	$('.qrcode').on('mouseover', function(evt) {
-		$('.qrcode-pop').show();
-	});
-	$('.qrcode').on('mouseout', function(evt) {
-		$('.qrcode-pop').hide();
+	$('.weibo-btn').on('click', function(evt) {
+		evt.preventDefault();
+
+		window.open('http://service.weibo.com/share/share.php?url=http{{if .is_https}}s{{end}}://{{.setting.Domain}}/articles/{{.article.Id}}&title='+encodeURIComponent('{{.setting.Name}} - {{.article.Title}} by {{.article.AuthorTxt}} #golang#'), '_blank', 'width=550,height=370');
 	});
 });
 </script>

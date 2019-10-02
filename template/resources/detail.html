@@ -2,6 +2,9 @@
 {{define "seo"}}<meta name="keywords" content="{{.setting.SeoKeywords}}">
 <meta name="description" content="{{substring .resource.content 200 ""}}">{{end}}
 {{define "content"}}
+
+{{include "common/suspend.html" .}}
+
 <div class="row">
 	<div class="col-md-9 col-sm-6">
 		<div class="sep20"></div>
@@ -41,7 +44,7 @@
 				<div class="content-buttons">
 					<div class="pull-right c9 f11" style="line-height: 12px; padding-top: 3px; text-shadow: 0px 1px 0px #fff;">{{add .resource.viewnum 1}} 次点击 &nbsp;{{if .resource.likenum}}∙&nbsp; {{.resource.likenum}} 赞 &nbsp; {{end}}</div>
 					<a class="tb collect" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}" data-objid="{{.resource.id}}" data-objtype="2" data-collect="{{.hadcollect}}">{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}</a>
-					<a href="javascript:" onclick="window.open('http://service.weibo.com/share/share.php?url=http{{if .is_https}}s{{end}}://{{.setting.Domain}}/resources/{{.resource.id}}&title='+encodeURIComponent('{{.setting.Name}} - {{.resource.title}} by {{.resource.user.Username}} #golang#'), '_blank', 'width=550,height=370');" class="tb">微博</a>
+					<a href="javascript:" class="tb weibo-btn">微博</a>
 					<div id="content-thank">
 						<a class="tb" href="javascript:;" title="{{if .likeflag}}取消赞{{else}}赞{{end}}" data-objid="{{.resource.id}}" data-objtype="2" data-flag="{{.likeflag}}">{{if .likeflag}}取消赞{{else}}赞{{end}}</a>
 					</div>
@@ -143,11 +146,10 @@ $(function(){
 		$(this).attr('target', '_blank');
 	});
 
-	$('.qrcode').on('mouseover', function(evt) {
-		$('.qrcode-pop').show();
-	});
-	$('.qrcode').on('mouseout', function(evt) {
-		$('.qrcode-pop').hide();
+	$('.weibo-btn').on('click', function(evt) {
+		evt.preventDefault();
+
+		window.open('http://service.weibo.com/share/share.php?url=http{{if .is_https}}s{{end}}://{{.setting.Domain}}/resources/{{.resource.id}}&title='+encodeURIComponent('{{.setting.Name}} - {{.resource.title}} by {{.resource.user.Username}} #golang#'), '_blank', 'width=550,height=370');
 	});
 });
 </script>

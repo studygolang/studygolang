@@ -421,6 +421,29 @@ jQuery(document).ready(function($) {
 		});
 	});
 
+	// 详情页左侧喜欢
+	$('.suspended-panel .like-btn').on('click', function(evt) {
+		evt.preventDefault();
+
+		var that = this;
+		postLike('.page #content-thank a', function(likeNum, likeFlag) {
+			var badge = $(that).attr('badge');
+			if (likeFlag) {
+				badge++;
+				$(that).addClass('active');
+			} else {
+				badge--;
+				$(that).removeClass('active');
+			}
+			$(that).attr('badge', badge);
+			if (badge == 1) {
+				$(that).addClass('with-badge');
+			} else if (badge == 0) {
+				$(that).removeClass('with-badge');
+			}
+		});
+	});
+
 	// 列表页直接点喜欢(取消喜欢)
 	$('.article .metatag .like').on('click', function(evt){
 		evt.preventDefault();
@@ -494,6 +517,29 @@ jQuery(document).ready(function($) {
 		});
 	});
 
+	// 详情页左侧收藏（取消收藏）
+	$('.suspended-panel .collect-btn').on('click', function(evt) {
+		evt.preventDefault();
+		
+		var that = this;
+		postFavorite('.page .collect', function(hadCollect) {
+			$('.page .collect').data('collect', hadCollect);
+
+			if (hadCollect) {
+				$(that).addClass('active');
+
+				comTip("感谢收藏！");
+				$('.page .collect').attr('title', '取消收藏').text('取消收藏');
+			} else {
+				$(that).removeClass('active');
+
+				$('.page .collect').attr('title', '稍后再读').text('加入收藏');
+				comTip("已取消收藏！");
+			}
+
+		});
+	});
+
 	// 收藏页 取消收藏
 	$('.article .metatag .collect').on('click', function(evt){
 		evt.preventDefault();
@@ -502,6 +548,42 @@ jQuery(document).ready(function($) {
 		postFavorite(that, function(){
 			$(that).parents('article').fadeOut();
 		});
+	});
+
+	// 提示关注微信公众号
+	$('.qrcode').on('mouseover', function(evt) {
+		$('.qrcode-pop').show();
+	});
+	$('.qrcode').on('mouseout', function(evt) {
+		$('.qrcode-pop').hide();
+	});
+
+	// 当前链接的微信二维码
+	var hadGenQRCode = false;
+	$('.wechat-btn').on('mouseover', function(evt) {
+		if (hadGenQRCode) {
+			$(this).children('img').show();
+			return;
+		}
+		new QRCode(this, {
+			text: location.href,
+			width: 256,
+			height: 256,
+		});
+		hadGenQRCode = true;
+	});
+	$('.wechat-btn').on('mouseout', function(evt) {
+		$(this).children('img').hide();
+	});
+
+	// 详情页左侧评论按钮
+	$('.comment-btn').on('click', function(evt) {
+		var url = location.href;
+		if (url.indexOf("#commentForm") == -1) {
+			location.href = url + "#commentForm";
+		} else {
+			location.href = url;
+		}
 	});
 
 	window.saveComposeDraft = function(uid, keyprefix, objdata) {

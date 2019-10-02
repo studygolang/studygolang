@@ -75,6 +75,9 @@
                     <div class="sep20"></div>
                     <a class="btn btn-default btn-sm" href="/mission/complete/1">完成任务</a>
                 </div>
+                <div>
+                    建议关注 Go语言中文网 公众号，可以领取 <span style="color:red;">语言全套学习资料</span><img src="{{.static_domain}}/static/img/wx_sg_qrcode.jpg?imageView2/2/w/280" alt="关注微信" class="img-responsive">
+                </div>
             </div>
         </div>
         {{end}}
@@ -83,6 +86,8 @@
         <div class="sep20"></div>
         
         {{include "common/my_info.html" .}}
+
+        {{include "sidebar/concern.html" .}}
     </div>
 </div>
 {{end}}
