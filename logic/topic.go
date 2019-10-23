@@ -19,7 +19,7 @@ import (
 	. "github.com/studygolang/studygolang/db"
 
 	"github.com/fatih/structs"
-	"github.com/go-xorm/xorm"
+	"xorm.io/xorm"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	"github.com/polaris1119/set"

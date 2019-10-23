@@ -21,7 +21,7 @@ import (
 	"github.com/polaris1119/slices"
 
 	"github.com/go-validator/validator"
-	"github.com/go-xorm/xorm"
+	"xorm.io/xorm"
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"

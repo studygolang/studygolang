@@ -17,7 +17,7 @@ import (
 	. "github.com/studygolang/studygolang/db"
 	"github.com/studygolang/studygolang/model"
 
-	"github.com/go-xorm/xorm"
+	"xorm.io/xorm"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/times"
 	"golang.org/x/net/context"

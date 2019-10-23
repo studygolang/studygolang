@@ -19,8 +19,8 @@ require (
 	github.com/garyburd/redigo v1.6.0
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/go-validator/validator v0.0.0-20180514200540-135c24b11c19
-	github.com/go-xorm/xorm v0.7.5
 	github.com/golang/groupcache v0.0.0-20190702054246-869f871628b6 // indirect
+	github.com/golang/protobuf v1.3.1 // indirect
 	github.com/gorilla/context v1.1.1
 	github.com/gorilla/feeds v1.1.1
 	github.com/gorilla/schema v1.1.0
@@ -57,5 +57,6 @@ require (
 	golang.org/x/oauth2 v0.0.0-20190226205417-e64efc72b421
 	golang.org/x/text v0.3.2
 	gopkg.in/validator.v2 v2.0.0-20180514200540-135c24b11c19 // indirect
-	xorm.io/core v0.7.0
+	xorm.io/core v0.7.2
+	xorm.io/xorm v0.8.0
 )

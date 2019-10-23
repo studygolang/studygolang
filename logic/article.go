@@ -17,7 +17,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/go-xorm/xorm"
+	"xorm.io/xorm"
 	"github.com/jaytaylor/html2text"
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"

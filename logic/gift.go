@@ -15,7 +15,7 @@ import (
 	. "github.com/studygolang/studygolang/db"
 	"github.com/studygolang/studygolang/model"
 
-	"github.com/go-xorm/xorm"
+	"xorm.io/xorm"
 )
 
 type GiftLogic struct{}
