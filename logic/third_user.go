@@ -9,9 +9,10 @@ package logic
 import (
 	"encoding/json"
 	"errors"
+	"io/ioutil"
+
 	. "github.com/studygolang/studygolang/db"
 	"github.com/studygolang/studygolang/model"
-	"io/ioutil"
 
 	"github.com/polaris1119/logger"
 
@@ -21,8 +22,10 @@ import (
 )
 
 var githubConf *oauth2.Config
+var giteaConf *oauth2.Config
 
 const GithubAPIBaseUrl = "https://api.github.com"
+const GiteaAPIBaseUrl = "https://gitea.com/api/v1"
 
 func init() {
 	githubConf = &oauth2.Config{
@@ -32,6 +35,15 @@ func init() {
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "https://github.com/login/oauth/authorize",
 			TokenURL: "https://github.com/login/oauth/access_token",
+		},
+	}
+
+	giteaConf = &oauth2.Config{
+		ClientID:     config.ConfigFile.MustValue("gitea", "client_id"),
+		ClientSecret: config.ConfigFile.MustValue("gitea", "client_secret"),
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://gitea.com/login/oauth/authorize",
+			TokenURL: "https://gitea.com/login/oauth/access_token",
 		},
 	}
 }
@@ -200,6 +212,166 @@ func (self ThirdUserLogic) BindGithub(ctx context.Context, code string, me *mode
 	return nil
 }
 
+func (ThirdUserLogic) GiteaAuthCodeUrl(ctx context.Context, redirectURL string) string {
+	// Redirect user to consent page to ask for permission
+	// for the scopes specified above.
+	giteaConf.RedirectURL = redirectURL
+	return giteaConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
+}
+
+func (self ThirdUserLogic) LoginFromGitea(ctx context.Context, code string) (*model.User, error) {
+	objLog := GetLogger(ctx)
+
+	giteaUser, token, err := self.giteaTokenAndUser(ctx, code)
+	if err != nil {
+		objLog.Errorln("LoginFromGithub githubTokenAndUser error:", err)
+		return nil, err
+	}
+
+	bindUser := &model.BindUser{}
+	// 是否已经授权过了
+	_, err = MasterDB.Where("username=? AND type=?", giteaUser.UserName, model.BindTypeGitea).Get(bindUser)
+	if err != nil {
+		objLog.Errorln("LoginFromGithub Get BindUser error:", err)
+		return nil, err
+	}
+
+	if bindUser.Uid > 0 {
+		// 更新 token 信息
+		change := map[string]interface{}{
+			"access_token":  token.AccessToken,
+			"refresh_token": token.RefreshToken,
+		}
+		if !token.Expiry.IsZero() {
+			change["expire"] = int(token.Expiry.Unix())
+		}
+		_, err = MasterDB.Table(new(model.BindUser)).Where("uid=?", bindUser.Uid).Update(change)
+		if err != nil {
+			objLog.Errorln("LoginFromGithub update token error:", err)
+			return nil, err
+		}
+
+		user := DefaultUser.FindOne(ctx, "uid", bindUser.Uid)
+		return user, nil
+	}
+
+	exists := DefaultUser.EmailOrUsernameExists(ctx, giteaUser.Email, giteaUser.UserName)
+	if exists {
+		// TODO: 考虑改进？
+		objLog.Errorln("LoginFromGithub Github 对应的用户信息被占用")
+		return nil, errors.New("Github 对应的用户信息被占用，可能你注册过本站，用户名密码登录试试！")
+	}
+
+	session := MasterDB.NewSession()
+	defer session.Close()
+	session.Begin()
+
+	// 有可能获取不到 email？加上 @gitea.com做邮箱后缀
+	if giteaUser.Email == "" {
+		giteaUser.Email = giteaUser.UserName + "@gitea.com"
+	}
+	// 生成本站用户
+	user := &model.User{
+		Email:    giteaUser.Email,
+		Username: giteaUser.UserName,
+		Name:     model.DisplayName(giteaUser),
+		City:     "",
+		Company:  "",
+		Gitea:    giteaUser.UserName,
+		Website:  "",
+		Avatar:   giteaUser.AvatarURL,
+		IsThird:  1,
+		Status:   model.UserStatusAudit,
+	}
+	err = DefaultUser.doCreateUser(ctx, session, user)
+	if err != nil {
+		session.Rollback()
+		objLog.Errorln("LoginFromGithub doCreateUser error:", err)
+		return nil, err
+	}
+
+	bindUser = &model.BindUser{
+		Uid:          user.Uid,
+		Type:         model.BindTypeGithub,
+		Email:        user.Email,
+		Tuid:         int(giteaUser.ID),
+		Username:     giteaUser.UserName,
+		Name:         model.DisplayName(giteaUser),
+		AccessToken:  token.AccessToken,
+		RefreshToken: token.RefreshToken,
+		Avatar:       giteaUser.AvatarURL,
+	}
+	if !token.Expiry.IsZero() {
+		bindUser.Expire = int(token.Expiry.Unix())
+	}
+	_, err = session.Insert(bindUser)
+	if err != nil {
+		session.Rollback()
+		objLog.Errorln("LoginFromGitea bindUser error:", err)
+		return nil, err
+	}
+
+	session.Commit()
+
+	return user, nil
+}
+
+func (self ThirdUserLogic) BindGitea(ctx context.Context, code string, me *model.Me) error {
+	objLog := GetLogger(ctx)
+
+	giteaUser, token, err := self.giteaTokenAndUser(ctx, code)
+	if err != nil {
+		objLog.Errorln("LoginFromGitea githubTokenAndUser error:", err)
+		return err
+	}
+
+	bindUser := &model.BindUser{}
+	// 是否已经授权过了
+	_, err = MasterDB.Where("username=? AND type=?", giteaUser.UserName, model.BindTypeGitea).Get(bindUser)
+	if err != nil {
+		objLog.Errorln("LoginFromGitea Get BindUser error:", err)
+		return err
+	}
+
+	if bindUser.Uid > 0 {
+		// 更新 token 信息
+		bindUser.AccessToken = token.AccessToken
+		bindUser.RefreshToken = token.RefreshToken
+		if !token.Expiry.IsZero() {
+			bindUser.Expire = int(token.Expiry.Unix())
+		}
+		_, err = MasterDB.Where("uid=?", bindUser.Uid).Update(bindUser)
+		if err != nil {
+			objLog.Errorln("LoginFromGitea update token error:", err)
+			return err
+		}
+
+		return nil
+	}
+
+	bindUser = &model.BindUser{
+		Uid:          me.Uid,
+		Type:         model.BindTypeGithub,
+		Email:        giteaUser.Email,
+		Tuid:         int(giteaUser.ID),
+		Username:     giteaUser.UserName,
+		Name:         model.DisplayName(giteaUser),
+		AccessToken:  token.AccessToken,
+		RefreshToken: token.RefreshToken,
+		Avatar:       giteaUser.AvatarURL,
+	}
+	if !token.Expiry.IsZero() {
+		bindUser.Expire = int(token.Expiry.Unix())
+	}
+	_, err = MasterDB.Insert(bindUser)
+	if err != nil {
+		objLog.Errorln("LoginFromGitea insert bindUser error:", err)
+		return err
+	}
+
+	return nil
+}
+
 func (ThirdUserLogic) UnBindUser(ctx context.Context, bindId interface{}, me *model.Me) error {
 	if !DefaultUser.HasPasswd(ctx, me.Uid) {
 		return errors.New("请先设置密码！")
@@ -243,8 +415,39 @@ func (ThirdUserLogic) githubTokenAndUser(ctx context.Context, code string) (*mod
 	}
 
 	if githubUser.Id == 0 {
-		return nil, nil, errors.New("get github user info error")
+		return nil, nil, errors.New("get gitea user info error")
 	}
 
 	return githubUser, token, nil
+}
+
+func (ThirdUserLogic) giteaTokenAndUser(ctx context.Context, code string) (*model.GiteaUser, *oauth2.Token, error) {
+	token, err := giteaConf.Exchange(ctx, code)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	httpClient := giteaConf.Client(ctx, token)
+	resp, err := httpClient.Get(GiteaAPIBaseUrl + "/user")
+	if err != nil {
+		return nil, nil, err
+	}
+	defer resp.Body.Close()
+
+	respBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	giteaUser := &model.GiteaUser{}
+	err = json.Unmarshal(respBytes, giteaUser)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if giteaUser.ID == 0 {
+		return nil, nil, errors.New("get gitea user info error")
+	}
+
+	return giteaUser, token, nil
 }

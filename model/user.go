@@ -75,6 +75,7 @@ type User struct {
 	City        string    `json:"city"`
 	Company     string    `json:"company"`
 	Github      string    `json:"github"`
+	Gitea       string    `json:"gitea"`
 	Weibo       string    `json:"weibo"`
 	Website     string    `json:"website"`
 	Monlog      string    `json:"monlog"`
@@ -177,6 +178,7 @@ type UserRole struct {
 
 const (
 	BindTypeGithub = iota
+	BindTypeGitea
 )
 
 type BindUser struct {

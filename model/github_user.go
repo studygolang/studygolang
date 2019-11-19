@@ -6,6 +6,10 @@
 
 package model
 
+import (
+	"code.gitea.io/sdk/gitea"
+)
+
 type GithubUser struct {
 	Id        int    `json:"id"`
 	Login     string `json:"login"`
@@ -15,4 +19,13 @@ type GithubUser struct {
 	Company   string `json:"company"`
 	Blog      string `json:"blog"`
 	Location  string `json:"location"`
+}
+
+type GiteaUser = gitea.User
+
+func DisplayName(g *GiteaUser) string {
+	if g.FullName == "" {
+		return g.UserName
+	}
+	return g.FullName
 }
