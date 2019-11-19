@@ -18,7 +18,7 @@ import (
 	"github.com/studygolang/studygolang/model"
 	"github.com/studygolang/studygolang/util"
 
-	"github.com/go-xorm/xorm"
+	"xorm.io/xorm"
 	"github.com/polaris1119/set"
 )
 

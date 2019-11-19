@@ -14,7 +14,7 @@ import (
 	. "github.com/polaris1119/config"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/go-xorm/xorm"
+	"xorm.io/xorm"
 	"xorm.io/core"
 )
 

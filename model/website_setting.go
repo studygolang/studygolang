@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-xorm/xorm"
+	"xorm.io/xorm"
 )
 
 type DocMenu struct {

@@ -12,7 +12,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/go-xorm/xorm"
+	"xorm.io/xorm"
 	"github.com/polaris1119/goutils"
 )
 
