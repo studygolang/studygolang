@@ -6,15 +6,15 @@
 	<div class="col-md-9 col-sm-6">
 		<div class="sep20"></div>
 		<div class="box_white">
-			<div class="inner_content" style="border-top-left-radius: 3px; border-top-right-radius: 3px;" id="tabs">
+			<div class="inner_content secondary" style="border-top-left-radius: 3px; border-top-right-radius: 3px;" id="tabs">
 				{{range .index_navs}}
 				<a href="/?tab={{.Tab}}" class="{{if eq $.tab .Tab}}tab_current{{else}}tab{{end}}">{{.Name}}</a>
 				{{end}}
 			</div>
 			{{if .cur_nav.Children}}
-			<div class="cell" style="background-color: #f9f9f9; padding: 10px 10px 10px 20px;">
+			<div class="cell" style=" padding: 15px 10px 15px 8px;">
 				{{range .cur_nav.Children}}
-				<a href="{{.Uri}}">{{.Name}}</a> &nbsp; &nbsp; 
+				<a href="{{.Uri}}">{{.Name}}</a> &nbsp;| &nbsp; 
 				{{end}}
 			</div>
 			{{end}}
@@ -27,16 +27,16 @@
 				<table cellpadding="0" cellspacing="0" border="0" width="100%">
 					<tbody><tr>
 						
-						<td width="48" valign="top" align="center">
+						<td width="80" valign="top" align="center">
 						{{if .User}}
-						<a href="/user/{{.User.Username}}"><img src="{{gravatar .User.Avatar .User.Email 48 $.is_https}}" class="avatar" width="48px"></a>
+						<a href="/user/{{.User.Username}}"><img src="{{gravatar .User.Avatar .User.Email 48 $.is_https}}" class="avatar" width="80px"></a>
 						{{else}}
 						<a href="javascript:">
-							<img class="noavatar" alt="" src="https://secure.gravatar.com/avatar/3bf6178897766ebadaa830073e87374d?s=48" data-objid="{{.Objid}}" data-objtype="{{.Objtype}}" data-author="{{.Author}}">
+							<img class="noavatar" alt="" src="https://secure.gravatar.com/avatar/3bf6178897766ebadaa830073e87374d?s=80" data-objid="{{.Objid}}" data-objtype="{{.Objtype}}" data-author="{{.Author}}" width="80px">
 						</a>
 						{{end}}
 						</td>
-						<td width="10"></td>
+						<td width="15"></td>
 						
 						<td width="auto" valign="middle">
 							<span class="item_title"><a href="{{.Uri}}#reply{{.Cmtnum}}" class="noul">{{.Title}}</a></span>
@@ -45,27 +45,6 @@
 								{{if .Top}}
 								<span style="color: #ff7700; border: 1px solid #ff7700;">置顶</span> •
 								{{end}}
-
-								{{if eq .Objtype 0}}
-								<a class="node" href="/go/{{.Node.ename}}">{{.Node.name}}</a>
-								{{else if eq .Objtype 1}}
-								{{if .Tags}}
-									{{$tags := explode .Tags ","}}
-									<a class="node" href="/tag/{{index $tags 0}}">{{index $tags 0}}</a>
-								{{else}}
-									<a class="node" href="/articles">文章</a>
-								{{end}}
-								{{else if eq .Objtype 2}}
-								<a class="node" href="/resources/cat/{{.Nid}}">{{.Node.name}}</a>
-								{{else if eq .Objtype 3}}
-								<a class="node" href="/wiki">WIKI</a>
-								{{else if eq .Objtype 4}}
-								<a class="node" href="/projects">开源项目</a>
-								{{else if eq .Objtype 5}}
-								<a class="node" href="/books">图书</a>
-								{{end}}
-								&nbsp;•&nbsp;
-
 								{{if .Uid}}
 								<strong><a href="/user/{{.User.Username}}" class="noul">{{.User.Username}}</a></strong>
 								{{else}}
@@ -90,6 +69,26 @@
 									<span class="zan-word">{{if $likeFlag}}已赞{{else}}赞{{end}}</span>
 								</span>
 							</span>
+							<div>
+									{{if eq .Objtype 0}}
+									<a class="node" href="/go/{{.Node.ename}}">{{.Node.name}}</a>
+									{{else if eq .Objtype 1}}
+									{{if .Tags}}
+										{{$tags := explode .Tags ","}}
+										<a class="node" href="/tag/{{index $tags 0}}">{{index $tags 0}}</a>
+									{{else}}
+										<a class="node" href="/articles">文章</a>
+									{{end}}
+									{{else if eq .Objtype 2}}
+									<a class="node" href="/resources/cat/{{.Nid}}">{{.Node.name}}</a>
+									{{else if eq .Objtype 3}}
+									<a class="node" href="/wiki">WIKI</a>
+									{{else if eq .Objtype 4}}
+									<a class="node" href="/projects">开源项目</a>
+									{{else if eq .Objtype 5}}
+									<a class="node" href="/books">图书</a>
+									{{end}}
+							</div>
 						</td>
 						{{if .Cmtnum}}
 						<td width="70" align="right" valign="middle">
