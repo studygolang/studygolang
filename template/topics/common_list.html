@@ -4,7 +4,7 @@
 		{{if or ($.node) (and (not $.node) .node.ShowIndex)}}
 		<div class="topic">
 			<dt class="avatar">
-				<a href="/user/{{.user.Username}}" title="{{.user.Username}}"><img alt="{{.user.Username}}" class="img-rounded" src="{{gravatar .user.Avatar .user.Email 48 $.is_https}}" width="48px" height="48px"></a>
+				<a href="/user/{{.user.Username}}" title="{{.user.Username}}"><img alt="{{.user.Username}}" class="img-rounded" src="{{gravatar .user.Avatar .user.Email 48 $.is_https}}" width="80px" height="80px"></a>
 			</dt>
 			<dd class="right-info">
 				<div class="title">
@@ -14,8 +14,7 @@
 					{{if .top}}
 					<span style="color: #ff7700; border: 1px solid #ff7700;">置顶</span> • 
 					{{end}}
-					<a href="/go/{{.node.Ename}}" class="node" title="{{.node.Name}}">{{.node.Name}}</a>
-					•
+					
 					<a href="/user/{{.user.Username}}" title="{{.user.Username}}" class="author"><strong>{{.user.Username}}</strong></a>
 					{{if .lastreplyusername}}
 					<span>
@@ -34,6 +33,9 @@
 						{{end}}
 						{{if .like}}{{.like}} <span class="glyphicon glyphicon-heart"></span>{{end}}
 						{{.view}} <span class="glyphicon glyphicon-eye-open"></span>
+					</div>
+					<div>
+						<a href="/go/{{.node.Ename}}" class="node" title="{{.node.Name}}">{{.node.Name}}</a>
 					</div>
 				</div>
 			</dd>
