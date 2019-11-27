@@ -49,7 +49,7 @@ func ServeBackGround() {
 
 	c := cron.New()
 
-	if config.ConfigFile.MustBool("global", "is_master", true) {
+	if config.ConfigFile.MustBool("global", "is_master", false) {
 		// 每天对非活跃用户降频
 		c.AddFunc("@daily", decrUserActiveWeight)
 

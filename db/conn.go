@@ -14,8 +14,8 @@ import (
 	. "github.com/polaris1119/config"
 
 	_ "github.com/go-sql-driver/mysql"
-	"xorm.io/xorm"
 	"xorm.io/core"
+	"xorm.io/xorm"
 )
 
 var MasterDB *xorm.Engine

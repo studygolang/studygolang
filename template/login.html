@@ -55,15 +55,15 @@
 				<h3 class="title"><i class="glyphicon glyphicon-user"></i>&nbsp;第三方账号登录</h3>
 			</div>
 			<div class="sb-content">
-				<ul class="list-unstyled">
+				<ul class="list-unstyled third-login">
 					<li>
-						<a href="/oauth/github/login" class="btn btn-default" style="display: block; margin: 0 auto; text-align: center; width: 90%;">
+						<a href="/oauth/github/login" class="btn btn-success btn-block">
 						<i class="fa fa-github" aria-hidden="true"></i>
 						GitHub
 						</a>
 					</li>
 					<li>
-						<a href="/oauth/gitea/login" class="btn btn-default" style="display: block; margin: 0 auto; text-align: center; width: 90%;">
+						<a href="/oauth/gitea/login" class="btn btn-success btn-block">
 						<i class="fa fa-github" aria-hidden="true"></i>
 						Gitea
 						</a>
@@ -86,6 +86,10 @@
 </div>
 {{end}}
 {{define "css"}}
+<style>
+.third-login { padding: 0 10px; }
+.third-login li { margin-bottom: 10px; }
+</style>
 {{end}}
 {{define "js"}}
 {{end}}

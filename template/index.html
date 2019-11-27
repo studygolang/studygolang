@@ -67,13 +67,13 @@
 								&nbsp;•&nbsp;
 
 								{{if .Uid}}
-								<strong><a href="/user/{{.User.Username}}" class="noul">{{.User.Username}}</a></strong>
+								<strong><a href="/user/{{.User.Username}}" class="author">{{.User.Username}}</a></strong>
 								{{else}}
 								<span>{{.Author}}</span>
 								{{end}}
 								&nbsp;•&nbsp;
 								{{if .Lastreplyuid}}
-								<span title="{{.Lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp;最后回复来自 <strong><a href="/user/{{.Lastreplyuser.Username}}" class="noul">{{.Lastreplyuser.Username}}</a></strong>
+								<span title="{{.Lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp;最后回复来自 <strong><a href="/user/{{.Lastreplyuser.Username}}" class="author">{{.Lastreplyuser.Username}}</a></strong>
 								{{else}}
 								<span title="{{.CreatedAt}}" class="timeago"></span>发布
 								{{end}}
@@ -130,9 +130,9 @@
 								<span style="color: #ff7700; border: 1px solid #ff7700;">置顶</span> •
 								{{end}}
 								<a class="node" href="/go/{{.node.Ename}}">{{.node.Name}}</a> &nbsp;•&nbsp;
-								<strong><a href="/user/{{.user.Username}}" class="noul">{{.user.Username}}</a></strong> &nbsp;•&nbsp;
+								<strong><a href="/user/{{.user.Username}}" class="author">{{.user.Username}}</a></strong> &nbsp;•&nbsp;
 								{{if .lastreplyuid}}
-								<span title="{{.lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp;最后回复来自 <strong><a href="/user/{{.lastreplyusername}}" class="noul">{{.lastreplyusername}}</a></strong>
+								<span title="{{.lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp;最后回复来自 <strong><a href="/user/{{.lastreplyusername}}" class="author">{{.lastreplyusername}}</a></strong>
 								{{else}}
 								<span title="{{.ctime}}" class="timeago"></span> 发布
 								{{end}}
@@ -200,13 +200,13 @@
 									<a class="node" href="/articles">文章</a> &nbsp;•&nbsp;
 								{{end}}
 								{{if and .IsSelf .User}}
-								<strong><a href="/user/{{.User.Username}}" class="noul">{{.User.Username}}</a></strong>
+								<strong><a href="/user/{{.User.Username}}" class="author">{{.User.Username}}</a></strong>
 								{{else}}
 								<span>{{.AuthorTxt}}</span>
 								{{end}}
 								&nbsp;•&nbsp;
 								{{if .Lastreplyuid}}
-								<span title="{{.Lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp;最后回复来自 <strong><a href="/user/{{.LastReplyUser.Username}}" class="noul">{{.LastReplyUser.Username}}</a></strong>
+								<span title="{{.Lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp;最后回复来自 <strong><a href="/user/{{.LastReplyUser.Username}}" class="author">{{.LastReplyUser.Username}}</a></strong>
 								{{else}}
 								<span title="{{.Ctime}}" class="timeago"></span> 发布
 								{{end}}
@@ -288,14 +288,14 @@
 								&nbsp;•&nbsp; 
 							{{if .Uid}}
 								{{$user := index $.users .Uid}}
-								 <strong><a href="/user/{{$user.Username}}" class="noul">{{$user.Username}}</a></strong>
+								 <strong><a href="/user/{{$user.Username}}" class="author">{{$user.Username}}</a></strong>
 							{{else}}
 								<span>{{.Author}}</span>
 							{{end}}
 								&nbsp;•&nbsp; 
 							{{if .Lastreplyuid}}
 								{{$user := index $.users .Lastreplyuid}}
-								<span title="{{.Lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp; 最后回复来自 <strong><a href="/user/{{$user.Username}}" class="noul">{{$user.Username}}</a></strong>
+								<span title="{{.Lastreplytime}}" class="timeago"></span>&nbsp;•&nbsp; 最后回复来自 <strong><a href="/user/{{$user.Username}}" class="author">{{$user.Username}}</a></strong>
 							{{else}}
 								<span title="{{.PubTime}}" class="timeago"></span> 发布
 							{{end}}
@@ -355,7 +355,7 @@
 							<div class="sep5"></div>
 							<span class="small cc">
 								<a class="node" href="/subject/{{.Id}}">专栏</a> &nbsp;•&nbsp;
-								<strong><a href="/user/{{.User.Username}}" class="noul">{{.User.Username}}</a></strong>
+								<strong><a href="/user/{{.User.Username}}" class="author">{{.User.Username}}</a></strong>
 								&nbsp;•&nbsp;
 							{{if .ArticleNum}}
 								<span title="{{.UpdatedAt}}" class="timeago"></span> 有新文章

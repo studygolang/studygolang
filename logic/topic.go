@@ -19,11 +19,11 @@ import (
 	. "github.com/studygolang/studygolang/db"
 
 	"github.com/fatih/structs"
-	"xorm.io/xorm"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	"github.com/polaris1119/set"
 	"golang.org/x/net/context"
+	"xorm.io/xorm"
 )
 
 type TopicLogic struct{}

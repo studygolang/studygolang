@@ -17,12 +17,12 @@ import (
 	. "github.com/studygolang/studygolang/db"
 
 	"github.com/garyburd/redigo/redis"
-	"xorm.io/xorm"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	"github.com/polaris1119/nosql"
 	"github.com/polaris1119/times"
 	"golang.org/x/net/context"
+	"xorm.io/xorm"
 )
 
 var (

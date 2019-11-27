@@ -33,7 +33,7 @@
                     {{else}}
                     <button class="btn btn-hollow" id="contribute">投稿</button>
                     {{end}}
-                    <button class="btn {{if .followed}}btn-followed{{else}}btn-success{{end}}" data-sid="{{.subject.Id}}" style="margin-left: 8px;" id="follow" data-follow="{{.followed}}">
+                    <button class="btn {{if .followed}}btn-followed{{else}}btn-follow{{end}}" data-sid="{{.subject.Id}}" style="margin-left: 8px;" id="follow" data-follow="{{.followed}}">
                     {{if .followed}}
                         <i class="fa fa-check" aria-hidden="true"></i> 已关注
                     {{else}}

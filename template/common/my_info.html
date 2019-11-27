@@ -28,20 +28,20 @@
 	</div> -->
 	<div class="box" style="text-align: center;">
 		{{if canPublish .me.DauAuth 0}}
-		<a class="btn btn-default btn-sm" href="/topics/new">发布主题</a>&nbsp;
+		<a class="btn btn-success btn-sm" href="/topics/new">发布主题</a>&nbsp;
 		{{end}}
 		{{if canPublish .me.DauAuth 1}}
-		<a class="btn btn-default btn-sm" href="/articles/new">撰写文章</a>&nbsp;
+		<a class="btn btn-success btn-sm" href="/articles/new">撰写文章</a>&nbsp;
 		{{end}}
 		{{if canPublish .me.DauAuth 2}}
-		<a class="btn btn-default btn-sm" href="/resources/new">分享资源</a>&nbsp;
+		<a class="btn btn-success btn-sm" href="/resources/new">分享资源</a>&nbsp;
 		{{end}}
 
 		{{if and (canPublish .me.DauAuth 0) (canPublish .me.DauAuth 1) (canPublish .me.DauAuth 2)}}
 
 		{{else}}
 			{{if canPublish .me.DauAuth 4}}
-			<a class="btn btn-default btn-sm" href="/project/new">发布项目</a>&nbsp;
+			<a class="btn btn-success btn-sm" href="/project/new">发布项目</a>&nbsp;
 			{{end}}
 		{{end}}
 	</div>
@@ -88,21 +88,36 @@
 			</div>
 			<div class="form-group">
 				<div class="col-sm-10">
-					<div class="checkbox">
+					<div class="checkbox" style="padding-top: 0px;">
 						<label>
 							<input id="user_remember_me" name="remember_me" type="checkbox" value="1" checked="checked" />	记住登录状态
 						</label>
-						<input class="btn btn-default btn-sm" data-disable-with="正在登录" name="commit" type="submit" value="登录" />
+					</div>
+					<input class="btn btn-block btn-success btn-sm" data-disable-with="正在登录" name="commit" type="submit" value="登录" />
+					<div class="sidebar-login-tip">
+						<div>没有账号？<a href="">注册</a></div>
+						<div><a href="">忘记密码？</a></div>
 					</div>
 					<div class="sep10"></div>
-					<a href="/oauth/github/login" class="btn btn-default btn-sm">
-						<i class="fa fa-github" aria-hidden="true"></i>
-						GitHub 登录
-					</a>
-					<a href="/oauth/gitea/login" class="btn btn-default btn-sm">
-						<i class="fa fa-github" aria-hidden="true"></i>
-						Gitea 登录
-					</a>
+					<div class="cut-line">
+						<div class="solid"></div>
+						或
+						<div class="solid"></div>
+					</div>
+					<div class="sep10"></div>
+					<div>
+						<a href="/oauth/github/login" class="btn btn-default btn-sm btn-block">
+							<i class="fa fa-github" aria-hidden="true"></i>
+							GitHub 登录
+						</a>
+					</div>
+					<div class="sep10"></div>
+					<div>
+						<a href="/oauth/gitea/login" class="btn btn-default btn-sm btn-block">
+							<i class="fa fa-github" aria-hidden="true"></i>
+							Gitea 登录
+						</a>
+					</div>
 				</div>
 			</div>
 		</form>
@@ -127,3 +142,10 @@
 	{{end}}
 </div>
 {{end}}
+
+<style>
+.cut-line { display: flex; display: -webkit-flex; justify-content: space-between; align-items: center; }
+.cut-line .solid { height: 1px; background-color: #ccc; width: 42%; }
+.sidebar-login-tip { display: flex; display: -webkit-flex; justify-content: space-between; }
+.sidebar-login-tip a { color: #59BF74; }
+</style>

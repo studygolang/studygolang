@@ -8,7 +8,7 @@
 			<li><a href="/">首页</a></li>
 			<li class="active">资源索引</li>
 		</ol>
-		<ul class="nav nav-tabs" role="tablist">
+		<ul class="nav nav-tabs box_white" role="tablist">
 			{{range .categories}}
 			<li role="presentation" id="tb-{{.Catid}}" data-intro="{{.Intro}}"{{if eq $.curCatid .Catid}} class="active"{{end}}><a href="/resources/cat/{{.Catid}}">{{.Name}}</a></li>
 			{{end}}
@@ -80,8 +80,18 @@
 	</div>
 </div>
 {{end}}
+
 {{define "css"}}
+<style>
+.nav-tabs>li:first-child>a,.nav-tabs>li:first-child>a:focus,.nav-tabs>li:first-child>a:hover {
+	border-left: none;
+}
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus {
+	color: #59BF74;
+}
+</style>
 {{end}}
+
 {{define "js"}}
 <script type="text/javascript">
 // 需要加载的侧边栏

@@ -21,11 +21,11 @@ import (
 	"github.com/polaris1119/slices"
 
 	"github.com/go-validator/validator"
-	"xorm.io/xorm"
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	"golang.org/x/net/context"
+	"xorm.io/xorm"
 
 	. "github.com/studygolang/studygolang/db"
 )

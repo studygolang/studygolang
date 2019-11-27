@@ -6,7 +6,7 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
 	<meta charset="utf-8">
 	<link rel="shortcut icon" href="{{.setting.Favicon}}">
-	<link rel="apple-touch-icon" type="image/png" href="{{.static_domain}}/static/img/logo2.png">
+	<link rel="apple-touch-icon" type="image/png" href="{{.static_domain}}/static/img/ico.png">
 	{{template "seo" .}}
 	<meta name="author" content="polaris <polaris@studygolang.com>">
 	<link rel="canonical" href="{{.app.BaseURL}}" />
@@ -14,7 +14,7 @@
 	<link rel="stylesheet" href="https://cdn.staticfile.org/bootswatch/3.2.0/css/cosmo/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.min.css">
 	<link rel="stylesheet" href="{{.static_domain}}/static/dist/css/sg_libs.min.css?v=20180305"/>
-	<link rel="stylesheet" href="{{.static_domain}}/static/dist/css/sg_styles.min.css?v=20190825"/>
+	<link rel="stylesheet" href="{{.static_domain}}/static/dist/css/sg_styles.min.css?v=20191127"/>
 
 	{{template "css" .}}
 
@@ -148,11 +148,10 @@
 				<div class="sep20"></div>
 				&copy;{{.app.Copyright}} {{.setting.Slogan}}
 				<div class="sep5"></div>
-				Powered by <a href="https://github.com/studygolang/studygolang">StudyGolang(Golang + MySQL)</a> &nbsp;<span class="snow">•</span>&nbsp;<span class="snow">·</span>&nbsp;CDN 采用 <a href="https://portal.qiniu.com/signup?code=3lfz4at7pxfma" title="七牛云" class="dark" target="_blank">七牛云</a>
+				Powered by <a href="https://github.com/studygolang/studygolang">StudyGolang(Golang + MySQL)</a>&nbsp;<span class="snow">·</span>&nbsp;<span class="small cc">VERSION: {{.app.Version}}</span>&nbsp;<span class="snow">·</span>
+				<a href="http://www.miibeian.gov.cn/" target="_blank" rel="nofollow">{{.setting.Beian}}</a>
 				<div class="sep20"></div>
-				<span class="small cc">VERSION: {{.app.Version}}&nbsp;<span class="snow">·</span>&nbsp;{{.resp_time}}&nbsp;<span class="snow">·</span>&nbsp;<strong>为了更好的体验，本站推荐使用 Chrome 或 Firefox 浏览器</strong></span>
-				<div class="sep20"></div>
-				<span class="f12 c9"><a href="http://www.miibeian.gov.cn/" target="_blank" rel="nofollow">{{.setting.Beian}}</a></span>
+				<img src="{{.static_domain}}/static/img/wx_sg_qrcode.jpg?imageView2/2/w/280" alt="关注微信" class="img-responsive" width="120px">
 				<div class="sep10"></div>
 			</div>
 		</div>
