@@ -16,7 +16,7 @@
 .nodes .title {position: relative;border-bottom: 1px solid #ccc;}
 .nodes .title h3 {line-height: 24px;font-size: 14px;font-weight: bold;padding-top: 10px;}
 .nodes ul li {line-height: 200%;font-size: 14px;padding: 8px 10px;border-top: 1px solid #DDD;position: relative;overflow: auto;}
-.nodes ul li label {font-size: 12px;color: #999;display: inline-block;width: 120px;margin-right: -130px;padding-right: 10px; text-align: right;}
+.nodes ul li label {font-size: 12px;color: #999;display: inline-block;width: 120px;margin-right: -130px;padding-right: 10px;float: left;text-align: right;}
 .nodes ul li .childnodes {float: left;margin-left: 130px;}
 .nodes ul li .childnodes a {color:#424242;text-decoration: none;background-color: #f5f5f5; padding: 2px;}
 .nodes ul li .childnodes a:hover {background-color:#222;color:#fff;text-decoration: none;}
