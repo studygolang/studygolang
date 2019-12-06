@@ -153,6 +153,7 @@ CREATE TABLE IF NOT EXISTS `user_info` (
   `city` varchar(10) NOT NULL DEFAULT '' COMMENT '居住地',
   `company` varchar(63) NOT NULL DEFAULT '' COMMENT '公司',
   `github` varchar(31) NOT NULL DEFAULT '' COMMENT 'Github昵称',
+  `gitea` varchar(31) NOT NULL DEFAULT '' COMMENT 'Gitea昵称',
   `weibo` varchar(31) NOT NULL DEFAULT '' COMMENT '微博昵称',
   `website` varchar(63) NOT NULL DEFAULT '' COMMENT '个人主页，博客',
   `monlog` varchar(140) NOT NULL DEFAULT '' COMMENT '个人状态，签名，独白',

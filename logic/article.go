@@ -94,7 +94,7 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 		return nil, err
 	}
 
-	author, authorTxt := "", ""
+	author := ""
 	if rule.InUrl {
 		index, err := strconv.Atoi(rule.Author)
 		if err != nil {
@@ -102,18 +102,10 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 			return nil, err
 		}
 		author = urlPaths[index]
-		authorTxt = author
 	} else {
-		if strings.HasPrefix(rule.Author, ".") || strings.HasPrefix(rule.Author, "#") {
-			authorSelection := doc.Find(rule.Author)
-			author, err = authorSelection.Html()
-			if err != nil {
-				logger.Errorln("goquery parse author error:", err)
-				return nil, err
-			}
-
-			author = strings.TrimSpace(author)
-			authorTxt = strings.TrimSpace(authorSelection.Text())
+		authorSelection := doc.Find(rule.Author)
+		if authorSelection.Is(rule.Author) {
+			author = strings.TrimSpace(authorSelection.Text())
 		} else if strings.HasPrefix(rule.Author, "/") {
 			// 正则表达式
 			re, err := regexp.Compile(rule.Author[1:])
@@ -129,11 +121,9 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 			}
 
 			author = authorResult[1]
-			authorTxt = author
 		} else {
 			// 某些个人博客，页面中没有作者的信息，因此，规则中 author 即为 作者
 			author = rule.Author
-			authorTxt = rule.Author
 		}
 	}
 
@@ -222,7 +212,7 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 		Domain:    domain,
 		Name:      rule.Name,
 		Author:    author,
-		AuthorTxt: authorTxt,
+		AuthorTxt: author,
 		Title:     title,
 		Content:   content,
 		Txt:       txt,
@@ -870,7 +860,7 @@ func (self ArticleLogic) setImgSrc(ctx context.Context, v string, imgDeny bool, 
 		if strings.HasPrefix(v, "//") {
 			v = "https:" + v
 		} else if !strings.HasPrefix(v, "http") {
-			v = "http://" + domain + "/" + v
+			v = "http://" + domain + v
 		}
 		path, err := DefaultUploader.TransferUrl(ctx, v)
 		if err == nil {
