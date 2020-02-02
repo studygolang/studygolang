@@ -52,6 +52,9 @@ func (this *WebsocketController) Ws(wsConn *websocket.Conn) {
 
 	messageChan := userData.MessageQueue(serverId)
 
+	ticker := time.NewTicker(15e9)
+	defer ticker.Stop()
+
 	var clientClosed = false
 	for {
 		select {
@@ -61,7 +64,7 @@ func (this *WebsocketController) Ws(wsConn *websocket.Conn) {
 				clientClosed = true
 			}
 			// 心跳
-		case <-time.After(15e9):
+		case <-ticker.C:
 			if err := websocket.JSON.Send(wsConn, ""); err != nil {
 				// logger.Errorln("Send heart message to user:", user, "server_id:", serverId, "error:", err)
 				clientClosed = true
