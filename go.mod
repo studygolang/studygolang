@@ -3,7 +3,7 @@ module github.com/studygolang/studygolang
 go 1.12
 
 require (
-	code.gitea.io/sdk/gitea v0.0.0-20191106151626-e4082d89cc3b
+	code.gitea.io/sdk/gitea v0.11.0
 	github.com/PuerkitoBio/goquery v1.5.0
 	github.com/Unknwon/goconfig v0.0.0-20190425194916-3dba17dd7b9e // indirect
 	github.com/adamzy/cedar-go v0.0.0-20170805034717-80a9c64b256d // indirect

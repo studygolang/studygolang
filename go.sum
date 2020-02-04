@@ -5,6 +5,8 @@ cloud.google.com/go v0.37.4/go.mod h1:NHPJ89PdicEuT9hdPXMROBD91xc5uRDxsMtSB16k7h
 code.gitea.io/sdk v0.0.0-20191106151626-e4082d89cc3b h1:bAdeOAgzWZ2R8uMTiq4/K0ViBl/j8XGOEok+DciPN9Y=
 code.gitea.io/sdk/gitea v0.0.0-20191106151626-e4082d89cc3b h1:T26uiLOnyGHLGvE1+as/j97ceSHk5gt9NgAMaBf/BZw=
 code.gitea.io/sdk/gitea v0.0.0-20191106151626-e4082d89cc3b/go.mod h1:8IxkM1gyiwEjfO0m47bcmr3u3foR15+LoVub43hCHd0=
+code.gitea.io/sdk/gitea v0.11.0 h1:XgZtmImZsjMC+Z1WBfO6bYTCOJiGp+7w0HKmfhTwytw=
+code.gitea.io/sdk/gitea v0.11.0/go.mod h1:z3uwDV/b9Ls47NGukYM9XhnHtqPh/J+t40lsUrR6JDY=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/PuerkitoBio/goquery v1.5.0 h1:uGvmFXOA73IKluu/F84Xd1tt/z07GYm8X49XKHP7EJk=
 github.com/PuerkitoBio/goquery v1.5.0/go.mod h1:qD2PgZ9lccMbQlc7eEOjaeRlFQON7xY8kdmcsrnKqMg=
@@ -93,6 +95,8 @@ github.com/gorilla/securecookie v1.1.1 h1:miw7JPhV+b/lAHSXz4qd/nN9jRiAFV5FwjeKyC
 github.com/gorilla/securecookie v1.1.1/go.mod h1:ra0sb63/xPlUeL+yeDciTfxMRAA+MP+HVt/4epWDjd4=
 github.com/gorilla/sessions v1.2.0 h1:S7P+1Hm5V/AT9cjEcUD5uDaQSX0OE577aCXgoaKpYbQ=
 github.com/gorilla/sessions v1.2.0/go.mod h1:dk2InVEVJ0sfLlnXv9EAgkf6ecYs/i80K/zI+bUmuGM=
+github.com/hashicorp/go-version v1.2.0 h1:3vNe/fWF5CBgRIguda1meWhsZHy3m8gCJ5wx+dIzX/E=
+github.com/hashicorp/go-version v1.2.0/go.mod h1:fltr4n8CU8Ke44wwGCBoEymUuxUHl09ZGVZPK5anwXA=
 github.com/hashicorp/golang-lru v0.5.0/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/huichen/sego v0.0.0-20180617034105-3f3c8a8cfacc h1:3LXYtoxQGFSjIL5ZJAn4PceSpwRohuTKYL1W4kJ7G8g=
