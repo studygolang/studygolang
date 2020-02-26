@@ -10,6 +10,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -89,8 +90,22 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 	// }
 
 	var doc *goquery.Document
-	if doc, err = goquery.NewDocument(articleUrl); err != nil {
-		logger.Errorln("goquery newdocument error:", err)
+
+	ua := `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36`
+	req, err := http.NewRequest("GET", articleUrl, nil)
+	if err != nil {
+		logger.Errorln("new request error:", err)
+		return nil, err
+	}
+	req.Header.Add("User-Agent", ua)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		logger.Errorln("get response error:", err)
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if doc, err = goquery.NewDocumentFromReader(resp.Body); err != nil {
+		logger.Errorln("goquery NewDocumentFromReader error:", err)
 		return nil, err
 	}
 
