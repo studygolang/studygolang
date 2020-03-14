@@ -90,7 +90,7 @@
 						<a href="/message/system" id="user_message_count"><span class="badge{{if .me.MsgNum}} badge-warning{{end}}">{{.me.MsgNum}}</span></a>
 					</li>
 					<li class="dropdown" id="user_menu">
-						<a href="#user_menu" class="dropdown-toggle" data-toggle="dropdown">{{.me.Username}} <b class="caret"></b></a>
+						<a href="#user_menu" class="dropdown-toggle" data-toggle="dropdown" style="white-space:nowrap;text-overflow:ellipsis;display:inline-block;width:11rem;overflow: hidden;padding: 15px 5px;">{{.me.Username}} <b class="caret"></b></a>
 						<ul class="dropdown-menu">
 							<li class="first"><a href="/user/{{.me.Username}}">我的主页</a></li>
 							<li><a href="/account/edit">个人资料设置</a></li>
