@@ -258,8 +258,8 @@ func (self ThirdUserLogic) LoginFromGitea(ctx context.Context, code string) (*mo
 	exists := DefaultUser.EmailOrUsernameExists(ctx, giteaUser.Email, giteaUser.UserName)
 	if exists {
 		// TODO: 考虑改进？
-		objLog.Errorln("LoginFromGithub Github 对应的用户信息被占用")
-		return nil, errors.New("Github 对应的用户信息被占用，可能你注册过本站，用户名密码登录试试！")
+		objLog.Errorln("LoginFromGitea Gitea 对应的用户信息被占用")
+		return nil, errors.New("Gitea 对应的用户信息被占用，可能你注册过本站，用户名密码登录试试！")
 	}
 
 	session := MasterDB.NewSession()

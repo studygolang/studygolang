@@ -64,6 +64,11 @@ func success(ctx echo.Context, data interface{}) error {
 
 	ctx.Response().Header().Add("ETag", newETag)
 
+	callback := ctx.QueryParam("callback")
+	if callback != "" {
+		return ctx.JSONPBlob(http.StatusOK, callback, b)
+	}
+
 	return ctx.JSONBlob(http.StatusOK, b)
 }
 
