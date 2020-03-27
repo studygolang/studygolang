@@ -39,7 +39,17 @@
                         {{with $pageMax := divide .total .cmt_per_num}}
                             <td width="92%" align="left">
                             {{range $i, $v := genList $.total $.cmt_per_num}}
-                                <a href="/balance?p={{$v}}" class="{{if eq $v $.cur_p}}page_current{{else}}page_normal{{end}}">{{$v}}</a>
+                                {{if gt $pageMax 20}}
+                                    {{if lt $i 10}}
+                                        <a href="/balance?p={{$v}}" class="{{if eq $v $.cur_p}}page_current{{else}}page_normal{{end}}">{{$v}}</a>
+                                    {{else if gt $i (sub $pageMax 11)}}
+                                        <a href="/balance?p={{$v}}" class="{{if eq $v $.cur_p}}page_current{{else}}page_normal{{end}}">{{$v}}</a>
+                                    {{else if eq $i 11}}
+                                    <a href="#" class="page_normal disable_now">...</a>
+                                    {{end}}
+                                {{else}}
+                                    <a href="/balance?p={{$v}}" class="{{if eq $v $.cur_p}}page_current{{else}}page_normal{{end}}">{{$v}}</a>
+                                {{end}}
                             {{end}}
                                 <input type="number" class="page_input" autocomplete="off" value="{{$.cur_p}}" min="1" max="{{$pageMax}}">
                             </td>

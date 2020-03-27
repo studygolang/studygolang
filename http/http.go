@@ -123,6 +123,9 @@ var funcMap = template.FuncMap{
 		}
 		return total
 	},
+	"sub": func(num1, num2 int) int {
+		return num1 - num2
+	},
 	"mod": func(num1, num2 int) int {
 		if num1 == 0 {
 			num1 = rand.Intn(500)
