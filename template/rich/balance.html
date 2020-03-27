@@ -31,6 +31,34 @@
                     {{.me.Copper}} <img src="/static/img/copper_48.png" alt="" width="16px">
                 </div>
             </div>
+            {{if gt .total .cmt_per_num}}
+            <div class="cell balance-page">
+                <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                    <tbody>
+                        <tr>
+                        {{with $pageMax := divide .total .cmt_per_num}}
+                            <td width="92%" align="left">
+                            {{range $i, $v := genList $.total $.cmt_per_num}}
+                                <a href="/balance?p={{$v}}" class="{{if eq $v $.cur_p}}page_current{{else}}page_normal{{end}}">{{$v}}</a>
+                            {{end}}
+                                <input type="number" class="page_input" autocomplete="off" value="{{$.cur_p}}" min="1" max="{{$pageMax}}">
+                            </td>
+                            <td width="8%" align="right">
+                                <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                                    <tbody>
+                                        <tr data-cur="{{$.cur_p}}" data-max="{{$pageMax}}">
+                                            <td width="50%" align="center" class="super normal button nav-page prev-page {{if eq $.cur_p 1}}disable_now{{end}}" style="border-right: none;" title="上一页">❮</td>
+                                            <td width="50%" align="center" class="super normal_page_right button nav-page next-page {{if eq $.cur_p $pageMax}}disable_now{{end}}" title="下一页">❯</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                            {{end}}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            {{end}}
             <div>
                 <table cellpadding="5" cellspacing="0" border="0" width="100%" class="data table-hover">
                     <tr>
@@ -94,9 +122,54 @@
 {{define "css"}}
 <link rel="stylesheet" type="text/css" href="{{.static_domain}}/static/dist/css/table_data.min.css">
 <style type="text/css">
+.balance-page { background-image: url('/static/img/shadow_light.png'); background-size: 20px 20px; background-repeat: repeat-x; }
 .positive { color: #0aa31c; }
 .negative { color: #ff3c00; }
+.nav-page { border-top-right-radius: 0px; border-bottom-right-radius: 0px; }
 </style>
 {{end}}
 {{define "js"}}
+<script>
+$(function(){
+    $('.prev-page').on('click', function() {
+        let curPage = $(this).parent().data('cur');
+        if (curPage > 1) {
+            location.href='/balance?p='+(curPage-1);
+        }
+    });
+
+    $('.next-page').on('click', function() {
+        let curPage = $(this).parent().data('cur'),
+            pageMax = $(this).parent().data('max');
+        if (curPage < pageMax) {
+            location.href='/balance?p='+(curPage+1);
+        }
+    });
+
+    $('.nav-page').on('mouseover', function() {
+        if (!$(this).hasClass('disable_now')) {
+            $(this).addClass('hover_now');
+        }
+    });
+
+    $('.nav-page').on('mouseleave', function() {
+        if (!$(this).hasClass('disable_now')) {
+            $(this).removeClass('hover_now');
+            $(this).removeClass('active_now')
+        }
+    });
+
+    $('.nav-page').on('mousedown', function() {
+        if (!$(this).hasClass('disable_now')) {
+            $(this).addClass('active_now');
+        }
+    });
+
+    $('.page_input').on('keydown', function() {
+        if (event.keyCode == 13) {
+            location.href = '/balance?p=' + this.value
+        }
+    });
+});
+</script>
 {{end}}

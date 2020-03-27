@@ -7,6 +7,7 @@
 package controller
 
 import (
+	"github.com/polaris1119/goutils"
 	"github.com/studygolang/studygolang/context"
 	"github.com/studygolang/studygolang/http/middleware"
 	"github.com/studygolang/studygolang/logic"
@@ -24,18 +25,23 @@ func (self UserRichController) RegisterRoute(g *echo.Group) {
 }
 
 func (UserRichController) MyBalance(ctx echo.Context) error {
+	p := goutils.MustInt(ctx.QueryParam("p"), 1)
 	me := ctx.Get("user").(*model.Me)
-	balanceDetails := logic.DefaultUserRich.FindBalanceDetail(context.EchoContext(ctx), me)
+	balanceDetails := logic.DefaultUserRich.FindBalanceDetail(context.EchoContext(ctx), me, p)
+	total := logic.DefaultUserRich.Total(context.EchoContext(ctx), me.Uid)
 
 	data := map[string]interface{}{
 		"details": balanceDetails,
+		"total":   int(total),
+		"cur_p":   p,
 	}
 	return render(ctx, "rich/balance.html", data)
 }
 
 func (UserRichController) Add(ctx echo.Context) error {
+	p := goutils.MustInt(ctx.QueryParam("p"), 1)
 	me := ctx.Get("user").(*model.Me)
-	balanceDetails := logic.DefaultUserRich.FindBalanceDetail(context.EchoContext(ctx), me, model.MissionTypeAdd)
+	balanceDetails := logic.DefaultUserRich.FindBalanceDetail(context.EchoContext(ctx), me, p, model.MissionTypeAdd)
 
 	rechargeAmount := logic.DefaultUserRich.FindRecharge(context.EchoContext(ctx), me)
 

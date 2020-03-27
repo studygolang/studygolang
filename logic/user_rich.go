@@ -9,10 +9,11 @@ package logic
 import (
 	"errors"
 	"fmt"
-	"github.com/studygolang/studygolang/model"
-	"github.com/studygolang/studygolang/util"
 	"net/url"
 	"time"
+
+	"github.com/studygolang/studygolang/model"
+	"github.com/studygolang/studygolang/util"
 
 	. "github.com/studygolang/studygolang/db"
 
@@ -152,7 +153,7 @@ func (self UserRichLogic) IncrUserRich(user *model.User, typ, award int, desc st
 	session.Commit()
 }
 
-func (UserRichLogic) FindBalanceDetail(ctx context.Context, me *model.Me, types ...int) []*model.UserBalanceDetail {
+func (UserRichLogic) FindBalanceDetail(ctx context.Context, me *model.Me, p int, types ...int) []*model.UserBalanceDetail {
 	objLog := GetLogger(ctx)
 
 	balanceDetails := make([]*model.UserBalanceDetail, 0)
@@ -161,7 +162,7 @@ func (UserRichLogic) FindBalanceDetail(ctx context.Context, me *model.Me, types 
 		session.And("type=?", types[0])
 	}
 
-	err := session.Desc("id").Find(&balanceDetails)
+	err := session.Desc("id").Limit(CommentPerNum, (p-1)*CommentPerNum).Find(&balanceDetails)
 	if err != nil {
 		objLog.Errorln("UserRichLogic FindBalanceDetail error:", err)
 		return nil
