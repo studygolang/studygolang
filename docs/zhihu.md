@@ -24,7 +24,7 @@
 
 首发于：https://studygolang.com/articles/11718 和微信公众号：Go语言中文网：
 
-![](https://pic1.zhimg.com/80/v2-6f87ad5904c579db7239758138291fac_720w.jpg)
+![](https://pic3.zhimg.com/80/v2-639eb98c48241df47162540726b29f46_1440w.jpg)
 
 ## 发布时间
 
