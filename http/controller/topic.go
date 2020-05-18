@@ -161,8 +161,12 @@ func (TopicController) Detail(ctx echo.Context) error {
 	}
 
 	me, ok := ctx.Get("user").(*model.Me)
-	// 当前用户是否对付费内容可见
-	if topic["permission"] == model.PermissionPay {
+	if topic["permission"] == model.PermissionOnlyMe {
+		if !ok || (topic["uid"].(int) != me.Uid && !me.IsRoot) {
+			return ctx.Redirect(http.StatusSeeOther, "/topics")
+		}
+	} else if topic["permission"] == model.PermissionPay {
+		// 当前用户是否对付费内容可见
 		if !ok || (!me.IsVip && !me.IsRoot && topic["uid"].(int) != me.Uid) {
 			data["can_view"] = false
 		}

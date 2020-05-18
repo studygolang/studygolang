@@ -25,6 +25,7 @@ const (
 	PermissionLogin         // 登录可见
 	PermissionFollow        // 关注可见（暂未实现）
 	PermissionPay           // 知识星球或其他方式付费可见
+	PermissionOnlyMe        // 自己可见
 )
 
 // 社区主题信息
