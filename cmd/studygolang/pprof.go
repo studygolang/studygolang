@@ -7,6 +7,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/pprof"
 )
@@ -20,7 +21,7 @@ func Pprof(addr string) {
 	ps.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 	go func() {
 		if err := http.ListenAndServe(addr, ps); err != nil {
-			panic(err)
+			fmt.Println("pprof exit:", err)
 		}
 	}()
 }
