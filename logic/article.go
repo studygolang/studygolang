@@ -718,7 +718,7 @@ func (self ArticleLogic) FindByIds(ids []int) []*model.Article {
 		return nil
 	}
 	articles := make([]*model.Article, 0)
-	err := MasterDB.In("id", ids).Find(&articles)
+	err := MasterDB.In("id", ids).Where("status<=?", model.ArticleStatusOnline).Find(&articles)
 	if err != nil {
 		logger.Errorln("ArticleLogic FindByIds error:", err)
 		return nil

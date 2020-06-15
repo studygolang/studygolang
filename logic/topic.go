@@ -385,6 +385,9 @@ func (self TopicLogic) FindFullinfoByTids(tids []int) []map[string]interface{} {
 	topicInfos := make([]*model.TopicInfo, 0, len(topicInfoMap))
 	for _, tid := range tids {
 		if topicInfo, ok := topicInfoMap[tid]; ok {
+			if topicInfo.Flag > model.FlagNormal {
+				continue
+			}
 			topicInfos = append(topicInfos, topicInfo)
 		}
 	}
