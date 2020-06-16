@@ -12,6 +12,7 @@ import (
 
 	"github.com/studygolang/studygolang/context"
 	"github.com/studygolang/studygolang/logic"
+	"github.com/studygolang/studygolang/model"
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
@@ -36,7 +37,7 @@ func (self UserController) RegisterRoute(g *echo.Group) {
 func (UserController) Home(ctx echo.Context) error {
 	username := ctx.Param("username")
 	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "username", username)
-	if user == nil || user.Uid == 0 {
+	if user == nil || user.Uid == 0 || user.Status == model.UserStatusOutage {
 		return ctx.Redirect(http.StatusSeeOther, "/users")
 	}
 
