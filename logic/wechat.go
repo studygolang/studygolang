@@ -7,13 +7,18 @@
 package logic
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/studygolang/studygolang/model"
-	"github.com/studygolang/studygolang/util"
+	"io/ioutil"
+	"math/rand"
+	"strconv"
 	"strings"
 	"time"
+
+	"github.com/studygolang/studygolang/model"
+	"github.com/studygolang/studygolang/util"
 
 	. "github.com/studygolang/studygolang/db"
 
@@ -22,6 +27,7 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/polaris1119/config"
+	"github.com/polaris1119/nosql"
 )
 
 type WechatLogic struct{}
@@ -94,6 +100,57 @@ func (self WechatLogic) Bind(ctx context.Context, id, uid int, userInfo string) 
 	return wechatUser, nil
 }
 
+func (self WechatLogic) FetchOrUpdateToken() (string, error) {
+	var result = struct {
+		AccessToken string
+		ExpiresTime time.Time
+	}{}
+
+	filename := config.ROOT + "/data/wechat-token.json"
+	if util.Exist(filename) {
+		b, err := ioutil.ReadFile(filename)
+		if err != nil {
+			return "", err
+		}
+
+		err = json.Unmarshal(b, &result)
+		if err != nil {
+			return "", err
+		}
+
+		if result.ExpiresTime.After(time.Now()) {
+			return result.AccessToken, nil
+		}
+	}
+
+	appid := config.ConfigFile.MustValue("wechat", "appid")
+	appsecret := config.ConfigFile.MustValue("wechat", "appsecret")
+	strURL := fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s", appid, appsecret)
+
+	b, err := util.DoGet(strURL)
+	if err != nil {
+		return "", err
+	}
+	gresult := gjson.ParseBytes(b)
+	if gresult.Get("errmsg").Exists() {
+		return "", errors.New(gresult.Get("errmsg").String())
+	}
+
+	result.AccessToken = gresult.Get("access_token").String()
+	result.ExpiresTime = time.Now().Add(time.Duration(gresult.Get("expires_in").Int()-5) * time.Second)
+
+	b, err = json.Marshal(result)
+	if err != nil {
+		return "", err
+	}
+	err = ioutil.WriteFile(filename, b, 0755)
+	if err != nil {
+		return "", err
+	}
+
+	return result.AccessToken, nil
+}
+
 func (self WechatLogic) AutoReply(ctx context.Context, reqData []byte) (*model.WechatReply, error) {
 	objLog := GetLogger(ctx)
 
@@ -119,17 +176,164 @@ func (self WechatLogic) AutoReply(ctx context.Context, reqData []byte) (*model.W
 		} else if strings.Contains(wechatMsg.Content, "图书") || strings.Contains(wechatMsg.Content, "book") {
 			return self.bookContent(ctx, wechatMsg)
 		} else {
+			user := DefaultUser.FindOne(ctx, "username", wechatMsg.Content)
+			if user.Uid > 0 {
+				var content string
+				// 获取微信用户信息
+				if err = self.checkAndSave(ctx, wechatMsg); err != nil {
+					content = err.Error()
+				} else {
+					content = self.genCaptcha(user.Username, wechatMsg.FromUserName)
+				}
+				return self.wechatResponse(ctx, content, wechatMsg)
+			}
+
 			return self.searchContent(ctx, wechatMsg)
 		}
 	case model.WeMsgTypeEvent:
 		switch wechatMsg.Event {
 		case model.WeEventSubscribe:
 			wechatMsg.MsgType = model.WeMsgTypeText
-			return self.wechatResponse(ctx, config.ConfigFile.MustValue("wechat", "subscribe"), wechatMsg)
+			welcomeText := strings.ReplaceAll(config.ConfigFile.MustValue("wechat", "subscribe"), "\\n", "\n")
+			return self.wechatResponse(ctx, welcomeText, wechatMsg)
 		}
 	}
 
 	return self.wechatResponse(ctx, "success", wechatMsg)
+}
+
+func (self WechatLogic) genCaptcha(username, openid string) string {
+	num := rand.Intn(9000) + 1000
+	redisClient := nosql.NewRedisClient()
+	defer redisClient.Close()
+
+	captcha := strconv.Itoa(num)
+	redisClient.SET("wechat:captcha:$username:"+username, captcha+openid, 600)
+
+	return captcha
+}
+
+func (self WechatLogic) CheckCaptchaAndActivate(ctx context.Context, me *model.Me, captcha string) error {
+	openid, err := self.checkCaptchaAndFetch(ctx, me, captcha)
+	if err != nil {
+		return err
+	}
+
+	session := MasterDB.NewSession()
+	defer session.Close()
+
+	session.Begin()
+	_, err = session.Table(new(model.WechatUser)).Where("openid=?", openid).Update(map[string]interface{}{
+		"uid": me.Uid,
+	})
+	if err != nil {
+		session.Rollback()
+		return err
+	}
+
+	_, err = session.Table(new(model.User)).ID(me.Uid).Update(map[string]interface{}{
+		"status": model.UserStatusAudit,
+		"ctime":  time.Now().Add(-5 * time.Hour),
+	})
+	if err != nil {
+		session.Rollback()
+		return err
+	}
+
+	session.Commit()
+	return nil
+}
+
+func (self WechatLogic) CheckCaptchaAndBind(ctx context.Context, me *model.Me, captcha string) error {
+	openid, err := self.checkCaptchaAndFetch(ctx, me, captcha)
+	if err != nil {
+		return err
+	}
+
+	session := MasterDB.NewSession()
+	defer session.Close()
+
+	session.Begin()
+	_, err = session.Table(new(model.WechatUser)).Where("openid=?", openid).Update(map[string]interface{}{
+		"uid": me.Uid,
+	})
+	if err != nil {
+		session.Rollback()
+		return err
+	}
+
+	_, err = session.Table(new(model.User)).ID(me.Uid).Update(map[string]interface{}{
+		"ctime": time.Now().Add(-5 * time.Hour),
+	})
+	if err != nil {
+		session.Rollback()
+		return err
+	}
+
+	session.Commit()
+	return nil
+}
+
+func (self WechatLogic) checkCaptchaAndFetch(ctx context.Context, me *model.Me, captcha string) (string, error) {
+	redisClient := nosql.NewRedisClient()
+	defer redisClient.Close()
+
+	key := "wechat:captcha:$username:" + me.Username
+	store := redisClient.GET(key)
+	if store[:4] != captcha {
+		return "", errors.New("验证码错误")
+	}
+
+	redisClient.DEL(key)
+
+	return store[4:], nil
+}
+
+func (self WechatLogic) checkAndSave(ctx context.Context, wechatMsg *model.WechatMsg) error {
+	accessToken, err := self.FetchOrUpdateToken()
+	if err != nil {
+		return err
+	}
+
+	wechatUser := &model.WechatUser{}
+	_, err = MasterDB.Where("openid=?", wechatMsg.FromUserName).Get(wechatUser)
+	if err != nil {
+		return err
+	}
+
+	strURL := fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/user/info?access_token=%s&openid=%s&lang=zh_CN", accessToken, wechatMsg.FromUserName)
+	b, err := util.DoGet(strURL)
+	if err != nil {
+		return err
+	}
+
+	result := gjson.ParseBytes(b)
+	if result.Get("errmsg").Exists() {
+		return errors.New(result.Get("errmsg").String())
+	}
+
+	// 已经存在
+	if wechatUser.Openid != "" {
+		wechatUser.Nickname = result.Get("nickname").String()
+		wechatUser.Avatar = result.Get("headimgurl").String()
+		wechatUser.OpenInfo = result.Raw
+
+		_, err = MasterDB.Id(wechatUser.Id).Update(wechatUser)
+	} else {
+		wechatUser = &model.WechatUser{
+			Openid:   result.Get("openid").String(),
+			Nickname: result.Get("nickname").String(),
+			Avatar:   result.Get("headimgurl").String(),
+			OpenInfo: result.Raw,
+		}
+		_, err = MasterDB.InsertOne(wechatUser)
+	}
+
+	if wechatUser.Uid > 0 {
+		return errors.New("该微信绑定过其他账号")
+	}
+
+	return err
 }
 
 func (self WechatLogic) topicContent(ctx context.Context, wechatMsg *model.WechatMsg) (*model.WechatReply, error) {

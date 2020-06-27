@@ -7,11 +7,13 @@
 package controller
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
 	"github.com/studygolang/studygolang/context"
 	"github.com/studygolang/studygolang/logic"
+	"github.com/studygolang/studygolang/model"
 
 	echo "github.com/labstack/echo/v4"
 )
@@ -21,6 +23,7 @@ type WechatController struct{}
 // 注册路由
 func (self WechatController) RegisterRoute(g *echo.Group) {
 	g.Any("/wechat/autoreply", self.AutoReply)
+	g.POST("/wechat/bind", self.Bind)
 }
 
 func (self WechatController) AutoReply(ctx echo.Context) error {
@@ -44,4 +47,24 @@ func (self WechatController) AutoReply(ctx echo.Context) error {
 	}
 
 	return ctx.XML(http.StatusOK, wechatReply)
+}
+
+func (self WechatController) Bind(ctx echo.Context) error {
+	captcha := ctx.FormValue("captcha")
+	if captcha == "" {
+		return fail(ctx, 1, "验证码是不能空")
+	}
+
+	echoCtx := context.EchoContext(ctx)
+	me, ok := ctx.Get("user").(*model.Me)
+	if !ok {
+		return fail(ctx, 1, "必须先登录")
+	}
+	err := logic.DefaultWechat.CheckCaptchaAndBind(echoCtx, me, captcha)
+	if err != nil {
+		fmt.Println("controller====", err)
+		return fail(ctx, 2, "验证码错误，请确认获取了或没填错！")
+	}
+
+	return success(ctx, nil)
 }

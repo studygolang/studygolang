@@ -3,11 +3,29 @@
 <div class="row box_white">
 	<div class="col-md-12">
 		<h2>对不起，您没有操作权限</h2>
-		<p>
 		{{if .msg}}
-			{{noescape .msg}}
+			<p>{{noescape .msg}}</p>
+			<div class="text-center">
+				<div>这么设置是为了过滤广告用户。如果你是真实 gopher，可以关注站长公众号，回复<span style="color:red;">{{.me.Username}}</span>获取验证码跳过等待</div>
+				<div>
+					<img src="{{.static_domain}}/static/img/polarisxu-qrcode-m.jpg?imageView2/2/w/140" alt="" width="140px">
+				</div>
+				<form class="form-horizontal active-form" action="/wechat/bind" method="POST" data-redirect="/">
+					<div class="form-group form-group-sm">
+						<label class="col-sm-4 control-label" for="captchaSolution"></label>
+						<div class="col-sm-4">
+							<input class="form-control" type="text" id="captchaSolution" name="captcha" placeholder="请输入公众号收到的验证码" >
+						</div>
+					</div>
+					<div class="form-group form-group-sm">
+						<div class="col-sm-offset-3 col-sm-6">
+							<button type="submit" id="active-submit" class="btn btn-success btn-sm">绑定</button>
+						</div>
+					</div>
+				</form>
+			</div>
 		{{else}}
-			将在<span id="jumpTo">3</span>秒后跳转到<a href="/">首页</a></p>
+			<p>将在<span id="jumpTo">3</span>秒后跳转到<a href="/">首页</a></p>
 		{{end}}
   </div>
 </div>
@@ -27,5 +45,43 @@ function countDown(secs, surl){
 	}
 } 
 countDown(3,'/');
+
+$(function() {
+	$('#active-submit').on('click', function(evt){
+		$(this).attr("disabled", "disabled");
+		evt.preventDefault();
+
+		let $form = $('.active-form'),
+			data = $form.serialize(),
+			url = $form.attr('action'),
+			that = this;
+
+		$.ajax({
+			type:"post",
+			url: url,
+			data: data,
+			dataType: 'json',
+			success: function(result){
+				$(that).removeAttr("disabled");
+				if(result.ok){
+					comTip("绑定成功");
+						setTimeout(function(){
+						var redirect = $form.data('redirect');
+						if (redirect) {
+							window.location.href = redirect;
+						}
+					}, 1000);
+				}else{
+					comTip(result.error);
+				}
+			},
+			error:function(xmlReq, textStatus, errorThrown){
+				if (xmlReq.status == 403) {
+					comTip("没有操作权限");
+				}
+			}
+		});
+	});
+});
 </script>
 {{end}}

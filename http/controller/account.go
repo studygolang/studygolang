@@ -37,6 +37,7 @@ func (self AccountController) RegisterRoute(g *echo.Group) {
 	g.Any("/account/register", self.Register)
 	g.POST("/account/send_activate_email", self.SendActivateEmail)
 	g.GET("/account/activate", self.Activate)
+	g.POST("/account/wechat_active", self.WechatActive)
 	g.Any("/account/login", self.Login)
 	g.Any("/account/edit", self.Edit, middleware.NeedLogin())
 	g.POST("/account/change_avatar", self.ChangeAvatar, middleware.NeedLogin())
@@ -103,6 +104,10 @@ func (self AccountController) Register(ctx echo.Context) error {
 		return render(ctx, registerTpl, data)
 	}
 
+	// 不验证邮箱，注册完成直接登录
+	// 自动登录
+	SetLoginCookie(ctx, username)
+
 	email := ctx.FormValue("email")
 
 	uuid := RegActivateCode.GenUUID(email)
@@ -122,6 +127,7 @@ func (self AccountController) Register(ctx echo.Context) error {
 	 				我们已经发送一封邮件到 ` + email + `，请您根据提示信息完成邮箱验证.<br><br>
 	 				<a href="` + emailUrl + `" target="_blank"><button type="button" class="btn btn-success">立即验证</button></a>&nbsp;&nbsp;<button type="button" class="btn btn-link" data-uuid="` + uuid + `" id="resend_email">未收到？再发一次</button>
 				</div>`),
+			"username": username,
 		}
 
 		isHttps := CheckIsHttps(ctx)
@@ -130,10 +136,6 @@ func (self AccountController) Register(ctx echo.Context) error {
 
 		return render(ctx, registerTpl, data)
 	}
-
-	// 不验证邮箱，注册完成直接登录
-	// 自动登录
-	SetLoginCookie(ctx, username)
 
 	return ctx.Redirect(http.StatusSeeOther, "/balance")
 }
@@ -168,7 +170,19 @@ func (AccountController) Activate(ctx echo.Context) error {
 
 	data := map[string]interface{}{}
 
-	param := goutils.Base64Decode(ctx.QueryParam("param"))
+	param := ctx.QueryParam("param")
+	if param == "" {
+		me, ok := ctx.Get("user").(*model.Me)
+		if ok {
+			data["me"] = me
+			return render(ctx, contentTpl, data)
+		}
+
+		data["error"] = "非法请求！"
+		return render(ctx, contentTpl, data)
+	}
+
+	param = goutils.Base64Decode(param)
 	values, err := url.ParseQuery(param)
 	if err != nil {
 		data["error"] = err.Error()
@@ -204,6 +218,25 @@ func (AccountController) Activate(ctx echo.Context) error {
 
 	// return render(ctx, contentTpl, data)
 	return ctx.Redirect(http.StatusSeeOther, "/balance")
+}
+
+func (AccountController) WechatActive(ctx echo.Context) error {
+	captcha := ctx.FormValue("captcha")
+	if captcha == "" {
+		return fail(ctx, 1, "验证码是不能空")
+	}
+
+	echoCtx := context.EchoContext(ctx)
+	me, ok := ctx.Get("user").(*model.Me)
+	if !ok {
+		return fail(ctx, 1, "必须先登录")
+	}
+	err := logic.DefaultWechat.CheckCaptchaAndActivate(echoCtx, me, captcha)
+	if err != nil {
+		return fail(ctx, 2, "验证码错误，请确认获取了或没填错！")
+	}
+
+	return success(ctx, nil)
 }
 
 // Login 登录

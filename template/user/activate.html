@@ -13,7 +13,34 @@
 			{{if .error}}
 				<h2>激活账号出错了！</h2>
 				{{.error}}
-				<p>如果您确定已经注册了，可以登录，在 个人资料设置 中再次发送激活邮件</p>
+				<p>如果您确定已经注册了，可以登录，然后在 个人资料设置 中再次发送激活邮件</p>
+			{{end}}
+
+			{{if or .error .me}}
+			<div class="text-center">
+				{{if ne .me.Status 1}}
+				<div>
+					邮箱未激活，<button id="active_email" class="btn btn-success btn-sm">发激活邮件</button>
+				</div>
+				{{end}}
+				<div>如果没有收到激活邮件，可以关注站长公众号，回复<span style="color:red;">{{.me.Username}}</span>获取验证码来激活</div>
+				<div>
+					<img src="{{.static_domain}}/static/img/polarisxu-qrcode-m.jpg?imageView2/2/w/140" alt="" width="140px">
+				</div>
+				<form class="form-horizontal active-form" action="/account/wechat_active" method="POST" data-redirect="/">
+					<div class="form-group form-group-sm">
+						<label class="col-sm-4 control-label" for="captchaSolution"></label>
+						<div class="col-sm-4">
+							<input class="form-control" type="text" id="captchaSolution" name="captcha" placeholder="请输入公众号收到的验证码" >
+						</div>
+					</div>
+					<div class="form-group form-group-sm">
+						<div class="col-sm-offset-3 col-sm-6">
+							<button type="submit" id="active-submit" class="btn btn-success btn-sm">激活</button>
+						</div>
+					</div>
+				</form>
+			</div>
 			{{else}}
 			<div style="padding:30px 30px 50px 30px;">
 				<div style="color:#339502;font-size:22px;line-height: 2.5;">恭喜您激活成功！</div>
@@ -40,4 +67,71 @@
 {{define "css"}}
 {{end}}
 {{define "js"}}
+<script>
+$(function() {
+	$('#active_email').on('click', function(evt){
+		$(this).attr("disabled", "disabled");
+		evt.preventDefault();
+
+		let that = this;
+
+		$.ajax({
+			type:"post",
+			url: "/account/send_activate_email",
+			dataType: 'json',
+			success: function(data){
+				$(that).removeAttr("disabled");
+				if(data.ok){
+					comTip("激活邮件已发到您邮箱，请查收！");
+				}else{
+					comTip(data.error);
+				}
+			},
+			error:function(xmlReq, textStatus, errorThrown){
+				if (xmlReq.status == 403) {
+					comTip("没有操作权限");
+				}
+			}
+		});
+
+		return false;
+	});
+
+	$('#active-submit').on('click', function(evt){
+		$(this).attr("disabled", "disabled");
+		evt.preventDefault();
+
+		let $form = $('.active-form'),
+			data = $form.serialize(),
+			url = $form.attr('action'),
+			that = this;
+
+		$.ajax({
+			type:"post",
+			url: url,
+			data: data,
+			dataType: 'json',
+			success: function(result){
+				$(that).removeAttr("disabled");
+				if(result.ok){
+					comTip("激活成功");
+						setTimeout(function(){
+						var redirect = $form.data('redirect');
+						if (redirect) {
+							window.location.href = redirect;
+						}
+					}, 1000);
+				}else{
+					comTip(result.error);
+				}
+			},
+			error:function(xmlReq, textStatus, errorThrown){
+				if (xmlReq.status == 403) {
+					comTip("没有操作权限");
+				}
+			}
+		});
+	});
+});
+</script>
 {{end}}
