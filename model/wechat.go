@@ -22,3 +22,20 @@ type WechatUser struct {
 	CreatedAt  time.Time
 	UpdatedAt  time.Time `xorm:"<-"`
 }
+
+const (
+	AutoReplyTypWord      = iota // 关键词回复
+	AutoReplyTypNotFound         // 收到消息（未命中关键词且未搜索到）
+	AutoReplyTypSubscribe        // 被关注回复
+)
+
+// WechatAutoReply 微信自动回复
+type WechatAutoReply struct {
+	Id        int `xorm:"pk autoincr"`
+	Typ       uint8
+	Word      string
+	MsgType   string
+	Content   string
+	CreatedAt time.Time
+	UpdatedAt time.Time `xorm:"<-"`
+}

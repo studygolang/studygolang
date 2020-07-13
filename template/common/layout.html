@@ -249,7 +249,7 @@
 
 	<script type="text/javascript" src="{{.static_domain}}/static/dist/js/sidebar.min.js"></script>
 
-	{{if .is_pro}}
+	{{if and .is_pro (not .min_program)}}
 		<!-- 统计分析、广告脚本等 -->
 		{{include "common/analytics.html" .}}
 	{{end}}

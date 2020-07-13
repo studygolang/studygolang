@@ -827,3 +827,16 @@ CREATE TABLE `wechat_user` (
   KEY `uid` (`uid`),
   KEY `updated_at` (`updated_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='微信用户绑定表';
+
+CREATE TABLE `wechat_auto_reply` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `typ` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '回复类型：0-关键词回复；1-收到消息未找到回复；2-被关注回复',
+  `word` varchar(15) NOT NULL DEFAULT '' COMMENT '关键词', 
+  `msg_type` varchar(15) NOT NULL DEFAULT '' COMMENT '回复消息类型，和微信对应',
+  `content` varchar(255) NOT NULL DEFAULT '' COMMENT '要回复的内容',
+  `created_at` timestamp NOT NULL DEFAULT '2020-07-13 14:38:09',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `word` (`word`),
+  KEY `updated_at` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='微信自动回复';

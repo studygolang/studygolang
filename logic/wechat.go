@@ -176,6 +176,7 @@ func (self WechatLogic) AutoReply(ctx context.Context, reqData []byte) (*model.W
 		} else if strings.Contains(wechatMsg.Content, "图书") || strings.Contains(wechatMsg.Content, "book") {
 			return self.bookContent(ctx, wechatMsg)
 		} else {
+			// 用户获取验证码用
 			user := DefaultUser.FindOne(ctx, "username", wechatMsg.Content)
 			if user.Uid > 0 {
 				var content string
@@ -188,6 +189,14 @@ func (self WechatLogic) AutoReply(ctx context.Context, reqData []byte) (*model.W
 				return self.wechatResponse(ctx, content, wechatMsg)
 			}
 
+			// 关键词回复
+			autoReply := &model.WechatAutoReply{}
+			MasterDB.Where("word LIKE ?", "%"+wechatMsg.Content+"%").Get(autoReply)
+			if autoReply.Id != 0 {
+				wechatMsg.MsgType = autoReply.MsgType
+				return self.wechatResponse(ctx, autoReply.Content, wechatMsg)
+			}
+
 			return self.searchContent(ctx, wechatMsg)
 		}
 	case model.WeMsgTypeEvent:
@@ -195,6 +204,13 @@ func (self WechatLogic) AutoReply(ctx context.Context, reqData []byte) (*model.W
 		case model.WeEventSubscribe:
 			wechatMsg.MsgType = model.WeMsgTypeText
 			welcomeText := strings.ReplaceAll(config.ConfigFile.MustValue("wechat", "subscribe"), "\\n", "\n")
+
+			autoReply := &model.WechatAutoReply{}
+			_, err = MasterDB.Where("typ=?", model.AutoReplyTypSubscribe).Get(autoReply)
+			if err == nil {
+				welcomeText = autoReply.Content
+			}
+
 			return self.wechatResponse(ctx, welcomeText, wechatMsg)
 		}
 	}
