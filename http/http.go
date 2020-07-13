@@ -262,9 +262,10 @@ func Render(ctx echo.Context, contentTpl string, data map[string]interface{}) er
 
 	if strings.Contains(ctx.Request().UserAgent(), "miniProgram") {
 		data["min_program"] = true
+	} else {
+		data["pos_ad"] = logic.DefaultAd.FindAll(context.EchoContext(ctx), ctx.Path())
 	}
 
-	data["pos_ad"] = logic.DefaultAd.FindAll(context.EchoContext(ctx), ctx.Path())
 	data["cur_time"] = times.Format("Y-m-d H:i:s")
 	data["path"] = ctx.Path()
 	data["filter"] = false
