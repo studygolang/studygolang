@@ -496,6 +496,10 @@ func (self WechatLogic) wechatResponse(ctx context.Context, respContent string, 
 	switch wechatMsg.MsgType {
 	case model.WeMsgTypeText:
 		wechatReply.Content = &model.CData{Val: respContent}
+	case model.WeMsgTypeImage:
+		wechatReply.Image = &model.WechatImage{
+			MediaId: &model.CData{Val: respContent},
+		}
 	default:
 		wechatReply.Content = &model.CData{Val: config.ConfigFile.MustValue("wechat", "not_found")}
 	}

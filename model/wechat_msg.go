@@ -65,5 +65,10 @@ type WechatReply struct {
 	FromUserName *CData
 	CreateTime   int64
 	MsgType      *CData
-	Content      *CData `xml:",omitempty"`
+	Content      *CData       `xml:",omitempty"`
+	Image        *WechatImage `xml:",omitempty"`
+}
+
+type WechatImage struct {
+	MediaId *CData
 }
