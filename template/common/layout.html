@@ -11,7 +11,8 @@
 	<meta name="author" content="polaris <polaris@studygolang.com>">
 	<link rel="canonical" href="{{.app.BaseURL}}" />
 
-	<link rel="stylesheet" href="https://cdn.staticfile.org/bootswatch/3.2.0/css/cosmo/bootstrap.min.css">
+	<!-- <link rel="stylesheet" href="https://cdn.staticfile.org/bootswatch/3.2.0/css/cosmo/bootstrap.min.css"> -->
+	<link rel="stylesheet" href="https://lib.baomitu.com/bootswatch/3.4.0/cosmo/bootstrap.css">
 	<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.min.css">
 	<link rel="stylesheet" href="{{.static_domain}}/static/dist/css/sg_libs.min.css?v=20180305"/>
 	<link rel="stylesheet" href="{{.static_domain}}/static/dist/css/sg_styles.min.css?v=20191127"/>
@@ -215,13 +216,14 @@
 	<div id="sg-overlay"></div>
 	{{end}}
 
-	<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
-	<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
-	<script src="https://cdn.staticfile.org/jquery-timeago/1.6.1/jquery.timeago.min.js"></script>
-	<script src="https://cdn.staticfile.org/zoom.js/0.0.1/zoom.min.js"></script>
-	<script src="https://cdn.staticfile.org/marked/0.3.6/marked.min.js"></script>
-	<script src="https://cdn.staticfile.org/Caret.js/0.3.1/jquery.caret.min.js"></script>
-	<script src="https://cdn.staticfile.org/emojify.js/1.1.0/js/emojify.min.js"></script>
+	<script src="https://lib.baomitu.com/jquery/3.2.1/jquery.min.js"></script>
+	<!-- <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
+	<script src="https://lib.baomitu.com/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="https://lib.baomitu.com/jquery-timeago/1.6.1/jquery.timeago.min.js"></script>
+	<script src="https://lib.baomitu.com/zoom.js/0.0.1/zoom.min.js"></script>
+	<script src="https://lib.baomitu.com/marked/0.3.6/marked.min.js"></script>
+	<script src="https://lib.baomitu.com/Caret.js/0.3.1/jquery.caret.min.js"></script>
+	<script src="https://lib.baomitu.com/emojify.js/1.1.0/js/emojify.min.js"></script>
 
 	<script type="text/javascript">
 	var uid = {{.me.Uid}};
@@ -234,9 +236,9 @@
 	}
 	var GLaunchTime = {{timestamp .app.LaunchTime}}*1000;
 	</script>
-	<script src="https://cdn.staticfile.org/lscache/1.1.0/lscache.min.js"></script>
-	<script src="https://cdn.staticfile.org/jsrender/0.9.90/jsrender.min.js"></script>
-	<script src="https://cdn.staticfile.org/plupload/3.1.1/plupload.full.min.js"></script>
+	<script src="https://lib.baomitu.com/lscache/1.1.0/lscache.min.js"></script>
+	<script src="https://lib.baomitu.com/jsrender/0.9.90/jsrender.min.js"></script>
+	<script src="https://lib.baomitu.com/plupload/3.1.1/plupload.full.min.js"></script>
 	<script type="text/javascript">
 	$.views.settings.delimiters("[%", "%]");
 	// $.views.settings.debugMode(true);
