@@ -142,6 +142,13 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 		}
 	}
 
+	filters := config.ConfigFile.MustValueArray("crawl", "filter", ",")
+	for _, filter := range filters {
+		if filter == author {
+			return nil, errors.New(author + "'s article, skip")
+		}
+	}
+
 	title := ""
 	doc.Find(rule.Title).Each(func(i int, selection *goquery.Selection) {
 		if title != "" {
