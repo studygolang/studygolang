@@ -173,7 +173,7 @@ func (self WechatLogic) AutoReply(ctx context.Context, reqData []byte) (*model.W
 			return self.resourceContent(ctx, wechatMsg)
 		} else if strings.Contains(wechatMsg.Content, "项目") {
 			return self.projectContent(ctx, wechatMsg)
-		} else if strings.Contains(wechatMsg.Content, "图书") || strings.Contains(wechatMsg.Content, "book") {
+		} else if strings.Contains(wechatMsg.Content, "图书") {
 			return self.bookContent(ctx, wechatMsg)
 		} else {
 			// 用户获取验证码用
