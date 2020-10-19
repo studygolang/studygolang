@@ -142,7 +142,7 @@ func (DownloadController) AddNewDownload(ctx echo.Context) error {
 
 func (DownloadController) headWithTimeout(dlUrl string) (*http.Response, error) {
 	client := http.Client{
-		Timeout: 2 * time.Second,
+		Timeout: 5 * time.Second,
 	}
 
 	return client.Head(dlUrl)
