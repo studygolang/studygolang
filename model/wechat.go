@@ -19,7 +19,7 @@ type WechatUser struct {
 	SessionKey string
 	OpenInfo   string
 	Uid        int
-	CreatedAt  time.Time
+	CreatedAt  time.Time `xorm:"created"`
 	UpdatedAt  time.Time `xorm:"<-"`
 }
 
@@ -36,6 +36,6 @@ type WechatAutoReply struct {
 	Word      string
 	MsgType   string
 	Content   string
-	CreatedAt time.Time
+	CreatedAt time.Time `xorm:"created"`
 	UpdatedAt time.Time `xorm:"<-"`
 }

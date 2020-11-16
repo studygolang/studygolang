@@ -2,3 +2,6 @@ User-agent: *
 Allow: /
 Sitemap: 
 Disallow:/dl/golang/
+Disallow:/search
+Disallow:/wr
+Disallow:/ws
