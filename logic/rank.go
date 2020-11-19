@@ -251,6 +251,8 @@ func (RankLogic) findModelsByRank(resultSlice []interface{}, objtype, num int, n
 			topics := DefaultTopic.FindByTids(objids)
 			for i, topic := range topics {
 				topic.RankView = viewNums[i]
+				// 内容不需要
+				topic.Content = ""
 			}
 			result = topics
 		}
@@ -258,24 +260,29 @@ func (RankLogic) findModelsByRank(resultSlice []interface{}, objtype, num int, n
 		resources := DefaultResource.FindByIds(objids)
 		for i, resource := range resources {
 			resource.RankView = viewNums[i]
+			resource.Content = ""
 		}
 		result = resources
 	case model.TypeArticle:
 		articles := DefaultArticle.FindByIds(objids)
 		for i, article := range articles {
 			article.RankView = viewNums[i]
+			article.Content = ""
+			article.Txt = ""
 		}
 		result = articles
 	case model.TypeProject:
 		projects := DefaultProject.FindByIds(objids)
 		for i, project := range projects {
 			project.RankView = viewNums[i]
+			project.Desc = ""
 		}
 		result = projects
 	case model.TypeBook:
 		books := DefaultGoBook.FindByIds(objids)
 		for i, book := range books {
 			book.RankView = viewNums[i]
+			book.Desc = ""
 		}
 		result = books
 	}
