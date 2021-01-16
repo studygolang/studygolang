@@ -9,12 +9,14 @@ package logic
 import (
 	"errors"
 	"fmt"
-	"github.com/studygolang/studygolang/model"
-	"github.com/studygolang/studygolang/util"
 	"math/rand"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
+
+	"github.com/studygolang/studygolang/model"
+	"github.com/studygolang/studygolang/util"
 
 	"github.com/polaris1119/times"
 
@@ -784,6 +786,65 @@ func (UserLogic) doCreateUser(ctx context.Context, session *xorm.Session, user *
 	}
 	if _, err = session.Insert(userActive); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (UserLogic) DeleteUserContent(ctx context.Context, uid int) error {
+	user := &model.User{}
+	_, err := MasterDB.ID(uid).Get(user)
+	if err != nil || user.Username == "" {
+		return err
+	}
+
+	feedResult, feedErr := MasterDB.Exec("DELETE FROM `feed` WHERE uid=?", uid)
+	topicResult, topicErr := MasterDB.Exec("DELETE t,tex FROM `topics` as t LEFT JOIN `topics_ex` as tex USING(tid) WHERE uid=?", uid)
+	resourceResult, resourceErr := MasterDB.Exec("DELETE r,rex FROM `resource` as r LEFT JOIN `resource_ex` as rex USING(id) WHERE uid=?", uid)
+	articleResult, articleErr := MasterDB.Exec("DELETE FROM `articles` WHERE author_txt=?", user.Username)
+
+	if feedErr == nil {
+		affected, _ := feedResult.RowsAffected()
+		if affected > 0 {
+			feed := &model.Feed{}
+			MasterDB.Desc("id").Get(feed)
+			if feed.Id > 0 {
+				MasterDB.Exec(`ALTER TABLE feed auto_increment=` + strconv.Itoa(feed.Id+1))
+			}
+		}
+	}
+
+	if topicErr == nil {
+		affected, _ := topicResult.RowsAffected()
+		if affected > 0 {
+			topic := &model.Topic{}
+			MasterDB.Desc("tid").Get(topic)
+			if topic.Tid > 0 {
+				MasterDB.Exec(`ALTER TABLE topics auto_increment=` + strconv.Itoa(topic.Tid+1))
+			}
+		}
+	}
+
+	if resourceErr == nil {
+		affected, _ := resourceResult.RowsAffected()
+		if affected > 0 {
+			resource := &model.Resource{}
+			MasterDB.Desc("id").Get(resource)
+			if resource.Id > 0 {
+				MasterDB.Exec(`ALTER TABLE resource auto_increment=` + strconv.Itoa(resource.Id+1))
+			}
+		}
+	}
+
+	if articleErr == nil {
+		affected, _ := articleResult.RowsAffected()
+		if affected > 0 {
+			article := &model.Article{}
+			MasterDB.Desc("id").Get(article)
+			if article.Id > 0 {
+				MasterDB.Exec(`ALTER TABLE articles auto_increment=` + strconv.Itoa(article.Id+1))
+			}
+		}
 	}
 
 	return nil

@@ -90,8 +90,16 @@ func (UserController) AddBlack(ctx echo.Context) error {
 		return fail(ctx, 1, err.Error())
 	}
 
-	// 获取用户上次登录 IP
+	// 将用户 IP 加入黑名单
 	logic.DefaultRisk.AddBlackIPByUID(uid)
+
+	truncate := goutils.MustBool(ctx.FormValue("truncate"))
+	if truncate {
+		err = logic.DefaultUser.DeleteUserContent(context.EchoContext(ctx), uid)
+		if err != nil {
+			return fail(ctx, 1, err.Error())
+		}
+	}
 
 	return success(ctx, nil)
 }
