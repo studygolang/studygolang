@@ -9,6 +9,7 @@ package middleware
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/studygolang/studygolang/context"
 	"github.com/studygolang/studygolang/logic"
@@ -23,11 +24,16 @@ import (
 var (
 	titleSensitives   []string
 	contentSensitives string
+
+	midNightSpam []string
+	num          int
 )
 
 func init() {
 	titleSensitives = strings.Split(config.ConfigFile.MustValue("sensitive", "title"), ",")
 	contentSensitives = config.ConfigFile.MustValue("sensitive", "content")
+	midNightSpam = strings.Split(config.ConfigFile.MustValue("spam", "mid_night"), ",")
+	num = config.ConfigFile.MustInt("spam", "num")
 }
 
 // Sensivite 用于 echo 框架的过滤发布敏感词（广告）
@@ -59,6 +65,24 @@ func Sensivite() echo.MiddlewareFunc {
 				// IP 加入黑名单
 				addBlackIP(ctx)
 				return ctx.String(http.StatusOK, `{"ok":0,"error":"对不起，您的账号已被冻结！"}`)
+			}
+
+			// 半夜 spam 控制
+			if num > 0 && len(midNightSpam) == 2 {
+				curHour := time.Now().Hour()
+				startHour := goutils.MustInt(midNightSpam[0])
+				endHour := goutils.MustInt(midNightSpam[1])
+				// 比如 23 ~ 8（不包括 8 点）
+				if startHour > endHour {
+					if curHour >= startHour || curHour < endHour {
+						logic.SpamRecord(context.EchoContext(ctx), user, num)
+					}
+				} else {
+					// 比如 0 ~ 8（不包括 8 点）
+					if curHour >= startHour && curHour < endHour {
+						logic.SpamRecord(context.EchoContext(ctx), user, num)
+					}
+				}
 			}
 
 			if err := next(ctx); err != nil {

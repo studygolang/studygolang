@@ -9,12 +9,13 @@ package logic
 import (
 	"errors"
 	"fmt"
-	"github.com/studygolang/studygolang/model"
-	"github.com/studygolang/studygolang/util"
 	"os"
 	"regexp"
 	"strconv"
 	"time"
+
+	"github.com/studygolang/studygolang/model"
+	"github.com/studygolang/studygolang/util"
 
 	"github.com/gorilla/schema"
 	"github.com/polaris1119/goutils"
@@ -241,6 +242,32 @@ func NeedCaptcha(user *model.Me) bool {
 	return false
 }
 
+// SpamRecord 控制半夜 Spam
+// 避免误判，只针对最近 3 天内注册的用户
+func SpamRecord(ctx context.Context, user *model.Me, maxNum int) {
+	if time.Now().Add(-3 * 24 * time.Hour).After(user.CreatedAt) {
+		return
+	}
+
+	redis := nosql.NewRedisFromPool()
+	defer redis.Close()
+
+	key := getSpamMidNightNumKey(user.Uid)
+	publishTimes := goutils.MustInt(redis.GET(key))
+	if publishTimes >= maxNum-1 {
+		DefaultUser.UpdateUserStatus(ctx, user.Uid, model.UserStatusOutage)
+
+		// 将用户 IP 加入黑名单
+		DefaultRisk.AddBlackIPByUID(user.Uid)
+
+		DefaultUser.DeleteUserContent(ctx, user.Uid)
+
+		logger.Infoln("uid=", user.Uid, "spam, so delete TA's content")
+	} else {
+		redis.SET(key, publishTimes+1, 86400)
+	}
+}
+
 // incrPublishTimes 增加用户发布次数
 func incrPublishTimes(uid int) {
 	redis := nosql.NewRedisFromPool()
@@ -266,6 +293,10 @@ func getPublishTimesKey(uid int) string {
 
 func getLastPublishTimeKey(uid int) string {
 	return "last:publish:time:user:" + strconv.Itoa(uid)
+}
+
+func getSpamMidNightNumKey(uid int) string {
+	return "spam:mid:night:num:user:" + strconv.Itoa(uid)
 }
 
 func website() string {
