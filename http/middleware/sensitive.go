@@ -67,8 +67,8 @@ func Sensivite() echo.MiddlewareFunc {
 				return ctx.String(http.StatusOK, `{"ok":0,"error":"对不起，您的账号已被冻结！"}`)
 			}
 
-			// 半夜 spam 控制
-			if num > 0 && len(midNightSpam) == 2 {
+			// 半夜 spam 控制；评论不算
+			if title != "" && num > 0 && len(midNightSpam) == 2 {
 				curHour := time.Now().Hour()
 				startHour := goutils.MustInt(midNightSpam[0])
 				endHour := goutils.MustInt(midNightSpam[1])
