@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"html"
+
 	"github.com/studygolang/studygolang/context"
 	"github.com/studygolang/studygolang/logic"
 
@@ -31,11 +33,12 @@ func (SearchController) Search(ctx echo.Context) error {
 		"q":        q,
 		"f":        field,
 	}
-	if err == nil {
-		uri := "/search?q=" + q + "&f=" + field + "&"
-		paginator := logic.NewPaginatorWithPerPage(p, rows)
-		data["pageHtml"] = paginator.SetTotal(int64(respBody.NumFound)).GetPageHtml(uri)
+	if err != nil {
+		return render(ctx, "500.html", nil)
 	}
+	uri := "/search?q=" + html.EscapeString(q) + "&f=" + field + "&"
+	paginator := logic.NewPaginatorWithPerPage(p, rows)
+	data["pageHtml"] = paginator.SetTotal(int64(respBody.NumFound)).GetPageHtml(uri)
 
 	return render(ctx, "search.html", data)
 }
@@ -60,11 +63,12 @@ func (SearchController) TagList(ctx echo.Context) error {
 		"users":    users,
 		"nodes":    nodes,
 	}
-	if err == nil {
-		uri := "/tag/" + q + "?"
-		paginator := logic.NewPaginatorWithPerPage(p, rows)
-		data["pageHtml"] = paginator.SetTotal(int64(respBody.NumFound)).GetPageHtml(uri)
+	if err != nil {
+		return render(ctx, "500.html", nil)
 	}
+	uri := "/tag/" + q + "?"
+	paginator := logic.NewPaginatorWithPerPage(p, rows)
+	data["pageHtml"] = paginator.SetTotal(int64(respBody.NumFound)).GetPageHtml(uri)
 
 	return render(ctx, "feed/tag.html", data)
 }
