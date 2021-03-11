@@ -23,6 +23,24 @@
 			var markdownString = $(this).text();
 
 			var contentHtml = marked(markdownString);
+
+			// JS 处理，避免 XSS。最终还是改为服务端渲染更好
+			if (contentHtml.indexOf('<script') != -1) {
+				contentHtml = contentHtml.replace(/<script/g, '&lt;script');
+			}
+			if (contentHtml.indexOf('<form') != -1) {
+				contentHtml = contentHtml.replace(/<form/g, '&lt;form');
+			}
+			if (contentHtml.indexOf('<input') != -1) {
+				contentHtml = contentHtml.replace(/<input/g, '&lt;input');
+			}
+			if (contentHtml.indexOf('<select') != -1) {
+				contentHtml = contentHtml.replace(/<select/g, '&lt;select');
+			}
+			if (contentHtml.indexOf('<textarea') != -1) {
+				contentHtml = contentHtml.replace(/<textarea/g, '&lt;textarea');
+			}
+
 			contentHtml = SG.replaceCodeChar(contentHtml);
 			
 			$(this).html(contentHtml);
