@@ -21,7 +21,7 @@ import (
 	"github.com/polaris1119/config"
 )
 
-const GoStoragePrefix = "https://dl.google.com/go/"
+const GoStoragePrefix = "https://golang.google.cn/dl/"
 
 type DownloadController struct{}
 
