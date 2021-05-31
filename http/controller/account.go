@@ -53,6 +53,11 @@ func (self AccountController) Register(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusSeeOther, "/")
 	}
 
+	ip := goutils.RemoteIp(Request(ctx))
+	if logic.DefaultRisk.IsBlackIP(ip) {
+		return ctx.HTML(http.StatusForbidden, `禁止访问`)
+	}
+
 	registerTpl := "register.html"
 	username := ctx.FormValue("username")
 	// 请求注册页面
