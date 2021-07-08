@@ -15,7 +15,7 @@ import (
 	echo "github.com/labstack/echo/v4"
 )
 
-// EchoLogger 用于 echo 框架的日志中间件
+// HTTPError 用于 echo 框架的 HTTP 错误
 func HTTPError() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
@@ -39,6 +39,8 @@ func HTTPError() echo.MiddlewareFunc {
 								return ctx.String(http.StatusOK, `{"ok":0,"error":"接口服务器错误"}`)
 							}
 							return Render(ctx, "500.html", nil)
+						default:
+							return err
 						}
 					}
 				}

@@ -28,7 +28,7 @@ type DownloadController struct{}
 // 注册路由
 func (self DownloadController) RegisterRoute(g *echo.Group) {
 	g.GET("/dl", self.GoDl)
-	g.GET("/dl/golang/:filename", self.FetchGoInstallPackage)
+	g.Match([]string{"GET", "HEAD"}, "/dl/golang/:filename", self.FetchGoInstallPackage)
 	g.GET("/dl/add_new_version", self.AddNewDownload)
 }
 
