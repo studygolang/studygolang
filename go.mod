@@ -30,8 +30,9 @@ require (
 	github.com/issue9/assert v1.3.3 // indirect
 	github.com/jaytaylor/html2text v0.0.0-20190408195923-01ec452cbe43
 	github.com/jmcvetta/randutil v0.0.0-20150817122601-2bb1b664bcff // indirect
-	github.com/labstack/echo/v4 v4.1.8
+	github.com/labstack/echo/v4 v4.3.0
 	github.com/lunny/html2md v0.0.0-20181018071239-7d234de44546
+	github.com/mattn/go-isatty v0.0.13 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/myesui/uuid v1.0.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.1 // indirect
@@ -51,12 +52,17 @@ require (
 	github.com/smartystreets/goconvey v0.0.0-20190710185942-9d28bd7c0945 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/sundy-li/html2article v0.0.0-20170724020440-d0b6c083441f
-	github.com/tidwall/gjson v1.3.2
+	github.com/tidwall/gjson v1.8.1
+	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/twinj/uuid v1.0.0
 	github.com/tylerb/graceful v1.2.15
-	golang.org/x/net v0.0.0-20190607181551-461777fb6f67
+	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
+	golang.org/x/net v0.0.0-20210614182718-04defd469f4e
 	golang.org/x/oauth2 v0.0.0-20190226205417-e64efc72b421
-	golang.org/x/text v0.3.2
+	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
+	golang.org/x/text v0.3.6
+	golang.org/x/time v0.0.0-20210611083556-38a9dc6acbc6 // indirect
+	gopkg.in/stretchr/testify.v1 v1.2.2 // indirect
 	gopkg.in/validator.v2 v2.0.0-20180514200540-135c24b11c19 // indirect
 	xorm.io/core v0.7.2
 	xorm.io/xorm v0.8.0
