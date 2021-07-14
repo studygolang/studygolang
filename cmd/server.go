@@ -16,7 +16,7 @@ import (
 
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/logger"
-	"github.com/robfig/cron"
+	"github.com/robfig/cron/v3"
 )
 
 var (

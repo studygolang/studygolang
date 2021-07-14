@@ -444,7 +444,6 @@ func (self UserLogic) Login(ctx context.Context, username, passwd string) (*mode
 	}
 
 	md5Passwd := goutils.Md5(passwd + userLogin.Passcode)
-	objLog.Debugf("passwd: %s, passcode: %s, md5passwd: %s, dbpasswd: %s", passwd, userLogin.Passcode, md5Passwd, userLogin.Passwd)
 	if md5Passwd != userLogin.Passwd {
 		objLog.Infof("用户名 %q 填写的密码错误", username)
 		return nil, ErrPasswd
