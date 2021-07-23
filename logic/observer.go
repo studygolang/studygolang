@@ -392,7 +392,7 @@ func (UserRichObserver) Update(action string, uid, objtype, objid int) {
 			topic.Title)
 	} else if action == actionTop {
 		typ = model.MissionTypeTop
-		award = -200
+		award = -30000
 
 		switch objtype {
 		case model.TypeTopic:
