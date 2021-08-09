@@ -415,7 +415,7 @@ func (ThirdUserLogic) githubTokenAndUser(ctx context.Context, code string) (*mod
 	}
 
 	if githubUser.Id == 0 {
-		return nil, nil, errors.New("get gitea user info error")
+		return nil, nil, errors.New("get github user info error")
 	}
 
 	return githubUser, token, nil
