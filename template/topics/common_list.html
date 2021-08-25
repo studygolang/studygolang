@@ -46,6 +46,14 @@
 						{{end}}
 					</div>
 					{{end}}
+				{{else if eq (mod $i 10) 4}}
+					{{if $.pos_ad.feed}}
+					<div>
+						{{if eq $.pos_ad.feed.AdType 0}}
+							{{noescape $.pos_ad.feed.Code}}
+						{{end}}
+					</div>
+					{{end}}
 				{{end}}
 		{{end}}
 	{{else}}

@@ -19,7 +19,7 @@
 			</div>
 			<div class="resources">
 				{{with $root := .}}
-				{{range .resources}}
+				{{range $i, $resource := .resources}}
 				<div class="resource">
 					<div class="rinfo">
 						<a class="avatar pull-right" href="/user/{{.user.Username}}"><img src="{{gravatar .user.Avatar .user.Email 48 $root.is_https}}" alt="{{.user.Username}}"></a>
@@ -40,6 +40,17 @@
 						</p>
 					</div>
 				</div>
+
+				{{if eq (mod $i 10) 3}}
+					{{if $.pos_ad.feed}}
+					<div>
+						{{if eq $.pos_ad.feed.AdType 0}}
+							{{noescape $.pos_ad.feed.Code}}
+						{{end}}
+					</div>
+					{{end}}
+				{{end}}
+
 				{{else}}
 				<p class="text-center">该分类暂时没有任何资源</p>
 				{{end}}

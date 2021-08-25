@@ -7,7 +7,7 @@
 			<li><a href="/">首页</a></li>
 			<li class="active">文章</li>
 		</ol>
-		{{range .articles}}
+		{{range $i, $article := .articles}}
 		<article class="article box_white">
 			<div class="row">
 				{{if .Cover}}
@@ -70,7 +70,17 @@
 				</div>
 			</div>
 		</article>
-		{{else}}
+		
+		{{if eq (mod $i 6) 3}}
+			{{if $.pos_ad.feed}}
+			<article class="article box_white">
+				{{if eq $.pos_ad.feed.AdType 0}}
+					{{noescape $.pos_ad.feed.Code}}
+				{{end}}
+			</article>
+			{{end}}
+		{{end}}
+
 		<article class="article box_white">
 			<div class="row">暂无博文，<a class="btn btn-default btn-sm" href="/articles/new">撰写文章</a></div>
 		</article>
@@ -88,8 +98,6 @@
 		<div class="sep20"></div>
 		{{include "common/my_info.html" .}}
 
-		{{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"今日阅读排行","objtype":1,"limit":10,"rank_type":"today"}`)}}
-
 		{{if .pos_ad.right1}}
 		<div class="box_white sidebar" id="ad-right1">
 			{{if eq .pos_ad.right1.AdType 0}}
@@ -97,6 +105,8 @@
 			{{end}}
 		</div>
 		{{end}}
+
+		{{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"今日阅读排行","objtype":1,"limit":10,"rank_type":"today"}`)}}
 
 		{{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"一周阅读排行","objtype":1,"limit":10,"rank_type":"week"}`)}}
 		

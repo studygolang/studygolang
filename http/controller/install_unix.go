@@ -4,6 +4,7 @@
 // http://studygolang.com
 // Author: polaris	polaris@studygolang.com
 
+//go:build !windows && !plan9
 // +build !windows,!plan9
 
 package controller

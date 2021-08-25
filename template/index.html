@@ -111,6 +111,17 @@
 						{{end}}
 					
 					{{end}}
+				{{else if eq (mod $i 10) 4}}
+					{{if $.pos_ad.feed}}
+
+						{{if eq $.pos_ad.feed.AdType 0}}
+							{{noescape $.pos_ad.feed.Code}}
+						{{else}}
+							<div id="ad-banner">
+							</div>
+						{{end}}
+
+					{{end}}
 				{{end}}
 			{{end}}
 
@@ -166,6 +177,17 @@
 							<div id="other-banner">
 							</div>
 						{{end}}
+					{{end}}
+				{{else if eq (mod $i 10) 4}}
+					{{if $.pos_ad.feed}}
+
+						{{if eq $.pos_ad.feed.AdType 0}}
+							{{noescape $.pos_ad.feed.Code}}
+						{{else}}
+							<div id="ad-banner">
+							</div>
+						{{end}}
+
 					{{end}}
 				{{end}}
 			{{end}}
@@ -240,6 +262,17 @@
 							<div id="other-banner">
 							</div>
 						{{end}}
+					{{end}}
+				{{else if eq (mod $i 10) 4}}
+					{{if $.pos_ad.feed}}
+
+						{{if eq $.pos_ad.feed.AdType 0}}
+							{{noescape $.pos_ad.feed.Code}}
+						{{else}}
+							<div id="ad-banner">
+							</div>
+						{{end}}
+
 					{{end}}
 				{{end}}
 			{{end}}
@@ -331,6 +364,17 @@
 							</div>
 						{{end}}
 					{{end}}
+				{{else if eq (mod $i 10) 4}}
+					{{if $.pos_ad.feed}}
+
+						{{if eq $.pos_ad.feed.AdType 0}}
+							{{noescape $.pos_ad.feed.Code}}
+						{{else}}
+							<div id="ad-banner">
+							</div>
+						{{end}}
+
+					{{end}}
 				{{end}}
 			{{end}}
 
@@ -380,6 +424,17 @@
 							<div id="other-banner">
 							</div>
 						{{end}}
+					{{end}}
+				{{else if eq (mod $i 10) 4}}
+					{{if $.pos_ad.feed}}
+
+						{{if eq $.pos_ad.feed.AdType 0}}
+							{{noescape $.pos_ad.feed.Code}}
+						{{else}}
+							<div id="ad-banner">
+							</div>
+						{{end}}
+
 					{{end}}
 				{{end}}
 			{{end}}
