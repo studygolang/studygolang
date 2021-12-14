@@ -7,7 +7,6 @@
 package controller
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -62,7 +61,6 @@ func (self WechatController) Bind(ctx echo.Context) error {
 	}
 	err := logic.DefaultWechat.CheckCaptchaAndBind(echoCtx, me, captcha)
 	if err != nil {
-		fmt.Println("controller====", err)
 		return fail(ctx, 2, "验证码错误，请确认获取了或没填错！")
 	}
 

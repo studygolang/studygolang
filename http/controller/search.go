@@ -2,6 +2,7 @@ package controller
 
 import (
 	"html"
+	"net/http"
 
 	"github.com/studygolang/studygolang/context"
 	"github.com/studygolang/studygolang/logic"
@@ -50,6 +51,11 @@ func (SearchController) TagList(ctx echo.Context) error {
 	q := ctx.Param("name")
 	if q == "" {
 		return render(ctx, "notfound", nil)
+	}
+
+	// 过滤非法 tag
+	if len(q) > 9 {
+		return ctx.Redirect(http.StatusSeeOther, "/")
 	}
 
 	rows := 50
