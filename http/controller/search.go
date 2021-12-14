@@ -3,6 +3,7 @@ package controller
 import (
 	"html"
 	"net/http"
+	"net/url"
 
 	"github.com/studygolang/studygolang/context"
 	"github.com/studygolang/studygolang/logic"
@@ -51,6 +52,12 @@ func (SearchController) TagList(ctx echo.Context) error {
 	q := ctx.Param("name")
 	if q == "" {
 		return render(ctx, "notfound", nil)
+	}
+
+	var err error
+	q, err = url.QueryUnescape(q)
+	if err != nil {
+		return ctx.Redirect(http.StatusSeeOther, "/")
 	}
 
 	// 过滤非法 tag
