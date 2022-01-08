@@ -1,6 +1,6 @@
 module github.com/studygolang/studygolang
 
-go 1.12
+go 1.16
 
 require (
 	code.gitea.io/sdk/gitea v0.0.0-20191106151626-e4082d89cc3b
@@ -48,11 +48,11 @@ require (
 	github.com/qiniu/api.v6 v6.0.9+incompatible
 	github.com/qiniu/bytes v0.0.0-20140728010635-4887e7b2bde3 // indirect
 	github.com/qiniu/rpc v0.0.0-20140728010754-30c22466d920 // indirect
-	github.com/robfig/cron v1.2.0
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/smartystreets/goconvey v0.0.0-20190710185942-9d28bd7c0945 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/sundy-li/html2article v0.0.0-20170724020440-d0b6c083441f
-	github.com/tidwall/gjson v1.8.1
+	github.com/tidwall/gjson v1.12.1
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/twinj/uuid v1.0.0
 	github.com/tylerb/graceful v1.2.15
