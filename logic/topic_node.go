@@ -8,9 +8,10 @@ package logic
 
 import (
 	"context"
+	"net/url"
+
 	. "github.com/studygolang/studygolang/db"
 	"github.com/studygolang/studygolang/model"
-	"net/url"
 
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
@@ -22,7 +23,7 @@ var DefaultNode = TopicNodeLogic{}
 
 func (self TopicNodeLogic) FindOne(nid int) *model.TopicNode {
 	topicNode := &model.TopicNode{}
-	_, err := MasterDB.Id(nid).Get(topicNode)
+	_, err := MasterDB.ID(nid).Get(topicNode)
 	if err != nil {
 		logger.Errorln("TopicNodeLogic FindOne error:", err, "nid:", nid)
 	}
@@ -97,7 +98,7 @@ func (self TopicNodeLogic) Modify(ctx context.Context, form url.Values) error {
 		change[field] = form.Get(field)
 	}
 
-	_, err = MasterDB.Table(new(model.TopicNode)).Id(nid).Update(change)
+	_, err = MasterDB.Table(new(model.TopicNode)).ID(nid).Update(change)
 	if err != nil {
 		objLog.Errorln("TopicNodeLogic Modify update error:", err)
 	}
@@ -105,7 +106,7 @@ func (self TopicNodeLogic) Modify(ctx context.Context, form url.Values) error {
 }
 
 func (self TopicNodeLogic) ModifySeq(ctx context.Context, nid, seq int) error {
-	_, err := MasterDB.Table(new(model.TopicNode)).Id(nid).Update(map[string]interface{}{"seq": seq})
+	_, err := MasterDB.Table(new(model.TopicNode)).ID(nid).Update(map[string]interface{}{"seq": seq})
 	return err
 }
 

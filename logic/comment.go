@@ -285,7 +285,7 @@ func (CommentLogic) sendSystemMsg(ctx context.Context, uid, objid, objtype, cid 
 func (CommentLogic) Modify(ctx context.Context, cid int, content string) (errMsg string, err error) {
 	objLog := GetLogger(ctx)
 
-	_, err = MasterDB.Table(new(model.Comment)).Id(cid).Update(map[string]interface{}{"content": content})
+	_, err = MasterDB.Table(new(model.Comment)).ID(cid).Update(map[string]interface{}{"content": content})
 	if err != nil {
 		objLog.Errorf("更新评论内容 【%d】 失败：%s", cid, err)
 		errMsg = "对不起，服务器内部错误，请稍后再试！"

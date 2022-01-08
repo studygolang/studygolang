@@ -7,9 +7,10 @@
 package logic
 
 import (
+	"net/url"
+
 	. "github.com/studygolang/studygolang/db"
 	"github.com/studygolang/studygolang/model"
-	"net/url"
 
 	"golang.org/x/net/context"
 )
@@ -28,7 +29,7 @@ func (RuleLogic) FindBy(ctx context.Context, conds map[string]string, curPage, l
 		session.And(k+"=?", v)
 	}
 
-	totalSession := session.Clone()
+	totalSession := SessionClone(session)
 
 	offset := (curPage - 1) * limit
 	ruleList := make([]*model.CrawlRule, 0)
@@ -51,7 +52,7 @@ func (RuleLogic) FindById(ctx context.Context, id string) *model.CrawlRule {
 	objLog := GetLogger(ctx)
 
 	rule := &model.CrawlRule{}
-	_, err := MasterDB.Id(id).Get(rule)
+	_, err := MasterDB.ID(id).Get(rule)
 	if err != nil {
 		objLog.Errorln("find rule error:", err)
 		return nil
@@ -78,7 +79,7 @@ func (RuleLogic) Save(ctx context.Context, form url.Values, opUser string) (errM
 	rule.OpUser = opUser
 
 	if rule.Id != 0 {
-		_, err = MasterDB.Id(rule.Id).Update(rule)
+		_, err = MasterDB.ID(rule.Id).Update(rule)
 	} else {
 		_, err = MasterDB.Insert(rule)
 	}
@@ -93,6 +94,6 @@ func (RuleLogic) Save(ctx context.Context, form url.Values, opUser string) (errM
 }
 
 func (RuleLogic) Delete(ctx context.Context, id string) error {
-	_, err := MasterDB.Id(id).Delete(new(model.CrawlRule))
+	_, err := MasterDB.ID(id).Delete(new(model.CrawlRule))
 	return err
 }

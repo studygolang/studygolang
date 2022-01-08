@@ -46,7 +46,7 @@ func (self GiftLogic) Exchange(ctx context.Context, me *model.Me, giftId int) er
 	objLog := GetLogger(ctx)
 
 	gift := &model.Gift{}
-	_, err := MasterDB.Id(giftId).Get(gift)
+	_, err := MasterDB.ID(giftId).Get(gift)
 	if err != nil {
 		objLog.Errorln("GiftLogic Exchange error:", err)
 		return err
@@ -169,7 +169,7 @@ func (self GiftLogic) doExchange(gift *model.Gift, me *model.Me, remark string, 
 		}
 	}
 
-	_, err = session.Id(gift.Id).Decr("remain_num", 1).Update(new(model.Gift))
+	_, err = session.ID(gift.Id).Decr("remain_num", 1).Update(new(model.Gift))
 	if err != nil {
 		session.Rollback()
 		return err

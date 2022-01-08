@@ -7,11 +7,12 @@
 package logic
 
 import (
-	"github.com/studygolang/studygolang/model"
-	"github.com/studygolang/studygolang/util"
 	"html/template"
 	"strconv"
 	"strings"
+
+	"github.com/studygolang/studygolang/model"
+	"github.com/studygolang/studygolang/util"
 
 	. "github.com/studygolang/studygolang/db"
 
@@ -420,7 +421,7 @@ func (MessageLogic) FindMsgById(ctx context.Context, id string) *model.Message {
 
 	objLog := GetLogger(ctx)
 	message := &model.Message{}
-	_, err := MasterDB.Id(id).Get(message)
+	_, err := MasterDB.ID(id).Get(message)
 	if err != nil {
 		objLog.Errorln("message logic FindMsgById Error:", err)
 		return nil
@@ -516,7 +517,7 @@ func (MessageLogic) MarkHasRead(ctx context.Context, ids []int, isSysMsg bool, u
 	if len(ids) > 1 {
 		session.In("id", ids)
 	} else {
-		session.Id(ids[0])
+		session.ID(ids[0])
 	}
 
 	_, err := session.Update(map[string]interface{}{"hasread": model.HasRead})
@@ -535,12 +536,12 @@ func (MessageLogic) MarkHasRead(ctx context.Context, ids []int, isSysMsg bool, u
 func (MessageLogic) DeleteMessage(ctx context.Context, id, msgtype string) bool {
 	var err error
 	if msgtype == "system" {
-		_, err = MasterDB.Id(id).Delete(&model.SystemMessage{})
+		_, err = MasterDB.ID(id).Delete(&model.SystemMessage{})
 	} else if msgtype == "inbox" {
 		// 打标记
-		_, err = MasterDB.Table(new(model.Message)).Id(id).Update(map[string]interface{}{"tdel": model.TdelHasDel})
+		_, err = MasterDB.Table(new(model.Message)).ID(id).Update(map[string]interface{}{"tdel": model.TdelHasDel})
 	} else {
-		_, err = MasterDB.Table(new(model.Message)).Id(id).Update(map[string]interface{}{"fdel": model.FdelHasDel})
+		_, err = MasterDB.Table(new(model.Message)).ID(id).Update(map[string]interface{}{"fdel": model.FdelHasDel})
 	}
 	if err != nil {
 		logger.Errorln("message logic DeleteMessage Error:", err)

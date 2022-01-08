@@ -33,7 +33,7 @@ func (ResourceLogic) Publish(ctx context.Context, me *model.Me, form url.Values)
 
 	if form.Get("id") != "" {
 		id := form.Get("id")
-		_, err = MasterDB.Id(id).Get(resource)
+		_, err = MasterDB.ID(id).Get(resource)
 		if err != nil {
 			logger.Errorln("ResourceLogic Publish find error:", err)
 			return
@@ -297,7 +297,7 @@ func (ResourceLogic) FindByIds(ids []int) []*model.Resource {
 
 func (ResourceLogic) findById(id int) *model.Resource {
 	resource := &model.Resource{}
-	_, err := MasterDB.Id(id).Get(resource)
+	_, err := MasterDB.ID(id).Get(resource)
 	if err != nil {
 		logger.Errorln("ResourceLogic findById error:", err)
 	}
@@ -361,7 +361,7 @@ func (ResourceLogic) FindResource(ctx context.Context, id int) *model.Resource {
 	objLog := GetLogger(ctx)
 
 	resource := &model.Resource{}
-	_, err := MasterDB.Id(id).Get(resource)
+	_, err := MasterDB.ID(id).Get(resource)
 	if err != nil {
 		objLog.Errorf("ResourceLogic FindResource [%d] error：%s\n", id, err)
 	}
@@ -384,7 +384,7 @@ func (ResourceLogic) FindRecent(ctx context.Context, uid int) []*model.Resource 
 // getOwner 通过id获得资源的所有者
 func (ResourceLogic) getOwner(id int) int {
 	resource := &model.Resource{}
-	_, err := MasterDB.Id(id).Get(resource)
+	_, err := MasterDB.ID(id).Get(resource)
 	if err != nil {
 		logger.Errorln("resource logic getOwner Error:", err)
 		return 0
@@ -404,7 +404,7 @@ func (self ResourceComment) UpdateComment(cid, objid, uid int, cmttime time.Time
 	session.Begin()
 
 	// 更新最后回复信息
-	_, err := session.Table(new(model.Resource)).Id(objid).Update(map[string]interface{}{
+	_, err := session.Table(new(model.Resource)).ID(objid).Update(map[string]interface{}{
 		"lastreplyuid":  uid,
 		"lastreplytime": cmttime,
 	})
@@ -415,7 +415,7 @@ func (self ResourceComment) UpdateComment(cid, objid, uid int, cmttime time.Time
 	}
 
 	// 更新评论数（TODO：暂时每次都更新表）
-	_, err = session.Id(objid).Incr("cmtnum", 1).Update(new(model.ResourceEx))
+	_, err = session.ID(objid).Incr("cmtnum", 1).Update(new(model.ResourceEx))
 	if err != nil {
 		logger.Errorln("更新资源评论数失败：", err)
 		session.Rollback()

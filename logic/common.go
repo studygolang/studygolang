@@ -16,6 +16,7 @@ import (
 
 	"github.com/studygolang/studygolang/model"
 	"github.com/studygolang/studygolang/util"
+	"xorm.io/xorm"
 
 	"github.com/gorilla/schema"
 	"github.com/polaris1119/goutils"
@@ -36,6 +37,11 @@ var (
 	NotModifyAuthorityErr = errors.New("没有修改权限")
 	NotFoundErr           = errors.New("Not Found")
 )
+
+func SessionClone(session *xorm.Session) *xorm.Session {
+	var sess = *session
+	return &sess
+}
 
 func GetLogger(ctx context.Context) *logger.Logger {
 	if ctx == nil {

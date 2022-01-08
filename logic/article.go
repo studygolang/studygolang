@@ -251,7 +251,7 @@ func (self ArticleLogic) ParseArticle(ctx context.Context, articleUrl string, au
 	}
 
 	if !auto && tmpArticle.Id > 0 {
-		_, err = MasterDB.Id(tmpArticle.Id).Update(article)
+		_, err = MasterDB.ID(tmpArticle.Id).Update(article)
 		if err != nil {
 			logger.Errorln("upadate article error:", err)
 			return nil, err
@@ -397,7 +397,7 @@ func (self ArticleLogic) Publish(ctx context.Context, me *model.Me, form url.Val
 	change := map[string]interface{}{
 		"url": article.Id,
 	}
-	session.Table(new(model.Article)).Id(article.Id).Update(change)
+	session.Table(new(model.Article)).ID(article.Id).Update(change)
 
 	if article.GCTT {
 		articleGCTT := &model.ArticleGCTT{
@@ -700,7 +700,7 @@ func (ArticleLogic) FindArticleByPage(ctx context.Context, conds map[string]stri
 		session.And(k+"=?", v)
 	}
 
-	totalSession := session.Clone()
+	totalSession := SessionClone(session)
 
 	offset := (curPage - 1) * limit
 	articleList := make([]*model.Article, 0)
@@ -742,7 +742,7 @@ func (self ArticleLogic) MoveToTopic(ctx context.Context, id interface{}, me *mo
 	objLog := GetLogger(ctx)
 
 	article := &model.Article{}
-	_, err := MasterDB.Id(id).Get(article)
+	_, err := MasterDB.ID(id).Get(article)
 	if err != nil {
 		objLog.Errorln("ArticleLogic MoveToTopic find article error:", err)
 		return err
@@ -842,7 +842,7 @@ func (self ArticleLogic) MoveToTopic(ctx context.Context, id interface{}, me *mo
 
 				msg.SetExt(extMap)
 
-				_, err = session.Id(msg.Id).Update(msg)
+				_, err = session.ID(msg.Id).Update(msg)
 				if err != nil {
 					session.Rollback()
 					objLog.Errorln("ArticleLogic MoveToTopic update system message error:", err)
@@ -1032,7 +1032,7 @@ func (ArticleLogic) Modify(ctx context.Context, user *model.Me, form url.Values)
 	id := form.Get("id")
 
 	article := &model.Article{}
-	_, err = MasterDB.Id(id).Get(article)
+	_, err = MasterDB.ID(id).Get(article)
 	if err != nil {
 		errMsg = "对不起，服务器内部错误，请稍后再试！"
 		return
@@ -1059,7 +1059,7 @@ func (ArticleLogic) Modify(ctx context.Context, user *model.Me, form url.Values)
 		}
 	}
 
-	_, err = MasterDB.Table(new(model.Article)).Id(id).Update(change)
+	_, err = MasterDB.Table(new(model.Article)).ID(id).Update(change)
 	if err != nil {
 		logger.Errorf("更新文章 【%s】 信息失败：%s\n", id, err)
 		errMsg = "对不起，服务器内部错误，请稍后再试！"
@@ -1074,7 +1074,7 @@ func (ArticleLogic) Modify(ctx context.Context, user *model.Me, form url.Values)
 // FindById 获取单条博文
 func (ArticleLogic) FindById(ctx context.Context, id interface{}) (*model.Article, error) {
 	article := &model.Article{}
-	_, err := MasterDB.Id(id).Get(article)
+	_, err := MasterDB.ID(id).Get(article)
 	if err != nil {
 		logger.Errorln("article logic FindById Error:", err)
 	}
@@ -1085,7 +1085,7 @@ func (ArticleLogic) FindById(ctx context.Context, id interface{}) (*model.Articl
 // getOwner 通过objid获得 article 的所有者
 func (ArticleLogic) getOwner(id int) int {
 	article := &model.Article{}
-	_, err := MasterDB.Id(id).Get(article)
+	_, err := MasterDB.ID(id).Get(article)
 	if err != nil {
 		logger.Errorln("article logic getOwner Error:", err)
 		return 0
@@ -1109,7 +1109,7 @@ type ArticleComment struct{}
 // cid：评论id；objid：被评论对象id；uid：评论者；cmttime：评论时间
 func (self ArticleComment) UpdateComment(cid, objid, uid int, cmttime time.Time) {
 	// 更新最后回复信息
-	_, err := MasterDB.Table(new(model.Article)).Id(objid).Incr("cmtnum", 1).Update(map[string]interface{}{
+	_, err := MasterDB.Table(new(model.Article)).ID(objid).Incr("cmtnum", 1).Update(map[string]interface{}{
 		"lastreplyuid":  uid,
 		"lastreplytime": cmttime,
 	})

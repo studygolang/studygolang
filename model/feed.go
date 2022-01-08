@@ -47,7 +47,7 @@ func PublishFeed(object interface{}, objectExt interface{}, me *Me) {
 	switch objdoc := object.(type) {
 	case *Topic:
 		node := &TopicNode{}
-		_, err := db.MasterDB.Id(objdoc.Nid).Get(node)
+		_, err := db.MasterDB.ID(objdoc.Nid).Get(node)
 		if err == nil && !node.ShowIndex {
 			return
 		}

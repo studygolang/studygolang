@@ -132,7 +132,7 @@ func (AuthorityLogic) FindAuthoritiesByPage(ctx context.Context, conds map[strin
 		session.And(k+"=?", v)
 	}
 
-	totalSession := session.Clone()
+	totalSession := SessionClone(session)
 
 	offset := (curPage - 1) * limit
 	auhtorities := make([]*model.Authority, 0)
@@ -159,7 +159,7 @@ func (AuthorityLogic) FindById(ctx context.Context, aid int) *model.Authority {
 	}
 
 	authority := &model.Authority{}
-	_, err := MasterDB.Id(aid).Get(authority)
+	_, err := MasterDB.ID(aid).Get(authority)
 	if err != nil {
 		objLog.Errorln("authority FindById error:", err)
 		return nil
@@ -182,7 +182,7 @@ func (AuthorityLogic) Save(ctx context.Context, form url.Values, opUser string) 
 	authority.OpUser = opUser
 
 	if authority.Aid != 0 {
-		_, err = MasterDB.Id(authority.Aid).Update(authority)
+		_, err = MasterDB.ID(authority.Aid).Update(authority)
 	} else {
 		_, err = MasterDB.Insert(authority)
 	}
@@ -199,7 +199,7 @@ func (AuthorityLogic) Save(ctx context.Context, form url.Values, opUser string) 
 }
 
 func (AuthorityLogic) Del(aid int) error {
-	_, err := MasterDB.Id(aid).Delete(new(model.Authority))
+	_, err := MasterDB.ID(aid).Delete(new(model.Authority))
 
 	global.AuthorityChan <- struct{}{}
 

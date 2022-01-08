@@ -58,7 +58,7 @@ func (self SubjectLogic) FindOne(ctx context.Context, sid int) *model.Subject {
 	objLog := GetLogger(ctx)
 
 	subject := &model.Subject{}
-	_, err := MasterDB.Id(sid).Get(subject)
+	_, err := MasterDB.ID(sid).Get(subject)
 	if err != nil {
 		objLog.Errorln("SubjectLogic FindOne get error:", err)
 	}
@@ -253,7 +253,7 @@ func (self SubjectLogic) Contribute(ctx context.Context, me *model.Me, sid, arti
 		return errors.New("投稿失败:" + err.Error())
 	}
 
-	_, err = session.Id(sid).Incr("article_num", 1).Update(new(model.Subject))
+	_, err = session.ID(sid).Incr("article_num", 1).Update(new(model.Subject))
 	if err != nil {
 		session.Rollback()
 		objLog.Errorln("SubjectLogic Contribute update subject article num error:", err)
@@ -295,7 +295,7 @@ func (self SubjectLogic) RemoveContribute(ctx context.Context, sid, articleId in
 		return errors.New("删除投稿失败:" + err.Error())
 	}
 
-	_, err = session.Id(sid).Decr("article_num", 1).Update(new(model.Subject))
+	_, err = session.ID(sid).Decr("article_num", 1).Update(new(model.Subject))
 	if err != nil {
 		session.Rollback()
 		objLog.Errorln("SubjectLogic RemoveContribute update subject article num error:", err)
@@ -319,7 +319,7 @@ func (self SubjectLogic) Publish(ctx context.Context, me *model.Me, form url.Val
 	sid = goutils.MustInt(form.Get("sid"))
 	if sid != 0 {
 		subject := &model.Subject{}
-		_, err = MasterDB.Id(sid).Get(subject)
+		_, err = MasterDB.ID(sid).Get(subject)
 		if err != nil {
 			objLog.Errorln("Publish Subject find error:", err)
 			return
@@ -362,7 +362,7 @@ func (SubjectLogic) Modify(ctx context.Context, user *model.Me, form url.Values)
 	}
 
 	sid := form.Get("sid")
-	_, err = MasterDB.Table(new(model.Subject)).Id(sid).Update(change)
+	_, err = MasterDB.Table(new(model.Subject)).ID(sid).Update(change)
 	if err != nil {
 		objLog.Errorf("更新专栏 【%s】 信息失败：%s\n", sid, err)
 		errMsg = "对不起，服务器内部错误，请稍后再试！"
@@ -424,7 +424,7 @@ func (self SubjectLogic) FindMine(ctx context.Context, me *model.Me, articleId i
 	if kw != "" {
 		strSql += " AND s.name LIKE '%" + kw + "%'"
 	}
-	err = MasterDB.Sql(strSql, me.Uid).Find(&adminSubjects)
+	err = MasterDB.SQL(strSql, me.Uid).Find(&adminSubjects)
 	if err != nil {
 		objLog.Errorln("SubjectLogic FindMine find admin subject error:", err)
 	}

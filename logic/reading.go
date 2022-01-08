@@ -54,7 +54,7 @@ func (ReadingLogic) IReading(ctx context.Context, id int) string {
 	objLog := GetLogger(ctx)
 
 	reading := &model.MorningReading{}
-	_, err := MasterDB.Id(id).Get(reading)
+	_, err := MasterDB.ID(id).Get(reading)
 	if err != nil {
 		objLog.Errorln("reading logic IReading error:", err)
 		return "/readings"
@@ -64,7 +64,7 @@ func (ReadingLogic) IReading(ctx context.Context, id int) string {
 		return "/readings"
 	}
 
-	go MasterDB.Id(id).Incr("clicknum", 1).Update(reading)
+	go MasterDB.ID(id).Incr("clicknum", 1).Update(reading)
 
 	if reading.Inner == 0 {
 		return "/wr?u=" + reading.Url
@@ -83,7 +83,7 @@ func (ReadingLogic) FindReadingByPage(ctx context.Context, conds map[string]stri
 		session.And(k+"=?", v)
 	}
 
-	totalSession := session.Clone()
+	totalSession := SessionClone(session)
 
 	offset := (curPage - 1) * limit
 	readingList := make([]*model.MorningReading, 0)
@@ -134,7 +134,7 @@ func (ReadingLogic) SaveReading(ctx context.Context, form url.Values, username s
 
 	logger.Debugln(reading.Rtype, "id=", reading.Id)
 	if reading.Id != 0 {
-		_, err = MasterDB.Id(reading.Id).Update(reading)
+		_, err = MasterDB.ID(reading.Id).Update(reading)
 	} else {
 		if len(readings) > 0 {
 			logger.Errorln("reading report:", reading)
@@ -156,7 +156,7 @@ func (ReadingLogic) SaveReading(ctx context.Context, form url.Values, username s
 // FindById 获取单条晨读
 func (ReadingLogic) FindById(ctx context.Context, id int) *model.MorningReading {
 	reading := &model.MorningReading{}
-	_, err := MasterDB.Id(id).Get(reading)
+	_, err := MasterDB.ID(id).Get(reading)
 	if err != nil {
 		logger.Errorln("reading logic FindReadingById Error:", err)
 		return nil

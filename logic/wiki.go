@@ -76,7 +76,7 @@ func (self WikiLogic) Modify(ctx context.Context, me *model.Me, form url.Values)
 	wiki.Title = form.Get("title")
 	wiki.Content = form.Get("content")
 
-	_, err := MasterDB.Id(id).Update(wiki)
+	_, err := MasterDB.ID(id).Update(wiki)
 	if err != nil {
 		objLog.Errorf("更新wiki 【%d】 信息失败：%s\n", id, err)
 		return err
@@ -158,7 +158,7 @@ func (WikiLogic) FindOne(ctx context.Context, uri string) *model.Wiki {
 // getOwner 通过id获得wiki的所有者
 func (WikiLogic) getOwner(id int) int {
 	wiki := &model.Wiki{}
-	_, err := MasterDB.Id(id).Get(wiki)
+	_, err := MasterDB.ID(id).Get(wiki)
 	if err != nil {
 		logger.Errorln("wiki logic getOwner Error:", err)
 		return 0

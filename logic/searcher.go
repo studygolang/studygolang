@@ -81,7 +81,7 @@ func (self SearcherLogic) IndexingArticle(isAll bool) {
 				// 自动生成
 				article.Tags = model.AutoTag(article.Title, article.Txt, 4)
 				if article.Tags != "" {
-					MasterDB.Id(article.Id).Cols("tags").Update(article)
+					MasterDB.ID(article.Id).Cols("tags").Update(article)
 				}
 			}
 
@@ -151,7 +151,7 @@ func (self SearcherLogic) IndexingTopic(isAll bool) {
 				// 自动生成
 				topic.Tags = model.AutoTag(topic.Title, topic.Content, 4)
 				if topic.Tags != "" {
-					MasterDB.Id(topic.Tid).Cols("tags").Update(topic)
+					MasterDB.ID(topic.Tid).Cols("tags").Update(topic)
 				}
 			}
 
@@ -224,7 +224,7 @@ func (self SearcherLogic) IndexingResource(isAll bool) {
 				// 自动生成
 				resource.Tags = model.AutoTag(resource.Title+resource.CatName, resource.Content, 4)
 				if resource.Tags != "" {
-					MasterDB.Id(resource.Id).Cols("tags").Update(resource)
+					MasterDB.ID(resource.Id).Cols("tags").Update(resource)
 				}
 			}
 
@@ -283,7 +283,7 @@ func (self SearcherLogic) IndexingOpenProject(isAll bool) {
 				// 自动生成
 				project.Tags = model.AutoTag(project.Name+project.Category, project.Desc, 4)
 				if project.Tags != "" {
-					MasterDB.Id(project.Id).Cols("tags").Update(project)
+					MasterDB.ID(project.Id).Cols("tags").Update(project)
 				}
 			}
 

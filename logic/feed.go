@@ -331,7 +331,7 @@ func (self FeedLogic) modifyTopicNode(tid, nid int) {
 		}
 
 		node := &model.TopicNode{}
-		_, err := MasterDB.Id(nid).Get(node)
+		_, err := MasterDB.ID(nid).Get(node)
 		if err == nil && !node.ShowIndex {
 			change["state"] = model.FeedOffline
 		}

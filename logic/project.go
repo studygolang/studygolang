@@ -38,7 +38,7 @@ func (self ProjectLogic) Publish(ctx context.Context, user *model.Me, form url.V
 	project := &model.OpenProject{}
 
 	if isModify {
-		_, err = MasterDB.Id(id).Get(project)
+		_, err = MasterDB.ID(id).Get(project)
 		if err != nil {
 			objLog.Errorln("Publish Project find error:", err)
 			return
@@ -83,7 +83,7 @@ func (self ProjectLogic) Publish(ctx context.Context, user *model.Me, form url.V
 	if !isModify {
 		affected, err = MasterDB.Insert(project)
 	} else {
-		affected, err = MasterDB.Id(id).Update(project)
+		affected, err = MasterDB.ID(id).Update(project)
 	}
 
 	if err != nil {
@@ -285,7 +285,7 @@ func (ProjectLogic) fillUser(projects []*model.OpenProject) {
 // getOwner 通过objid获得 project 的所有者
 func (ProjectLogic) getOwner(ctx context.Context, id int) int {
 	project := &model.OpenProject{}
-	_, err := MasterDB.Id(id).Get(project)
+	_, err := MasterDB.ID(id).Get(project)
 	if err != nil {
 		logger.Errorln("project logic getOwner Error:", err)
 		return 0
@@ -486,7 +486,7 @@ type ProjectComment struct{}
 // cid：评论id；objid：被评论对象id；uid：评论者；cmttime：评论时间
 func (self ProjectComment) UpdateComment(cid, objid, uid int, cmttime time.Time) {
 	// 更新评论数（TODO：暂时每次都更新表）
-	_, err := MasterDB.Table(new(model.OpenProject)).Id(objid).Incr("cmtnum", 1).Update(map[string]interface{}{
+	_, err := MasterDB.Table(new(model.OpenProject)).ID(objid).Incr("cmtnum", 1).Update(map[string]interface{}{
 		"lastreplyuid":  uid,
 		"lastreplytime": cmttime,
 	})
@@ -526,7 +526,7 @@ type ProjectLike struct{}
 // objid：被喜欢对象id；num: 喜欢数(负数表示取消喜欢)
 func (self ProjectLike) UpdateLike(objid, num int) {
 	// 更新喜欢数（TODO：暂时每次都更新表）
-	_, err := MasterDB.Id(objid).Incr("likenum", num).Update(new(model.OpenProject))
+	_, err := MasterDB.ID(objid).Incr("likenum", num).Update(new(model.OpenProject))
 	if err != nil {
 		logger.Errorln("更新项目喜欢数失败：", err)
 	}

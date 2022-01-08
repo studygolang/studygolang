@@ -9,12 +9,13 @@ package logic
 import (
 	"errors"
 	"fmt"
-	"github.com/studygolang/studygolang/model"
-	"github.com/studygolang/studygolang/util"
 	"html/template"
 	"net/url"
 	"sync"
 	"time"
+
+	"github.com/studygolang/studygolang/model"
+	"github.com/studygolang/studygolang/util"
 
 	. "github.com/studygolang/studygolang/db"
 
@@ -37,7 +38,7 @@ func (self TopicLogic) Publish(ctx context.Context, me *model.Me, form url.Value
 	tid = goutils.MustInt(form.Get("tid"))
 	if tid != 0 {
 		topic := &model.Topic{}
-		_, err = MasterDB.Id(tid).Get(topic)
+		_, err = MasterDB.ID(tid).Get(topic)
 		if err != nil {
 			objLog.Errorln("Publish Topic find error:", err)
 			return
@@ -168,7 +169,7 @@ func (TopicLogic) Modify(ctx context.Context, user *model.Me, form url.Values) (
 	}
 
 	tid := form.Get("tid")
-	_, err = MasterDB.Table(new(model.Topic)).Id(tid).Update(change)
+	_, err = MasterDB.Table(new(model.Topic)).ID(tid).Update(change)
 	if err != nil {
 		objLog.Errorf("更新主题 【%s】 信息失败：%s\n", tid, err)
 		errMsg = "对不起，服务器内部错误，请稍后再试！"
@@ -226,7 +227,7 @@ func (self TopicLogic) SetTop(ctx context.Context, me *model.Me, tid int) error 
 	defer session.Close()
 	session.Begin()
 
-	_, err := session.Table(new(model.Topic)).Id(tid).Update(map[string]interface{}{
+	_, err := session.Table(new(model.Topic)).ID(tid).Update(map[string]interface{}{
 		"top":      1,
 		"top_time": time.Now().Unix(),
 	})
@@ -258,7 +259,7 @@ func (self TopicLogic) UnsetTop(ctx context.Context, tid int) error {
 	defer session.Close()
 	session.Begin()
 
-	_, err := session.Table(new(model.Topic)).Id(tid).Update(map[string]interface{}{
+	_, err := session.Table(new(model.Topic)).ID(tid).Update(map[string]interface{}{
 		"top": 0,
 	})
 	if err != nil {
@@ -455,7 +456,7 @@ func (TopicLogic) FindByPage(ctx context.Context, conds map[string]string, curPa
 		session.And(k+"=?", v)
 	}
 
-	totalSession := session.Clone()
+	totalSession := SessionClone(session)
 
 	offset := (curPage - 1) * limit
 	topicList := make([]*model.Topic, 0)
@@ -655,7 +656,7 @@ func (TopicLogic) Count(ctx context.Context, querystring string, args ...interfa
 // getOwner 通过tid获得话题的所有者
 func (TopicLogic) getOwner(tid int) int {
 	topic := &model.Topic{}
-	_, err := MasterDB.Id(tid).Get(topic)
+	_, err := MasterDB.ID(tid).Get(topic)
 	if err != nil {
 		logger.Errorln("topic logic getOwner Error:", err)
 		return 0
@@ -698,7 +699,7 @@ func (self TopicComment) UpdateComment(cid, objid, uid int, cmttime time.Time) {
 	}
 
 	// 更新回复数（TODO：暂时每次都更新表）
-	_, err = MasterDB.Id(objid).Incr("reply", 1).Update(new(model.TopicUpEx))
+	_, err = MasterDB.ID(objid).Incr("reply", 1).Update(new(model.TopicUpEx))
 	if err != nil {
 		logger.Errorln("更新主题回复数失败：", err)
 		session.Rollback()

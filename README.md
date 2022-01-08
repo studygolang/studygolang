@@ -10,7 +10,7 @@
 
 ## 本地搭建一个 Go语言中文网
 
-要求 Go 1.11+
+要求 Go 1.16+
 
 1、下载源码到本地某个目录
 
@@ -70,4 +70,3 @@ fork + PR。如果有修改 js 和 css，请执行 gulp （需要先安装 gulp�
 ## 使用该项目搭建的网站
 
 - [Go语言中文网](https://studygolang.com)
-- [Kotlin中国](https://kotlintc.com)

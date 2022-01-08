@@ -87,7 +87,7 @@ func (self GithubLogic) IssueEvent(ctx context.Context, body []byte) error {
 		err = self.insertIssue(id, title, label)
 	} else if action == "labeled" || action == "unlabeled" {
 		gcttIssue := &model.GCTTIssue{}
-		MasterDB.Id(id).Get(gcttIssue)
+		MasterDB.ID(id).Get(gcttIssue)
 		if gcttIssue.Id == 0 {
 			self.insertIssue(id, title, label)
 		} else {
@@ -97,14 +97,14 @@ func (self GithubLogic) IssueEvent(ctx context.Context, body []byte) error {
 			}
 
 			gcttIssue.Label = label
-			_, err = MasterDB.Id(id).Cols("translator", "translating_at", "label").Update(gcttIssue)
+			_, err = MasterDB.ID(id).Cols("translator", "translating_at", "label").Update(gcttIssue)
 		}
 	} else if action == "closed" {
 		closedAt := result.Get("issue.closed_at").Time().Unix()
-		_, err = MasterDB.Table(new(model.GCTTIssue)).Id(id).
+		_, err = MasterDB.Table(new(model.GCTTIssue)).ID(id).
 			Update(map[string]interface{}{"state": model.IssueClosed, "translated_at": closedAt})
 	} else if action == "reopened" {
-		_, err = MasterDB.Table(new(model.GCTTIssue)).Id(id).
+		_, err = MasterDB.Table(new(model.GCTTIssue)).ID(id).
 			Update(map[string]interface{}{"state": model.IssueOpened, "translated_at": 0})
 	}
 
@@ -137,7 +137,7 @@ func (self GithubLogic) IssueCommentEvent(ctx context.Context, body []byte) erro
 				Translator:    result.Get("comment.user.login").String(),
 				TranslatingAt: result.Get("comment.created_at").Time().Unix(),
 			}
-			_, err = MasterDB.Id(id).Update(gcttIssue)
+			_, err = MasterDB.ID(id).Update(gcttIssue)
 		}
 	}
 
@@ -254,7 +254,7 @@ func (self GithubLogic) syncIssues(repo string, page int, directions ...string) 
 
 		gcttIssue := &model.GCTTIssue{}
 
-		_, err := MasterDB.Id(id).Get(gcttIssue)
+		_, err := MasterDB.ID(id).Get(gcttIssue)
 		if err != nil {
 			outErr = err
 			return true
@@ -289,7 +289,7 @@ func (self GithubLogic) syncIssues(repo string, page int, directions ...string) 
 		}
 
 		if gcttIssue.Id > 0 {
-			_, outErr = MasterDB.Id(id).Update(gcttIssue)
+			_, outErr = MasterDB.ID(id).Update(gcttIssue)
 		} else {
 			gcttIssue.Id = int(id)
 			_, outErr = MasterDB.Insert(gcttIssue)
@@ -641,7 +641,7 @@ func (GithubLogic) insertOrUpdateGCCT(_prInfo *prInfo, title string, isTranslate
 		if gcttGit.TranslatedAt == 0 && isTranslated {
 			gcttGit.TranslatedAt = _prInfo.prTime.Unix()
 			gcttGit.PR = _prInfo.number
-			_, err = MasterDB.Id(gcttGit.Id).Update(gcttGit)
+			_, err = MasterDB.ID(gcttGit.Id).Update(gcttGit)
 			if err != nil {
 				session.Rollback()
 				logger.Errorln("GithubLogic insertOrUpdateGCCT update error:", err)
@@ -703,7 +703,7 @@ func (GithubLogic) statUserTime() {
 
 			words += gcttGit.Words
 
-			MasterDB.Id(gcttGit.Id).Update(gcttGit)
+			MasterDB.ID(gcttGit.Id).Update(gcttGit)
 		}
 
 		// 查询是否绑定了本站账号
@@ -716,7 +716,7 @@ func (GithubLogic) statUserTime() {
 		}
 		gcttUser.LastAt = lastAt
 		gcttUser.Uid = uid
-		_, err = MasterDB.Id(gcttUser.Id).Update(gcttUser)
+		_, err = MasterDB.ID(gcttUser.Id).Update(gcttUser)
 		if err != nil {
 			logger.Errorln("GithubLogic update gctt user error:", err)
 		}

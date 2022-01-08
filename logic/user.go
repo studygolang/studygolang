@@ -137,7 +137,7 @@ func (self UserLogic) Update(ctx context.Context, me *model.Me, form url.Values)
 	defer session.Close()
 	session.Begin()
 
-	_, err = session.Id(me.Uid).Cols(cols).Update(user)
+	_, err = session.ID(me.Uid).Cols(cols).Update(user)
 	if err != nil {
 		session.Rollback()
 
@@ -172,7 +172,7 @@ func (self UserLogic) Update(ctx context.Context, me *model.Me, form url.Values)
 func (UserLogic) UpdateUserStatus(ctx context.Context, uid, status int) error {
 	objLog := GetLogger(ctx)
 
-	_, err := MasterDB.Table(new(model.User)).Id(uid).Update(map[string]interface{}{"status": status})
+	_, err := MasterDB.Table(new(model.User)).ID(uid).Update(map[string]interface{}{"status": status})
 	if err != nil {
 		objLog.Errorf("更新用户 【%d】 状态失败：%s", uid, err)
 	}
@@ -183,9 +183,9 @@ func (UserLogic) UpdateUserStatus(ctx context.Context, uid, status int) error {
 // ChangeAvatar 更换头像
 func (UserLogic) ChangeAvatar(ctx context.Context, uid int, avatar string) (err error) {
 	changeData := map[string]interface{}{"avatar": avatar}
-	_, err = MasterDB.Table(new(model.User)).Id(uid).Update(changeData)
+	_, err = MasterDB.Table(new(model.User)).ID(uid).Update(changeData)
 	if err == nil {
-		_, err = MasterDB.Table(new(model.UserActive)).Id(uid).Update(changeData)
+		_, err = MasterDB.Table(new(model.UserActive)).ID(uid).Update(changeData)
 	}
 
 	return
@@ -378,7 +378,7 @@ func (self UserLogic) findUser(ctx context.Context, uid int) *model.User {
 	objLog := GetLogger(ctx)
 
 	user := &model.User{}
-	_, err := MasterDB.Id(uid).Get(user)
+	_, err := MasterDB.ID(uid).Get(user)
 	if err != nil {
 		objLog.Errorln("user logic findUser not record found:", err)
 	}
@@ -432,7 +432,7 @@ func (self UserLogic) Login(ctx context.Context, username, passwd string) (*mode
 
 	// 检验用户状态是否正常（未激活的可以登录，但不能发布信息）
 	user := &model.User{}
-	MasterDB.Id(userLogin.Uid).Get(user)
+	MasterDB.ID(userLogin.Uid).Get(user)
 	if user.Status > model.UserStatusAudit {
 		objLog.Infof("用户 %q 的状态非审核通过, 用户的状态值：%d", username, user.Status)
 		var errMap = map[int]error{
@@ -542,7 +542,7 @@ func (self UserLogic) Activate(ctx context.Context, email, uuid string, timestam
 
 	user.Status = model.UserStatusAudit
 
-	_, err := MasterDB.Id(user.Uid).Update(user)
+	_, err := MasterDB.ID(user.Uid).Update(user)
 	if err != nil {
 		objLog.Errorf("activate [%s] failure:%s", email, err)
 		return nil, err
@@ -637,7 +637,7 @@ func (UserLogic) FindUserByPage(ctx context.Context, conds map[string]string, cu
 		session.And(k+"=?", v)
 	}
 
-	totalSession := session.Clone()
+	totalSession := SessionClone(session)
 
 	offset := (curPage - 1) * limit
 	userList := make([]*model.User, 0)
@@ -684,7 +684,7 @@ func (self UserLogic) AdminUpdateUser(ctx context.Context, uid string, form url.
 	user.IsVip = goutils.MustBool(form.Get("is_vip"), false)
 	user.VipExpire = goutils.MustInt(form.Get("vip_expire"))
 
-	MasterDB.Id(user.Uid).UseBool("is_vip").Update(user)
+	MasterDB.ID(user.Uid).UseBool("is_vip").Update(user)
 }
 
 // GetUserMentions 获取 @ 的 suggest 列表
@@ -716,7 +716,7 @@ func (UserLogic) FindNotLoginUsers(loginTime time.Time) (userList []*model.UserL
 
 // 邮件订阅或取消订阅
 func (UserLogic) EmailSubscribe(ctx context.Context, uid, unsubscribe int) {
-	_, err := MasterDB.Table(&model.User{}).Id(uid).Update(map[string]interface{}{"unsubscribe": unsubscribe})
+	_, err := MasterDB.Table(&model.User{}).ID(uid).Update(map[string]interface{}{"unsubscribe": unsubscribe})
 	if err != nil {
 		logger.Errorln("user:", uid, "Email Subscribe Error:", err)
 	}

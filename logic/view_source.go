@@ -7,9 +7,10 @@
 package logic
 
 import (
-	"github.com/studygolang/studygolang/model"
 	"net/http"
 	"strings"
+
+	"github.com/studygolang/studygolang/model"
 
 	. "github.com/studygolang/studygolang/db"
 
@@ -55,7 +56,7 @@ func (ViewSourceLogic) Record(req *http.Request, objtype, objid int) {
 		}
 	}
 
-	_, err = MasterDB.Id(viewSource.Id).Incr(field, 1).Update(new(model.ViewSource))
+	_, err = MasterDB.ID(viewSource.Id).Incr(field, 1).Update(new(model.ViewSource))
 	if err != nil {
 		logger.Errorln("ViewSourceLogic Record update error:", err)
 		return

@@ -151,7 +151,7 @@ func (MissionLogic) Complete(ctx context.Context, me *model.Me, id string) error
 	objLog := GetLogger(ctx)
 
 	mission := &model.Mission{}
-	_, err := MasterDB.Id(id).Get(mission)
+	_, err := MasterDB.ID(id).Get(mission)
 	if err != nil {
 		objLog.Errorln("MissionLogic FindLoginMission error:", err)
 		return err

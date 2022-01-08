@@ -47,7 +47,7 @@ func (this *view) flush() {
 	this.locker.Lock()
 	defer this.locker.Unlock()
 
-	session := MasterDB.Id(this.objid)
+	session := MasterDB.ID(this.objid)
 	switch this.objtype {
 	case model.TypeTopic:
 		session.Incr("view", this.num).Update(new(model.TopicUpEx))

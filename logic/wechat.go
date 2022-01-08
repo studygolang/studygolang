@@ -91,7 +91,7 @@ func (self WechatLogic) Bind(ctx context.Context, id, uid int, userInfo string) 
 		Avatar:   result.Get("avatarUrl").String(),
 		OpenInfo: userInfo,
 	}
-	_, err := MasterDB.Id(id).Update(wechatUser)
+	_, err := MasterDB.ID(id).Update(wechatUser)
 	if err != nil {
 		objLog.Errorln("WechatLogic Bind update error:", err)
 		return nil, err
@@ -334,7 +334,7 @@ func (self WechatLogic) checkAndSave(ctx context.Context, wechatMsg *model.Wecha
 		wechatUser.Avatar = result.Get("headimgurl").String()
 		wechatUser.OpenInfo = result.Raw
 
-		_, err = MasterDB.Id(wechatUser.Id).Update(wechatUser)
+		_, err = MasterDB.ID(wechatUser.Id).Update(wechatUser)
 	} else {
 		wechatUser = &model.WechatUser{
 			Openid:   result.Get("openid").String(),

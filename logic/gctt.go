@@ -8,8 +8,9 @@ package logic
 
 import (
 	"context"
-	"github.com/studygolang/studygolang/model"
 	"time"
+
+	"github.com/studygolang/studygolang/model"
 
 	. "github.com/studygolang/studygolang/db"
 )
@@ -51,7 +52,7 @@ func (self GCTTLogic) BindUser(ctx context.Context, gcttUser *model.GCTTUser, ui
 
 	if gcttUser.Id > 0 {
 		gcttUser.Uid = uid
-		_, err = MasterDB.Id(gcttUser.Id).Update(gcttUser)
+		_, err = MasterDB.ID(gcttUser.Id).Update(gcttUser)
 	} else {
 		gcttUser = &model.GCTTUser{
 			Username: githubUser.Username,

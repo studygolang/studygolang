@@ -70,7 +70,7 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 		}
 
 		userLogin := &UserLogin{}
-		db.MasterDB.Id(objdoc.Uid).Get(userLogin)
+		db.MasterDB.ID(objdoc.Uid).Get(userLogin)
 		document = &Document{
 			Id:      fmt.Sprintf("%d%d", TypeTopic, objdoc.Tid),
 			Objid:   objdoc.Tid,
@@ -148,7 +148,7 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 		}
 
 		userLogin := &UserLogin{}
-		db.MasterDB.Id(objdoc.Uid).Get(userLogin)
+		db.MasterDB.ID(objdoc.Uid).Get(userLogin)
 		document = &Document{
 			Id:      fmt.Sprintf("%d%d", TypeResource, objdoc.Id),
 			Objid:   objdoc.Id,

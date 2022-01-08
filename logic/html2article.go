@@ -62,7 +62,7 @@ func (self ArticleLogic) ParseArticleByAccuracy(articleUrl string, tmpArticle *m
 	}
 
 	if !auto && tmpArticle.Id > 0 {
-		_, err = MasterDB.Id(tmpArticle.Id).Update(article)
+		_, err = MasterDB.ID(tmpArticle.Id).Update(article)
 		if err != nil {
 			logger.Errorln("upadate article error:", err)
 			return nil, err

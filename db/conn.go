@@ -14,8 +14,8 @@ import (
 	. "github.com/polaris1119/config"
 
 	_ "github.com/go-sql-driver/mysql"
-	"xorm.io/core"
 	"xorm.io/xorm"
+	"xorm.io/xorm/log"
 )
 
 var MasterDB *xorm.Engine
@@ -137,7 +137,7 @@ func initEngine() error {
 	logLevel := ConfigFile.MustInt("xorm", "log_level", 1)
 
 	MasterDB.ShowSQL(showSQL)
-	MasterDB.Logger().SetLevel(core.LogLevel(logLevel))
+	MasterDB.Logger().SetLevel(log.LogLevel(logLevel))
 
 	// 启用缓存
 	// cacher := xorm.NewLRUCacher(xorm.NewMemoryStore(), 1000)
