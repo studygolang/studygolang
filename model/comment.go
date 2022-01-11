@@ -8,12 +8,13 @@ package model
 
 // 不要修改常量的顺序
 const (
-	TypeTopic    = iota // 主题
-	TypeArticle         // 博文
-	TypeResource        // 资源
-	TypeWiki            // WIKI
-	TypeProject         // 开源项目
-	TypeBook            // 图书
+	TypeTopic     = iota // 主题
+	TypeArticle          // 博文
+	TypeResource         // 资源
+	TypeWiki             // WIKI
+	TypeProject          // 开源项目
+	TypeBook             // 图书
+	TypeInterview        // 面试题
 )
 
 const (
@@ -32,21 +33,23 @@ const (
 )
 
 var PathUrlMap = map[int]string{
-	TypeTopic:    "/topics/",
-	TypeArticle:  "/articles/",
-	TypeResource: "/resources/",
-	TypeWiki:     "/wiki/",
-	TypeProject:  "/p/",
-	TypeBook:     "/book/",
+	TypeTopic:     "/topics/",
+	TypeArticle:   "/articles/",
+	TypeResource:  "/resources/",
+	TypeWiki:      "/wiki/",
+	TypeProject:   "/p/",
+	TypeBook:      "/book/",
+	TypeInterview: "/interview/",
 }
 
 var TypeNameMap = map[int]string{
-	TypeTopic:    "主题",
-	TypeArticle:  "博文",
-	TypeResource: "资源",
-	TypeWiki:     "Wiki",
-	TypeProject:  "项目",
-	TypeBook:     "图书",
+	TypeTopic:     "主题",
+	TypeArticle:   "博文",
+	TypeResource:  "资源",
+	TypeWiki:      "Wiki",
+	TypeProject:   "项目",
+	TypeBook:      "图书",
+	TypeInterview: "面试题",
 }
 
 // 评论信息（通用）

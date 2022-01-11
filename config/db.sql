@@ -840,3 +840,19 @@ CREATE TABLE `wechat_auto_reply` (
   KEY `word` (`word`),
   KEY `updated_at` (`updated_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='微信自动回复';
+
+CREATE TABLE `interview_question` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `sn` bigint unsigned NOT NULL DEFAULT 0 COMMENT '题目序号，程序生成',
+  `question` varchar(1022) NOT NULL DEFAULT '' COMMENT '问题',
+  `answer` varchar(2046) NOT NULL DEFAULT '' COMMENT '答案', 
+  `level` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '问题难易级别：0-低；1-中；2-高',
+  `viewnum` int unsigned NOT NULL DEFAULT 0 COMMENT '浏览数',
+  `cmtnum` int unsigned NOT NULL DEFAULT 0 COMMENT '评论数',
+  `likenum` int unsigned NOT NULL DEFAULT 0 COMMENT '赞数',
+  `source` varchar(31) NOT NULL DEFAULT '' COMMENT '题目来源',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `sn` (`sn`),
+  KEY `created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Go面试题';

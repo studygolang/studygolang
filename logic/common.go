@@ -22,15 +22,23 @@ import (
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 	"github.com/polaris1119/nosql"
+	"github.com/polaris1119/snowflake"
 	"github.com/polaris1119/times"
 	"golang.org/x/net/context"
 )
 
-var schemaDecoder = schema.NewDecoder()
+var (
+	schemaDecoder = schema.NewDecoder()
+
+	snowFlake *snowflake.SnowFlake
+)
 
 func init() {
 	schemaDecoder.SetAliasTag("json")
 	schemaDecoder.IgnoreUnknownKeys(true)
+
+	startTime, _ := time.ParseInLocation("2006-01-02 15:04:05", "2022-01-10 00:00:00", time.UTC)
+	snowFlake = snowflake.NewWith(startTime)
 }
 
 var (

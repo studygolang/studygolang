@@ -61,6 +61,8 @@ func (this *view) flush() {
 		session.Incr("viewnum", this.num).Update(new(model.Wiki))
 	case model.TypeBook:
 		session.Incr("viewnum", this.num).Update(new(model.Book))
+	case model.TypeInterview:
+		session.Incr("viewnum", this.num).Update(new(model.InterviewQuestion))
 	}
 
 	DefaultRank.GenDayRank(this.objtype, this.objid, this.num)

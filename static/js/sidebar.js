@@ -150,7 +150,10 @@ $(function(){
 
 			var content = '';
 			for(var i in comments) {
-				var url = comments[i].objinfo.uri+comments[i].objid;
+				var url = comments[i].objinfo.uri;
+				if (comments[i].objtype != 6) {
+					url += comments[i].objid;
+				}
 
 				var user = data[comments[i].uid];
 				var avatar = gravatar(user.avatar, user.email, 40);

@@ -368,6 +368,8 @@ github.com/polaris1119/set v0.1.1-0.20160423093427-654439414ced h1:5E6fZkU0PW8RI
 github.com/polaris1119/set v0.1.1-0.20160423093427-654439414ced/go.mod h1:f3pW74DeWib9bLGgMImip5zikwTB5dQ53JVrmT3CYrQ=
 github.com/polaris1119/slices v0.0.0-20160517071324-6ecacdb3cd38 h1:DUG5gZoTQGtKgQogadMFJ2hUCchqPBchezdHsgncEj4=
 github.com/polaris1119/slices v0.0.0-20160517071324-6ecacdb3cd38/go.mod h1:ZHrklmzhHyC2VcV6ef41IXDRFKyUKe0XtTrYqbMe50Y=
+github.com/polaris1119/snowflake v0.1.0 h1:cd2CAPliM8CUeg1jOyOXPIQdqh3xzT9++ihBmFXFaR8=
+github.com/polaris1119/snowflake v0.1.0/go.mod h1:MnAwXKmIDEw9zxfATCTpBwFpED0R4O2m0bc/K4sHOEc=
 github.com/polaris1119/times v0.0.0-20160420102536-14f7f3ba487e h1:t2A6UPUvJrNLdtIJAPFlCUkOAsqm7jYdGb1X82WAu/g=
 github.com/polaris1119/times v0.0.0-20160420102536-14f7f3ba487e/go.mod h1:PDQN4aTOykiTCCVTRdP/Tvsjdv//fUdWP9yZ2J3Ejn8=
 github.com/posener/complete v1.1.1/go.mod h1:em0nMJCgc9GFtwrmVmEMR/ZL6WyhyjMBndrE9hABlRI=
@@ -459,6 +461,7 @@ github.com/valyala/bytebufferpool v1.0.0/go.mod h1:6bBcMArwyJ5K/AmCkWv1jt77kVWyC
 github.com/valyala/fasttemplate v1.2.1 h1:TVEnxayobAdVkhQfrfes2IzOB6o+z4roRkPF52WA1u4=
 github.com/valyala/fasttemplate v1.2.1/go.mod h1:KHLXt3tVN2HBp8eijSv/kGJopbvo7S+qRAEEKiv+SiQ=
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
+github.com/yuin/goldmark v1.2.1 h1:ruQGxdhGHe7FWOJPT0mKs5+pD2Xs1Bm/kdGlHO04FmM=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/zenazn/goji v0.9.0/go.mod h1:7S9M489iMyHBNxwZnk9/EHS098H4/F6TATF2mIxtB1Q=
 github.com/ziutek/mymysql v1.5.4/go.mod h1:LMSpPZ6DbqWFxNCHW77HeMg9I646SAhApZ/wKdgO/C0=

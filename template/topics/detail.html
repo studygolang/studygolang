@@ -84,7 +84,7 @@
 
                 <!-- 加群等 -->
                 {{include "common/promotion.html" .}}
-
+                
                 <div class="content-buttons">
                     <div class="pull-right c9 f11" style="line-height: 12px; padding-top: 3px; text-shadow: 0px 1px 0px #fff;">{{add .topic.view 1}} 次点击 &nbsp;{{if .topic.like}}∙&nbsp; {{.topic.like}} 赞 &nbsp; {{end}}</div>
                     <a class="tb collect" href="javascript:;" title="{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}" data-objid="{{.topic.tid}}" data-objtype="0" data-collect="{{.hadcollect}}">{{if .hadcollect}}取消收藏{{else}}加入收藏{{end}}</a>
@@ -185,7 +185,7 @@ var objid = {{.topic.tid}};
 $(function(){
     new SG.Topics().parseContent($('.page .content'));
 
-    $('code[class*="language-"]').parent('pre').addClass('line-numbers');
+    //$('code[class*="language-"]').parent('pre').addClass('line-numbers');
 
     // 文本框自动伸缩
     $('.need-autogrow').autoGrow();

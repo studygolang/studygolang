@@ -181,12 +181,13 @@ func (self CommentLogic) FindRecent(ctx context.Context, uid, objtype, limit int
 	}
 
 	cmtObjs := []CommentObjecter{
-		model.TypeTopic:    TopicComment{},
-		model.TypeArticle:  ArticleComment{},
-		model.TypeResource: ResourceComment{},
-		model.TypeWiki:     nil,
-		model.TypeProject:  ProjectComment{},
-		model.TypeBook:     BookComment{},
+		model.TypeTopic:     TopicComment{},
+		model.TypeArticle:   ArticleComment{},
+		model.TypeResource:  ResourceComment{},
+		model.TypeWiki:      nil,
+		model.TypeProject:   ProjectComment{},
+		model.TypeBook:      BookComment{},
+		model.TypeInterview: InterviewComment{},
 	}
 	for cmtType, cmts := range cmtMap {
 		self.fillObjinfos(cmts, cmtObjs[cmtType])
@@ -407,12 +408,13 @@ func (self CommentLogic) FindAll(ctx context.Context, paginator *Paginator, orde
 	}
 
 	cmtObjs := []CommentObjecter{
-		model.TypeTopic:    TopicComment{},
-		model.TypeArticle:  ArticleComment{},
-		model.TypeResource: ResourceComment{},
-		model.TypeWiki:     nil,
-		model.TypeProject:  ProjectComment{},
-		model.TypeBook:     BookComment{},
+		model.TypeTopic:     TopicComment{},
+		model.TypeArticle:   ArticleComment{},
+		model.TypeResource:  ResourceComment{},
+		model.TypeWiki:      nil,
+		model.TypeProject:   ProjectComment{},
+		model.TypeBook:      BookComment{},
+		model.TypeInterview: InterviewComment{},
 	}
 	for cmtType, cmts := range cmtMap {
 		self.fillObjinfos(cmts, cmtObjs[cmtType])

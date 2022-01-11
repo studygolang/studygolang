@@ -368,6 +368,60 @@ jQuery(document).ready(function($) {
 		});
 	}
 
+	// 点赞(取消点赞)
+	var postZan = function(that, callback){
+		if ($('#is_login_status').val() != 1) {
+			openPop("#login-pop");
+			return;
+		}
+
+		var objid = $(that).data('objid'),
+			objtype = $(that).data('objtype'),
+			likeFlag = parseInt($(that).data('flag'), 10);
+
+		if (likeFlag) {
+			likeFlag = 0;
+		} else {
+			likeFlag = 1;
+		}
+
+		$.post('/like/'+objid, {objtype:objtype, flag:likeFlag}, function(data){
+			if (data.ok) {
+
+				$(that).data('flag', likeFlag);
+
+				var $likeNum = $(that).find('.likenum');
+
+				var likeNum = $likeNum.text()
+				if (likeNum == '') {
+					likeNum = 0;
+				} else {
+					likeNum = parseInt(likeNum, 10);
+				}
+				// 已喜欢
+				if (likeFlag) {
+					$(that).attr('title', '取消赞');
+					$(that).children('i').removeClass('fa-thumbs-o-up').addClass('fa-thumbs-up')
+					likeNum++;
+				} else {
+					$(that).attr('title', '赞');
+					$(that).children('i').removeClass('fa-thumbs-up').addClass('fa-thumbs-o-up')
+					likeNum--;
+				}
+
+				if (likeNum <= 0) {
+					$likeNum.text('');
+				} else {
+					$likeNum.text(likeNum);
+				}
+
+				callback(likeNum, likeFlag);
+			} else {
+				alert(data.error);
+			}
+		});
+	}
+
 	// 用于列表页发送喜欢(取消喜欢)
 	var postListLike = function(that, callback){
 		if ($('#is_login_status').val() != 1) {
@@ -410,6 +464,16 @@ jQuery(document).ready(function($) {
 			}
 		});
 	}
+
+	// 新版详情页底部赞
+	$('.page #content-zan a').on('click', function(evt) {
+		evt.preventDefault();
+
+		var that = this;
+		postZan(that, function(likeNum, likeFlag){
+			
+		});
+	});
 
 	// 详情页喜欢(取消喜欢)
 	$('.page #content-thank a').on('click', function(evt){

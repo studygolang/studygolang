@@ -194,6 +194,7 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginato
 	wikiIdSet := set.New(set.NonThreadSafe)
 	pidSet := set.New(set.NonThreadSafe)
 	bookIdSet := set.New(set.NonThreadSafe)
+	questionIdSet := set.New(set.NonThreadSafe)
 	// 评论ID
 	cidSet := set.New(set.NonThreadSafe)
 	uidSet := set.New(set.NonThreadSafe)
@@ -236,6 +237,8 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginato
 				pidSet.Add(objid)
 			case model.TypeBook:
 				bookIdSet.Add(objid)
+			case model.TypeInterview:
+				questionIdSet.Add(objid)
 			}
 		case model.MsgtypeSubjectContribute:
 			articleIdSet.Add(objid)
@@ -260,6 +263,7 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginato
 	projectMap := DefaultProject.findByIds(set.IntSlice(pidSet))
 	bookMap := DefaultGoBook.findByIds(set.IntSlice(bookIdSet))
 	subjectMap := DefaultSubject.findByIds(set.IntSlice(sidSet))
+	questionMap := DefaultInterview.findByIds(set.IntSlice(questionIdSet))
 
 	result := make([]map[string]interface{}, len(messages))
 	for i, message := range messages {
@@ -337,6 +341,12 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginato
 					objTitle = book.Name
 					objUrl = "/book/" + strconv.Itoa(book.Id) + "#commentForm"
 					title += "图书："
+				case model.TypeInterview:
+					question := questionMap[objid]
+					strID := strconv.Itoa(question.Id)
+					objTitle = "Go每日一题（" + strID + "）"
+					objUrl = "/interview/question/" + question.ShowSn + "#commentForm"
+					title += "Go面试题："
 				}
 
 			case model.MsgtypePublishAtMe:

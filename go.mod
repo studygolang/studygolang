@@ -45,6 +45,7 @@ require (
 	github.com/polaris1119/nosql v0.0.0-20181019111233-3852ef28d084
 	github.com/polaris1119/set v0.1.1-0.20160423093427-654439414ced
 	github.com/polaris1119/slices v0.0.0-20160517071324-6ecacdb3cd38
+	github.com/polaris1119/snowflake v0.1.0
 	github.com/polaris1119/times v0.0.0-20160420102536-14f7f3ba487e
 	github.com/qiniu/api.v6 v6.0.9+incompatible
 	github.com/qiniu/bytes v0.0.0-20140728010635-4887e7b2bde3 // indirect
@@ -55,6 +56,7 @@ require (
 	github.com/tidwall/gjson v1.12.1
 	github.com/twinj/uuid v1.0.0
 	github.com/tylerb/graceful v1.2.15
+	github.com/yuin/goldmark v1.2.1
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3 // indirect
 	golang.org/x/net v0.0.0-20220107192237-5cfca573fb4d
 	golang.org/x/oauth2 v0.0.0-20190226205417-e64efc72b421

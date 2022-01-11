@@ -1,0 +1,139 @@
+{{define "title"}}{{.title}} {{end}}
+{{define "seo"}}<meta name="keywords" content="Golang面试题,Go面试题,面试题,Go每日一题">
+<meta name="description" content="{{substring .question.Answer 200 ""}}">{{end}}
+{{define "content"}}
+
+<div class="row">
+    <div class="col-md-9 col-sm-6">
+        <div class="sep20"></div>
+
+        <ol class="breadcrumb">
+            <li><a href="/">首页</a></li>
+            <li><a href="/interview/question">Go每日一题</a></li>
+        </ol>
+        <div class="page">
+            <div class="box_white" style="overflow: visible;">
+                <div class="title">
+                    <h1>{{.title}} 的题目如下</h1>
+                    <small class="c9">
+                      {{add .question.Viewnum 1}} 次点击 · {{if .question.Likenum}}{{.question.Likenum}} 赞 ·{{end}}<span class="timeago" title="{{.cur_time}}"></span> 开始浏览&nbsp; &nbsp;· 来源「{{.question.Source}}」
+                  </small>
+                </div>
+                
+                <div class="cell">
+                  <div class="content">{{noescape .question.Question}}</div>
+                  <div style="text-align: center;">
+                    <button class="btn btn-success btn-sm" id="view-answer">查看答案</button>
+                  </div>
+                </div>
+                <div class="cell" id="question-answer" style="display: none;">
+                  <h3>答案解析：</h3>
+                  <div>{{noescape .question.Answer}}</div>
+                </div>
+                <div class="cell row">
+                  <div class="col-md-6 col-sm-6" style="font-size: 13px;">{{add .question.Viewnum 1}} 阅读</div>
+                  <div id="content-zan" class="col-md-6 col-sm-6" style="text-align: right;">
+                    <a href="javascript:" style="text-decoration: none;" title="{{if .likeflag}}取消赞{{else}}赞{{end}}" data-objid="{{.question.Id}}" data-objtype="6" data-flag="{{.likeflag}}">
+                      <i class="fa {{if .likeflag}}fa-thumbs-up{{else}}fa-thumbs-o-up{{end}}" aria-hidden="true" style="font-size: 18px;"></i><span style="font-size: 13px;"> 赞 <span class="likenum">{{if .question.Likenum}}{{.question.Likenum}}{{end}}</span></span>
+                    </a>
+                  </div>
+                </div>
+            </div>
+            <div class="sep20"></div>
+
+            <!-- 评论列表 -->
+            <div id="replies" class="box_white">
+              <div class="cell">
+                  <span class="c9"><span class="cmtnum">{{.question.Cmtnum}}</span> 回复</span>
+              </div>
+              {{include "common/comment-page.html" .}}
+              <div class="comment-list cell" data-objid="{{.question.Id}}" data-objtype="6" {{if .me.Uid}}data-username="{{.me.Username}}" data-uid="{{.me.Uid}}" data-avatar="{{gravatar .me.Avatar .me.Email 48 .is_https}}"{{end}}>
+                  <div class="words hide"><div class="text-center">暂无回复</div></div>
+              </div>
+              {{include "common/comment-page.html" .}}
+          </div>
+
+          {{template "comment" .}}
+
+          {{include "common/view_stat.html" .}}
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="sep20"></div>
+
+        {{include "common/my_info.html" .}}
+
+        {{if .pos_ad.right1}}
+        <div class="box_white sidebar" id="ad-right1">
+            {{if eq .pos_ad.right1.AdType 0}}
+                {{noescape .pos_ad.right1.Code}}
+            {{end}}
+        </div>
+        {{end}}
+
+        {{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"今日阅读排行","objtype":0,"limit":10,"rank_type":"today"}`)}}
+
+        {{if .pos_ad.right2}}
+        <div class="box_white sidebar" id="ad-right2">
+            {{if eq .pos_ad.right2.AdType 0}}
+                {{noescape .pos_ad.right2.Code}}
+            {{end}}
+        </div>
+        {{end}}
+
+        {{include "sidebar/view_rank.html" (parseJSON `{"rank_title":"一周阅读排行","objtype":0,"limit":10,"rank_type":"week"}`)}}
+
+        {{include "sidebar/concern.html" .}}
+
+    </div>
+</div>
+{{end}}
+{{define "css"}}
+{{include "cssjs/prism.css.html" .}}
+{{end}}
+
+{{define "js"}}
+<script type="text/javascript">
+// 需要加载的侧边栏
+SG.SIDE_BARS = [
+    "/topics/recent",
+    "/articles/recent",
+    "/resources/recent",
+    "/rank/view"
+];
+
+$(function(){
+  loadComments();
+
+  $('#view-answer').on('click', function(){
+    $('#question-answer').show();
+  });
+});
+</script>
+<script src="https://cdn.staticfile.org/prism/9000.0.1/prism.min.js"></script>
+<script src="https://cdn.staticfile.org/prism/9000.0.1/components/prism-go.min.js"></script>
+<script src="https://cdn.staticfile.org/prism/1.9.0/components/prism-json.min.js"></script>
+<script src="https://cdn.staticfile.org/prism/9000.0.1/components/prism-bash.min.js"></script>
+
+<script type="text/javascript">
+Prism.languages.text = Prism.languages.go;
+Prism.languages.plain = Prism.languages.go;
+Prism.languages.golang = Prism.languages.go;
+Prism.languages.none = Prism.languages.go;
+Prism.languages.console = Prism.languages.bash;
+Prism.languages.shell = Prism.languages.bash;
+</script>
+
+{{if .pos_ad.right1}}
+    {{if eq .pos_ad.right1.AdType 1}}
+        {{noescape .pos_ad.right1.Code}}
+    {{end}}
+{{end}}
+
+{{if .pos_ad.right2}}
+    {{if eq .pos_ad.right2.AdType 1}}
+        {{noescape .pos_ad.right2.Code}}
+    {{end}}
+{{end}}
+
+{{end}}
