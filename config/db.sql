@@ -845,7 +845,7 @@ CREATE TABLE `interview_question` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
   `sn` bigint unsigned NOT NULL DEFAULT 0 COMMENT '题目序号，程序生成',
   `question` varchar(1022) NOT NULL DEFAULT '' COMMENT '问题',
-  `answer` varchar(2046) NOT NULL DEFAULT '' COMMENT '答案', 
+  `answer` varchar(4094) NOT NULL DEFAULT '' COMMENT '答案', 
   `level` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '问题难易级别：0-低；1-中；2-高',
   `viewnum` int unsigned NOT NULL DEFAULT 0 COMMENT '浏览数',
   `cmtnum` int unsigned NOT NULL DEFAULT 0 COMMENT '评论数',

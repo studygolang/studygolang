@@ -28,11 +28,11 @@
                 </div>
                 <div class="cell" id="question-answer" style="display: none;">
                   <h3>答案解析：</h3>
-                  <div>{{noescape .question.Answer}}</div>
+                  <div class="content">{{noescape .question.Answer}}</div>
                 </div>
                 <div class="cell row">
-                  <div class="col-md-6 col-sm-6" style="font-size: 13px;">{{add .question.Viewnum 1}} 阅读</div>
-                  <div id="content-zan" class="col-md-6 col-sm-6" style="text-align: right;">
+                  <div class="col-md-6 col-xs-6" style="font-size: 13px;">{{add .question.Viewnum 1}} 阅读</div>
+                  <div id="content-zan" class="col-md-6 col-xs-6" style="text-align: right;">
                     <a href="javascript:" style="text-decoration: none;" title="{{if .likeflag}}取消赞{{else}}赞{{end}}" data-objid="{{.question.Id}}" data-objtype="6" data-flag="{{.likeflag}}">
                       <i class="fa {{if .likeflag}}fa-thumbs-up{{else}}fa-thumbs-o-up{{end}}" aria-hidden="true" style="font-size: 18px;"></i><span style="font-size: 13px;"> 赞 <span class="likenum">{{if .question.Likenum}}{{.question.Likenum}}{{end}}</span></span>
                     </a>
