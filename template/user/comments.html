@@ -27,7 +27,7 @@
 						{{end}}
 							<abbr class="timeago" title="{{.Ctime}}"></abbr> 评论了<strong>{{.Objinfo.type_name}}</strong>
 						</span>
-						<a href="{{.Objinfo.uri}}{{.Objid}}" title="{{.Objinfo.title}}">{{substring .Objinfo.title 60 "..."}}</a>
+						<a href="{{.Objinfo.uri}}{{if ne .Objinfo.type_name "面试题" }}{{.Objid}}{{end}}" title="{{.Objinfo.title}}">{{substring .Objinfo.title 60 "..."}}</a>
 					</div>
 					<div class="content">
 						<div class="md-content">{{substring .Content 100 "..."}}</div>
