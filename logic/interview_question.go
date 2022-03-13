@@ -122,10 +122,9 @@ func (InterviewLogic) UpdateTodayQuestionID() {
 	defer redis.Close()
 
 	id := goutils.MustInt(redis.GET(questionIDKey), 0)
+	id = (id + 1) % (question.Id + 1)
 	if id == 0 {
 		id = 1
-	} else {
-		id = (id + 1) % question.Id
 	}
 	redis.SET(questionIDKey, id, 0)
 }
