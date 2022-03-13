@@ -52,5 +52,6 @@ welcome.png
 ssl
 bin
 tmp
+docker
 
 *.code-workspace

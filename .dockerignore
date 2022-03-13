@@ -10,3 +10,4 @@ assets
 *.o
 *.a
 *.so
+docker

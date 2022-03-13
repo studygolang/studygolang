@@ -1,10 +1,10 @@
-# Start from golang v1.12 base image
-FROM golang:1.12
+# Start from golang v1.17 base image
+FROM golang:1.17
 
 WORKDIR /app/studygolang
 
-COPY . /app/studygolang
+COPY . /app/studygolang/
 
-RUN make build
+RUN make
 
-CMD ["bin/studygolang"]
+ENTRYPOINT ["bin/studygolang", "-embed_crawler", "-embed_indexing"]

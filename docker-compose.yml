@@ -10,13 +10,62 @@ services:
     networks:
       - default
       - app_net
+    depends_on:
+      - mysql
+      - redis
     external_links:
       - redis:redis
       - mysql:mysql
     volumes:
-      - ./static:/app/studygolang/static
-      - ./template:/app/studygolang/template
-      - ./log:/app/studygolang/log
+      - ./static:/data/www/studygolang/static
+      - ./template:/data/www/studygolang/template
+      - ./config:/data/www/studygolang/config
+      - ./log:/data/www/studygolang/log
+    restart: always
+  nginx:
+    container_name: nginx
+    build: ./nginx
+    depends_on:
+        - play
+    links:
+        - play:play
+    volumes:
+        - /data/www:/data/www:rw
+        - ./nginx/conf.d:/etc/nginx/conf.d:ro
+        - ./nginx/certs/:/etc/nginx/certs
+        - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+        - ./logs/nginx:/var/log/nginx:rw
+    ports:
+        - "80:80"
+        - "443:443"
+    restart: always
+    command: nginx -g 'daemon off;' 
+  mysql:
+      container_name: mysql
+      image: "mysql/mysql-server:5.7"
+      networks:
+          - default
+          - app_net
+      ports:
+          - "3306:3306"
+          - "33060:33060"
+      environment:
+          - MYSQL_ROOT_PASSWORD=123456
+      volumes:
+          - ./docker/mysql:/var/lib/mysql
+      restart: always
+  
+  redis:
+      container_name: redis
+      image: "redis:6.2"
+      networks:
+          - default
+          - app_net
+      ports:
+          - "6379:6379"
+      volumes:
+          - ./docker/redis:/usr/local/etc/redis
+      restart: always
 
 networks:
   app_net:
