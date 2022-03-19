@@ -11,6 +11,7 @@ import (
 	"html/template"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/studygolang/studygolang/db"
 )
@@ -53,7 +54,7 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 	case *Topic:
 		viewnum, cmtnum, likenum := 0, 0, 0
 		if objectExt != nil {
-			// 传递过来的是一个 *TopicEx 对象，类型是有的，即时值是 nil，这里也和 nil 是不等
+			// 传递过来的是一个 *TopicEx 对象，类型是有的，即使值是 nil，这里也和 nil 是不等
 			topicEx := objectExt.(*TopicUpEx)
 			if topicEx != nil {
 				viewnum = topicEx.View
@@ -62,11 +63,9 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 			}
 		}
 
-		var sortTime = NewOftenTime()
-		if objdoc.Lastreplyuid != 0 {
+		var sortTime = objdoc.Ctime
+		if objdoc.Lastreplyuid != 0 && time.Since(time.Time(sortTime)) < 120*24*time.Hour {
 			sortTime = objdoc.Lastreplytime
-		} else {
-			sortTime = objdoc.Ctime
 		}
 
 		userLogin := &UserLogin{}
@@ -102,11 +101,9 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 			uid = userLogin.Uid
 		}
 
-		var sortTime = NewOftenTime()
-		if objdoc.Lastreplyuid != 0 {
+		var sortTime = objdoc.Ctime
+		if objdoc.Lastreplyuid != 0 && time.Since(time.Time(sortTime)) < 120*24*time.Hour {
 			sortTime = objdoc.Lastreplytime
-		} else {
-			sortTime = objdoc.Ctime
 		}
 
 		document = &Document{
@@ -140,11 +137,9 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 			}
 		}
 
-		var sortTime = NewOftenTime()
-		if objdoc.Lastreplyuid != 0 {
+		var sortTime = objdoc.Ctime
+		if objdoc.Lastreplyuid != 0 && time.Since(time.Time(sortTime)) < 120*24*time.Hour {
 			sortTime = objdoc.Lastreplytime
-		} else {
-			sortTime = objdoc.Ctime
 		}
 
 		userLogin := &UserLogin{}
@@ -174,11 +169,9 @@ func NewDocument(object interface{}, objectExt interface{}) *Document {
 		userLogin := &UserLogin{}
 		db.MasterDB.Where("username=?", objdoc.Username).Get(userLogin)
 
-		var sortTime = NewOftenTime()
-		if objdoc.Lastreplyuid != 0 {
+		var sortTime = objdoc.Ctime
+		if objdoc.Lastreplyuid != 0 && time.Since(time.Time(sortTime)) < 120*24*time.Hour {
 			sortTime = objdoc.Lastreplytime
-		} else {
-			sortTime = objdoc.Ctime
 		}
 
 		document = &Document{
