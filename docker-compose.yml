@@ -24,11 +24,7 @@ services:
     restart: always
   nginx:
     container_name: nginx
-    build: ./nginx
-    depends_on:
-        - play
-    links:
-        - play:play
+    build: ./docker/nginx
     volumes:
         - /data/www:/data/www:rw
         - ./nginx/conf.d:/etc/nginx/conf.d:ro

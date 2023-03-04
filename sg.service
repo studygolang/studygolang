@@ -1,0 +1,13 @@
+[Unit]
+Description=studygolang
+
+[Service]
+ExecStart=/data/www/studygolang/bin/studygolang
+ExecReload=/bin/kill -USR2 $MAINPID
+PIDFile=/data/www/studygolang/pid/studygolang.pid
+Restart=always
+User=xuxinhua
+Group=xuxinhua
+
+[Install]
+WantedBy=multi-user.target

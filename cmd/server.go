@@ -31,6 +31,7 @@ func IndexingServer() {
 	}
 
 	if *manualIndex {
+		logger.Infoln("manual indexing")
 		indexing(true)
 	}
 

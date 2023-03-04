@@ -37,8 +37,8 @@ import (
 )
 
 const (
-	DefaultCDNHttp  = "http://test.static.studygolang.com/"
-	DefaultCDNHttps = "https://static.studygolang.com/"
+	DefaultCDNHttp  = "http://test.static.golangjob.cn/"
+	DefaultCDNHttps = "https://static.golangjob.cn/"
 )
 
 var Build string
