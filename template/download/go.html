@@ -36,10 +36,15 @@
 				<div class="reqs">Windows 7 or later, Intel 64-bit 处理器</div>
 				{{else if eq .OS "Linux"}}
 				<div class="platform">Linux</div>
-				<div class="reqs">Linux 2.6.23 or later, Intel 64-bit 处理器</div>
+				<div class="reqs">Linux 2.6.32 or later, Intel 64-bit 处理器</div>
 				{{else if eq .OS "macOS"}}
 				<div class="platform">Apple macOS</div>
+					{{if eq .Arch "x86-64"}}
 				<div class="reqs">macOS 10.13 or later, Intel 64-bit 处理器</div>
+					{{else}}
+				<div class="reqs">macOS 11 or later, Apple 64-bit 处理器</div>
+					{{end}}
+
 				{{else}}
 				<div class="platform">源码</div>
 				{{end}}

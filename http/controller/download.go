@@ -36,7 +36,7 @@ func (self DownloadController) RegisterRoute(g *echo.Group) {
 func (DownloadController) GoDl(ctx echo.Context) error {
 	downloads := logic.DefaultDownload.FindAll(context.EchoContext(ctx))
 
-	featured := make([]*model.Download, 0, 4)
+	featured := make([]*model.Download, 0, 5)
 	stables := make(map[string][]*model.Download)
 	stableVersions := make([]string, 0, 2)
 	unstables := make(map[string][]*model.Download)
@@ -52,7 +52,7 @@ func (DownloadController) GoDl(ctx echo.Context) error {
 			}
 			stables[version] = append(stables[version], download)
 
-			if download.IsRecommend && len(featured) < 4 {
+			if download.IsRecommend && len(featured) < 5 {
 				featured = append(featured, download)
 			}
 		} else if download.Category == model.DLUnstable {
