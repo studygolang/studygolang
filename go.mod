@@ -42,7 +42,7 @@ require (
 	github.com/polaris1119/goutils v0.0.0-20190815094239-73c47df9b896
 	github.com/polaris1119/keyword v0.0.0-20170608075927-96ae6735f2f2
 	github.com/polaris1119/logger v0.0.0-20170422061149-0233d014769e
-	github.com/polaris1119/nosql v0.0.0-20181019111233-3852ef28d084
+	github.com/polaris1119/nosql v0.0.0-20230923063022-e8124f458d80
 	github.com/polaris1119/set v0.1.1-0.20160423093427-654439414ced
 	github.com/polaris1119/slices v0.0.0-20160517071324-6ecacdb3cd38
 	github.com/polaris1119/snowflake v0.1.0

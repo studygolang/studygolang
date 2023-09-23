@@ -362,8 +362,8 @@ github.com/polaris1119/keyword v0.0.0-20170608075927-96ae6735f2f2 h1:63TyJE7nj3e
 github.com/polaris1119/keyword v0.0.0-20170608075927-96ae6735f2f2/go.mod h1:YYx1sYXgS43cG1iH0cXYFcibESl8azhUrA6W10gYb9E=
 github.com/polaris1119/logger v0.0.0-20170422061149-0233d014769e h1:HSeLmpKe7eny4fT5tdnYfQffWvx6aKCdzIcW/MZWt3I=
 github.com/polaris1119/logger v0.0.0-20170422061149-0233d014769e/go.mod h1:7wFzOsSeMeuwhnZItJVfX1WClNpCyXuO0kj+ifdK+LQ=
-github.com/polaris1119/nosql v0.0.0-20181019111233-3852ef28d084 h1:tgfnz7bUVQ0MtsvaT3R47E083V7FVP0GIDsmXhkTdD0=
-github.com/polaris1119/nosql v0.0.0-20181019111233-3852ef28d084/go.mod h1:AQkEEdvgfOXmx5L7HLvGLZPWnbNa/EIOEpMhTTOor3g=
+github.com/polaris1119/nosql v0.0.0-20230923063022-e8124f458d80 h1:I03kiaehuc292z3uirGDCP57KSOOS79+R6FkFJ0ci8A=
+github.com/polaris1119/nosql v0.0.0-20230923063022-e8124f458d80/go.mod h1:AQkEEdvgfOXmx5L7HLvGLZPWnbNa/EIOEpMhTTOor3g=
 github.com/polaris1119/set v0.1.1-0.20160423093427-654439414ced h1:5E6fZkU0PW8RIoOOOQq+NJ6ICZDtk/3mON49Ezl0raY=
 github.com/polaris1119/set v0.1.1-0.20160423093427-654439414ced/go.mod h1:f3pW74DeWib9bLGgMImip5zikwTB5dQ53JVrmT3CYrQ=
 github.com/polaris1119/slices v0.0.0-20160517071324-6ecacdb3cd38 h1:DUG5gZoTQGtKgQogadMFJ2hUCchqPBchezdHsgncEj4=
