@@ -80,7 +80,7 @@ func (self FeedLogic) FindTop(ctx context.Context) []*model.Feed {
 	objLog := GetLogger(ctx)
 
 	feeds := cache.Feed.GetTop(ctx)
-	if len(feeds) > 0 {
+	if feeds != nil {
 		return feeds
 	}
 
@@ -92,9 +92,7 @@ func (self FeedLogic) FindTop(ctx context.Context) []*model.Feed {
 	}
 
 	feeds = self.fillOtherInfo(ctx, feeds, false)
-	if len(feeds) > 0 {
-		cache.Feed.SetTop(ctx, feeds)
-	}
+	cache.Feed.SetTop(ctx, feeds)
 	return feeds
 }
 

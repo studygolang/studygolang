@@ -22,6 +22,10 @@ func (feedCache) GetTop(ctx context.Context) []*model.Feed {
 		return nil
 	}
 
+	if s == "notop" {
+		return []*model.Feed{}
+	}
+
 	feeds := make([]*model.Feed, 0)
 	err := json.Unmarshal([]byte(s), &feeds)
 	if err != nil {
@@ -35,8 +39,13 @@ func (feedCache) SetTop(ctx context.Context, feeds []*model.Feed) {
 	redisClient := nosql.NewRedisClient()
 	defer redisClient.Close()
 
-	b, _ := json.Marshal(feeds)
-	redisClient.SET("feed:top", string(b), 300)
+	val := "notop"
+	if len(feeds) > 0 {
+		b, _ := json.Marshal(feeds)
+		val = string(b)
+	}
+
+	redisClient.SET("feed:top", val, 300)
 }
 
 func (feedCache) GetList(ctx context.Context, p int) []*model.Feed {
