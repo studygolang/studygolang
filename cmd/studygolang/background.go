@@ -17,8 +17,8 @@ import (
 	"github.com/studygolang/studygolang/cmd"
 	"github.com/studygolang/studygolang/db"
 	"github.com/studygolang/studygolang/global"
-	"github.com/studygolang/studygolang/logic"
-	"github.com/studygolang/studygolang/model"
+	"github.com/studygolang/studygolang/internal/logic"
+	"github.com/studygolang/studygolang/internal/model"
 )
 
 var (

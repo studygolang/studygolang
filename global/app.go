@@ -31,7 +31,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/studygolang/studygolang/model"
+	"github.com/studygolang/studygolang/internal/model"
 
 	"github.com/polaris1119/config"
 )

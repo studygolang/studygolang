@@ -16,11 +16,11 @@ import (
 
 	"github.com/studygolang/studygolang/cmd"
 	"github.com/studygolang/studygolang/global"
-	"github.com/studygolang/studygolang/http/controller"
-	"github.com/studygolang/studygolang/http/controller/admin"
-	"github.com/studygolang/studygolang/http/controller/app"
-	pwm "github.com/studygolang/studygolang/http/middleware"
-	"github.com/studygolang/studygolang/logic"
+	"github.com/studygolang/studygolang/internal/http/controller"
+	"github.com/studygolang/studygolang/internal/http/controller/admin"
+	"github.com/studygolang/studygolang/internal/http/controller/app"
+	pwm "github.com/studygolang/studygolang/internal/http/middleware"
+	"github.com/studygolang/studygolang/internal/logic"
 	thirdmw "github.com/studygolang/studygolang/middleware"
 
 	"github.com/fatih/structs"

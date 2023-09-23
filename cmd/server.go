@@ -12,7 +12,7 @@ import (
 	"flag"
 	"time"
 
-	"github.com/studygolang/studygolang/logic"
+	"github.com/studygolang/studygolang/internal/logic"
 
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/logger"
