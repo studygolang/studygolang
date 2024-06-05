@@ -56,10 +56,12 @@ func (DownloadLogic) AddNewDownload(ctx context.Context, version, selector strin
 	doc.Find(selector).Each(func(i int, versionSel *goquery.Selection) {
 		idVal, exists := versionSel.Attr("id")
 		if !exists {
+			objLog.Errorln("add new download version not exist:", version)
 			return
 		}
 
 		if idVal != version {
+			objLog.Errorln("add new download version not match, expected:", version, "real:", idVal)
 			return
 		}
 
@@ -93,6 +95,7 @@ func (DownloadLogic) AddNewDownload(ctx context.Context, version, selector strin
 			})
 
 			if download.Kind == "" {
+				objLog.Errorln("add new download Kind is empty:", version)
 				return
 			}
 
