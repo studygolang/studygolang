@@ -103,7 +103,7 @@ func defaultCacheKeyAlgorithm(ctx echo.Context) string {
 		}
 	}
 
-	sort.Sort(sort.StringSlice(keys))
+	sort.Strings(keys)
 
 	buffer := goutils.NewBuffer()
 	for _, k := range keys {
