@@ -18,66 +18,53 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import type { Article, Comment } from "@/lib/types"
 
-const articleData = {
-  title: "深入理解 Go 语言 GMP 调度模型",
-  author: "polaris",
-  authorInitial: "P",
-  tag: "Go基础",
-  tagColor: "bg-primary/10 text-primary",
-  createdAt: "2026-02-25 10:00",
-  views: 3210,
-  likes: 156,
-  readTime: "15 分钟",
+interface ArticleDetailProps {
+  id: string
+  article?: Article
+  prev?: Article
+  next?: Article
+  comments?: Comment[]
 }
 
-const contentParagraphs = [
-  "GMP 模型是 Go 语言运行时调度的核心。理解它对于编写高性能的 Go 程序至关重要。",
-  "## G (Goroutine)",
-  "Goroutine 是 Go 中最基本的执行单元。每个 Goroutine 初始只需 2KB 栈空间，远小于线程的 1MB，这使得 Go 可以轻松创建数百万个并发任务。",
-  "## M (Machine/Thread)",
-  "M 代表操作系统线程。Go 运行时会创建 M 来执行 G，M 的数量由 GOMAXPROCS 和系统资源共同决定。当 M 执行阻塞的系统调用时，运行时会创建新的 M 来保证 P 的利用率。",
-  "## P (Processor)",
-  "P 是逻辑处理器，它包含运行 Go 代码所需的资源。P 的数量默认等于 CPU 核数，可以通过 runtime.GOMAXPROCS() 设置。每个 P 维护一个本地运行队列（local run queue）。",
-  "## 调度流程",
-  "1. 当创建一个新的 Goroutine 时，它会被放入当前 P 的本地队列",
-  "2. 当本地队列满了，会把一半的 G 转移到全局队列",
-  "3. M 从关联的 P 的本地队列获取 G 执行",
-  "4. 如果本地队列为空，M 会尝试从全局队列或其他 P 的队列「偷取」G",
-  "## Work Stealing 机制",
-  "当一个 P 的本地队列为空时，它会尝试从其他 P 的队列中「偷取」一半的 Goroutine。这种机制确保了所有 CPU 核心都能被充分利用，避免了负载不均的问题。",
-  "## 总结",
-  "GMP 模型是 Go 高并发的基石。通过 Goroutine 的轻量级、M:N 线程模型和 Work Stealing 调度算法，Go 实现了高效的并发调度。理解这些底层原理，有助于我们编写更高效的并发程序。",
-]
+function formatTime(ctime: string): string {
+  try {
+    const date = new Date(ctime)
+    const now = new Date()
+    const diff = now.getTime() - date.getTime()
+    const minutes = Math.floor(diff / 60000)
+    if (minutes < 60) return `${minutes} 分钟前`
+    const hours = Math.floor(minutes / 60)
+    if (hours < 24) return `${hours} 小时前`
+    const days = Math.floor(hours / 24)
+    if (days < 30) return `${days} 天前`
+    return ctime.slice(0, 10)
+  } catch {
+    return ctime
+  }
+}
 
-const relatedArticles = [
-  { title: "Go 并发编程最佳实践 2026 版", href: "/articles/2" },
-  { title: "深入理解 Go Channel 的实现原理", href: "/articles/3" },
-  { title: "Go 内存模型与 Happens-Before 原则", href: "/articles/4" },
-]
-
-const comments = [
-  {
-    id: 1,
-    author: "guo_hongzhi",
-    initial: "G",
-    content: "写得非常清晰！GMP 模型之前一直似懂非懂，看完这篇终于通透了。特别是 Work Stealing 那部分的解释很到位。",
-    time: "1 小时前",
-    likes: 18,
-  },
-  {
-    id: 2,
-    author: "bob_dev",
-    initial: "B",
-    content: "请问在实际生产环境中，GOMAXPROCS 应该设置成什么值比较好？是直接等于 CPU 核数吗？",
-    time: "45 分钟前",
-    likes: 5,
-  },
-]
-
-export function ArticleDetail({ id }: { id: string }) {
+export function ArticleDetail({ id, article, prev, next, comments = [] }: ArticleDetailProps) {
   const [liked, setLiked] = useState(false)
   const [bookmarked, setBookmarked] = useState(false)
+
+  if (!article) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center text-muted-foreground">
+          文章不存在或已被删除
+        </CardContent>
+      </Card>
+    )
+  }
+
+  const relatedArticles = [
+    ...(prev ? [{ title: prev.title, href: `/articles/${prev.id}` }] : []),
+    ...(next ? [{ title: next.title, href: `/articles/${next.id}` }] : []),
+  ]
+
+  const contentParagraphs = article.content ? article.content.split("\n") : []
 
   return (
     <div className="space-y-4">
@@ -86,7 +73,7 @@ export function ArticleDetail({ id }: { id: string }) {
         <CardContent className="p-5 sm:p-8">
           {/* Title */}
           <h1 className="text-balance text-2xl font-bold leading-tight text-foreground sm:text-[28px]">
-            {articleData.title}
+            {article.title}
           </h1>
 
           {/* Meta */}
@@ -94,32 +81,33 @@ export function ArticleDetail({ id }: { id: string }) {
             <div className="flex items-center gap-2">
               <Avatar className="h-8 w-8">
                 <AvatarFallback className="bg-primary/10 text-sm font-semibold text-primary">
-                  {articleData.authorInitial}
+                  {article.author ? article.author.charAt(0).toUpperCase() : "?"}
                 </AvatarFallback>
               </Avatar>
               <div>
                 <Link
-                  href={`/user/${articleData.author}`}
+                  href={`/user/${article.author}`}
                   className="text-sm font-medium text-foreground hover:text-primary"
                 >
-                  {articleData.author}
+                  {article.author}
                 </Link>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
-                    {articleData.createdAt}
+                    {formatTime(article.ctime)}
                   </span>
-                  <span>{"阅读 " + articleData.readTime}</span>
                 </div>
               </div>
             </div>
             <div className="ml-auto hidden items-center gap-2 sm:flex">
-              <Badge variant="secondary" className={`text-xs ${articleData.tagColor}`}>
-                {articleData.tag}
-              </Badge>
+              {article.tags && (
+                <Badge variant="secondary" className="bg-primary/10 text-xs text-primary">
+                  {article.tags.split(",")[0]}
+                </Badge>
+              )}
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Eye className="h-3 w-3" />
-                {articleData.views}
+                {article.viewnum}
               </span>
             </div>
           </div>
@@ -139,6 +127,13 @@ export function ArticleDetail({ id }: { id: string }) {
                   </h2>
                 )
               }
+              if (para.startsWith("### ")) {
+                return (
+                  <h3 key={i} className="mb-2 mt-4 text-base font-semibold text-foreground">
+                    {para.replace("### ", "")}
+                  </h3>
+                )
+              }
               if (/^\d+\.\s/.test(para)) {
                 return (
                   <div key={i} className="flex gap-2 py-0.5 pl-4 text-sm leading-relaxed text-foreground">
@@ -147,6 +142,7 @@ export function ArticleDetail({ id }: { id: string }) {
                   </div>
                 )
               }
+              if (para.trim() === "") return <div key={i} className="h-2" />
               return (
                 <p key={i} className="text-[15px] leading-relaxed text-foreground">
                   {para}
@@ -167,7 +163,7 @@ export function ArticleDetail({ id }: { id: string }) {
               onClick={() => setLiked(!liked)}
             >
               <ThumbsUp className="h-3.5 w-3.5" />
-              {liked ? articleData.likes + 1 : articleData.likes}
+              {liked ? article.likenum + 1 : article.likenum}
             </Button>
             <Button
               variant={bookmarked ? "default" : "outline"}
@@ -189,23 +185,25 @@ export function ArticleDetail({ id }: { id: string }) {
       </Card>
 
       {/* Related Articles */}
-      <Card>
-        <CardContent className="p-5">
-          <h3 className="mb-3 text-sm font-semibold text-foreground">{"相关推荐"}</h3>
-          <div className="space-y-2">
-            {relatedArticles.map((article, i) => (
-              <Link
-                key={i}
-                href={article.href}
-                className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary"
-              >
-                <ExternalLink className="h-3 w-3 shrink-0" />
-                {article.title}
-              </Link>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {relatedArticles.length > 0 && (
+        <Card>
+          <CardContent className="p-5">
+            <h3 className="mb-3 text-sm font-semibold text-foreground">{"相关推荐"}</h3>
+            <div className="space-y-2">
+              {relatedArticles.map((a, i) => (
+                <Link
+                  key={i}
+                  href={a.href}
+                  className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary"
+                >
+                  <ExternalLink className="h-3 w-3 shrink-0" />
+                  {a.title}
+                </Link>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Comments */}
       <Card>
@@ -234,13 +232,13 @@ export function ArticleDetail({ id }: { id: string }) {
                 <div className="flex gap-3">
                   <Avatar className="mt-0.5 h-8 w-8 shrink-0">
                     <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
-                      {comment.initial}
+                      {comment.name ? comment.name.charAt(0).toUpperCase() : "?"}
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-foreground">{comment.author}</span>
-                      <span className="text-xs text-muted-foreground">{comment.time}</span>
+                      <span className="text-sm font-semibold text-foreground">{comment.name}</span>
+                      <span className="text-xs text-muted-foreground">{formatTime(comment.ctime)}</span>
                     </div>
                     <p className="mt-1.5 text-sm leading-relaxed text-foreground">
                       {comment.content}
@@ -248,7 +246,7 @@ export function ArticleDetail({ id }: { id: string }) {
                     <div className="mt-2 flex items-center gap-3">
                       <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary">
                         <ChevronUp className="h-3.5 w-3.5" />
-                        {comment.likes}
+                        0
                       </button>
                       <button className="text-xs text-muted-foreground hover:text-primary">{"回复"}</button>
                       <button className="ml-auto text-muted-foreground hover:text-primary">

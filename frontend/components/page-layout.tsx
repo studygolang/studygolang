@@ -11,6 +11,17 @@ import {
   FriendLinks,
 } from "@/components/sidebar-widgets"
 import { NodeNavigation } from "@/components/node-navigation"
+import type { Reading, SiteStats, Topic, Comment, User, FriendLink, TopicNode } from "@/lib/types"
+
+interface SidebarData {
+  stats?: SiteStats
+  readings?: Reading[]
+  trendingTopics?: Topic[]
+  comments?: Comment[]
+  activeUsers?: User[]
+  friendLinks?: FriendLink[]
+  nodes?: TopicNode[]
+}
 
 interface PageLayoutProps {
   children: React.ReactNode
@@ -18,12 +29,15 @@ interface PageLayoutProps {
   sidebar?: boolean
   /** Custom sidebar content instead of default widgets */
   sidebarContent?: React.ReactNode
+  /** Data to pass to default sidebar widgets */
+  sidebarData?: SidebarData
 }
 
 export function PageLayout({
   children,
   sidebar = true,
   sidebarContent,
+  sidebarData,
 }: PageLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
@@ -41,15 +55,15 @@ export function PageLayout({
                 <>
                   <LoginCard />
                   <DailyQuestion />
-                  <MorningReading />
-                  <TrendingTopics />
+                  <MorningReading readings={sidebarData?.readings} />
+                  <TrendingTopics topics={sidebarData?.trendingTopics} />
                   <div className="hidden lg:block">
-                    <NodeNavigation />
+                    <NodeNavigation nodes={sidebarData?.nodes} />
                   </div>
-                  <LatestComments />
-                  <ActiveMembers />
-                  <StatsCard />
-                  <FriendLinks />
+                  <LatestComments comments={sidebarData?.comments} />
+                  <ActiveMembers users={sidebarData?.activeUsers} />
+                  <StatsCard stats={sidebarData?.stats} />
+                  <FriendLinks links={sidebarData?.friendLinks} />
                 </>
               )}
             </aside>

@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, type KeyboardEvent } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   Search,
@@ -48,8 +49,17 @@ const docItems = [
 ]
 
 export function SiteHeader() {
+  const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchFocused, setSearchFocused] = useState(false)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  function handleSearchKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+    if (e.key !== "Enter") return
+    const q = searchInputRef.current?.value.trim()
+    if (!q) return
+    router.push(`/search?q=${encodeURIComponent(q)}`)
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-sm">
@@ -112,12 +122,14 @@ export function SiteHeader() {
         <div className="relative ml-auto flex-1 lg:max-w-xs">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
+            ref={searchInputRef}
             placeholder={"\u641c\u7d22\u4e3b\u9898\u3001\u6587\u7ae0\u3001\u8d44\u6e90..."}
             className={`h-9 w-full pl-9 text-sm transition-all ${
               searchFocused ? "ring-2 ring-primary/30" : ""
             }`}
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setSearchFocused(false)}
+            onKeyDown={handleSearchKeyDown}
           />
         </div>
 

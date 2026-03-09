@@ -1,19 +1,85 @@
+import type { Metadata } from "next"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
-import { TabFilter } from "@/components/tab-filter"
 import { TopicList } from "@/components/topic-list"
+import { NodeNavigation } from "@/components/node-navigation"
 import { PenSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import type { TopicListData, TopicNode } from "@/lib/types"
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "主题讨论 - Go语言中文网",
   description: "Go语言中文社区主题讨论，分享技术经验，交流开发心得",
 }
 
-export default function TopicsPage() {
+async function fetchFromAPI<T>(path: string, options?: RequestInit): Promise<T> {
+  const base = process.env.API_BASE_URL || 'http://localhost:8088'
+  const res = await fetch(`${base}/api/v1${path}`, options)
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  const json = await res.json()
+  return json.data
+}
+
+async function getTopicsData(tab: string, page: number) {
+  const [topicsResult, nodesResult] = await Promise.allSettled([
+    fetchFromAPI<TopicListData>(
+      `/topics?tab=${tab}&p=${page}`,
+      { cache: 'no-store' }
+    ),
+    fetchFromAPI<TopicNode[]>('/nodes', { cache: 'no-store' }),
+  ])
+
+  return {
+    topicsData: topicsResult.status === 'fulfilled'
+      ? topicsResult.value
+      : { topics: [], page, total: 0, has_more: false, tab, tab_list: [] },
+    nodes: nodesResult.status === 'fulfilled' ? nodesResult.value : [],
+  }
+}
+
+const TAB_LABELS: Record<string, string> = {
+  all: '全部',
+  go: 'Go语言',
+  ask: '问与答',
+  share: '分享',
+  news: '新闻',
+}
+
+interface TopicsPageProps {
+  searchParams: Promise<{ tab?: string; page?: string }>
+}
+
+export default async function TopicsPage({ searchParams }: TopicsPageProps) {
+  const { tab: tabParam, page: pageStr } = await searchParams
+  const tab = tabParam ?? 'all'
+  const page = Math.max(1, parseInt(pageStr ?? '1', 10) || 1)
+
+  const { topicsData, nodes } = await getTopicsData(tab, page)
+  const topics = topicsData.topics ?? []
+  const total = topicsData.total ?? 0
+  const hasMore = topicsData.has_more ?? false
+
+  // 计算分页
+  const pageSize = 20
+  const totalPages = total > 0 ? Math.ceil(total / pageSize) : (hasMore ? page + 1 : page)
+  const pageNumbers: number[] = []
+  const start = Math.max(1, page - 2)
+  const end = Math.min(totalPages, page + 2)
+  for (let i = start; i <= end; i++) {
+    pageNumbers.push(i)
+  }
+
+  const tabs = [
+    { id: 'all', label: '全部' },
+    { id: 'go', label: 'Go语言' },
+    { id: 'ask', label: '问与答' },
+    { id: 'share', label: '分享' },
+    { id: 'news', label: '新闻' },
+  ]
+
   return (
-    <PageLayout>
+    <PageLayout sidebarData={{ nodes }}>
       <PageHeader
         title="主题讨论"
         description="分享你的技术见解，和 Gopher 们一起交流成长"
@@ -29,36 +95,96 @@ export default function TopicsPage() {
       />
 
       <div className="rounded-lg border border-border bg-card p-4">
-        <TabFilter />
+        {/* Tab Filter */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-1 border-b border-border">
+            {tabs.map((t) => (
+              <Link
+                key={t.id}
+                href={`/topics?tab=${t.id}`}
+                className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
+                  tab === t.id
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {t.label}
+                {tab === t.id && (
+                  <span className="absolute bottom-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-primary" />
+                )}
+              </Link>
+            ))}
+          </div>
+        </div>
+
         <div className="mt-4">
-          <TopicList />
+          <TopicList topics={topics} />
         </div>
 
         {/* Pagination */}
-        <div className="mt-6 flex items-center justify-center gap-2">
-          <button
-            className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-muted-foreground"
-            disabled
-          >
-            {"上一页"}
-          </button>
-          {[1, 2, 3, 4, 5].map((p) => (
-            <button
-              key={p}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                p === 1
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-              }`}
-            >
-              {p}
-            </button>
-          ))}
-          <span className="px-1 text-sm text-muted-foreground">...</span>
-          <button className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80">
-            {"下一页"}
-          </button>
-        </div>
+        {totalPages > 1 && (
+          <div className="mt-6 flex items-center justify-center gap-2">
+            {page > 1 ? (
+              <Link
+                href={`/topics?tab=${tab}&page=${page - 1}`}
+                className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
+              >
+                {"上一页"}
+              </Link>
+            ) : (
+              <button
+                className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-muted-foreground"
+                disabled
+              >
+                {"上一页"}
+              </button>
+            )}
+            {pageNumbers.map((p) => (
+              <Link
+                key={p}
+                href={`/topics?tab=${tab}&page=${p}`}
+                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                  p === page
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                }`}
+              >
+                {p}
+              </Link>
+            ))}
+            {end < totalPages && (
+              <>
+                <span className="px-1 text-sm text-muted-foreground">...</span>
+                <Link
+                  href={`/topics?tab=${tab}&page=${totalPages}`}
+                  className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
+                >
+                  {totalPages}
+                </Link>
+              </>
+            )}
+            {(hasMore || page < totalPages) ? (
+              <Link
+                href={`/topics?tab=${tab}&page=${page + 1}`}
+                className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
+              >
+                {"下一页"}
+              </Link>
+            ) : (
+              <button
+                className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-muted-foreground"
+                disabled
+              >
+                {"下一页"}
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Node Navigation - mobile only */}
+      <div className="mt-6 lg:hidden">
+        <NodeNavigation nodes={nodes} />
       </div>
     </PageLayout>
   )

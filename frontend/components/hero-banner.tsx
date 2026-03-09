@@ -4,21 +4,33 @@ import { useState } from "react"
 import Link from "next/link"
 import { ArrowRight, Sparkles, Code2, Users, BookOpen } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import type { SiteStats } from "@/lib/types"
 
 const announcements = [
   {
-    badge: "\u65b0\u7248\u53d1\u5e03",
-    title: "Go 1.26 RC1 \u5df2\u53d1\u5e03\uff0c\u65b0\u7279\u6027\u62a2\u5148\u770b",
+    badge: "新版发布",
+    title: "Go 1.26 RC1 已发布，新特性抢先看",
     href: "/topics/1",
   },
   {
-    badge: "\u793e\u533a\u62db\u52df",
-    title: "\u5bfb\u627e\u793e\u533a\u65e5\u5e38\u8fd0\u8425\u3001\u529f\u80fd\u5f00\u53d1\u3001\u7ef4\u62a4\u5fd7\u613f\u8005",
+    badge: "社区招募",
+    title: "寻找社区日常运营、功能开发、维护志愿者",
     href: "/topics/volunteer",
   },
 ]
 
-export function HeroBanner() {
+interface HeroBannerProps {
+  stats?: SiteStats
+}
+
+function formatNum(n: number | undefined): string {
+  if (n == null) return "—"
+  if (n >= 10000) return (n / 10000).toFixed(1) + "万"
+  if (n >= 1000) return (n / 1000).toFixed(1) + "k"
+  return String(n)
+}
+
+export function HeroBanner({ stats }: HeroBannerProps) {
   const [activeAnnouncement, setActiveAnnouncement] = useState(0)
 
   return (
@@ -42,19 +54,19 @@ export function HeroBanner() {
             </div>
           </div>
 
-          {/* Quick stats */}
+          {/* Quick stats from real API */}
           <div className="hidden items-center gap-5 sm:flex">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Users className="h-3.5 w-3.5" />
-              <span>{"189,432 \u4f1a\u5458"}</span>
+              <span>{formatNum(stats?.user)} 会员</span>
             </div>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <BookOpen className="h-3.5 w-3.5" />
-              <span>{"52,871 \u4e3b\u9898"}</span>
+              <span>{formatNum(stats?.topic)} 主题</span>
             </div>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Code2 className="h-3.5 w-3.5" />
-              <span>{"1,286 \u9879\u76ee"}</span>
+              <span>{formatNum(stats?.project)} 项目</span>
             </div>
           </div>
         </div>
@@ -67,11 +79,9 @@ export function HeroBanner() {
                 key={i}
                 onClick={() => setActiveAnnouncement(i)}
                 className={`h-1 rounded-full transition-all ${
-                  i === activeAnnouncement
-                    ? "w-4 bg-primary"
-                    : "w-1 bg-border hover:bg-muted-foreground"
+                  i === activeAnnouncement ? "w-4 bg-primary" : "w-1 bg-border hover:bg-muted-foreground"
                 }`}
-                aria-label={`\u516c\u544a ${i + 1}`}
+                aria-label={`公告 ${i + 1}`}
               />
             ))}
           </div>
