@@ -55,3 +55,9 @@ tmp
 docker
 
 *.code-workspace
+
+# Go compiled binary
+studygolang
+
+# Playwright MCP artifacts
+.playwright-mcp/
