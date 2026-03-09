@@ -18,6 +18,7 @@ import (
 	"github.com/studygolang/studygolang/global"
 	"github.com/studygolang/studygolang/internal/http/controller"
 	"github.com/studygolang/studygolang/internal/http/controller/admin"
+	"github.com/studygolang/studygolang/internal/http/controller/api"
 	"github.com/studygolang/studygolang/internal/http/controller/app"
 	pwm "github.com/studygolang/studygolang/internal/http/middleware"
 	"github.com/studygolang/studygolang/internal/logic"
@@ -88,6 +89,9 @@ func main() {
 	// appG := e.Group("/app", thirdmw.EchoCache())
 	appG := e.Group("/app")
 	app.RegisterRoutes(appG)
+
+	apiG := e.Group("/api/v1")
+	api.RegisterRoutes(apiG)
 
 	e.Server.Addr = getAddr()
 	gracefulRun(e.Server)

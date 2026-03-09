@@ -56,8 +56,8 @@ docker
 
 *.code-workspace
 
-# Go compiled binary
-studygolang
+# Go compiled binary (root level only)
+/studygolang
 
 # Playwright MCP artifacts
 .playwright-mcp/

@@ -1,0 +1,49 @@
+// Copyright 2024 The StudyGolang Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+// https://studygolang.com
+// Author: polaris	polaris@studygolang.com
+
+package api
+
+import (
+	"github.com/studygolang/studygolang/internal/logic"
+
+	echo "github.com/labstack/echo/v4"
+	"github.com/polaris1119/goutils"
+)
+
+type SearchController struct{}
+
+func (self SearchController) RegisterRoute(g *echo.Group) {
+	g.GET("/search", self.Search)
+}
+
+// Search 全文搜索（q 关键词，p 分页，type 内容类型）
+func (SearchController) Search(ctx echo.Context) error {
+	q := ctx.QueryParam("q")
+	if q == "" {
+		return fail(ctx, "搜索关键词不能为空")
+	}
+
+	p := goutils.MustInt(ctx.QueryParam("p"), 1)
+	field := ctx.QueryParam("type")
+
+	rows := 50
+	respBody, err := logic.DefaultSearcher.DoSearch(q, field, (p-1)*rows, rows)
+	if err != nil {
+		return fail(ctx, "搜索服务异常")
+	}
+
+	paginator := logic.NewPaginatorWithPerPage(p, rows)
+	hasMore := paginator.SetTotal(int64(respBody.NumFound)).HasMorePage()
+
+	return success(ctx, map[string]interface{}{
+		"result":   respBody,
+		"q":        q,
+		"type":     field,
+		"page":     p,
+		"has_more": hasMore,
+		"total":    respBody.NumFound,
+	})
+}
