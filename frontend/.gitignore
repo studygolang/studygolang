@@ -11,3 +11,7 @@ node_modules/
 
 # TypeScript build cache
 tsconfig.tsbuildinfo
+
+# Playwright test artifacts
+playwright-report/
+test-results/
