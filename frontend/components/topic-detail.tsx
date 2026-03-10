@@ -102,7 +102,7 @@ export function TopicDetail({ id, topic, replies = [] }: TopicDetailProps) {
 
           {/* Content */}
           <div className="prose prose-sm mt-6 max-w-none text-foreground">
-            {topic.content.split("\n").map((line, i) => {
+            {(topic.content ?? "").split("\n").map((line, i) => {
               if (line.startsWith("## ")) {
                 return (
                   <h2 key={i} className="mb-3 mt-6 text-lg font-bold text-foreground">

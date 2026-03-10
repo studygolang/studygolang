@@ -123,7 +123,7 @@ export function SiteFooter() {
               </h3>
               <ul className="space-y-2">
                 {section.links.map((link) => (
-                  <li key={link.href}>
+                  <li key={`${link.href}-${link.label}`}>
                     <FooterLink link={link} />
                   </li>
                 ))}

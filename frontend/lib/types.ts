@@ -320,6 +320,42 @@ export interface SearchData {
   keyword: string
 }
 
+// ======================== 招聘相关 ========================
+export interface Job {
+  id: number
+  title: string
+  company: string
+  company_size: string
+  city: string
+  salary_min: number
+  salary_max: number
+  experience: string
+  tags: string
+  uid: number
+  status: number
+  ctime: string
+}
+
+export interface JobListData extends Pagination {
+  jobs: Job[]
+  total: number
+}
+
+// ======================== 面试题相关 ========================
+export interface InterviewQuestion {
+  id: number
+  sn: number
+  show_sn: string
+  question: string  // 已经过 Markdown 渲染，是 HTML 字符串
+  answer: string    // 已经过 Markdown 渲染，是 HTML 字符串
+  level: number     // 0=低 1=中 2=高
+  viewnum: number
+  cmtnum: number
+  likenum: number
+  source: string
+  created_at: string
+}
+
 // ======================== Wiki 相关 ========================
 export interface Wiki {
   id: number

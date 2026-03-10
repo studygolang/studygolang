@@ -95,7 +95,29 @@ export function LoginCard() {
 }
 
 /* ---------- Daily Interview Question ---------- */
+interface DailyQuestionData {
+  id: number
+  show_sn: string
+  question: string  // 已渲染的 HTML
+  level: number
+}
+
 export function DailyQuestion() {
+  const [question, setQuestion] = useState<DailyQuestionData | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch("/api/v1/interviews/today")
+      .then((r) => r.ok ? r.json() : Promise.reject(r.status))
+      .then((json) => {
+        if (json.code === 0 && json.data?.question) {
+          setQuestion(json.data.question)
+        }
+      })
+      .catch(() => {/* 静默失败 */})
+      .finally(() => setLoading(false))
+  }, [])
+
   return (
     <Card>
       <CardHeader className="p-4 pb-2">
@@ -105,18 +127,28 @@ export function DailyQuestion() {
         </CardTitle>
       </CardHeader>
       <CardContent className="px-4 pb-4">
-        {/* TODO: /interview/today 路由不存在，题目内容为硬编码占位，待实现面试题功能后替换 */}
-        <div
-          className="group block rounded-md bg-secondary/50 p-3"
-        >
-          <p className="text-sm font-medium leading-relaxed text-foreground">
-            {"Go 中 slice 和 array 的区别是什么？如何避免 slice 的内存泄漏？"}
-          </p>
-          <span className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary">
-            {"敬请期待"}
-            <ArrowRight className="h-3 w-3" />
-          </span>
-        </div>
+        {loading ? (
+          <div className="h-16 animate-pulse rounded-md bg-secondary/50" />
+        ) : question ? (
+          <div className="rounded-md bg-secondary/50 p-3">
+            <div
+              className="prose prose-sm max-w-none text-sm font-medium leading-relaxed text-foreground"
+              dangerouslySetInnerHTML={{ __html: question.question }}
+            />
+            <a
+              href={`/interview/question/${question.show_sn}`}
+              className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80"
+            >
+              {"查看答案"}
+              <ArrowRight className="h-3 w-3" />
+            </a>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center rounded-md bg-secondary/50 py-5 text-center">
+            <BookOpen className="mb-2 h-7 w-7 text-muted-foreground/40" />
+            <p className="text-xs text-muted-foreground">暂无面试题</p>
+          </div>
+        )}
       </CardContent>
     </Card>
   )
