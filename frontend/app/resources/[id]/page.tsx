@@ -17,7 +17,7 @@ import type { Resource, Comment } from "@/lib/types"
 
 async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
   try {
-    const base = process.env.API_BASE_URL || "http://localhost:8088"
+    const base = process.env.API_BASE_URL || "http://localhost:8090"
     const res = await fetch(`${base}/api/v1${path}`, options)
     if (!res.ok) return null
     const json = await res.json()
@@ -53,13 +53,13 @@ export async function generateMetadata({ params }: ResourceDetailPageProps): Pro
   }
 
   const { resource } = data
+  // 后端 Resource 无 desc 字段（用 content），无 cover 字段
   return {
     title: `${resource.title} - Go 资源 - Go语言中文网`,
-    description: resource.desc || `${resource.title} - Go语言中文网资源`,
+    description: resource.content || `${resource.title} - Go语言中文网资源`,
     openGraph: {
       title: resource.title,
-      description: resource.desc || "",
-      images: resource.cover ? [{ url: resource.cover }] : [],
+      description: resource.content || "",
     },
   }
 }
@@ -91,17 +91,10 @@ export default async function ResourceDetailPage({ params }: ResourceDetailPageP
       <Card className="mb-6">
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
-            {resource.cover ? (
-              <img
-                src={resource.cover}
-                alt={resource.title}
-                className="h-20 w-20 shrink-0 rounded-lg object-cover"
-              />
-            ) : (
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                <ExternalLink className="h-8 w-8 text-primary" />
-              </div>
-            )}
+            {/* 后端 Resource 无 cover 字段，统一显示图标 */}
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+              <ExternalLink className="h-8 w-8 text-primary" />
+            </div>
 
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
@@ -110,18 +103,24 @@ export default async function ResourceDetailPage({ params }: ResourceDetailPageP
                   <Badge variant="secondary">{resource.catname}</Badge>
                 )}
               </div>
+              {/* 后端 Resource 无 author 字段，用 user 子对象或 uid */}
               <p className="mt-1 text-sm text-muted-foreground">
                 by{" "}
-                <Link
-                  href={`/user/${resource.author}`}
-                  className="font-medium text-foreground hover:text-primary"
-                >
-                  {resource.author}
-                </Link>
+                {resource.user ? (
+                  <Link
+                    href={`/user/${resource.user.username}`}
+                    className="font-medium text-foreground hover:text-primary"
+                  >
+                    {resource.user.name || resource.user.username}
+                  </Link>
+                ) : (
+                  <span className="font-medium text-foreground">uid:{resource.uid}</span>
+                )}
               </p>
-              {resource.desc && (
+              {/* 后端 Resource 用 content 字段存描述，无 desc 字段 */}
+              {resource.content && (
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  {resource.desc}
+                  {resource.content}
                 </p>
               )}
             </div>

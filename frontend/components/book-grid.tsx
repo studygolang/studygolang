@@ -1,3 +1,14 @@
+/**
+ * BookGrid - 书籍网格展示组件（Client Component）
+ *
+ * 注意：此组件使用的是 Mock 数据，因为该组件在客户端运行（带有分类筛选交互）。
+ * 实际书籍列表数据由 app/books/page.tsx（SSR）通过 /api/v1/books 接口获取。
+ * 此组件目前仅用于首页等无需 SEO 的展示场景，后续如需接入 API 请改为服务端组件或
+ * 将数据作为 props 传入。
+ *
+ * TODO: 将 mock 数据替换为从父组件传入的真实数据，或通过 SWR/TanStack Query 客户端获取。
+ * TODO: mock 数据中 url 为 "#" 的书籍没有真实链接，接入 API 后需改为内部详情页链接 /book/[id]。
+ */
 "use client"
 
 import { useState } from "react"
@@ -198,7 +209,7 @@ export function BookGrid() {
             key={f}
             onClick={() => setActiveFilter(f)}
             className={cn(
-              "rounded-full px-3.5 py-1.5 text-sm font-medium transition-all",
+              "cursor-pointer rounded-full px-3.5 py-1.5 text-sm font-medium transition-all",
               activeFilter === f
                 ? "bg-primary text-primary-foreground"
                 : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
@@ -278,16 +289,21 @@ export function BookGrid() {
                       </Badge>
                     ))}
                   </div>
-                  <a
-                    href={book.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-xs font-medium text-primary transition-colors hover:text-primary/80"
-                    aria-label={"查看 " + book.title}
-                  >
-                    {"查看"}
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
+                  {/* url 为 "#" 表示暂无真实链接（mock 数据），接入 API 后替换为 /book/[id] */}
+                  {book.url && book.url !== "#" ? (
+                    <a
+                      href={book.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-xs font-medium text-primary transition-colors hover:text-primary/80"
+                      aria-label={"查看 " + book.title}
+                    >
+                      {"查看"}
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">暂无链接</span>
+                  )}
                 </div>
               </div>
             </CardContent>

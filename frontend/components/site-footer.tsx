@@ -1,7 +1,21 @@
 import Link from "next/link"
 import { Github, Twitter, Mail } from "lucide-react"
 
-const footerSections = [
+const FOUNDED_YEAR = 2013
+
+interface FooterLink {
+  label: string
+  href: string
+  /** 是否外部链接，true 时用 <a> 并 target="_blank" */
+  external?: boolean
+}
+
+interface FooterSection {
+  title: string
+  links: FooterLink[]
+}
+
+const footerSections: FooterSection[] = [
   {
     title: "\u793e\u533a",
     links: [
@@ -16,21 +30,45 @@ const footerSections = [
     title: "\u5b66\u4e60",
     links: [
       { label: "Go \u56fe\u4e66", href: "/books" },
-      { label: "Go \u6307\u5357", href: "/docs/guide" },
-      { label: "\u6807\u51c6\u5e93\u6587\u6863", href: "/docs/stdlib" },
-      { label: "\u6bcf\u65e5\u9762\u8bd5\u9898", href: "/interview" },
+      // /docs/guide 前端暂无此页面，临时指向 /wiki
+      { label: "Go \u6307\u5357", href: "/wiki" },
+      // /docs/stdlib 前端暂无此页面，指向外部标准库文档
+      {
+        label: "\u6807\u51c6\u5e93\u6587\u6863",
+        href: "https://books.studygolang.com/The-Golang-Standard-Library-by-Example/",
+        external: true,
+      },
+      // /interview 前端暂无此页面，临时指向 /wiki
+      { label: "\u6bcf\u65e5\u9762\u8bd5\u9898", href: "/wiki" },
     ],
   },
   {
     title: "\u5173\u4e8e",
     links: [
-      { label: "\u5173\u4e8e\u6211\u4eec", href: "/about" },
-      { label: "\u53cd\u9988\u5efa\u8bae", href: "/feedback" },
-      { label: "\u5fd7\u613f\u8005\u62db\u52df", href: "/volunteer" },
-      { label: "\u5e7f\u544a\u5408\u4f5c", href: "/advertise" },
+      // 以下页面前端暂无实现，临时指向旧站对应页面
+      { label: "\u5173\u4e8e\u6211\u4eec", href: "https://studygolang.com/about", external: true },
+      { label: "\u53cd\u9988\u5efa\u8bae", href: "https://studygolang.com/feedback", external: true },
+      { label: "\u5fd7\u613f\u8005\u62db\u52df", href: "https://studygolang.com/volunteer", external: true },
+      { label: "\u5e7f\u544a\u5408\u4f5c", href: "https://studygolang.com/advertise", external: true },
     ],
   },
 ]
+
+function FooterLink({ link }: { link: FooterLink }) {
+  const className = "text-sm text-muted-foreground transition-colors hover:text-primary"
+  if (link.external) {
+    return (
+      <a href={link.href} target="_blank" rel="noopener noreferrer" className={className}>
+        {link.label}
+      </a>
+    )
+  }
+  return (
+    <Link href={link.href} className={className}>
+      {link.label}
+    </Link>
+  )
+}
 
 export function SiteFooter() {
   return (
@@ -86,12 +124,7 @@ export function SiteFooter() {
               <ul className="space-y-2">
                 {section.links.map((link) => (
                   <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-primary"
-                    >
-                      {link.label}
-                    </Link>
+                    <FooterLink link={link} />
                   </li>
                 ))}
               </ul>
@@ -102,7 +135,7 @@ export function SiteFooter() {
         <div className="mt-8 border-t border-border pt-6">
           <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
             <p className="text-xs text-muted-foreground">
-              {"2013 - 2026 Go\u8bed\u8a00\u4e2d\u6587\u7f51 | Golang\u4e2d\u6587\u793e\u533a | "}
+              {`${FOUNDED_YEAR} - ${new Date().getFullYear()} Go\u8bed\u8a00\u4e2d\u6587\u7f51 | Golang\u4e2d\u6587\u793e\u533a | `}
               <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" className="hover:text-primary">
                 {"ICP\u5907\u6848\u53f7"}
               </a>

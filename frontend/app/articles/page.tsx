@@ -13,7 +13,7 @@ export const metadata = {
 }
 
 async function fetchFromAPI<T>(path: string, options?: RequestInit): Promise<T> {
-  const base = process.env.API_BASE_URL || 'http://localhost:8088'
+  const base = process.env.API_BASE_URL || 'http://localhost:8090'
   const res = await fetch(`${base}/api/v1${path}`, options)
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   const json = await res.json()
@@ -27,7 +27,8 @@ async function getArticles(page: number) {
       { cache: 'no-store' }
     )
   } catch {
-    return { articles: [], page: page, total: 0, has_more: false }
+    // 后端返回字段名为 list（非 articles）
+    return { list: [], page: page, total: 0, has_more: false }
   }
 }
 
@@ -40,7 +41,8 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
   const page = Math.max(1, parseInt(pageStr ?? '1', 10) || 1)
 
   const data = await getArticles(page)
-  const articles = data.articles ?? []
+  // 后端文章列表返回字段名为 list（非 articles）
+  const articles = data.list ?? []
   const total = data.total ?? 0
   const hasMore = data.has_more ?? false
 
@@ -62,13 +64,14 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
         title="技术文章"
         description="精选 Go 语言技术文章，深度学习与实践"
         breadcrumbs={[{ label: "技术文章" }]}
+        // TODO: 投稿页面路由待实现，暂时禁用跳转（/articles/new 不存在）
         actions={
-          <Link href="/articles/new">
+          <a href="#">
             <Button size="sm" className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
               <PenSquare className="h-3.5 w-3.5" />
               {"投稿"}
             </Button>
-          </Link>
+          </a>
         }
       />
 

@@ -6,16 +6,17 @@ import { ArrowRight, Sparkles, Code2, Users, BookOpen } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import type { SiteStats } from "@/lib/types"
 
+// TODO: 公告内容应从后端 API 获取，以下为临时占位内容
 const announcements = [
   {
     badge: "新版发布",
     title: "Go 1.26 RC1 已发布，新特性抢先看",
-    href: "/topics/1",
+    href: "/topics", // 临时指向话题列表，待后端提供公告 API 后替换为真实话题链接
   },
   {
     badge: "社区招募",
     title: "寻找社区日常运营、功能开发、维护志愿者",
-    href: "/topics/volunteer",
+    href: "/topics", // 临时指向话题列表，待后端提供公告 API 后替换为真实话题链接
   },
 ]
 
@@ -78,7 +79,7 @@ export function HeroBanner({ stats }: HeroBannerProps) {
               <button
                 key={i}
                 onClick={() => setActiveAnnouncement(i)}
-                className={`h-1 rounded-full transition-all ${
+                className={`h-1 cursor-pointer rounded-full transition-all ${
                   i === activeAnnouncement ? "w-4 bg-primary" : "w-1 bg-border hover:bg-muted-foreground"
                 }`}
                 aria-label={`公告 ${i + 1}`}

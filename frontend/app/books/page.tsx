@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
   try {
-    const base = process.env.API_BASE_URL || "http://localhost:8088"
+    const base = process.env.API_BASE_URL || "http://localhost:8090"
     const res = await fetch(`${base}/api/v1${path}`, options)
     if (!res.ok) return null
     const json = await res.json()
@@ -132,8 +132,9 @@ async function BookItems({ page }: { page: number }) {
                       <ExternalLink className="h-3 w-3" />
                     </a>
                   ) : (
+                    // 书籍详情页路由是 /book/[id]（注意是单数），非 /books/[id]
                     <Link
-                      href={`/books/${book.id}`}
+                      href={`/book/${book.id}`}
                       className="flex items-center gap-1 text-xs font-medium text-primary transition-colors hover:text-primary/80"
                     >
                       详情

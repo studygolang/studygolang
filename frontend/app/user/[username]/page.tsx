@@ -21,7 +21,7 @@ import type { User, Topic, Article } from "@/lib/types"
 
 async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
   try {
-    const base = process.env.API_BASE_URL || "http://localhost:8088"
+    const base = process.env.API_BASE_URL || "http://localhost:8090"
     const res = await fetch(`${base}/api/v1${path}`, options)
     if (!res.ok) return null
     const json = await res.json()
@@ -248,15 +248,17 @@ export default async function UserPage({ params }: UserPageProps) {
                       >
                         {article.title}
                       </Link>
-                      {article.summary && (
+                      {/* 后端 Article 无 summary 字段，截取 content 前 100 字 */}
+                      {article.content && (
                         <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
-                          {article.summary}
+                          {article.content.slice(0, 100)}
                         </p>
                       )}
                       <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
                         <span className="flex items-center gap-1 text-xs text-muted-foreground">
                           <Clock className="h-3 w-3" />
-                          {article.pubdate || article.ctime}
+                          {/* 后端 Article 用 pub_date（非 pubdate）字段 */}
+                          {article.pub_date || article.ctime}
                         </span>
                         <span className="flex items-center gap-1 text-xs text-muted-foreground">
                           <Eye className="h-3 w-3" />

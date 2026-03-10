@@ -1,3 +1,13 @@
+/**
+ * ProjectGrid - 项目网格展示组件（Client Component）
+ *
+ * 注意：此组件使用的是 Mock 数据，因为该组件在客户端运行（带有分类筛选交互）。
+ * 实际项目列表数据由 app/projects/page.tsx（SSR）通过 /api/v1/projects 接口获取。
+ * 此组件目前仅用于首页等无需 SEO 的展示场景，后续如需接入 API 请改为服务端组件或
+ * 将数据作为 props 传入。
+ *
+ * TODO: 将 mock 数据替换为从父组件传入的真实数据，或通过 SWR/TanStack Query 客户端获取。
+ */
 "use client"
 
 import { useState } from "react"
@@ -179,7 +189,7 @@ export function ProjectGrid() {
             key={cat}
             onClick={() => setActiveCategory(cat)}
             className={cn(
-              "rounded-full px-3.5 py-1.5 text-sm font-medium transition-all",
+              "cursor-pointer rounded-full px-3.5 py-1.5 text-sm font-medium transition-all",
               activeCategory === cat
                 ? "bg-primary text-primary-foreground"
                 : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
@@ -260,9 +270,12 @@ export function ProjectGrid() {
         ))}
       </div>
 
-      {/* Load more */}
+      {/* TODO: 加载更多 - 当前为静态 mock，接入真实 API 后需实现分页逻辑 */}
       <div className="mt-8 text-center">
-        <button className="rounded-md bg-secondary px-6 py-2 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/80">
+        <button
+          className="rounded-md bg-secondary px-6 py-2 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
+          disabled
+        >
           {"加载更多项目"}
         </button>
       </div>

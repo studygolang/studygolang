@@ -5,7 +5,7 @@ import { TopicDetail } from "@/components/topic-detail"
 import type { TopicDetailData } from "@/lib/types"
 
 async function fetchFromAPI<T>(path: string, options?: RequestInit): Promise<T> {
-  const base = process.env.API_BASE_URL || 'http://localhost:8088'
+  const base = process.env.API_BASE_URL || 'http://localhost:8090'
   const res = await fetch(`${base}/api/v1${path}`, options)
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   const json = await res.json()

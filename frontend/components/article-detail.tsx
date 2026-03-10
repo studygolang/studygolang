@@ -18,14 +18,15 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import type { Article, Comment } from "@/lib/types"
+import type { Article, ArticleComment } from "@/lib/types"
 
 interface ArticleDetailProps {
   id: string
   article?: Article
   prev?: Article
   next?: Article
-  comments?: Comment[]
+  // 后端文章详情评论字段名为 replies，类型为 ArticleComment
+  comments?: ArticleComment[]
 }
 
 function formatTime(ctime: string): string {
@@ -85,6 +86,7 @@ export function ArticleDetail({ id, article, prev, next, comments = [] }: Articl
                 </AvatarFallback>
               </Avatar>
               <div>
+                {/* author 为原文作者名，站内用 author_txt 对应 username，API 暂未返回 author_uid，用 author 作路由参数 */}
                 <Link
                   href={`/user/${article.author}`}
                   className="text-sm font-medium text-foreground hover:text-primary"
@@ -244,12 +246,12 @@ export function ArticleDetail({ id, article, prev, next, comments = [] }: Articl
                       {comment.content}
                     </p>
                     <div className="mt-2 flex items-center gap-3">
-                      <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary">
+                      <button className="flex cursor-pointer items-center gap-1 text-xs text-muted-foreground hover:text-primary">
                         <ChevronUp className="h-3.5 w-3.5" />
                         0
                       </button>
-                      <button className="text-xs text-muted-foreground hover:text-primary">{"回复"}</button>
-                      <button className="ml-auto text-muted-foreground hover:text-primary">
+                      <button className="cursor-pointer text-xs text-muted-foreground hover:text-primary">{"回复"}</button>
+                      <button className="ml-auto cursor-pointer text-muted-foreground hover:text-primary">
                         <MoreHorizontal className="h-3.5 w-3.5" />
                       </button>
                     </div>

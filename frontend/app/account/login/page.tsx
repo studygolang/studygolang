@@ -31,7 +31,7 @@ export default function LoginPage() {
 
     setLoading(true)
     try {
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8088"
+      const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8090"
       const res = await fetch(`${base}/api/v1/user/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

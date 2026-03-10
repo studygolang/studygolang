@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import {
   Github,
@@ -12,6 +13,7 @@ import {
   Flame,
   Calendar,
   BarChart3,
+  User as UserIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -21,6 +23,51 @@ import type { Reading, SiteStats, Topic, Comment, User, FriendLink } from "@/lib
 
 /* ---------- Login Card ---------- */
 export function LoginCard() {
+  const [username, setUsername] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+    const token = localStorage.getItem("token")
+    const name = localStorage.getItem("username")
+    if (token && name) {
+      setUsername(name)
+    }
+  }, [])
+
+  // 避免 SSR hydration 不一致，挂载前不渲染
+  if (!mounted) return null
+
+  // 已登录：显示欢迎卡片
+  if (username) {
+    return (
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
+              <UserIcon className="h-5 w-5 text-primary" />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-foreground">{username}</p>
+              <p className="text-xs text-muted-foreground">{"欢迎回来！"}</p>
+            </div>
+          </div>
+          <div className="mt-3 flex gap-2">
+            <Button asChild variant="outline" size="sm" className="flex-1 text-xs">
+              {/* /u/[username] 路由不存在，统一使用 /user/[username] */}
+              <Link href={`/user/${username}`}>{"个人主页"}</Link>
+            </Button>
+            <Button asChild size="sm" className="flex-1 bg-primary text-xs text-primary-foreground hover:bg-primary/90">
+              {/* TODO: /topics/create 页面尚未实现，暂时指向话题列表 */}
+              <Link href="/topics">{"发布话题"}</Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // 未登录：显示加入社区卡片
   return (
     <Card>
       <CardContent className="p-4">
@@ -32,12 +79,14 @@ export function LoginCard() {
           <p className="mt-1 text-xs text-muted-foreground">{"与全国 Gopher 一起学习交流"}</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="flex-1 gap-1.5 text-xs">
-            <Github className="h-3.5 w-3.5" />
-            GitHub
+          <Button asChild variant="outline" size="sm" className="flex-1 gap-1.5 text-xs">
+            <Link href="/account/login">
+              <Github className="h-3.5 w-3.5" />
+              {"登录"}
+            </Link>
           </Button>
-          <Button size="sm" className="flex-1 bg-primary text-xs text-primary-foreground hover:bg-primary/90">
-            {"注册账号"}
+          <Button asChild size="sm" className="flex-1 bg-primary text-xs text-primary-foreground hover:bg-primary/90">
+            <Link href="/account/register">{"注册账号"}</Link>
           </Button>
         </div>
       </CardContent>
@@ -56,18 +105,18 @@ export function DailyQuestion() {
         </CardTitle>
       </CardHeader>
       <CardContent className="px-4 pb-4">
-        <Link
-          href="/interview/today"
-          className="group block rounded-md bg-secondary/50 p-3 transition-colors hover:bg-secondary"
+        {/* TODO: /interview/today 路由不存在，题目内容为硬编码占位，待实现面试题功能后替换 */}
+        <div
+          className="group block rounded-md bg-secondary/50 p-3"
         >
-          <p className="text-sm font-medium leading-relaxed text-foreground group-hover:text-primary">
+          <p className="text-sm font-medium leading-relaxed text-foreground">
             {"Go 中 slice 和 array 的区别是什么？如何避免 slice 的内存泄漏？"}
           </p>
           <span className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary">
-            {"查看解答"}
+            {"敬请期待"}
             <ArrowRight className="h-3 w-3" />
           </span>
-        </Link>
+        </div>
       </CardContent>
     </Card>
   )
@@ -100,7 +149,8 @@ export function MorningReading({ readings }: MorningReadingProps) {
               <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded bg-secondary text-xs font-semibold text-secondary-foreground">
                 {i + 1}
               </span>
-              <span className="line-clamp-2 leading-snug">{r.title}</span>
+              {/* 后端 MorningReading 用 content 字段存标题，无 title 字段 */}
+              <span className="line-clamp-2 leading-snug">{r.content}</span>
             </Link>
           ))}
         </div>

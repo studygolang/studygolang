@@ -236,14 +236,14 @@ export function TopicDetail({ id, topic, replies = [] }: TopicDetailProps) {
                       {reply.content}
                     </div>
                     <div className="mt-2 flex items-center gap-3">
-                      <button className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-primary">
+                      <button className="flex cursor-pointer items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-primary">
                         <ChevronUp className="h-3.5 w-3.5" />
                         0
                       </button>
-                      <button className="text-xs text-muted-foreground transition-colors hover:text-primary">
+                      <button className="cursor-pointer text-xs text-muted-foreground transition-colors hover:text-primary">
                         {"回复"}
                       </button>
-                      <button className="ml-auto text-muted-foreground transition-colors hover:text-primary">
+                      <button className="ml-auto cursor-pointer text-muted-foreground transition-colors hover:text-primary">
                         <MoreHorizontal className="h-3.5 w-3.5" />
                       </button>
                     </div>

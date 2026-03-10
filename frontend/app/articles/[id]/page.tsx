@@ -5,7 +5,7 @@ import { ArticleDetail } from "@/components/article-detail"
 import type { ArticleDetailData } from "@/lib/types"
 
 async function fetchFromAPI<T>(path: string, options?: RequestInit): Promise<T> {
-  const base = process.env.API_BASE_URL || 'http://localhost:8088'
+  const base = process.env.API_BASE_URL || 'http://localhost:8090'
   const res = await fetch(`${base}/api/v1${path}`, options)
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   const json = await res.json()
@@ -38,7 +38,8 @@ export async function generateMetadata({
   }
 
   const { article } = data
-  const description = article.summary || article.content?.slice(0, 150) || "Go语言技术文章"
+  // 后端 Article 无 summary 字段，截取 content 前 150 字作描述
+  const description = article.content?.slice(0, 150) || "Go语言技术文章"
 
   return {
     title: `${article.title} - Go语言中文网`,
@@ -63,9 +64,11 @@ export default async function ArticleDetailPage({
   const data = await getArticleDetail(id)
 
   const article = data?.article
-  const prev = data?.prev
-  const next = data?.next
-  const comments = data?.comments ?? []
+  // 后端返回 prev_next 数组（[prev, next]），replies 为评论列表
+  const prevNext = data?.prev_next ?? []
+  const prev = prevNext[0]
+  const next = prevNext[1]
+  const comments = data?.replies ?? []
 
   // JSON-LD 结构化数据
   const jsonLd = article
@@ -73,13 +76,14 @@ export default async function ArticleDetailPage({
         "@context": "https://schema.org",
         "@type": "Article",
         headline: article.title,
-        description: article.summary || article.content?.slice(0, 150),
+        // 后端 Article 无 summary 字段，截取 content 作描述
+        description: article.content?.slice(0, 150),
         author: {
           "@type": "Person",
           name: article.author,
         },
         datePublished: article.ctime,
-        dateModified: article.mtime || article.ctime,
+        dateModified: article.ctime,  // 后端 Article mtime 不序列化，使用 ctime
         publisher: {
           "@type": "Organization",
           name: "Go语言中文网",

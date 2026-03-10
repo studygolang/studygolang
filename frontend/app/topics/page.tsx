@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 }
 
 async function fetchFromAPI<T>(path: string, options?: RequestInit): Promise<T> {
-  const base = process.env.API_BASE_URL || 'http://localhost:8088'
+  const base = process.env.API_BASE_URL || 'http://localhost:8090'
   const res = await fetch(`${base}/api/v1${path}`, options)
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   const json = await res.json()
@@ -33,7 +33,7 @@ async function getTopicsData(tab: string, page: number) {
   return {
     topicsData: topicsResult.status === 'fulfilled'
       ? topicsResult.value
-      : { topics: [], page, total: 0, has_more: false, tab, tab_list: [] },
+      : { list: [], page, total: 0, has_more: false, tab, tab_list: [] },
     nodes: nodesResult.status === 'fulfilled' ? nodesResult.value : [],
   }
 }
@@ -56,7 +56,8 @@ export default async function TopicsPage({ searchParams }: TopicsPageProps) {
   const page = Math.max(1, parseInt(pageStr ?? '1', 10) || 1)
 
   const { topicsData, nodes } = await getTopicsData(tab, page)
-  const topics = topicsData.topics ?? []
+  // 后端返回字段为 "list"，与 TopicListData.list 对应
+  const topics = topicsData.list ?? []
   const total = topicsData.total ?? 0
   const hasMore = topicsData.has_more ?? false
 
@@ -85,7 +86,8 @@ export default async function TopicsPage({ searchParams }: TopicsPageProps) {
         description="分享你的技术见解，和 Gopher 们一起交流成长"
         breadcrumbs={[{ label: "主题讨论" }]}
         actions={
-          <Link href="/topics/new">
+          // TODO: /topics/new 页面尚未实现，未登录时指向登录页，登录后应跳转至发帖页
+          <Link href="/account/login">
             <Button size="sm" className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
               <PenSquare className="h-3.5 w-3.5" />
               {"发布主题"}

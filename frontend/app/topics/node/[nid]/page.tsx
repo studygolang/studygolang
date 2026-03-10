@@ -10,7 +10,7 @@ import type { TopicListData, TopicNode } from "@/lib/types"
 
 async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
   try {
-    const base = process.env.API_BASE_URL || "http://localhost:8088"
+    const base = process.env.API_BASE_URL || "http://localhost:8090"
     const res = await fetch(`${base}/api/v1${path}`, options)
     if (!res.ok) return null
     const json = await res.json()
@@ -50,7 +50,8 @@ export default async function NodeTopicsPage({ params, searchParams }: NodeTopic
   const currentNode = nodeList.find((n) => String(n.id) === nid)
   const nodeName = currentNode?.name ?? "节点话题"
 
-  const topics = topicsData?.topics ?? []
+  // 后端返回字段为 "list"，与 TopicListData.list 对应
+  const topics = topicsData?.list ?? []
   const total = topicsData?.total ?? 0
   const hasMore = topicsData?.has_more ?? false
 
@@ -74,7 +75,8 @@ export default async function NodeTopicsPage({ params, searchParams }: NodeTopic
           { label: nodeName },
         ]}
         actions={
-          <Link href="/topics/new">
+          // TODO: /topics/new 页面尚未实现，未登录时指向登录页，登录后应跳转至发帖页
+          <Link href="/account/login">
             <Button size="sm" className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
               <PenSquare className="h-3.5 w-3.5" />
               发布主题

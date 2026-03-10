@@ -26,7 +26,8 @@ export function NodeNavigation({ nodes }: NodeNavigationProps) {
           .filter((n) => n.pid === parent.id || n.parent_id === parent.id)
           .map((n) => ({
             name: n.name,
-            href: `/nodes/${n.ename || n.id}`,
+            // 节点话题列表路由为 /topics/node/[nid]，使用数字 id
+            href: `/topics/node/${n.id}`,
           })),
       }))
       .filter((g) => g.nodes.length > 0)
@@ -37,7 +38,8 @@ export function NodeNavigation({ nodes }: NodeNavigationProps) {
         label: "节点",
         nodes: nodes.map((n) => ({
           name: n.name,
-          href: `/nodes/${n.ename || n.id}`,
+          // 节点话题列表路由为 /topics/node/[nid]，使用数字 id
+          href: `/topics/node/${n.id}`,
         })),
       },
     ]

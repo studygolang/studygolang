@@ -73,10 +73,10 @@ export function ArticleList({ articles = [] }: ArticleListProps) {
                 </Link>
               </div>
 
-              {/* Excerpt */}
-              {article.summary && (
+              {/* Excerpt：后端 Article 无 summary 字段，截取 content 前 150 字作摘要 */}
+              {article.content && (
                 <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-                  {article.summary}
+                  {article.content.slice(0, 150)}
                 </p>
               )}
 

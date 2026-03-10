@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
   try {
-    const base = process.env.API_BASE_URL || "http://localhost:8088"
+    const base = process.env.API_BASE_URL || "http://localhost:8090"
     const res = await fetch(`${base}/api/v1${path}`, options)
     if (!res.ok) return null
     const json = await res.json()
@@ -31,11 +31,10 @@ function formatNum(n: number): string {
   return String(n)
 }
 
-async function ResourceItems({ page }: { page: number }) {
-  const data = await fetchAPI<ResourceListData>(
-    `/resources?p=${page}`,
-    { cache: "no-store" }
-  )
+async function ResourceItems({ page, catid = 0 }: { page: number; catid?: number }) {
+  // 支持 catid 分类过滤，0 表示全部
+  const qs = catid > 0 ? `/resources?p=${page}&catid=${catid}` : `/resources?p=${page}`
+  const data = await fetchAPI<ResourceListData>(qs, { cache: "no-store" })
 
   if (!data || !data.resources || data.resources.length === 0) {
     return (
@@ -51,9 +50,10 @@ async function ResourceItems({ page }: { page: number }) {
       {/* Result header */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
+          {/* 后端资源列表 API 不返回 total，只返回 has_more */}
           共{" "}
-          <span className="font-semibold text-foreground">{data.total}</span>{" "}
-          个资源
+          <span className="font-semibold text-foreground">{data.resources.length}</span>{" "}
+          个资源（本页）
         </p>
       </div>
 
@@ -81,16 +81,19 @@ async function ResourceItems({ page }: { page: number }) {
                   </Link>
                 </div>
 
-                {/* Description */}
-                {resource.desc && (
+                {/* Description：后端 Resource 用 content 字段存描述，无 desc 字段 */}
+                {resource.content && (
                   <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-                    {resource.desc}
+                    {resource.content}
                   </p>
                 )}
 
                 {/* Meta */}
                 <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5">
-                  <span className="text-xs text-muted-foreground">{resource.author}</span>
+                  {/* 后端 Resource 无 author 字段，用 user 子对象或 uid */}
+                  <span className="text-xs text-muted-foreground">
+                    {resource.user?.name || resource.user?.username || `uid:${resource.uid}`}
+                  </span>
                   <span className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Clock className="h-3 w-3" />
                     {resource.ctime}
@@ -150,12 +153,13 @@ async function ResourceItems({ page }: { page: number }) {
 }
 
 interface ResourcesPageProps {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ page?: string; catid?: string }>
 }
 
 export default async function ResourcesPage({ searchParams }: ResourcesPageProps) {
   const params = await searchParams
   const page = Math.max(1, parseInt(params.page || "1", 10))
+  const catid = params.catid ? parseInt(params.catid, 10) : 0
 
   return (
     <PageLayout sidebar={false}>
@@ -163,8 +167,9 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
         title="资源索引"
         description="精选 Go 语言学习资源，教程、工具、视频、文档一网打尽"
         breadcrumbs={[{ label: "资源索引" }]}
+        // TODO: 分享资源页面路由待实现，暂时禁用跳转（/resources/new 不存在）
         actions={
-          <Link href="/resources/new">
+          <a href="#">
             <Button
               size="sm"
               className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
@@ -172,7 +177,7 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
               <Plus className="h-3.5 w-3.5" />
               分享资源
             </Button>
-          </Link>
+          </a>
         }
       />
       <Suspense
@@ -184,7 +189,7 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
           </div>
         }
       >
-        <ResourceItems page={page} />
+        <ResourceItems page={page} catid={catid} />
       </Suspense>
     </PageLayout>
   )

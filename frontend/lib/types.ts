@@ -1,4 +1,5 @@
 // StudyGolang 前端类型定义
+// 字段名与后端 Go model JSON tag 保持一致
 
 export interface APIResponse<T = unknown> {
   code: number
@@ -56,7 +57,10 @@ export interface TopicReply {
 }
 
 export interface TopicListData extends Pagination {
-  topics: Topic[]
+  // /home 接口返回 "topics" 字段；/topics、/topics/node/:nid 接口返回 "list" 字段
+  // 两个字段均为可选，各页面按实际接口取对应字段
+  topics?: Topic[]
+  list?: Topic[]
   tab: string
   tab_list: TopicNode[]
 }
@@ -67,34 +71,51 @@ export interface TopicDetailData {
 }
 
 // ======================== 文章相关 ========================
+// 对应后端 model.Article 的 JSON 字段
 export interface Article {
   id: number
   title: string
   content: string
-  summary: string
-  author: string
-  author_uid: number
-  author_avatar: string
+  // 后端 Article 无 summary 字段，用 content 前段截取作摘要
+  author: string       // 原文作者
+  name?: string        // 发布者用户名（来自 User 关联）
+  lang: number
+  pub_date: string
+  url: string
   tags: string
-  pubdate: string
-  ctime: string
-  mtime: string
   viewnum: number
   likenum: number
   cmtnum: number
   top: number
-  url: string
+  ctime: string
+  // mtime 在后端 Article 中没有直接的 JSON 字段（xorm 只读），按实际情况可能返回
+  markdown: boolean
+  gctt: boolean
 }
 
-export interface ArticleListData extends Pagination {
-  articles: Article[]
+// 文章列表 API 返回：{ list, total, page, has_more }
+export interface ArticleListData {
+  list: Article[]      // 后端返回字段名是 list，非 articles
+  total: number
+  page: number
+  has_more: boolean
+}
+
+// 文章详情 API 返回：{ article, replies, prev_next }
+export interface ArticleComment {
+  id: number
+  uid: number
+  name: string
+  avatar: string
+  content: string
+  ctime: string
+  floor: number
 }
 
 export interface ArticleDetailData {
   article: Article
-  prev?: Article
-  next?: Article
-  comments?: Comment[]
+  replies?: ArticleComment[]   // 后端字段名是 replies，非 comments
+  prev_next?: Article[]        // 后端字段名是 prev_next（数组，[prev, next]）
 }
 
 // ======================== 项目相关 ========================
@@ -133,46 +154,65 @@ export interface ProjectDetailData {
 }
 
 // ======================== 资源相关 ========================
+// 对应后端 model.ResourceInfo（Resource + ResourceEx 合并）
 export interface Resource {
   id: number
   title: string
   url: string
-  cover: string
-  author: string
-  author_uid: number
+  uid: number
   catid: number
-  catname: string
-  rtype: number
-  desc: string
+  catname?: string     // 由逻辑层动态注入
+  form: string         // 资源形式
+  content: string      // 资源内容/描述
+  tags: string
   viewnum: number
   cmtnum: number
   likenum: number
   ctime: string
+  // 列表中还有 user 子对象
+  user?: {
+    uid: number
+    username: string
+    name: string
+    avatar: string
+  }
+  host?: string        // 资源域名
 }
 
-export interface ResourceListData extends Pagination {
+// 资源列表 API 返回：{ resources, has_more }（无 total 字段）
+export interface ResourceListData {
   resources: Resource[]
+  has_more: boolean
 }
 
 // ======================== 晨读相关 ========================
+// 对应后端 model.MorningReading 的 JSON 字段
 export interface Reading {
   id: number
-  title: string
-  url: string
-  cover: string
-  rtype: number
-  lang: string
-  desc: string
+  content: string      // 晨读标题/描述
+  rtype: number        // 类型
+  inner: number        // 是否站内
+  url: string          // 外链
+  moreurls: string     // 多个 URL，逗号分隔
+  username: string     // 发布者用户名
   clicknum: number
   ctime: string
+  rdate?: string       // 晨读日期，格式 2006-01-02
+  urls?: string[]      // moreurls 解析后的数组
+}
+
+// 晨读列表 API 返回：{ readings, rtype, page: { has_prev, prev_id, has_next, next_id } }
+export interface ReadingPage {
+  has_prev: boolean
+  prev_id: number
+  has_next: boolean
+  next_id: number
 }
 
 export interface ReadingListData {
   readings: Reading[]
-  has_prev: boolean
-  has_next: boolean
-  prev_id: number
-  next_id: number
+  rtype: number
+  page: ReadingPage
 }
 
 // ======================== 书籍相关 ========================

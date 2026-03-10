@@ -39,14 +39,14 @@ export const metadata: Metadata = {
 }
 
 async function fetchFromAPI<T>(path: string, options?: RequestInit): Promise<T> {
-  const base = process.env.API_BASE_URL || 'http://localhost:8088'
+  const base = process.env.API_BASE_URL || 'http://localhost:8090'
   const res = await fetch(`${base}/api/v1${path}`, options)
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   const json = await res.json()
   return json.data
 }
 
-async function getHomeData() {
+async function getHomeData(tab: string = 'all') {
   const [
     topicData,
     stats,
@@ -56,7 +56,7 @@ async function getHomeData() {
     recentCommentsData,
     activeUsersData,
   ] = await Promise.allSettled([
-    fetchFromAPI<TopicListData>('/home?tab=all&p=1', { cache: 'no-store' }),
+    fetchFromAPI<TopicListData>(`/home?tab=${tab}&p=1`, { cache: 'no-store' }),
     fetchFromAPI<SiteStats>('/stat/site', { cache: 'no-store' }),
     fetchFromAPI<{ readings: Reading[] }>('/sidebar/readings/recent?limit=7', { cache: 'no-store' }),
     fetchFromAPI<{ nodes: TopicNode[] }>('/sidebar/nodes/hot', { cache: 'no-store' }),
@@ -68,6 +68,7 @@ async function getHomeData() {
   const topicsValue = topicData.status === 'fulfilled' ? topicData.value : null
 
   return {
+    // 首页调用 /home 接口，后端返回字段为 "topics"
     topics: topicsValue?.topics ?? [] as Topic[],
     trendingTopics: topicsValue?.topics
       ? [...topicsValue.topics].sort((a, b) => b.viewnum - a.viewnum).slice(0, 5)
@@ -81,7 +82,15 @@ async function getHomeData() {
   }
 }
 
-export default async function HomePage() {
+interface HomePageProps {
+  searchParams: Promise<{ tab?: string }>
+}
+
+export default async function HomePage({ searchParams }: HomePageProps) {
+  const { tab: tabParam } = await searchParams
+  // tab 参数驱动首页话题列表筛选，有效值：all/hot/latest
+  const tab = tabParam ?? 'all'
+
   const {
     topics,
     trendingTopics,
@@ -91,7 +100,7 @@ export default async function HomePage() {
     friendLinks,
     recentComments,
     activeUsers,
-  } = await getHomeData()
+  } = await getHomeData(tab)
 
   return (
     <div className="min-h-screen bg-background">
@@ -110,7 +119,7 @@ export default async function HomePage() {
               </div>
               {/* Load More */}
               <div className="mt-6 text-center">
-                <button className="rounded-md bg-secondary px-6 py-2 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/80">
+                <button className="cursor-pointer rounded-md bg-secondary px-6 py-2 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/80">
                   {"加载更多"}
                 </button>
               </div>

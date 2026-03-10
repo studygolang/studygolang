@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
   try {
-    const base = process.env.API_BASE_URL || "http://localhost:8088"
+    const base = process.env.API_BASE_URL || "http://localhost:8090"
     const res = await fetch(`${base}/api/v1${path}`, options)
     if (!res.ok) return null
     const json = await res.json()
@@ -24,11 +24,7 @@ async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | nul
   }
 }
 
-const langLabelMap: Record<string, string> = {
-  zh: "中文",
-  en: "English",
-}
-
+// 后端 MorningReading 无 lang 字段
 const rtypeLabelMap: Record<number, string> = {
   1: "文章",
   2: "视频",
@@ -44,7 +40,8 @@ export default async function ReadingsPage({ searchParams }: ReadingsPageProps) 
   const params = await searchParams
   const idParam = params.id
 
-  const apiPath = idParam ? `/readings?id=${idParam}` : "/readings"
+  // 后端参数名为 lastid（非 id）
+  const apiPath = idParam ? `/readings?lastid=${idParam}` : "/readings"
   const data = await fetchAPI<ReadingListData>(apiPath, { cache: "no-store" })
 
   return (
@@ -70,60 +67,43 @@ export default async function ReadingsPage({ searchParams }: ReadingsPageProps) 
                 className="group overflow-hidden transition-all hover:border-primary/20 hover:shadow-sm"
               >
                 <CardContent className="flex h-full flex-col p-0">
-                  {/* Cover image */}
-                  {reading.cover ? (
-                    <div className="relative h-40 overflow-hidden bg-muted">
-                      <img
-                        src={reading.cover}
-                        alt={reading.title}
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex h-40 items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
-                      <BookOpen className="h-10 w-10 text-primary/40" />
-                    </div>
-                  )}
+                  {/* 后端 MorningReading 无 cover 字段，统一显示占位图标 */}
+                  <div className="flex h-40 items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+                    <BookOpen className="h-10 w-10 text-primary/40" />
+                  </div>
 
                   {/* Content */}
                   <div className="flex flex-1 flex-col p-4">
-                    {/* Badges */}
+                    {/* Badges：后端无 lang 字段，只显示 rtype */}
                     <div className="mb-2 flex flex-wrap gap-1.5">
-                      {reading.lang && langLabelMap[reading.lang] && (
-                        <Badge variant="outline" className="text-[10px]">
-                          {langLabelMap[reading.lang]}
-                        </Badge>
-                      )}
                       {reading.rtype && rtypeLabelMap[reading.rtype] && (
                         <Badge variant="secondary" className="text-[10px]">
                           {rtypeLabelMap[reading.rtype]}
                         </Badge>
                       )}
+                      {reading.rdate && (
+                        <Badge variant="outline" className="text-[10px]">
+                          {reading.rdate}
+                        </Badge>
+                      )}
                     </div>
 
-                    {/* Title */}
+                    {/* 标题：后端用 content 字段存标题 */}
                     <a
                       href={reading.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary"
                     >
-                      {reading.title}
+                      {reading.content}
                     </a>
-
-                    {/* Description */}
-                    {reading.desc && (
-                      <p className="mt-1.5 flex-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-                        {reading.desc}
-                      </p>
-                    )}
 
                     {/* Meta */}
                     <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
                       <div className="flex items-center gap-3">
                         <span className="flex items-center gap-1 text-xs text-muted-foreground">
                           <Clock className="h-3 w-3" />
-                          {reading.ctime}
+                          {reading.rdate || reading.ctime}
                         </span>
                         <span className="flex items-center gap-1 text-xs text-muted-foreground">
                           <Eye className="h-3 w-3" />
@@ -135,7 +115,7 @@ export default async function ReadingsPage({ searchParams }: ReadingsPageProps) 
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 text-xs font-medium text-primary transition-colors hover:text-primary/80"
-                        aria-label={"阅读 " + reading.title}
+                        aria-label={"阅读 " + reading.content}
                       >
                         阅读
                         <ExternalLink className="h-3 w-3" />
@@ -147,20 +127,23 @@ export default async function ReadingsPage({ searchParams }: ReadingsPageProps) 
             ))}
           </div>
 
-          {/* Prev / Next navigation */}
+          {/* Prev / Next navigation
+              后端分页信息嵌套在 data.page 对象中：{ has_prev, prev_id, has_next, next_id }
+              翻页参数使用 lastid（后端参数名）
+          */}
           <div className="mt-8 flex items-center justify-center gap-4">
-            {data.has_prev && (
+            {data.page?.has_prev && (
               <Link
-                href={`/readings?id=${data.prev_id}`}
+                href={`/readings?id=${data.page.prev_id}`}
                 className="flex items-center gap-1.5 rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
               >
                 <ChevronLeft className="h-4 w-4" />
                 上一期
               </Link>
             )}
-            {data.has_next && (
+            {data.page?.has_next && (
               <Link
-                href={`/readings?id=${data.next_id}`}
+                href={`/readings?id=${data.page.next_id}`}
                 className="flex items-center gap-1.5 rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
               >
                 下一期

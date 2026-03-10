@@ -1,3 +1,12 @@
+/**
+ * 酷工作页面
+ *
+ * 注意：后端目前没有招聘（jobs）相关 API。
+ * 页面内容由 JobList 组件提供，使用 Mock 数据展示。
+ *
+ * TODO: 后端实现 GET /api/v1/jobs 接口后，将此页面改为 SSR，从 API 获取真实数据。
+ * TODO: "发布职位" 按钮指向 /jobs/new，该页面尚未实现，接入后端 API 后同步创建。
+ */
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { JobList } from "@/components/job-list"

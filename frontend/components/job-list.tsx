@@ -1,15 +1,23 @@
+/**
+ * JobList - 招聘列表组件（Client Component）
+ *
+ * 注意：此组件使用的是 Mock 数据。
+ * 后端目前没有招聘（jobs）相关的 API，无法从服务端获取真实数据。
+ * Mock 数据仅用于 UI 展示和交互原型验证。
+ *
+ * TODO: 后端实现 GET /api/v1/jobs 接口后，将 mock 数据替换为真实 API 调用。
+ * TODO: 分页按钮目前为静态展示，接入 API 后需实现真实分页逻辑。
+ * TODO: 职位详情链接 /jobs/[id] 对应的页面尚未实现，接入 API 后同步创建。
+ */
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
 import {
   MapPin,
-  Banknote,
   Clock,
   Building2,
   Briefcase,
   Users,
-  ExternalLink,
   Flame,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -200,7 +208,7 @@ export function JobList() {
               key={city}
               onClick={() => setActiveCity(city)}
               className={cn(
-                "rounded-full px-3 py-1 text-xs font-medium transition-all",
+                "cursor-pointer rounded-full px-3 py-1 text-xs font-medium transition-all",
                 activeCity === city
                   ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
@@ -220,7 +228,7 @@ export function JobList() {
               key={exp}
               onClick={() => setActiveExp(exp)}
               className={cn(
-                "rounded-full px-3 py-1 text-xs font-medium transition-all",
+                "cursor-pointer rounded-full px-3 py-1 text-xs font-medium transition-all",
                 activeExp === exp
                   ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
@@ -267,13 +275,13 @@ export function JobList() {
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
                   {/* Title row */}
+                  {/* TODO: /jobs/[id] 详情页尚未实现，接入后端 API 后改为 <Link href={`/jobs/${job.id}`}> */}
                   <div className="flex flex-wrap items-center gap-2">
-                    <Link
-                      href={`/jobs/${job.id}`}
-                      className="text-base font-semibold text-foreground transition-colors group-hover:text-primary sm:text-[17px]"
+                    <span
+                      className="text-base font-semibold text-foreground sm:text-[17px]"
                     >
                       {job.title}
-                    </Link>
+                    </span>
                     {job.hot && (
                       <Badge className="gap-0.5 bg-destructive/10 text-[10px] font-semibold text-destructive">
                         <Flame className="h-2.5 w-2.5" />
@@ -335,7 +343,7 @@ export function JobList() {
         ))}
       </div>
 
-      {/* Load more */}
+      {/* 分页 - 当前为静态 mock，接入真实 API 后需实现分页逻辑 */}
       <div className="mt-6 flex items-center justify-center gap-2">
         <button
           className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-muted-foreground"
@@ -352,11 +360,15 @@ export function JobList() {
                 ? "bg-primary text-primary-foreground"
                 : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
             )}
+            disabled
           >
             {p}
           </button>
         ))}
-        <button className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80">
+        <button
+          className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-muted-foreground"
+          disabled
+        >
           {"下一页"}
         </button>
       </div>

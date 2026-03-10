@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, type KeyboardEvent } from "react"
+import { useState, useRef, useEffect, type KeyboardEvent } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
@@ -18,10 +18,11 @@ import {
   Download,
   ExternalLink,
   Compass,
-  Github,
   LogIn,
   UserPlus,
   Briefcase,
+  User,
+  LogOut,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -29,6 +30,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
@@ -41,18 +43,54 @@ const navItems = [
   { label: "\u9177\u5de5\u4f5c", href: "/jobs", icon: Briefcase },
 ]
 
-const docItems = [
-  { label: "\u82f1\u6587\u6587\u6863", href: "https://go.dev/doc/" },
-  { label: "\u4e2d\u6587\u6587\u6863", href: "/docs/zh" },
-  { label: "\u6807\u51c6\u5e93\u4e2d\u6587\u7248", href: "/docs/stdlib" },
-  { label: "Go \u6307\u5357", href: "/docs/guide" },
+interface DocItem {
+  label: string
+  href: string
+  /** 是否外部链接，true 时用 <a> 并 target="_blank" */
+  external?: boolean
+}
+
+// 中文文档指向外部资源，前端暂无 /docs/* 页面
+const docItems: DocItem[] = [
+  { label: "\u82f1\u6587\u6587\u6863", href: "https://go.dev/doc/", external: true },
+  { label: "\u4e2d\u6587\u6587\u6863", href: "https://go-zh.org/doc/", external: true },
+  {
+    label: "\u6807\u51c6\u5e93\u4e2d\u6587\u7248",
+    href: "https://books.studygolang.com/The-Golang-Standard-Library-by-Example/",
+    external: true,
+  },
+  // Go 指南指向 wiki 内部页面
+  { label: "Go \u6307\u5357", href: "/wiki" },
 ]
+
+interface AuthState {
+  username: string
+  uid: string
+}
 
 export function SiteHeader() {
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchFocused, setSearchFocused] = useState(false)
+  const [auth, setAuth] = useState<AuthState | null>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const token = localStorage.getItem("token")
+    const username = localStorage.getItem("username")
+    const uid = localStorage.getItem("uid")
+    if (token && username && uid) {
+      setAuth({ username, uid })
+    }
+  }, [])
+
+  function handleLogout() {
+    localStorage.removeItem("token")
+    localStorage.removeItem("uid")
+    localStorage.removeItem("username")
+    setAuth(null)
+    router.push("/")
+  }
 
   function handleSearchKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key !== "Enter") return
@@ -87,31 +125,40 @@ export function SiteHeader() {
           ))}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
+              <button className="flex cursor-pointer items-center gap-1 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
                 <Compass className="h-4 w-4" />
                 {"\u5bfc\u822a"}
                 <ChevronDown className="h-3 w-3" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-48">
+              {/* /sites 前端暂无此页面，临时指向 # */}
               <DropdownMenuItem asChild>
-                <Link href="/sites" className="flex items-center gap-2">
+                <a href="#" className="flex items-center gap-2">
                   <ExternalLink className="h-4 w-4" />
                   {"Go\u7f51\u5740\u5bfc\u822a"}
-                </Link>
+                </a>
               </DropdownMenuItem>
+              {/* /dl 前端无此页面，直接跳转 go.dev 官方下载 */}
               <DropdownMenuItem asChild>
-                <Link href="/dl" className="flex items-center gap-2">
+                <a href="https://go.dev/dl/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                   <Download className="h-4 w-4" />
-                  {"\u4e0b\u8f7d"}
-                </Link>
+                  {"\u4e0b\u8f7d Go"}
+                </a>
               </DropdownMenuItem>
               {docItems.map((doc) => (
                 <DropdownMenuItem key={doc.href} asChild>
-                  <Link href={doc.href} className="flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    {doc.label}
-                  </Link>
+                  {doc.external ? (
+                    <a href={doc.href} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      {doc.label}
+                    </a>
+                  ) : (
+                    <Link href={doc.href} className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      {doc.label}
+                    </Link>
+                  )}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -138,19 +185,53 @@ export function SiteHeader() {
           <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground" aria-label={"\u901a\u77e5"}>
             <Bell className="h-4 w-4" />
           </Button>
-          <Button size="sm" className="h-9 gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
-            <PenSquare className="h-3.5 w-3.5" />
-            {"\u53d1\u5e03"}
+          {/* /topics/create 页面暂未实现，临时跳转 /topics */}
+          <Button asChild size="sm" className="h-9 gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
+            <Link href="/topics">
+              <PenSquare className="h-3.5 w-3.5" />
+              {"\u53d1\u5e03"}
+            </Link>
           </Button>
           <div className="mx-1 h-5 w-px bg-border" />
-          <Button variant="ghost" size="sm" className="h-9 gap-1.5 text-muted-foreground">
-            <LogIn className="h-4 w-4" />
-            {"\u767b\u5f55"}
-          </Button>
-          <Button variant="outline" size="sm" className="h-9 gap-1.5">
-            <UserPlus className="h-4 w-4" />
-            {"\u6ce8\u518c"}
-          </Button>
+          {auth ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-9 gap-1.5 text-muted-foreground">
+                  <User className="h-4 w-4" />
+                  {auth.username}
+                  <ChevronDown className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuItem asChild>
+                  <Link href={`/user/${auth.username}`} className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    {"个人主页"}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 text-destructive focus:text-destructive">
+                  <LogOut className="h-4 w-4" />
+                  {"退出登录"}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button asChild variant="ghost" size="sm" className="h-9 gap-1.5 text-muted-foreground">
+                <Link href="/account/login">
+                  <LogIn className="h-4 w-4" />
+                  {"\u767b\u5f55"}
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="sm" className="h-9 gap-1.5">
+                <Link href="/account/register">
+                  <UserPlus className="h-4 w-4" />
+                  {"\u6ce8\u518c"}
+                </Link>
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile menu toggle */}
@@ -181,15 +262,39 @@ export function SiteHeader() {
               </Link>
             ))}
             <div className="my-2 h-px bg-border" />
-            <div className="flex gap-2 px-3 pt-1">
-              <Button variant="outline" size="sm" className="flex-1 gap-1.5">
-                <Github className="h-4 w-4" />
-                GitHub {"\u767b\u5f55"}
-              </Button>
-              <Button size="sm" className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">
-                {"\u6ce8\u518c"}
-              </Button>
-            </div>
+            {auth ? (
+              <div className="flex flex-col gap-1 px-3 pt-1">
+                <Button asChild variant="ghost" size="sm" className="justify-start gap-2">
+                  <Link href={`/user/${auth.username}`} onClick={() => setMobileMenuOpen(false)}>
+                    <User className="h-4 w-4" />
+                    {auth.username}
+                  </Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="justify-start gap-2 text-destructive hover:text-destructive"
+                  onClick={() => { setMobileMenuOpen(false); handleLogout() }}
+                >
+                  <LogOut className="h-4 w-4" />
+                  {"退出登录"}
+                </Button>
+              </div>
+            ) : (
+              <div className="flex gap-2 px-3 pt-1">
+                <Button asChild variant="outline" size="sm" className="flex-1 gap-1.5">
+                  <Link href="/account/login" onClick={() => setMobileMenuOpen(false)}>
+                    <LogIn className="h-4 w-4" />
+                    {"\u767b\u5f55"}
+                  </Link>
+                </Button>
+                <Button asChild size="sm" className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">
+                  <Link href="/account/register" onClick={() => setMobileMenuOpen(false)}>
+                    {"\u6ce8\u518c"}
+                  </Link>
+                </Button>
+              </div>
+            )}
           </nav>
         </div>
       )}

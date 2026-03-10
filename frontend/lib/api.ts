@@ -3,6 +3,7 @@
 
 import type {
   APIResponse,
+  ArticleComment,
   ArticleDetailData,
   ArticleListData,
   BookListData,
@@ -30,7 +31,7 @@ import type {
 function getAPIBase(): string {
   if (typeof window === 'undefined') {
     // 服务端 SSR 调用
-    return process.env.API_BASE_URL || 'http://localhost:8088'
+    return process.env.API_BASE_URL || 'http://localhost:8090'
   }
   // 客户端调用，通过 Next.js rewrite 代理
   return ''
@@ -57,6 +58,7 @@ async function fetchAPI<T>(
 
   const json: APIResponse<T> = await res.json()
   if (json.code !== 0) {
+    // 后端错误字段为 msg（非 message）
     throw new Error(json.msg || '请求失败')
   }
 
