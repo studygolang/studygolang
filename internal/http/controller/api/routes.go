@@ -32,4 +32,6 @@ func RegisterRoutes(g *echo.Group) {
 	new(SearchController).RegisterRoute(g)
 	new(SidebarController).RegisterRoute(g)
 	new(WikiController).RegisterRoute(g)
+	new(InterviewController).RegisterRoute(g)
+	new(JobController).RegisterRoute(g)
 }
