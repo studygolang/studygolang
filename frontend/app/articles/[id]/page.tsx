@@ -104,7 +104,7 @@ export default async function ArticleDetailPage({
         title=""
         breadcrumbs={[
           { label: "技术文章", href: "/articles" },
-          { label: article ? article.title.slice(0, 20) + (article.title.length > 20 ? "..." : "") : `#${id}` },
+          { label: article?.title ? article.title.slice(0, 20) + (article.title.length > 20 ? "..." : "") : `#${id}` },
         ]}
       />
       <ArticleDetail

@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation"
 import Link from "next/link"
 import {
   User as UserIcon,
@@ -78,7 +77,15 @@ export default async function UserPage({ params }: UserPageProps) {
   )
 
   if (!data?.user) {
-    notFound()
+    return (
+      <PageLayout sidebar={false}>
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
+          <UserIcon className="mb-3 h-10 w-10 text-muted-foreground/40" />
+          <p className="text-sm font-medium text-foreground">用户不存在</p>
+          <p className="mt-1 text-sm text-muted-foreground">该用户不存在或已注销</p>
+        </div>
+      </PageLayout>
+    )
   }
 
   const { user, topics, articles } = data

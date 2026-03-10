@@ -36,9 +36,9 @@ function formatDate(dateStr: string): string {
 }
 
 export default async function WikiListPage() {
-  const wikis = await fetchAPI<Wiki[]>("/wiki", { cache: "no-store" })
+  const wikisData = await fetchAPI<unknown>("/wiki", { cache: "no-store" })
 
-  const wikiList = wikis ?? []
+  const wikiList: Wiki[] = Array.isArray(wikisData) ? wikisData : []
 
   return (
     <PageLayout sidebar={false}>

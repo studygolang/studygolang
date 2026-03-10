@@ -75,7 +75,9 @@ async function SearchResults({ q, page }: { q: string; page: number }) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
         <Search className="mb-3 h-10 w-10 text-muted-foreground/40" />
-        <p className="text-sm font-medium text-foreground">没有找到相关内容</p>
+        <p className="text-sm font-medium text-foreground">
+          没有找到与 <span className="text-primary">&ldquo;{q}&rdquo;</span> 相关的内容
+        </p>
         <p className="mt-1 text-sm text-muted-foreground">
           试试换个关键词，或者减少搜索条件
         </p>
