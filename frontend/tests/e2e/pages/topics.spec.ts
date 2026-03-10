@@ -33,7 +33,7 @@ test.describe("话题列表页", () => {
   test("页面有分页或话题列表", async ({ page }) => {
     // 要么有话题列表，要么有空状态提示
     const hasTopics = await page.locator("[class*='topic'], .topic-item, article").count()
-    const hasEmpty = await page.locator("text=暂无话题, text=没有数据").count()
+    const hasEmpty = await page.getByText(/暂无话题|没有数据/).count()
     expect(hasTopics + hasEmpty).toBeGreaterThan(0)
   })
 })

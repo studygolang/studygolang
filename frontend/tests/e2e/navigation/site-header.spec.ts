@@ -12,8 +12,8 @@ test.describe("站点导航栏", () => {
     // Logo 存在
     await expect(header.logo).toBeVisible()
 
-    // 主导航链接存在
-    await expect(page.locator("header a[href='/topics']")).toBeVisible()
+    // 主导航链接存在（desktop + mobile 各一个，取第一个）
+    await expect(page.locator("header a[href='/topics']").first()).toBeVisible()
     await expect(page.locator("header a[href='/articles']")).toBeVisible()
     await expect(page.locator("header a[href='/projects']")).toBeVisible()
     await expect(page.locator("header a[href='/resources']")).toBeVisible()

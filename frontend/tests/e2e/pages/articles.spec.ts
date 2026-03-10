@@ -39,7 +39,7 @@ test.describe("文章详情页", () => {
     // 页面应该渲染（有内容或错误提示）
     const hasContent =
       (await page.locator("article, main").count()) > 0 ||
-      (await page.locator("text=不存在, text=找不到").count()) > 0
+      (await page.getByText(/不存在|找不到/).count()) > 0
     expect(hasContent).toBeTruthy()
   })
 })
