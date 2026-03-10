@@ -764,10 +764,9 @@ func (UserLogic) doCreateUser(ctx context.Context, session *xorm.Session, user *
 		return err
 	}
 
-	if !user.IsRoot {
-		// 存用户角色信息
+	if !user.IsRoot && len(Roles) > 0 {
+		// 存用户角色信息，默认为初级会员（最后一个角色）
 		userRole := &model.UserRole{}
-		// 默认为初级会员
 		userRole.Roleid = Roles[len(Roles)-1].Roleid
 		userRole.Uid = user.Uid
 		if _, err = session.Insert(userRole); err != nil {

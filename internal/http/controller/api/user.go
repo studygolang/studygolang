@@ -26,14 +26,41 @@ func (self UserController) RegisterRoute(g *echo.Group) {
 	g.GET("/user/:username", self.Home)
 }
 
+// loginRequest 登录请求体（支持 JSON）
+type loginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Passwd   string `json:"passwd"` // 兼容两种字段名
+}
+
+// registerRequest 注册请求体（支持 JSON）
+type registerRequest struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Passwd   string `json:"passwd"`
+	Password string `json:"password"` // 兼容两种字段名
+}
+
 // Login 用户登录，返回 token
 func (UserController) Login(ctx echo.Context) error {
-	username := ctx.FormValue("username")
+	var req loginRequest
+	if err := ctx.Bind(&req); err != nil {
+		return fail(ctx, "请求参数错误")
+	}
+
+	username := req.Username
 	if username == "" {
 		return fail(ctx, "用户名不能为空")
 	}
 
-	passwd := ctx.FormValue("passwd")
+	passwd := req.Passwd
+	if passwd == "" {
+		passwd = req.Password
+	}
+	if passwd == "" {
+		return fail(ctx, "密码不能为空")
+	}
+
 	userLogin, err := logic.DefaultUser.Login(context.EchoContext(ctx), username, passwd)
 	if err != nil {
 		return fail(ctx, err.Error())
@@ -48,17 +75,25 @@ func (UserController) Login(ctx echo.Context) error {
 
 // Register 用户注册
 func (UserController) Register(ctx echo.Context) error {
-	username := ctx.FormValue("username")
+	var req registerRequest
+	if err := ctx.Bind(&req); err != nil {
+		return fail(ctx, "请求参数错误")
+	}
+
+	username := req.Username
 	if username == "" {
 		return fail(ctx, "用户名不能为空")
 	}
 
-	email := ctx.FormValue("email")
+	email := req.Email
 	if email == "" {
 		return fail(ctx, "邮箱不能为空")
 	}
 
-	passwd := ctx.FormValue("passwd")
+	passwd := req.Passwd
+	if passwd == "" {
+		passwd = req.Password
+	}
 	if passwd == "" {
 		return fail(ctx, "密码不能为空")
 	}
