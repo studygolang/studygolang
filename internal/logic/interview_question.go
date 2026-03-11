@@ -111,6 +111,24 @@ func (iq InterviewLogic) FindOne(ctx context.Context, sn int64) (*model.Intervie
 	return question, err
 }
 
+// FindAll 获取面试题列表（分页）
+func (InterviewLogic) FindAll(ctx context.Context, curPage, pageSize int, level int) ([]*model.InterviewQuestion, int64, error) {
+	objLog := GetLogger(ctx)
+
+	session := MasterDB.Desc("id")
+	if level >= 0 {
+		session = session.Where("level=?", level)
+	}
+
+	questions := make([]*model.InterviewQuestion, 0)
+	total, err := session.Limit(pageSize, (curPage-1)*pageSize).FindAndCount(&questions)
+	if err != nil {
+		objLog.Errorln("InterviewLogic FindAll error:", err)
+		return nil, 0, err
+	}
+	return questions, total, nil
+}
+
 func (InterviewLogic) UpdateTodayQuestionID() {
 	question := &model.InterviewQuestion{}
 	_, err := MasterDB.Desc("id").Get(question)

@@ -25,6 +25,7 @@ func (self TopicController) RegisterRoute(g *echo.Group) {
 	g.GET("/topics/last", self.Last)
 	g.GET("/topics/node/:nid", self.NodeTopics)
 	g.GET("/topics", self.List)
+	g.POST("/topics", self.Publish)
 	g.GET("/topics/:tid", self.Detail)
 	g.GET("/nodes", self.Nodes)
 }
@@ -132,4 +133,37 @@ func (TopicController) Detail(ctx echo.Context) error {
 func (TopicController) Nodes(ctx echo.Context) error {
 	nodes := logic.GenNodes()
 	return success(ctx, nodes)
+}
+
+// Publish 发布新话题（需要登录）
+func (TopicController) Publish(ctx echo.Context) error {
+	token := ctx.Request().Header.Get("X-Token")
+	if token == "" {
+		return fail(ctx, "请先登录", NeedReLoginCode)
+	}
+	if !ValidateToken(token) {
+		return fail(ctx, "token 已过期，请重新登录", NeedReLoginCode)
+	}
+	uid, ok := ParseToken(token)
+	if !ok || uid == 0 {
+		return fail(ctx, "无效的 token", NeedReLoginCode)
+	}
+
+	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid)
+	if user == nil || user.Uid == 0 {
+		return fail(ctx, "用户不存在")
+	}
+	me := &model.Me{
+		Uid:      user.Uid,
+		Username: user.Username,
+		IsRoot:   user.IsRoot,
+		IsVip:    user.IsVip,
+	}
+
+	forms, _ := ctx.FormParams()
+	tid, err := logic.DefaultTopic.Publish(context.EchoContext(ctx), me, forms)
+	if err != nil {
+		return fail(ctx, "发布失败："+err.Error())
+	}
+	return success(ctx, map[string]interface{}{"tid": tid})
 }
