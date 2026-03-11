@@ -247,15 +247,13 @@ export interface User {
   is_root: boolean
   is_vip: boolean
   open_id: string
-  tagline: string
+  introduce: string  // 个人简介（后端字段名）
   website: string
   city: string
   github: string
   company: string
   level: number
   balance: number
-  follow_count: number
-  fans_count: number
   ctime: string
 }
 
@@ -354,6 +352,15 @@ export interface InterviewQuestion {
   likenum: number
   source: string
   created_at: string
+}
+
+// 面试题列表 API 返回
+export interface InterviewListData {
+  questions: InterviewQuestion[]
+  total: number
+  page: number
+  total_pages: number
+  has_more: boolean
 }
 
 // ======================== Wiki 相关 ========================

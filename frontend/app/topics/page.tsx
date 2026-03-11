@@ -3,9 +3,9 @@ import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { TopicList } from "@/components/topic-list"
 import { NodeNavigation } from "@/components/node-navigation"
-import { PenSquare } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { PenSquare } from "lucide-react"
+import { AuthLink } from "@/components/auth-link"
 import type { TopicListData, TopicNode } from "@/lib/types"
 
 export const metadata: Metadata = {
@@ -80,19 +80,17 @@ export default async function TopicsPage({ searchParams }: TopicsPageProps) {
   ]
 
   return (
-    <PageLayout sidebarData={{ nodes }}>
+    <PageLayout>
       <PageHeader
         title="主题讨论"
         description="分享你的技术见解，和 Gopher 们一起交流成长"
         breadcrumbs={[{ label: "主题讨论" }]}
         actions={
-          // TODO: /topics/new 页面尚未实现，未登录时指向登录页，登录后应跳转至发帖页
-          <Link href="/account/login">
-            <Button size="sm" className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
-              <PenSquare className="h-3.5 w-3.5" />
-              {"发布主题"}
-            </Button>
-          </Link>
+          
+          <AuthLink href="/publish" className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
+            <PenSquare className="h-3.5 w-3.5" />
+            发布主题
+          </AuthLink>
         }
       />
 

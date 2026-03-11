@@ -38,8 +38,7 @@ const footerSections: FooterSection[] = [
         href: "https://books.studygolang.com/The-Golang-Standard-Library-by-Example/",
         external: true,
       },
-      // /interview 前端暂无此页面，临时指向 /wiki
-      { label: "\u6bcf\u65e5\u9762\u8bd5\u9898", href: "/wiki" },
+      { label: "\u6bcf\u65e5\u9762\u8bd5\u9898", href: "/interview" },
     ],
   },
   {

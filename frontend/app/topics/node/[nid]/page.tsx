@@ -5,7 +5,7 @@ import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { TopicList } from "@/components/topic-list"
 import { NodeNavigation } from "@/components/node-navigation"
-import { Button } from "@/components/ui/button"
+import { AuthLink } from "@/components/auth-link"
 import type { TopicListData, TopicNode } from "@/lib/types"
 
 async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
@@ -65,7 +65,7 @@ export default async function NodeTopicsPage({ params, searchParams }: NodeTopic
   }
 
   return (
-    <PageLayout sidebarData={{ nodes: nodeList }}>
+    <PageLayout>
       <PageHeader
         title={nodeName}
         description={currentNode?.intro ?? `浏览 ${nodeName} 节点下的所有话题`}
@@ -75,13 +75,11 @@ export default async function NodeTopicsPage({ params, searchParams }: NodeTopic
           { label: nodeName },
         ]}
         actions={
-          // TODO: /topics/new 页面尚未实现，未登录时指向登录页，登录后应跳转至发帖页
-          <Link href="/account/login">
-            <Button size="sm" className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
-              <PenSquare className="h-3.5 w-3.5" />
-              发布主题
-            </Button>
-          </Link>
+          
+          <AuthLink href="/publish" className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
+            <PenSquare className="h-3.5 w-3.5" />
+            发布主题
+          </AuthLink>
         }
       />
 

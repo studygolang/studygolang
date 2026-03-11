@@ -5,7 +5,6 @@ import {
   Globe,
   Github,
   Building2,
-  Users,
   BookOpen,
   MessageSquare,
   Star,
@@ -60,10 +59,10 @@ export async function generateMetadata({ params }: UserPageProps): Promise<Metad
   const displayName = user.name || user.username
   return {
     title: `${displayName}的主页 - Go语言中文网`,
-    description: user.tagline || `${displayName} 的个人主页 - Go语言中文网`,
+    description: user.introduce || `${displayName} 的个人主页 - Go语言中文网`,
     openGraph: {
       title: `${displayName}的主页`,
-      description: user.tagline || "",
+      description: user.introduce || "",
       images: user.avatar ? [{ url: user.avatar }] : [],
     },
   }
@@ -130,8 +129,8 @@ export default async function UserPage({ params }: UserPageProps) {
                 )}
               </div>
 
-              {user.tagline && (
-                <p className="mt-1.5 text-sm text-muted-foreground">{user.tagline}</p>
+              {user.introduce && (
+                <p className="mt-1.5 text-sm text-muted-foreground">{user.introduce}</p>
               )}
 
               {/* Meta info */}
@@ -174,16 +173,6 @@ export default async function UserPage({ params }: UserPageProps) {
 
               {/* Stats */}
               <div className="mt-4 flex flex-wrap gap-6 border-t border-border pt-4">
-                <div className="flex items-center gap-1.5">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-semibold">{formatNum(user.follow_count)}</span>
-                  <span className="text-xs text-muted-foreground">关注</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-semibold">{formatNum(user.fans_count)}</span>
-                  <span className="text-xs text-muted-foreground">粉丝</span>
-                </div>
                 <div className="flex items-center gap-1.5">
                   <Clock className="h-4 w-4 text-muted-foreground" />
                   <span className="text-xs text-muted-foreground">加入于 {user.ctime}</span>

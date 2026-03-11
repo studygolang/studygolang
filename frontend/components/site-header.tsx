@@ -185,12 +185,16 @@ export function SiteHeader() {
           <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground" aria-label={"\u901a\u77e5"}>
             <Bell className="h-4 w-4" />
           </Button>
-          {/* /topics/create 页面暂未实现，临时跳转 /topics */}
-          <Button asChild size="sm" className="h-9 gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
-            <Link href="/topics">
-              <PenSquare className="h-3.5 w-3.5" />
-              {"\u53d1\u5e03"}
-            </Link>
+          <Button
+            size="sm"
+            className="h-9 gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
+            onClick={() => {
+              const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+              router.push(token ? "/publish" : "/account/login?redirect=/publish")
+            }}
+          >
+            <PenSquare className="h-3.5 w-3.5" />
+            {"\u53d1\u5e03"}
           </Button>
           <div className="mx-1 h-5 w-px bg-border" />
           {auth ? (
