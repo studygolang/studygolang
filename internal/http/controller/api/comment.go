@@ -40,9 +40,9 @@ func (CommentController) List(ctx echo.Context) error {
 	})
 }
 
-// Create 创建评论（需要 X-Token 认证）
+// Create 创建评论（支持 Cookie 和 X-Token header）
 func (CommentController) Create(ctx echo.Context) error {
-	token := ctx.Request().Header.Get("X-Token")
+	token := getAuthToken(ctx)
 	if token == "" {
 		return fail(ctx, "未登录", NeedReLoginCode)
 	}

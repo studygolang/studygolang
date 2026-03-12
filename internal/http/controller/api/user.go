@@ -21,6 +21,7 @@ type UserController struct{}
 
 func (self UserController) RegisterRoute(g *echo.Group) {
 	g.POST("/user/login", self.Login)
+	g.POST("/user/logout", self.Logout)
 	g.POST("/user/register", self.Register)
 	g.GET("/user/me", self.Me)
 	g.GET("/user/:username", self.Home)
@@ -66,11 +67,20 @@ func (UserController) Login(ctx echo.Context) error {
 		return fail(ctx, err.Error())
 	}
 
+	token := GenToken(userLogin.Uid)
+	// 设置 HttpOnly Cookie，防止 XSS 窃取 token
+	setAuthCookie(ctx, token)
+
 	return success(ctx, map[string]interface{}{
-		"token":    GenToken(userLogin.Uid),
 		"uid":      userLogin.Uid,
 		"username": userLogin.Username,
 	})
+}
+
+// Logout 退出登录，清除认证 Cookie
+func (UserController) Logout(ctx echo.Context) error {
+	clearAuthCookie(ctx)
+	return success(ctx, nil)
 }
 
 // Register 用户注册
@@ -106,12 +116,12 @@ func (UserController) Register(ctx echo.Context) error {
 	errMsg, err := logic.DefaultUser.CreateUser(context.EchoContext(ctx), form)
 	if err != nil {
 		if errMsg == "" {
-			errMsg = err.Error()
+			errMsg = "注册失败，请稍后重试"
 		}
 		return fail(ctx, errMsg)
 	}
 
-	// 注册成功后自动登录，返回 token
+	// 注册成功后自动登录，设置 Cookie
 	userLogin, err := logic.DefaultUser.Login(context.EchoContext(ctx), username, passwd)
 	if err != nil {
 		return success(ctx, map[string]interface{}{
@@ -119,16 +129,17 @@ func (UserController) Register(ctx echo.Context) error {
 		})
 	}
 
+	setAuthCookie(ctx, GenToken(userLogin.Uid))
+
 	return success(ctx, map[string]interface{}{
-		"token":    GenToken(userLogin.Uid),
 		"uid":      userLogin.Uid,
 		"username": userLogin.Username,
 	})
 }
 
-// Me 当前登录用户信息（需要 X-Token header）
+// Me 当前登录用户信息（支持 Cookie 和 X-Token header）
 func (UserController) Me(ctx echo.Context) error {
-	token := ctx.Request().Header.Get("X-Token")
+	token := getAuthToken(ctx)
 	if token == "" {
 		return fail(ctx, "未登录", NeedReLoginCode)
 	}

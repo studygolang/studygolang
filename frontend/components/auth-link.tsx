@@ -18,8 +18,8 @@ export function AuthLink({ href, children, className, size = "sm" }: AuthLinkPro
   const router = useRouter()
 
   function handleClick() {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
-    if (token) {
+    const uid = typeof window !== "undefined" ? localStorage.getItem("uid") : null
+    if (uid) {
       router.push(href)
     } else {
       router.push(`/account/login?redirect=${encodeURIComponent(href)}`)

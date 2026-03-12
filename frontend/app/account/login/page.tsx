@@ -31,8 +31,8 @@ export default function LoginPage() {
 
     setLoading(true)
     try {
-      const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8090"
-      const res = await fetch(`${base}/api/v1/user/login`, {
+      // 客户端组件使用相对路径，通过 next.config.mjs 中的 rewrites 代理到后端
+      const res = await fetch(`/api/v1/user/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: username.trim(), password }),
@@ -43,7 +43,7 @@ export default function LoginPage() {
         return
       }
       const data: LoginData = json.data
-      localStorage.setItem("token", data.token)
+      // token 已通过 HttpOnly Cookie 存储，此处仅保存非敏感 UI 状态
       localStorage.setItem("uid", String(data.uid))
       localStorage.setItem("username", data.username)
       router.push("/")

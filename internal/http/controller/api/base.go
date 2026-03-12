@@ -17,7 +17,42 @@ import (
 	"github.com/polaris1119/logger"
 )
 
-const perPage = 20 // 每页默认条数
+const (
+	perPage        = 20          // 每页默认条数
+	authCookieName = "sg_token"  // HttpOnly 认证 Cookie 名
+	cookieMaxAge   = 7 * 24 * 3600 // Cookie 有效期 7 天
+)
+
+// getAuthToken 读取认证 token：优先读 HttpOnly Cookie，回退到 X-Token header（兼容旧客户端）
+func getAuthToken(ctx echo.Context) string {
+	if cookie, err := ctx.Cookie(authCookieName); err == nil && cookie.Value != "" {
+		return cookie.Value
+	}
+	return ctx.Request().Header.Get("X-Token")
+}
+
+// setAuthCookie 设置认证 Cookie（HttpOnly, SameSite=Lax）
+func setAuthCookie(ctx echo.Context, token string) {
+	cookie := new(http.Cookie)
+	cookie.Name = authCookieName
+	cookie.Value = token
+	cookie.HttpOnly = true
+	cookie.SameSite = http.SameSiteLaxMode
+	cookie.Path = "/"
+	cookie.MaxAge = cookieMaxAge
+	ctx.SetCookie(cookie)
+}
+
+// clearAuthCookie 清除认证 Cookie
+func clearAuthCookie(ctx echo.Context) {
+	cookie := new(http.Cookie)
+	cookie.Name = authCookieName
+	cookie.Value = ""
+	cookie.HttpOnly = true
+	cookie.Path = "/"
+	cookie.MaxAge = -1
+	ctx.SetCookie(cookie)
+}
 
 func getLogger(ctx echo.Context) *logger.Logger {
 	return logic.GetLogger(context.EchoContext(ctx))

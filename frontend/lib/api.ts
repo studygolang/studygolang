@@ -3,7 +3,6 @@
 
 import type {
   APIResponse,
-  ArticleComment,
   ArticleDetailData,
   ArticleListData,
   BookListData,
@@ -185,10 +184,16 @@ export const userAPI = {
     })
   },
 
-  getMe(token?: string, fetchOptions?: RequestInit) {
+  async getMe(token?: string, fetchOptions?: RequestInit): Promise<Me | null> {
     const headers: Record<string, string> = {}
     if (token) headers['X-Token'] = token
-    return fetchAPI<Me>('/user/me', { ...fetchOptions, headers })
+    try {
+      // 后端返回 { user: {...} }，提取 user 字段
+      const data = await fetchAPI<{ user: Me }>('/user/me', { ...fetchOptions, headers })
+      return data?.user ?? null
+    } catch {
+      return null
+    }
   },
 
   getProfile(username: string, fetchOptions?: RequestInit) {
@@ -227,38 +232,44 @@ export const sidebarAPI = {
     return fetchAPI<SiteStats>('/stat/site', fetchOptions)
   },
 
+  // 后端返回 { topics: Topic[] }
   getRecentTopics(limit = 10, fetchOptions?: RequestInit) {
-    return fetchAPI<Topic[]>(`/sidebar/topics/recent?limit=${limit}`, fetchOptions)
+    return fetchAPI<{ topics: Topic[] }>(`/sidebar/topics/recent?limit=${limit}`, fetchOptions)
   },
 
   getRecentReadings(limit = 7, fetchOptions?: RequestInit) {
-    return fetchAPI<{ readings: import('./types').Reading[] }>(`/sidebar/readings/recent?limit=${limit}`, fetchOptions)
+    return fetchAPI<{ readings: Reading[] }>(`/sidebar/readings/recent?limit=${limit}`, fetchOptions)
   },
 
+  // 后端返回 { nodes: TopicNode[] }
   getHotNodes(fetchOptions?: RequestInit) {
-    return fetchAPI<TopicNode[]>('/sidebar/nodes/hot', fetchOptions)
+    return fetchAPI<{ nodes: TopicNode[] }>('/sidebar/nodes/hot', fetchOptions)
   },
 
+  // 后端返回 { users: User[] }
   getActiveUsers(fetchOptions?: RequestInit) {
-    return fetchAPI<User[]>('/sidebar/users/active', fetchOptions)
+    return fetchAPI<{ users: User[] }>('/sidebar/users/active', fetchOptions)
   },
 
+  // 后端返回 { links: FriendLink[] }
   getFriendLinks(fetchOptions?: RequestInit) {
-    return fetchAPI<import('./types').FriendLink[]>('/sidebar/friend/links', fetchOptions)
+    return fetchAPI<{ links: import('./types').FriendLink[] }>('/sidebar/friend/links', fetchOptions)
   },
 
+  // 后端返回 { comments: Comment[], [uid: string]: User }
   getRecentComments(fetchOptions?: RequestInit) {
-    return fetchAPI<Comment[]>('/sidebar/comments/recent', fetchOptions)
+    return fetchAPI<{ comments: Comment[] }>('/sidebar/comments/recent', fetchOptions)
   },
 }
 
 // ======================== Wiki ========================
 export const wikiAPI = {
+  // 后端返回 { wikis: Wiki[], page: { has_prev, prev_id, has_next, next_id } }
   getList(fetchOptions?: RequestInit) {
-    return fetchAPI<Wiki[]>('/wiki', fetchOptions)
+    return fetchAPI<{ wikis: Wiki[]; page: { has_prev: boolean; prev_id: number; has_next: boolean; next_id: number } }>('/wiki', fetchOptions)
   },
 
   getDetail(uri: string, fetchOptions?: RequestInit) {
-    return fetchAPI<Wiki>(`/wiki/${uri}`, fetchOptions)
+    return fetchAPI<{ wiki: Wiki }>(`/wiki/${uri}`, fetchOptions)
   },
 }

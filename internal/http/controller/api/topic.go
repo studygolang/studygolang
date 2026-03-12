@@ -54,6 +54,9 @@ func (self TopicController) Last(ctx echo.Context) error {
 
 func (TopicController) topicList(ctx echo.Context, tab, orderBy, querystring string, args ...interface{}) error {
 	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	if curPage < 1 {
+		curPage = 1
+	}
 	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
 
 	topTopics := logic.DefaultTopic.FindAll(context.EchoContext(ctx), paginator, "ctime DESC", "top=1")
@@ -109,14 +112,14 @@ func (TopicController) Detail(ctx echo.Context) error {
 
 	me, ok := ctx.Get("user").(*model.Me)
 
-	permission := topic["permission"].(int)
+	permission, _ := topic["permission"].(int)
 	switch permission {
 	case model.PermissionLogin:
 		if !ok {
 			topic["content"] = "登录用户可见！"
 		}
 	case model.PermissionPay:
-		if !ok || !me.IsVip || !me.IsRoot {
+		if !ok || (!me.IsVip && !me.IsRoot) {
 			topic["content"] = "付费用户可见！"
 		}
 	}
@@ -135,9 +138,9 @@ func (TopicController) Nodes(ctx echo.Context) error {
 	return success(ctx, nodes)
 }
 
-// Publish 发布新话题（需要登录）
+// Publish 发布新话题（需要登录，支持 Cookie 和 X-Token header）
 func (TopicController) Publish(ctx echo.Context) error {
-	token := ctx.Request().Header.Get("X-Token")
+	token := getAuthToken(ctx)
 	if token == "" {
 		return fail(ctx, "请先登录", NeedReLoginCode)
 	}

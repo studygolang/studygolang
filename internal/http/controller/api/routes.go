@@ -7,17 +7,40 @@
 package api
 
 import (
+	"os"
+	"strings"
+
 	echo "github.com/labstack/echo/v4"
 	mw "github.com/labstack/echo/v4/middleware"
 )
 
+// getAllowedOrigins 从环境变量 ALLOWED_ORIGINS 读取允许的跨域来源，
+// 格式为逗号分隔的 URL 列表，默认为开发环境 http://localhost:3000
+func getAllowedOrigins() []string {
+	raw := os.Getenv("ALLOWED_ORIGINS")
+	if raw == "" {
+		return []string{"http://localhost:3000"}
+	}
+	parts := strings.Split(raw, ",")
+	result := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if o := strings.TrimSpace(p); o != "" {
+			result = append(result, o)
+		}
+	}
+	return result
+}
+
 // RegisterRoutes 注册面向 Next.js 前端的 Web API 路由（/api/v1/...）
 func RegisterRoutes(g *echo.Group) {
-	// 允许跨域（开发环境 Next.js dev server 需要）
+	// CORS：允许来源通过 ALLOWED_ORIGINS 环境变量配置
+	// 开发默认 http://localhost:3000；生产设置为实际域名（如 https://studygolang.com）
+	// AllowCredentials=true 以支持 HttpOnly Cookie 认证
 	g.Use(mw.CORSWithConfig(mw.CORSConfig{
-		AllowOrigins: []string{"*"},
-		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
-		AllowHeaders: []string{"Content-Type", "Authorization", "X-Token"},
+		AllowOrigins:     getAllowedOrigins(),
+		AllowMethods:     []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
+		AllowHeaders:     []string{"Content-Type", "Authorization", "X-Token"},
+		AllowCredentials: true,
 	}))
 
 	new(IndexController).RegisterRoute(g)

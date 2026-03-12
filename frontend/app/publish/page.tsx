@@ -35,7 +35,8 @@ import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import type { TopicNode } from "@/lib/types"
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8090"
+// 客户端组件使用相对路径，通过 next.config.mjs 中的 rewrites 代理到后端
+const API_BASE = ""
 
 type ContentType = "topic" | "article" | "project"
 
@@ -86,8 +87,8 @@ export default function PublishPage() {
 
   // 未登录重定向
   useEffect(() => {
-    const token = localStorage.getItem("token")
-    if (!token) {
+    const uid = localStorage.getItem("uid")
+    if (!uid) {
       router.replace("/account/login?redirect=/publish")
     }
   }, [router])
@@ -143,8 +144,8 @@ export default function PublishPage() {
     if (!title.trim()) { setError("请填写标题"); return }
     if (contentType === "topic" && !nid) { setError("请选择节点"); return }
 
-    const token = localStorage.getItem("token")
-    if (!token) { router.replace("/account/login?redirect=/publish"); return }
+    const uid = localStorage.getItem("uid")
+    if (!uid) { router.replace("/account/login?redirect=/publish"); return }
 
     setSubmitting(true)
     try {
@@ -159,12 +160,12 @@ export default function PublishPage() {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
-            "X-Token": token,
           },
+          credentials: "include",
           body: form.toString(),
         })
         const json = await res.json()
-        if (json.code !== 0) { setError(json.message || "发布失败"); return }
+        if (json.code !== 0) { setError(json.msg || "发布失败"); return }
         router.push(json.data?.tid ? `/topics/${json.data.tid}` : "/topics")
       } else {
         // 文章/项目暂未实现 API，提示用户

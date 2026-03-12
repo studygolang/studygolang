@@ -28,9 +28,9 @@ export function LoginCard() {
 
   useEffect(() => {
     setMounted(true)
-    const token = localStorage.getItem("token")
+    const uid = localStorage.getItem("uid")
     const name = localStorage.getItem("username")
-    if (token && name) {
+    if (uid && name) {
       setUsername(name)
     }
   }, [])
@@ -58,8 +58,7 @@ export function LoginCard() {
               <Link href={`/user/${username}`}>{"个人主页"}</Link>
             </Button>
             <Button asChild size="sm" className="flex-1 bg-primary text-xs text-primary-foreground hover:bg-primary/90">
-              {/* TODO: /topics/create 页面尚未实现，暂时指向话题列表 */}
-              <Link href="/topics">{"发布话题"}</Link>
+              <Link href="/publish">{"发布话题"}</Link>
             </Button>
           </div>
         </CardContent>

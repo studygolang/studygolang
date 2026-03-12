@@ -49,8 +49,8 @@ export default function RegisterPage() {
 
     setLoading(true)
     try {
-      const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8090"
-      const res = await fetch(`${base}/api/v1/user/register`, {
+      // 客户端组件使用相对路径，通过 next.config.mjs 中的 rewrites 代理到后端
+      const res = await fetch(`/api/v1/user/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
