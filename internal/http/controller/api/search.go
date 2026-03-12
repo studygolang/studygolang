@@ -8,6 +8,7 @@ package api
 
 import (
 	"github.com/studygolang/studygolang/internal/logic"
+	"github.com/studygolang/studygolang/internal/model"
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
@@ -38,9 +39,15 @@ func (SearchController) Search(ctx echo.Context) error {
 	paginator := logic.NewPaginatorWithPerPage(p, rows)
 	hasMore := paginator.SetTotal(int64(respBody.NumFound)).HasMorePage()
 
+	// 将 Docs 转换为前端期望的 results 数组，字段名与 SearchResult 类型对齐
+	results := respBody.Docs
+	if results == nil {
+		results = make([]*model.Document, 0)
+	}
+
 	return success(ctx, map[string]interface{}{
-		"result":   respBody,
-		"q":        q,
+		"results":  results,
+		"keyword":  q,
 		"type":     field,
 		"page":     p,
 		"has_more": hasMore,

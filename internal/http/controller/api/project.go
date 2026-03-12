@@ -35,6 +35,8 @@ func (ProjectController) List(ctx echo.Context) error {
 
 	return success(ctx, map[string]interface{}{
 		"projects": projects,
+		"total":    total,
+		"page":     curPage,
 		"has_more": hasMore,
 	})
 }

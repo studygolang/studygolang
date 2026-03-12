@@ -21,20 +21,30 @@ async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | nul
   }
 }
 
-const typeColorMap: Record<string, string> = {
-  topic: "bg-blue-100 text-blue-700",
-  article: "bg-green-100 text-green-700",
-  project: "bg-purple-100 text-purple-700",
-  resource: "bg-orange-100 text-orange-700",
-  book: "bg-pink-100 text-pink-700",
+// objtype 对应后端 model 中的类型常量
+// TypeTopic=1, TypeArticle=2, TypeResource=3, TypeProject=4
+const typeColorMap: Record<number, string> = {
+  1: "bg-blue-100 text-blue-700",
+  2: "bg-green-100 text-green-700",
+  3: "bg-orange-100 text-orange-700",
+  4: "bg-purple-100 text-purple-700",
 }
 
-const typeLabelMap: Record<string, string> = {
-  topic: "话题",
-  article: "文章",
-  project: "项目",
-  resource: "资源",
-  book: "书籍",
+const typeLabelMap: Record<number, string> = {
+  1: "话题",
+  2: "文章",
+  3: "资源",
+  4: "项目",
+}
+
+// 根据 objtype 和 objid 生成详情页 URL
+function buildResultUrl(objtype: number, objid: number): string {
+  switch (objtype) {
+    case 1: return `/topics/${objid}`
+    case 2: return `/articles/${objid}`
+    case 4: return `/p/${objid}`
+    default: return `/resources/${objid}`
+  }
 }
 
 interface SearchPageProps {
@@ -98,57 +108,60 @@ async function SearchResults({ q, page }: { q: string; page: number }) {
 
       {/* Results */}
       <div className="space-y-3">
-        {data.results.map((result) => (
-          <Card
-            key={result.id}
-            className="group transition-all hover:border-primary/20 hover:shadow-sm"
-          >
-            <CardContent className="p-4 sm:p-5">
-              <div className="flex items-start gap-3">
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    {result.type && (
-                      <span
-                        className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
-                          typeColorMap[result.type] ?? "bg-secondary text-secondary-foreground"
-                        }`}
+        {data.results.map((result) => {
+          const resultUrl = buildResultUrl(result.objtype, result.objid)
+          return (
+            <Card
+              key={result.id}
+              className="group transition-all hover:border-primary/20 hover:shadow-sm"
+            >
+              <CardContent className="p-4 sm:p-5">
+                <div className="flex items-start gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {result.objtype && (
+                        <span
+                          className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
+                            typeColorMap[result.objtype] ?? "bg-secondary text-secondary-foreground"
+                          }`}
+                        >
+                          {typeLabelMap[result.objtype] ?? String(result.objtype)}
+                        </span>
+                      )}
+                      <a
+                        href={resultUrl}
+                        className="text-base font-semibold leading-snug text-foreground transition-colors group-hover:text-primary"
                       >
-                        {typeLabelMap[result.type] ?? result.type}
-                      </span>
-                    )}
-                    <a
-                      href={result.url}
-                      className="text-base font-semibold leading-snug text-foreground transition-colors group-hover:text-primary"
-                    >
-                      {result.title}
-                    </a>
-                  </div>
+                        {result.title}
+                      </a>
+                    </div>
 
-                  {result.content && (
-                    <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-                      {result.content}
-                    </p>
-                  )}
+                    {result.content && (
+                      <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                        {result.content}
+                      </p>
+                    )}
 
-                  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-                    {result.author && (
-                      <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <User className="h-3 w-3" />
-                        {result.author}
-                      </span>
-                    )}
-                    {result.ctime && (
-                      <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        {result.ctime}
-                      </span>
-                    )}
+                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+                      {result.author && (
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <User className="h-3 w-3" />
+                          {result.author}
+                        </span>
+                      )}
+                      {result.pub_time && (
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          {result.pub_time}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          )
+        })}
       </div>
 
       {/* Pagination */}

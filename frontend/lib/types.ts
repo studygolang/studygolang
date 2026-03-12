@@ -302,20 +302,28 @@ export interface FriendLink {
 }
 
 // ======================== 搜索相关 ========================
+// 对应后端 model.Document 的 JSON 字段
 export interface SearchResult {
   id: string
+  objid: number
+  objtype: number   // 1=话题 2=文章 3=资源 4=项目
   title: string
   content: string
-  url: string
-  type: string
   author: string
-  ctime: string
+  uid: number
+  pub_time: string  // 后端字段名，非 ctime
+  tags: string
+  viewnum: number
+  cmtnum: number
+  likenum: number
 }
 
 export interface SearchData {
   results: SearchResult[]
   total: number
   keyword: string
+  page: number
+  has_more: boolean
 }
 
 // ======================== 招聘相关 ========================

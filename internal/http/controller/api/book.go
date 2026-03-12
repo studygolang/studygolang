@@ -34,6 +34,8 @@ func (BookController) List(ctx echo.Context) error {
 
 	return success(ctx, map[string]interface{}{
 		"books":    books,
+		"total":    total,
+		"page":     curPage,
 		"has_more": hasMore,
 	})
 }

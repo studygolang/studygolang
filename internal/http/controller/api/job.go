@@ -18,6 +18,7 @@ type JobController struct{}
 
 func (self JobController) RegisterRoute(g *echo.Group) {
 	g.GET("/jobs", self.List)
+	g.GET("/jobs/:id", self.Detail)
 }
 
 // List 职位列表
@@ -46,5 +47,25 @@ func (JobController) List(ctx echo.Context) error {
 		"total":    total,
 		"page":     curPage,
 		"has_more": hasMore,
+	})
+}
+
+// Detail 职位详情
+func (JobController) Detail(ctx echo.Context) error {
+	id := goutils.MustInt(ctx.Param("id"))
+	if id == 0 {
+		return fail(ctx, "职位不存在")
+	}
+
+	job, err := logic.DefaultJob.FindOne(context.EchoContext(ctx), id)
+	if err != nil {
+		return fail(ctx, "获取职位失败")
+	}
+	if job == nil {
+		return fail(ctx, "职位不存在")
+	}
+
+	return success(ctx, map[string]interface{}{
+		"job": job,
 	})
 }

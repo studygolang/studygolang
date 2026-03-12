@@ -3,8 +3,17 @@ import Link from "next/link"
 import { BookOpen, Clock } from "lucide-react"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
-import { Card, CardContent } from "@/components/ui/card"
 import type { Wiki } from "@/lib/types"
+
+interface WikiListData {
+  wikis: Wiki[]
+  page: {
+    has_prev: boolean
+    prev_id: number
+    has_next: boolean
+    next_id: number
+  }
+}
 
 export const metadata: Metadata = {
   title: "Wiki - Go语言中文网",
@@ -36,9 +45,10 @@ function formatDate(dateStr: string): string {
 }
 
 export default async function WikiListPage() {
-  const wikisData = await fetchAPI<unknown>("/wiki", { cache: "no-store" })
+  // 后端返回 { wikis: [...], page: {...} }，需要取 wikis 字段
+  const wikisData = await fetchAPI<WikiListData>("/wiki", { cache: "no-store" })
 
-  const wikiList: Wiki[] = Array.isArray(wikisData) ? wikisData : []
+  const wikiList: Wiki[] = wikisData?.wikis ?? []
 
   return (
     <PageLayout sidebar={false}>
