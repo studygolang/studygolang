@@ -30,7 +30,9 @@ interface BookDetailPageProps {
 
 export async function generateMetadata({ params }: BookDetailPageProps): Promise<Metadata> {
   const { id } = await params
-  const book = await fetchAPI<Book>(`/books/${id}`)
+  // 后端返回 { book: {...} }，需要取 book 字段
+  const data = await fetchAPI<{ book: Book }>(`/books/${id}`)
+  const book = data?.book
   if (!book) {
     return { title: "书籍详情 - Go语言中文网" }
   }
@@ -53,7 +55,9 @@ function getBookColor(id: number): string {
 
 export default async function BookDetailPage({ params }: BookDetailPageProps) {
   const { id } = await params
-  const book = await fetchAPI<Book>(`/books/${id}`)
+  // 后端返回 { book: {...} }，需要取 book 字段
+  const data = await fetchAPI<{ book: Book }>(`/books/${id}`)
+  const book = data?.book
 
   if (!book) {
     notFound()

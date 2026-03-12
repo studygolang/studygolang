@@ -66,8 +66,9 @@ async function InterviewItems({ page }: { page: number }) {
                     <Link
                       href={`/interview/question/${q.show_sn}`}
                       className="text-sm font-medium text-foreground transition-colors group-hover:text-primary line-clamp-2"
-                      dangerouslySetInnerHTML={{ __html: q.question }}
-                    />
+                    >
+                      <span dangerouslySetInnerHTML={{ __html: q.question }} />
+                    </Link>
                   </div>
                   <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1">

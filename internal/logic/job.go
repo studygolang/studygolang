@@ -17,6 +17,22 @@ type JobLogic struct{}
 
 var DefaultJob = JobLogic{}
 
+// FindOne 获取单个职位详情
+func (JobLogic) FindOne(ctx context.Context, id int) (*model.Job, error) {
+	objLog := GetLogger(ctx)
+
+	job := &model.Job{}
+	has, err := MasterDB.Where("id=? AND status=0", id).Get(job)
+	if err != nil {
+		objLog.Errorln("JobLogic FindOne error:", err)
+		return nil, err
+	}
+	if !has {
+		return nil, nil
+	}
+	return job, nil
+}
+
 // FindAll 获取职位列表
 func (JobLogic) FindAll(ctx context.Context, curPage, pageSize int) ([]*model.Job, int64, error) {
 	objLog := GetLogger(ctx)

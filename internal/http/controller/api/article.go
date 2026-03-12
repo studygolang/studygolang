@@ -27,6 +27,9 @@ func (self *ArticleController) RegisterRoute(g *echo.Group) {
 // List 文章列表，支持 p 分页参数
 func (ArticleController) List(ctx echo.Context) error {
 	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	if curPage < 1 {
+		curPage = 1
+	}
 	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
 
 	topArticles := logic.DefaultArticle.FindAll(context.EchoContext(ctx), paginator, "id DESC", "top=1")
@@ -52,7 +55,7 @@ func (ArticleController) Detail(ctx echo.Context) error {
 
 	article, prevNext, err := logic.DefaultArticle.FindByIdAndPreNext(context.EchoContext(ctx), id)
 	if err != nil {
-		return fail(ctx, err.Error())
+		return fail(ctx, "获取文章失败")
 	}
 
 	if article == nil || article.Id == 0 || article.Status == model.ArticleStatusOffline {

@@ -27,7 +27,9 @@ interface WikiDetailPageProps {
 
 export async function generateMetadata({ params }: WikiDetailPageProps): Promise<Metadata> {
   const { uri } = await params
-  const wiki = await fetchAPI<Wiki>(`/wiki/${uri}`)
+  // 后端返回 { wiki: {...} }，需要取 wiki 字段
+  const data = await fetchAPI<{ wiki: Wiki }>(`/wiki/${uri}`)
+  const wiki = data?.wiki
   if (!wiki) {
     return { title: "Wiki - Go语言中文网" }
   }
@@ -51,7 +53,9 @@ function formatDate(dateStr: string): string {
 
 export default async function WikiDetailPage({ params }: WikiDetailPageProps) {
   const { uri } = await params
-  const wiki = await fetchAPI<Wiki>(`/wiki/${uri}`)
+  // 后端返回 { wiki: {...} }，需要取 wiki 字段
+  const data = await fetchAPI<{ wiki: Wiki }>(`/wiki/${uri}`)
+  const wiki = data?.wiki
 
   if (!wiki) {
     notFound()

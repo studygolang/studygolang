@@ -46,6 +46,8 @@ func (ResourceController) List(ctx echo.Context) error {
 	return success(ctx, map[string]interface{}{
 		"resources": resources,
 		"has_more":  hasMore,
+		"total":     total,
+		"page":      curPage,
 	})
 }
 

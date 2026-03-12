@@ -31,9 +31,12 @@ func (InterviewController) List(ctx echo.Context) error {
 		page = 1
 	}
 	pageSize := 20
-	level, _ := strconv.Atoi(ctx.QueryParam("level"))
-	if level < 0 || level > 2 {
-		level = -1
+	levelStr := ctx.QueryParam("level")
+	level := -1 // -1 表示全部，不过滤 level
+	if levelStr != "" {
+		if parsed, err := strconv.Atoi(levelStr); err == nil && parsed >= 0 && parsed <= 2 {
+			level = parsed
+		}
 	}
 
 	questions, total, err := logic.DefaultInterview.FindAll(context.EchoContext(ctx), page, pageSize, level)
@@ -71,7 +74,10 @@ func (InterviewController) Question(ctx echo.Context) error {
 	}
 
 	question, err := logic.DefaultInterview.FindOne(context.EchoContext(ctx), sn)
-	if err != nil || question.Id == 0 {
+	if err != nil {
+		return fail(ctx, "面试题不存在")
+	}
+	if question == nil || question.Id == 0 {
 		return fail(ctx, "面试题不存在")
 	}
 	return success(ctx, map[string]interface{}{"question": question})
