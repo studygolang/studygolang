@@ -62,3 +62,5 @@ docker
 # Playwright MCP artifacts
 .playwright-mcp/
 login-page-before.png
+message-page-screenshot.png
+message-page-screenshot.png
