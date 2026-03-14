@@ -70,8 +70,9 @@ async function getHomeData(tab: string = 'all') {
   return {
     // 首页调用 /home 接口，后端返回字段为 "topics"
     topics: topicsValue?.topics ?? [] as Topic[],
+    hasMore: topicsValue?.has_more ?? false,
     trendingTopics: topicsValue?.topics
-      ? [...topicsValue.topics].sort((a, b) => b.viewnum - a.viewnum).slice(0, 5)
+      ? [...topicsValue.topics].sort((a, b) => (b.view || 0) - (a.view || 0)).slice(0, 5)
       : [] as Topic[],
     stats: stats.status === 'fulfilled' ? stats.value : undefined,
     readings: readingsData.status === 'fulfilled' ? (readingsData.value.readings ?? []) : [] as Reading[],
@@ -93,6 +94,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   const {
     topics,
+    hasMore,
     trendingTopics,
     stats,
     readings,
@@ -117,12 +119,14 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               <div className="mt-4">
                 <TopicList topics={topics} />
               </div>
-              {/* Load More */}
-              <div className="mt-6 text-center">
-                <button className="cursor-pointer rounded-md bg-secondary px-6 py-2 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/80">
-                  {"加载更多"}
-                </button>
-              </div>
+              {/* Load More - 只在有更多数据时显示 */}
+              {hasMore && (
+                <div className="mt-6 text-center">
+                  <button className="cursor-pointer rounded-md bg-secondary px-6 py-2 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/80">
+                    {"加载更多"}
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Node Navigation - below main on mobile, visible always */}

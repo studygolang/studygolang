@@ -33,11 +33,11 @@ async function getArticles(page: number) {
 }
 
 interface ArticlesPageProps {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ p?: string }>
 }
 
 export default async function ArticlesPage({ searchParams }: ArticlesPageProps) {
-  const { page: pageStr } = await searchParams
+  const { p: pageStr } = await searchParams
   const page = Math.max(1, parseInt(pageStr ?? '1', 10) || 1)
 
   const data = await getArticles(page)
@@ -84,7 +84,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
         <div className="mt-6 flex items-center justify-center gap-2">
           {page > 1 ? (
             <Link
-              href={`/articles?page=${page - 1}`}
+              href={`/articles?p=${page - 1}`}
               className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
             >
               {"上一页"}
@@ -100,7 +100,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
           {pageNumbers.map((p) => (
             <Link
               key={p}
-              href={`/articles?page=${p}`}
+              href={`/articles?p=${p}`}
               className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                 p === page
                   ? "bg-primary text-primary-foreground"
@@ -114,7 +114,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
             <>
               <span className="px-1 text-sm text-muted-foreground">...</span>
               <Link
-                href={`/articles?page=${totalPages}`}
+                href={`/articles?p=${totalPages}`}
                 className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
               >
                 {totalPages}
@@ -123,7 +123,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
           )}
           {(hasMore || page < totalPages) ? (
             <Link
-              href={`/articles?page=${page + 1}`}
+              href={`/articles?p=${page + 1}`}
               className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
             >
               {"下一页"}

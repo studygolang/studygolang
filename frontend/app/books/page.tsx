@@ -152,7 +152,7 @@ async function BookItems({ page }: { page: number }) {
       <div className="mt-8 flex items-center justify-center gap-2">
         {page > 1 && (
           <Link
-            href={`/books?page=${page - 1}`}
+            href={`/books?p=${page - 1}`}
             className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
           >
             上一页
@@ -163,7 +163,7 @@ async function BookItems({ page }: { page: number }) {
         </span>
         {data.has_more && (
           <Link
-            href={`/books?page=${page + 1}`}
+            href={`/books?p=${page + 1}`}
             className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
           >
             下一页
@@ -175,7 +175,7 @@ async function BookItems({ page }: { page: number }) {
 }
 
 interface BooksPageProps {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ p?: string }>
 }
 
 export default async function BooksPage({ searchParams }: BooksPageProps) {
@@ -198,7 +198,7 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
           </div>
         }
       >
-        <BookItems page={page} />
+        <BookItems p={page} />
       </Suspense>
     </PageLayout>
   )

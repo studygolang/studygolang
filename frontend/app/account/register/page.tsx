@@ -1,239 +1,215 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8090"
 
 export default function RegisterPage() {
   const router = useRouter()
-  const [form, setForm] = useState({
+
+  const [formData, setFormData] = useState({
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
   })
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [checking, setChecking] = useState(true)
 
-  // 检查是否已登录，如果已登录则跳转到首页
-  useEffect(() => {
-    const uid = localStorage.getItem("uid")
-    if (uid) {
-      // 验证 token 是否有效
-      fetch("/api/v1/user/me", { credentials: "include" })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.code === 0) {
-            // 已登录，跳转到首页
-            router.replace("/")
-          } else {
-            // token 无效，清除本地存储
-            localStorage.removeItem("uid")
-            localStorage.removeItem("username")
-            setChecking(false)
-          }
-        })
-        .catch(() => {
-          setChecking(false)
-        })
-    } else {
-      setChecking(false)
-    }
-  }, [router])
-
-  function handleChange(field: keyof typeof form) {
-    return (e: React.ChangeEvent<HTMLInputElement>) => {
-      setForm((prev) => ({ ...prev, [field]: e.target.value }))
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  function validate(): string | null {
-    if (!form.username.trim()) return "请输入用户名"
-    if (form.username.trim().length < 3) return "用户名至少 3 个字符"
-    if (!form.email.trim()) return "请输入邮箱"
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return "邮箱格式不正确"
-    if (!form.password) return "请输入密码"
-    if (form.password.length < 6) return "密码至少 6 位"
-    if (form.password !== form.confirmPassword) return "两次输入的密码不一致"
-    return null
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError(null)
+    setError("")
 
-    const validationError = validate()
-    if (validationError) {
-      setError(validationError)
+    if (formData.username.length < 4 || formData.username.length > 20) {
+      setError("用户名长度必须在 4-20 个字符之间")
+      return
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+      setError("用户名只能包含大小写字母、数字和下划线")
+      return
+    }
+    if (formData.password.length < 6 || formData.password.length > 32) {
+      setError("密码长度必须在 6-32 个字符之间")
+      return
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setError("两次输入的密码不一致")
       return
     }
 
     setLoading(true)
+
     try {
-      // 客户端组件使用相对路径，通过 next.config.mjs 中的 rewrites 代理到后端
-      const res = await fetch(`/api/v1/user/register`, {
+      const res = await fetch(`${API_BASE}/account/register`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: form.username.trim(),
-          email: form.email.trim(),
-          passwd: form.password,
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          username: formData.username,
+          email: formData.email,
+          passwd: formData.password,
+          pass2: formData.confirmPassword,
         }),
+        credentials: "include",
       })
-      const json = await res.json()
-      if (json.code !== 0) {
-        setError(json.msg || "注册失败，请稍后重试")
-        return
+
+      if (res.ok) {
+        const data = await res.json()
+        if (data.ok) {
+          setSuccess(true)
+        } else {
+          setError(data.error || "注册失败")
+        }
+      } else {
+        setError("注册失败,请稍后重试")
       }
-      setSuccess(true)
-      setTimeout(() => {
-        router.push("/account/login")
-      }, 2000)
     } catch {
-      setError("网络错误，请稍后重试")
+      setError("网络错误,请稍后重试")
     } finally {
       setLoading(false)
     }
   }
 
-  // 正在检查登录状态，显示加载中
-  if (checking) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="mb-4 text-sm text-muted-foreground">检查登录状态...</div>
-        </div>
-      </div>
-    )
-  }
-
   if (success) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
-        <div className="w-full max-w-md">
-          <Card>
-            <CardContent className="flex flex-col items-center gap-4 py-12">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                <svg
-                  className="h-8 w-8 text-primary"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h2 className="text-xl font-bold text-foreground">注册成功！</h2>
-              <p className="text-center text-sm text-muted-foreground">
-                账号已创建，正在跳转到登录页...
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-muted/30 p-4">
+        <Link href="/" className="mb-6 text-2xl font-bold text-primary hover:opacity-80 transition-opacity">
+          Go语言中文网
+        </Link>
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>注册成功</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              注册成功！请查收激活邮件。
+            </p>
+            <p className="text-sm text-muted-foreground">
+              如果没有收到激活邮件,可以关注站长公众号,回复{" "}
+              <span className="text-destructive font-semibold">{formData.username}</span>{" "}
+              获取验证码来激活。
+            </p>
+            <div className="flex justify-center">
+              <Button onClick={() => router.push("/account/login")}>
+                前往登录
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     )
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-md">
-        {/* Logo / Title */}
-        <div className="mb-8 text-center">
-          <Link href="/" className="text-2xl font-bold text-primary">
-            Go语言中文网
-          </Link>
-          <p className="mt-2 text-sm text-muted-foreground">加入 Go 开发者社区</p>
-        </div>
-
-        <Card>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-muted/30 p-4">
+      <Link href="/" className="mb-6 text-2xl font-bold text-primary hover:opacity-80 transition-opacity">
+        Go语言中文网
+      </Link>
+      <div className="w-full max-w-4xl grid md:grid-cols-3 gap-6">
+        <Card className="md:col-span-2">
           <CardHeader>
-            <CardTitle className="text-xl">创建账号</CardTitle>
-            <CardDescription>填写以下信息完成注册</CardDescription>
+            <CardTitle>注册新用户</CardTitle>
+            <CardDescription>加入 Go语言中文网社区</CardDescription>
           </CardHeader>
-
-          <form onSubmit={handleSubmit} noValidate>
-            <CardContent className="space-y-4">
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-md text-sm">
                   {error}
                 </div>
               )}
-
               <div className="space-y-2">
-                <Label htmlFor="username">用户名</Label>
+                <Label htmlFor="username">
+                  用户名 <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="username"
+                  name="username"
                   type="text"
-                  placeholder="至少 3 个字符"
-                  value={form.username}
-                  onChange={handleChange("username")}
-                  autoComplete="username"
-                  disabled={loading}
+                  placeholder="请输入用户名"
+                  value={formData.username}
+                  onChange={handleChange}
+                  required
                 />
+                <p className="text-xs text-muted-foreground">
+                  只能包含大小写字母、数字和下划线(4-20字符)
+                </p>
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="email">邮箱</Label>
+                <Label htmlFor="email">
+                  Email <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
-                  placeholder="your@email.com"
-                  value={form.email}
-                  onChange={handleChange("email")}
-                  autoComplete="email"
-                  disabled={loading}
+                  placeholder="请输入Email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
                 />
+                <p className="text-xs text-muted-foreground">
+                  可以在个人资料设置中更改
+                </p>
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="password">密码</Label>
+                <Label htmlFor="password">
+                  密码 <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="password"
+                  name="password"
                   type="password"
-                  placeholder="至少 6 位"
-                  value={form.password}
-                  onChange={handleChange("password")}
-                  autoComplete="new-password"
-                  disabled={loading}
+                  placeholder="请输入密码"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
                 />
+                <p className="text-xs text-muted-foreground">6-32个字符</p>
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">确认密码</Label>
+                <Label htmlFor="confirmPassword">
+                  确认密码 <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="confirmPassword"
+                  name="confirmPassword"
                   type="password"
-                  placeholder="再次输入密码"
-                  value={form.confirmPassword}
-                  onChange={handleChange("confirmPassword")}
-                  autoComplete="new-password"
-                  disabled={loading}
+                  placeholder="请再次输入密码"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
                 />
               </div>
-            </CardContent>
-
-            <CardFooter className="flex flex-col gap-3">
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "注册中..." : "注册"}
               </Button>
-              <p className="text-center text-sm text-muted-foreground">
-                已有账号？{" "}
-                <Link
-                  href="/account/login"
-                  className="font-medium text-primary transition-colors hover:text-primary/80"
-                >
-                  立即登录
-                </Link>
-              </p>
-            </CardFooter>
-          </form>
+            </form>
+          </CardContent>
         </Card>
+
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">已有帐号？</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Link href="/account/login" className="block text-sm text-primary hover:underline">
+                立即登录
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )

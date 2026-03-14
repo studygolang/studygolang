@@ -226,6 +226,16 @@ export default function PublishPage() {
 
         {/* 表单卡片 */}
         <div className="rounded-lg border border-border bg-card">
+          {/* 功能未上线提示 */}
+          {contentType !== "topic" && (
+            <div className="border-b border-border bg-muted/50 px-5 py-3">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Info className="h-4 w-4" />
+                <span>{contentType === "article" ? "文章" : "项目"}发布功能即将上线，敬请期待</span>
+              </div>
+            </div>
+          )}
+
           <div className="p-5 space-y-5">
             {/* 标题 */}
             <div className="space-y-1.5">

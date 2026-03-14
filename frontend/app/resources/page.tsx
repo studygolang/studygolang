@@ -130,7 +130,7 @@ async function ResourceItems({ page, catid = 0 }: { page: number; catid?: number
       <div className="flex items-center justify-center gap-2 pt-4">
         {page > 1 && (
           <Link
-            href={`/resources?page=${page - 1}`}
+            href={`/resources?p=${page - 1}`}
             className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
           >
             上一页
@@ -141,7 +141,7 @@ async function ResourceItems({ page, catid = 0 }: { page: number; catid?: number
         </span>
         {data.has_more && (
           <Link
-            href={`/resources?page=${page + 1}`}
+            href={`/resources?p=${page + 1}`}
             className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
           >
             下一页
@@ -153,7 +153,7 @@ async function ResourceItems({ page, catid = 0 }: { page: number; catid?: number
 }
 
 interface ResourcesPageProps {
-  searchParams: Promise<{ page?: string; catid?: string }>
+  searchParams: Promise<{ p?: string; catid?: string }>
 }
 
 export default async function ResourcesPage({ searchParams }: ResourcesPageProps) {
@@ -188,7 +188,7 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
           </div>
         }
       >
-        <ResourceItems page={page} catid={catid} />
+        <ResourceItems p={page} catid={catid} />
       </Suspense>
     </PageLayout>
   )

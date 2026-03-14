@@ -134,7 +134,7 @@ async function ProjectList({ page }: { page: number }) {
       <div className="mt-8 flex items-center justify-center gap-2">
         {page > 1 && (
           <Link
-            href={`/projects?page=${page - 1}`}
+            href={`/projects?p=${page - 1}`}
             className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
           >
             上一页
@@ -145,7 +145,7 @@ async function ProjectList({ page }: { page: number }) {
         </span>
         {data.has_more && (
           <Link
-            href={`/projects?page=${page + 1}`}
+            href={`/projects?p=${page + 1}`}
             className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
           >
             下一页
@@ -157,7 +157,7 @@ async function ProjectList({ page }: { page: number }) {
 }
 
 interface ProjectsPageProps {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ p?: string }>
 }
 
 export default async function ProjectsPage({ searchParams }: ProjectsPageProps) {
@@ -188,7 +188,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
           </div>
         }
       >
-        <ProjectList page={page} />
+        <ProjectList p={page} />
       </Suspense>
     </PageLayout>
   )

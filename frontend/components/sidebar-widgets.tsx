@@ -211,7 +211,8 @@ export function TrendingTopics({ topics }: TrendingTopicsProps) {
       <CardContent className="px-4 pb-4">
         <div className="space-y-2.5">
           {topics.slice(0, 5).map((t, i) => {
-            const views = t.viewnum >= 1000 ? (t.viewnum / 1000).toFixed(1) + "k" : String(t.viewnum)
+            const viewCount = t.view || t.viewnum || 0
+            const views = viewCount >= 1000 ? (viewCount / 1000).toFixed(1) + "k" : String(viewCount)
             return (
               <Link
                 key={t.tid}

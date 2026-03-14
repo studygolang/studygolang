@@ -2,9 +2,15 @@ import type { Metadata, Viewport } from 'next'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
+const CDN_DOMAIN = process.env.NEXT_PUBLIC_CDN_DOMAIN || "https://static.golangjob.cn"
+
 export const metadata: Metadata = {
-  title: 'Go\u8bed\u8a00\u4e2d\u6587\u7f51 - Golang\u4e2d\u6587\u793e\u533a',
-  description: '\u4e2d\u56fd\u6700\u5927\u7684 Go \u8bed\u8a00\u793e\u533a\uff0c\u63a2\u8ba8\u4e3b\u9898\u3001\u9605\u8bfb\u6587\u7ae0\u3001\u5206\u4eab\u9879\u76ee\u4e0e\u8d44\u6e90\uff0c\u52a9\u529b Gopher \u6210\u957f',
+  title: 'Go语言中文网 - Golang中文社区',
+  description: '中国最大的 Go 语言社区，探讨主题、阅读文章、分享项目与资源，助力 Gopher 成长',
+  icons: {
+    icon: `${CDN_DOMAIN}/static/img/favicon.ico`,
+    shortcut: `${CDN_DOMAIN}/static/img/favicon.ico`,
+  },
 }
 
 export const viewport: Viewport = {

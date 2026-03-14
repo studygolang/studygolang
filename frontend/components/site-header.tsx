@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect, type KeyboardEvent } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import {
   Search,
@@ -43,6 +43,8 @@ const navItems = [
   { label: "\u9177\u5de5\u4f5c", href: "/jobs", icon: Briefcase },
 ]
 
+const CDN_DOMAIN = process.env.NEXT_PUBLIC_CDN_DOMAIN || "https://static.golangjob.cn"
+
 interface DocItem {
   label: string
   href: string
@@ -73,6 +75,7 @@ import type { Me } from "@/lib/types"
 
 export function SiteHeader() {
   const router = useRouter()
+  const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchFocused, setSearchFocused] = useState(false)
   const [auth, setAuth] = useState<AuthState | null>(null)
@@ -118,25 +121,34 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 lg:px-6">
         {/* Logo */}
         <Link href="/" className="flex shrink-0 items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <span className="text-sm font-bold text-primary-foreground">Go</span>
-          </div>
+          <img
+            src={`${CDN_DOMAIN}/static/img/logo.png`}
+            alt="Go语言中文网"
+            className="h-8 w-auto"
+          />
           <span className="hidden text-lg font-bold tracking-tight text-foreground sm:inline-block">
-            Go<span className="text-primary">{"\u4e2d\u6587\u7f51"}</span>
+            Go<span className="text-primary">中文网</span>
           </span>
         </Link>
 
         {/* Desktop Nav */}
         <nav className="hidden items-center gap-1 lg:flex">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const isActive = pathname === item.href || pathname?.startsWith(item.href + '/')
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary hover:text-foreground ${
+                  isActive
+                    ? "bg-secondary text-foreground"
+                    : "text-muted-foreground"
+                }`}
+              >
+                {item.label}
+              </Link>
+            )
+          })}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex cursor-pointer items-center gap-1 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
@@ -195,7 +207,14 @@ export function SiteHeader() {
 
         {/* Actions */}
         <div className="hidden items-center gap-2 md:flex">
-          <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground" aria-label={"\u901a\u77e5"}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 text-muted-foreground"
+            aria-label={"\u901a\u77e5"}
+            disabled
+            title="通知功能开发中"
+          >
             <Bell className="h-4 w-4" />
           </Button>
           <Button

@@ -47,11 +47,11 @@ const TAB_LABELS: Record<string, string> = {
 }
 
 interface TopicsPageProps {
-  searchParams: Promise<{ tab?: string; page?: string }>
+  searchParams: Promise<{ tab?: string; p?: string }>
 }
 
 export default async function TopicsPage({ searchParams }: TopicsPageProps) {
-  const { tab: tabParam, page: pageStr } = await searchParams
+  const { tab: tabParam, p: pageStr } = await searchParams
   const tab = tabParam ?? 'all'
   const page = Math.max(1, parseInt(pageStr ?? '1', 10) || 1)
 
@@ -126,7 +126,7 @@ export default async function TopicsPage({ searchParams }: TopicsPageProps) {
           <div className="mt-6 flex items-center justify-center gap-2">
             {page > 1 ? (
               <Link
-                href={`/topics?tab=${tab}&page=${page - 1}`}
+                href={`/topics?tab=${tab}&p=${page - 1}`}
                 className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
               >
                 {"上一页"}
@@ -142,7 +142,7 @@ export default async function TopicsPage({ searchParams }: TopicsPageProps) {
             {pageNumbers.map((p) => (
               <Link
                 key={p}
-                href={`/topics?tab=${tab}&page=${p}`}
+                href={`/topics?tab=${tab}&p=${p}`}
                 className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                   p === page
                     ? "bg-primary text-primary-foreground"
@@ -156,7 +156,7 @@ export default async function TopicsPage({ searchParams }: TopicsPageProps) {
               <>
                 <span className="px-1 text-sm text-muted-foreground">...</span>
                 <Link
-                  href={`/topics?tab=${tab}&page=${totalPages}`}
+                  href={`/topics?tab=${tab}&p=${totalPages}`}
                   className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
                 >
                   {totalPages}
@@ -165,7 +165,7 @@ export default async function TopicsPage({ searchParams }: TopicsPageProps) {
             )}
             {(hasMore || page < totalPages) ? (
               <Link
-                href={`/topics?tab=${tab}&page=${page + 1}`}
+                href={`/topics?tab=${tab}&p=${page + 1}`}
                 className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
               >
                 {"下一页"}
