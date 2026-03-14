@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, Suspense } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -23,31 +23,49 @@ function LoginForm() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
+  // 检查是否已登录
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/user/me`, { credentials: "include" })
+        if (res.ok) {
+          const data = await res.json()
+          if (data.code === 0 && data.data?.user) {
+            // 已登录,跳转到首页
+            router.replace(redirect)
+          }
+        }
+      } catch {
+        // 未登录,继续显示登录页面
+      }
+    }
+    checkAuth()
+  }, [router, redirect])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
     setLoading(true)
 
     try {
-      const res = await fetch(`${API_BASE}/account/login`, {
+      const res = await fetch(`${API_BASE}/api/v1/user/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           username,
           passwd: password,
-          remember_me: rememberMe ? "1" : "0",
         }),
         credentials: "include",
       })
 
       if (res.ok) {
         const data = await res.json()
-        if (data.ok) {
-          if (data.uid) localStorage.setItem("uid", data.uid.toString())
-          if (data.username) localStorage.setItem("username", data.username)
+        if (data.code === 0) {
+          if (data.data.uid) localStorage.setItem("uid", data.data.uid.toString())
+          if (data.data.username) localStorage.setItem("username", data.data.username)
           window.location.href = redirect
         } else {
-          setError(data.error || "登录失败")
+          setError(data.msg || "登录失败")
         }
       } else {
         setError("登录失败,请检查用户名和密码")

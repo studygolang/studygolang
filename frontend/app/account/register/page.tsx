@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -22,6 +22,25 @@ export default function RegisterPage() {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  // 检查是否已登录
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/user/me`, { credentials: "include" })
+        if (res.ok) {
+          const data = await res.json()
+          if (data.code === 0 && data.data?.user) {
+            // 已登录,跳转到首页
+            router.replace("/")
+          }
+        }
+      } catch {
+        // 未登录,继续显示注册页面
+      }
+    }
+    checkAuth()
+  }, [router])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -51,24 +70,23 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
-      const res = await fetch(`${API_BASE}/account/register`, {
+      const res = await fetch(`${API_BASE}/api/v1/user/register`, {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           username: formData.username,
           email: formData.email,
           passwd: formData.password,
-          pass2: formData.confirmPassword,
         }),
         credentials: "include",
       })
 
       if (res.ok) {
         const data = await res.json()
-        if (data.ok) {
+        if (data.code === 0) {
           setSuccess(true)
         } else {
-          setError(data.error || "注册失败")
+          setError(data.msg || "注册失败")
         }
       } else {
         setError("注册失败,请稍后重试")
