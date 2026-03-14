@@ -1,38 +1,47 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import "./blocknote.css"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import dynamic from "next/dynamic"
 import {
   MessageSquare,
   FileText,
   FolderGit2,
-  Heading2,
-  Bold,
-  Italic,
-  Code,
-  Quote,
-  List,
-  ListOrdered,
-  LinkIcon,
-  ImageIcon,
-  Eye,
   Loader2,
   Info,
+  Check,
+  ChevronsUpDown,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
+
+// 动态导入 BlockNote 编辑器,避免 SSR 问题
+const BlockNoteEditor = dynamic(
+  () => import("@/components/blocknote-editor").then((mod) => ({ default: mod.BlockNoteEditor })),
+  {
+    ssr: false,
+    loading: () => <div className="p-4 text-sm text-muted-foreground">加载编辑器...</div>
+  }
+)
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
+import { cn } from "@/lib/utils"
 import type { TopicNode } from "@/lib/types"
 
 // 客户端组件使用相对路径，通过 next.config.mjs 中的 rewrites 代理到后端
@@ -46,25 +55,42 @@ const CONTENT_TYPES: { type: ContentType; icon: React.ReactNode; label: string; 
   { type: "project", icon: <FolderGit2 className="h-5 w-5" />, label: "项目", desc: "分享开源项目" },
 ]
 
-// Markdown 工具栏按钮配置
-const TOOLBAR = [
-  { icon: <Heading2 className="h-3.5 w-3.5" />, title: "标题", syntax: (s: string) => `## ${s || "标题"}` },
-  { icon: <Bold className="h-3.5 w-3.5" />, title: "粗体", syntax: (s: string) => `**${s || "粗体"}**` },
-  { icon: <Italic className="h-3.5 w-3.5" />, title: "斜体", syntax: (s: string) => `*${s || "斜体"}*` },
-  { icon: <Code className="h-3.5 w-3.5" />, title: "代码", syntax: (s: string) => s ? `\`${s}\`` : "```go\n\n```" },
-  { icon: <Quote className="h-3.5 w-3.5" />, title: "引用", syntax: (s: string) => `> ${s || "引用"}` },
-  { icon: <List className="h-3.5 w-3.5" />, title: "无序列表", syntax: (_: string) => "- 列表项" },
-  { icon: <ListOrdered className="h-3.5 w-3.5" />, title: "有序列表", syntax: (_: string) => "1. 列表项" },
-  { icon: <LinkIcon className="h-3.5 w-3.5" />, title: "链接", syntax: (s: string) => `[${s || "链接文字"}](url)` },
-  { icon: <ImageIcon className="h-3.5 w-3.5" />, title: "图片", syntax: (_: string) => "![alt](image-url)" },
-]
+// 节点分组类型
+type NodeGroup = {
+  category: string
+  nodes: TopicNode[]
+}
 
-async function fetchNodes(): Promise<TopicNode[]> {
+async function fetchNodes(): Promise<NodeGroup[]> {
   try {
     const res = await fetch(`${API_BASE}/api/v1/nodes`)
     if (!res.ok) return []
     const json = await res.json()
-    return json.code === 0 ? (json.data as TopicNode[]) : []
+
+    if (json.code !== 0 || !Array.isArray(json.data)) return []
+
+    // 后端返回的是分组结构：[{ "Go语言": [...], "StudyGolang": [...] }]
+    // 保留分组结构，方便在 UI 中显示层级关系
+    const groups: NodeGroup[] = []
+    for (const group of json.data) {
+      for (const [category, categoryNodes] of Object.entries(group)) {
+        if (Array.isArray(categoryNodes)) {
+          const nodes: TopicNode[] = categoryNodes.map((node: any) => ({
+            id: node.nid,  // 后端使用 nid，前端类型定义使用 id
+            name: node.name,
+            ename: node.ename,
+            parent_id: node.pid,
+            seq: node.seq || 0,
+            pid: node.pid,
+            intro: node.intro || '',
+            logo: node.logo || '',
+            style: node.style || '',
+          }))
+          groups.push({ category, nodes })
+        }
+      }
+    }
+    return groups
   } catch {
     return []
   }
@@ -74,16 +100,15 @@ export default function PublishPage() {
   const router = useRouter()
 
   const [contentType, setContentType] = useState<ContentType>("topic")
-  const [nodes, setNodes] = useState<TopicNode[]>([])
+  const [nodeGroups, setNodeGroups] = useState<NodeGroup[]>([])
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [nid, setNid] = useState("")
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState("")
-  const [preview, setPreview] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const [nodeOpen, setNodeOpen] = useState(false)
 
   // 未登录重定向
   useEffect(() => {
@@ -95,7 +120,7 @@ export default function PublishPage() {
 
   // 加载节点
   useEffect(() => {
-    fetchNodes().then(setNodes)
+    fetchNodes().then(setNodeGroups)
   }, [])
 
   // Ctrl/Cmd+Enter 提交
@@ -108,22 +133,6 @@ export default function PublishPage() {
     window.addEventListener("keydown", onKeyDown)
     return () => window.removeEventListener("keydown", onKeyDown)
   })
-
-  // 工具栏插入 Markdown
-  function insertMarkdown(syntaxFn: (sel: string) => string) {
-    const ta = textareaRef.current
-    if (!ta) return
-    const start = ta.selectionStart
-    const end = ta.selectionEnd
-    const selected = content.slice(start, end)
-    const inserted = syntaxFn(selected)
-    const next = content.slice(0, start) + inserted + content.slice(end)
-    setContent(next)
-    requestAnimationFrame(() => {
-      ta.focus()
-      ta.setSelectionRange(start + inserted.length, start + inserted.length)
-    })
-  }
 
   // 标签输入
   function handleTagKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -187,30 +196,32 @@ export default function PublishPage() {
       <SiteHeader />
 
       <main className="mx-auto max-w-3xl px-4 py-8 lg:px-6">
-        {/* 页面标题 */}
-        <div className="mb-6">
-          <h1 className="text-xl font-semibold text-foreground">发布内容</h1>
-          <p className="mt-1 text-sm text-muted-foreground">选择内容类型，与社区分享你的知识和发现</p>
-        </div>
+        {/* 页面标题和内容类型选择 - 合并为一行 */}
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-semibold text-foreground">发布内容</h1>
+            <p className="mt-1 text-sm text-muted-foreground">与社区分享你的知识和发现</p>
+          </div>
 
-        {/* 内容类型选择 */}
-        <div className="mb-6 grid grid-cols-3 gap-3">
-          {CONTENT_TYPES.map(({ type, icon, label, desc }) => (
-            <button
-              key={type}
-              type="button"
-              onClick={() => setContentType(type)}
-              className={`flex flex-col items-center gap-2 rounded-lg border-2 px-4 py-5 text-center transition-all ${
-                contentType === type
-                  ? "border-primary bg-primary/5 text-primary"
-                  : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"
-              }`}
-            >
-              {icon}
-              <span className="text-sm font-medium">{label}</span>
-              <span className="text-xs text-muted-foreground">{desc}</span>
-            </button>
-          ))}
+          {/* 内容类型选择 - 紧凑的标签页样式 */}
+          <div className="flex items-center gap-1 rounded-lg border border-border bg-muted/50 p-1">
+            {CONTENT_TYPES.map(({ type, icon, label }) => (
+              <button
+                key={type}
+                type="button"
+                onClick={() => setContentType(type)}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-all",
+                  contentType === type
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <span className="h-4 w-4">{icon}</span>
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* 表单卡片 */}
@@ -241,22 +252,57 @@ export default function PublishPage() {
             <div className="flex gap-4">
               {/* 节点 */}
               {contentType === "topic" && (
-                <div className="w-44 space-y-1.5">
+                <div className="w-56 space-y-1.5">
                   <Label htmlFor="nid" className="text-sm font-medium">
                     节点 <span className="text-destructive">*</span>
                   </Label>
-                  <Select value={nid} onValueChange={setNid}>
-                    <SelectTrigger id="nid" className="h-10">
-                      <SelectValue placeholder="选择节点" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {nodes.map((node) => (
-                        <SelectItem key={node.id} value={String(node.id)}>
-                          {node.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={nodeOpen} onOpenChange={setNodeOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={nodeOpen}
+                        className="w-full justify-between h-10"
+                      >
+                        {nid
+                          ? nodeGroups
+                              .flatMap((g) => g.nodes)
+                              .find((node) => String(node.id) === nid)?.name
+                          : "选择节点"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[300px] p-0">
+                      <Command>
+                        <CommandInput placeholder="搜索节点..." />
+                        <CommandList>
+                          <CommandEmpty>未找到节点</CommandEmpty>
+                          {nodeGroups.map((group) => (
+                            <CommandGroup key={group.category} heading={group.category}>
+                              {group.nodes.map((node) => (
+                                <CommandItem
+                                  key={node.id}
+                                  value={`${node.name} ${node.ename}`}
+                                  onSelect={() => {
+                                    setNid(String(node.id))
+                                    setNodeOpen(false)
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      nid === String(node.id) ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {node.name}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          ))}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
               )}
 
@@ -291,65 +337,18 @@ export default function PublishPage() {
               </div>
             </div>
 
-            {/* Markdown 工具栏 + 内容区 */}
-            <div className="space-y-0">
-              {/* 工具栏 */}
-              <div className="flex items-center justify-between rounded-t-md border border-b-0 border-border bg-muted/40 px-3 py-1.5">
-                <div className="flex items-center gap-0.5">
-                  {TOOLBAR.map((btn, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      title={btn.title}
-                      onClick={() => insertMarkdown(btn.syntax)}
-                      className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                    >
-                      {btn.icon}
-                    </button>
-                  ))}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setPreview(!preview)}
-                  className={`flex items-center gap-1 rounded px-2 py-1 text-xs transition-colors ${
-                    preview
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Eye className="h-3.5 w-3.5" />
-                  预览
-                </button>
-              </div>
-
-              {/* 编辑 / 预览 */}
-              {preview ? (
-                <div className="min-h-[200px] rounded-b-md border border-border bg-background p-4">
-                  {content ? (
-                    <div
-                      className="prose prose-sm max-w-none text-sm text-foreground"
-                      dangerouslySetInnerHTML={{
-                        __html: content
-                          .replace(/&/g, "&amp;")
-                          .replace(/</g, "&lt;")
-                          .replace(/>/g, "&gt;")
-                          .replace(/\n/g, "<br/>"),
-                      }}
-                    />
-                  ) : (
-                    <p className="text-sm text-muted-foreground">暂无内容，切换到编辑模式输入</p>
-                  )}
-                </div>
-              ) : (
-                <Textarea
-                  ref={textareaRef}
-                  placeholder={"请详细描述你的问题或话题……\n\n支持 Markdown 语法，可使用上方工具栏快捷插入格式。"}
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  rows={12}
-                  className="rounded-t-none border-t-0 font-mono text-sm focus-visible:ring-0 focus-visible:ring-offset-0 resize-y"
+            {/* BlockNote 编辑器 */}
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">
+                内容 <span className="text-destructive">*</span>
+              </Label>
+              <div className="rounded-md border border-border overflow-hidden">
+                <BlockNoteEditor
+                  content={content}
+                  onChange={setContent}
+                  placeholder="请详细描述你的问题或话题……"
                 />
-              )}
+              </div>
             </div>
 
             {/* 提示信息 */}
