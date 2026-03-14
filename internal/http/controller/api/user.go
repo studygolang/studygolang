@@ -26,6 +26,7 @@ func (self UserController) RegisterRoute(g *echo.Group) {
 	g.POST("/user/register", self.Register)
 	g.GET("/user/me", self.Me)
 	g.POST("/user/sync-session", self.SyncSession)
+	g.GET("/users", self.List)
 	g.GET("/user/:username", self.Home)
 }
 
@@ -203,6 +204,22 @@ func (UserController) SyncSession(ctx echo.Context) error {
 	})
 }
 
+// List 会员列表（活跃会员 + 新加入会员）
+func (UserController) List(ctx echo.Context) error {
+	// 获取活跃会员（按 DAU 排名）
+	activeUsers := logic.DefaultRank.FindDAURank(context.EchoContext(ctx), 36)
+	// 获取最新加入会员
+	newUsers := logic.DefaultUser.FindNewUsers(context.EchoContext(ctx), 36)
+	// 获取会员总数
+	total := logic.DefaultUser.Total()
+
+	return success(ctx, map[string]interface{}{
+		"active_users": activeUsers,
+		"new_users":    newUsers,
+		"total":        total,
+	})
+}
+
 // Home 用户主页（话题、文章等）
 func (UserController) Home(ctx echo.Context) error {
 	username := ctx.Param("username")
@@ -225,4 +242,180 @@ func (UserController) Home(ctx echo.Context) error {
 		"projects":  projects,
 		"comments":  comments,
 	})
+}
+
+// ======================== 个人设置相关 API ========================
+
+// GetProfile 获取个人信息（需要登录）
+func (UserController) GetProfile(ctx echo.Context) error {
+	token := getAuthToken(ctx)
+	if token == "" {
+		return fail(ctx, "未登录", NeedReLoginCode)
+	}
+
+	if !ValidateToken(token) {
+		return fail(ctx, "token 已过期，请重新登录", NeedReLoginCode)
+	}
+
+	uid, ok := ParseToken(token)
+	if !ok || uid == 0 {
+		return fail(ctx, "无效的 token", NeedReLoginCode)
+	}
+
+	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid)
+	if user == nil || user.Uid == 0 {
+		return fail(ctx, "用户不存在")
+	}
+
+	hasPasswd := logic.DefaultUser.HasPasswd(context.EchoContext(ctx), uid)
+
+	return success(ctx, map[string]interface{}{
+		"user":       user,
+		"has_passwd": hasPasswd,
+	})
+}
+
+// updateProfileRequest 更新个人信息请求体
+type updateProfileRequest struct {
+	Name      string `json:"name"`
+	Email     string `json:"email"`
+	City      string `json:"city"`
+	Company   string `json:"company"`
+	Github    string `json:"github"`
+	Website   string `json:"website"`
+	Introduce string `json:"introduce"`
+	Open      string `json:"open"` // "1" 或 "0"
+}
+
+// UpdateProfile 更新个人信息（需要登录）
+func (UserController) UpdateProfile(ctx echo.Context) error {
+	token := getAuthToken(ctx)
+	if token == "" {
+		return fail(ctx, "未登录", NeedReLoginCode)
+	}
+
+	if !ValidateToken(token) {
+		return fail(ctx, "token 已过期，请重新登录", NeedReLoginCode)
+	}
+
+	uid, ok := ParseToken(token)
+	if !ok || uid == 0 {
+		return fail(ctx, "无效的 token", NeedReLoginCode)
+	}
+
+	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid)
+	if user == nil || user.Uid == 0 {
+		return fail(ctx, "用户不存在")
+	}
+
+	var req updateProfileRequest
+	if err := ctx.Bind(&req); err != nil {
+		return fail(ctx, "请求参数错误")
+	}
+
+	// 构造 url.Values 传递给 logic 层
+	form := url.Values{}
+	form.Set("name", req.Name)
+	form.Set("email", req.Email)
+	form.Set("city", req.City)
+	form.Set("company", req.Company)
+	form.Set("github", req.Github)
+	form.Set("website", req.Website)
+	form.Set("introduce", req.Introduce)
+	form.Set("open", req.Open)
+
+	me := &model.Me{
+		Uid:      uid,
+		Username: user.Username,
+		Email:    user.Email,
+	}
+
+	errMsg, err := logic.DefaultUser.Update(context.EchoContext(ctx), me, form)
+	if err != nil {
+		return fail(ctx, errMsg)
+	}
+
+	return success(ctx, nil)
+}
+
+// changePasswordRequest 修改密码请求体
+type changePasswordRequest struct {
+	CurPasswd string `json:"cur_passwd"`
+	NewPasswd string `json:"new_passwd"`
+}
+
+// ChangePassword 修改密码（需要登录）
+func (UserController) ChangePassword(ctx echo.Context) error {
+	token := getAuthToken(ctx)
+	if token == "" {
+		return fail(ctx, "未登录", NeedReLoginCode)
+	}
+
+	if !ValidateToken(token) {
+		return fail(ctx, "token 已过期，请重新登录", NeedReLoginCode)
+	}
+
+	uid, ok := ParseToken(token)
+	if !ok || uid == 0 {
+		return fail(ctx, "无效的 token", NeedReLoginCode)
+	}
+
+	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid)
+	if user == nil || user.Uid == 0 {
+		return fail(ctx, "用户不存在")
+	}
+
+	var req changePasswordRequest
+	if err := ctx.Bind(&req); err != nil {
+		return fail(ctx, "请求参数错误")
+	}
+
+	if req.NewPasswd == "" {
+		return fail(ctx, "新密码不能为空")
+	}
+
+	if len(req.NewPasswd) < 6 || len(req.NewPasswd) > 32 {
+		return fail(ctx, "密码长度必须在6到32个字符之间")
+	}
+
+	errMsg, err := logic.DefaultUser.UpdatePasswd(context.EchoContext(ctx), user.Username, req.CurPasswd, req.NewPasswd)
+	if err != nil {
+		return fail(ctx, errMsg)
+	}
+
+	return success(ctx, nil)
+}
+
+// uploadAvatarRequest 上传头像请求体
+type uploadAvatarRequest struct {
+	Avatar string `json:"avatar"` // 头像 URL 或空字符串（使用 gravatar）
+}
+
+// UploadAvatar 更换头像（需要登录）
+func (UserController) UploadAvatar(ctx echo.Context) error {
+	token := getAuthToken(ctx)
+	if token == "" {
+		return fail(ctx, "未登录", NeedReLoginCode)
+	}
+
+	if !ValidateToken(token) {
+		return fail(ctx, "token 已过期，请重新登录", NeedReLoginCode)
+	}
+
+	uid, ok := ParseToken(token)
+	if !ok || uid == 0 {
+		return fail(ctx, "无效的 token", NeedReLoginCode)
+	}
+
+	var req uploadAvatarRequest
+	if err := ctx.Bind(&req); err != nil {
+		return fail(ctx, "请求参数错误")
+	}
+
+	err := logic.DefaultUser.ChangeAvatar(context.EchoContext(ctx), uid, req.Avatar)
+	if err != nil {
+		return fail(ctx, "更换头像失败")
+	}
+
+	return success(ctx, nil)
 }

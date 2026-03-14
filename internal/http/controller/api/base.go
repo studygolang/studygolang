@@ -11,15 +11,17 @@ import (
 	"net/http"
 
 	"github.com/studygolang/studygolang/context"
+	. "github.com/studygolang/studygolang/internal/http"
 	"github.com/studygolang/studygolang/internal/logic"
+	"github.com/studygolang/studygolang/internal/model"
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/logger"
 )
 
 const (
-	perPage        = 20          // 每页默认条数
-	authCookieName = "sg_token"  // HttpOnly 认证 Cookie 名
+	perPage        = 20            // 每页默认条数
+	authCookieName = "sg_token"    // HttpOnly 认证 Cookie 名
 	cookieMaxAge   = 7 * 24 * 3600 // Cookie 有效期 7 天
 )
 
@@ -80,4 +82,31 @@ func fail(ctx echo.Context, msg string, codes ...int) error {
 		"code": code,
 		"msg":  msg,
 	})
+}
+
+// requireAuth 验证用户登录，返回 Me 对象
+func requireAuth(ctx echo.Context) (*model.Me, error) {
+	token := getAuthToken(ctx)
+	if token == "" {
+		return nil, fail(ctx, "请先登录", NeedReLoginCode)
+	}
+	if !ValidateToken(token) {
+		return nil, fail(ctx, "token 已过期，请重新登录", NeedReLoginCode)
+	}
+	uid, ok := ParseToken(token)
+	if !ok || uid == 0 {
+		return nil, fail(ctx, "无效的 token", NeedReLoginCode)
+	}
+
+	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid)
+	if user == nil || user.Uid == 0 {
+		return nil, fail(ctx, "用户不存在")
+	}
+
+	return &model.Me{
+		Uid:      user.Uid,
+		Username: user.Username,
+		IsRoot:   user.IsRoot,
+		IsVip:    user.IsVip,
+	}, nil
 }
