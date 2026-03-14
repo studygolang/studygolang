@@ -441,6 +441,23 @@ func (MessageLogic) FindMsgById(ctx context.Context, id string) *model.Message {
 	return message
 }
 
+// FindSysMsgById 根据 ID 查找系统消息
+func (MessageLogic) FindSysMsgById(ctx context.Context, id string) *model.SystemMessage {
+	if id == "" {
+		return nil
+	}
+
+	objLog := GetLogger(ctx)
+	message := &model.SystemMessage{}
+	_, err := MasterDB.ID(id).Get(message)
+	if err != nil {
+		objLog.Errorln("message logic FindSysMsgById Error:", err)
+		return nil
+	}
+
+	return message
+}
+
 // 获得发给某人的短消息（收件箱）
 func (self MessageLogic) FindToMsgsByUid(ctx context.Context, uid int, paginator *Paginator) []map[string]interface{} {
 	objLog := GetLogger(ctx)

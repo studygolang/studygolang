@@ -253,6 +253,7 @@ export interface User {
   is_root: boolean
   is_vip: boolean
   open_id: string
+  open: number       // 是否公开个人信息（1=公开，0=不公开）
   introduce: string  // 个人简介（后端字段名）
   website: string
   city: string
@@ -261,6 +262,13 @@ export interface User {
   level: number
   balance: number
   ctime: string
+  weight?: number    // 活跃度权重（DAU 排名用）
+}
+
+export interface UserListData {
+  active_users: User[]
+  new_users: User[]
+  total: number
 }
 
 export interface Me {

@@ -57,4 +57,7 @@ func RegisterRoutes(g *echo.Group) {
 	new(WikiController).RegisterRoute(g)
 	new(InterviewController).RegisterRoute(g)
 	new(JobController).RegisterRoute(g)
+	new(MessageController).RegisterRoute(g)
+	new(FavoriteController).RegisterRoute(g)
+	new(LikeController).RegisterRoute(g)
 }

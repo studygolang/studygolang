@@ -78,20 +78,22 @@ func main() {
 	e.Use(pwm.HTTPError())
 	e.Use(pwm.AutoLogin())
 
-	// 评论后不会立马显示出来，暂时缓存去掉
-	// frontG := e.Group("", thirdmw.EchoCache())
-	frontG := e.Group("")
-	controller.RegisterRoutes(frontG)
-
-	adminG := e.Group("/admin", pwm.NeedLogin(), pwm.AdminAuth())
-	admin.RegisterRoutes(adminG)
+	// 先注册有前缀的路由，避免被无前缀路由拦截
+	apiG := e.Group("/api/v1")
+	api.RegisterRoutes(apiG)
 
 	// appG := e.Group("/app", thirdmw.EchoCache())
 	appG := e.Group("/app")
 	app.RegisterRoutes(appG)
 
-	apiG := e.Group("/api/v1")
-	api.RegisterRoutes(apiG)
+	adminG := e.Group("/admin", pwm.NeedLogin(), pwm.AdminAuth())
+	admin.RegisterRoutes(adminG)
+
+	// 最后注册无前缀的前端路由（兜底）
+	// 评论后不会立马显示出来，暂时缓存去掉
+	// frontG := e.Group("", thirdmw.EchoCache())
+	frontG := e.Group("")
+	controller.RegisterRoutes(frontG)
 
 	e.Server.Addr = getAddr()
 	gracefulRun(e.Server)
