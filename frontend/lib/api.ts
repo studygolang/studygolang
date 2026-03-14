@@ -187,9 +187,11 @@ export const userAPI = {
   async getMe(token?: string, fetchOptions?: RequestInit): Promise<Me | null> {
     const headers: Record<string, string> = {}
     if (token) headers['X-Token'] = token
+    // token 已迁移到 HttpOnly Cookie，通过 credentials 携带
+    const options = { ...fetchOptions, headers, credentials: "include" as RequestCredentials }
     try {
       // 后端返回 { user: {...} }，提取 user 字段
-      const data = await fetchAPI<{ user: Me }>('/user/me', { ...fetchOptions, headers })
+      const data = await fetchAPI<{ user: Me }>('/user/me', options)
       return data?.user ?? null
     } catch {
       return null

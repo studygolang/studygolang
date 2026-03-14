@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -19,6 +19,33 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [checking, setChecking] = useState(true)
+
+  // 检查是否已登录，如果已登录则跳转到首页
+  useEffect(() => {
+    const uid = localStorage.getItem("uid")
+    if (uid) {
+      // 验证 token 是否有效
+      fetch("/api/v1/user/me", { credentials: "include" })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.code === 0) {
+            // 已登录，跳转到首页
+            router.replace("/")
+          } else {
+            // token 无效，清除本地存储
+            localStorage.removeItem("uid")
+            localStorage.removeItem("username")
+            setChecking(false)
+          }
+        })
+        .catch(() => {
+          setChecking(false)
+        })
+    } else {
+      setChecking(false)
+    }
+  }, [router])
 
   function handleChange(field: keyof typeof form) {
     return (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,6 +100,17 @@ export default function RegisterPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // 正在检查登录状态，显示加载中
+  if (checking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="mb-4 text-sm text-muted-foreground">检查登录状态...</div>
+        </div>
+      </div>
+    )
   }
 
   if (success) {

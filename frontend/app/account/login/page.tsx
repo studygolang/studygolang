@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -15,6 +15,33 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [checking, setChecking] = useState(true)
+
+  // 检查是否已登录，如果已登录则跳转到首页
+  useEffect(() => {
+    const uid = localStorage.getItem("uid")
+    if (uid) {
+      // 验证 token 是否有效
+      fetch("/api/v1/user/me", { credentials: "include" })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.code === 0) {
+            // 已登录，跳转到首页
+            router.replace("/")
+          } else {
+            // token 无效，清除本地存储
+            localStorage.removeItem("uid")
+            localStorage.removeItem("username")
+            setChecking(false)
+          }
+        })
+        .catch(() => {
+          setChecking(false)
+        })
+    } else {
+      setChecking(false)
+    }
+  }, [router])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -54,6 +81,17 @@ export default function LoginPage() {
     }
   }
 
+  // 正在检查登录状态，显示加载中
+  if (checking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="mb-4 text-sm text-muted-foreground">检查登录状态...</div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
       <div className="w-full max-w-md">
@@ -72,7 +110,7 @@ export default function LoginPage() {
           </CardHeader>
 
           <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               {error && (
                 <div className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
                   {error}
@@ -112,12 +150,13 @@ export default function LoginPage() {
                   disabled={loading}
                 />
               </div>
-            </CardContent>
 
-            <CardFooter className="flex flex-col gap-3">
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "登录中..." : "登录"}
-              </Button>
+              <div className="pt-2">
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "登录中..." : "登录"}
+                </Button>
+              </div>
+
               <p className="text-center text-sm text-muted-foreground">
                 还没有账号？{" "}
                 <Link
@@ -127,7 +166,7 @@ export default function LoginPage() {
                   立即注册
                 </Link>
               </p>
-            </CardFooter>
+            </CardContent>
           </form>
         </Card>
       </div>

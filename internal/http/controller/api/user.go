@@ -9,6 +9,7 @@ package api
 import (
 	"net/url"
 
+	"github.com/gorilla/sessions"
 	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/internal/http"
 	"github.com/studygolang/studygolang/internal/logic"
@@ -24,6 +25,7 @@ func (self UserController) RegisterRoute(g *echo.Group) {
 	g.POST("/user/logout", self.Logout)
 	g.POST("/user/register", self.Register)
 	g.GET("/user/me", self.Me)
+	g.POST("/user/sync-session", self.SyncSession)
 	g.GET("/user/:username", self.Home)
 }
 
@@ -70,6 +72,8 @@ func (UserController) Login(ctx echo.Context) error {
 	token := GenToken(userLogin.Uid)
 	// 设置 HttpOnly Cookie，防止 XSS 窃取 token
 	setAuthCookie(ctx, token)
+	// 同时设置旧的 session（用于 /admin 等旧路由）
+	SetLoginCookie(ctx, userLogin.Username)
 
 	return success(ctx, map[string]interface{}{
 		"uid":      userLogin.Uid,
@@ -77,9 +81,13 @@ func (UserController) Login(ctx echo.Context) error {
 	})
 }
 
-// Logout 退出登录，清除认证 Cookie
+// Logout 退出登录，清除认证 Cookie 和 session
 func (UserController) Logout(ctx echo.Context) error {
 	clearAuthCookie(ctx)
+	// 同时清除旧的 session（用于 /admin 等旧路由）
+	session := GetCookieSession(ctx)
+	session.Options = &sessions.Options{Path: "/", MaxAge: -1}
+	session.Save(Request(ctx), ResponseWriter(ctx))
 	return success(ctx, nil)
 }
 
@@ -130,6 +138,8 @@ func (UserController) Register(ctx echo.Context) error {
 	}
 
 	setAuthCookie(ctx, GenToken(userLogin.Uid))
+	// 同时设置旧的 session（用于 /admin 等旧路由）
+	SetLoginCookie(ctx, userLogin.Username)
 
 	return success(ctx, map[string]interface{}{
 		"uid":      userLogin.Uid,
@@ -160,6 +170,36 @@ func (UserController) Me(ctx echo.Context) error {
 
 	return success(ctx, map[string]interface{}{
 		"user": user,
+	})
+}
+
+// SyncSession 同步 session（用于前端跳转到后端管理页面前建立 session）
+// 从 token 中获取用户信息，设置到 session 中
+func (UserController) SyncSession(ctx echo.Context) error {
+	token := getAuthToken(ctx)
+	if token == "" {
+		return fail(ctx, "未登录", NeedReLoginCode)
+	}
+
+	if !ValidateToken(token) {
+		return fail(ctx, "token 已过期，请重新登录", NeedReLoginCode)
+	}
+
+	uid, ok := ParseToken(token)
+	if !ok || uid == 0 {
+		return fail(ctx, "无效的 token", NeedReLoginCode)
+	}
+
+	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid)
+	if user == nil || user.Uid == 0 {
+		return fail(ctx, "用户不存在")
+	}
+
+	// 设置 session（用于后端管理页面）
+	SetLoginCookie(ctx, user.Username)
+
+	return success(ctx, map[string]interface{}{
+		"username": user.Username,
 	})
 }
 
