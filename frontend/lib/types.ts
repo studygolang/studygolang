@@ -31,15 +31,21 @@ export interface Topic {
   title: string
   content: string
   uid: number
-  name: string
+  name: string  // 列表接口返回的用户名
   avatar: string
   nid: number
   node?: TopicNode
+  user?: User  // 详情接口返回的完整用户信息
   lastreplyuid: number
   lastreplyname: string
-  replynum: number
-  likenum: number
-  viewnum: number
+  // 后端返回的字段名
+  reply: number      // 回复数
+  like: number       // 点赞数
+  view: number       // 浏览数
+  // 兼容旧字段名
+  replynum?: number
+  likenum?: number
+  viewnum?: number
   top: number
   ctime: string
   mtime: string

@@ -72,14 +72,14 @@ export function TopicDetail({ id, topic, replies = [] }: TopicDetailProps) {
             <div className="flex items-center gap-2">
               <Avatar className="h-7 w-7">
                 <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
-                  {topic.name ? topic.name.charAt(0).toUpperCase() : "?"}
+                  {topic.user?.username ? topic.user.username.charAt(0).toUpperCase() : (topic.name ? topic.name.charAt(0).toUpperCase() : "?")}
                 </AvatarFallback>
               </Avatar>
               <Link
-                href={`/user/${topic.name}`}
+                href={`/user/${topic.user?.username || topic.name}`}
                 className="text-sm font-medium text-foreground hover:text-primary"
               >
-                {topic.name}
+                {topic.user?.username || topic.name}
               </Link>
             </div>
             {topic.node && (
@@ -96,7 +96,7 @@ export function TopicDetail({ id, topic, replies = [] }: TopicDetailProps) {
             </span>
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
               <Eye className="h-3 w-3" />
-              {topic.viewnum}
+              {topic.view || topic.viewnum || 0}
             </span>
           </div>
 
@@ -151,7 +151,7 @@ export function TopicDetail({ id, topic, replies = [] }: TopicDetailProps) {
               onClick={() => setLiked(!liked)}
             >
               <ThumbsUp className="h-3.5 w-3.5" />
-              {liked ? topic.likenum + 1 : topic.likenum}
+              {liked ? (topic.like || topic.likenum || 0) + 1 : (topic.like || topic.likenum || 0)}
             </Button>
             <Button
               variant={bookmarked ? "default" : "outline"}

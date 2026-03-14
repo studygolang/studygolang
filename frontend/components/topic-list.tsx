@@ -62,7 +62,7 @@ export function TopicList({ topics = fallbackTopics }: TopicListProps) {
           {/* Avatar */}
           <Avatar className="mt-0.5 hidden h-9 w-9 shrink-0 sm:flex">
             <AvatarFallback className="bg-primary/10 text-sm font-semibold text-primary">
-              {topic.name ? topic.name.charAt(0).toUpperCase() : "?"}
+              {(topic.user?.username || topic.name) ? (topic.user?.username || topic.name).charAt(0).toUpperCase() : "?"}
             </AvatarFallback>
           </Avatar>
 
@@ -90,7 +90,7 @@ export function TopicList({ topics = fallbackTopics }: TopicListProps) {
                 </Badge>
               )}
               <span className="text-xs text-muted-foreground">
-                {topic.name}
+                {topic.user?.username || topic.name || "匿名"}
               </span>
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Clock className="h-3 w-3" />
@@ -98,15 +98,15 @@ export function TopicList({ topics = fallbackTopics }: TopicListProps) {
               </span>
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Eye className="h-3 w-3" />
-                {formatNumber(topic.viewnum)}
+                {formatNumber(topic.view || topic.viewnum || 0)}
               </span>
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
                 <MessageSquare className="h-3 w-3" />
-                {topic.replynum}
+                {topic.reply || topic.replynum || 0}
               </span>
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
                 <ThumbsUp className="h-3 w-3" />
-                {topic.likenum}
+                {topic.like || topic.likenum || 0}
               </span>
             </div>
           </div>
