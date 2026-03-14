@@ -22,6 +22,8 @@ type ArticleController struct{}
 func (self *ArticleController) RegisterRoute(g *echo.Group) {
 	g.GET("/articles", self.List)
 	g.GET("/articles/:id", self.Detail)
+	g.GET("/articles/:id/edit", self.Edit)
+	g.PUT("/articles/:id", self.Update)
 }
 
 // List 文章列表，支持 p 分页参数
@@ -79,4 +81,58 @@ func (ArticleController) Detail(ctx echo.Context) error {
 		"replies":   replies,
 		"prev_next": prevNext,
 	})
+}
+
+// Edit 获取文章编辑数据（需要登录，验证权限）
+func (ArticleController) Edit(ctx echo.Context) error {
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	id := ctx.Param("id")
+	article, err := logic.DefaultArticle.FindById(context.EchoContext(ctx), id)
+	if err != nil || article == nil || article.Id == 0 {
+		return fail(ctx, "文章不存在")
+	}
+
+	// 验证权限：只能编辑自己的文章，或管理员可以编辑所有文章
+	if !logic.CanEdit(me, article) {
+		return fail(ctx, "没有编辑权限")
+	}
+
+	return success(ctx, map[string]interface{}{
+		"article": article,
+	})
+}
+
+// Update 更新文章（需要登录，验证权限）
+func (ArticleController) Update(ctx echo.Context) error {
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	id := ctx.Param("id")
+	article, err := logic.DefaultArticle.FindById(context.EchoContext(ctx), id)
+	if err != nil || article == nil || article.Id == 0 {
+		return fail(ctx, "文章不存在")
+	}
+
+	// 验证权限
+	if !logic.CanEdit(me, article) {
+		return fail(ctx, "没有编辑权限")
+	}
+
+	forms, _ := ctx.FormParams()
+	forms.Set("id", id)
+	errMsg, err := logic.DefaultArticle.Modify(context.EchoContext(ctx), me, forms)
+	if err != nil {
+		if errMsg != "" {
+			return fail(ctx, errMsg)
+		}
+		return fail(ctx, "更新失败")
+	}
+
+	return success(ctx, map[string]interface{}{"id": article.Id})
 }

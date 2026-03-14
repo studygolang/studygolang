@@ -26,6 +26,8 @@ func (self TopicController) RegisterRoute(g *echo.Group) {
 	g.GET("/topics/node/:nid", self.NodeTopics)
 	g.GET("/topics", self.List)
 	g.POST("/topics", self.Publish)
+	g.GET("/topics/:tid/edit", self.Edit)
+	g.PUT("/topics/:tid", self.Update)
 	g.GET("/topics/:tid", self.Detail)
 	g.GET("/nodes", self.Nodes)
 }
@@ -130,6 +132,74 @@ func (TopicController) Detail(ctx echo.Context) error {
 		"topic":   topic,
 		"replies": replies,
 	})
+}
+
+// Edit 获取话题编辑数据（需要登录，验证权限）
+func (TopicController) Edit(ctx echo.Context) error {
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	tid := goutils.MustInt(ctx.Param("tid"))
+	if tid == 0 {
+		return fail(ctx, "tid 非法")
+	}
+
+	topics := logic.DefaultTopic.FindByTids([]int{tid})
+	if len(topics) == 0 {
+		return fail(ctx, "话题不存在")
+	}
+
+	topic := topics[0]
+	// 验证权限：只能编辑自己的话题，或管理员可以编辑所有话题
+	if !logic.CanEdit(me, topic) {
+		return fail(ctx, "没有编辑权限")
+	}
+
+	// 获取节点列表
+	nodes := logic.GenNodes()
+
+	return success(ctx, map[string]interface{}{
+		"topic": topic,
+		"nodes": nodes,
+	})
+}
+
+// Update 更新话题（需要登录，验证权限）
+func (TopicController) Update(ctx echo.Context) error {
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	tid := goutils.MustInt(ctx.Param("tid"))
+	if tid == 0 {
+		return fail(ctx, "tid 非法")
+	}
+
+	topics := logic.DefaultTopic.FindByTids([]int{tid})
+	if len(topics) == 0 {
+		return fail(ctx, "话题不存在")
+	}
+
+	topic := topics[0]
+	// 验证权限
+	if !logic.CanEdit(me, topic) {
+		return fail(ctx, "没有编辑权限")
+	}
+
+	forms, _ := ctx.FormParams()
+	forms.Set("tid", ctx.Param("tid"))
+	errMsg, err := logic.DefaultTopic.Modify(context.EchoContext(ctx), me, forms)
+	if err != nil {
+		if errMsg != "" {
+			return fail(ctx, errMsg)
+		}
+		return fail(ctx, "更新失败")
+	}
+
+	return success(ctx, map[string]interface{}{"tid": tid})
 }
 
 // Nodes 获取所有节点列表
