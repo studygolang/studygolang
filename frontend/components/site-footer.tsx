@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Github, Twitter, Mail } from "lucide-react"
+import { Github, Mail } from "lucide-react"
 
 const FOUNDED_YEAR = 2013
 
@@ -96,13 +96,6 @@ export function SiteFooter() {
                 aria-label="GitHub"
               >
                 <Github className="h-4 w-4" />
-              </a>
-              <a
-                href="#"
-                className="flex h-8 w-8 items-center justify-center rounded-md bg-secondary text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
-                aria-label="Twitter"
-              >
-                <Twitter className="h-4 w-4" />
               </a>
               <a
                 href="mailto:contact@studygolang.com"

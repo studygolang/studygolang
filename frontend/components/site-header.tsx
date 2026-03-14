@@ -68,6 +68,9 @@ interface AuthState {
   uid: string
 }
 
+import { userAPI } from "@/lib/api"
+import type { Me } from "@/lib/types"
+
 export function SiteHeader() {
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -76,16 +79,27 @@ export function SiteHeader() {
   const searchInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    const token = localStorage.getItem("token")
-    const username = localStorage.getItem("username")
-    const uid = localStorage.getItem("uid")
-    if (token && username && uid) {
-      setAuth({ username, uid })
-    }
+    // 通过 API 检查登录状态（token 在 HttpOnly Cookie 中）
+    userAPI.getMe().then((user: Me | null) => {
+      if (user) {
+        setAuth({ username: user.username, uid: String(user.uid) })
+        // 同步非敏感信息到 localStorage（用于 UI 显示）
+        localStorage.setItem("uid", String(user.uid))
+        localStorage.setItem("username", user.username)
+      } else {
+        setAuth(null)
+        localStorage.removeItem("uid")
+        localStorage.removeItem("username")
+      }
+    })
   }, [])
 
-  function handleLogout() {
-    localStorage.removeItem("token")
+  async function handleLogout() {
+    try {
+      await fetch("/api/v1/user/logout", { credentials: "include" })
+    } catch {
+      // ignore
+    }
     localStorage.removeItem("uid")
     localStorage.removeItem("username")
     setAuth(null)
@@ -132,9 +146,8 @@ export function SiteHeader() {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-48">
-              {/* /sites 前端暂无此页面，临时指向 # */}
               <DropdownMenuItem asChild>
-                <a href="#" className="flex items-center gap-2">
+                <a href="https://studygolang.com/sites" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                   <ExternalLink className="h-4 w-4" />
                   {"Go\u7f51\u5740\u5bfc\u822a"}
                 </a>
@@ -189,8 +202,7 @@ export function SiteHeader() {
             size="sm"
             className="h-9 gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
             onClick={() => {
-              const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
-              router.push(token ? "/publish" : "/account/login?redirect=/publish")
+              router.push(auth ? "/publish" : "/account/login?redirect=/publish")
             }}
           >
             <PenSquare className="h-3.5 w-3.5" />

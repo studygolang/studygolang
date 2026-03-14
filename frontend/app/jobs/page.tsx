@@ -1,6 +1,5 @@
 import { Suspense } from "react"
-import Link from "next/link"
-import { Plus, Briefcase } from "lucide-react"
+import { Plus } from "lucide-react"
 import { Metadata } from "next"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
@@ -47,16 +46,15 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
         description="发现 Go 语言相关的优质工作机会"
         breadcrumbs={[{ label: "酷工作" }]}
         actions={
-          // TODO: /jobs/new 发布职位页面尚未实现
-          <a href="#">
-            <Button
-              size="sm"
-              className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              {"发布职位"}
-            </Button>
-          </a>
+          <Button
+            size="sm"
+            disabled
+            className="gap-1.5"
+            title="职位发布功能即将开放"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            {"发布职位"}
+          </Button>
         }
       />
       <Suspense

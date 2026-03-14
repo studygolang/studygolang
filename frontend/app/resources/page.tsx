@@ -167,17 +167,16 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
         title="资源索引"
         description="精选 Go 语言学习资源，教程、工具、视频、文档一网打尽"
         breadcrumbs={[{ label: "资源索引" }]}
-        // TODO: 分享资源页面路由待实现，暂时禁用跳转（/resources/new 不存在）
         actions={
-          <a href="#">
-            <Button
-              size="sm"
-              className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              分享资源
-            </Button>
-          </a>
+          <Button
+            size="sm"
+            disabled
+            className="gap-1.5"
+            title="资源分享功能即将开放"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            分享资源
+          </Button>
         }
       />
       <Suspense

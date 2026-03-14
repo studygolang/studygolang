@@ -64,14 +64,13 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
         title="技术文章"
         description="精选 Go 语言技术文章，深度学习与实践"
         breadcrumbs={[{ label: "技术文章" }]}
-        // TODO: 投稿页面路由待实现，暂时禁用跳转（/articles/new 不存在）
         actions={
-          <a href="#">
+          <Link href="/publish">
             <Button size="sm" className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
               <PenSquare className="h-3.5 w-3.5" />
               {"投稿"}
             </Button>
-          </a>
+          </Link>
         }
       />
 

@@ -171,7 +171,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
         description="发现和分享优秀的 Go 语言开源项目"
         breadcrumbs={[{ label: "开源项目" }]}
         actions={
-          <Link href="/projects/new">
+          <Link href="/publish">
             <Button size="sm" className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90">
               <Plus className="h-3.5 w-3.5" />
               提交项目
