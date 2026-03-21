@@ -7,6 +7,8 @@
 package api
 
 import (
+	"strconv"
+
 	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/internal/http"
 	"github.com/studygolang/studygolang/internal/logic"
@@ -20,6 +22,9 @@ type BookController struct{}
 
 func (self BookController) RegisterRoute(g *echo.Group) {
 	g.GET("/books", self.List)
+	g.POST("/books", self.Publish)
+	g.GET("/books/:id/edit", self.Edit)
+	g.PUT("/books/:id", self.Update)
 	g.GET("/books/:id", self.Detail)
 }
 
@@ -61,4 +66,92 @@ func (BookController) Detail(ctx echo.Context) error {
 	return success(ctx, map[string]interface{}{
 		"book": book,
 	})
+}
+
+// Publish 发布新图书（需要登录，支持 Cookie 和 X-Token header）
+func (BookController) Publish(ctx echo.Context) error {
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	forms, _ := ctx.FormParams()
+
+	// 基本字段验证
+	name := forms.Get("name")
+	if name == "" {
+		return fail(ctx, "书名不能为空")
+	}
+
+	err = logic.DefaultGoBook.Publish(context.EchoContext(ctx), me, forms)
+	if err != nil {
+		return fail(ctx, "发布失败："+err.Error())
+	}
+
+	// 获取刚发布的图书 ID
+	id := forms.Get("id")
+
+	return success(ctx, map[string]interface{}{
+		"id": id,
+	})
+}
+
+// Edit 获取图书编辑数据（需要登录，验证权限）
+func (BookController) Edit(ctx echo.Context) error {
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	id := goutils.MustInt(ctx.Param("id"))
+	if id == 0 {
+		return fail(ctx, "图书 ID 非法")
+	}
+
+	book, err := logic.DefaultGoBook.FindById(context.EchoContext(ctx), id)
+	if err != nil || book == nil || book.Id == 0 {
+		return fail(ctx, "图书不存在")
+	}
+
+	// 验证权限
+	if !logic.CanEdit(me, book) {
+		return fail(ctx, "没有编辑权限")
+	}
+
+	return success(ctx, map[string]interface{}{
+		"book": book,
+	})
+}
+
+// Update 更新图书（需要登录，验证权限）
+func (BookController) Update(ctx echo.Context) error {
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	id := goutils.MustInt(ctx.Param("id"))
+	if id == 0 {
+		return fail(ctx, "图书 ID 非法")
+	}
+
+	book, err := logic.DefaultGoBook.FindById(context.EchoContext(ctx), id)
+	if err != nil || book == nil || book.Id == 0 {
+		return fail(ctx, "图书不存在")
+	}
+
+	// 验证权限
+	if !logic.CanEdit(me, book) {
+		return fail(ctx, "没有编辑权限")
+	}
+
+	forms, _ := ctx.FormParams()
+	forms.Set("id", strconv.Itoa(book.Id))
+
+	err = logic.DefaultGoBook.Publish(context.EchoContext(ctx), me, forms)
+	if err != nil {
+		return fail(ctx, "更新失败："+err.Error())
+	}
+
+	return success(ctx, map[string]interface{}{"id": book.Id})
 }

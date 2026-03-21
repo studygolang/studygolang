@@ -9,6 +9,7 @@ package api
 import (
 	"github.com/studygolang/studygolang/context"
 	"github.com/studygolang/studygolang/internal/logic"
+	"github.com/studygolang/studygolang/internal/model"
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
@@ -22,30 +23,49 @@ func (self IndexController) RegisterRoute(g *echo.Group) {
 	g.GET("/stat/site", self.WebsiteStat)
 }
 
-// Home 首页话题列表，支持 tab 参数切换分类
-// 返回格式与 TopicListData 对齐：topics/tab/tab_list/total/page/has_more
+// Home 首页动态列表，使用 feed 表聚合多种类型内容
+// 支持 tab 参数：all（默认，feed 动态）、recommend（推荐）、no_reply（未回复话题）
+// 返回格式：feeds/tab/tab_list/total/page/has_more
 func (IndexController) Home(ctx echo.Context) error {
 	tab := ctx.QueryParam("tab")
 	if tab == "" {
-		tab = "all"
+		tab = model.TabAll
 	}
 
 	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
 	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
 
-	var (
-		topTopics []map[string]interface{}
-		topics    []map[string]interface{}
-		total     int64
-	)
-
 	hotNodes := logic.DefaultTopic.FindHotNodes(context.EchoContext(ctx))
 
+	// 默认使用 feed 聚合动态（话题、文章、项目、资源等）
+	if tab == model.TabAll || tab == model.TabRecommend {
+		// 获取置顶动态
+		topFeeds := logic.DefaultFeed.FindTop(context.EchoContext(ctx))
+		// 获取最新动态（带分页）
+		feeds := logic.DefaultFeed.FindRecentWithPaginator(context.EchoContext(ctx), paginator, tab)
+		// 获取总数
+		total := logic.DefaultFeed.GetTotalCount(context.EchoContext(ctx))
+
+		allFeeds := append(topFeeds, feeds...)
+		hasMore := paginator.SetTotal(total).HasMorePage()
+
+		return success(ctx, map[string]interface{}{
+			"feeds":    allFeeds,
+			"tab":      tab,
+			"tab_list": hotNodes,
+			"total":    total,
+			"page":     curPage,
+			"has_more": hasMore,
+		})
+	}
+
+	// 其他 tab（如 no_reply、节点筛选）仍然返回话题列表
+	var (
+		topics []map[string]interface{}
+		total  int64
+	)
+
 	switch tab {
-	case "all":
-		topTopics = logic.DefaultTopic.FindAll(context.EchoContext(ctx), paginator, "ctime DESC", "top=1")
-		topics = logic.DefaultTopic.FindAll(context.EchoContext(ctx), paginator, "topics.mtime DESC", "top!=1")
-		total = logic.DefaultTopic.Count(context.EchoContext(ctx), "top!=1")
 	case "no_reply":
 		topics = logic.DefaultTopic.FindAll(context.EchoContext(ctx), paginator, "topics.mtime DESC", "lastreplyuid=?", 0)
 		total = logic.DefaultTopic.Count(context.EchoContext(ctx), "lastreplyuid=?", 0)
@@ -61,11 +81,10 @@ func (IndexController) Home(ctx echo.Context) error {
 		}
 	}
 
-	allTopics := append(topTopics, topics...)
 	hasMore := paginator.SetTotal(total).HasMorePage()
 
 	return success(ctx, map[string]interface{}{
-		"topics":   allTopics,
+		"topics":   topics,
 		"tab":      tab,
 		"tab_list": hotNodes,
 		"total":    total,

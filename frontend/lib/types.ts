@@ -13,6 +13,48 @@ export interface Pagination {
   has_more: boolean
 }
 
+// ======================== 动态相关 ========================
+// 动态类型常量（与后端 model 保持一致）
+export const OBJTYPE_TOPIC = 1
+export const OBJTYPE_ARTICLE = 2
+export const OBJTYPE_RESOURCE = 3
+export const OBJTYPE_PROJECT = 4
+export const OBJTYPE_BOOK = 5
+
+// Feed 动态（聚合话题、文章、项目、资源等）
+// 注意：后端 model.Feed 没有 JSON tag，字段名首字母大写
+// 但 updated_at 有 JSON tag，是小写的
+export interface Feed {
+  Id: number
+  Title: string
+  Objid: number
+  Objtype: number      // 1=话题 2=文章 3=资源 4=项目 5=书籍
+  Uid: number
+  Author: string
+  Nid: number
+  Lastreplyuid: number
+  Lastreplytime: string
+  Tags: string
+  Cmtnum: number
+  Likenum: number
+  Top: number
+  Seq: number
+  State: number
+  CreatedAt: string
+  updated_at: string   // 后端有 JSON tag，是小写的
+  // 关联数据
+  User?: User
+  Lastreplyuser?: User
+  Node?: TopicNode | { name: string }
+  Uri: string          // 详情页路径（不含域名）
+}
+
+export interface FeedListData extends Pagination {
+  feeds?: Feed[]
+  tab: string
+  tab_list: TopicNode[]
+}
+
 // ======================== 话题相关 ========================
 export interface TopicNode {
   id: number

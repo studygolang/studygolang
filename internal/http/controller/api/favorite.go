@@ -21,7 +21,31 @@ type FavoriteController struct{}
 
 func (self *FavoriteController) RegisterRoute(g *echo.Group) {
 	g.POST("/favorites/:objid", self.Toggle)
+	g.GET("/favorites/:objid/status", self.Status)
 	g.GET("/users/:username/favorites", self.List)
+}
+
+// Status 查询当前用户是否已收藏
+func (FavoriteController) Status(ctx echo.Context) error {
+	token := getAuthToken(ctx)
+	if token == "" || !ValidateToken(token) {
+		return success(ctx, map[string]interface{}{"has_favorite": false})
+	}
+
+	uid, ok := ParseToken(token)
+	if !ok || uid == 0 {
+		return success(ctx, map[string]interface{}{"has_favorite": false})
+	}
+
+	objid := goutils.MustInt(ctx.Param("objid"))
+	objtype := goutils.MustInt(ctx.QueryParam("objtype"))
+
+	if objid == 0 || objtype == 0 {
+		return success(ctx, map[string]interface{}{"has_favorite": false})
+	}
+
+	hasFavorite := logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), uid, objid, objtype)
+	return success(ctx, map[string]interface{}{"has_favorite": hasFavorite})
 }
 
 // Toggle 收藏/取消收藏

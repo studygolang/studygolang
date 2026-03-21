@@ -1,10 +1,11 @@
 import { Suspense } from "react"
 import Link from "next/link"
-import { BookOpen, ExternalLink } from "lucide-react"
+import { BookOpen, ExternalLink, Plus } from "lucide-react"
 import { Metadata } from "next"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import type { BookListData } from "@/lib/types"
@@ -188,6 +189,14 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
         title="Go 图书"
         description="精选 Go 语言经典图书，助你系统学习"
         breadcrumbs={[{ label: "Go 图书" }]}
+        actions={
+          <Link href="/publish?type=book">
+            <Button size="sm" className="gap-1.5">
+              <Plus className="h-3.5 w-3.5" />
+              推荐图书
+            </Button>
+          </Link>
+        }
       />
       <Suspense
         fallback={

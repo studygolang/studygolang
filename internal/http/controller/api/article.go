@@ -24,6 +24,7 @@ func (self *ArticleController) RegisterRoute(g *echo.Group) {
 	g.GET("/articles/:id", self.Detail)
 	g.GET("/articles/:id/edit", self.Edit)
 	g.PUT("/articles/:id", self.Update)
+	g.POST("/articles", self.Create)
 }
 
 // List 文章列表，支持 p 分页参数
@@ -135,4 +136,34 @@ func (ArticleController) Update(ctx echo.Context) error {
 	}
 
 	return success(ctx, map[string]interface{}{"id": article.Id})
+}
+
+// Create 创建文章（需要登录）
+func (ArticleController) Create(ctx echo.Context) error {
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	// 获取表单数据
+	forms, _ := ctx.FormParams()
+
+	// 验证必填字段
+	title := ctx.FormValue("title")
+	if title == "" {
+		return fail(ctx, "标题不能为空")
+	}
+
+	content := ctx.FormValue("content")
+	if content == "" {
+		return fail(ctx, "内容不能为空")
+	}
+
+	// 调用业务逻辑发布文章
+	id, err := logic.DefaultArticle.Publish(context.EchoContext(ctx), me, forms)
+	if err != nil {
+		return fail(ctx, "发布失败: "+err.Error())
+	}
+
+	return success(ctx, map[string]interface{}{"id": id})
 }

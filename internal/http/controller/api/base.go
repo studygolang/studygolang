@@ -107,6 +107,7 @@ func requireAuth(ctx echo.Context) (*model.Me, error) {
 		Uid:      user.Uid,
 		Username: user.Username,
 		IsRoot:   user.IsRoot,
+		IsAdmin:  user.IsRoot, // Root 用户即为管理员
 		IsVip:    user.IsVip,
 	}, nil
 }

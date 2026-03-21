@@ -20,6 +20,37 @@ type LikeController struct{}
 
 func (self *LikeController) RegisterRoute(g *echo.Group) {
 	g.POST("/likes/:objid", self.Toggle)
+	g.GET("/likes/:objid/status", self.Status)
+}
+
+// Status 查询当前用户是否已点赞
+func (LikeController) Status(ctx echo.Context) error {
+	token := getAuthToken(ctx)
+	if token == "" || !ValidateToken(token) {
+		return success(ctx, map[string]interface{}{"has_like": false})
+	}
+
+	uid, ok := ParseToken(token)
+	if !ok || uid == 0 {
+		return success(ctx, map[string]interface{}{"has_like": false})
+	}
+
+	objid := goutils.MustInt(ctx.Param("objid"))
+	objtype := goutils.MustInt(ctx.QueryParam("objtype"))
+
+	if objid == 0 || objtype == 0 {
+		return success(ctx, map[string]interface{}{"has_like": false})
+	}
+
+	likeFlags, err := logic.DefaultLike.FindUserLikeObjects(
+		context.EchoContext(ctx), uid, objtype, objid, objid,
+	)
+	if err != nil {
+		return success(ctx, map[string]interface{}{"has_like": false})
+	}
+
+	hasLike := likeFlags[objid] == model.FlagLike
+	return success(ctx, map[string]interface{}{"has_like": hasLike})
 }
 
 // Toggle 点赞/取消点赞

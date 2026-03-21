@@ -2,6 +2,7 @@ import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { TabFilter } from "@/components/tab-filter"
 import { TopicList } from "@/components/topic-list"
+import { FeedList } from "@/components/feed-list"
 import { NodeNavigation } from "@/components/node-navigation"
 import {
   LoginCard,
@@ -17,7 +18,8 @@ import { HeroBanner } from "@/components/hero-banner"
 import type { Metadata } from "next"
 import type {
   Topic,
-  TopicListData,
+  Feed,
+  FeedListData,
   SiteStats,
   Reading,
   Comment,
@@ -46,9 +48,24 @@ async function fetchFromAPI<T>(path: string, options?: RequestInit): Promise<T> 
   return json.data
 }
 
-async function getHomeData(tab: string = 'all') {
+// 首页数据响应类型
+interface HomeDataResult {
+  feeds: Feed[]
+  topics: Topic[]
+  hasMore: boolean
+  useFeeds: boolean  // 是否使用 feed 模式
+  trendingTopics: Topic[]
+  stats?: SiteStats
+  readings: Reading[]
+  hotNodes: TopicNode[]
+  friendLinks: FriendLink[]
+  recentComments: Comment[]
+  activeUsers: User[]
+}
+
+async function getHomeData(tab: string = 'all'): Promise<HomeDataResult> {
   const [
-    topicData,
+    homeData,
     stats,
     readingsData,
     hotNodesData,
@@ -56,7 +73,7 @@ async function getHomeData(tab: string = 'all') {
     recentCommentsData,
     activeUsersData,
   ] = await Promise.allSettled([
-    fetchFromAPI<TopicListData>(`/home?tab=${tab}&p=1`, { cache: 'no-store' }),
+    fetchFromAPI<FeedListData>(`/home?tab=${tab}&p=1`, { cache: 'no-store' }),
     fetchFromAPI<SiteStats>('/stat/site', { cache: 'no-store' }),
     fetchFromAPI<{ readings: Reading[] }>('/sidebar/readings/recent?limit=7', { cache: 'no-store' }),
     fetchFromAPI<{ nodes: TopicNode[] }>('/sidebar/nodes/hot', { cache: 'no-store' }),
@@ -65,15 +82,27 @@ async function getHomeData(tab: string = 'all') {
     fetchFromAPI<{ users: User[] }>('/sidebar/users/active', { cache: 'no-store' }),
   ])
 
-  const topicsValue = topicData.status === 'fulfilled' ? topicData.value : null
+  const homeValue = homeData.status === 'fulfilled' ? homeData.value : null
+  // 判断返回的是 feeds 还是 topics
+  const useFeeds = homeValue?.feeds !== undefined
+  const feeds = homeValue?.feeds ?? [] as Feed[]
+  const topics = (homeValue as any)?.topics ?? [] as Topic[]
+
+  // 从 feeds 中提取话题用于趋势显示
+  const trendingFromFeeds = feeds
+    .filter(f => f.Objtype === 1) // 只取话题类型
+    .slice(0, 5)
 
   return {
-    // 首页调用 /home 接口，后端返回字段为 "topics"
-    topics: topicsValue?.topics ?? [] as Topic[],
-    hasMore: topicsValue?.has_more ?? false,
-    trendingTopics: topicsValue?.topics
-      ? [...topicsValue.topics].sort((a, b) => (b.view || 0) - (a.view || 0)).slice(0, 5)
-      : [] as Topic[],
+    feeds,
+    topics,
+    hasMore: homeValue?.has_more ?? false,
+    useFeeds,
+    trendingTopics: useFeeds ? trendingFromFeeds.map(f => ({
+      tid: f.Objid,
+      title: f.Title,
+      view: 0,
+    } as Topic)) : (topics ? [...topics].sort((a, b) => (b.view || 0) - (a.view || 0)).slice(0, 5) : []),
     stats: stats.status === 'fulfilled' ? stats.value : undefined,
     readings: readingsData.status === 'fulfilled' ? (readingsData.value.readings ?? []) : [] as Reading[],
     hotNodes: hotNodesData.status === 'fulfilled' ? (hotNodesData.value.nodes ?? []) : [] as TopicNode[],
@@ -89,12 +118,14 @@ interface HomePageProps {
 
 export default async function HomePage({ searchParams }: HomePageProps) {
   const { tab: tabParam } = await searchParams
-  // tab 参数驱动首页话题列表筛选，有效值：all/hot/latest
+  // tab 参数驱动首页内容筛选，有效值：all/recommend/no_reply/节点名
   const tab = tabParam ?? 'all'
 
   const {
+    feeds,
     topics,
     hasMore,
+    useFeeds,
     trendingTopics,
     stats,
     readings,
@@ -117,7 +148,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             <div className="rounded-lg border border-border bg-card p-4">
               <TabFilter />
               <div className="mt-4">
-                <TopicList topics={topics} />
+                {useFeeds ? (
+                  <FeedList feeds={feeds} />
+                ) : (
+                  <TopicList topics={topics} />
+                )}
               </div>
               {/* Load More - 只在有更多数据时显示 */}
               {hasMore && (

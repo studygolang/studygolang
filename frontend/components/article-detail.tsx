@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import {
   ThumbsUp,
@@ -19,6 +19,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import type { Article, ArticleComment } from "@/lib/types"
+
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8090"
 
 interface ArticleDetailProps {
   id: string
@@ -49,6 +51,74 @@ function formatTime(ctime: string): string {
 export function ArticleDetail({ id, article, prev, next, comments = [] }: ArticleDetailProps) {
   const [liked, setLiked] = useState(false)
   const [bookmarked, setBookmarked] = useState(false)
+  const [likeCount, setLikeCount] = useState(article?.likenum || 0)
+
+  // 加载用户的点赞和收藏状态
+  useEffect(() => {
+    const loadUserStatus = async () => {
+      try {
+        // 检查点赞状态
+        const likeRes = await fetch(`${API_BASE}/api/v1/likes/${id}/status?objtype=1`, {
+          credentials: "include",
+        })
+        if (likeRes.ok) {
+          const likeData = await likeRes.json()
+          if (likeData.code === 0 && likeData.data?.has_like) {
+            setLiked(true)
+          }
+        }
+
+        // 检查收藏状态
+        const favRes = await fetch(`${API_BASE}/api/v1/favorites/${id}/status?objtype=1`, {
+          credentials: "include",
+        })
+        if (favRes.ok) {
+          const favData = await favRes.json()
+          if (favData.code === 0 && favData.data?.has_favorite) {
+            setBookmarked(true)
+          }
+        }
+      } catch {
+        // 未登录或网络错误，忽略
+      }
+    }
+    loadUserStatus()
+  }, [id])
+
+  const handleLike = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/likes/${id}?objtype=1&flag=${liked ? 0 : 1}`, {
+        method: "POST",
+        credentials: "include",
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.code === 0) {
+          setLiked(!liked)
+          setLikeCount(liked ? likeCount - 1 : likeCount + 1)
+        }
+      }
+    } catch {
+      // 网络错误
+    }
+  }
+
+  const handleBookmark = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/favorites/${id}?objtype=1&collect=${bookmarked ? 0 : 1}`, {
+        method: "POST",
+        credentials: "include",
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.code === 0) {
+          setBookmarked(!bookmarked)
+        }
+      }
+    } catch {
+      // 网络错误
+    }
+  }
 
   if (!article) {
     return (
@@ -162,10 +232,10 @@ export function ArticleDetail({ id, article, prev, next, comments = [] }: Articl
               className={`gap-1.5 ${
                 liked ? "bg-primary text-primary-foreground" : "text-muted-foreground"
               }`}
-              onClick={() => setLiked(!liked)}
+              onClick={handleLike}
             >
               <ThumbsUp className="h-3.5 w-3.5" />
-              {liked ? article.likenum + 1 : article.likenum}
+              {likeCount}
             </Button>
             <Button
               variant={bookmarked ? "default" : "outline"}
@@ -173,7 +243,7 @@ export function ArticleDetail({ id, article, prev, next, comments = [] }: Articl
               className={`gap-1.5 ${
                 bookmarked ? "bg-primary text-primary-foreground" : "text-muted-foreground"
               }`}
-              onClick={() => setBookmarked(!bookmarked)}
+              onClick={handleBookmark}
             >
               <Bookmark className="h-3.5 w-3.5" />
               {bookmarked ? "已收藏" : "收藏"}
