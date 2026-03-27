@@ -8,6 +8,7 @@ package controller
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/internal/http"
@@ -44,6 +45,10 @@ func (OAuthController) GithubCallback(ctx echo.Context) error {
 
 		redirectURL := ctx.QueryParam("redirect_url")
 		if redirectURL == "" {
+			redirectURL = "/account/edit#connection"
+		}
+		// Prevent open redirect: only allow relative paths
+		if strings.HasPrefix(redirectURL, "//") || strings.Contains(redirectURL, "://") {
 			redirectURL = "/account/edit#connection"
 		}
 		return ctx.Redirect(http.StatusSeeOther, redirectURL)
@@ -87,6 +92,10 @@ func (OAuthController) GiteaCallback(ctx echo.Context) error {
 
 		redirectURL := ctx.QueryParam("redirect_url")
 		if redirectURL == "" {
+			redirectURL = "/account/edit#connection"
+		}
+		// Prevent open redirect: only allow relative paths
+		if strings.HasPrefix(redirectURL, "//") || strings.Contains(redirectURL, "://") {
 			redirectURL = "/account/edit#connection"
 		}
 		return ctx.Redirect(http.StatusSeeOther, redirectURL)
