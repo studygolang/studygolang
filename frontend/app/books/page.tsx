@@ -207,7 +207,7 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
           </div>
         }
       >
-        <BookItems p={page} />
+        <BookItems page={page} />
       </Suspense>
     </PageLayout>
   )

@@ -4,7 +4,7 @@ import type { TopicNode } from "@/lib/types"
 
 interface NodeGroup {
   label: string
-  nodes: { name: string; href: string }[]
+  nodes: { id: number; name: string; href: string }[]
 }
 
 interface NodeNavigationProps {
@@ -23,8 +23,9 @@ export function NodeNavigation({ nodes }: NodeNavigationProps) {
       .map((parent) => ({
         label: parent.name,
         nodes: nodes
-          .filter((n) => n.pid === parent.id || n.parent_id === parent.id)
+          .filter((n) => (n.pid === parent.id || n.parent_id === parent.id) && n.id != null)
           .map((n) => ({
+            id: n.id,
             name: n.name,
             // 节点话题列表路由为 /topics/node/[nid]，使用数字 id
             href: `/topics/node/${n.id}`,
@@ -36,11 +37,14 @@ export function NodeNavigation({ nodes }: NodeNavigationProps) {
     nodeGroups = [
       {
         label: "节点",
-        nodes: nodes.map((n) => ({
-          name: n.name,
-          // 节点话题列表路由为 /topics/node/[nid]，使用数字 id
-          href: `/topics/node/${n.id}`,
-        })),
+        nodes: nodes
+          .filter((n) => n.id != null)
+          .map((n) => ({
+            id: n.id,
+            name: n.name,
+            // 节点话题列表路由为 /topics/node/[nid]，使用数字 id
+            href: `/topics/node/${n.id}`,
+          })),
       },
     ]
   }
@@ -56,7 +60,7 @@ export function NodeNavigation({ nodes }: NodeNavigationProps) {
             <span className="mb-1.5 block text-xs font-medium text-muted-foreground">{group.label}</span>
             <div className="flex flex-wrap gap-1.5">
               {group.nodes.map((node) => (
-                <Link key={node.href + node.name} href={node.href}>
+                <Link key={String(node.id)} href={node.href}>
                   <Badge
                     variant="secondary"
                     className="cursor-pointer text-xs transition-colors hover:bg-primary/10 hover:text-primary"

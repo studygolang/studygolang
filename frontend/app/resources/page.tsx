@@ -185,7 +185,7 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
           </div>
         }
       >
-        <ResourceItems p={page} catid={catid} />
+        <ResourceItems page={page} catid={catid} />
       </Suspense>
     </PageLayout>
   )
