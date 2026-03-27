@@ -1,4 +1,5 @@
 import { Suspense } from "react"
+import Link from "next/link"
 import { Plus } from "lucide-react"
 import { Metadata } from "next"
 import { PageLayout } from "@/components/page-layout"
@@ -27,8 +28,38 @@ async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | nul
 async function JobItems({ page }: { page: number }) {
   const data = await fetchAPI<JobListData>(`/jobs?p=${page}`, { cache: "no-store" })
   const jobs = data?.jobs ?? []
+  const hasMore = data?.has_more ?? false
+  const total = data?.total ?? 0
 
-  return <JobList jobs={jobs} />
+  return (
+    <div>
+      <JobList jobs={jobs} />
+      {/* Pagination */}
+      {total > 0 && (
+        <div className="mt-6 flex items-center justify-center gap-2">
+          {page > 1 && (
+            <Link
+              href={`/jobs?p=${page - 1}`}
+              className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
+            >
+              上一页
+            </Link>
+          )}
+          <span className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground">
+            {page}
+          </span>
+          {hasMore && (
+            <Link
+              href={`/jobs?p=${page + 1}`}
+              className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
+            >
+              下一页
+            </Link>
+          )}
+        </div>
+      )}
+    </div>
+  )
 }
 
 interface JobsPageProps {
