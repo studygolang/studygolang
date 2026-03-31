@@ -181,7 +181,7 @@ interface BooksPageProps {
 
 export default async function BooksPage({ searchParams }: BooksPageProps) {
   const params = await searchParams
-  const page = Math.max(1, parseInt(params.page || "1", 10))
+  const page = Math.max(1, parseInt(params.p || "1", 10))
 
   return (
     <PageLayout sidebar={false}>

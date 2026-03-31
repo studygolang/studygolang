@@ -8,7 +8,6 @@ import { Loader2, Info, Check, ChevronsUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
 import {
   Command,
   CommandEmpty,
@@ -83,7 +82,7 @@ export default function TopicModifyPage() {
       })
       const json = await res.json()
       if (json.code !== 0) {
-        setError(json.msg || "加载失败")
+        setError(json.message || json.msg || "加载失败")
         setLoading(false)
         return
       }
@@ -140,6 +139,10 @@ export default function TopicModifyPage() {
     }
   }
 
+  function removeTag(tagToRemove: string) {
+    setTags(tags.filter((t) => t !== tagToRemove))
+  }
+
   async function handleSave() {
     setError("")
     if (!title.trim()) { setError("请填写标题"); return }
@@ -161,7 +164,8 @@ export default function TopicModifyPage() {
       })
       const json = await res.json()
       if (json.code !== 0) {
-        setError(json.msg || "保存失败")
+        setError(json.message || json.msg || "保存失败")
+        setSubmitting(false)
         return
       }
       setSuccess(true)
@@ -169,7 +173,9 @@ export default function TopicModifyPage() {
     } catch {
       setError("网络错误，请稍后重试")
     } finally {
-      setSubmitting(false)
+      if (!success) {
+        setSubmitting(false)
+      }
     }
   }
 
@@ -265,24 +271,26 @@ export default function TopicModifyPage() {
               </div>
 
               <div className="min-w-0 flex-1 space-y-1.5">
-                <Label htmlFor="tags" className="text-sm font-medium">
+                <Label htmlFor="tag-input" className="text-sm font-medium">
                   标签
                   <span className="ml-1 font-normal text-muted-foreground">（最多5个，回车添加）</span>
                 </Label>
                 <div className="flex min-h-10 flex-wrap items-center gap-1.5 rounded-md border border-input bg-background px-3 py-1.5 text-sm focus-within:ring-2 focus-within:ring-ring">
                   {tags.map((tag) => (
-                    <Badge
+                    <button
                       key={tag}
-                      variant="secondary"
-                      className="gap-1 py-0.5 text-xs cursor-pointer"
-                      onClick={() => setTags(tags.filter((t) => t !== tag))}
+                      type="button"
+                      aria-label={`删除标签 ${tag}`}
+                      className="inline-flex items-center gap-1 rounded-md bg-secondary px-2 py-0.5 text-xs text-secondary-foreground cursor-pointer hover:bg-secondary/80 transition-colors"
+                      onClick={() => removeTag(tag)}
                     >
-                      {tag} ×
-                    </Badge>
+                      {tag}
+                      <span aria-hidden="true">×</span>
+                    </button>
                   ))}
                   {tags.length < 5 && (
                     <input
-                      id="tags"
+                      id="tag-input"
                       className="min-w-16 flex-1 bg-transparent outline-none placeholder:text-muted-foreground"
                       placeholder={tags.length === 0 ? "输入标签" : ""}
                       value={tagInput}

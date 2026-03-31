@@ -77,6 +77,10 @@ func (self UserController) RegisterRoute(g *echo.Group) {
 	g.PUT("/user/password", self.ChangePassword)
 	// 用户评论列表
 	g.GET("/users/:username/comments", self.UserComments)
+	g.GET("/users/:username/topics", self.UserTopics)
+	g.GET("/users/:username/articles", self.UserArticles)
+	g.GET("/users/:username/resources", self.UserResources)
+	g.GET("/users/:username/projects", self.UserProjects)
 }
 
 // loginRequest 登录请求体（支持 JSON）
@@ -498,6 +502,117 @@ func (UserController) UserComments(ctx echo.Context) error {
 
 	return success(ctx, map[string]interface{}{
 		"comments": comments,
+		"total":    total,
+		"page":     curPage,
+		"has_more": hasMore,
+	})
+}
+
+// UserTopics 获取指定用户的话题列表
+// GET /api/v1/users/:username/topics?p=1
+func (UserController) UserTopics(ctx echo.Context) error {
+	username := ctx.Param("username")
+	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "username", username)
+	if user == nil || user.Uid == 0 {
+		return fail(ctx, "用户不存在")
+	}
+
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	if curPage < 1 {
+		curPage = 1
+	}
+
+	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
+	topics := logic.DefaultTopic.FindAll(context.EchoContext(ctx), paginator, "tid DESC", "uid=?", user.Uid)
+	total := logic.DefaultTopic.Count(context.EchoContext(ctx), "uid=?", user.Uid)
+
+	hasMore := int64(curPage*paginator.PerPage()) < total
+
+	return success(ctx, map[string]interface{}{
+		"topics":  topics,
+		"total":  total,
+		"page":   curPage,
+		"has_more": hasMore,
+	})
+}
+
+// UserArticles 获取指定用户的文章列表
+// GET /api/v1/users/:username/articles?p=1
+func (UserController) UserArticles(ctx echo.Context) error {
+	username := ctx.Param("username")
+	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "username", username)
+	if user == nil || user.Uid == 0 {
+		return fail(ctx, "用户不存在")
+	}
+
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	if curPage < 1 {
+		curPage = 1
+	}
+
+	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
+	articles := logic.DefaultArticle.FindAll(context.EchoContext(ctx), paginator, "id DESC", "author_txt=?", username)
+	total := logic.DefaultArticle.Count(context.EchoContext(ctx), "author_txt=?", username)
+
+	hasMore := int64(curPage*paginator.PerPage()) < total
+
+	return success(ctx, map[string]interface{}{
+		"articles": articles,
+		"total":    total,
+		"page":     curPage,
+		"has_more": hasMore,
+	})
+}
+
+// UserResources 获取指定用户的资源列表
+// GET /api/v1/users/:username/resources?p=1
+func (UserController) UserResources(ctx echo.Context) error {
+	username := ctx.Param("username")
+	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "username", username)
+	if user == nil || user.Uid == 0 {
+		return fail(ctx, "用户不存在")
+	}
+
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	if curPage < 1 {
+		curPage = 1
+	}
+
+	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
+	resources, total := logic.DefaultResource.FindAll(context.EchoContext(ctx), paginator, "id DESC", "uid=?", user.Uid)
+
+	hasMore := int64(curPage*paginator.PerPage()) < total
+
+	return success(ctx, map[string]interface{}{
+		"resources": resources,
+		"total":    total,
+		"page":     curPage,
+		"has_more": hasMore,
+	})
+}
+
+// UserProjects 获取指定用户的开源项目列表
+// GET /api/v1/users/:username/projects?p=1
+func (UserController) UserProjects(ctx echo.Context) error {
+	username := ctx.Param("username")
+	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "username", username)
+	if user == nil || user.Uid == 0 {
+		return fail(ctx, "用户不存在")
+	}
+
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	if curPage < 1 {
+		curPage = 1
+	}
+
+	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
+	projects := logic.DefaultProject.FindAll(context.EchoContext(ctx), paginator, "id DESC", "username=?", username)
+	total := logic.DefaultProject.Count(context.EchoContext(ctx), "username=?", username)
+
+	hasMore := int64(curPage*paginator.PerPage()) < total
+
+	return success(ctx, map[string]interface{}{
+		"projects": projects,
 		"total":    total,
 		"page":     curPage,
 		"has_more": hasMore,
