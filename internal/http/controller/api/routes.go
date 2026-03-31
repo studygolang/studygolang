@@ -12,13 +12,21 @@ import (
 
 	echo "github.com/labstack/echo/v4"
 	mw "github.com/labstack/echo/v4/middleware"
+	"github.com/polaris1119/config"
 )
 
 // getAllowedOrigins 从环境变量 ALLOWED_ORIGINS 读取允许的跨域来源，
-// 格式为逗号分隔的 URL 列表，默认为开发环境 http://localhost:3000
+// 格式为逗号分隔的 URL 列表。
+// 生产环境必须配置，开发环境默认为 http://localhost:3000
 func getAllowedOrigins() []string {
 	raw := os.Getenv("ALLOWED_ORIGINS")
 	if raw == "" {
+		// 检查环境
+		env := config.ConfigFile.MustValue("global", "env", "dev")
+		if env == "prod" {
+			panic("生产环境必须配置 ALLOWED_ORIGINS 环境变量！示例：ALLOWED_ORIGINS=https://studygolang.com,https://www.studygolang.com")
+		}
+		// 开发环境使用默认值
 		return []string{"http://localhost:3000"}
 	}
 	parts := strings.Split(raw, ",")
@@ -28,6 +36,16 @@ func getAllowedOrigins() []string {
 			result = append(result, o)
 		}
 	}
+
+	// 生产环境校验：至少配置一个来源
+	if len(result) == 0 {
+		env := config.ConfigFile.MustValue("global", "env", "dev")
+		if env == "prod" {
+			panic("ALLOWED_ORIGINS 配置为空，生产环境必须至少指定一个允许的来源！")
+		}
+		return []string{"http://localhost:3000"}
+	}
+
 	return result
 }
 
@@ -42,6 +60,8 @@ func RegisterRoutes(g *echo.Group) {
 		AllowHeaders:     []string{"Content-Type", "Authorization", "X-Token"},
 		AllowCredentials: true,
 	}))
+	// CSRF 防护：写操作检查 Origin/Referer
+	g.Use(originCheck)
 
 	new(IndexController).RegisterRoute(g)
 	new(ArticleController).RegisterRoute(g)

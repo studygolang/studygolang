@@ -339,6 +339,21 @@ export interface Comment {
   floor: number
 }
 
+// 用户评论（后端 model.Comment + Objinfo）
+export interface UserComment {
+  cid: number
+  objid: number
+  objtype: number       // 1=话题 2=文章 3=资源 4=项目 5=书籍
+  content: string
+  uid: number
+  floor: number
+  ctime: string
+  objinfo?: {
+    title?: string
+    uri?: string
+  }
+}
+
 // ======================== 侧边栏相关 ========================
 export interface SiteStats {
   article: number

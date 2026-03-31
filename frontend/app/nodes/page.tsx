@@ -5,22 +5,11 @@ import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { Card, CardContent } from "@/components/ui/card"
 import type { TopicNode } from "@/lib/types"
+import { fetchAPINullable } from "@/lib/api"
 
 export const metadata: Metadata = {
   title: "话题节点 - Go语言中文网",
   description: "Go语言中文网话题节点，浏览各类技术话题分类",
-}
-
-async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
-  try {
-    const base = process.env.API_BASE_URL || "http://localhost:8090"
-    const res = await fetch(`${base}/api/v1${path}`, options)
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.code === 0 ? json.data : null
-  } catch {
-    return null
-  }
 }
 
 function getNodeColor(id: number): string {
@@ -36,7 +25,7 @@ function getNodeColor(id: number): string {
 }
 
 export default async function NodesPage() {
-  const nodes = await fetchAPI<TopicNode[]>("/nodes", { cache: "no-store" })
+  const nodes = await fetchAPINullable<TopicNode[]>("/nodes", { cache: "no-store" })
 
   const nodeList = nodes ?? []
 

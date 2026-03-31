@@ -14,25 +14,12 @@ export const metadata: Metadata = {
   description: "发现优秀的 Go 语言开源项目，分享你的作品",
 }
 
-async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
-  try {
-    const base = process.env.API_BASE_URL || "http://localhost:8090"
-    const res = await fetch(`${base}/api/v1${path}`, options)
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.code === 0 ? json.data : null
-  } catch {
-    return null
-  }
-}
-
-function formatNum(n: number): string {
-  if (n >= 1000) return (n / 1000).toFixed(1) + "k"
-  return String(n)
-}
+import { fetchAPINullable } from "@/lib/api"
+import { formatNum } from "@/lib/utils"
+import { Pagination } from "@/components/pagination"
 
 async function ProjectList({ page }: { page: number }) {
-  const data = await fetchAPI<ProjectListData>(
+  const data = await fetchAPINullable<ProjectListData>(
     `/projects?p=${page}`,
     { cache: "no-store" }
   )
@@ -131,27 +118,7 @@ async function ProjectList({ page }: { page: number }) {
       </div>
 
       {/* Pagination */}
-      <div className="mt-8 flex items-center justify-center gap-2">
-        {page > 1 && (
-          <Link
-            href={`/projects?p=${page - 1}`}
-            className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
-          >
-            上一页
-          </Link>
-        )}
-        <span className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground">
-          {page}
-        </span>
-        {data.has_more && (
-          <Link
-            href={`/projects?p=${page + 1}`}
-            className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
-          >
-            下一页
-          </Link>
-        )}
-      </div>
+      <Pagination currentPage={page} hasMore={data.has_more} buildUrl={(p) => `/projects?p=${p}`} />
     </div>
   )
 }
@@ -162,7 +129,7 @@ interface ProjectsPageProps {
 
 export default async function ProjectsPage({ searchParams }: ProjectsPageProps) {
   const params = await searchParams
-  const page = Math.max(1, parseInt(params.page || "1", 10))
+  const page = Math.max(1, parseInt(params.p || "1", 10))
 
   return (
     <PageLayout sidebar={false}>
@@ -188,7 +155,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
           </div>
         }
       >
-        <ProjectList p={page} />
+        <ProjectList page={page} />
       </Suspense>
     </PageLayout>
   )

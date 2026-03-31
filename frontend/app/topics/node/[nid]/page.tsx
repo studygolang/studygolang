@@ -7,18 +7,7 @@ import { TopicList } from "@/components/topic-list"
 import { NodeNavigation } from "@/components/node-navigation"
 import { AuthLink } from "@/components/auth-link"
 import type { TopicListData, TopicNode } from "@/lib/types"
-
-async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
-  try {
-    const base = process.env.API_BASE_URL || "http://localhost:8090"
-    const res = await fetch(`${base}/api/v1${path}`, options)
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.code === 0 ? json.data : null
-  } catch {
-    return null
-  }
-}
+import { fetchAPINullable } from "@/lib/api"
 
 interface NodeTopicsPageProps {
   params: Promise<{ nid: string }>
@@ -27,7 +16,7 @@ interface NodeTopicsPageProps {
 
 export async function generateMetadata({ params }: NodeTopicsPageProps): Promise<Metadata> {
   const { nid } = await params
-  const nodes = await fetchAPI<TopicNode[]>("/nodes", { cache: "no-store" })
+  const nodes = await fetchAPINullable<TopicNode[]>("/nodes", { cache: "no-store" })
   const node = nodes?.find((n) => String(n.id) === nid)
   const nodeName = node?.name ?? "节点"
   return {
@@ -42,8 +31,8 @@ export default async function NodeTopicsPage({ params, searchParams }: NodeTopic
   const page = Math.max(1, parseInt(p ?? "1", 10) || 1)
 
   const [topicsData, nodes] = await Promise.all([
-    fetchAPI<TopicListData>(`/topics/node/${nid}?p=${page}`, { cache: "no-store" }),
-    fetchAPI<TopicNode[]>("/nodes", { cache: "no-store" }),
+    fetchAPINullable<TopicListData>(`/topics/node/${nid}?p=${page}`, { cache: "no-store" }),
+    fetchAPINullable<TopicNode[]>("/nodes", { cache: "no-store" }),
   ])
 
   const nodeList = nodes ?? []

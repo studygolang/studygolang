@@ -4,17 +4,12 @@ import { PageHeader } from "@/components/page-header"
 import { TopicDetail } from "@/components/topic-detail"
 import type { TopicDetailData } from "@/lib/types"
 
-async function fetchFromAPI<T>(path: string, options?: RequestInit): Promise<T> {
-  const base = process.env.API_BASE_URL || 'http://localhost:8090'
-  const res = await fetch(`${base}/api/v1${path}`, options)
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  const json = await res.json()
-  return json.data
-}
+import { fetchAPI } from "@/lib/api"
+import { sanitizeHtml } from "@/lib/sanitize"
 
 async function getTopicDetail(id: string): Promise<TopicDetailData | null> {
   try {
-    return await fetchFromAPI<TopicDetailData>(
+    return await fetchAPI<TopicDetailData>(
       `/topics/${id}`,
       { next: { revalidate: 60 } }
     )
@@ -91,7 +86,7 @@ export default async function TopicDetailPage({
       {jsonLd && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(JSON.stringify(jsonLd)) }}
         />
       )}
       <PageHeader

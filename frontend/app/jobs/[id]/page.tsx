@@ -7,19 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { Job } from "@/lib/types"
+import { fetchAPINullable } from "@/lib/api"
 
 async function getJob(id: string): Promise<Job | null> {
-  try {
-    const base = process.env.API_BASE_URL || "http://localhost:8090"
-    const res = await fetch(`${base}/api/v1/jobs/${id}`, {
-      next: { revalidate: 300 },
-    })
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.code === 0 ? json.data?.job ?? null : null
-  } catch {
-    return null
-  }
+  const data = await fetchAPINullable<{ job: Job }>(`/jobs/${id}`, {
+    next: { revalidate: 300 },
+  })
+  return data?.job ?? null
 }
 
 export async function generateMetadata({

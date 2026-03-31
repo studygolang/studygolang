@@ -6,20 +6,11 @@ import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { Card, CardContent } from "@/components/ui/card"
 import type { Wiki } from "@/lib/types"
+import { fetchAPINullable } from "@/lib/api"
+import { sanitizeHtml } from "@/lib/sanitize"
+import { formatDate } from "@/lib/utils"
 
 export const revalidate = 60
-
-async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
-  try {
-    const base = process.env.API_BASE_URL || "http://localhost:8090"
-    const res = await fetch(`${base}/api/v1${path}`, options)
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.code === 0 ? json.data : null
-  } catch {
-    return null
-  }
-}
 
 interface WikiDetailPageProps {
   params: Promise<{ uri: string }>
@@ -28,7 +19,7 @@ interface WikiDetailPageProps {
 export async function generateMetadata({ params }: WikiDetailPageProps): Promise<Metadata> {
   const { uri } = await params
   // 后端返回 { wiki: {...} }，需要取 wiki 字段
-  const data = await fetchAPI<{ wiki: Wiki }>(`/wiki/${uri}`)
+  const data = await fetchAPINullable<{ wiki: Wiki }>(`/wiki/${uri}`)
   const wiki = data?.wiki
   if (!wiki) {
     return { title: "Wiki - Go语言中文网" }
@@ -39,22 +30,10 @@ export async function generateMetadata({ params }: WikiDetailPageProps): Promise
   }
 }
 
-function formatDate(dateStr: string): string {
-  try {
-    return new Date(dateStr).toLocaleDateString("zh-CN", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
-  } catch {
-    return dateStr
-  }
-}
-
 export default async function WikiDetailPage({ params }: WikiDetailPageProps) {
   const { uri } = await params
   // 后端返回 { wiki: {...} }，需要取 wiki 字段
-  const data = await fetchAPI<{ wiki: Wiki }>(`/wiki/${uri}`)
+  const data = await fetchAPINullable<{ wiki: Wiki }>(`/wiki/${uri}`)
   const wiki = data?.wiki
 
   if (!wiki) {
@@ -92,7 +71,7 @@ export default async function WikiDetailPage({ params }: WikiDetailPageProps) {
             {wiki.content ? (
               <div
                 className="prose prose-sm max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary prose-code:text-primary prose-pre:bg-muted"
-                dangerouslySetInnerHTML={{ __html: wiki.content }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(wiki.content) }}
               />
             ) : (
               <p className="text-sm text-muted-foreground">暂无内容</p>

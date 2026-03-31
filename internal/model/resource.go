@@ -47,7 +47,7 @@ type ResourceEx struct {
 	Viewnum int       `json:"viewnum"`
 	Cmtnum  int       `json:"cmtnum"`
 	Likenum int       `json:"likenum"`
-	Mtime   time.Time `json:"mtime" xorm:"<-"`
+	Mtime   time.Time `json:"-" xorm:"<-"`
 }
 
 type ResourceInfo struct {

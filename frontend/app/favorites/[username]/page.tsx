@@ -5,15 +5,10 @@ import { PageHeader } from "@/components/page-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import type { User } from "@/lib/types"
 
-interface User {
-  uid: number
-  username: string
-  name?: string
-  avatar?: string
-}
-
-interface Article {
+// favorites API 返回的精简数据类型（字段为后端实际返回的子集）
+interface FavoriteArticle {
   id: number
   title: string
   author?: string
@@ -21,7 +16,7 @@ interface Article {
   viewnum?: number
 }
 
-interface Topic {
+interface FavoriteTopic {
   tid: number
   title: string
   author?: string
@@ -29,14 +24,14 @@ interface Topic {
   view?: number
 }
 
-interface Resource {
+interface FavoriteResource {
   id: number
   title: string
   author?: string
   ctime?: string
 }
 
-interface Project {
+interface FavoriteProject {
   id: number
   name: string
   uri?: string
@@ -49,23 +44,17 @@ interface FavoriteData {
   total: number
   page: number
   has_more: boolean
-  articles?: Article[]
-  topics?: Topic[]
-  resources?: Resource[]
-  projects?: Project[]
+  articles?: FavoriteArticle[]
+  topics?: FavoriteTopic[]
+  resources?: FavoriteResource[]
+  projects?: FavoriteProject[]
 }
 
-async function fetchFromAPI<T>(path: string, options?: RequestInit): Promise<T> {
-  const base = process.env.API_BASE_URL || 'http://localhost:8090'
-  const res = await fetch(`${base}/api/v1${path}`, options)
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  const json = await res.json()
-  return json.data
-}
+import { fetchAPI } from "@/lib/api"
 
 async function getFavorites(username: string, objtype: number = 1): Promise<FavoriteData | null> {
   try {
-    return await fetchFromAPI<FavoriteData>(
+    return await fetchAPI<FavoriteData>(
       `/users/${username}/favorites?objtype=${objtype}`,
       { cache: 'no-store' }
     )

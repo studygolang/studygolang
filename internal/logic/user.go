@@ -7,6 +7,7 @@
 package logic
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -26,7 +27,7 @@ import (
 	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
-	"golang.org/x/net/context"
+	"golang.org/x/sync/errgroup"
 	"xorm.io/xorm"
 
 	. "github.com/studygolang/studygolang/db"
@@ -162,8 +163,14 @@ func (self UserLogic) Update(ctx context.Context, me *model.Me, form url.Values)
 
 	session.Commit()
 
-	// 修改用户资料，活跃度+1
-	go self.IncrUserWeight("uid", me.Uid, 1)
+	// 使缓存失效
+	_ = InvalidateUserCache(me.Uid)
+
+	// 修改用户资料，活跃度+1（非阻塞，错误不影响主流程）
+	uid := me.Uid
+	go func() {
+		DefaultUser.IncrUserWeight("uid", uid, 1)
+	}()
 
 	return
 }
@@ -175,9 +182,13 @@ func (UserLogic) UpdateUserStatus(ctx context.Context, uid, status int) error {
 	_, err := MasterDB.Table(new(model.User)).ID(uid).Update(map[string]interface{}{"status": status})
 	if err != nil {
 		objLog.Errorf("更新用户 【%d】 状态失败：%s", uid, err)
+		return err
 	}
 
-	return err
+	// 使缓存失效
+	_ = InvalidateUserCache(uid)
+
+	return nil
 }
 
 // ChangeAvatar 更换头像
@@ -187,6 +198,9 @@ func (UserLogic) ChangeAvatar(ctx context.Context, uid int, avatar string) (err 
 	if err == nil {
 		_, err = MasterDB.Table(new(model.UserActive)).ID(uid).Update(changeData)
 	}
+
+	// 使缓存失效
+	_ = InvalidateUserCache(uid)
 
 	return
 }
@@ -443,16 +457,44 @@ func (self UserLogic) Login(ctx context.Context, username, passwd string) (*mode
 		return nil, errMap[user.Status]
 	}
 
-	md5Passwd := goutils.Md5(passwd + userLogin.Passcode)
-	if md5Passwd != userLogin.Passwd {
+	// Use new unified password verification method
+	if !userLogin.VerifyPasswd(passwd) {
 		objLog.Infof("用户名 %q 填写的密码错误", username)
 		return nil, ErrPasswd
 	}
 
+	// Auto-upgrade MD5 passwords to bcrypt on successful login
+	if userLogin.PasswdType == "md5" {
+		objLog.Infof("auto-upgrading user password to bcrypt, uid: %d", userLogin.Uid)
+
+		// Save plain password for upgrade
+		userLogin.Passwd = passwd
+		if err := userLogin.GenHashedPasswd(); err != nil {
+			objLog.Errorf("failed to upgrade password to bcrypt: %v", err)
+			// Don't fail login, just log the error
+		} else {
+			// Update database with new bcrypt password
+			_, err = MasterDB.ID(userLogin.Uid).Cols("passwd", "passwd_type", "passcode").Update(userLogin)
+			if err != nil {
+				objLog.Errorf("failed to update password in database: %v", err)
+			}
+		}
+	}
+
+	// Capture values before they escape the request scope
+	loginUid := userLogin.Uid
+	loginIP := ctx.Value("ip")
+	g, gCtx := errgroup.WithContext(context.Background())
+	g.Go(func() error {
+		return self.IncrUserWeightWithContext(gCtx, "uid", loginUid, 1)
+	})
+	g.Go(func() error {
+		return self.RecordLoginWithContext(gCtx, username, loginIP)
+	})
 	go func() {
-		self.IncrUserWeight("uid", userLogin.Uid, 1)
-		ip := ctx.Value("ip")
-		self.RecordLogin(username, ip)
+		if err := g.Wait(); err != nil {
+			logger.Errorf("login async tasks error: %v", err)
+		}
 	}()
 
 	return userLogin, nil
@@ -473,23 +515,31 @@ func (self UserLogic) UpdatePasswd(ctx context.Context, username, curPasswd, new
 		}
 	}
 
+	uid := userLogin.Uid // 保存 uid 用于缓存失效
+
 	userLogin = &model.UserLogin{
 		Passwd: newPasswd,
 	}
-	err = userLogin.GenMd5Passwd()
+	// Use bcrypt for new passwords
+	err = userLogin.GenHashedPasswd()
 	if err != nil {
 		return err.Error(), err
 	}
 
 	changeData := map[string]interface{}{
-		"passwd":   userLogin.Passwd,
-		"passcode": userLogin.Passcode,
+		"passwd":     userLogin.Passwd,
+		"passwd_type": userLogin.PasswdType,
+		"passcode":   userLogin.Passcode,
 	}
 	_, err = MasterDB.Table(userLogin).Where("username=?", username).Update(changeData)
 	if err != nil {
 		logger.Errorf("用户 %s 更新密码错误：%s", username, err)
 		return "对不起，内部服务错误！", err
 	}
+
+	// 使缓存失效
+	_ = InvalidateUserCache(uid)
+
 	return "", nil
 }
 
@@ -506,23 +556,36 @@ func (UserLogic) HasPasswd(ctx context.Context, uid int) bool {
 func (self UserLogic) ResetPasswd(ctx context.Context, email, passwd string) (string, error) {
 	objLog := GetLogger(ctx)
 
+	// 先获取用户 uid 用于缓存失效
+	userLoginInfo := &model.UserLogin{}
+	_, err := MasterDB.Where("email=?", email).Get(userLoginInfo)
+	if err != nil {
+		return "用户不存在", err
+	}
+
 	userLogin := &model.UserLogin{
 		Passwd: passwd,
 	}
-	err := userLogin.GenMd5Passwd()
+	// Use bcrypt for reset passwords
+	err = userLogin.GenHashedPasswd()
 	if err != nil {
 		return err.Error(), err
 	}
 
 	changeData := map[string]interface{}{
-		"passwd":   userLogin.Passwd,
-		"passcode": userLogin.Passcode,
+		"passwd":     userLogin.Passwd,
+		"passwd_type": userLogin.PasswdType,
+		"passcode":   userLogin.Passcode,
 	}
 	_, err = MasterDB.Table(userLogin).Where("email=?", email).Update(changeData)
 	if err != nil {
 		objLog.Errorf("用户 %s 更新密码错误：%s", email, err)
 		return "对不起，内部服务错误！", err
 	}
+
+	// 使缓存失效
+	_ = InvalidateUserCache(userLoginInfo.Uid)
+
 	return "", nil
 }
 
@@ -548,6 +611,9 @@ func (self UserLogic) Activate(ctx context.Context, email, uuid string, timestam
 		return nil, err
 	}
 
+	// 使缓存失效
+	_ = InvalidateUserCache(user.Uid)
+
 	return user, nil
 }
 
@@ -559,8 +625,31 @@ func (UserLogic) IncrUserWeight(field string, value interface{}, weight int) {
 	}
 }
 
+// IncrUserWeightWithContext is a context-aware version of IncrUserWeight
+func (ul UserLogic) IncrUserWeightWithContext(ctx context.Context, field string, value interface{}, weight int) error {
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+		ul.IncrUserWeight(field, value, weight)
+		return nil
+	}
+}
+
 func (UserLogic) DecrUserWeight(field string, value interface{}, divide int) {
 	if divide <= 0 {
+		return
+	}
+
+	// 白名单验证 field 参数，防止 SQL 注入
+	allowedFields := map[string]bool{
+		"uid":      true,
+		"username": true,
+		"email":    true,
+	}
+
+	if !allowedFields[field] {
+		logger.Errorln("DecrUserWeight: invalid field:", field)
 		return
 	}
 
@@ -587,6 +676,16 @@ func (UserLogic) RecordLogin(username string, ipinter interface{}) error {
 		logger.Errorf("记录用户 %q 登录错误：%s", username, err)
 	}
 	return err
+}
+
+// RecordLoginWithContext is a context-aware version of RecordLogin
+func (ul UserLogic) RecordLoginWithContext(ctx context.Context, username string, ipinter interface{}) error {
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+		return ul.RecordLogin(username, ipinter)
+	}
 }
 
 // FindActiveUsers 获得活跃用户
@@ -754,7 +853,8 @@ func (UserLogic) doCreateUser(ctx context.Context, session *xorm.Session, user *
 	}
 	if len(passwd) > 0 {
 		userLogin.Passwd = passwd[0]
-		err = userLogin.GenMd5Passwd()
+		// Use bcrypt for new users
+		err = userLogin.GenHashedPasswd()
 		if err != nil {
 			return err
 		}

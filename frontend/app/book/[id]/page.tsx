@@ -9,20 +9,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import type { Book } from "@/lib/types"
+import { fetchAPINullable } from "@/lib/api"
+import { sanitizeHtml } from "@/lib/sanitize"
 
 export const revalidate = 60
-
-async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
-  try {
-    const base = process.env.API_BASE_URL || "http://localhost:8090"
-    const res = await fetch(`${base}/api/v1${path}`, options)
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.code === 0 ? json.data : null
-  } catch {
-    return null
-  }
-}
 
 interface BookDetailPageProps {
   params: Promise<{ id: string }>
@@ -31,7 +21,7 @@ interface BookDetailPageProps {
 export async function generateMetadata({ params }: BookDetailPageProps): Promise<Metadata> {
   const { id } = await params
   // 后端返回 { book: {...} }，需要取 book 字段
-  const data = await fetchAPI<{ book: Book }>(`/books/${id}`)
+  const data = await fetchAPINullable<{ book: Book }>(`/books/${id}`)
   const book = data?.book
   if (!book) {
     return { title: "书籍详情 - Go语言中文网" }
@@ -56,7 +46,7 @@ function getBookColor(id: number): string {
 export default async function BookDetailPage({ params }: BookDetailPageProps) {
   const { id } = await params
   // 后端返回 { book: {...} }，需要取 book 字段
-  const data = await fetchAPI<{ book: Book }>(`/books/${id}`)
+  const data = await fetchAPINullable<{ book: Book }>(`/books/${id}`)
   const book = data?.book
 
   if (!book) {
@@ -87,7 +77,7 @@ export default async function BookDetailPage({ params }: BookDetailPageProps) {
     <PageLayout sidebar={false}>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(JSON.stringify(jsonLd)) }}
       />
 
       <PageHeader

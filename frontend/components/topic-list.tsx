@@ -12,16 +12,10 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import type { Topic } from "@/lib/types"
+import { formatNum } from "@/lib/utils"
 
 interface TopicListProps {
   topics?: Topic[]
-}
-
-function formatNumber(num: number): string {
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1) + "k"
-  }
-  return num.toString()
 }
 
 function formatTime(ctime: string): string {
@@ -98,7 +92,7 @@ export function TopicList({ topics = fallbackTopics }: TopicListProps) {
               </span>
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Eye className="h-3 w-3" />
-                {formatNumber(topic.view || topic.viewnum || 0)}
+                {formatNum(topic.view || topic.viewnum || 0)}
               </span>
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
                 <MessageSquare className="h-3 w-3" />

@@ -60,10 +60,13 @@ func AutoLogin() echo.MiddlewareFunc {
 			if ok {
 				getCurrentUser(username)
 			} else {
-				// App（手机） 登录
-				uid, ok := ParseToken(ctx.FormValue("token"))
-				if ok {
-					getCurrentUser(uid)
+				// App（手机） 登录：支持 JWT 和旧版 MD5 Token 双轨验证
+				rawToken := ctx.FormValue("token")
+				if rawToken != "" {
+					uid, _, valid := ValidateTokenAuto(rawToken)
+					if valid && uid > 0 {
+						getCurrentUser(uid)
+					}
 				}
 			}
 
@@ -131,8 +134,8 @@ func AppNeedLogin() echo.MiddlewareFunc {
 		return func(ctx echo.Context) error {
 			user, ok := ctx.Get("user").(*model.Me)
 			if ok {
-				// 校验 token 是否有效
-				if !ValidateToken(ctx.QueryParam("token")) {
+				// 校验 token 是否有效（支持 JWT 和旧版 MD5 Token 双轨验证）
+				if _, _, valid := ValidateTokenAuto(ctx.QueryParam("token")); !valid {
 					return outputAppJSON(ctx, NeedReLoginCode, "token无效，请重新登录！")
 				}
 

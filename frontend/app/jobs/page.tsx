@@ -7,26 +7,15 @@ import { PageHeader } from "@/components/page-header"
 import { Button } from "@/components/ui/button"
 import { JobList } from "@/components/job-list"
 import type { JobListData } from "@/lib/types"
+import { fetchAPINullable } from "@/lib/api"
 
 export const metadata: Metadata = {
   title: "酷工作 - Go语言中文网",
   description: "Go 语言相关职位招聘信息，连接 Gopher 与优质企业",
 }
 
-async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
-  try {
-    const base = process.env.API_BASE_URL || "http://localhost:8090"
-    const res = await fetch(`${base}/api/v1${path}`, options)
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.code === 0 ? json.data : null
-  } catch {
-    return null
-  }
-}
-
 async function JobItems({ page }: { page: number }) {
-  const data = await fetchAPI<JobListData>(`/jobs?p=${page}`, { cache: "no-store" })
+  const data = await fetchAPINullable<JobListData>(`/jobs?p=${page}`, { cache: "no-store" })
   const jobs = data?.jobs ?? []
   const hasMore = data?.has_more ?? false
   const total = data?.total ?? 0

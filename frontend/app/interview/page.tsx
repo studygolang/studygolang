@@ -7,6 +7,8 @@ import { PageHeader } from "@/components/page-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import type { InterviewListData } from "@/lib/types"
+import { fetchAPINullable } from "@/lib/api"
+import { sanitizeHtml } from "@/lib/sanitize"
 
 export const metadata: Metadata = {
   title: "Go 面试题 - Go语言中文网",
@@ -20,20 +22,8 @@ const levelColors = [
   "bg-red-100 text-red-700",
 ]
 
-async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
-  try {
-    const base = process.env.API_BASE_URL || "http://localhost:8090"
-    const res = await fetch(`${base}/api/v1${path}`, options)
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.code === 0 ? json.data : null
-  } catch {
-    return null
-  }
-}
-
 async function InterviewItems({ page }: { page: number }) {
-  const data = await fetchAPI<InterviewListData>(
+  const data = await fetchAPINullable<InterviewListData>(
     `/interviews?p=${page}`,
     { cache: "no-store" }
   )
@@ -67,7 +57,7 @@ async function InterviewItems({ page }: { page: number }) {
                       href={`/interview/question/${q.show_sn}`}
                       className="text-sm font-medium text-foreground transition-colors group-hover:text-primary line-clamp-2"
                     >
-                      <span dangerouslySetInnerHTML={{ __html: q.question }} />
+                      <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(q.question) }} />
                     </Link>
                   </div>
                   <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">

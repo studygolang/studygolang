@@ -14,27 +14,12 @@ import { PageHeader } from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import type { Resource, Comment } from "@/lib/types"
-
-async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
-  try {
-    const base = process.env.API_BASE_URL || "http://localhost:8090"
-    const res = await fetch(`${base}/api/v1${path}`, options)
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.code === 0 ? json.data : null
-  } catch {
-    return null
-  }
-}
+import { fetchAPINullable } from "@/lib/api"
+import { formatNum } from "@/lib/utils"
 
 interface ResourceDetailData {
   resource: Resource
   comments?: Comment[]
-}
-
-function formatNum(n: number): string {
-  if (n >= 1000) return (n / 1000).toFixed(1) + "k"
-  return String(n)
 }
 
 interface ResourceDetailPageProps {
@@ -43,7 +28,7 @@ interface ResourceDetailPageProps {
 
 export async function generateMetadata({ params }: ResourceDetailPageProps): Promise<Metadata> {
   const { id } = await params
-  const data = await fetchAPI<ResourceDetailData>(
+  const data = await fetchAPINullable<ResourceDetailData>(
     `/resources/${id}`,
     { next: { revalidate: 60 } }
   )
@@ -66,7 +51,7 @@ export async function generateMetadata({ params }: ResourceDetailPageProps): Pro
 
 export default async function ResourceDetailPage({ params }: ResourceDetailPageProps) {
   const { id } = await params
-  const data = await fetchAPI<ResourceDetailData>(
+  const data = await fetchAPINullable<ResourceDetailData>(
     `/resources/${id}`,
     { next: { revalidate: 60 } }
   )

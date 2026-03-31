@@ -9,17 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { SearchBox } from "./search-box"
 import type { SearchData } from "@/lib/types"
 
-async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
-  try {
-    const base = process.env.API_BASE_URL || "http://localhost:8090"
-    const res = await fetch(`${base}/api/v1${path}`, options)
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.code === 0 ? json.data : null
-  } catch {
-    return null
-  }
-}
+import { fetchAPINullable } from "@/lib/api"
 
 // objtype 对应后端 model 中的类型常量
 // TypeTopic=1, TypeArticle=2, TypeResource=3, TypeProject=4
@@ -76,7 +66,7 @@ async function SearchResults({ q, page }: { q: string; page: number }) {
     )
   }
 
-  const data = await fetchAPI<SearchData>(
+  const data = await fetchAPINullable<SearchData>(
     `/search?q=${encodeURIComponent(q)}&p=${page}`,
     { cache: "no-store" }
   )
@@ -177,7 +167,7 @@ async function SearchResults({ q, page }: { q: string; page: number }) {
         <span className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground">
           {page}
         </span>
-        {data.results.length >= 20 && (
+        {data.has_more && (
           <Link
             href={`/search?q=${encodeURIComponent(q)}&page=${page + 1}`}
             className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"

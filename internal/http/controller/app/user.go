@@ -68,8 +68,15 @@ func (UserController) Login(ctx echo.Context) error {
 		return fail(ctx, err.Error())
 	}
 
+	// 使用新的 JWT Token
+	token, err := GenJWTToken(userLogin.Uid, userLogin.Username)
+	if err != nil {
+		// 回退到旧 Token
+		token = GenToken(userLogin.Uid)
+	}
+
 	data := map[string]interface{}{
-		"token":    GenToken(userLogin.Uid),
+		"token":    token,
 		"uid":      userLogin.Uid,
 		"username": userLogin.Username,
 	}

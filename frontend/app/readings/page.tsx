@@ -6,22 +6,11 @@ import { PageHeader } from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import type { ReadingListData } from "@/lib/types"
+import { fetchAPINullable } from "@/lib/api"
 
 export const metadata: Metadata = {
   title: "技术晨读 - Go语言中文网",
   description: "每日精选技术文章，开启你的技术早读时间",
-}
-
-async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
-  try {
-    const base = process.env.API_BASE_URL || "http://localhost:8090"
-    const res = await fetch(`${base}/api/v1${path}`, options)
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.code === 0 ? json.data : null
-  } catch {
-    return null
-  }
 }
 
 // 后端 MorningReading 无 lang 字段
@@ -42,7 +31,7 @@ export default async function ReadingsPage({ searchParams }: ReadingsPageProps) 
 
   // 后端参数名为 lastid（非 id）
   const apiPath = idParam ? `/readings?lastid=${idParam}` : "/readings"
-  const data = await fetchAPI<ReadingListData>(apiPath, { cache: "no-store" })
+  const data = await fetchAPINullable<ReadingListData>(apiPath, { cache: "no-store" })
 
   return (
     <PageLayout sidebar={false}>

@@ -13,6 +13,7 @@ import {
 } from "@/components/sidebar-widgets"
 import { NodeNavigation } from "@/components/node-navigation"
 import type { Reading, SiteStats, Comment, User, FriendLink, TopicNode } from "@/lib/types"
+import { fetchAPINullable } from "@/lib/api"
 
 interface PageLayoutProps {
   children: React.ReactNode
@@ -22,32 +23,20 @@ interface PageLayoutProps {
   sidebarContent?: React.ReactNode
 }
 
-async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | undefined> {
-  try {
-    const base = process.env.API_BASE_URL || "http://localhost:8090"
-    const res = await fetch(`${base}/api/v1${path}`, options)
-    if (!res.ok) return undefined
-    const json = await res.json()
-    return json.code === 0 ? (json.data as T) : undefined
-  } catch {
-    return undefined
-  }
-}
-
 // 异步子组件：自动获取全部 sidebar 数据
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const AutoSidebar: () => any = async function AutoSidebar() {
   const [statsRes, readingsRes, commentsRes, activeUsersRes, friendLinksRes, nodesRes] =
     await Promise.allSettled([
-      fetchAPI<SiteStats>("/stat/site", { cache: "no-store" }),
-      fetchAPI<{ readings: Reading[] }>("/sidebar/readings/recent?limit=7", { cache: "no-store" }),
-      fetchAPI<{ comments: Comment[] }>("/sidebar/comments/recent", { cache: "no-store" }),
-      fetchAPI<{ users: User[] }>("/sidebar/users/active", { cache: "no-store" }),
-      fetchAPI<{ links: FriendLink[] }>("/sidebar/friend/links", { cache: "no-store" }),
-      fetchAPI<{ nodes: TopicNode[] }>("/sidebar/nodes/hot", { cache: "no-store" }),
+      fetchAPINullable<SiteStats>("/stat/site", { cache: "no-store" }),
+      fetchAPINullable<{ readings: Reading[] }>("/sidebar/readings/recent?limit=7", { cache: "no-store" }),
+      fetchAPINullable<{ comments: Comment[] }>("/sidebar/comments/recent", { cache: "no-store" }),
+      fetchAPINullable<{ users: User[] }>("/sidebar/users/active", { cache: "no-store" }),
+      fetchAPINullable<{ links: FriendLink[] }>("/sidebar/friend/links", { cache: "no-store" }),
+      fetchAPINullable<{ nodes: TopicNode[] }>("/sidebar/nodes/hot", { cache: "no-store" }),
     ])
 
-  const stats = statsRes.status === "fulfilled" ? statsRes.value : undefined
+  const stats = statsRes.status === "fulfilled" ? statsRes.value ?? undefined : undefined
   const readings = readingsRes.status === "fulfilled" ? (readingsRes.value?.readings ?? []) : []
   const comments = commentsRes.status === "fulfilled" ? (commentsRes.value?.comments ?? []) : []
   const activeUsers = activeUsersRes.status === "fulfilled" ? (activeUsersRes.value?.users ?? []) : []

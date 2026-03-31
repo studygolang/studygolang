@@ -9,10 +9,13 @@ package http
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"html/template"
 	"math"
 	"math/rand"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -23,6 +26,7 @@ import (
 	"github.com/studygolang/studygolang/internal/model"
 	"github.com/studygolang/studygolang/util"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/sessions"
 	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/config"
@@ -433,10 +437,45 @@ func CheckIsHttps(ctx echo.Context) bool {
 
 ///////////////////////////////// APP 相关 //////////////////////////////
 
-const (
-	TokenSalt       = "b3%JFOykZx_golang_polaris"
+var (
+	TokenSalt       string // 保留用于 MD5 Token（兼容旧 Token）
+	JWTSecret       []byte // 新增 JWT Secret
 	NeedReLoginCode = 600
 )
+
+// Claims JWT claims 结构
+type Claims struct {
+	UID      int    `json:"uid"`
+	Username string `json:"username"`
+	jwt.RegisteredClaims
+}
+
+func init() {
+	// TokenSalt（兼容旧 Token）
+	TokenSalt = os.Getenv("TOKEN_SALT")
+	if TokenSalt == "" {
+		TokenSalt = config.ConfigFile.MustValue("security", "token_salt")
+	}
+	if TokenSalt == "" {
+		panic("security.token_salt not configured! Please set TOKEN_SALT environment variable or config/env.ini")
+	}
+
+	// JWTSecret（新 Token）
+	jwtSecretStr := os.Getenv("JWT_SECRET")
+	if jwtSecretStr == "" {
+		jwtSecretStr = config.ConfigFile.MustValue("security", "jwt_secret", "")
+	}
+	if jwtSecretStr == "" {
+		// 生产环境必须配置
+		env := config.ConfigFile.MustValue("global", "env", "dev")
+		if env == "prod" {
+			panic("JWT_SECRET must be set in production!")
+		}
+		// 开发环境使用 TokenSalt 作为后备
+		jwtSecretStr = TokenSalt
+	}
+	JWTSecret = []byte(jwtSecretStr)
+}
 
 func ParseToken(token string) (int, bool) {
 	if len(token) < 32 {
@@ -450,17 +489,44 @@ func ParseToken(token string) (int, bool) {
 	return goutils.MustInt(token[pos+3:]), true
 }
 
+// ValidateToken 验证 token 的完整性和有效性
+// token 格式: {expireTime(10位)}{md5(32位)}uid{uid}
+// MD5 = MD5(expireTime + uid + TokenSalt)
 func ValidateToken(token string) bool {
-	_, ok := ParseToken(token)
-	if !ok {
+	// 1. 解析 uid
+	uid, ok := ParseToken(token)
+	if !ok || uid == 0 {
+		logger.Debugln("ValidateToken: parse uid failed")
 		return false
 	}
 
-	expireTime := time.Unix(goutils.MustInt64(token[:10]), 0)
-	if time.Now().Before(expireTime) {
-		return true
+	// 2. 提取各部分
+	if len(token) < 42 { // 10(expireTime) + 32(md5) = 42
+		logger.Debugln("ValidateToken: token length invalid")
+		return false
 	}
-	return false
+
+	expireTimeStr := token[:10]
+	expectedMD5 := token[10:42]
+
+	// 3. 验证过期时间
+	expireTime := time.Unix(goutils.MustInt64(expireTimeStr), 0)
+	if time.Now().After(expireTime) {
+		logger.Debugln("ValidateToken: token expired")
+		return false
+	}
+
+	// 4. 验证签名
+	// 重新计算 MD5签名
+	buffer := goutils.NewBuffer().Append(expireTimeStr).Append(uid).Append(TokenSalt)
+	actualMD5 := goutils.Md5(buffer.String())
+
+	if actualMD5 != expectedMD5 {
+		logger.Errorln("ValidateToken: signature mismatch, possible token forgery! uid:", uid)
+		return false
+	}
+
+	return true
 }
 
 func GenToken(uid int) string {
@@ -472,6 +538,62 @@ func GenToken(uid int) string {
 
 	buffer = goutils.NewBuffer().Append(expireTime).Append(md5).Append("uid").Append(uid)
 	return buffer.String()
+}
+
+// GenJWTToken generates a JWT token for the given uid and username.
+// New code should use this instead of GenToken.
+func GenJWTToken(uid int, username string) (string, error) {
+	claims := Claims{
+		UID:      uid,
+		Username: username,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(30 * 24 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			Issuer:    "studygolang",
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(JWTSecret)
+}
+
+// ValidateJWTToken validates a JWT token string and returns the claims.
+func ValidateJWTToken(tokenString string) (*Claims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return JWTSecret, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, errors.New("invalid token")
+}
+
+// ValidateTokenAuto auto-detects the token type (JWT or legacy MD5) and validates it.
+// Returns uid, username, and whether the token is valid.
+// For legacy MD5 tokens, username will be empty.
+func ValidateTokenAuto(token string) (uid int, username string, valid bool) {
+	// try JWT first (new token starts with "eyJ")
+	if claims, err := ValidateJWTToken(token); err == nil {
+		return claims.UID, claims.Username, true
+	}
+
+	// fall back to legacy MD5 token
+	if ValidateToken(token) {
+		parsedUID, ok := ParseToken(token)
+		if ok && parsedUID > 0 {
+			return parsedUID, "", true
+		}
+	}
+
+	return 0, "", false
 }
 
 func AccessControl(ctx echo.Context) {

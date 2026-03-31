@@ -4,6 +4,8 @@ import { BookOpen, Clock } from "lucide-react"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import type { Wiki } from "@/lib/types"
+import { fetchAPINullable } from "@/lib/api"
+import { formatDate } from "@/lib/utils"
 
 interface WikiListData {
   wikis: Wiki[]
@@ -20,33 +22,9 @@ export const metadata: Metadata = {
   description: "Go语言中文网 Wiki，汇集 Go 语言相关知识文档",
 }
 
-async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
-  try {
-    const base = process.env.API_BASE_URL || "http://localhost:8090"
-    const res = await fetch(`${base}/api/v1${path}`, options)
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.code === 0 ? json.data : null
-  } catch {
-    return null
-  }
-}
-
-function formatDate(dateStr: string): string {
-  try {
-    return new Date(dateStr).toLocaleDateString("zh-CN", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
-  } catch {
-    return dateStr
-  }
-}
-
 export default async function WikiListPage() {
   // 后端返回 { wikis: [...], page: {...} }，需要取 wikis 字段
-  const wikisData = await fetchAPI<WikiListData>("/wiki", { cache: "no-store" })
+  const wikisData = await fetchAPINullable<WikiListData>("/wiki", { cache: "no-store" })
 
   const wikiList: Wiki[] = wikisData?.wikis ?? []
 

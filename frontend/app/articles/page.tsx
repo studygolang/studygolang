@@ -12,17 +12,11 @@ export const metadata = {
   description: "Go语言高质量技术文章，涵盖基础教程、实战经验、源码解析等，助力 Gopher 成长",
 }
 
-async function fetchFromAPI<T>(path: string, options?: RequestInit): Promise<T> {
-  const base = process.env.API_BASE_URL || 'http://localhost:8090'
-  const res = await fetch(`${base}/api/v1${path}`, options)
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  const json = await res.json()
-  return json.data
-}
+import { fetchAPI } from "@/lib/api"
 
 async function getArticles(page: number) {
   try {
-    return await fetchFromAPI<ArticleListData>(
+    return await fetchAPI<ArticleListData>(
       `/articles?p=${page}`,
       { cache: 'no-store' }
     )

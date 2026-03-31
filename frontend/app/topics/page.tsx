@@ -13,21 +13,15 @@ export const metadata: Metadata = {
   description: "Go语言中文社区主题讨论，分享技术经验，交流开发心得",
 }
 
-async function fetchFromAPI<T>(path: string, options?: RequestInit): Promise<T> {
-  const base = process.env.API_BASE_URL || 'http://localhost:8090'
-  const res = await fetch(`${base}/api/v1${path}`, options)
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  const json = await res.json()
-  return json.data
-}
+import { fetchAPI } from "@/lib/api"
 
 async function getTopicsData(tab: string, page: number) {
   const [topicsResult, nodesResult] = await Promise.allSettled([
-    fetchFromAPI<TopicListData>(
+    fetchAPI<TopicListData>(
       `/topics?tab=${tab}&p=${page}`,
       { cache: 'no-store' }
     ),
-    fetchFromAPI<TopicNode[]>('/nodes', { cache: 'no-store' }),
+    fetchAPI<TopicNode[]>('/nodes', { cache: 'no-store' }),
   ])
 
   return {

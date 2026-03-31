@@ -19,23 +19,9 @@ import { PageHeader } from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import type { ProjectDetailData } from "@/lib/types"
-
-async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
-  try {
-    const base = process.env.API_BASE_URL || "http://localhost:8090"
-    const res = await fetch(`${base}/api/v1${path}`, options)
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.code === 0 ? json.data : null
-  } catch {
-    return null
-  }
-}
-
-function formatNum(n: number): string {
-  if (n >= 1000) return (n / 1000).toFixed(1) + "k"
-  return String(n)
-}
+import { fetchAPINullable } from "@/lib/api"
+import { formatNum } from "@/lib/utils"
+import { sanitizeHtml } from "@/lib/sanitize"
 
 interface ProjectPageProps {
   params: Promise<{ uri: string }>
@@ -43,7 +29,7 @@ interface ProjectPageProps {
 
 export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
   const { uri } = await params
-  const data = await fetchAPI<ProjectDetailData>(
+  const data = await fetchAPINullable<ProjectDetailData>(
     `/projects/${uri}`,
     { next: { revalidate: 60 } }
   )
@@ -66,7 +52,7 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
 
 export default async function ProjectDetailPage({ params }: ProjectPageProps) {
   const { uri } = await params
-  const data = await fetchAPI<ProjectDetailData>(
+  const data = await fetchAPINullable<ProjectDetailData>(
     `/projects/${uri}`,
     { next: { revalidate: 60 } }
   )
@@ -95,7 +81,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
     <PageLayout>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(JSON.stringify(jsonLd)) }}
       />
 
       <PageHeader

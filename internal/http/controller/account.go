@@ -356,9 +356,6 @@ func (AccountController) ChangePwd(ctx echo.Context) error {
 	return success(ctx, nil)
 }
 
-// 保存uuid和email的对应关系（TODO:重启如何处理，有效期问题）
-var resetPwdMap = map[string]string{}
-
 // ForgetPasswd 忘记密码
 func (AccountController) ForgetPasswd(ctx echo.Context) error {
 	if _, ok := ctx.Get("user").(*model.Me); ok {
@@ -378,8 +375,14 @@ func (AccountController) ForgetPasswd(ctx echo.Context) error {
 		var uuid string
 		for {
 			uuid = guuid.NewV4().String()
-			if _, ok := resetPwdMap[uuid]; !ok {
-				resetPwdMap[uuid] = email
+			// 检查 Redis 中是否已存在
+			if logic.GetResetPwdUUID(uuid) == "" {
+				// 存储到 Redis，TTL 1小时
+				if err := logic.SetResetPwdUUID(uuid, email); err != nil {
+					logger.Errorln("SetResetPwdUUID error:", err)
+					data["error"] = "系统错误，请稍后重试"
+					return render(ctx, contentTpl, data)
+				}
 				break
 			}
 			logger.Infoln("forget passwd GenUUID 冲突....")
@@ -419,8 +422,9 @@ func (AccountController) ResetPasswd(ctx echo.Context) error {
 	method := ctx.Request().Method
 
 	passwd := ctx.FormValue("passwd")
-	email, ok := resetPwdMap[uuid]
-	if !ok {
+	// 从 Redis 获取邮箱
+	email := logic.GetResetPwdUUID(uuid)
+	if email == "" {
 		// 是提交重置密码
 		if passwd != "" && method == "POST" {
 			data["error"] = template.HTML(`非法请求！<p>将在<span id="jumpTo">3</span>秒后跳转到<a href="/" id="jump_url">首页</a></p>`)
@@ -445,6 +449,8 @@ func (AccountController) ResetPasswd(ctx echo.Context) error {
 			if err != nil {
 				data["error"] = "对不起，服务器错误，请重试！"
 			} else {
+				// 删除 UUID 映射
+				_ = logic.DelResetPwdUUID(uuid)
 				data["success"] = template.HTML(`密码重置成功，<p>将在<span id="jumpTo">3</span>秒后跳转到<a href="/account/login" id="jump_url">登录</a>页面</p>`)
 			}
 		}

@@ -7,6 +7,10 @@
 package api
 
 import (
+	"fmt"
+	"net/url"
+	"strings"
+
 	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/internal/http"
 	"github.com/studygolang/studygolang/internal/logic"
@@ -132,18 +136,25 @@ func (MessageController) Send(ctx echo.Context) error {
 // Delete 删除消息（支持 Cookie 和 X-Token header）
 // 查询参数：type=system|inbox|outbox
 func (MessageController) Delete(ctx echo.Context) error {
-	token := getAuthToken(ctx)
-	if token == "" {
-		return fail(ctx, "未登录", NeedReLoginCode)
+	uid, err := parseAuthUID(ctx)
+	if err != nil {
+		return err
 	}
 
-	if !ValidateToken(token) {
-		return fail(ctx, "token 已过期，请重新登录", NeedReLoginCode)
+	// CSRF 保护：验证 Origin 或 Referer 头
+	origin := ctx.Request().Header.Get("Origin")
+	referer := ctx.Request().Header.Get("Referer")
+	if origin == "" && referer == "" {
+		return fail(ctx, "缺少 Origin 或 Referer 头", 403)
 	}
 
-	uid, ok := ParseToken(token)
-	if !ok || uid == 0 {
-		return fail(ctx, "无效的 token", NeedReLoginCode)
+	// 验证来源是否合法（对照 ALLOWED_ORIGINS 白名单）
+	allowedOrigins := getAllowedOrigins()
+	if origin != "" && !isOriginAllowed(origin, allowedOrigins) {
+		return fail(ctx, "非法的跨域请求", 403)
+	}
+	if referer != "" && !isOriginAllowed(referer, allowedOrigins) {
+		return fail(ctx, "非法的跨域请求", 403)
 	}
 
 	id := ctx.Param("id")
@@ -182,7 +193,7 @@ func (MessageController) Delete(ctx echo.Context) error {
 		}
 	}
 
-	ok = logic.DefaultMessage.DeleteMessage(context.EchoContext(ctx), id, msgtype)
+	ok := logic.DefaultMessage.DeleteMessage(context.EchoContext(ctx), id, msgtype)
 	if !ok {
 		return fail(ctx, "删除失败，请稍后重试")
 	}
@@ -190,4 +201,55 @@ func (MessageController) Delete(ctx echo.Context) error {
 	return success(ctx, map[string]interface{}{
 		"message": "删除成功",
 	})
+}
+
+// isOriginAllowed 检查 origin 是否在白名单中
+func isOriginAllowed(originOrReferer string, allowedOrigins []string) bool {
+	parsed, err := url.Parse(originOrReferer)
+	if err != nil {
+		return false
+	}
+
+	// 提取 origin（scheme + host + port）
+	origin := fmt.Sprintf("%s://%s", parsed.Scheme, parsed.Host)
+
+	for _, allowed := range allowedOrigins {
+		// 精确匹配
+		if origin == allowed {
+			return true
+		}
+		// 支持通配符子域名（如 *.studygolang.com）
+		if strings.HasPrefix(allowed, "*.") {
+			domain := allowed[2:] // 去掉 "*."
+			if strings.HasSuffix(parsed.Host, domain) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+// isSameOrigin 检查请求来源是否与目标主机同源（已废弃，使用 isOriginAllowed）
+// Deprecated: 使用 isOriginAllowed 对照白名单验证
+func isSameOrigin(originOrReferer, targetHost string) bool {
+	// 简单检查：提取 origin/referer 中的 host 部分
+	// 格式：http(s)://host:port/path
+	parsed, err := url.Parse(originOrReferer)
+	if err != nil {
+		return false
+	}
+
+	// 比较主机名（忽略端口）
+	originHost := parsed.Host
+	if strings.Contains(originHost, ":") {
+		originHost = strings.Split(originHost, ":")[0]
+	}
+
+	targetHostClean := targetHost
+	if strings.Contains(targetHostClean, ":") {
+		targetHostClean = strings.Split(targetHostClean, ":")[0]
+	}
+
+	return originHost == targetHostClean
 }

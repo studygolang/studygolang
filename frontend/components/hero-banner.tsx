@@ -3,18 +3,12 @@
 import Link from "next/link"
 import { Sparkles, Code2, Users, BookOpen } from "lucide-react"
 import type { SiteStats } from "@/lib/types"
+import { formatNum } from "@/lib/utils"
 
 // TODO: 后端实现 GET /api/v1/announcements 接口后，接入真实公告数据
 
 interface HeroBannerProps {
   stats?: SiteStats
-}
-
-function formatNum(n: number | undefined): string {
-  if (n == null) return "—"
-  if (n >= 10000) return (n / 10000).toFixed(1) + "万"
-  if (n >= 1000) return (n / 1000).toFixed(1) + "k"
-  return String(n)
 }
 
 export function HeroBanner({ stats }: HeroBannerProps) {
@@ -37,15 +31,15 @@ export function HeroBanner({ stats }: HeroBannerProps) {
           <div className="hidden items-center gap-5 sm:flex">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Users className="h-3.5 w-3.5" />
-              <span>{formatNum(stats?.user)} 会员</span>
+              <span>{formatNum(stats?.user ?? 0)} 会员</span>
             </div>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <BookOpen className="h-3.5 w-3.5" />
-              <span>{formatNum(stats?.topic)} 主题</span>
+              <span>{formatNum(stats?.topic ?? 0)} 主题</span>
             </div>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Code2 className="h-3.5 w-3.5" />
-              <span>{formatNum(stats?.project)} 项目</span>
+              <span>{formatNum(stats?.project ?? 0)} 项目</span>
             </div>
           </div>
         </div>

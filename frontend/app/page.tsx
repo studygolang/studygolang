@@ -20,6 +20,7 @@ import type {
   Topic,
   Feed,
   FeedListData,
+  TopicListData,
   SiteStats,
   Reading,
   Comment,
@@ -27,6 +28,7 @@ import type {
   FriendLink,
   TopicNode,
 } from "@/lib/types"
+import { fetchAPI } from "@/lib/api"
 
 export const metadata: Metadata = {
   title: "Go语言中文网 - 中国最大的Go语言社区",
@@ -38,14 +40,6 @@ export const metadata: Metadata = {
     type: "website",
     url: "https://studygolang.com",
   },
-}
-
-async function fetchFromAPI<T>(path: string, options?: RequestInit): Promise<T> {
-  const base = process.env.API_BASE_URL || 'http://localhost:8090'
-  const res = await fetch(`${base}/api/v1${path}`, options)
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  const json = await res.json()
-  return json.data
 }
 
 // 首页数据响应类型
@@ -73,20 +67,20 @@ async function getHomeData(tab: string = 'all'): Promise<HomeDataResult> {
     recentCommentsData,
     activeUsersData,
   ] = await Promise.allSettled([
-    fetchFromAPI<FeedListData>(`/home?tab=${tab}&p=1`, { cache: 'no-store' }),
-    fetchFromAPI<SiteStats>('/stat/site', { cache: 'no-store' }),
-    fetchFromAPI<{ readings: Reading[] }>('/sidebar/readings/recent?limit=7', { cache: 'no-store' }),
-    fetchFromAPI<{ nodes: TopicNode[] }>('/sidebar/nodes/hot', { cache: 'no-store' }),
-    fetchFromAPI<{ links: FriendLink[] }>('/sidebar/friend/links', { cache: 'no-store' }),
-    fetchFromAPI<{ comments: Comment[] }>('/sidebar/comments/recent', { cache: 'no-store' }),
-    fetchFromAPI<{ users: User[] }>('/sidebar/users/active', { cache: 'no-store' }),
+    fetchAPI<FeedListData>(`/home?tab=${tab}&p=1`, { cache: 'no-store' }),
+    fetchAPI<SiteStats>('/stat/site', { cache: 'no-store' }),
+    fetchAPI<{ readings: Reading[] }>('/sidebar/readings/recent?limit=7', { cache: 'no-store' }),
+    fetchAPI<{ nodes: TopicNode[] }>('/sidebar/nodes/hot', { cache: 'no-store' }),
+    fetchAPI<{ links: FriendLink[] }>('/sidebar/friend/links', { cache: 'no-store' }),
+    fetchAPI<{ comments: Comment[] }>('/sidebar/comments/recent', { cache: 'no-store' }),
+    fetchAPI<{ users: User[] }>('/sidebar/users/active', { cache: 'no-store' }),
   ])
 
   const homeValue = homeData.status === 'fulfilled' ? homeData.value : null
   // 判断返回的是 feeds 还是 topics
   const useFeeds = homeValue?.feeds !== undefined
-  const feeds = homeValue?.feeds ?? [] as Feed[]
-  const topics = (homeValue as any)?.topics ?? [] as Topic[]
+  const feeds = homeValue?.feeds ?? ([] as Feed[])
+  const topics = (homeValue as TopicListData | null)?.topics ?? ([] as Topic[])
 
   // 从 feeds 中提取话题用于趋势显示
   const trendingFromFeeds = feeds

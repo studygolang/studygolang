@@ -69,7 +69,7 @@ type TopicEx struct {
 	View  int       `json:"view"`
 	Reply int       `json:"reply"`
 	Like  int       `json:"like"`
-	Mtime time.Time `json:"mtime" xorm:"<-"`
+	Mtime time.Time `json:"-" xorm:"<-"`
 }
 
 func (*TopicEx) TableName() string {
@@ -107,12 +107,12 @@ type TopicAppend struct {
 
 // 社区主题节点信息
 type TopicNode struct {
-	Nid       int       `json:"nid" xorm:"pk autoincr"`
-	Parent    int       `json:"parent"`
+	Nid       int       `json:"-" xorm:"pk autoincr"`
+	Parent    int       `json:"-"`
 	Logo      string    `json:"logo"`
-	Name      string    `json:"name"`
+	Name      string    `json:"-"`
 	Ename     string    `json:"ename"`
-	Seq       int       `json:"seq"`
+	Seq       int       `json:"-"`
 	Intro     string    `json:"intro"`
 	ShowIndex bool      `json:"show_index"`
 	Ctime     time.Time `json:"ctime" xorm:"<-"`

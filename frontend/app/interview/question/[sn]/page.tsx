@@ -6,18 +6,8 @@ import { PageLayout } from "@/components/page-layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import type { InterviewQuestion } from "@/lib/types"
-
-async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
-  try {
-    const base = process.env.API_BASE_URL || "http://localhost:8090"
-    const res = await fetch(`${base}/api/v1${path}`, options)
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.code === 0 ? json.data : null
-  } catch {
-    return null
-  }
-}
+import { fetchAPINullable } from "@/lib/api"
+import { sanitizeHtml } from "@/lib/sanitize"
 
 const levelLabels = ["初级", "中级", "高级"]
 const levelColors = [
@@ -32,7 +22,7 @@ interface QuestionPageProps {
 
 export async function generateMetadata({ params }: QuestionPageProps): Promise<Metadata> {
   const { sn } = await params
-  const data = await fetchAPI<{ question: InterviewQuestion }>(
+  const data = await fetchAPINullable<{ question: InterviewQuestion }>(
     `/interviews/question/${sn}`,
     { next: { revalidate: 3600 } }
   )
@@ -47,7 +37,7 @@ export async function generateMetadata({ params }: QuestionPageProps): Promise<M
 
 export default async function InterviewQuestionPage({ params }: QuestionPageProps) {
   const { sn } = await params
-  const data = await fetchAPI<{ question: InterviewQuestion }>(
+  const data = await fetchAPINullable<{ question: InterviewQuestion }>(
     `/interviews/question/${sn}`,
     { next: { revalidate: 3600 } }
   )
@@ -87,7 +77,7 @@ export default async function InterviewQuestionPage({ params }: QuestionPageProp
         <CardContent className="px-5 pb-5">
           <div
             className="prose prose-sm max-w-none text-sm leading-relaxed text-foreground"
-            dangerouslySetInnerHTML={{ __html: question.question }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(question.question) }}
           />
         </CardContent>
       </Card>
@@ -103,7 +93,7 @@ export default async function InterviewQuestionPage({ params }: QuestionPageProp
         <CardContent className="px-5 pb-5">
           <div
             className="prose prose-sm max-w-none text-sm leading-relaxed text-foreground"
-            dangerouslySetInnerHTML={{ __html: question.answer }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(question.answer) }}
           />
         </CardContent>
       </Card>

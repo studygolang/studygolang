@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import type { Reading, SiteStats, Topic, Comment, User, FriendLink } from "@/lib/types"
+import { sanitizeHtml } from "@/lib/sanitize"
 
 /* ---------- Login Card ---------- */
 export function LoginCard() {
@@ -132,7 +133,7 @@ export function DailyQuestion() {
           <div className="rounded-md bg-secondary/50 p-3">
             <div
               className="prose prose-sm max-w-none text-sm font-medium leading-relaxed text-foreground"
-              dangerouslySetInnerHTML={{ __html: question.question }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(question.question) }}
             />
             <a
               href={`/interview/question/${question.show_sn}`}

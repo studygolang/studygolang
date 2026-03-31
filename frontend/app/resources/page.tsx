@@ -14,27 +14,13 @@ export const metadata: Metadata = {
   description: "Go语言学习资源大全，教程、工具、视频、文档一站式索引",
 }
 
-async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
-  try {
-    const base = process.env.API_BASE_URL || "http://localhost:8090"
-    const res = await fetch(`${base}/api/v1${path}`, options)
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.code === 0 ? json.data : null
-  } catch {
-    return null
-  }
-}
-
-function formatNum(n: number): string {
-  if (n >= 1000) return (n / 1000).toFixed(1) + "k"
-  return String(n)
-}
+import { fetchAPINullable } from "@/lib/api"
+import { formatNum } from "@/lib/utils"
 
 async function ResourceItems({ page, catid = 0 }: { page: number; catid?: number }) {
   // 支持 catid 分类过滤，0 表示全部
   const qs = catid > 0 ? `/resources?p=${page}&catid=${catid}` : `/resources?p=${page}`
-  const data = await fetchAPI<ResourceListData>(qs, { cache: "no-store" })
+  const data = await fetchAPINullable<ResourceListData>(qs, { cache: "no-store" })
 
   if (!data || !data.resources || data.resources.length === 0) {
     return (
@@ -158,7 +144,7 @@ interface ResourcesPageProps {
 
 export default async function ResourcesPage({ searchParams }: ResourcesPageProps) {
   const params = await searchParams
-  const page = Math.max(1, parseInt(params.page || "1", 10))
+  const page = Math.max(1, parseInt(params.p || "1", 10))
   const catid = params.catid ? parseInt(params.catid, 10) : 0
 
   return (

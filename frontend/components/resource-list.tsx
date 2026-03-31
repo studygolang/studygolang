@@ -19,7 +19,7 @@ import {
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { cn } from "@/lib/utils"
+import { cn, formatNum } from "@/lib/utils"
 import { useState } from "react"
 import type { Resource } from "@/lib/types"
 
@@ -33,13 +33,6 @@ const CATEGORY_NAV = [
   { label: "文档翻译", icon: BookOpen, catid: 5 },
   { label: "下载资源", icon: Download, catid: 6 },
 ]
-
-function formatNumber(num: number): string {
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1) + "k"
-  }
-  return num.toString()
-}
 
 interface ResourceListProps {
   resources: Resource[]
@@ -166,7 +159,7 @@ export function ResourceList({ resources, activeCatid = 0 }: ResourceListProps) 
                       </span>
                       <span className="flex items-center gap-1 text-xs text-muted-foreground">
                         <ThumbsUp className="h-3 w-3" />
-                        {formatNumber(resource.likenum)}
+                        {formatNum(resource.likenum)}
                       </span>
                       <span className="flex items-center gap-1 text-xs text-muted-foreground">
                         <MessageSquare className="h-3 w-3" />

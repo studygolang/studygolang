@@ -8,16 +8,10 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import type { Article } from "@/lib/types"
+import { formatNum } from "@/lib/utils"
 
 interface ArticleListProps {
   articles?: Article[]
-}
-
-function formatNumber(num: number): string {
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1) + "k"
-  }
-  return num.toString()
 }
 
 function formatTime(ctime: string): string {
@@ -106,7 +100,7 @@ export function ArticleList({ articles = [] }: ArticleListProps) {
                 </span>
                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Eye className="h-3 w-3" />
-                  {formatNumber(article.viewnum)}
+                  {formatNum(article.viewnum)}
                 </span>
                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
                   <MessageSquare className="h-3 w-3" />

@@ -12,17 +12,11 @@ export const metadata = {
   description: "Go语言中文网活跃会员和新加入会员列表",
 }
 
-async function fetchFromAPI<T>(path: string, options?: RequestInit): Promise<T> {
-  const base = process.env.API_BASE_URL || 'http://localhost:8090'
-  const res = await fetch(`${base}/api/v1${path}`, options)
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  const json = await res.json()
-  return json.data
-}
+import { fetchAPI } from "@/lib/api"
 
 async function getUsers() {
   try {
-    return await fetchFromAPI<UserListData>(
+    return await fetchAPI<UserListData>(
       '/users',
       { cache: 'no-store' }
     )

@@ -13,25 +13,42 @@ import (
 	"time"
 
 	"github.com/polaris1119/goutils"
+	"golang.org/x/crypto/bcrypt"
 	"xorm.io/xorm"
 )
 
 // 用户登录信息
 type UserLogin struct {
-	Uid       int       `json:"uid" xorm:"pk"`
-	Username  string    `json:"username"`
-	Passcode  string    `json:"passcode"` // 加密随机串
-	Passwd    string    `json:"passwd"`
-	Email     string    `json:"email"`
-	LoginIp   string    `json:"login_ip"`
-	LoginTime time.Time `json:"login_time" xorm:"<-"`
+	Uid        int       `json:"uid" xorm:"pk"`
+	Username   string    `json:"username"`
+	Passcode   string    `json:"passcode"`   // random salt for md5 hashing
+	Passwd     string    `json:"passwd"`
+	PasswdType string    `json:"passwd_type" xorm:"varchar(10) default('md5')"` // 'md5' or 'bcrypt'
+	Email      string    `json:"email"`
+	LoginIp    string    `json:"login_ip"`
+	LoginTime  time.Time `json:"login_time" xorm:"<-"`
 }
 
 func (this *UserLogin) TableName() string {
 	return "user_login"
 }
 
-// 生成加密密码
+// GenHashedPasswd generates a bcrypt hash for the password (for new users).
+func (this *UserLogin) GenHashedPasswd() error {
+	if this.Passwd == "" {
+		return errors.New("password is empty!")
+	}
+	hashedPasswd, err := bcrypt.GenerateFromPassword([]byte(this.Passwd), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	this.Passwd = string(hashedPasswd)
+	this.PasswdType = "bcrypt"
+	this.Passcode = "" // bcrypt includes salt internally
+	return nil
+}
+
+// GenMd5Passwd generates an MD5-based password hash (deprecated, kept for compatibility).
 func (this *UserLogin) GenMd5Passwd() error {
 	if this.Passwd == "" {
 		return errors.New("password is empty!")
@@ -39,7 +56,20 @@ func (this *UserLogin) GenMd5Passwd() error {
 	this.Passcode = fmt.Sprintf("%x", rand.Int31())
 	// 密码经过md5(passwd+passcode)加密保存
 	this.Passwd = goutils.Md5(this.Passwd + this.Passcode)
+	this.PasswdType = "md5"
 	return nil
+}
+
+// VerifyPasswd verifies the password (auto-detects MD5 or bcrypt).
+func (this *UserLogin) VerifyPasswd(inputPasswd string) bool {
+	if this.PasswdType == "bcrypt" {
+		// bcrypt verification
+		err := bcrypt.CompareHashAndPassword([]byte(this.Passwd), []byte(inputPasswd))
+		return err == nil
+	}
+	// MD5 verification (legacy compatibility)
+	expectedMD5 := goutils.Md5(inputPasswd + this.Passcode)
+	return this.Passwd == expectedMD5
 }
 
 const (

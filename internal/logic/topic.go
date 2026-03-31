@@ -569,8 +569,10 @@ func (TopicLogic) FindHotNodes(ctx context.Context) []map[string]interface{} {
 	hotNum := 10
 
 	lastWeek := time.Now().Add(-7 * 24 * time.Hour).Format("2006-01-02 15:04:05")
-	strSql := fmt.Sprintf("SELECT nid, COUNT(1) AS topicnum FROM topics WHERE ctime>='%s' GROUP BY nid ORDER BY topicnum DESC LIMIT 15", lastWeek)
-	rows, err := MasterDB.DB().DB.Query(strSql)
+
+	// 使用参数化查询防止 SQL 注入
+	query := "SELECT nid, COUNT(1) AS topicnum FROM topics WHERE ctime>=? GROUP BY nid ORDER BY topicnum DESC LIMIT 15"
+	rows, err := MasterDB.DB().DB.Query(query, lastWeek)
 	if err != nil {
 		objLog.Errorln("TopicLogic FindHotNodes error:", err)
 		return nil

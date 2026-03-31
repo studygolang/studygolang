@@ -7,6 +7,8 @@
 package logic
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"html/template"
 	"math"
@@ -21,12 +23,108 @@ import (
 	"github.com/fatih/structs"
 	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
+	"github.com/polaris1119/nosql"
 	"github.com/polaris1119/set"
 	"github.com/polaris1119/slices"
-	"golang.org/x/net/context"
+	"golang.org/x/sync/errgroup"
 )
 
 type CommentLogic struct{}
+
+const (
+	// Redis key 前缀用于评论楼层计数器
+	commentFloorKeyPrefix = "comment:floor:"
+
+	// Lua 脚本：原子性获取并递增楼层号
+	getNextFloorScript = `
+local key = KEYS[1]
+local ttl = ARGV[1]
+
+-- 尝试递增
+local floor = redis.call('INCR', key)
+
+-- 如果是第一次创建，设置过期时间
+if floor == 1 then
+    redis.call('EXPIRE', key, ttl)
+end
+
+return floor
+`
+)
+
+// GetNextCommentFloor 获取下一个评论楼层号（原子性保证）
+func GetNextCommentFloor(objid, objtype int) (int, error) {
+	redisClient := nosql.NewRedisClient()
+	defer redisClient.Close()
+
+	key := fmt.Sprintf("%s%d:%d", commentFloorKeyPrefix, objtype, objid)
+	ttl := 7 * 24 * 3600 // 7 天
+
+	// 使用带前缀的 key
+	prefixedKey := nosql.KeyPrefix + key
+
+	// 执行 Lua 脚本（原子性）
+	result, err := redisClient.Do("EVAL", getNextFloorScript, 1, prefixedKey, ttl)
+	if err == nil {
+		if floor, ok := result.(int64); ok {
+			return int(floor), nil
+		}
+	}
+
+	logger.Errorln("GetNextCommentFloor: Redis Lua script execution failed:", err)
+
+	// 回退策略：使用数据库 + 分布式锁
+	return getNextFloorWithLock(objid, objtype, key, ttl)
+}
+
+// getNextFloorWithLock 使用分布式锁从数据库获取楼层号
+func getNextFloorWithLock(objid, objtype int, key string, ttl int) (int, error) {
+	redisClient := nosql.NewRedisClient()
+	defer redisClient.Close()
+
+	prefixedKey := nosql.KeyPrefix + key
+	lockKey := prefixedKey + ":lock"
+	lockValue := fmt.Sprintf("%d", time.Now().UnixNano())
+
+	// 尝试获取锁（最多等待 3 秒）
+	locked := false
+	for i := 0; i < 30; i++ {
+		// SET NX EX（原子性获取锁）
+		reply, err := redisClient.Do("SET", lockKey, lockValue, "NX", "EX", 10)
+		if err == nil && reply != nil {
+			locked = true
+			break
+		}
+
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	if !locked {
+		return 0, errors.New("failed to acquire distributed lock: timeout")
+	}
+
+	defer redisClient.Do("DEL", lockKey) // 释放锁
+
+	// 从数据库查询最大楼层号
+	tmpCmt := &model.Comment{}
+	_, err := MasterDB.Where("objid=? AND objtype=?", objid, objtype).
+		OrderBy("floor DESC").
+		Get(tmpCmt)
+
+	if err != nil {
+		logger.Errorln("GetNextCommentFloor: database query failed:", err)
+		return 1, nil // 默认从 1 开始
+	}
+
+	nextFloor := tmpCmt.Floor + 1
+
+	// 初始化 Redis 计数器
+	if err := redisClient.SET(key, nextFloor, ttl); err != nil {
+		logger.Errorln("GetNextCommentFloor: failed to initialize Redis counter:", err)
+	}
+
+	return nextFloor, nil
+}
 
 var DefaultComment = CommentLogic{}
 
@@ -210,19 +308,19 @@ func (self CommentLogic) Publish(ctx context.Context, uid, objid int, form url.V
 		Content: form.Get("content"),
 	}
 
-	// TODO:评论楼层怎么处理，避免冲突？最后的楼层信息保存在内存中？
-
-	// 暂时只是从数据库中取出最后的评论楼层
-	tmpCmt := &model.Comment{}
-	_, err := MasterDB.Where("objid=? AND objtype=?", objid, objtype).OrderBy("floor DESC").Get(tmpCmt)
+	// 使用 Redis 原子计数器获取下一个楼层号
+	var err error
+	comment.Floor, err = GetNextCommentFloor(objid, objtype)
 	if err != nil {
-		objLog.Errorln("post comment find last floor error:", err)
+		objLog.Errorln("post comment get next floor error:", err)
 		return nil, err
 	}
 
-	comment.Floor = tmpCmt.Floor + 1
-
-	if tmpCmt.Uid == comment.Uid && tmpCmt.Content == comment.Content {
+	// 检查是否重复提交（同一用户、同一内容）
+	tmpCmt := &model.Comment{}
+	_, err = MasterDB.Where("objid=? AND objtype=? AND uid=? AND content=?",
+		objid, objtype, uid, comment.Content).Get(tmpCmt)
+	if err == nil && tmpCmt.Cid > 0 {
 		objLog.Infof("had post comment: %+v", *comment)
 		return tmpCmt, nil
 	}
@@ -236,18 +334,63 @@ func (self CommentLogic) Publish(ctx context.Context, uid, objid int, form url.V
 	self.decodeCmtContentForShow(ctx, comment, true)
 
 	// 回调，不关心处理结果（有些对象可能不需要回调）
+	// 使用 errgroup 管理 goroutine，非阻塞执行
+	g, gCtx := errgroup.WithContext(context.Background())
+
 	if commenter, ok := commenters[objtype]; ok {
 		now := time.Now()
 
 		objLog.Debugf("评论[objid:%d] [objtype:%d] [uid:%d] 成功，通知被评论者更新", objid, objtype, uid)
-		go commenter.UpdateComment(comment.Cid, objid, uid, now)
+		// Capture values for closure
+		cid := comment.Cid
+		capturedCommenter := commenter
+		g.Go(func() error {
+			select {
+			case <-gCtx.Done():
+				return gCtx.Err()
+			default:
+				capturedCommenter.UpdateComment(cid, objid, uid, now)
+				return nil
+			}
+		})
 
 		DefaultFeed.updateComment(objid, objtype, uid, now)
 	}
 
-	go commentObservable.NotifyObservers(uid, objtype, comment.Cid)
+	// NotifyObservers
+	cid := comment.Cid
+	g.Go(func() error {
+		select {
+		case <-gCtx.Done():
+			return gCtx.Err()
+		default:
+			commentObservable.NotifyObservers(uid, objtype, cid)
+			return nil
+		}
+	})
 
-	go self.sendSystemMsg(ctx, uid, objid, objtype, comment.Cid, form)
+	// sendSystemMsg
+	capturedUid := uid
+	capturedObjid := objid
+	capturedObjtype := objtype
+	capturedCid := comment.Cid
+	capturedForm := form
+	g.Go(func() error {
+		select {
+		case <-gCtx.Done():
+			return gCtx.Err()
+		default:
+			self.sendSystemMsg(ctx, capturedUid, capturedObjid, capturedObjtype, capturedCid, capturedForm)
+			return nil
+		}
+	})
+
+	// Non-blocking wait for goroutines
+	go func() {
+		if err := g.Wait(); err != nil {
+			objLog.Infof("Publish: async tasks error: %v", err)
+		}
+	}()
 
 	return comment, nil
 }

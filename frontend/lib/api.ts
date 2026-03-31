@@ -23,6 +23,7 @@ import type {
   TopicListData,
   TopicNode,
   User,
+  UserComment,
   Wiki,
 } from './types'
 
@@ -36,32 +37,95 @@ function getAPIBase(): string {
   return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8090'
 }
 
-async function fetchAPI<T>(
+// SSR 超时 10 秒，客户端超时 30 秒
+const SSR_TIMEOUT = 10_000
+const CLIENT_TIMEOUT = 30_000
+
+function getTimeout(): number {
+  return typeof window === 'undefined' ? SSR_TIMEOUT : CLIENT_TIMEOUT
+}
+
+/**
+ * 创建带超时的 AbortController
+ * 如果调用方已提供 signal，则两者任一触发即中止请求
+ */
+function createTimeoutSignal(existingSignal?: AbortSignal): {
+  signal: AbortSignal
+  cleanup: () => void
+} {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), getTimeout())
+
+  // 如果外部已有 signal，将其 abort 事件转发到 controller
+  if (existingSignal) {
+    if (existingSignal.aborted) {
+      clearTimeout(timeoutId)
+      controller.abort()
+    } else {
+      const onExternalAbort = () => {
+        clearTimeout(timeoutId)
+        controller.abort()
+      }
+      existingSignal.addEventListener('abort', onExternalAbort, { once: true })
+    }
+  }
+
+  const cleanup = () => clearTimeout(timeoutId)
+  return { signal: controller.signal, cleanup }
+}
+
+/**
+ * 统一的 API 请求函数（抛异常模式）
+ * 错误时抛出异常，成功时返回 json.data
+ */
+export async function fetchAPI<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
   const base = getAPIBase()
   const url = `${base}/api/v1${path}`
 
-  const res = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    ...options,
-  })
+  const { signal, cleanup } = createTimeoutSignal(options.signal ?? undefined)
 
-  if (!res.ok) {
-    throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+  try {
+    const res = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      ...options,
+      signal,
+    })
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+    }
+
+    const json: APIResponse<T> = await res.json()
+    if (json.code !== 0) {
+      // 后端错误字段为 msg（非 message）
+      throw new Error(json.msg || '请求失败')
+    }
+
+    return json.data
+  } finally {
+    cleanup()
   }
+}
 
-  const json: APIResponse<T> = await res.json()
-  if (json.code !== 0) {
-    // 后端错误字段为 msg（非 message）
-    throw new Error(json.msg || '请求失败')
+/**
+ * 可空版本的 API 请求函数
+ * 错误时返回 null，成功时返回 json.data
+ */
+export async function fetchAPINullable<T>(
+  path: string,
+  options: RequestInit = {}
+): Promise<T | null> {
+  try {
+    return await fetchAPI<T>(path, options)
+  } catch {
+    return null
   }
-
-  return json.data
 }
 
 // ======================== 话题 ========================
@@ -200,6 +264,60 @@ export const userAPI = {
 
   getProfile(username: string, fetchOptions?: RequestInit) {
     return fetchAPI<{ user: User; topics: Topic[] }>(`/user/${username}`, fetchOptions)
+  },
+
+  // 获取当前登录用户的个人资料（需要登录）
+  getMyProfile(fetchOptions?: RequestInit) {
+    return fetchAPI<{ user: User; has_passwd: boolean }>('/user/profile', {
+      ...fetchOptions,
+      credentials: 'include',
+    })
+  },
+
+  // 更新个人资料
+  updateProfile(data: {
+    name?: string
+    email?: string
+    city?: string
+    company?: string
+    github?: string
+    website?: string
+    introduce?: string
+    open?: string
+  }) {
+    return fetchAPI<null>('/user/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+      credentials: 'include',
+    })
+  },
+
+  // 更新头像
+  updateAvatar(avatar: string) {
+    return fetchAPI<null>('/user/avatar', {
+      method: 'PUT',
+      body: JSON.stringify({ avatar }),
+      credentials: 'include',
+    })
+  },
+
+  // 修改密码
+  changePassword(curPasswd: string, newPasswd: string) {
+    return fetchAPI<null>('/user/password', {
+      method: 'PUT',
+      body: JSON.stringify({ cur_passwd: curPasswd, new_passwd: newPasswd }),
+      credentials: 'include',
+    })
+  },
+
+  // 获取用户评论列表
+  getUserComments(username: string, params: { p?: number } = {}, fetchOptions?: RequestInit) {
+    const q = new URLSearchParams()
+    if (params.p) q.set('p', String(params.p))
+    return fetchAPI<{ comments: UserComment[]; total: number; page: number; has_more: boolean }>(
+      `/users/${username}/comments?${q}`,
+      fetchOptions,
+    )
   },
 }
 
