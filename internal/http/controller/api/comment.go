@@ -7,6 +7,8 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/internal/http"
 	"github.com/studygolang/studygolang/internal/logic"
@@ -20,6 +22,8 @@ type CommentController struct{}
 func (self CommentController) RegisterRoute(g *echo.Group) {
 	g.GET("/comments", self.List)
 	g.POST("/comments/:objid", self.Create)
+	g.PUT("/comments/:cid", self.Modify)
+	g.GET("/at/users", self.AtUsers)
 }
 
 // List 评论列表（objid、objtype 查询参数）
@@ -70,4 +74,52 @@ func (CommentController) Create(ctx echo.Context) error {
 	return success(ctx, map[string]interface{}{
 		"comment": comment,
 	})
+}
+
+// AtUsers 获取可 @ 的用户列表（评论 @ 自动补全）
+func (CommentController) AtUsers(ctx echo.Context) error {
+	term := ctx.QueryParam("term")
+	if term == "" {
+		return ctx.JSON(http.StatusOK, []map[string]string{})
+	}
+	users := logic.DefaultUser.GetUserMentions(term, 10, false)
+	if users == nil {
+		users = make([]map[string]string, 0)
+	}
+	return ctx.JSON(http.StatusOK, users)
+}
+
+// Modify 修改评论（需要登录，且只有作者可修改）
+func (CommentController) Modify(ctx echo.Context) error {
+	uid, err := parseAuthUID(ctx)
+	if err != nil {
+		return err
+	}
+
+	cid := goutils.MustInt(ctx.Param("cid"))
+	if cid == 0 {
+		return fail(ctx, "参数有误")
+	}
+
+	content := ctx.FormValue("content")
+	if content == "" {
+		return fail(ctx, "评论内容不能为空")
+	}
+
+	comment, findErr := logic.DefaultComment.FindById(cid)
+	if findErr != nil {
+		return fail(ctx, "评论不存在")
+	}
+
+	// 验证是否是评论作者
+	if comment.Uid != uid {
+		return fail(ctx, "没有修改权限")
+	}
+
+	errMsg, modifyErr := logic.DefaultComment.Modify(context.EchoContext(ctx), cid, content)
+	if modifyErr != nil {
+		return fail(ctx, errMsg)
+	}
+
+	return success(ctx, map[string]interface{}{"cid": cid})
 }
