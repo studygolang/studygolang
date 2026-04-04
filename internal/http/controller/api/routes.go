@@ -80,4 +80,12 @@ func RegisterRoutes(g *echo.Group) {
 	new(MessageController).RegisterRoute(g)
 	new(FavoriteController).RegisterRoute(g)
 	new(LikeController).RegisterRoute(g)
+	new(TopController).RegisterRoute(g)
+	new(BalanceController).RegisterRoute(g)
+	new(OAuthController).RegisterRoute(g)
+	new(ImageController).RegisterRoute(g)
+	new(CaptchaController).RegisterRoute(g)
+	new(MissionController).RegisterRoute(g)
+	new(GiftController).RegisterRoute(g)
+	new(SubjectController).RegisterRoute(g)
 }
