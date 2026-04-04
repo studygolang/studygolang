@@ -1,15 +1,45 @@
-import type { Metadata } from "next"
+"use client"
+
+import { useState } from "react"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Mail } from "lucide-react"
-
-export const metadata: Metadata = {
-  title: "找回密码 - Go语言中文网",
-  description: "通过邮件找回你的 Go语言中文网 账号密码",
-}
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Mail, ArrowLeft, Loader2, CheckCircle } from "lucide-react"
 
 export default function ForgotPasswordPage() {
+  const [email, setEmail] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
+    e.preventDefault()
+    if (!email.trim()) return
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const res = await fetch("/api/v1/user/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      })
+      const json = await res.json()
+      if (json.code === 0) {
+        setSuccess(true)
+      } else {
+        setError(json.message || "请求失败，请稍后重试")
+      }
+    } catch {
+      setError("网络错误，请稍后重试")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
       <div className="w-full max-w-md">
@@ -26,31 +56,68 @@ export default function ForgotPasswordPage() {
             <CardDescription>通过注册邮箱找回密码</CardDescription>
           </CardHeader>
 
-          <CardContent className="space-y-4">
-            <div className="flex flex-col items-center gap-4 rounded-lg bg-muted/50 p-6 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                <Mail className="h-6 w-6 text-primary" />
+          <CardContent>
+            {success ? (
+              <div className="flex flex-col items-center gap-4 rounded-lg bg-green-50 p-6 text-center">
+                <CheckCircle className="h-12 w-12 text-green-500" />
+                <div className="space-y-1">
+                  <p className="font-medium text-foreground">邮件已发送</p>
+                  <p className="text-sm text-muted-foreground">
+                    请检查 <span className="font-medium text-primary">{email}</span> 的收件箱，
+                    按照邮件中的链接重置密码。
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    如未收到，请检查垃圾邮件文件夹
+                  </p>
+                </div>
               </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-foreground">请发送邮件至管理员</p>
-                <p className="text-sm text-muted-foreground">
-                  联系{" "}
-                  <a
-                    href="mailto:polaris@studygolang.com"
-                    className="font-medium text-primary hover:text-primary/80"
-                  >
-                    polaris@studygolang.com
-                  </a>
-                  {" "}，说明你的用户名，我们将帮助你重置密码。
-                </p>
-              </div>
-            </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">注册邮箱</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="请输入注册时使用的邮箱"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pl-9"
+                      required
+                      disabled={loading}
+                    />
+                  </div>
+                </div>
+
+                {error && (
+                  <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+                    {error}
+                  </div>
+                )}
+
+                <Button type="submit" className="w-full" disabled={loading || !email.trim()}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      发送中...
+                    </>
+                  ) : (
+                    "发送重置邮件"
+                  )}
+                </Button>
+              </form>
+            )}
           </CardContent>
 
-          <CardFooter>
-            <Button asChild variant="outline" className="w-full">
-              <Link href="/account/login">返回登录</Link>
-            </Button>
+          <CardFooter className="flex justify-center">
+            <Link
+              href="/account/login"
+              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary"
+            >
+              <ArrowLeft className="h-3 w-3" />
+              返回登录
+            </Link>
           </CardFooter>
         </Card>
       </div>

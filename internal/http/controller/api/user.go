@@ -20,7 +20,11 @@ import (
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
+	guuid "github.com/twinj/uuid"
 )
+
+// resetPwdMap 存储重置密码 token -> email 的映射（内存存储，重启失效）
+var resetPwdMap = sync.Map{}
 
 type UserController struct{}
 
@@ -81,6 +85,9 @@ func (self UserController) RegisterRoute(g *echo.Group) {
 	g.GET("/users/:username/articles", self.UserArticles)
 	g.GET("/users/:username/resources", self.UserResources)
 	g.GET("/users/:username/projects", self.UserProjects)
+	// 密码找回
+	g.POST("/user/forgot-password", self.ForgotPassword)
+	g.POST("/user/reset-password", self.ResetPassword)
 }
 
 // loginRequest 登录请求体（支持 JSON）
@@ -616,5 +623,91 @@ func (UserController) UserProjects(ctx echo.Context) error {
 		"total":    total,
 		"page":     curPage,
 		"has_more": hasMore,
+	})
+}
+
+// forgotPasswordRequest 忘记密码请求体
+type forgotPasswordRequest struct {
+	Email string `json:"email"`
+}
+
+// resetPasswordRequest 重置密码请求体
+type resetPasswordRequest struct {
+	Token       string `json:"token"`
+	NewPassword string `json:"new_password"`
+}
+
+// ForgotPassword 发送重置密码邮件
+func (UserController) ForgotPassword(ctx echo.Context) error {
+	var req forgotPasswordRequest
+	if err := ctx.Bind(&req); err != nil {
+		return fail(ctx, "参数错误")
+	}
+
+	email := strings.TrimSpace(req.Email)
+	if email == "" {
+		return fail(ctx, "邮箱不能为空")
+	}
+
+	// 检查邮箱是否注册
+	if !logic.DefaultUser.UserExists(context.EchoContext(ctx), "email", email) {
+		// 为防止邮箱枚举攻击，返回相同提示
+		return success(ctx, map[string]interface{}{
+			"message": "如果邮箱已注册，重置链接已发送",
+		})
+	}
+
+	// 生成唯一 token
+	var token string
+	for {
+		token = guuid.NewV4().String()
+		if _, loaded := resetPwdMap.LoadOrStore(token, email); !loaded {
+			break
+		}
+	}
+
+	// 异步发送邮件
+	go logic.DefaultEmail.SendResetpwdMail(email, token)
+
+	return success(ctx, map[string]interface{}{
+		"message": "重置密码邮件已发送，请查收",
+	})
+}
+
+// ResetPassword 通过 token 重置密码
+func (UserController) ResetPassword(ctx echo.Context) error {
+	var req resetPasswordRequest
+	if err := ctx.Bind(&req); err != nil {
+		return fail(ctx, "参数错误")
+	}
+
+	token := strings.TrimSpace(req.Token)
+	newPassword := strings.TrimSpace(req.NewPassword)
+
+	if token == "" {
+		return fail(ctx, "重置链接无效")
+	}
+	if len(newPassword) < 6 || len(newPassword) > 32 {
+		return fail(ctx, "密码长度必须在6到32个字符之间")
+	}
+
+	// 验证 token
+	val, ok := resetPwdMap.Load(token)
+	if !ok {
+		return fail(ctx, "重置链接已过期或无效，请重新申请")
+	}
+	email := val.(string)
+
+	// 重置密码
+	_, err := logic.DefaultUser.ResetPasswd(context.EchoContext(ctx), email, newPassword)
+	if err != nil {
+		return fail(ctx, "重置密码失败，请重试")
+	}
+
+	// 清除 token
+	resetPwdMap.Delete(token)
+
+	return success(ctx, map[string]interface{}{
+		"message": "密码重置成功，请重新登录",
 	})
 }
