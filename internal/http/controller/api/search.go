@@ -7,6 +7,10 @@
 package api
 
 import (
+	"net/http"
+	"net/url"
+
+	"github.com/studygolang/studygolang/context"
 	"github.com/studygolang/studygolang/internal/logic"
 	"github.com/studygolang/studygolang/internal/model"
 
@@ -18,6 +22,7 @@ type SearchController struct{}
 
 func (self SearchController) RegisterRoute(g *echo.Group) {
 	g.GET("/search", self.Search)
+	g.GET("/tag/:name", self.TagList)
 }
 
 // Search 全文搜索（q 关键词，p 分页，type 内容类型）
@@ -49,6 +54,52 @@ func (SearchController) Search(ctx echo.Context) error {
 		"results":  results,
 		"keyword":  q,
 		"type":     field,
+		"page":     p,
+		"has_more": hasMore,
+		"total":    respBody.NumFound,
+	})
+}
+
+// TagList 标签内容列表（复用搜索功能，field=tag）
+func (SearchController) TagList(ctx echo.Context) error {
+	name := ctx.Param("name")
+	if name == "" {
+		return ctx.Redirect(http.StatusSeeOther, "/")
+	}
+
+	var err error
+	name, err = url.QueryUnescape(name)
+	if err != nil {
+		return ctx.Redirect(http.StatusSeeOther, "/")
+	}
+
+	// 限制 tag 长度（防止滥用）
+	if len([]rune(name)) > 9 {
+		return fail(ctx, "标签名称过长")
+	}
+
+	p := goutils.MustInt(ctx.QueryParam("p"), 1)
+	rows := 50
+
+	respBody, err := logic.DefaultSearcher.DoSearch(name, "tag", (p-1)*rows, rows)
+	if err != nil {
+		return fail(ctx, "搜索服务异常")
+	}
+
+	_, nodes := logic.DefaultSearcher.FillNodeAndUser(context.EchoContext(ctx), respBody)
+
+	paginator := logic.NewPaginatorWithPerPage(p, rows)
+	hasMore := paginator.SetTotal(int64(respBody.NumFound)).HasMorePage()
+
+	results := respBody.Docs
+	if results == nil {
+		results = make([]*model.Document, 0)
+	}
+
+	return success(ctx, map[string]interface{}{
+		"results":  results,
+		"keyword":  name,
+		"nodes":    nodes,
 		"page":     p,
 		"has_more": hasMore,
 		"total":    respBody.NumFound,
