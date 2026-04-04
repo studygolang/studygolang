@@ -52,11 +52,15 @@ type ThirdUserLogic struct{}
 
 var DefaultThirdUser = ThirdUserLogic{}
 
-func (ThirdUserLogic) GithubAuthCodeUrl(ctx context.Context, redirectURL string) string {
+func (ThirdUserLogic) GithubAuthCodeUrl(ctx context.Context, redirectURL string, state ...string) string {
 	// Redirect user to consent page to ask for permission
 	// for the scopes specified above.
 	githubConf.RedirectURL = redirectURL
-	return githubConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
+	oauthState := "state"
+	if len(state) > 0 && state[0] != "" {
+		oauthState = state[0]
+	}
+	return githubConf.AuthCodeURL(oauthState, oauth2.AccessTypeOffline)
 }
 
 func (self ThirdUserLogic) LoginFromGithub(ctx context.Context, code string) (*model.User, error) {
@@ -212,11 +216,15 @@ func (self ThirdUserLogic) BindGithub(ctx context.Context, code string, me *mode
 	return nil
 }
 
-func (ThirdUserLogic) GiteaAuthCodeUrl(ctx context.Context, redirectURL string) string {
+func (ThirdUserLogic) GiteaAuthCodeUrl(ctx context.Context, redirectURL string, state ...string) string {
 	// Redirect user to consent page to ask for permission
 	// for the scopes specified above.
 	giteaConf.RedirectURL = redirectURL
-	return giteaConf.AuthCodeURL("state", oauth2.AccessTypeOffline)
+	oauthState := "state"
+	if len(state) > 0 && state[0] != "" {
+		oauthState = state[0]
+	}
+	return giteaConf.AuthCodeURL(oauthState, oauth2.AccessTypeOffline)
 }
 
 func (self ThirdUserLogic) LoginFromGitea(ctx context.Context, code string) (*model.User, error) {
