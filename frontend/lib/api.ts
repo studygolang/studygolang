@@ -8,6 +8,7 @@ import type {
   BookListData,
   Book,
   Comment,
+  CommentDetailData,
   LoginData,
   Me,
   ProjectDetailData,
@@ -325,6 +326,10 @@ export const userAPI = {
 export const commentAPI = {
   getList(objid: number, objtype: number, fetchOptions?: RequestInit) {
     return fetchAPI<Comment[]>(`/comments?objid=${objid}&objtype=${objtype}`, fetchOptions)
+  },
+
+  getDetail(cid: number | string, objid: number | string, objtype: number, fetchOptions?: RequestInit) {
+    return fetchAPI<CommentDetailData>(`/comments/${cid}/detail?objid=${objid}&objtype=${objtype}`, fetchOptions)
   },
 
   create(objid: number, content: string, token: string) {

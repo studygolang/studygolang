@@ -21,6 +21,7 @@ type CommentController struct{}
 
 func (self CommentController) RegisterRoute(g *echo.Group) {
 	g.GET("/comments", self.List)
+	g.GET("/comments/:cid/detail", self.Detail)
 	g.POST("/comments/:objid", self.Create)
 	g.PUT("/comments/:cid", self.Modify)
 	g.GET("/at/users", self.AtUsers)
@@ -41,6 +42,37 @@ func (CommentController) List(ctx echo.Context) error {
 
 	return success(ctx, map[string]interface{}{
 		"comments": comments,
+	})
+}
+
+// Detail 评论详情（包含附近评论）
+func (CommentController) Detail(ctx echo.Context) error {
+	cid := goutils.MustInt(ctx.Param("cid"))
+	objid := goutils.MustInt(ctx.QueryParam("objid"))
+	objtype := goutils.MustInt(ctx.QueryParam("objtype"))
+
+	if cid == 0 || objid == 0 {
+		return fail(ctx, "参数有误")
+	}
+
+	// 获取当前评论和附近评论（2条）
+	comment, nearbyComments := logic.DefaultComment.FindComment(context.EchoContext(ctx), cid, objid, objtype)
+
+	if comment.Cid == 0 {
+		return fail(ctx, "评论不存在")
+	}
+
+	// 获取所有相关用户信息
+	uids := []int{comment.Uid}
+	for _, c := range nearbyComments {
+		uids = append(uids, c.Uid)
+	}
+	users := logic.DefaultUser.FindUserInfos(context.EchoContext(ctx), uids)
+
+	return success(ctx, map[string]interface{}{
+		"comment":         comment,
+		"nearby_comments": nearbyComments,
+		"users":           users,
 	})
 }
 

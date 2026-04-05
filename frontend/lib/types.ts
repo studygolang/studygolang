@@ -104,6 +104,13 @@ export interface TopicReply {
   ctime: string
 }
 
+export interface TopicAppend {
+  id: number
+  tid: number
+  content: string
+  created_at: string
+}
+
 export interface TopicListData extends Pagination {
   // /home 接口返回 "topics" 字段；/topics、/topics/node/:nid 接口返回 "list" 字段
   // 两个字段均为可选，各页面按实际接口取对应字段
@@ -339,6 +346,25 @@ export interface Comment {
   floor: number
 }
 
+// 后端 model.Comment 的完整字段
+export interface CommentDetail {
+  cid: number
+  objid: number
+  objtype: number
+  content: string
+  uid: number
+  floor: number
+  flag: number
+  ctime: string
+}
+
+// 评论详情 API 返回数据
+export interface CommentDetailData {
+  comment: CommentDetail
+  nearby_comments: CommentDetail[]
+  users: Record<string, User>
+}
+
 // 用户评论（后端 model.Comment + Objinfo）
 export interface UserComment {
   cid: number
@@ -439,6 +465,23 @@ export interface InterviewListData {
   total: number
   page: number
   total_pages: number
+  has_more: boolean
+}
+
+// ======================== 专栏相关 ========================
+export interface Subject {
+  id: number
+  name: string
+  cover: string
+  intro: string
+  article_num: number
+  follower_num: number
+  uid: number
+}
+
+export interface SubjectListData {
+  subjects: Subject[]
+  page: number
   has_more: boolean
 }
 
