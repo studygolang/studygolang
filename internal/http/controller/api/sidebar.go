@@ -33,6 +33,8 @@ func (self SidebarController) RegisterRoute(g *echo.Group) {
 	g.GET("/sidebar/users/active", self.ActiveUser)
 	g.GET("/sidebar/users/newest", self.NewestUser)
 	g.GET("/sidebar/friend/links", self.FriendLinks)
+	g.GET("/sidebar/dynamics/recent", self.RecentDynamics)
+	g.GET("/sidebar/rank/view", self.ViewRank)
 }
 
 // RecentReading 最近晨读，limit 参数默认 7
@@ -143,5 +145,89 @@ func (SidebarController) FriendLinks(ctx echo.Context) error {
 	friendLinks := logic.DefaultFriendLink.FindAll(context.EchoContext(ctx), 10)
 	return success(ctx, map[string]interface{}{
 		"links": friendLinks,
+	})
+}
+
+// RecentDynamics 最近综合动态（话题、文章、评论、资源等)
+// 返回格式: { dynamics: [...] }
+func (SidebarController) RecentDynamics(ctx echo.Context) error {
+	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
+
+	// 获取最近的话题
+	recentTopics := logic.DefaultTopic.FindRecent(limit)
+	// 获取最近的文章
+	recentArticles := logic.DefaultArticle.FindBy(context.EchoContext(ctx), limit)
+	// 获取最近的评论
+	recentComments := logic.DefaultComment.FindRecent(context.EchoContext(ctx), 0, -1, limit)
+	// 获取最近的资源
+	recentResources := logic.DefaultResource.FindRecent(context.EchoContext(ctx), 0)
+
+	// 合并成综合动态列表
+	dynamics := make([]map[string]interface{}, 0, len(recentTopics)+len(recentArticles)+len(recentComments)+len(recentResources))
+
+	for _, t := range recentTopics {
+		dynamics = append(dynamics, map[string]interface{}{
+			"type":    "topic",
+			"objid":   t.Tid,
+			"objtype": model.TypeTopic,
+			"title":   t.Title,
+			"uid":     t.Uid,
+			"ctime":   t.Ctime,
+		})
+	}
+	for _, a := range recentArticles {
+		dynamics = append(dynamics, map[string]interface{}{
+			"type":    "article",
+			"objid":   a.Id,
+			"objtype": model.TypeArticle,
+			"title":   a.Title,
+			"author":  a.AuthorTxt,
+			"ctime":   a.Ctime,
+		})
+	}
+	for _, c := range recentComments {
+		dynamics = append(dynamics, map[string]interface{}{
+			"type":    "comment",
+			"objid":   c.Cid,
+			"objtype": model.TypeComment,
+			"uid":     c.Uid,
+			"content": c.Content,
+			"ctime":   c.Ctime,
+		})
+	}
+	for _, res := range recentResources {
+		dynamics = append(dynamics, map[string]interface{}{
+			"type":    "resource",
+			"objid":   res.Id,
+			"objtype": model.TypeResource,
+			"name":    res.Title,
+			"uid":     res.Uid,
+			"ctime":   res.Ctime,
+		})
+	}
+
+	return success(ctx, map[string]interface{}{
+		"dynamics": dynamics,
+	})
+}
+
+// ViewRank 浏览量排行榜
+// 返回格式: { topics: [...], articles: [...], resources: [...] }
+func (SidebarController) ViewRank(ctx echo.Context) error {
+	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
+
+	// 获取话题浏览量排行（本周）
+	weekTopics := logic.DefaultRank.FindWeekRank(context.EchoContext(ctx), model.TypeTopic, limit, true)
+
+	// 获取文章浏览量排行（本周）
+	weekArticles := logic.DefaultRank.FindWeekRank(context.EchoContext(ctx), model.TypeArticle, limit, true)
+
+	// 获取资源浏览量排行（本周）
+	weekResources := logic.DefaultRank.FindWeekRank(context.EchoContext(ctx), model.TypeResource, limit, true)
+
+	return success(ctx, map[string]interface{}{
+		"topics":    weekTopics,
+		"articles":  weekArticles,
+		"resources": weekResources,
 	})
 }
