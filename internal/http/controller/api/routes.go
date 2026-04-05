@@ -88,4 +88,6 @@ func RegisterRoutes(g *echo.Group) {
 	new(MissionController).RegisterRoute(g)
 	new(GiftController).RegisterRoute(g)
 	new(SubjectController).RegisterRoute(g)
+	new(AccountController).RegisterRoute(g)
+	new(NodeController).RegisterRoute(g)
 }

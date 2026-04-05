@@ -1,0 +1,125 @@
+// Copyright 2024 The StudyGolang Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+// https://studygolang.com
+// Author: polaris	polaris@studygolang.com
+
+package api
+
+import (
+	"net/url"
+	"strings"
+
+	"github.com/studygolang/studygolang/context"
+	. "github.com/studygolang/studygolang/internal/http"
+	"github.com/studygolang/studygolang/internal/logic"
+
+	echo "github.com/labstack/echo/v4"
+	"github.com/polaris1119/goutils"
+)
+
+type AccountController struct{}
+
+// RegisterRoute 注册账号相关路由
+func (self AccountController) RegisterRoute(g *echo.Group) {
+	// 公开路由
+	g.GET("/account/activate", self.Activate)
+	g.POST("/account/send-activate-email", self.SendActivateEmail)
+	// 需要登录
+	g.POST("/account/social/unbind", self.SocialUnbind)
+}
+
+// SendActivateEmail 发送激活邮件（需要登录）
+// POST /api/v1/account/send-activate-email
+func (AccountController) SendActivateEmail(ctx echo.Context) error {
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", me.Uid)
+	if user == nil || user.Email == "" {
+		return fail(ctx, "用户不存在或未设置邮箱")
+	}
+
+	// 生成激活 UUID 并发送邮件
+	email := strings.TrimSpace(user.Email)
+	isHttps := CheckIsHttps(ctx)
+	logic.DefaultEmail.SendActivateMail(email, "", isHttps)
+
+	return success(ctx, map[string]interface{}{
+		"message": "激活邮件已发送",
+	})
+}
+
+// Activate 处理账号激活链接
+// GET /api/v1/account/activate?param=xxx
+func (AccountController) Activate(ctx echo.Context) error {
+	param := ctx.QueryParam("param")
+	if param == "" {
+		return fail(ctx, "缺少激活参数")
+	}
+
+	// Base64 解码参数
+	decoded := goutils.Base64Decode(param)
+	values, err := url.ParseQuery(decoded)
+	if err != nil {
+		return fail(ctx, "参数格式错误")
+	}
+
+	uuid := values.Get("uuid")
+	timestamp := goutils.MustInt64(values.Get("timestamp"))
+	sign := values.Get("sign")
+	email := values.Get("email")
+
+	if uuid == "" || email == "" {
+		return fail(ctx, "激活链接不完整")
+	}
+
+	user, err := logic.DefaultUser.Activate(context.EchoContext(ctx), email, uuid, timestamp, sign)
+	if err != nil {
+		return fail(ctx, "激活失败："+err.Error())
+	}
+
+	return success(ctx, map[string]interface{}{
+		"message": "激活成功",
+		"uid":     user.Uid,
+	})
+}
+
+// socialUnbindRequest 解绑社交账号请求体
+type socialUnbindRequest struct {
+	BindID   int    `json:"bind_id"`
+	Platform string `json:"platform"` // github 或 gitea
+}
+
+// SocialUnbind 解绑社交账号（需要登录）
+// POST /api/v1/account/social/unbind
+func (AccountController) SocialUnbind(ctx echo.Context) error {
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	var req socialUnbindRequest
+	if err := ctx.Bind(&req); err != nil {
+		return fail(ctx, "请求参数错误")
+	}
+
+	if req.BindID == 0 {
+		return fail(ctx, "绑定 ID 不合法")
+	}
+
+	platform := strings.TrimSpace(req.Platform)
+	if platform != "github" && platform != "gitea" {
+		return fail(ctx, "不支持该平台")
+	}
+
+	if err := logic.DefaultThirdUser.UnBindUser(context.EchoContext(ctx), req.BindID, me); err != nil {
+		return fail(ctx, "解绑失败："+err.Error())
+	}
+
+	return success(ctx, map[string]interface{}{
+		"message": "解绑成功",
+	})
+}
