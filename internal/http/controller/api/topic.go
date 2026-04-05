@@ -29,6 +29,9 @@ func (self TopicController) RegisterRoute(g *echo.Group) {
 	g.GET("/topics/:tid/edit", self.Edit)
 	g.PUT("/topics/:tid", self.Update)
 	g.GET("/topics/:tid", self.Detail)
+	g.POST("/topics/:tid/append", self.Append)
+	g.GET("/topics/:tid/appends", self.Appends)
+	g.GET("/topics/:nid/others", self.OthersTopics)
 	g.GET("/nodes", self.Nodes)
 }
 
@@ -202,10 +205,41 @@ func (TopicController) Update(ctx echo.Context) error {
 	return success(ctx, map[string]interface{}{"tid": tid})
 }
 
+// OthersTopics 获取同一节点下的其他话题（用于话题详情页侧边栏）
+// GET /api/v1/topics/:nid/others?limit=10
+func (TopicController) OthersTopics(ctx echo.Context) error {
+	nid := goutils.MustInt(ctx.Param("nid"), 0)
+	if nid == 0 {
+		return fail(ctx, "节点 ID 不合法")
+	}
+
+	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
+	if limit <= 0 || limit > 20 {
+		limit = 10
+	}
+
+	curPage := 1
+	paginator := logic.NewPaginatorWithPerPage(curPage, limit)
+	querystring := "nid=?"
+	topics := logic.DefaultTopic.FindAll(context.EchoContext(ctx), paginator, "topics.mtime DESC", querystring, nid)
+	node := logic.GetNode(nid)
+
+	return success(ctx, map[string]interface{}{
+		"list": topics,
+		"node": node,
+	})
+}
+
 // Nodes 获取所有节点列表
+// GET /api/v1/nodes
 func (TopicController) Nodes(ctx echo.Context) error {
-	nodes := logic.GenNodes()
-	return success(ctx, nodes)
+	data := make(map[string]interface{})
+	if len(logic.AllRecommendNodes) > 0 {
+		data["nodes"] = logic.DefaultNode.FindAll(context.EchoContext(ctx))
+	} else {
+		data["nodes"] = logic.GenNodes()
+	}
+	return success(ctx, data)
 }
 
 // Publish 发布新话题（需要登录，支持 Cookie 和 X-Token header）
@@ -239,4 +273,54 @@ func (TopicController) Publish(ctx echo.Context) error {
 		return fail(ctx, "发布失败："+err.Error())
 	}
 	return success(ctx, map[string]interface{}{"tid": tid})
+}
+
+// Append 发布话题附言（需要登录 + 作者权限校验）
+func (TopicController) Append(ctx echo.Context) error {
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	tid := goutils.MustInt(ctx.Param("tid"))
+	if tid == 0 {
+		return fail(ctx, "tid 非法")
+	}
+
+	// 验证话题是否存在及权限
+	topics := logic.DefaultTopic.FindByTids([]int{tid})
+	if len(topics) == 0 {
+		return fail(ctx, "话题不存在")
+	}
+	if topics[0].Uid != me.Uid && !me.IsRoot {
+		return fail(ctx, "只有话题作者才能添加附言")
+	}
+
+	content := ctx.FormValue("content")
+	if content == "" {
+		return fail(ctx, "附言内容不能为空")
+	}
+	if len(content) > 65535 {
+		return fail(ctx, "附言内容过长")
+	}
+
+	err = logic.DefaultTopic.Append(context.EchoContext(ctx), me.Uid, tid, content)
+	if err != nil {
+		return fail(ctx, err.Error())
+	}
+
+	return success(ctx, map[string]interface{}{"tid": tid})
+}
+
+// Appends 获取话题附言列表
+func (TopicController) Appends(ctx echo.Context) error {
+	tid := goutils.MustInt(ctx.Param("tid"))
+	if tid == 0 {
+		return fail(ctx, "tid 非法")
+	}
+
+	appends := logic.DefaultTopic.FindAppend(context.EchoContext(ctx), tid)
+	return success(ctx, map[string]interface{}{
+		"appends": appends,
+	})
 }
