@@ -21,6 +21,7 @@ import (
 type SubjectController struct{}
 
 func (self SubjectController) RegisterRoute(g *echo.Group) {
+	g.GET("/subjects", self.List)
 	g.GET("/subject/:id", self.Index)
 	g.POST("/subject/follow", self.Follow)
 	g.GET("/subject/my_articles", self.MyArticles)
@@ -250,5 +251,25 @@ func (SubjectController) Modify(ctx echo.Context) error {
 
 	return success(ctx, map[string]interface{}{
 		"sid": sid,
+	})
+}
+
+// List 专栏列表（分页）
+func (SubjectController) List(ctx echo.Context) error {
+	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	if curPage < 1 {
+		curPage = 1
+	}
+	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
+
+	subjects := logic.DefaultSubject.FindBy(context.EchoContext(ctx), paginator)
+
+	// 通过返回数量判断是否有更多
+	hasMore := len(subjects) >= perPage
+
+	return success(ctx, map[string]interface{}{
+		"subjects": subjects,
+		"page":     curPage,
+		"has_more": hasMore,
 	})
 }
