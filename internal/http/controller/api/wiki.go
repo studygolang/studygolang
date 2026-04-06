@@ -7,6 +7,8 @@
 package api
 
 import (
+	"strconv"
+
 	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/internal/http"
 	"github.com/studygolang/studygolang/internal/logic"
@@ -20,7 +22,10 @@ type WikiController struct{}
 
 func (self WikiController) RegisterRoute(g *echo.Group) {
 	g.GET("/wiki", self.List)
+	g.GET("/wiki/:uri/edit", self.Edit)
 	g.GET("/wiki/:uri", self.Detail)
+	g.POST("/wiki", self.Create)
+	g.PUT("/wiki/:id", self.Update)
 }
 
 // List Wiki 列表
@@ -98,5 +103,94 @@ func (WikiController) Detail(ctx echo.Context) error {
 
 	return success(ctx, map[string]interface{}{
 		"wiki": wiki,
+	})
+}
+
+// Edit 获取 Wiki 编辑数据（通过 URI 查找，需要登录和编辑权限）
+func (WikiController) Edit(ctx echo.Context) error {
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	uri := ctx.Param("uri")
+	wiki := logic.DefaultWiki.FindOne(context.EchoContext(ctx), uri)
+	if wiki == nil || wiki.Id == 0 {
+		return fail(ctx, "Wiki 不存在")
+	}
+
+	if !logic.CanEdit(me, wiki) {
+		return fail(ctx, "无权限编辑")
+	}
+
+	return success(ctx, map[string]interface{}{
+		"wiki": map[string]interface{}{
+			"id":      wiki.Id,
+			"title":   wiki.Title,
+			"content": wiki.Content,
+			"uri":     wiki.Uri,
+		},
+	})
+}
+
+// Create 创建 Wiki（需要登录）
+func (WikiController) Create(ctx echo.Context) error {
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	form, err := ctx.FormParams()
+	if err != nil {
+		return fail(ctx, "获取表单参数失败")
+	}
+
+	form.Set("uid", strconv.Itoa(me.Uid))
+
+	err = logic.DefaultWiki.Create(context.EchoContext(ctx), me, form)
+	if err != nil {
+		return fail(ctx, err.Error())
+	}
+
+	return success(ctx, map[string]interface{}{
+		"message": "创建成功",
+	})
+}
+
+// Update 更新 Wiki（需要登录，通过 ID 更新）
+func (WikiController) Update(ctx echo.Context) error {
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	id := goutils.MustInt(ctx.Param("id"))
+	if id == 0 {
+		return fail(ctx, "Wiki ID 无效")
+	}
+
+	wiki := logic.DefaultWiki.FindById(context.EchoContext(ctx), id)
+	if wiki == nil || wiki.Id == 0 {
+		return fail(ctx, "Wiki 不存在")
+	}
+
+	if !logic.CanEdit(me, wiki) {
+		return fail(ctx, "无权限编辑")
+	}
+
+	form, err := ctx.FormParams()
+	if err != nil {
+		return fail(ctx, "获取表单参数失败")
+	}
+
+	form.Set("id", strconv.Itoa(id))
+
+	err = logic.DefaultWiki.Modify(context.EchoContext(ctx), me, form)
+	if err != nil {
+		return fail(ctx, err.Error())
+	}
+
+	return success(ctx, map[string]interface{}{
+		"message": "更新成功",
 	})
 }
