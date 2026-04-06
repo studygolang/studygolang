@@ -90,4 +90,6 @@ func RegisterRoutes(g *echo.Group) {
 	new(SubjectController).RegisterRoute(g)
 	new(AccountController).RegisterRoute(g)
 	new(NodeController).RegisterRoute(g)
+	new(DownloadController).RegisterRoute(g)
+	new(GCTTController).RegisterRoute(g)
 }
