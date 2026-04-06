@@ -21,6 +21,7 @@ import (
 type ResourceController struct{}
 
 func (self ResourceController) RegisterRoute(g *echo.Group) {
+	g.GET("/resources/categories", self.Categories)
 	g.GET("/resources", self.List)
 	g.POST("/resources", self.Publish)
 	g.GET("/resources/:id/edit", self.Edit)
@@ -179,5 +180,12 @@ func (ResourceController) Detail(ctx echo.Context) error {
 	return success(ctx, map[string]interface{}{
 		"resource": resource,
 		"comments": comments,
+	})
+}
+
+// Categories 获取资源分类列表
+func (ResourceController) Categories(ctx echo.Context) error {
+	return success(ctx, map[string]interface{}{
+		"categories": logic.AllCategory,
 	})
 }
