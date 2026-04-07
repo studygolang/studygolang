@@ -204,6 +204,10 @@ export const resourceAPI = {
   getDetail(id: number | string, fetchOptions?: RequestInit) {
     return fetchAPI<{ resource: Resource; comments: Comment[] }>(`/resources/${id}`, fetchOptions)
   },
+
+  getCategories(fetchOptions?: RequestInit) {
+    return fetchAPI<{ categories: Array<{ id: number; name: string }> }>('/resources/categories', fetchOptions)
+  },
 }
 
 // ======================== 晨读 ========================
@@ -332,12 +336,43 @@ export const commentAPI = {
     return fetchAPI<CommentDetailData>(`/comments/${cid}/detail?objid=${objid}&objtype=${objtype}`, fetchOptions)
   },
 
-  create(objid: number, content: string, token: string) {
+  // 发表评论（使用 form-urlencoded + Cookie 认证）
+  create(objid: number, objtype: number, content: string) {
+    const form = new URLSearchParams()
+    form.set('objtype', String(objtype))
+    form.set('content', content)
     return fetchAPI<Comment>(`/comments/${objid}`, {
       method: 'POST',
-      headers: { 'X-Token': token },
-      body: JSON.stringify({ content }),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
+      credentials: 'include',
     })
+  },
+
+  // 修改评论（使用 form-urlencoded + Cookie 认证）
+  update(cid: number | string, content: string) {
+    const form = new URLSearchParams()
+    form.set('content', content)
+    return fetchAPI<Comment>(`/comments/${cid}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
+      credentials: 'include',
+    })
+  },
+
+  // @用户自动补全（后端返回裸数组，非标准 APIResponse 格式）
+  async getAtUsers(term: string): Promise<Array<{ username: string; avatar: string }>> {
+    const base = getAPIBase()
+    try {
+      const res = await fetch(`${base}/api/v1/at/users?term=${encodeURIComponent(term)}`, {
+        credentials: 'include',
+      })
+      if (!res.ok) return []
+      return res.json()
+    } catch {
+      return []
+    }
   },
 }
 
@@ -396,5 +431,438 @@ export const wikiAPI = {
 
   getDetail(uri: string, fetchOptions?: RequestInit) {
     return fetchAPI<{ wiki: Wiki }>(`/wiki/${uri}`, fetchOptions)
+  },
+
+  // 获取 Wiki 编辑数据（需要登录）
+  getEdit(uri: string, fetchOptions?: RequestInit) {
+    return fetchAPI<{ wiki: { id: number; title: string; content: string; uri: string } }>(`/wiki/${uri}/edit`, {
+      ...fetchOptions,
+      credentials: 'include',
+    })
+  },
+
+  // 创建 Wiki
+  create(data: { title: string; content: string; uri: string }) {
+    const form = new URLSearchParams()
+    form.set('title', data.title)
+    form.set('content', data.content)
+    form.set('uri', data.uri)
+    return fetchAPI<{ message: string }>('/wiki', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
+      credentials: 'include',
+    })
+  },
+
+  // 更新 Wiki
+  update(id: number, data: { title: string; content: string }) {
+    const form = new URLSearchParams()
+    form.set('id', String(id))
+    form.set('title', data.title)
+    form.set('content', data.content)
+    return fetchAPI<{ message: string }>(`/wiki/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
+      credentials: 'include',
+    })
+  },
+}
+
+// ======================== 私信 ========================
+export const messageAPI = {
+  list(type: string = 'inbox', params: { p?: number } = {}, fetchOptions?: RequestInit) {
+    const q = new URLSearchParams()
+    q.set('type', type)
+    if (params.p) q.set('p', String(params.p))
+    return fetchAPI<{ messages: any[]; total: number; page: number; has_more: boolean }>(`/messages?${q}`, {
+      ...fetchOptions,
+      credentials: 'include',
+    })
+  },
+
+  // 发送私信
+  send(toUid: number, content: string) {
+    const form = new URLSearchParams()
+    form.set('to_uid', String(toUid))
+    form.set('content', content)
+    return fetchAPI<{ message: string }>('/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
+      credentials: 'include',
+    })
+  },
+
+  // 删除私信
+  delete(id: number | string) {
+    return fetchAPI<null>(`/messages/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    })
+  },
+}
+
+// ======================== 项目（补充写操作）========================
+export const projectWriteAPI = {
+  // 获取项目编辑数据（需要登录）
+  getEdit(uri: string, fetchOptions?: RequestInit) {
+    return fetchAPI<{ project: any }>(`/projects/${uri}/edit`, {
+      ...fetchOptions,
+      credentials: 'include',
+    })
+  },
+
+  // 更新项目
+  update(uri: string, data: Record<string, string>) {
+    const form = new URLSearchParams()
+    for (const [key, value] of Object.entries(data)) {
+      form.set(key, value)
+    }
+    return fetchAPI<{ message: string }>(`/projects/${uri}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
+      credentials: 'include',
+    })
+  },
+
+  // 检查 URI 唯一性
+  checkUri(uri: string) {
+    return fetchAPI<{ available: boolean }>(`/projects/check_uri?uri=${encodeURIComponent(uri)}`)
+  },
+}
+
+// ======================== 资源（补充写操作）========================
+export const resourceWriteAPI = {
+  // 获取资源编辑数据
+  getEdit(id: number | string, fetchOptions?: RequestInit) {
+    return fetchAPI<{ resource: any }>(`/resources/${id}/edit`, {
+      ...fetchOptions,
+      credentials: 'include',
+    })
+  },
+
+  // 更新资源
+  update(id: number | string, data: Record<string, string>) {
+    const form = new URLSearchParams()
+    for (const [key, value] of Object.entries(data)) {
+      form.set(key, value)
+    }
+    return fetchAPI<{ message: string }>(`/resources/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
+      credentials: 'include',
+    })
+  },
+}
+
+// ======================== 图书（补充写操作）========================
+export const bookWriteAPI = {
+  // 获取图书编辑数据
+  getEdit(id: number | string, fetchOptions?: RequestInit) {
+    return fetchAPI<{ book: any }>(`/books/${id}/edit`, {
+      ...fetchOptions,
+      credentials: 'include',
+    })
+  },
+
+  // 更新图书
+  update(id: number | string, data: Record<string, string>) {
+    const form = new URLSearchParams()
+    for (const [key, value] of Object.entries(data)) {
+      form.set(key, value)
+    }
+    return fetchAPI<{ message: string }>(`/books/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
+      credentials: 'include',
+    })
+  },
+}
+
+// ======================== 专栏 ========================
+export const subjectAPI = {
+  // 关注/取消关注专栏
+  follow(sid: number) {
+    const form = new URLSearchParams()
+    form.set('sid', String(sid))
+    return fetchAPI<{ followed: boolean }>('/subject/follow', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
+      credentials: 'include',
+    })
+  },
+
+  // 投稿文章到专栏
+  contribute(sid: number, aid: number) {
+    const form = new URLSearchParams()
+    form.set('sid', String(sid))
+    form.set('aid', String(aid))
+    return fetchAPI<{ message: string }>('/subject/contribute', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
+      credentials: 'include',
+    })
+  },
+
+  // 从专栏移除文章
+  removeContribute(sid: number, aid: number) {
+    const form = new URLSearchParams()
+    form.set('sid', String(sid))
+    form.set('aid', String(aid))
+    return fetchAPI<{ message: string }>('/subject/remove_contribute', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
+      credentials: 'include',
+    })
+  },
+
+  // 修改专栏
+  modify(data: Record<string, string>) {
+    const form = new URLSearchParams()
+    for (const [key, value] of Object.entries(data)) {
+      form.set(key, value)
+    }
+    return fetchAPI<{ message: string }>('/subject/modify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
+      credentials: 'include',
+    })
+  },
+
+  // 获取我的文章列表（用于投稿选择）
+  myArticles(fetchOptions?: RequestInit) {
+    return fetchAPI<{ articles: any[] }>('/subject/my_articles', {
+      ...fetchOptions,
+      credentials: 'include',
+    })
+  },
+}
+
+// ======================== 账户管理 ========================
+export const accountAPI = {
+  // 激活账户
+  activate(token: string) {
+    const form = new URLSearchParams()
+    form.set('token', token)
+    return fetchAPI<{ message: string }>('/account/activate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
+      credentials: 'include',
+    })
+  },
+
+  // 发送激活邮件
+  sendActivateEmail() {
+    return fetchAPI<{ message: string }>('/account/send-activate-email', {
+      method: 'POST',
+      credentials: 'include',
+    })
+  },
+
+  // 邮件退订确认
+  unsubscribePage(token: string, fetchOptions?: RequestInit) {
+    return fetchAPI<{ email: string }>(`/account/email/unsubscribe?token=${encodeURIComponent(token)}`, fetchOptions)
+  },
+
+  // 执行邮件退订
+  unsubscribe(token: string) {
+    const form = new URLSearchParams()
+    form.set('token', token)
+    return fetchAPI<{ message: string }>('/account/email/unsubscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
+      credentials: 'include',
+    })
+  },
+
+  // 第三方账号解绑
+  socialUnbind(bindId: number, platform: string) {
+    const form = new URLSearchParams()
+    form.set('bind_id', String(bindId))
+    form.set('platform', platform)
+    return fetchAPI<{ message: string }>('/account/social/unbind', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
+      credentials: 'include',
+    })
+  },
+}
+
+// ======================== GCTT ========================
+export const gcttAPI = {
+  // 获取当前用户 GCTT 信息
+  getMe(fetchOptions?: RequestInit) {
+    return fetchAPI<{ gctt_user: any; is_translator: boolean }>('/gctt/me', {
+      ...fetchOptions,
+      credentials: 'include',
+    })
+  },
+
+  // 申请成为译者
+  apply() {
+    return fetchAPI<{ gctt_user: any }>('/gctt/apply', {
+      method: 'POST',
+      credentials: 'include',
+    })
+  },
+
+  // 发布翻译文章
+  publish(title: string, content: string) {
+    const form = new URLSearchParams()
+    form.set('title', title)
+    form.set('content', content)
+    return fetchAPI<{ id: number }>('/gctt/articles', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
+      credentials: 'include',
+    })
+  },
+}
+
+// ======================== 话题（补充写操作）========================
+export const topicWriteAPI = {
+  // 置顶/取消置顶话题（管理员）
+  setTop(tid: number | string) {
+    return fetchAPI<{ message: string }>(`/topics/${tid}/set_top`, {
+      method: 'POST',
+      credentials: 'include',
+    })
+  },
+
+  // 话题追加内容
+  append(tid: number | string, content: string) {
+    const form = new URLSearchParams()
+    form.set('content', content)
+    return fetchAPI<{ message: string }>(`/topics/${tid}/append`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
+      credentials: 'include',
+    })
+  },
+
+  // 获取话题追加内容
+  getAppends(tid: number | string, fetchOptions?: RequestInit) {
+    return fetchAPI<{ appends: any[] }>(`/topics/${tid}/appends`, fetchOptions)
+  },
+}
+
+// ======================== 点赞 ========================
+export const likeAPI = {
+  // 点赞/取消点赞（toggle）
+  toggle(objid: number, objtype: number, flag: boolean) {
+    return fetchAPI<{ message: string }>(`/likes/${objid}?objtype=${objtype}&flag=${flag ? 1 : 0}`, {
+      method: 'POST',
+      credentials: 'include',
+    })
+  },
+
+  // 查询点赞状态
+  getStatus(objid: number, objtype: number, fetchOptions?: RequestInit) {
+    return fetchAPI<{ has_like: boolean }>(`/likes/${objid}/status?objtype=${objtype}`, fetchOptions)
+  },
+}
+
+// ======================== 收藏 ========================
+export const favoriteAPI = {
+  // 收藏/取消收藏（toggle）
+  toggle(objid: number, objtype: number, flag: boolean) {
+    return fetchAPI<{ message: string }>(`/favorites/${objid}?objtype=${objtype}&flag=${flag ? 1 : 0}`, {
+      method: 'POST',
+      credentials: 'include',
+    })
+  },
+
+  // 查询收藏状态
+  getStatus(objid: number, objtype: number, fetchOptions?: RequestInit) {
+    return fetchAPI<{ has_favorite: boolean }>(`/favorites/${objid}/status?objtype=${objtype}`, fetchOptions)
+  },
+
+  // 获取用户收藏列表
+  listByUsername(username: string, params: { p?: number } = {}, fetchOptions?: RequestInit) {
+    const q = new URLSearchParams()
+    if (params.p) q.set('p', String(params.p))
+    return fetchAPI<{ favorites: any[]; total: number; page: number; has_more: boolean }>(
+      `/users/${username}/favorites?${q}`,
+      fetchOptions,
+    )
+  },
+}
+
+// ======================== 任务 ========================
+export const missionAPI = {
+  // 获取每日任务状态（需登录）
+  getDaily(fetchOptions?: RequestInit) {
+    return fetchAPI<{ missions: any[]; redeemed: boolean }>(`/mission/daily`, {
+      ...fetchOptions,
+      credentials: 'include',
+    })
+  },
+
+  // 领取每日登录奖励
+  dailyRedeem() {
+    return fetchAPI<{ message: string; balance: number }>('/mission/daily/redeem', {
+      method: 'POST',
+      credentials: 'include',
+    })
+  },
+
+  // 完成任务
+  complete(id: number | string) {
+    return fetchAPI<{ message: string }>(`/mission/complete/${id}`, {
+      method: 'POST',
+      credentials: 'include',
+    })
+  },
+}
+
+// ======================== 余额 ========================
+export const balanceAPI = {
+  // 获取余额详情（需登录）
+  getMyBalance(fetchOptions?: RequestInit) {
+    return fetchAPI<{ balance: number; incomes: any[]; expenses: any[] }>('/balance', {
+      ...fetchOptions,
+      credentials: 'include',
+    })
+  },
+}
+
+// ======================== 首页聚合 ========================
+export const homeAPI = {
+  // 首页数据聚合
+  getData(fetchOptions?: RequestInit) {
+    return fetchAPI<{
+      topics: any[]
+      articles: any[]
+      projects: any[]
+      resources: any[]
+      readings: any[]
+      nodes: any[]
+      stats: any
+    }>('/home', fetchOptions)
+  },
+}
+
+// ======================== 用户登出 ========================
+export const authAPI = {
+  // 登出
+  logout() {
+    return fetchAPI<{ message: string }>('/user/logout', {
+      method: 'POST',
+      credentials: 'include',
+    })
   },
 }
