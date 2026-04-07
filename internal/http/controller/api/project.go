@@ -23,6 +23,7 @@ type ProjectController struct{}
 func (self ProjectController) RegisterRoute(g *echo.Group) {
 	g.GET("/projects", self.List)
 	g.POST("/projects", self.Publish)
+	g.GET("/projects/check_uri", self.CheckUri)
 	g.GET("/projects/:uri/edit", self.Edit)
 	g.PUT("/projects/:uri", self.Update)
 	g.GET("/projects/:uri", self.Detail)
@@ -161,4 +162,15 @@ func (ProjectController) Detail(ctx echo.Context) error {
 		"project": project,
 		"replies": replies,
 	})
+}
+
+// CheckUri 检查项目 URI 是否已存在
+func (ProjectController) CheckUri(ctx echo.Context) error {
+	uri := ctx.QueryParam("uri")
+	if uri == "" {
+		return success(ctx, map[string]interface{}{"exists": false})
+	}
+
+	exists := logic.DefaultProject.UriExists(context.EchoContext(ctx), uri)
+	return success(ctx, map[string]interface{}{"exists": exists})
 }

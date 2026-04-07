@@ -29,6 +29,7 @@ func (self TopicController) RegisterRoute(g *echo.Group) {
 	g.GET("/topics/:tid/edit", self.Edit)
 	g.PUT("/topics/:tid", self.Update)
 	g.GET("/topics/:tid", self.Detail)
+	g.POST("/topics/:tid/set_top", self.SetTop)
 	g.POST("/topics/:tid/append", self.Append)
 	g.GET("/topics/:tid/appends", self.Appends)
 	g.GET("/topics/:nid/others", self.OthersTopics)
@@ -323,4 +324,24 @@ func (TopicController) Appends(ctx echo.Context) error {
 	return success(ctx, map[string]interface{}{
 		"appends": appends,
 	})
+}
+
+// SetTop 设置话题置顶（需要登录）
+func (TopicController) SetTop(ctx echo.Context) error {
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	tid := goutils.MustInt(ctx.Param("tid"))
+	if tid == 0 {
+		return fail(ctx, "tid 非法")
+	}
+
+	err = logic.DefaultTopic.SetTop(context.EchoContext(ctx), me, tid)
+	if err != nil {
+		return fail(ctx, err.Error())
+	}
+
+	return success(ctx, map[string]interface{}{"tid": tid})
 }

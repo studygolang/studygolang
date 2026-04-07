@@ -25,6 +25,8 @@ func (self AccountController) RegisterRoute(g *echo.Group) {
 	// 公开路由
 	g.GET("/account/activate", self.Activate)
 	g.POST("/account/send-activate-email", self.SendActivateEmail)
+	g.GET("/account/email/unsubscribe", self.UnsubscribePage)
+	g.POST("/account/email/unsubscribe", self.Unsubscribe)
 	// 需要登录
 	g.POST("/account/social/unbind", self.SocialUnbind)
 }
@@ -121,5 +123,62 @@ func (AccountController) SocialUnbind(ctx echo.Context) error {
 
 	return success(ctx, map[string]interface{}{
 		"message": "解绑成功",
+	})
+}
+
+// UnsubscribePage 邮件退订页面数据
+// GET /api/v1/account/email/unsubscribe?token=xxx&email=xxx
+func (AccountController) UnsubscribePage(ctx echo.Context) error {
+	token := ctx.QueryParam("token")
+	email := ctx.QueryParam("email")
+
+	if token == "" || email == "" {
+		return fail(ctx, "参数不完整")
+	}
+
+	// 校验 token 的合法性
+	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "email", email)
+	if user == nil || user.Email == "" {
+		return fail(ctx, "用户不存在")
+	}
+
+	realToken := logic.DefaultEmail.GenUnsubscribeToken(user)
+	if token != realToken {
+		return fail(ctx, "验证失败")
+	}
+
+	return success(ctx, map[string]interface{}{
+		"email":       email,
+		"token":       token,
+		"unsubscribe": user.Unsubscribe,
+	})
+}
+
+// Unsubscribe 执行邮件退订
+// POST /api/v1/account/email/unsubscribe
+func (AccountController) Unsubscribe(ctx echo.Context) error {
+	token := ctx.FormValue("token")
+	email := ctx.FormValue("email")
+
+	if token == "" || email == "" {
+		return fail(ctx, "参数不完整")
+	}
+
+	// 校验 token 的合法性
+	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "email", email)
+	if user == nil || user.Email == "" {
+		return fail(ctx, "用户不存在")
+	}
+
+	realToken := logic.DefaultEmail.GenUnsubscribeToken(user)
+	if token != realToken {
+		return fail(ctx, "验证失败")
+	}
+
+	unsubscribe := goutils.MustInt(ctx.FormValue("unsubscribe"))
+	logic.DefaultUser.EmailSubscribe(context.EchoContext(ctx), user.Uid, unsubscribe)
+
+	return success(ctx, map[string]interface{}{
+		"message": "操作成功",
 	})
 }
