@@ -4,6 +4,9 @@ import { useState } from 'react'
 import { Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { likeAPI } from '@/lib/api'
+import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
 interface LikeButtonProps {
   objid: number
@@ -23,6 +26,7 @@ export function LikeButton({
   const [liked, setLiked] = useState(initialLiked)
   const [count, setCount] = useState(initialCount)
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
   const handleLike = async () => {
     if (loading) return
@@ -31,28 +35,16 @@ export function LikeButton({
     const newLiked = !liked
 
     try {
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8090'
-      const res = await fetch(
-        `${base}/api/v1/likes/${objid}?objtype=${objtype}&flag=${newLiked ? 1 : 0}`,
-        {
-          method: 'POST',
-          credentials: 'include',
-        }
-      )
-
-      const json = await res.json()
-
-      if (json.code === 0) {
-        setLiked(newLiked)
-        setCount(prev => newLiked ? prev + 1 : Math.max(0, prev - 1))
-      } else if (json.code === 600) {
-        window.location.href = '/login'
+      await likeAPI.toggle(objid, objtype, newLiked)
+      setLiked(newLiked)
+      setCount(prev => newLiked ? prev + 1 : Math.max(0, prev - 1))
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : ''
+      if (msg.includes('未登录') || msg.includes('600')) {
+        router.push('/account/login')
       } else {
-        alert(json.msg || '操作失败')
+        toast.error(msg || '操作失败')
       }
-    } catch (error) {
-      console.error('点赞失败:', error)
-      alert('操作失败，请稍后重试')
     } finally {
       setLoading(false)
     }

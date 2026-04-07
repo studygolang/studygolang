@@ -4,6 +4,9 @@ import { useState } from 'react'
 import { Bookmark } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { favoriteAPI } from '@/lib/api'
+import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
 interface FavoriteButtonProps {
   objid: number
@@ -20,6 +23,7 @@ export function FavoriteButton({
 }: FavoriteButtonProps) {
   const [favorited, setFavorited] = useState(initialFavorited)
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
   const handleFavorite = async () => {
     if (loading) return
@@ -28,27 +32,15 @@ export function FavoriteButton({
     const newFavorited = !favorited
 
     try {
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8090'
-      const res = await fetch(
-        `${base}/api/v1/favorites/${objid}?objtype=${objtype}&collect=${newFavorited ? 1 : 0}`,
-        {
-          method: 'POST',
-          credentials: 'include',
-        }
-      )
-
-      const json = await res.json()
-
-      if (json.code === 0) {
-        setFavorited(newFavorited)
-      } else if (json.code === 600) {
-        window.location.href = '/login'
+      await favoriteAPI.toggle(objid, objtype, newFavorited)
+      setFavorited(newFavorited)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : ''
+      if (msg.includes('未登录') || msg.includes('600')) {
+        router.push('/account/login')
       } else {
-        alert(json.msg || '操作失败')
+        toast.error(msg || '操作失败')
       }
-    } catch (error) {
-      console.error('收藏失败:', error)
-      alert('操作失败，请稍后重试')
     } finally {
       setLoading(false)
     }
