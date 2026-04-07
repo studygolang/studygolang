@@ -107,9 +107,9 @@ allowed-tools: 'Agent, Read, Write, Edit, Bash, Glob, Grep, TaskCreate, TaskUpda
 使用 Agent tool 并行派发 3 个 Review agent，**必须使用不同模型**：
 
 ```
-Agent 1: model=opus   → 深度推理 Review（逻辑正确性、边界条件、竞态风险）
-Agent 2: model=sonnet → 架构规范 Review（代码风格、项目一致性、设计模式）
-Agent 3: model=haiku  → 快速全面 Review（构建通过、无遗漏、无明显 bug）
+Agent 1: model=sonnet          → 深度推理 Review（逻辑正确性、边界条件、竞态风险）
+Agent 2: model=zai/glm-5.1     → 架构规范 Review（代码风格、项目一致性、设计模式）
+Agent 3: model=minimax/MiniMax-M2.7 → 快速全面 Review（构建通过、无遗漏、无明显 bug）
 ```
 
 ### 每个 Reviewer 检查项
