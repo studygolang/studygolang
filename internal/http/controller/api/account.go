@@ -13,6 +13,7 @@ import (
 	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/internal/http"
 	"github.com/studygolang/studygolang/internal/logic"
+	"github.com/studygolang/studygolang/internal/model"
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
@@ -28,6 +29,7 @@ func (self AccountController) RegisterRoute(g *echo.Group) {
 	g.GET("/account/email/unsubscribe", self.UnsubscribePage)
 	g.POST("/account/email/unsubscribe", self.Unsubscribe)
 	// 需要登录
+	g.GET("/account/bind_users", self.BindUsers)
 	g.POST("/account/social/unbind", self.SocialUnbind)
 }
 
@@ -180,5 +182,52 @@ func (AccountController) Unsubscribe(ctx echo.Context) error {
 
 	return success(ctx, map[string]interface{}{
 		"message": "操作成功",
+	})
+}
+
+// bindUserDTO 绑定账号响应（过滤敏感字段，不暴露 access_token/refresh_token）
+type bindUserDTO struct {
+	ID       int    `json:"id"`
+	Platform string `json:"platform"` // "github" 或 "gitea"
+	Username string `json:"username"`
+	Name     string `json:"name"`
+	Avatar   string `json:"avatar"`
+}
+
+// bindPlatformName 将绑定类型常量转为平台名称
+func bindPlatformName(t int) string {
+	switch t {
+	case model.BindTypeGithub:
+		return "github"
+	case model.BindTypeGitea:
+		return "gitea"
+	default:
+		return "unknown"
+	}
+}
+
+// BindUsers 获取已绑定的社交账号列表（需要登录）
+// GET /api/v1/account/bind_users
+func (AccountController) BindUsers(ctx echo.Context) error {
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	bindUsers := logic.DefaultUser.FindBindUsers(context.EchoContext(ctx), me.Uid)
+
+	dtos := make([]bindUserDTO, 0, len(bindUsers))
+	for _, bu := range bindUsers {
+		dtos = append(dtos, bindUserDTO{
+			ID:       bu.Id,
+			Platform: bindPlatformName(bu.Type),
+			Username: bu.Username,
+			Name:     bu.Name,
+			Avatar:   bu.Avatar,
+		})
+	}
+
+	return success(ctx, map[string]interface{}{
+		"bind_users": dtos,
 	})
 }

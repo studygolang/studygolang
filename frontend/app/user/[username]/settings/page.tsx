@@ -8,9 +8,18 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { userAPI } from '@/lib/api'
-import type { User } from '@/lib/types'
-import { User as UserIcon, Save, Loader2 } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { userAPI, accountAPI } from '@/lib/api'
+import type { User, BindUser } from '@/lib/types'
+import { User as UserIcon, Save, Loader2, Link2, Unlink } from 'lucide-react'
+
+// 平台图标映射
+function PlatformIcon({ type }: { type: string }) {
+  if (type === 'github') return (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+  )
+  return <Link2 className="h-4 w-4" />
+}
 
 export default function UserSettingsPage() {
   const params = useParams<{ username: string }>()
@@ -21,6 +30,11 @@ export default function UserSettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+
+  // 社交账号绑定状态
+  const [bindUsers, setBindUsers] = useState<BindUser[]>([])
+  const [bindLoading, setBindLoading] = useState(false)
+  const [unbinding, setUnbinding] = useState<number | null>(null)
 
   // 表单字段
   const [name, setName] = useState('')
@@ -58,9 +72,42 @@ export default function UserSettingsPage() {
     }
   }, [username])
 
+  // 加载社交账号绑定
+  const loadBindUsers = useCallback(async () => {
+    setBindLoading(true)
+    try {
+      const data = await accountAPI.getBindUsers()
+      setBindUsers(data?.bind_users ?? [])
+    } catch {
+      // 未登录时不阻断页面，但提示用户
+      setBindUsers([])
+    } finally {
+      setBindLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
     loadProfile()
-  }, [loadProfile])
+    loadBindUsers()
+  }, [loadProfile, loadBindUsers])
+
+  // 解绑社交账号
+  const handleUnbind = async (bu: BindUser) => {
+    if (!window.confirm(`确定要解绑 ${bu.platform} 账号「${bu.username}」吗？`)) return
+    setMessage(null)
+    setUnbinding(bu.id)
+    try {
+      await accountAPI.socialUnbind(bu.id, bu.platform)
+      setBindUsers((prev) => prev.filter((b) => b.id !== bu.id))
+    } catch (err) {
+      setMessage({
+        type: 'error',
+        text: err instanceof Error ? err.message : '解绑失败，请重试',
+      })
+    } finally {
+      setUnbinding(null)
+    }
+  }
 
   // 保存资料
   const handleSave = async () => {
@@ -250,7 +297,7 @@ export default function UserSettingsPage() {
         </Card>
 
         {/* 保存按钮 */}
-        <div className="flex justify-end">
+        <div className="flex justify-end mb-6">
           <Button onClick={handleSave} disabled={saving} className="gap-2">
             {saving ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -260,6 +307,59 @@ export default function UserSettingsPage() {
             保存修改
           </Button>
         </div>
+
+        {/* 社交账号绑定 */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">社交账号绑定</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {bindLoading ? (
+              <div className="flex items-center justify-center py-6">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : bindUsers.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-2">暂未绑定任何社交账号</p>
+            ) : (
+              <ul className="space-y-3">
+                {bindUsers.map((bu) => (
+                  <li key={bu.id} className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+                        <PlatformIcon type={bu.platform} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">{bu.username}</span>
+                          <Badge variant="outline" className="text-xs capitalize">
+                            {bu.platform}
+                          </Badge>
+                        </div>
+                        {bu.name && bu.name !== bu.username && (
+                          <p className="text-xs text-muted-foreground">{bu.name}</p>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      disabled={unbinding === bu.id}
+                      onClick={() => handleUnbind(bu)}
+                    >
+                      {unbinding === bu.id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Unlink className="h-3.5 w-3.5" />
+                      )}
+                      解绑
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </PageLayout>
   )

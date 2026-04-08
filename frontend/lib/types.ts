@@ -496,3 +496,12 @@ export interface Wiki {
   ctime: string
   mtime: string
 }
+
+// ======================== 社交账号绑定 ========================
+export interface BindUser {
+  id: number
+  platform: string   // "github" | "gitea"
+  username: string   // 第三方平台用户名
+  name: string       // 第三方平台昵称
+  avatar: string     // 第三方平台头像
+}

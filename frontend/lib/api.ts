@@ -5,6 +5,7 @@ import type {
   APIResponse,
   ArticleDetailData,
   ArticleListData,
+  BindUser,
   BookListData,
   Book,
   Comment,
@@ -695,6 +696,13 @@ export const accountAPI = {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: form.toString(),
+      credentials: 'include',
+    })
+  },
+
+  // 获取已绑定的社交账号列表
+  getBindUsers(): Promise<{ bind_users: BindUser[] }> {
+    return fetchAPI<{ bind_users: BindUser[] }>('/account/bind_users', {
       credentials: 'include',
     })
   },
