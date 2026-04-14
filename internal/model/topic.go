@@ -99,10 +99,10 @@ func (*TopicInfo) TableName() string {
 }
 
 type TopicAppend struct {
-	Id        int `xorm:"pk autoincr"`
-	Tid       int
-	Content   string
-	CreatedAt OftenTime `xorm:"<-"`
+	Id        int       `json:"id" xorm:"pk autoincr"`
+	Tid       int       `json:"tid"`
+	Content   string    `json:"content"`
+	CreatedAt OftenTime `json:"created_at" xorm:"<-"`
 }
 
 // 社区主题节点信息

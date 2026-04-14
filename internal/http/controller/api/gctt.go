@@ -7,12 +7,21 @@
 package api
 
 import (
+	"bytes"
+	"crypto/hmac"
+	"crypto/sha1"
+	"fmt"
+	"io"
+	"net/http"
+
 	"github.com/studygolang/studygolang/context"
 	"github.com/studygolang/studygolang/internal/logic"
 	"github.com/studygolang/studygolang/internal/model"
 
 	echo "github.com/labstack/echo/v4"
+	"github.com/polaris1119/config"
 	"github.com/polaris1119/goutils"
+	"github.com/polaris1119/logger"
 )
 
 type GCTTController struct{}
@@ -25,6 +34,7 @@ func (self GCTTController) RegisterRoute(g *echo.Group) {
 	g.POST("/gctt/apply", self.Apply)
 	g.POST("/gctt/articles", self.Publish)
 	g.GET("/gctt/:username", self.UserDetail)
+	g.POST("/gctt/webhook", self.Webhook)
 }
 
 // Index GCTT 首页（时间线 + 核心用户 + 未翻译 Issues）
@@ -194,4 +204,51 @@ func (GCTTController) Me(ctx echo.Context) error {
 		"gctt_user":     gcttUser,
 		"is_translator": isTranslator,
 	})
+}
+
+// Webhook 处理 GitHub Webhook 事件（pull_request / issue_comment / issues）
+func (GCTTController) Webhook(ctx echo.Context) error {
+	body, err := io.ReadAll(ctx.Request().Body)
+	if err != nil {
+		logger.Errorln("GCTTController Webhook read body error:", err)
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{"message": "read body failed"})
+	}
+	// 恢复 body 供下游逻辑读取
+	ctx.Request().Body = io.NopCloser(bytes.NewReader(body))
+
+	header := ctx.Request().Header
+
+	tokenSecret := config.ConfigFile.MustValue("gctt", "token_secret")
+	if tokenSecret == "" {
+		logger.Errorln("GCTTController Webhook: token_secret not configured")
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{"message": "webhook not configured"})
+	}
+	if !checkMAC(body, header.Get("X-Hub-Signature"), []byte(tokenSecret)) {
+		logger.Errorln("GCTTController Webhook checkMAC failed")
+		return ctx.JSON(http.StatusUnauthorized, map[string]string{"message": "invalid signature"})
+	}
+
+	event := header.Get("X-GitHub-Event")
+	logger.Infoln("GCTTController Webhook event:", event)
+
+	switch event {
+	case "pull_request":
+		return logic.DefaultGithub.PullRequestEvent(context.EchoContext(ctx), body)
+	case "issue_comment":
+		return logic.DefaultGithub.IssueCommentEvent(context.EchoContext(ctx), body)
+	case "issues":
+		return logic.DefaultGithub.IssueEvent(context.EchoContext(ctx), body)
+	default:
+		logger.Infoln("GCTTController Webhook unhandled event:", event)
+	}
+
+	return nil
+}
+
+// checkMAC 验证 GitHub Webhook HMAC-SHA1 签名
+func checkMAC(message []byte, messageMAC string, key []byte) bool {
+	mac := hmac.New(sha1.New, key)
+	mac.Write(message)
+	expectedMAC := fmt.Sprintf("sha1=%x", mac.Sum(nil))
+	return hmac.Equal([]byte(messageMAC), []byte(expectedMAC))
 }

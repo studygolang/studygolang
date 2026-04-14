@@ -18,7 +18,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import type { Topic, TopicReply } from "@/lib/types"
+import { TopicAppendForm } from "@/components/topic-append-form"
+import type { Topic, TopicReply, TopicAppend } from "@/lib/types"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8090"
 
@@ -26,6 +27,7 @@ interface TopicDetailProps {
   id: string
   topic?: Topic
   replies?: TopicReply[]
+  appends?: TopicAppend[]
 }
 
 function formatTime(ctime: string): string {
@@ -45,7 +47,7 @@ function formatTime(ctime: string): string {
   }
 }
 
-export function TopicDetail({ id, topic, replies = [] }: TopicDetailProps) {
+export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDetailProps) {
   const [liked, setLiked] = useState(false)
   const [bookmarked, setBookmarked] = useState(false)
   const [likeCount, setLikeCount] = useState(topic?.likenum || 0)
@@ -248,6 +250,31 @@ export function TopicDetail({ id, topic, replies = [] }: TopicDetailProps) {
         </CardContent>
       </Card>
 
+      {/* 追加内容展示 */}
+      {appends.length > 0 && (
+        <Card>
+          <CardContent className="p-5 sm:p-6">
+            <h2 className="text-base font-semibold text-foreground">附言</h2>
+            <div className="mt-4 space-y-4 divide-y divide-border">
+              {appends.map((append, index) => (
+                <div key={append.id} className={index > 0 ? "pt-4" : ""}>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="font-medium">附言 {index + 1}</span>
+                    <span>{formatTime(append.created_at)}</span>
+                  </div>
+                  <div className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+                    {append.content}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* 追加表单（仅作者可见，客户端判断） */}
+      <TopicAppendSection tid={parseInt(id)} topicUid={topic.uid} />
+
       {/* Comments Section */}
       <Card>
         <CardContent className="p-5 sm:p-6">
@@ -326,4 +353,29 @@ export function TopicDetail({ id, topic, replies = [] }: TopicDetailProps) {
       </Card>
     </div>
   )
+}
+
+// 追加表单区域：客户端判断当前用户是否为作者
+function TopicAppendSection({ tid, topicUid }: { tid: number; topicUid?: number }) {
+  const [isAuthor, setIsAuthor] = useState(false)
+
+  useEffect(() => {
+    const checkAuthor = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/user/me`, { credentials: "include" })
+        if (res.ok) {
+          const data = await res.json()
+          if (data.code === 0 && data.data?.uid === topicUid) {
+            setIsAuthor(true)
+          }
+        }
+      } catch {
+        // 未登录或网络错误，忽略
+      }
+    }
+    checkAuthor()
+  }, [topicUid])
+
+  if (!isAuthor) return null
+  return <TopicAppendForm tid={tid} />
 }

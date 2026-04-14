@@ -2,10 +2,22 @@ import type { Metadata } from "next"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { TopicDetail } from "@/components/topic-detail"
-import type { TopicDetailData } from "@/lib/types"
+import type { TopicDetailData, TopicAppend } from "@/lib/types"
 
 import { fetchAPI } from "@/lib/api"
 import { sanitizeHtml } from "@/lib/sanitize"
+
+async function getTopicAppends(id: string): Promise<TopicAppend[]> {
+  try {
+    const data = await fetchAPI<{ appends: TopicAppend[] }>(
+      `/topics/${id}/appends`,
+      { next: { revalidate: 60 } }
+    )
+    return data?.appends ?? []
+  } catch {
+    return []
+  }
+}
 
 async function getTopicDetail(id: string): Promise<TopicDetailData | null> {
   try {
@@ -54,7 +66,10 @@ export default async function TopicDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const data = await getTopicDetail(id)
+  const [data, appends] = await Promise.all([
+    getTopicDetail(id),
+    getTopicAppends(id),
+  ])
 
   const topic = data?.topic
   const replies = data?.replies ?? []
@@ -96,7 +111,7 @@ export default async function TopicDetailPage({
           { label: topic ? topic.title.slice(0, 20) + (topic.title.length > 20 ? "..." : "") : `#${id}` },
         ]}
       />
-      <TopicDetail id={id} topic={topic} replies={replies} />
+      <TopicDetail id={id} topic={topic} replies={replies} appends={appends} />
     </PageLayout>
   )
 }
