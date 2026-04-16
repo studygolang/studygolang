@@ -208,7 +208,8 @@ func (GCTTController) Me(ctx echo.Context) error {
 
 // Webhook 处理 GitHub Webhook 事件（pull_request / issue_comment / issues）
 func (GCTTController) Webhook(ctx echo.Context) error {
-	body, err := io.ReadAll(ctx.Request().Body)
+	// 限制 body 大小为 1MB，防止内存耗尽攻击
+	body, err := io.ReadAll(io.LimitReader(ctx.Request().Body, 1<<20))
 	if err != nil {
 		logger.Errorln("GCTTController Webhook read body error:", err)
 		return ctx.JSON(http.StatusInternalServerError, map[string]string{"message": "read body failed"})

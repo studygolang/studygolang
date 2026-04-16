@@ -64,3 +64,9 @@ docker
 login-page-before.png
 message-page-screenshot.png
 message-page-screenshot.png
+
+.claude/plan
+.claude/scheduled_tasks.lock
+
+# OMC state files
+.omc/

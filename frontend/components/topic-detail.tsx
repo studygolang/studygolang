@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { TopicAppendForm } from "@/components/topic-append-form"
+import { userAPI } from "@/lib/api"
 import type { Topic, TopicReply, TopicAppend } from "@/lib/types"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8090"
@@ -273,7 +274,7 @@ export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDeta
       )}
 
       {/* 追加表单（仅作者可见，客户端判断） */}
-      <TopicAppendSection tid={parseInt(id)} topicUid={topic.uid} />
+      <TopicAppendSection tid={parseInt(id)} topicUid={topic?.uid} />
 
       {/* Comments Section */}
       <Card>
@@ -360,14 +361,12 @@ function TopicAppendSection({ tid, topicUid }: { tid: number; topicUid?: number 
   const [isAuthor, setIsAuthor] = useState(false)
 
   useEffect(() => {
+    if (topicUid === undefined) return
     const checkAuthor = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/v1/user/me`, { credentials: "include" })
-        if (res.ok) {
-          const data = await res.json()
-          if (data.code === 0 && data.data?.uid === topicUid) {
-            setIsAuthor(true)
-          }
+        const me = await userAPI.getMe()
+        if (me?.uid === topicUid) {
+          setIsAuthor(true)
         }
       } catch {
         // 未登录或网络错误，忽略
@@ -376,6 +375,6 @@ function TopicAppendSection({ tid, topicUid }: { tid: number; topicUid?: number 
     checkAuthor()
   }, [topicUid])
 
-  if (!isAuthor) return null
+  if (topicUid === undefined || !isAuthor) return null
   return <TopicAppendForm tid={tid} />
 }
