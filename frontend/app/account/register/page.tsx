@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { CaptchaField } from "@/components/captcha-field"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8090"
 
@@ -19,6 +20,9 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
   })
+  const [captchaId, setCaptchaId] = useState("")
+  const [captchaSolution, setCaptchaSolution] = useState("")
+  const [captchaRefreshKey, setCaptchaRefreshKey] = useState(0)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -46,6 +50,11 @@ export default function RegisterPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
+  // 刷新验证码：通过递增 key 让 CaptchaField 重新挂载
+  const refreshCaptcha = useCallback(() => {
+    setCaptchaRefreshKey((prev) => prev + 1)
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
@@ -67,6 +76,11 @@ export default function RegisterPage() {
       return
     }
 
+    if (!captchaSolution.trim()) {
+      setError("请输入验证码")
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -77,6 +91,8 @@ export default function RegisterPage() {
           username: formData.username,
           email: formData.email,
           passwd: formData.password,
+          captcha_id: captchaId,
+          captcha_solution: captchaSolution.trim(),
         }),
         credentials: "include",
       })
@@ -87,12 +103,16 @@ export default function RegisterPage() {
           setSuccess(true)
         } else {
           setError(data.msg || "注册失败")
+          // 验证码相关错误时刷新验证码
+          refreshCaptcha()
         }
       } else {
         setError("注册失败,请稍后重试")
+        refreshCaptcha()
       }
     } catch {
       setError("网络错误,请稍后重试")
+      refreshCaptcha()
     } finally {
       setLoading(false)
     }
@@ -209,6 +229,13 @@ export default function RegisterPage() {
                   required
                 />
               </div>
+              <CaptchaField
+                key={captchaRefreshKey}
+                value={captchaSolution}
+                onChange={setCaptchaSolution}
+                captchaId={captchaId}
+                onCaptchaIdChange={setCaptchaId}
+              />
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "注册中..." : "注册"}
               </Button>

@@ -3,8 +3,10 @@
 import { useEffect } from "react"
 import { useCreateBlockNote } from "@blocknote/react"
 import { BlockNoteView } from "@blocknote/mantine"
+import type { BlockNoteEditor as BlockNoteEditorType } from "@blocknote/core"
 import "@blocknote/mantine/style.css"
 import "@blocknote/core/fonts/inter.css"
+import { quickUploadImage } from "@/lib/upload"
 
 interface BlockNoteEditorProps {
   content: string
@@ -12,10 +14,19 @@ interface BlockNoteEditorProps {
   placeholder?: string
 }
 
+/**
+ * 自定义图片上传函数，将文件上传到后端并返回 URL
+ * BlockNote 会在用户粘贴/拖拽图片时调用此函数
+ */
+async function uploadFile(file: File): Promise<string> {
+  const result = await quickUploadImage(file)
+  return result.url
+}
+
 export function BlockNoteEditor({ content, onChange, placeholder }: BlockNoteEditorProps) {
-  // 创建编辑器实例,启用所有功能
+  // 创建编辑器实例，启用图片上传
   const editor = useCreateBlockNote({
-    // 使用默认配置,包含所有标准块类型
+    uploadFile,
   })
 
   // 初始化时加载内容
@@ -34,7 +45,7 @@ export function BlockNoteEditor({ content, onChange, placeholder }: BlockNoteEdi
     loadContent()
   }, []) // 只在初始化时加载一次
 
-  // 监听编辑器变化,转换为 Markdown
+  // 监听编辑器变化，转换为 Markdown
   useEffect(() => {
     if (!editor) return
 
