@@ -93,4 +93,5 @@ func RegisterRoutes(g *echo.Group) {
 	new(NodeController).RegisterRoute(g)
 	new(DownloadController).RegisterRoute(g)
 	new(GCTTController).RegisterRoute(g)
+	new(WechatController).RegisterRoute(g)
 }

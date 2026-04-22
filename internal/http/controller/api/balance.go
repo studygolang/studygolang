@@ -19,6 +19,7 @@ type BalanceController struct{}
 
 func (self BalanceController) RegisterRoute(g *echo.Group) {
 	g.GET("/balance", self.MyBalance)
+	g.GET("/balance/add", self.Add)
 }
 
 // MyBalance 当前登录用户的积分余额明细（需要登录）
@@ -55,5 +56,28 @@ func (BalanceController) MyBalance(ctx echo.Context) error {
 		"total":    user.Balance,
 		"page":     p,
 		"has_more": hasMore,
+	})
+}
+
+// Add 充值记录（需要登录）
+func (BalanceController) Add(ctx echo.Context) error {
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	p := goutils.MustInt(ctx.QueryParam("p"), 1)
+
+	details := logic.DefaultUserRich.FindBalanceDetail(context.EchoContext(ctx), me, p, model.MissionTypeAdd)
+	rechargeAmount := logic.DefaultUserRich.FindRecharge(context.EchoContext(ctx), me)
+
+	if details == nil {
+		details = make([]*model.UserBalanceDetail, 0)
+	}
+
+	return success(ctx, map[string]interface{}{
+		"details":         details,
+		"recharge_amount": rechargeAmount,
+		"page":            p,
 	})
 }

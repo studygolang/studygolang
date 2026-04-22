@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math/rand"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -30,6 +31,17 @@ import (
 	"github.com/polaris1119/nosql"
 )
 
+// getWechatConfig 获取微信配置，优先从环境变量读取
+// 环境变量命名规则: WECHAT_{SECTION}_{KEY}（全大写，点号替换为下划线）
+// 例如: WECHAT_XCX_APPID, WECHAT_APPSECRET, WECHAT_SUBSCRIBE
+func getWechatConfig(section, key string) string {
+	envKey := "WECHAT_" + strings.ToUpper(strings.ReplaceAll(section+"."+key, ".", "_"))
+	if val := os.Getenv(envKey); val != "" {
+		return val
+	}
+	return config.ConfigFile.MustValue(section, key)
+}
+
 type WechatLogic struct{}
 
 var DefaultWechat = WechatLogic{}
@@ -40,8 +52,8 @@ var jscodeRUL = "https://api.weixin.qq.com/sns/jscode2session"
 func (self WechatLogic) CheckSession(ctx context.Context, code string) (*model.WechatUser, error) {
 	objLog := GetLogger(ctx)
 
-	appid := config.ConfigFile.MustValue("wechat.xcx", "appid")
-	appsecret := config.ConfigFile.MustValue("wechat.xcx", "appsecret")
+	appid := getWechatConfig("wechat.xcx", "appid")
+	appsecret := getWechatConfig("wechat.xcx", "appsecret")
 
 	checkLoginURL := fmt.Sprintf("%s?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code",
 		jscodeRUL, appid, appsecret, code)
@@ -123,8 +135,8 @@ func (self WechatLogic) FetchOrUpdateToken() (string, error) {
 		}
 	}
 
-	appid := config.ConfigFile.MustValue("wechat", "appid")
-	appsecret := config.ConfigFile.MustValue("wechat", "appsecret")
+	appid := getWechatConfig("wechat", "appid")
+	appsecret := getWechatConfig("wechat", "appsecret")
 	strURL := fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s", appid, appsecret)
 
 	b, err := util.DoGet(strURL)
@@ -203,7 +215,7 @@ func (self WechatLogic) AutoReply(ctx context.Context, reqData []byte) (*model.W
 		switch wechatMsg.Event {
 		case model.WeEventSubscribe:
 			wechatMsg.MsgType = model.WeMsgTypeText
-			welcomeText := strings.ReplaceAll(config.ConfigFile.MustValue("wechat", "subscribe"), "\\n", "\n")
+			welcomeText := strings.ReplaceAll(getWechatConfig("wechat", "subscribe"), "\\n", "\n")
 
 			autoReply := &model.WechatAutoReply{}
 			_, err = MasterDB.Where("typ=?", model.AutoReplyTypSubscribe).Get(autoReply)
@@ -426,7 +438,7 @@ func (self WechatLogic) readingContent(ctx context.Context, wechatMsg *model.Wec
 	if wechatMsg.Content == "最新晨读" {
 		readings = DefaultReading.FindBy(ctx, 1, model.RtypeGo)
 		if len(readings) == 0 {
-			return self.wechatResponse(ctx, config.ConfigFile.MustValue("wechat", "not_found"), wechatMsg)
+			return self.wechatResponse(ctx, getWechatConfig("wechat", "not_found"), wechatMsg)
 		}
 
 		return self.wechatResponse(ctx, formatContent(readings[0]), wechatMsg)
@@ -452,7 +464,7 @@ func (self WechatLogic) searchContent(ctx context.Context, wechatMsg *model.Wech
 	}
 
 	if respBody.NumFound == 0 {
-		return self.wechatResponse(ctx, config.ConfigFile.MustValue("wechat", "not_found"), wechatMsg)
+		return self.wechatResponse(ctx, getWechatConfig("wechat", "not_found"), wechatMsg)
 	}
 
 	host := WebsiteSetting.Domain
@@ -501,7 +513,7 @@ func (self WechatLogic) wechatResponse(ctx context.Context, respContent string, 
 			MediaId: &model.CData{Val: respContent},
 		}
 	default:
-		wechatReply.Content = &model.CData{Val: config.ConfigFile.MustValue("wechat", "not_found")}
+		wechatReply.Content = &model.CData{Val: getWechatConfig("wechat", "not_found")}
 	}
 
 	return wechatReply, nil

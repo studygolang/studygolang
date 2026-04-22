@@ -7,6 +7,8 @@
 package api
 
 import (
+	"strings"
+
 	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/internal/http"
 	"github.com/studygolang/studygolang/internal/logic"
@@ -21,6 +23,7 @@ type ArticleController struct{}
 // RegisterRoute 注册路由
 func (self *ArticleController) RegisterRoute(g *echo.Group) {
 	g.GET("/articles", self.List)
+	g.GET("/articles/crawl", self.Crawl)
 	g.GET("/articles/:id", self.Detail)
 	g.GET("/articles/:id/edit", self.Edit)
 	g.PUT("/articles/:id", self.Update)
@@ -166,4 +169,27 @@ func (ArticleController) Create(ctx echo.Context) error {
 	}
 
 	return success(ctx, map[string]interface{}{"id": id})
+}
+
+// Crawl 抓取外部文章内容（需要登录）
+func (ArticleController) Crawl(ctx echo.Context) error {
+	if _, err := requireAuth(ctx); err != nil {
+		return err
+	}
+
+	strUrl := strings.TrimSpace(ctx.QueryParam("url"))
+	if strUrl == "" {
+		return fail(ctx, "url 参数不能为空")
+	}
+
+	article, err := logic.DefaultArticle.ParseArticle(context.EchoContext(ctx), strUrl, false)
+	if err != nil {
+		return fail(ctx, "抓取文章失败: "+err.Error())
+	}
+
+	return success(ctx, map[string]interface{}{
+		"title":   article.Title,
+		"content": article.Content,
+		"author":  article.Author,
+	})
 }
