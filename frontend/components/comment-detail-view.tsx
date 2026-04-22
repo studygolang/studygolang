@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
+import { SafeHtml } from "@/components/safe-html"
 import type { Comment, User } from "@/lib/types"
 
 interface CommentDetailViewProps {
@@ -57,10 +58,7 @@ export function CommentDetailView({
               </span>
             )}
           </div>
-          <div
-            className="prose prose-sm dark:prose-invert max-w-none"
-            dangerouslySetInnerHTML={{ __html: comment.content }}
-          />
+          <SafeHtml html={comment.content} className="prose prose-sm dark:prose-invert max-w-none" />
         </CardContent>
       </Card>
 
@@ -89,10 +87,7 @@ export function CommentDetailView({
                         #{c.floor}
                       </span>
                     </div>
-                    <div
-                      className="prose prose-sm dark:prose-invert max-w-none text-sm"
-                      dangerouslySetInnerHTML={{ __html: c.content }}
-                    />
+                    <SafeHtml html={c.content} className="prose prose-sm dark:prose-invert max-w-none text-sm" />
                   </div>
                 )
               })}

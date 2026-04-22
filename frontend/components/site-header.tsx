@@ -26,6 +26,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useAuth } from "@/lib/auth-context"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -70,42 +71,17 @@ interface AuthState {
   uid: string
 }
 
-import { userAPI } from "@/lib/api"
-import type { Me } from "@/lib/types"
-
 export function SiteHeader() {
   const router = useRouter()
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchFocused, setSearchFocused] = useState(false)
-  const [auth, setAuth] = useState<AuthState | null>(null)
+  const { user, isLoggedIn, logout } = useAuth()
+  const auth = isLoggedIn && user ? { username: user.username, uid: String(user.uid) } : null
   const searchInputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    // 通过 API 检查登录状态（token 在 HttpOnly Cookie 中）
-    userAPI.getMe().then((user: Me | null) => {
-      if (user) {
-        setAuth({ username: user.username, uid: String(user.uid) })
-        // 同步非敏感信息到 localStorage（用于 UI 显示）
-        localStorage.setItem("uid", String(user.uid))
-        localStorage.setItem("username", user.username)
-      } else {
-        setAuth(null)
-        localStorage.removeItem("uid")
-        localStorage.removeItem("username")
-      }
-    })
-  }, [])
-
   async function handleLogout() {
-    try {
-      await fetch("/api/v1/user/logout", { credentials: "include" })
-    } catch {
-      // ignore
-    }
-    localStorage.removeItem("uid")
-    localStorage.removeItem("username")
-    setAuth(null)
+    await logout()
     router.push("/")
   }
 

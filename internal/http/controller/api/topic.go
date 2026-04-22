@@ -243,29 +243,11 @@ func (TopicController) Nodes(ctx echo.Context) error {
 	return success(ctx, data)
 }
 
-// Publish 发布新话题（需要登录，支持 Cookie 和 X-Token header）
+// Publish 发布新话题（需要登录，统一使用 requireAuth 认证）
 func (TopicController) Publish(ctx echo.Context) error {
-	token := getAuthToken(ctx)
-	if token == "" {
-		return fail(ctx, "请先登录", NeedReLoginCode)
-	}
-	if !ValidateToken(token) {
-		return fail(ctx, "token 已过期，请重新登录", NeedReLoginCode)
-	}
-	uid, ok := ParseToken(token)
-	if !ok || uid == 0 {
-		return fail(ctx, "无效的 token", NeedReLoginCode)
-	}
-
-	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid)
-	if user == nil || user.Uid == 0 {
-		return fail(ctx, "用户不存在")
-	}
-	me := &model.Me{
-		Uid:      user.Uid,
-		Username: user.Username,
-		IsRoot:   user.IsRoot,
-		IsVip:    user.IsVip,
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
 	}
 
 	forms, _ := ctx.FormParams()

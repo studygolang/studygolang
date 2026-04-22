@@ -36,13 +36,21 @@ func getAuthToken(ctx echo.Context) string {
 	return ctx.Request().Header.Get("X-Token")
 }
 
+// isSecure 判断当前请求是否为 HTTPS（根据反向代理 header 或环境变量）
+func isSecure(ctx echo.Context) bool {
+	if ctx.Request().Header.Get("X-Forwarded-Proto") == "https" {
+		return true
+	}
+	return config.ConfigFile.MustValue("global", "env", "prod") == "prod"
+}
+
 // setAuthCookie 设置认证 Cookie（HttpOnly, Secure, SameSite=Strict）
 func setAuthCookie(ctx echo.Context, token string) {
 	cookie := new(http.Cookie)
 	cookie.Name = authCookieName
 	cookie.Value = token
 	cookie.HttpOnly = true
-	cookie.Secure = true // 强制 HTTPS
+	cookie.Secure = isSecure(ctx) // 根据 X-Forwarded-Proto 或环境动态决定
 
 	// 生产环境使用 Strict，开发环境可以使用 Lax
 	env := config.ConfigFile.MustValue("global", "env", "prod")
@@ -80,9 +88,14 @@ func originCheck(next echo.HandlerFunc) echo.HandlerFunc {
 		origin := ctx.Request().Header.Get("Origin")
 		referer := ctx.Request().Header.Get("Referer")
 
-		// Origin 和 Referer 都没有，放行（兼容直接调用 API 的客户端）
+		// Origin 和 Referer 都没有时，仅允许表单提交
 		if origin == "" && referer == "" {
-			return next(ctx)
+			contentType := ctx.Request().Header.Get("Content-Type")
+			if contentType == "application/x-www-form-urlencoded" ||
+				strings.HasPrefix(contentType, "multipart/form-data") {
+				return next(ctx)
+			}
+			return fail(ctx, "缺少 Origin 或 Referer", 403)
 		}
 
 		allowed := getAllowedOrigins()
@@ -172,13 +185,6 @@ func requireAuth(ctx echo.Context) (*model.Me, error) {
 	uid, _, valid := ValidateTokenAuto(token)
 	if !valid {
 		return nil, fail(ctx, "token 已过期，请重新登录", NeedReLoginCode)
-	}
-
-	// 记录 Token 类型（用于监控迁移进度）
-	if strings.HasPrefix(token, "eyJ") {
-		// JWT Token
-	} else {
-		// Legacy MD5 Token
 	}
 
 	// 优先从缓存获取用户信息

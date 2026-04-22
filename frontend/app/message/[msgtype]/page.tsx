@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
+import { useAuth } from "@/lib/auth-context"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Trash2, Mail, Send, Bell, Loader2 } from "lucide-react"
@@ -159,6 +160,7 @@ export default function MessagePage() {
   const params = useParams()
   const router = useRouter()
   const msgtype = (params.msgtype as MessageType) || "system"
+  const { isLoggedIn } = useAuth()
 
   const [messages, setMessages] = useState<Message[]>([])
   const [page, setPage] = useState(1)
@@ -176,8 +178,7 @@ export default function MessagePage() {
 
   useEffect(() => {
     // 未登录重定向
-    const uid = localStorage.getItem("uid")
-    if (!uid) {
+    if (!isLoggedIn) {
       router.replace(`/account/login?redirect=/message/${currentType}`)
       return
     }
@@ -189,7 +190,7 @@ export default function MessagePage() {
       setHasMore(data.has_more ?? false)
       setLoading(false)
     })
-  }, [currentType, page, router])
+  }, [currentType, page, isLoggedIn, router])
 
   function handleTabChange(type: string) {
     setPage(1)

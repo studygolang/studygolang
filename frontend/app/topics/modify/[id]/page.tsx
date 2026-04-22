@@ -24,6 +24,7 @@ import {
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/lib/auth-context"
 import type { TopicNode } from "@/lib/types"
 
 const BlockNoteEditor = dynamic(
@@ -53,6 +54,7 @@ export default function TopicModifyPage() {
   const router = useRouter()
   const params = useParams()
   const id = params.id as string
+  const { isLoggedIn } = useAuth()
 
   const [loading, setLoading] = useState(true)
   const [title, setTitle] = useState("")
@@ -67,13 +69,12 @@ export default function TopicModifyPage() {
   const [success, setSuccess] = useState(false)
 
   useEffect(() => {
-    const uid = localStorage.getItem("uid")
-    if (!uid) {
+    if (!isLoggedIn) {
       router.replace(`/account/login?redirect=/topics/modify/${id}`)
       return
     }
     fetchTopic()
-  }, [id])
+  }, [id, isLoggedIn, router])
 
   async function fetchTopic() {
     try {

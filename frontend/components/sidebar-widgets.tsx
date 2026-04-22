@@ -20,27 +20,24 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import type { Reading, SiteStats, Topic, Comment, User, FriendLink } from "@/lib/types"
-import { sanitizeHtml } from "@/lib/sanitize"
+import { SafeHtml } from "@/components/safe-html"
+import { useAuth } from "@/lib/auth-context"
 
 /* ---------- Login Card ---------- */
 export function LoginCard() {
-  const [username, setUsername] = useState<string | null>(null)
+  const { user, isLoggedIn } = useAuth()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-    const uid = localStorage.getItem("uid")
-    const name = localStorage.getItem("username")
-    if (uid && name) {
-      setUsername(name)
-    }
   }, [])
 
   // 避免 SSR hydration 不一致，挂载前不渲染
   if (!mounted) return null
 
   // 已登录：显示欢迎卡片
-  if (username) {
+  if (isLoggedIn && user) {
+    const username = user.username
     return (
       <Card>
         <CardContent className="p-4">
@@ -131,10 +128,7 @@ export function DailyQuestion() {
           <div className="h-16 animate-pulse rounded-md bg-secondary/50" />
         ) : question ? (
           <div className="rounded-md bg-secondary/50 p-3">
-            <div
-              className="prose prose-sm max-w-none text-sm font-medium leading-relaxed text-foreground"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(question.question) }}
-            />
+            <SafeHtml html={question.question} className="prose prose-sm max-w-none text-sm font-medium leading-relaxed text-foreground" />
             <a
               href={`/interview/question/${question.show_sn}`}
               className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80"

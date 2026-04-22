@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
+import { useAuth } from "@/lib/auth-context"
 
 const BlockNoteEditor = dynamic(
   () => import("@/components/blocknote-editor").then((mod) => ({ default: mod.BlockNoteEditor })),
@@ -33,6 +34,7 @@ export default function ArticleModifyPage() {
   const router = useRouter()
   const params = useParams()
   const id = params.id as string
+  const { isLoggedIn } = useAuth()
 
   const [loading, setLoading] = useState(true)
   const [title, setTitle] = useState("")
@@ -44,13 +46,12 @@ export default function ArticleModifyPage() {
   const [success, setSuccess] = useState(false)
 
   useEffect(() => {
-    const uid = localStorage.getItem("uid")
-    if (!uid) {
+    if (!isLoggedIn) {
       router.replace(`/account/login?redirect=/articles/modify/${id}`)
       return
     }
     fetchArticle()
-  }, [id])
+  }, [id, isLoggedIn, router])
 
   async function fetchArticle() {
     try {

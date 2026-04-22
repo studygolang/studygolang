@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Github } from "lucide-react"
+import { useAuth } from "@/lib/auth-context"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8090"
 
@@ -16,6 +17,7 @@ function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirect = searchParams.get("redirect") || "/"
+  const { login } = useAuth()
 
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
@@ -61,8 +63,16 @@ function LoginForm() {
       if (res.ok) {
         const data = await res.json()
         if (data.code === 0) {
-          if (data.data.uid) localStorage.setItem("uid", data.data.uid.toString())
-          if (data.data.username) localStorage.setItem("username", data.data.username)
+          if (data.data) {
+            login({
+              uid: data.data.uid,
+              username: data.data.username,
+              name: data.data.username,
+              avatar: "",
+              is_root: false,
+              is_vip: false,
+            })
+          }
           window.location.href = redirect
         } else {
           setError(data.msg || "登录失败")

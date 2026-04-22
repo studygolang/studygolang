@@ -23,8 +23,30 @@ import (
 	guuid "github.com/twinj/uuid"
 )
 
-// resetPwdMap 存储重置密码 token -> email 的映射（内存存储，重启失效）
+// pwdResetEntry 重置密码条目，带过期时间
+type pwdResetEntry struct {
+	email    string
+	expireAt time.Time
+}
+
+// resetPwdMap 存储重置密码 token -> *pwdResetEntry 的映射（内存存储，重启失效）
 var resetPwdMap = sync.Map{}
+
+func init() {
+	// 后台定期清理过期 token（每 10 分钟）
+	go func() {
+		for {
+			time.Sleep(10 * time.Minute)
+			now := time.Now()
+			resetPwdMap.Range(func(key, value interface{}) bool {
+				if entry, ok := value.(*pwdResetEntry); ok && now.After(entry.expireAt) {
+					resetPwdMap.Delete(key)
+				}
+				return true
+			})
+		}
+	}()
+}
 
 type UserController struct{}
 
@@ -232,6 +254,21 @@ func (UserController) Register(ctx echo.Context) error {
 }
 
 // Me 当前登录用户信息（支持 Cookie 和 X-Token header）
+// meResponse /api/v1/user/me 返回的安全用户信息（过滤敏感字段）
+type meResponse struct {
+	Uid      int    `json:"uid"`
+	Username string `json:"username"`
+	Avatar   string `json:"avatar"`
+	Name     string `json:"name"`
+	Status   int    `json:"status"`
+	IsRoot   bool   `json:"is_root"`
+	IsVip    bool   `json:"is_vip"`
+	Balance  int    `json:"balance"`
+	Gold     int    `json:"gold"`
+	Silver   int    `json:"silver"`
+	Copper   int    `json:"copper"`
+}
+
 func (UserController) Me(ctx echo.Context) error {
 	uid, err := parseAuthUID(ctx)
 	if err != nil {
@@ -243,8 +280,22 @@ func (UserController) Me(ctx echo.Context) error {
 		return fail(ctx, "用户不存在")
 	}
 
+	resp := &meResponse{
+		Uid:      user.Uid,
+		Username: user.Username,
+		Avatar:   user.Avatar,
+		Name:     user.Name,
+		Status:   user.Status,
+		IsRoot:   user.IsRoot,
+		IsVip:    user.IsVip,
+		Balance:  user.Balance,
+		Gold:     user.Gold,
+		Silver:   user.Silver,
+		Copper:   user.Copper,
+	}
+
 	return success(ctx, map[string]interface{}{
-		"user": user,
+		"user": resp,
 	})
 }
 
@@ -661,7 +712,10 @@ func (UserController) ForgotPassword(ctx echo.Context) error {
 	var token string
 	for {
 		token = guuid.NewV4().String()
-		if _, loaded := resetPwdMap.LoadOrStore(token, email); !loaded {
+		if _, loaded := resetPwdMap.LoadOrStore(token, &pwdResetEntry{
+			email:    email,
+			expireAt: time.Now().Add(30 * time.Minute),
+		}); !loaded {
 			break
 		}
 	}
@@ -691,12 +745,17 @@ func (UserController) ResetPassword(ctx echo.Context) error {
 		return fail(ctx, "密码长度必须在6到32个字符之间")
 	}
 
-	// 验证 token
+	// 验证 token（含过期检查）
 	val, ok := resetPwdMap.Load(token)
 	if !ok {
 		return fail(ctx, "重置链接已过期或无效，请重新申请")
 	}
-	email := val.(string)
+	entry, ok := val.(*pwdResetEntry)
+	if !ok || time.Now().After(entry.expireAt) {
+		resetPwdMap.Delete(token)
+		return fail(ctx, "重置链接已过期，请重新申请")
+	}
+	email := entry.email
 
 	// 重置密码
 	_, err := logic.DefaultUser.ResetPasswd(context.EchoContext(ctx), email, newPassword)

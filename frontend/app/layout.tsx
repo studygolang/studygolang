@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from '@/components/ui/sonner'
+import { Providers } from '@/components/providers'
 import './globals.css'
 
 const CDN_DOMAIN = process.env.NEXT_PUBLIC_CDN_DOMAIN || "https://static.golangjob.cn"
@@ -28,9 +29,11 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body className="font-sans antialiased">
-        {children}
-        <Toaster position="top-center" richColors />
-        <Analytics />
+        <Providers>
+          {children}
+          <Toaster position="top-center" richColors />
+          <Analytics />
+        </Providers>
       </body>
     </html>
   )

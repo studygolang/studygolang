@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { useAuth } from "@/lib/auth-context"
 
 interface AuthLinkProps {
   /** 已登录时跳转目标 */
@@ -16,10 +17,10 @@ interface AuthLinkProps {
  */
 export function AuthLink({ href, children, className, size = "sm" }: AuthLinkProps) {
   const router = useRouter()
+  const { isLoggedIn } = useAuth()
 
   function handleClick() {
-    const uid = typeof window !== "undefined" ? localStorage.getItem("uid") : null
-    if (uid) {
+    if (isLoggedIn) {
       router.push(href)
     } else {
       router.push(`/account/login?redirect=${encodeURIComponent(href)}`)

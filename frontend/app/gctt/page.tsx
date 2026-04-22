@@ -4,6 +4,7 @@ import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { fetchAPI } from "@/lib/api"
+import { SafeHtml } from "@/components/safe-html"
 
 export const metadata: Metadata = {
   title: "GCTT - Go中文翻译组 - Go语言中文网",
@@ -137,10 +138,7 @@ export default async function GCTTPage() {
                 <div key={tl.id} className="flex gap-3">
                   <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
                   <div>
-                    <div
-                      className="text-sm"
-                      dangerouslySetInnerHTML={{ __html: tl.content }}
-                    />
+                    <SafeHtml html={tl.content} className="text-sm" />
                     <div className="text-xs text-muted-foreground">
                       {tl.created_at?.slice(0, 10)}
                     </div>
