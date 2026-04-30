@@ -25,6 +25,7 @@ func (self MessageController) RegisterRoute(g *echo.Group) {
 	g.GET("/messages", self.List)
 	g.POST("/messages", self.Send)
 	g.DELETE("/messages/:id", self.Delete)
+	g.GET("/messages/unread-count", self.UnreadCount)
 }
 
 // List 消息列表（支持 Cookie 和 X-Token header）
@@ -200,6 +201,25 @@ func (MessageController) Delete(ctx echo.Context) error {
 
 	return success(ctx, map[string]interface{}{
 		"message": "删除成功",
+	})
+}
+
+// UnreadCount 获取未读消息计数（需要登录）
+// 返回 { system: N, inbox: N } 格式
+func (MessageController) UnreadCount(ctx echo.Context) error {
+	uid, err := parseAuthUID(ctx)
+	if err != nil {
+		return err
+	}
+
+	// 系统消息未读数
+	sysUnread := logic.DefaultMessage.SysMsgUnreadCount(context.EchoContext(ctx), uid)
+	// 私信未读数
+	inboxUnread := logic.DefaultMessage.ToMsgUnreadCount(context.EchoContext(ctx), uid)
+
+	return success(ctx, map[string]interface{}{
+		"system": sysUnread,
+		"inbox":  inboxUnread,
 	})
 }
 

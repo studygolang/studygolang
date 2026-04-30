@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/dchest/captcha"
 	"github.com/gorilla/sessions"
 	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/internal/http"
@@ -121,10 +122,12 @@ type loginRequest struct {
 
 // registerRequest 注册请求体（支持 JSON）
 type registerRequest struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Passwd   string `json:"passwd"`
-	Password string `json:"password"` // 兼容两种字段名
+	Username        string `json:"username" form:"username"`
+	Email           string `json:"email" form:"email"`
+	Passwd          string `json:"passwd" form:"passwd"`
+	Password        string `json:"password" form:"password"`        // 兼容两种字段名
+	CaptchaID       string `json:"captcha_id" form:"captcha_id"`   // 验证码 ID（可选）
+	CaptchaSolution string `json:"captcha_solution" form:"captcha_solution"` // 验证码答案（可选）
 }
 
 // Login 用户登录，返回 token
@@ -195,6 +198,14 @@ func (UserController) Register(ctx echo.Context) error {
 	var req registerRequest
 	if err := ctx.Bind(&req); err != nil {
 		return fail(ctx, "请求参数错误")
+	}
+
+	// 验证码校验（强制要求，防止绕过）
+	if req.CaptchaID == "" || req.CaptchaSolution == "" {
+		return fail(ctx, "请完成验证码")
+	}
+	if !captcha.VerifyString(req.CaptchaID, req.CaptchaSolution) {
+		return fail(ctx, "验证码错误")
 	}
 
 	username := req.Username

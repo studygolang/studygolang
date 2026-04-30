@@ -591,3 +591,21 @@ func (MessageLogic) FindNotReadMsgNum(ctx context.Context, uid int) int {
 	}
 	return int(sysMsgNum + msgNum)
 }
+
+// SysMsgUnreadCount 获取系统消息未读数
+func (MessageLogic) SysMsgUnreadCount(ctx context.Context, uid int) int64 {
+	total, err := MasterDB.Where("`to`=? AND hasread=?", uid, model.NotRead).Count(new(model.SystemMessage))
+	if err != nil {
+		logger.Errorln("Message logic SysMsgUnreadCount Error:", err)
+	}
+	return total
+}
+
+// ToMsgUnreadCount 获取私信未读数
+func (MessageLogic) ToMsgUnreadCount(ctx context.Context, uid int) int64 {
+	total, err := MasterDB.Where("`to`=? AND hasread=? AND tdel=?", uid, model.NotRead, model.TdelNotDel).Count(new(model.Message))
+	if err != nil {
+		logger.Errorln("Message logic ToMsgUnreadCount Error:", err)
+	}
+	return total
+}

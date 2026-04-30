@@ -8,6 +8,7 @@ package api
 
 import (
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 
@@ -29,6 +30,14 @@ func (self ImageController) RegisterRoute(g *echo.Group) {
 	g.POST("/image/transfer", self.Transfer)
 }
 
+// allowedMIMETypes 图片上传允许的 MIME 类型白名单
+var allowedMIMETypes = map[string]bool{
+	"image/jpeg": true,
+	"image/png":  true,
+	"image/gif":  true,
+	"image/webp": true,
+}
+
 // handleImageUpload 提取公共图片上传逻辑（DRY）
 // imgDir 为空时自动使用日期目录
 func handleImageUpload(ctx echo.Context, fieldName string, imgDir string) (string, error) {
@@ -48,6 +57,12 @@ func handleImageUpload(ctx echo.Context, fieldName string, imgDir string) (strin
 	}
 	if len(buf) > logic.MaxImageSize {
 		return "", fail(ctx, "文件太大")
+	}
+
+	// 检测上传文件的实际 MIME type，防止伪造扩展名攻击
+	mimeType := http.DetectContentType(buf)
+	if !allowedMIMETypes[mimeType] {
+		return "", fail(ctx, "不支持的图片格式，仅支持 JPEG、PNG、GIF、WebP")
 	}
 
 	if imgDir == "" {

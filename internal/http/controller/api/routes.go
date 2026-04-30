@@ -57,7 +57,7 @@ func RegisterRoutes(g *echo.Group) {
 	g.Use(mw.CORSWithConfig(mw.CORSConfig{
 		AllowOrigins:     getAllowedOrigins(),
 		AllowMethods:     []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
-		AllowHeaders:     []string{"Content-Type", "Authorization", "X-Token"},
+		AllowHeaders:     []string{"Content-Type", "Authorization", "X-Token", "X-Requested-With"},
 		AllowCredentials: true,
 	}))
 	// CSRF 防护：写操作检查 Origin/Referer
@@ -94,4 +94,5 @@ func RegisterRoutes(g *echo.Group) {
 	new(DownloadController).RegisterRoute(g)
 	new(GCTTController).RegisterRoute(g)
 	new(WechatController).RegisterRoute(g)
+	new(WSController).RegisterRoute(g)
 }

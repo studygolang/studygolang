@@ -27,6 +27,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/lib/auth-context"
+import { messageAPI } from "@/lib/api"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,11 +67,6 @@ const docItems: DocItem[] = [
   { label: "Go \u6307\u5357", href: "/wiki" },
 ]
 
-interface AuthState {
-  username: string
-  uid: string
-}
-
 export function SiteHeader() {
   const router = useRouter()
   const pathname = usePathname()
@@ -79,6 +75,36 @@ export function SiteHeader() {
   const { user, isLoggedIn, logout } = useAuth()
   const auth = isLoggedIn && user ? { username: user.username, uid: String(user.uid) } : null
   const searchInputRef = useRef<HTMLInputElement>(null)
+  const [unreadCount, setUnreadCount] = useState<{ system: number; inbox: number }>({ system: 0, inbox: 0 })
+
+  // 已登录时获取未读消息计数（30s 轮询）
+  useEffect(() => {
+    if (!isLoggedIn || !user) {
+      setUnreadCount({ system: 0, inbox: 0 })
+      return
+    }
+
+    let cancelled = false
+
+    async function fetchUnread() {
+      try {
+        const data = await messageAPI.getUnreadCount()
+        if (!cancelled) setUnreadCount(data)
+      } catch {
+        // 静默失败，不影响页面
+      }
+    }
+
+    fetchUnread()
+    const interval = setInterval(fetchUnread, 30_000)
+
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+    }
+  }, [isLoggedIn, user?.uid])
+
+  const totalUnread = unreadCount.system + unreadCount.inbox
 
   async function handleLogout() {
     await logout()
@@ -186,12 +212,16 @@ export function SiteHeader() {
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 text-muted-foreground"
-            aria-label={"\u901a\u77e5"}
-            disabled
-            title="通知功能开发中"
+            className="relative h-9 w-9 text-muted-foreground"
+            aria-label={"\u6d88\u606f"}
+            onClick={() => router.push('/messages')}
           >
             <Bell className="h-4 w-4" />
+            {totalUnread > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-none text-destructive-foreground">
+                {totalUnread > 99 ? '99+' : totalUnread}
+              </span>
+            )}
           </Button>
           <Button
             size="sm"

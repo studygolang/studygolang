@@ -11,7 +11,7 @@ interface AuthState {
 
 interface AuthContextValue extends AuthState {
   login: (user: Me) => void
-  logout: () => void
+  logout: () => Promise<void>
   refresh: () => Promise<void>
 }
 
@@ -20,7 +20,7 @@ const AuthContext = createContext<AuthContextValue>({
   isLoading: true,
   isLoggedIn: false,
   login: () => {},
-  logout: () => {},
+  logout: async () => {},
   refresh: async () => {},
 })
 

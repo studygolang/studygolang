@@ -93,6 +93,7 @@ export async function fetchAPI<T>(
     const res = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
         ...options.headers,
       },
       ...options,
@@ -486,12 +487,19 @@ export const messageAPI = {
   // 发送私信
   send(toUid: number, content: string) {
     const form = new URLSearchParams()
-    form.set('to_uid', String(toUid))
+    form.set('to', String(toUid))
     form.set('content', content)
     return fetchAPI<{ message: string }>('/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: form.toString(),
+      credentials: 'include',
+    })
+  },
+
+  // 获取未读消息计数
+  getUnreadCount() {
+    return fetchAPI<{ system: number; inbox: number }>('/messages/unread-count', {
       credentials: 'include',
     })
   },
@@ -603,7 +611,7 @@ export const subjectAPI = {
   contribute(sid: number, aid: number) {
     const form = new URLSearchParams()
     form.set('sid', String(sid))
-    form.set('aid', String(aid))
+    form.set('article_id', String(aid))
     return fetchAPI<{ message: string }>('/subject/contribute', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -616,7 +624,7 @@ export const subjectAPI = {
   removeContribute(sid: number, aid: number) {
     const form = new URLSearchParams()
     form.set('sid', String(sid))
-    form.set('aid', String(aid))
+    form.set('article_id', String(aid))
     return fetchAPI<{ message: string }>('/subject/remove_contribute', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -650,16 +658,9 @@ export const subjectAPI = {
 
 // ======================== 账户管理 ========================
 export const accountAPI = {
-  // 激活账户
+  // 激活账户（GET，因邮箱激活链接为浏览器直接打开）
   activate(token: string) {
-    const form = new URLSearchParams()
-    form.set('token', token)
-    return fetchAPI<{ message: string }>('/account/activate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: form.toString(),
-      credentials: 'include',
-    })
+    return fetchAPI<{ message: string }>('/account/activate?token=' + encodeURIComponent(token))
   },
 
   // 发送激活邮件
