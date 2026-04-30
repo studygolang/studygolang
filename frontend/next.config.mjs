@@ -27,6 +27,15 @@ const nextConfig = {
         source: '/static/:path*',
         destination: `${backend}/static/:path*`,
       },
+      // Sitemap 代理（复用后端 logic/sitemap.go 生成的静态文件）
+      {
+        source: '/sitemap',
+        destination: `${backend}/sitemap`,
+      },
+      {
+        source: '/sitemap/:path*',
+        destination: `${backend}/sitemap/:path*`,
+      },
     ]
   },
 }
