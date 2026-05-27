@@ -17,10 +17,10 @@ import {
   Wrench,
   GraduationCap,
 } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn, formatNum } from "@/lib/utils"
-import { useState } from "react"
 import type { Resource } from "@/lib/types"
 
 // 资源分类侧边栏（纯 UI，分类过滤通过 URL catid 参数与后端交互）
@@ -38,11 +38,20 @@ interface ResourceListProps {
   resources: Resource[]
   /** 当前选中的分类 catid，0 表示全部 */
   activeCatid?: number
+  /** 当前排序：new/hot/recommend */
+  activeSort?: string
 }
 
-export function ResourceList({ resources, activeCatid = 0 }: ResourceListProps) {
-  // 排序状态：最新/最热/推荐（纯 UI 展示，暂未接 API sort 参数）
-  const [activeSort, setActiveSort] = useState("最新")
+export function ResourceList({ resources, activeCatid = 0, activeSort = "new" }: ResourceListProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const handleSort = (sort: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("sort", sort)
+    params.delete("p") // 切换排序时重置到第一页
+    router.push(`/resources?${params.toString()}`)
+  }
 
   return (
     <div className="flex flex-col gap-6 lg:flex-row">
@@ -79,20 +88,24 @@ export function ResourceList({ resources, activeCatid = 0 }: ResourceListProps) 
           <p className="text-sm text-muted-foreground">
             {"共 "}<span className="font-semibold text-foreground">{resources.length}</span>{" 个资源（本页）"}
           </p>
-          {/* 排序按钮：TODO 接入 API sort 参数 */}
+          {/* 排序按钮（通过 URL sort 参数与后端交互） */}
           <div className="flex items-center gap-2">
-            {["最新", "最热", "推荐"].map((sort) => (
+            {[
+              { label: "最新", value: "new" },
+              { label: "最热", value: "hot" },
+              { label: "推荐", value: "recommend" },
+            ].map((item) => (
               <button
-                key={sort}
-                onClick={() => setActiveSort(sort)}
+                key={item.value}
+                onClick={() => handleSort(item.value)}
                 className={cn(
                   "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
-                  activeSort === sort
+                  activeSort === item.value
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:bg-secondary"
                 )}
               >
-                {sort}
+                {item.label}
               </button>
             ))}
           </div>

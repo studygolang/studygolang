@@ -17,9 +17,13 @@ export const metadata: Metadata = {
 import { fetchAPINullable } from "@/lib/api"
 import { formatNum } from "@/lib/utils"
 
-async function ResourceItems({ page, catid = 0 }: { page: number; catid?: number }) {
-  // 支持 catid 分类过滤，0 表示全部
-  const qs = catid > 0 ? `/resources?p=${page}&catid=${catid}` : `/resources?p=${page}`
+async function ResourceItems({ page, catid = 0, sort = "new" }: { page: number; catid?: number; sort?: string }) {
+  // 支持 catid 分类过滤和 sort 排序，0 表示全部，sort 默认最新
+  const params = new URLSearchParams({ p: String(page), sort })
+  if (catid > 0) {
+    params.set("catid", String(catid))
+  }
+  const qs = `/resources?${params.toString()}`
   const data = await fetchAPINullable<ResourceListData>(qs, { cache: "no-store" })
 
   if (!data || !data.resources || data.resources.length === 0) {
@@ -116,7 +120,7 @@ async function ResourceItems({ page, catid = 0 }: { page: number; catid?: number
       <div className="flex items-center justify-center gap-2 pt-4">
         {page > 1 && (
           <Link
-            href={`/resources?p=${page - 1}`}
+            href={`/resources?p=${page - 1}&sort=${sort}${catid > 0 ? `&catid=${catid}` : ""}`}
             className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
           >
             上一页
@@ -127,7 +131,7 @@ async function ResourceItems({ page, catid = 0 }: { page: number; catid?: number
         </span>
         {data.has_more && (
           <Link
-            href={`/resources?p=${page + 1}`}
+            href={`/resources?p=${page + 1}&sort=${sort}${catid > 0 ? `&catid=${catid}` : ""}`}
             className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
           >
             下一页
@@ -139,13 +143,14 @@ async function ResourceItems({ page, catid = 0 }: { page: number; catid?: number
 }
 
 interface ResourcesPageProps {
-  searchParams: Promise<{ p?: string; catid?: string }>
+  searchParams: Promise<{ p?: string; catid?: string; sort?: string }>
 }
 
 export default async function ResourcesPage({ searchParams }: ResourcesPageProps) {
   const params = await searchParams
   const page = Math.max(1, parseInt(params.p || "1", 10))
   const catid = params.catid ? parseInt(params.catid, 10) : 0
+  const sort = params.sort || "new"
 
   return (
     <PageLayout sidebar={false}>
@@ -171,7 +176,7 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
           </div>
         }
       >
-        <ResourceItems page={page} catid={catid} />
+        <ResourceItems page={page} catid={catid} sort={sort} />
       </Suspense>
     </PageLayout>
   )

@@ -497,6 +497,25 @@ export interface Wiki {
   mtime: string
 }
 
+// ======================== 公告相关 ========================
+export interface Announcement {
+  id: number
+  title: string
+  content: string
+  type: number      // 1=公告 2=活动 3=警告
+  priority: number  // 优先级，数值越大越靠前
+  start_time: string
+  end_time: string
+  created_at: string
+}
+
+export interface AnnouncementListData {
+  list: Announcement[]
+  total: number
+  page: number
+  has_more: boolean
+}
+
 // ======================== 社交账号绑定 ========================
 export interface BindUser {
   id: number

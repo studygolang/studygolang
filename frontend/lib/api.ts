@@ -27,6 +27,7 @@ import type {
   User,
   UserComment,
   Wiki,
+  AnnouncementListData,
 } from './types'
 
 // 服务端使用后端地址，客户端使用相对路径（经 rewrites 代理）
@@ -170,9 +171,11 @@ export const topicAPI = {
 
 // ======================== 文章 ========================
 export const articleAPI = {
-  getList(params: { p?: number } = {}, fetchOptions?: RequestInit) {
+  getList(params: { p?: number; sort?: string; tag?: string } = {}, fetchOptions?: RequestInit) {
     const q = new URLSearchParams()
     if (params.p) q.set('p', String(params.p))
+    if (params.sort) q.set('sort', params.sort)
+    if (params.tag) q.set('tag', params.tag)
     return fetchAPI<ArticleListData>(`/articles?${q}`, fetchOptions)
   },
 
@@ -421,6 +424,20 @@ export const sidebarAPI = {
   // 后端返回 { comments: Comment[], [uid: string]: User }
   getRecentComments(fetchOptions?: RequestInit) {
     return fetchAPI<{ comments: Comment[] }>('/sidebar/comments/recent', fetchOptions)
+  },
+}
+
+// ======================== 公告 ========================
+// 重新导出 AnnouncementListData，使 import type 的使用被 IDE 正确识别
+export type { AnnouncementListData } from './types'
+
+export const announcementAPI = {
+  getList(params: { p?: number; type?: number } = {}, fetchOptions?: RequestInit) {
+    const q = new URLSearchParams()
+    if (params.p) q.set('p', String(params.p))
+    if (params.type !== undefined) q.set('type', String(params.type))
+    const qs = q.toString()
+    return fetchAPI<AnnouncementListData>(`/announcements${qs ? `?${qs}` : ''}`, fetchOptions)
   },
 }
 

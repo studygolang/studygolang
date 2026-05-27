@@ -3,6 +3,7 @@ import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { TopicList } from "@/components/topic-list"
 import { NodeNavigation } from "@/components/node-navigation"
+import { TopicSortSelect } from "@/components/topic-sort-select"
 import Link from "next/link"
 import { PenSquare } from "lucide-react"
 import { AuthLink } from "@/components/auth-link"
@@ -15,10 +16,10 @@ export const metadata: Metadata = {
 
 import { fetchAPI } from "@/lib/api"
 
-async function getTopicsData(tab: string, page: number) {
+async function getTopicsData(tab: string, sort: string, page: number) {
   const [topicsResult, nodesResult] = await Promise.allSettled([
     fetchAPI<TopicListData>(
-      `/topics?tab=${tab}&p=${page}`,
+      `/topics?tab=${tab}&sort=${sort}&p=${page}`,
       { cache: 'no-store' }
     ),
     fetchAPI<TopicNode[]>('/nodes', { cache: 'no-store' }),
@@ -41,15 +42,16 @@ const TAB_LABELS: Record<string, string> = {
 }
 
 interface TopicsPageProps {
-  searchParams: Promise<{ tab?: string; p?: string }>
+  searchParams: Promise<{ tab?: string; p?: string; sort?: string }>
 }
 
 export default async function TopicsPage({ searchParams }: TopicsPageProps) {
-  const { tab: tabParam, p: pageStr } = await searchParams
+  const { tab: tabParam, p: pageStr, sort: sortParam } = await searchParams
   const tab = tabParam ?? 'all'
+  const sort = sortParam ?? 'hot'
   const page = Math.max(1, parseInt(pageStr ?? '1', 10) || 1)
 
-  const { topicsData, nodes } = await getTopicsData(tab, page)
+  const { topicsData, nodes } = await getTopicsData(tab, sort, page)
   // 后端返回字段为 "list"，与 TopicListData.list 对应
   const topics = topicsData.list ?? []
   const total = topicsData.total ?? 0
@@ -91,23 +93,29 @@ export default async function TopicsPage({ searchParams }: TopicsPageProps) {
       <div className="rounded-lg border border-border bg-card p-4">
         {/* Tab Filter */}
         <div className="space-y-3">
-          <div className="flex items-center gap-1 border-b border-border">
-            {tabs.map((t) => (
-              <Link
-                key={t.id}
-                href={`/topics?tab=${t.id}`}
-                className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
-                  tab === t.id
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {t.label}
-                {tab === t.id && (
-                  <span className="absolute bottom-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-primary" />
-                )}
-              </Link>
-            ))}
+          <div className="flex items-center justify-between border-b border-border">
+            <div className="flex items-center gap-1">
+              {tabs.map((t) => (
+                <Link
+                  key={t.id}
+                  href={`/topics?tab=${t.id}&sort=${sort}`}
+                  className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
+                    tab === t.id
+                      ? "text-primary"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {t.label}
+                  {tab === t.id && (
+                    <span className="absolute bottom-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-primary" />
+                  )}
+                </Link>
+              ))}
+            </div>
+            <div className="flex items-center gap-2 pr-2">
+              <span className="text-xs text-muted-foreground">排序:</span>
+              <TopicSortSelect currentSort={sort} tab={tab} />
+            </div>
           </div>
         </div>
 
@@ -120,7 +128,7 @@ export default async function TopicsPage({ searchParams }: TopicsPageProps) {
           <div className="mt-6 flex items-center justify-center gap-2">
             {page > 1 ? (
               <Link
-                href={`/topics?tab=${tab}&p=${page - 1}`}
+                href={`/topics?tab=${tab}&sort=${sort}&p=${page - 1}`}
                 className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
               >
                 {"上一页"}
@@ -136,7 +144,7 @@ export default async function TopicsPage({ searchParams }: TopicsPageProps) {
             {pageNumbers.map((p) => (
               <Link
                 key={p}
-                href={`/topics?tab=${tab}&p=${p}`}
+                href={`/topics?tab=${tab}&sort=${sort}&p=${p}`}
                 className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                   p === page
                     ? "bg-primary text-primary-foreground"
@@ -150,7 +158,7 @@ export default async function TopicsPage({ searchParams }: TopicsPageProps) {
               <>
                 <span className="px-1 text-sm text-muted-foreground">...</span>
                 <Link
-                  href={`/topics?tab=${tab}&p=${totalPages}`}
+                  href={`/topics?tab=${tab}&sort=${sort}&p=${totalPages}`}
                   className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
                 >
                   {totalPages}
@@ -159,7 +167,7 @@ export default async function TopicsPage({ searchParams }: TopicsPageProps) {
             )}
             {(hasMore || page < totalPages) ? (
               <Link
-                href={`/topics?tab=${tab}&p=${page + 1}`}
+                href={`/topics?tab=${tab}&sort=${sort}&p=${page + 1}`}
                 className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
               >
                 {"下一页"}

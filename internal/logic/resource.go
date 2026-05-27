@@ -153,6 +153,7 @@ func (ResourceLogic) FindBy(ctx context.Context, limit int, lastIds ...int) []*m
 }
 
 // FindAll 获得资源列表（完整信息），分页
+// orderBy 为空时使用默认排序（mtime DESC）
 func (self ResourceLogic) FindAll(ctx context.Context, paginator *Paginator, orderBy, querystring string, args ...interface{}) (resources []map[string]interface{}, total int64) {
 	objLog := GetLogger(ctx)
 
@@ -165,7 +166,11 @@ func (self ResourceLogic) FindAll(ctx context.Context, paginator *Paginator, ord
 	if querystring != "" {
 		session.Where(querystring, args...)
 	}
-	err := session.OrderBy(orderBy).Limit(count, paginator.Offset()).Find(&resourceInfos)
+	order := orderBy
+	if order == "" {
+		order = "resource.mtime DESC"
+	}
+	err := session.OrderBy(order).Limit(count, paginator.Offset()).Find(&resourceInfos)
 	if err != nil {
 		objLog.Errorln("ResourceLogic FindAll error:", err)
 		return
@@ -227,7 +232,8 @@ func (ResourceLogic) Count(ctx context.Context, querystring string, args ...inte
 }
 
 // FindByCatid 获得某个分类的资源列表，分页
-func (ResourceLogic) FindByCatid(ctx context.Context, paginator *Paginator, catid int) (resources []map[string]interface{}, total int64) {
+// order 为空时使用默认排序（mtime DESC）
+func (ResourceLogic) FindByCatid(ctx context.Context, paginator *Paginator, catid int, order string) (resources []map[string]interface{}, total int64) {
 	objLog := GetLogger(ctx)
 
 	var (
@@ -235,8 +241,11 @@ func (ResourceLogic) FindByCatid(ctx context.Context, paginator *Paginator, cati
 		resourceInfos = make([]*model.ResourceInfo, 0)
 	)
 
+	if order == "" {
+		order = "resource.mtime DESC"
+	}
 	err := MasterDB.Join("INNER", "resource_ex", "resource.id=resource_ex.id").Where("catid=?", catid).
-		Desc("resource.mtime").Limit(count, paginator.Offset()).Find(&resourceInfos)
+		OrderBy(order).Limit(count, paginator.Offset()).Find(&resourceInfos)
 	if err != nil {
 		objLog.Errorln("ResourceLogic FindByCatid error:", err)
 		return

@@ -37,7 +37,19 @@ func (ProjectController) List(ctx echo.Context) error {
 	}
 	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
 
-	projects := logic.DefaultProject.FindAll(context.EchoContext(ctx), paginator, "id DESC", "")
+	// 支持排序参数：hot（热门 star+watch）、latest（最新 id）、noreply（零回复 cmtnum）
+	sort := ctx.QueryParam("sort")
+	var orderBy string
+	switch sort {
+	case "hot":
+		orderBy = "star DESC, watch DESC"
+	case "noreply":
+		orderBy = "cmtnum ASC, id DESC"
+	default: // latest 或空值
+		orderBy = "id DESC"
+	}
+
+	projects := logic.DefaultProject.FindAll(context.EchoContext(ctx), paginator, orderBy, "")
 
 	total := logic.DefaultProject.Count(context.EchoContext(ctx), "")
 	hasMore := paginator.SetTotal(total).HasMorePage()

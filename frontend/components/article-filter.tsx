@@ -13,7 +13,6 @@ const sortTabs = [
   { id: "recommend", label: "推荐" },
 ]
 
-// TODO: 等后端 /api/v1/articles 支持 tag 过滤参数后，改为 URL 参数驱动
 const categories = [
   "全部",
   "Go基础",
@@ -64,7 +63,7 @@ export function ArticleFilter() {
         </div>
       </div>
 
-      {/* Category tags：纯 UI 展示，TODO 后端支持 tag 过滤后改为 URL 参数 */}
+      {/* Category tags：纯 UI 展示，后端支持 tag 过滤后可改为 URL 参数 */}
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {categories.map((cat) => (
           <span

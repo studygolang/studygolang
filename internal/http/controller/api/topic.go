@@ -36,16 +36,39 @@ func (self TopicController) RegisterRoute(g *echo.Group) {
 	g.GET("/nodes", self.Nodes)
 }
 
-// List 话题列表，支持 tab、p 参数
+// List 话题列表，支持 tab、p、sort 参数
 func (self TopicController) List(ctx echo.Context) error {
 	tab := ctx.QueryParam("tab")
+	sort := ctx.QueryParam("sort")
+
+	orderBy := getTopicSortOrder(sort)
+
 	if tab != "" && tab != "all" {
 		nid := logic.GetNidByEname(tab)
 		if nid > 0 {
-			return self.topicList(ctx, tab, "topics.mtime DESC", "nid=? AND top!=1", nid)
+			return self.topicList(ctx, tab, orderBy, "nid=? AND top!=1", nid)
 		}
 	}
-	return self.topicList(ctx, "all", "topics.mtime DESC", "top!=1")
+	return self.topicList(ctx, "all", orderBy, "top!=1")
+}
+
+// getTopicSortOrder 根据 sort 参数返回排序 SQL
+// hot: 按回复数+点赞数排序（综合热度）
+// latest: 按 id DESC（最新发布）
+// noreply: 按回复数 ASC（无人回复优先）
+func getTopicSortOrder(sort string) string {
+	switch sort {
+	case "hot":
+		// 回复数*2 + 点赞数，发布时间越近权重越高
+		return "topics.reply+topics.`like`*2 DESC, topics.id DESC"
+	case "latest":
+		return "topics.id DESC"
+	case "noreply":
+		return "topics.reply ASC, topics.id DESC"
+	default:
+		// 默认按最近活动时间
+		return "topics.mtime DESC"
+	}
 }
 
 // NoReply 无回复话题列表

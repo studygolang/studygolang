@@ -37,6 +37,11 @@ import (
 
 var Store = sessions.NewCookieStore([]byte(config.ConfigFile.MustValue("global", "cookie_secret")))
 
+func init() {
+	// 默认全局 SameSite=Lax，兼顾安全与用户体验
+	Store.Options.SameSite = http.SameSiteLaxMode
+}
+
 func SetLoginCookie(ctx echo.Context, username string) {
 	Store.Options.HttpOnly = true
 
@@ -46,6 +51,7 @@ func SetLoginCookie(ctx echo.Context, username string) {
 		session.Options = &sessions.Options{
 			Path:     "/",
 			HttpOnly: true,
+			SameSite: http.SameSiteLaxMode,
 		}
 	}
 	session.Values["username"] = username

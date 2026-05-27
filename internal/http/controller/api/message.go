@@ -8,6 +8,7 @@ package api
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -205,7 +206,8 @@ func (MessageController) Delete(ctx echo.Context) error {
 }
 
 // UnreadCount 获取未读消息计数（需要登录）
-// 返回 { system: N, inbox: N } 格式
+// GET /api/v1/messages/unread-count
+// 返回 { code, data: { system, inbox }, message }
 func (MessageController) UnreadCount(ctx echo.Context) error {
 	uid, err := parseAuthUID(ctx)
 	if err != nil {
@@ -217,9 +219,13 @@ func (MessageController) UnreadCount(ctx echo.Context) error {
 	// 私信未读数
 	inboxUnread := logic.DefaultMessage.ToMsgUnreadCount(context.EchoContext(ctx), uid)
 
-	return success(ctx, map[string]interface{}{
-		"system": sysUnread,
-		"inbox":  inboxUnread,
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"code":    0,
+		"message": "",
+		"data": map[string]interface{}{
+			"system": sysUnread,
+			"inbox":  inboxUnread,
+		},
 	})
 }
 

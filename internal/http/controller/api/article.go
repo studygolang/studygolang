@@ -30,7 +30,7 @@ func (self *ArticleController) RegisterRoute(g *echo.Group) {
 	g.POST("/articles", self.Create)
 }
 
-// List 文章列表，支持 p 分页参数
+// List 文章列表，支持 p 分页、tag 过滤和 sort 排序参数
 func (ArticleController) List(ctx echo.Context) error {
 	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
 	if curPage < 1 {
@@ -38,10 +38,24 @@ func (ArticleController) List(ctx echo.Context) error {
 	}
 	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
 
-	topArticles := logic.DefaultArticle.FindAll(context.EchoContext(ctx), paginator, "id DESC", "top=1")
-	articles := logic.DefaultArticle.FindAll(context.EchoContext(ctx), paginator, "id DESC", "")
+	// 解析 tag 过滤参数
+	tag := strings.TrimSpace(ctx.QueryParam("tag"))
+	var tagCondition string
+	var tagArgs []interface{}
+	if tag != "" {
+		tagCondition = "tags LIKE ?"
+		tagArgs = []interface{}{"%" + tag + "%"}
+	}
 
-	total := logic.DefaultArticle.Count(context.EchoContext(ctx), "")
+	// 解析 sort 排序参数：hot(热门), latest(最新), noreply(无回复)
+	sort := strings.ToLower(strings.TrimSpace(ctx.QueryParam("sort")))
+	orderBy := getArticleSortOrder(sort)
+
+	// 置顶文章单独查询，不受 sort 参数影响（置顶优先）
+	topArticles := logic.DefaultArticle.FindAll(context.EchoContext(ctx), paginator, "id DESC", "top=1")
+	articles := logic.DefaultArticle.FindAll(context.EchoContext(ctx), paginator, orderBy, tagCondition, tagArgs...)
+
+	total := logic.DefaultArticle.Count(context.EchoContext(ctx), tagCondition, tagArgs...)
 	hasMore := paginator.SetTotal(total).HasMorePage()
 
 	return success(ctx, map[string]interface{}{
@@ -50,6 +64,23 @@ func (ArticleController) List(ctx echo.Context) error {
 		"page":     curPage,
 		"has_more": hasMore,
 	})
+}
+
+// getArticleSortOrder 根据 sort 参数返回对应的排序 SQL
+func getArticleSortOrder(sort string) string {
+	switch sort {
+	case "hot":
+		// 热门：评论数 > 点赞数 > 浏览数 > ID
+		return "cmtnum DESC, likenum DESC, viewnum DESC, id DESC"
+	case "noreply":
+		// 无回复：优先展示评论数为 0 的文章，按 ID 倒序
+		return "cmtnum ASC, id DESC"
+	case "latest":
+		fallthrough
+	default:
+		// 最新：按 ID 倒序
+		return "id DESC"
+	}
 }
 
 // Detail 文章详情，增加浏览量

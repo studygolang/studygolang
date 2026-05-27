@@ -73,6 +73,13 @@ func clearAuthCookie(ctx echo.Context) {
 	cookie.HttpOnly = true
 	cookie.Path = "/"
 	cookie.MaxAge = -1
+	// SameSite 与 setAuthCookie 保持一致
+	env := config.ConfigFile.MustValue("global", "env", "prod")
+	if env == "prod" {
+		cookie.SameSite = http.SameSiteStrictMode
+	} else {
+		cookie.SameSite = http.SameSiteLaxMode
+	}
 	ctx.SetCookie(cookie)
 }
 

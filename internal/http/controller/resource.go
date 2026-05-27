@@ -51,7 +51,7 @@ func (ResourceController) ReadCatResources(ctx echo.Context) error {
 	paginator := logic.NewPaginator(curPage)
 	catid := goutils.MustInt(ctx.Param("catid"))
 
-	resources, total := logic.DefaultResource.FindByCatid(context.EchoContext(ctx), paginator, catid)
+	resources, total := logic.DefaultResource.FindByCatid(context.EchoContext(ctx), paginator, catid, "")
 	pageHtml := paginator.SetTotal(total).GetPageHtml(ctx.Request().URL.Path)
 
 	return render(ctx, "resources/index.html", map[string]interface{}{"activeResources": "active", "resources": resources, "categories": logic.AllCategory, "page": template.HTML(pageHtml), "curCatid": catid})

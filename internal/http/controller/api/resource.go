@@ -29,7 +29,8 @@ func (self ResourceController) RegisterRoute(g *echo.Group) {
 	g.GET("/resources/:id", self.Detail)
 }
 
-// List 资源列表（支持 catid 分类过滤）
+// List 资源列表（支持 catid 分类过滤和 sort 排序）
+// sort 可选值：new（最新，默认）、hot（最热：likenum + viewnum）、recommend（推荐：cmtnum）
 func (ResourceController) List(ctx echo.Context) error {
 	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
 	if curPage < 1 {
@@ -38,6 +39,9 @@ func (ResourceController) List(ctx echo.Context) error {
 	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
 
 	catid := goutils.MustInt(ctx.QueryParam("catid"))
+	sort := ctx.QueryParam("sort")
+
+	order := resolveResourceOrder(sort)
 
 	var (
 		resources interface{}
@@ -45,9 +49,9 @@ func (ResourceController) List(ctx echo.Context) error {
 	)
 
 	if catid > 0 {
-		resources, total = logic.DefaultResource.FindByCatid(context.EchoContext(ctx), paginator, catid)
+		resources, total = logic.DefaultResource.FindByCatid(context.EchoContext(ctx), paginator, catid, order)
 	} else {
-		resources, total = logic.DefaultResource.FindAll(context.EchoContext(ctx), paginator, "resource.mtime", "")
+		resources, total = logic.DefaultResource.FindAll(context.EchoContext(ctx), paginator, order, "")
 	}
 
 	hasMore := paginator.SetTotal(total).HasMorePage()
@@ -57,7 +61,23 @@ func (ResourceController) List(ctx echo.Context) error {
 		"has_more":  hasMore,
 		"total":     total,
 		"page":      curPage,
+		"sort":      sort,
 	})
+}
+
+// resolveResourceOrder 将 sort 参数转换为数据库排序表达式
+func resolveResourceOrder(sort string) string {
+	switch sort {
+	case "hot":
+		// 按点赞数 + 浏览数综合排序
+		return "resource_ex.likenum DESC, resource_ex.viewnum DESC"
+	case "recommend":
+		// 按评论数排序
+		return "resource_ex.cmtnum DESC"
+	default:
+		// 默认按更新时间倒序
+		return "resource.mtime DESC"
+	}
 }
 
 // Publish 发布新资源（需要登录，支持 Cookie 和 X-Token header）
