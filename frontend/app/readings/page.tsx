@@ -11,6 +11,11 @@ import { fetchAPINullable } from "@/lib/api"
 export const metadata: Metadata = {
   title: "技术晨读 - Go语言中文网",
   description: "每日精选技术文章，开启你的技术早读时间",
+  openGraph: {
+    title: "技术晨读 - Go语言中文网",
+    description: "每日精选技术文章，开启你的技术早读时间",
+    type: "website",
+  },
 }
 
 // 后端 MorningReading 无 lang 字段

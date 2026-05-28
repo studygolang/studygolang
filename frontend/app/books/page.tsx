@@ -13,6 +13,11 @@ import type { BookListData } from "@/lib/types"
 export const metadata: Metadata = {
   title: "Go 书籍 - Go语言中文网",
   description: "Go语言经典图书推荐，从入门到精通",
+  openGraph: {
+    title: "Go 书籍 - Go语言中文网",
+    description: "Go语言经典图书推荐，从入门到精通",
+    type: "website",
+  },
 }
 
 async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {

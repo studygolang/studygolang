@@ -7,9 +7,16 @@ import { Users } from "lucide-react"
 import Link from "next/link"
 import type { UserListData } from "@/lib/types"
 
-export const metadata = {
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
   title: "会员列表 - Go语言中文网",
   description: "Go语言中文网活跃会员和新加入会员列表",
+  openGraph: {
+    title: "会员列表 - Go语言中文网",
+    description: "Go语言中文网活跃会员和新加入会员列表",
+    type: "website",
+  },
 }
 
 import { fetchAPI } from "@/lib/api"

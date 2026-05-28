@@ -11,6 +11,11 @@ import type { ProjectListData } from "@/lib/types"
 export const metadata: Metadata = {
   title: "Go 开源项目 - Go语言中文网",
   description: "发现优秀的 Go 语言开源项目，分享你的作品",
+  openGraph: {
+    title: "Go 开源项目 - Go语言中文网",
+    description: "发现优秀的 Go 语言开源项目，分享你的作品",
+    type: "website",
+  },
 }
 
 interface ProjectsPageProps {

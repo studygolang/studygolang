@@ -47,7 +47,7 @@ export async function generateMetadata({
   }
 
   const data = await fetchAPINullable<SubjectDetailData>(`/subject/${id}`, {
-    cache: "no-store",
+    next: { revalidate: 60 },
   })
 
   const subjectName = data?.subject?.name
@@ -77,7 +77,7 @@ export default async function SubjectPage({
 
   const data = await fetchAPINullable<SubjectDetailData>(
     `/subject/${id}${currentPage > 1 ? `?p=${currentPage}` : ""}`,
-    { cache: "no-store" }
+    { next: { revalidate: 60 } }
   )
 
   if (!data || !data.subject || data.subject.id === 0) {

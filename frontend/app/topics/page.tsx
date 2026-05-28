@@ -12,6 +12,11 @@ import type { TopicListData, TopicNode } from "@/lib/types"
 export const metadata: Metadata = {
   title: "主题讨论 - Go语言中文网",
   description: "Go语言中文社区主题讨论，分享技术经验，交流开发心得",
+  openGraph: {
+    title: "主题讨论 - Go语言中文网",
+    description: "Go语言中文社区主题讨论，分享技术经验，交流开发心得",
+    type: "website",
+  },
 }
 
 import { fetchAPI } from "@/lib/api"

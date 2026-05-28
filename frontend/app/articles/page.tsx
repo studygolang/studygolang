@@ -7,9 +7,16 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import type { ArticleListData } from "@/lib/types"
 
-export const metadata = {
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
   title: "Go语言文章 - Go语言中文网",
   description: "Go语言高质量技术文章，涵盖基础教程、实战经验、源码解析等，助力 Gopher 成长",
+  openGraph: {
+    title: "Go语言文章 - Go语言中文网",
+    description: "Go语言高质量技术文章，涵盖基础教程、实战经验、源码解析等，助力 Gopher 成长",
+    type: "website",
+  },
 }
 
 import { fetchAPI } from "@/lib/api"

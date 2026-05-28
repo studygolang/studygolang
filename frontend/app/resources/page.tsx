@@ -12,6 +12,11 @@ import type { ResourceListData } from "@/lib/types"
 export const metadata: Metadata = {
   title: "Go 资源 - Go语言中文网",
   description: "Go语言学习资源大全，教程、工具、视频、文档一站式索引",
+  openGraph: {
+    title: "Go 资源 - Go语言中文网",
+    description: "Go语言学习资源大全，教程、工具、视频、文档一站式索引",
+    type: "website",
+  },
 }
 
 import { fetchAPINullable } from "@/lib/api"
