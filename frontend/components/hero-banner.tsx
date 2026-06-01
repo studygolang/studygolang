@@ -83,7 +83,7 @@ export function HeroBanner({ stats }: HeroBannerProps) {
               <span className="h-5 w-48 animate-pulse rounded bg-muted" />
             ) : primary ? (
               <Link
-                href="/announcements"
+                href={primary.id > 0 ? `/announcements/${primary.id}` : "/announcements"}
                 className="text-sm font-medium text-foreground transition-colors hover:text-primary"
                 title={primary.title !== primary.content ? primary.title : undefined}
               >
