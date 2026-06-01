@@ -7,12 +7,7 @@ import { PageHeader } from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
 import { announcementAPI } from "@/lib/api"
 import type { Announcement } from "@/lib/types"
-
-const TYPE_CONFIG: Record<number, { label: string; variant: "default" | "secondary" | "destructive" }> = {
-  1: { label: "公告", variant: "default" },
-  2: { label: "活动", variant: "secondary" },
-  3: { label: "警告", variant: "destructive" },
-}
+import { getAnnouncementType } from "@/components/announcement/announcement-type"
 
 function formatDate(timeStr: string): string {
   try {
@@ -73,7 +68,7 @@ export default async function AnnouncementDetailPage({
     notFound()
   }
 
-  const typeConfig = TYPE_CONFIG[announcement.type] ?? { label: "公告", variant: "default" as const }
+  const typeConfig = getAnnouncementType(announcement.type)
 
   return (
     <PageLayout>

@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Clock, Calendar } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import type { Announcement } from "@/lib/types"
+import { getAnnouncementType } from "@/components/announcement/announcement-type"
 
 interface AnnouncementCardProps {
   announcement: Announcement
@@ -12,7 +13,14 @@ function formatTime(timeStr: string): string {
     const date = new Date(timeStr)
     const now = new Date()
     const diff = now.getTime() - date.getTime()
-    const minutes = Math.floor(diff / 60000)
+    const minutes = Math.floor(Math.abs(diff) / 60000)
+    if (diff < 0) {
+      if (minutes < 60) return `${minutes} 分钟后`
+      const hours = Math.floor(minutes / 60)
+      if (hours < 24) return `${hours} 小时后`
+      return `${Math.floor(hours / 24)} 天后`
+    }
+    if (minutes === 0) return "刚刚"
     if (minutes < 60) return `${minutes} 分钟前`
     const hours = Math.floor(minutes / 60)
     if (hours < 24) return `${hours} 小时前`
@@ -24,14 +32,8 @@ function formatTime(timeStr: string): string {
   }
 }
 
-const TYPE_CONFIG: Record<number, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  1: { label: "公告", variant: "default" },
-  2: { label: "活动", variant: "secondary" },
-  3: { label: "警告", variant: "destructive" },
-}
-
 export function AnnouncementCard({ announcement }: AnnouncementCardProps) {
-  const typeConfig = TYPE_CONFIG[announcement.type] ?? { label: "公告", variant: "default" }
+  const typeConfig = getAnnouncementType(announcement.type)
 
   return (
     <article className="group relative rounded-lg border border-border bg-card p-4 transition-colors hover:bg-secondary/30">
