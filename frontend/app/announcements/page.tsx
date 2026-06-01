@@ -4,6 +4,10 @@ import { PageHeader } from "@/components/page-header"
 import { AnnouncementList } from "@/components/announcement/announcement-card"
 import Link from "next/link"
 import { announcementAPI } from "@/lib/api"
+import {
+  ANNOUNCEMENT_ALL_TYPE_ID,
+  ANNOUNCEMENT_TYPE_FILTERS,
+} from "@/components/announcement/announcement-type"
 
 export const metadata: Metadata = {
   title: "公告中心 - Go语言中文网",
@@ -32,12 +36,7 @@ async function getAnnouncementsData(page: number, type: number | undefined) {
   }
 }
 
-const TYPE_FILTERS = [
-  { id: 0, label: "全部" },
-  { id: 1, label: "公告" },
-  { id: 2, label: "活动" },
-  { id: 3, label: "警告" },
-]
+const TYPE_FILTERS = ANNOUNCEMENT_TYPE_FILTERS
 
 export default async function AnnouncementsPage({ searchParams }: AnnouncementsPageProps) {
   const { p: pageStr, type: typeStr } = await searchParams
@@ -74,15 +73,15 @@ export default async function AnnouncementsPage({ searchParams }: AnnouncementsP
             {TYPE_FILTERS.map((filter) => (
               <Link
                 key={filter.id}
-                href={`/announcements${filter.id === 0 ? "" : `?type=${filter.id}`}`}
+                href={`/announcements${filter.id === ANNOUNCEMENT_ALL_TYPE_ID ? "" : `?type=${filter.id}`}`}
                 className={`relative px-4 py-2.5 text-sm font-medium transition-colors ${
-                  (type ?? 0) === filter.id
+                  (type ?? ANNOUNCEMENT_ALL_TYPE_ID) === filter.id
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {filter.label}
-                {(type ?? 0) === filter.id && (
+                {(type ?? ANNOUNCEMENT_ALL_TYPE_ID) === filter.id && (
                   <span className="absolute bottom-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-primary" />
                 )}
               </Link>
