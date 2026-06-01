@@ -266,12 +266,19 @@ func (UserProfileController) ChangePassword(ctx echo.Context) error {
 		return fail(ctx, "请求参数错误")
 	}
 
+	if req.CurPasswd == "" {
+		return fail(ctx, "当前密码不能为空")
+	}
 	if req.NewPasswd == "" {
 		return fail(ctx, "新密码不能为空")
 	}
 
 	if len(req.NewPasswd) < 6 || len(req.NewPasswd) > 32 {
 		return fail(ctx, "密码长度必须在6到32个字符之间")
+	}
+
+	if req.CurPasswd == req.NewPasswd {
+		return fail(ctx, "新密码不能与当前密码相同")
 	}
 
 	errMsg, err := logic.DefaultUser.UpdatePasswd(context.EchoContext(ctx), user.Username, req.CurPasswd, req.NewPasswd)
@@ -300,9 +307,6 @@ func (UserProfileController) UploadAvatar(ctx echo.Context) error {
 		lowerAvatar := strings.ToLower(avatar)
 		if !strings.HasPrefix(lowerAvatar, "http://") && !strings.HasPrefix(lowerAvatar, "https://") {
 			return fail(ctx, "头像地址必须以 http:// 或 https:// 开头")
-		}
-		if strings.HasPrefix(lowerAvatar, "javascript:") {
-			return fail(ctx, "非法的头像地址")
 		}
 	}
 
