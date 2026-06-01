@@ -27,6 +27,7 @@ import type {
   User,
   UserComment,
   Wiki,
+  Announcement,
   AnnouncementListData,
 } from './types'
 
@@ -438,6 +439,9 @@ export const announcementAPI = {
     if (params.type !== undefined) q.set('type', String(params.type))
     const qs = q.toString()
     return fetchAPI<AnnouncementListData>(`/announcements${qs ? `?${qs}` : ''}`, fetchOptions)
+  },
+  getDetail(id: number, fetchOptions?: RequestInit) {
+    return fetchAPI<{ announcement: Announcement }>(`/announcements/${id}`, fetchOptions)
   },
 }
 

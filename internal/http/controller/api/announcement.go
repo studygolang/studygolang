@@ -19,6 +19,7 @@ type AnnouncementController struct{}
 // RegisterRoute 注册路由
 func (self AnnouncementController) RegisterRoute(g *echo.Group) {
 	g.GET("/announcements", self.List)
+	g.GET("/announcements/:id", self.Detail)
 }
 
 // List 获取公告列表
@@ -46,5 +47,25 @@ func (AnnouncementController) List(ctx echo.Context) error {
 		"total":    total,
 		"page":     curPage,
 		"has_more": hasMore,
+	})
+}
+
+// Detail 获取公告详情
+func (AnnouncementController) Detail(ctx echo.Context) error {
+	id := goutils.MustInt64(ctx.Param("id"), 0)
+	if id <= 0 {
+		return fail(ctx, "无效的公告ID")
+	}
+
+	announcement, err := logic.DefaultAnnouncement.FindById(context.EchoContext(ctx), id)
+	if err != nil {
+		return fail(ctx, "获取公告失败")
+	}
+	if announcement == nil {
+		return fail(ctx, "公告不存在", 404)
+	}
+
+	return success(ctx, map[string]interface{}{
+		"announcement": announcement,
 	})
 }

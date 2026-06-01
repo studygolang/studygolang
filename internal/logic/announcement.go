@@ -20,6 +20,20 @@ type AnnouncementLogic struct{}
 
 var DefaultAnnouncement = AnnouncementLogic{}
 
+// FindById 根据 id 查找公告
+func (self AnnouncementLogic) FindById(ctx context.Context, id int64) (*model.Announcement, error) {
+	announcement := &model.Announcement{ID: id}
+	has, err := MasterDB.Get(announcement)
+	if err != nil {
+		logger.Errorln("AnnouncementLogic FindById error:", err)
+		return nil, err
+	}
+	if !has {
+		return nil, nil
+	}
+	return announcement, nil
+}
+
 // FindActive 根据 type 过滤，返回当前时间在 [start_time, end_time] 区间的公告列表，
 // 按 priority DESC, created_at DESC 排序。
 func (self AnnouncementLogic) FindActive(ctx context.Context, annType int, paginator *Paginator) ([]*model.Announcement, int64) {
