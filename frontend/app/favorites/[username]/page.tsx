@@ -52,6 +52,20 @@ interface FavoriteData {
 
 import { fetchAPI } from "@/lib/api"
 
+// 后端 model/comment.go iota: TypeTopic=0, TypeArticle=1, TypeResource=2, TypeProject=4
+// UI 用连续 1-4 显示，但实际传给后端的是 iota 编号
+const FAVORITE_TABS = [
+  { value: '1', label: '文章', objtype: 1 },
+  { value: '2', label: '话题', objtype: 0 },
+  { value: '3', label: '资源', objtype: 2 },
+  { value: '4', label: '项目', objtype: 4 },
+] as const
+
+// 后端 objtype → UI tab value（用于 SSR 时根据 URL objtype 选中默认 tab）
+const OBJTYPE_TO_TAB: Record<number, string> = Object.fromEntries(
+  FAVORITE_TABS.map((t) => [t.objtype, t.value])
+)
+
 async function getFavorites(username: string, objtype: number = 1): Promise<FavoriteData | null> {
   try {
     return await fetchAPI<FavoriteData>(
@@ -92,7 +106,10 @@ export default async function FavoritesPage({
 }) {
   const { username } = await params
   const { objtype: objtypeStr } = await searchParams
+  // 默认显示"文章"（TypeArticle=1，与后端 default 一致）
   const objtype = parseInt(objtypeStr || '1', 10)
+  // URL 里的 objtype 是后端 iota 值（0,1,2,4），UI tab 用连续 1-4 编号
+  const activeTab = OBJTYPE_TO_TAB[objtype] ?? '1'
 
   const data = await getFavorites(username, objtype)
 
@@ -124,20 +141,13 @@ export default async function FavoritesPage({
         </div>
       </div>
 
-      <Tabs defaultValue={objtype.toString()} className="space-y-4">
+      <Tabs defaultValue={activeTab} className="space-y-4">
         <TabsList>
-          <TabsTrigger value="1" asChild>
-            <Link href={`/favorites/${username}?objtype=1`}>文章</Link>
-          </TabsTrigger>
-          <TabsTrigger value="2" asChild>
-            <Link href={`/favorites/${username}?objtype=2`}>话题</Link>
-          </TabsTrigger>
-          <TabsTrigger value="3" asChild>
-            <Link href={`/favorites/${username}?objtype=3`}>资源</Link>
-          </TabsTrigger>
-          <TabsTrigger value="4" asChild>
-            <Link href={`/favorites/${username}?objtype=4`}>项目</Link>
-          </TabsTrigger>
+          {FAVORITE_TABS.map((tab) => (
+            <TabsTrigger key={tab.value} value={tab.value} asChild>
+              <Link href={`/favorites/${username}?objtype=${tab.objtype}`}>{tab.label}</Link>
+            </TabsTrigger>
+          ))}
         </TabsList>
 
         <TabsContent value="1" className="space-y-4">

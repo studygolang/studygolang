@@ -369,7 +369,7 @@ export interface CommentDetailData {
 export interface UserComment {
   cid: number
   objid: number
-  objtype: number       // 1=话题 2=文章 3=资源 4=项目 5=书籍
+  objtype: number       // 0=话题 1=文章 2=资源 4=项目 5=书籍（model/comment.go iota）
   content: string
   uid: number
   floor: number
@@ -403,7 +403,7 @@ export interface FriendLink {
 export interface SearchResult {
   id: string
   objid: number
-  objtype: number   // 1=话题 2=文章 3=资源 4=项目
+  objtype: number   // 0=话题 1=文章 2=资源 4=项目（model/comment.go iota）
   title: string
   content: string
   author: string
