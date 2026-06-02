@@ -1,3 +1,5 @@
+"use client"
+
 import dynamic from "next/dynamic"
 import { Label } from "@/components/ui/label"
 import { Info } from "lucide-react"

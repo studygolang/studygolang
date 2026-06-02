@@ -1,3 +1,5 @@
+"use client"
+
 import { useState } from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
 import { Label } from "@/components/ui/label"
