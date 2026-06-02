@@ -14,6 +14,7 @@ import (
 	"github.com/studygolang/studygolang/internal/logic"
 
 	echo "github.com/labstack/echo/v4"
+	"github.com/polaris1119/goutils"
 )
 
 type InterviewController struct{}
@@ -26,10 +27,7 @@ func (self InterviewController) RegisterRoute(g *echo.Group) {
 
 // List 获取面试题列表（分页）
 func (InterviewController) List(ctx echo.Context) error {
-	page, _ := strconv.Atoi(ctx.QueryParam("p"))
-	if page < 1 {
-		page = 1
-	}
+	page := goutils.MustInt(ctx.QueryParam("p"), 1)
 	pageSize := 20
 	levelStr := ctx.QueryParam("level")
 	level := -1 // -1 表示全部，不过滤 level
