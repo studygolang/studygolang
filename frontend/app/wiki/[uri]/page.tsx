@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/page-header"
 import { Card, CardContent } from "@/components/ui/card"
 import type { Wiki } from "@/lib/types"
 import { fetchAPINullable } from "@/lib/api"
-import { sanitizeHtml } from "@/lib/sanitize"
+import { SafeHtml } from "@/components/safe-html"
 import { formatDate } from "@/lib/utils"
 
 export const revalidate = 60
@@ -69,9 +69,9 @@ export default async function WikiDetailPage({ params }: WikiDetailPageProps) {
 
             {/* Wiki Content */}
             {wiki.content ? (
-              <div
+              <SafeHtml
+                html={wiki.content}
                 className="prose prose-sm max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary prose-code:text-primary prose-pre:bg-muted"
-                dangerouslySetInnerHTML={{ __html: sanitizeHtml(wiki.content) }}
               />
             ) : (
               <p className="text-sm text-muted-foreground">暂无内容</p>

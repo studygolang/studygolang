@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import type { InterviewQuestion } from "@/lib/types"
 import { fetchAPINullable } from "@/lib/api"
-import { sanitizeHtml } from "@/lib/sanitize"
+import { SafeHtml } from "@/components/safe-html"
 
 const levelLabels = ["初级", "中级", "高级"]
 const levelColors = [
@@ -75,9 +75,9 @@ export default async function InterviewQuestionPage({ params }: QuestionPageProp
           </div>
         </CardHeader>
         <CardContent className="px-5 pb-5">
-          <div
+          <SafeHtml
+            html={question.question}
             className="prose prose-sm max-w-none text-sm leading-relaxed text-foreground"
-            dangerouslySetInnerHTML={{ __html: sanitizeHtml(question.question) }}
           />
         </CardContent>
       </Card>
@@ -91,9 +91,9 @@ export default async function InterviewQuestionPage({ params }: QuestionPageProp
           </CardTitle>
         </CardHeader>
         <CardContent className="px-5 pb-5">
-          <div
+          <SafeHtml
+            html={question.answer}
             className="prose prose-sm max-w-none text-sm leading-relaxed text-foreground"
-            dangerouslySetInnerHTML={{ __html: sanitizeHtml(question.answer) }}
           />
         </CardContent>
       </Card>
