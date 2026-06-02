@@ -7,6 +7,7 @@
 package api
 
 import (
+	"net/mail"
 	"net/url"
 	"strings"
 
@@ -202,6 +203,15 @@ func (UserProfileController) UpdateProfile(ctx echo.Context) error {
 	if len(req.Name) > 50 {
 		return fail(ctx, "昵称不能超过50个字符")
 	}
+	if len(req.City) > 50 {
+		return fail(ctx, "所在城市不能超过50个字符")
+	}
+	if len(req.Company) > 100 {
+		return fail(ctx, "公司名称不能超过100个字符")
+	}
+	if len(req.Github) > 100 {
+		return fail(ctx, "GitHub 账号过长")
+	}
 	if len(req.Introduce) > 500 {
 		return fail(ctx, "个人简介不能超过500个字符")
 	}
@@ -209,9 +219,9 @@ func (UserProfileController) UpdateProfile(ctx echo.Context) error {
 		return fail(ctx, "个人网站地址过长")
 	}
 
-	// 邮箱格式校验
+	// 邮箱格式校验（使用 net/mail 替代 Contains 判断，能拦截 a@.b / .@a 等垃圾）
 	if req.Email != "" {
-		if !strings.Contains(req.Email, "@") || !strings.Contains(req.Email, ".") {
+		if _, err := mail.ParseAddress(req.Email); err != nil {
 			return fail(ctx, "邮箱格式不正确")
 		}
 	}
@@ -219,7 +229,8 @@ func (UserProfileController) UpdateProfile(ctx echo.Context) error {
 	// 个人网站 URL 格式校验
 	if req.Website != "" {
 		website := strings.TrimSpace(req.Website)
-		if !strings.HasPrefix(website, "http://") && !strings.HasPrefix(website, "https://") {
+		lower := strings.ToLower(website)
+		if !strings.HasPrefix(lower, "http://") && !strings.HasPrefix(lower, "https://") {
 			return fail(ctx, "个人网站地址必须以 http:// 或 https:// 开头")
 		}
 	}
