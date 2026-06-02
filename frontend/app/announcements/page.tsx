@@ -32,7 +32,7 @@ async function getAnnouncementsData(page: number, type: number | undefined) {
     return data
   } catch (error) {
     console.error("Failed to fetch announcements:", error)
-    return { list: [], total: 0 }
+    return { list: [], total: 0, has_more: false }
   }
 }
 
@@ -47,10 +47,11 @@ export default async function AnnouncementsPage({ searchParams }: AnnouncementsP
   const announcementsData = await getAnnouncementsData(page, type)
   const announcements = announcementsData.list ?? []
   const total = announcementsData.total ?? 0
+  const hasMore = announcementsData.has_more ?? false
 
   // 计算分页
   const pageSize = 20
-  const totalPages = total > 0 ? Math.ceil(total / pageSize) : 1
+  const totalPages = total > 0 ? Math.ceil(total / pageSize) : (hasMore ? page + 1 : page)
   const pageNumbers: number[] = []
   const start = Math.max(1, page - 2)
   const end = Math.min(totalPages, page + 2)
