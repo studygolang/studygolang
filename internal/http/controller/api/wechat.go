@@ -21,6 +21,7 @@ type WechatController struct{}
 func (self WechatController) RegisterRoute(g *echo.Group) {
 	g.Any("/wechat/autoreply", self.AutoReply)
 	g.POST("/wechat/bind", self.Bind)
+	g.POST("/wechat/active", self.Active)
 }
 
 // AutoReply 微信自动回复回调
@@ -67,4 +68,26 @@ func (WechatController) Bind(ctx echo.Context) error {
 	}
 
 	return success(ctx, nil)
+}
+
+// Active 微信激活账号（需要登录 + 验证码，激活后用户状态变为审核通过）
+func (WechatController) Active(ctx echo.Context) error {
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	captcha := ctx.FormValue("captcha")
+	if captcha == "" {
+		return fail(ctx, "验证码不能为空")
+	}
+
+	err = logic.DefaultWechat.CheckCaptchaAndActivate(context.EchoContext(ctx), me, captcha)
+	if err != nil {
+		return fail(ctx, "验证码错误，请确认获取了或没填错！")
+	}
+
+	return success(ctx, map[string]interface{}{
+		"message": "激活成功",
+	})
 }

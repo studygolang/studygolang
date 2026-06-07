@@ -45,6 +45,12 @@ export default function UserSettingsPage() {
   const [introduce, setIntroduce] = useState('')
   const [open, setOpen] = useState('0')
 
+  // 密码修改
+  const [showPasswordForm, setShowPasswordForm] = useState(false)
+  const [curPassword, setCurPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [changingPassword, setChangingPassword] = useState(false)
+
   // 加载用户资料
   const loadProfile = useCallback(async () => {
     try {
@@ -112,9 +118,39 @@ export default function UserSettingsPage() {
   // 保存资料
   const handleSave = async () => {
     setMessage(null)
+  }
 
-    // 客户端验证
-    if (name.length > 50) {
+  // 修改密码
+  const handleChangePassword = async () => {
+    setMessage(null)
+    if (!curPassword) {
+      setMessage({ type: 'error', text: '请输入当前密码' })
+      return
+    }
+    if (!newPassword || newPassword.length < 6) {
+      setMessage({ type: 'error', text: '新密码长度至少6个字符' })
+      return
+    }
+    if (curPassword === newPassword) {
+      setMessage({ type: 'error', text: '新密码不能与当前密码相同' })
+      return
+    }
+    setChangingPassword(true)
+    try {
+      await userAPI.changePassword(curPassword, newPassword)
+      setMessage({ type: 'success', text: '密码修改成功' })
+      setCurPassword('')
+      setNewPassword('')
+      setShowPasswordForm(false)
+    } catch (err) {
+      setMessage({ type: 'error', text: err instanceof Error ? err.message : '密码修改失败' })
+    } finally {
+      setChangingPassword(false)
+    }
+  }
+
+  // 客户端验证
+  if (name.length > 50) {
       setMessage({ type: 'error', text: '昵称不能超过50个字符' })
       return
     }
@@ -360,7 +396,56 @@ export default function UserSettingsPage() {
             )}
           </CardContent>
         </Card>
+
+        {/* 修改密码 */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Lock className="h-4 w-4" />
+              修改密码
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {!showPasswordForm ? (
+              <Button variant="outline" onClick={() => setShowPasswordForm(true)}>
+                修改密码
+              </Button>
+            ) : (
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label htmlFor="curPassword">当前密码</Label>
+                  <Input
+                    id="curPassword"
+                    type="password"
+                    value={curPassword}
+                    onChange={(e) => setCurPassword(e.target.value)}
+                    placeholder="请输入当前密码"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword">新密码</Label>
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="请输入新密码（至少6个字符）"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={handleChangePassword} disabled={changingPassword} className="gap-2">
+                    {changingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : '确认修改'}
+                  </Button>
+                  <Button variant="ghost" onClick={() => { setShowPasswordForm(false); setCurPassword(''); setNewPassword('') }}>
+                    取消
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </PageLayout>
   )
 }
+import { Lock } from 'lucide-react'

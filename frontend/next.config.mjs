@@ -35,9 +35,18 @@ const nextConfig = {
       {
         source: '/sitemap/:path*',
         destination: `${backend}/sitemap/:path*`,
-      },
-    ]
-  },
+	      },
+	      // RSS/Atom Feed 代理
+	      {
+	        source: '/feed.xml',
+	        destination: `${backend}/api/v1/feed`,
+	      },
+	      {
+	        source: '/feed.html',
+	        destination: `${backend}/api/v1/feed`,
+	      },
+	    ]
+	  },
 }
 
 export default nextConfig
