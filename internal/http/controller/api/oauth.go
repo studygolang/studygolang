@@ -127,6 +127,11 @@ func (OAuthController) GithubCallback(ctx echo.Context) error {
 	// 登录成功，种 cookie
 	SetLoginCookie(ctx, user.Username)
 
+	// 设置 JWT auth cookie（Next.js 前端使用）
+	if jwtToken, err := GenJWTToken(user.Uid, user.Username); err == nil {
+		setAuthCookie(ctx, jwtToken)
+	}
+
 	return success(ctx, map[string]interface{}{
 		"action":   "login",
 		"username": user.Username,
@@ -183,6 +188,11 @@ func (OAuthController) GiteaCallback(ctx echo.Context) error {
 	}
 
 	SetLoginCookie(ctx, user.Username)
+
+	// 设置 JWT auth cookie（Next.js 前端使用）
+	if jwtToken, err := GenJWTToken(user.Uid, user.Username); err == nil {
+		setAuthCookie(ctx, jwtToken)
+	}
 
 	return success(ctx, map[string]interface{}{
 		"action":   "login",

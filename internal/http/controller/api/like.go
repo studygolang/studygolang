@@ -26,12 +26,12 @@ func (self *LikeController) RegisterRoute(g *echo.Group) {
 // Status 查询当前用户是否已点赞
 func (LikeController) Status(ctx echo.Context) error {
 	token := getAuthToken(ctx)
-	if token == "" || !ValidateToken(token) {
+	if token == "" {
 		return success(ctx, map[string]interface{}{"has_like": false})
 	}
 
-	uid, ok := ParseToken(token)
-	if !ok || uid == 0 {
+	uid, _, valid := ValidateTokenAuto(token)
+	if !valid || uid == 0 {
 		return success(ctx, map[string]interface{}{"has_like": false})
 	}
 
@@ -60,12 +60,12 @@ func (LikeController) Toggle(ctx echo.Context) error {
 		return fail(ctx, "未登录", NeedReLoginCode)
 	}
 
-	if !ValidateToken(token) {
+	uid, _, valid := ValidateTokenAuto(token)
+	if !valid {
 		return fail(ctx, "token 已过期，请重新登录", NeedReLoginCode)
 	}
 
-	uid, ok := ParseToken(token)
-	if !ok || uid == 0 {
+	if uid == 0 {
 		return fail(ctx, "无效的 token", NeedReLoginCode)
 	}
 

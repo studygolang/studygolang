@@ -16,13 +16,15 @@ import {
 } from "@/components/ui/select"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
-import { resourceWriteAPI, resourceAPI, userAPI } from "@/lib/api"
+import { useAuth } from "@/lib/auth-context"
+import { resourceWriteAPI, resourceAPI } from "@/lib/api"
 import { toast } from "sonner"
 
 export default function ResourceModifyPage() {
   const router = useRouter()
   const params = useParams()
   const id = params.id as string
+  const { isLoggedIn, isLoading: authLoading } = useAuth()
 
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -38,17 +40,14 @@ export default function ResourceModifyPage() {
   const [categories, setCategories] = useState<Array<{ id: number; name: string }>>([])
 
   useEffect(() => {
-    async function checkAuth() {
-      const me = await userAPI.getMe()
-      if (!me) {
-        router.replace(`/account/login?redirect=/resources/modify/${id}`)
-        return
-      }
-      fetchCategories()
-      fetchResource()
+    if (authLoading) return
+    if (!isLoggedIn) {
+      router.replace(`/account/login?redirect=/resources/modify/${id}`)
+      return
     }
-    checkAuth()
-  }, [id])
+    fetchCategories()
+    fetchResource()
+  }, [id, isLoggedIn, authLoading, router])
 
   async function fetchCategories() {
     try {

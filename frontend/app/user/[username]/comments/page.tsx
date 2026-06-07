@@ -49,7 +49,7 @@ export default async function UserCommentsPage({ params, searchParams }: UserCom
   )
 
   if (!data?.user) {
-    notFound()
+    return notFound()
   }
 
   const { user, comments = [], total, has_more } = data

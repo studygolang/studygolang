@@ -49,7 +49,7 @@ export default async function JobDetailPage({
   const job = await getJob(id)
 
   if (!job) {
-    notFound()
+    return notFound()
   }
 
   const tags = job.tags ? job.tags.split(",").filter(Boolean) : []

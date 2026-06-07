@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
-import { subjectAPI, userAPI, fetchAPI } from "@/lib/api"
+import { useAuth } from "@/lib/auth-context"
+import { subjectAPI, fetchAPI } from "@/lib/api"
 import { toast } from "sonner"
 
 interface Subject {
@@ -23,6 +24,7 @@ export default function SubjectModifyPage() {
   const router = useRouter()
   const params = useParams()
   const id = params.id as string
+  const { isLoggedIn, isLoading: authLoading } = useAuth()
 
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -32,21 +34,13 @@ export default function SubjectModifyPage() {
   const [tags, setTags] = useState("")
 
   useEffect(() => {
-    checkAuth()
-  }, [id])
-
-  async function checkAuth() {
-    try {
-      const user = await userAPI.getMe()
-      if (!user) {
-        router.replace(`/account/login?redirect=/subject/modify/${id}`)
-        return
-      }
-      await loadSubject()
-    } catch {
+    if (authLoading) return
+    if (!isLoggedIn) {
       router.replace(`/account/login?redirect=/subject/modify/${id}`)
+      return
     }
-  }
+    loadSubject()
+  }, [id, isLoggedIn, authLoading, router])
 
   async function loadSubject() {
     try {

@@ -43,7 +43,7 @@ export default async function InterviewQuestionPage({ params }: QuestionPageProp
   )
 
   if (!data?.question) {
-    notFound()
+    return notFound()
   }
 
   const { question } = data

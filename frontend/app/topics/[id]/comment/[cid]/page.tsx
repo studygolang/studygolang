@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 import { Clock, MessageSquare } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { PageLayout } from "@/components/page-layout"
+import { MarkdownContent } from "@/components/markdown-content"
 import { PageHeader } from "@/components/page-header"
 import { fetchAPI } from "@/lib/api"
 import { OBJTYPE_TOPIC } from "@/lib/types"
@@ -71,11 +72,11 @@ export default async function TopicCommentPage({
   ])
 
   if (!topicData?.topic) {
-    notFound()
+    return notFound()
   }
 
   if (!commentData?.comment) {
-    notFound()
+    return notFound()
   }
 
   const { topic } = topicData
@@ -130,7 +131,7 @@ export default async function TopicCommentPage({
           </div>
 
           <div className="prose prose-sm max-w-none dark:prose-invert">
-            <p className="whitespace-pre-wrap leading-relaxed">{comment.content}</p>
+            <MarkdownContent content={comment.content} />
           </div>
 
           <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
@@ -183,9 +184,7 @@ export default async function TopicCommentPage({
                       </div>
                     </div>
 
-                    <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">
-                      {nearbyComment.content}
-                    </p>
+                    <MarkdownContent content={nearbyComment.content} />
                   </div>
                 )
               })}

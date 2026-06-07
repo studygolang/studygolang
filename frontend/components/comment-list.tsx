@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { MessageSquare, Clock } from "lucide-react"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { formatNum } from "@/lib/utils"
+import { MarkdownContent } from "@/components/markdown-content"
 import type { UserComment } from "@/lib/types"
 
 interface CommentListProps {
@@ -27,9 +26,9 @@ function formatTime(ctime: string): string {
 
 function getObjTypeName(objtype: number): string {
   switch (objtype) {
-    case 1: return "话题"
-    case 2: return "文章"
-    case 3: return "资源"
+    case 0: return "话题"
+    case 1: return "文章"
+    case 2: return "资源"
     case 4: return "项目"
     case 5: return "书籍"
     default: return "内容"
@@ -39,11 +38,11 @@ function getObjTypeName(objtype: number): string {
 function getObjLink(comment: UserComment): string {
   if (!comment.objinfo?.uri) {
     switch (comment.objtype) {
-      case 1: return `/topics/${comment.objid}`
-      case 2: return `/articles/${comment.objid}`
-      case 3: return `/resources/${comment.objid}`
-      case 4: return `/projects/${comment.objid}`
-      case 5: return `/books/${comment.objid}`
+      case 0: return `/topics/${comment.objid}`
+      case 1: return `/articles/${comment.objid}`
+      case 2: return `/resources/${comment.objid}`
+      case 4: return `/p/${comment.objid}`
+      case 5: return `/book/${comment.objid}`
       default: return "#"
     }
   }
@@ -82,9 +81,7 @@ export function CommentList({ comments = [] }: CommentListProps) {
 
           {/* 评论内容 */}
           <div className="rounded-lg bg-secondary/30 p-3">
-            <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">
-              {comment.content}
-            </p>
+            <MarkdownContent content={comment.content} />
           </div>
 
           {/* 评论元信息 */}

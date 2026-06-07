@@ -9,13 +9,15 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
-import { bookWriteAPI, userAPI } from "@/lib/api"
+import { useAuth } from "@/lib/auth-context"
+import { bookWriteAPI } from "@/lib/api"
 import { toast } from "sonner"
 
 export default function BookModifyPage() {
   const router = useRouter()
   const params = useParams()
   const id = params.id as string
+  const { isLoggedIn, isLoading: authLoading } = useAuth()
 
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -37,16 +39,13 @@ export default function BookModifyPage() {
   const [isFree, setIsFree] = useState(false)
 
   useEffect(() => {
-    async function checkAuth() {
-      const me = await userAPI.getMe()
-      if (!me) {
-        router.replace(`/account/login?redirect=/books/modify/${id}`)
-        return
-      }
-      fetchBook()
+    if (authLoading) return
+    if (!isLoggedIn) {
+      router.replace(`/account/login?redirect=/books/modify/${id}`)
+      return
     }
-    checkAuth()
-  }, [id])
+    fetchBook()
+  }, [id, isLoggedIn, authLoading, router])
 
   async function fetchBook() {
     try {

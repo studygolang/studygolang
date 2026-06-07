@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/page-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Coins, TrendingUp, TrendingDown, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { fetchAPI } from "@/lib/api"
 
 interface BalanceDetail {
   id: number
@@ -23,13 +24,7 @@ interface BalanceData {
 }
 
 async function fetchBalance(page: number): Promise<BalanceData> {
-  const res = await fetch(`/api/v1/balance?p=${page}`, {
-    credentials: "include",
-  })
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  const json = await res.json()
-  if (json.code !== 0) throw new Error(json.message || "请求失败")
-  return json.data
+  return fetchAPI<BalanceData>(`/balance?p=${page}`, { credentials: "include" })
 }
 
 export default function BalancePage() {

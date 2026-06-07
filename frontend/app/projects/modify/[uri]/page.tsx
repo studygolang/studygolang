@@ -9,13 +9,15 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
-import { projectWriteAPI, userAPI } from "@/lib/api"
+import { useAuth } from "@/lib/auth-context"
+import { projectWriteAPI } from "@/lib/api"
 import { toast } from "sonner"
 
 export default function ProjectModifyPage() {
   const router = useRouter()
   const params = useParams()
   const uri = params.uri as string
+  const { isLoggedIn, isLoading: authLoading } = useAuth()
 
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -36,16 +38,13 @@ export default function ProjectModifyPage() {
   const [os, setOS] = useState("")
 
   useEffect(() => {
-    async function checkAuth() {
-      const me = await userAPI.getMe()
-      if (!me) {
-        router.replace(`/account/login?redirect=/projects/modify/${uri}`)
-        return
-      }
-      fetchProject()
+    if (authLoading) return
+    if (!isLoggedIn) {
+      router.replace(`/account/login?redirect=/projects/modify/${uri}`)
+      return
     }
-    checkAuth()
-  }, [uri])
+    fetchProject()
+  }, [uri, isLoggedIn, authLoading, router])
 
   async function fetchProject() {
     try {

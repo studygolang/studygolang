@@ -51,7 +51,7 @@ export function ProjectList({ projects = [] }: ProjectListProps) {
               <div className="min-w-0 flex-1 space-y-2">
                 <div className="flex items-start gap-2">
                   <Link
-                    href={`/projects/${project.id}`}
+                    href={`/p/${project.uri || project.id}`}
                     className="text-base font-semibold leading-snug text-foreground transition-colors group-hover:text-primary"
                   >
                     {project.name}

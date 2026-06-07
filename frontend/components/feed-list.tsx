@@ -39,15 +39,20 @@ function formatTime(ctime: string): string {
 
 // 根据 objtype 获取详情页链接
 function getDetailUrl(feed: Feed): string {
-  return feed.Uri || `/${getTypePath(feed.Objtype)}/${feed.Objid}`
+  if (feed.Uri) return feed.Uri
+  switch (feed.Objtype) {
+    case 4: return `/p/${feed.Objid}`
+    case 5: return `/book/${feed.Objid}`
+    default: return `/${getTypePath(feed.Objtype)}/${feed.Objid}`
+  }
 }
 
 // 根据 objtype 获取路径前缀
 function getTypePath(objtype: number): string {
   switch (objtype) {
-    case 1: return "topics"
-    case 2: return "articles"
-    case 3: return "resources"
+    case 0: return "topics"
+    case 1: return "articles"
+    case 2: return "resources"
     case 4: return "projects"
     case 5: return "books"
     default: return "topics"
@@ -57,11 +62,11 @@ function getTypePath(objtype: number): string {
 // 根据 objtype 获取类型标签
 function getTypeBadge(objtype: number): { label: string; icon: React.ReactNode; className: string } {
   switch (objtype) {
-    case 1:
+    case 0:
       return { label: "话题", icon: <MessageSquare className="h-3 w-3" />, className: "bg-blue-500/10 text-blue-600" }
-    case 2:
+    case 1:
       return { label: "文章", icon: <FileText className="h-3 w-3" />, className: "bg-green-500/10 text-green-600" }
-    case 3:
+    case 2:
       return { label: "资源", icon: <Link2 className="h-3 w-3" />, className: "bg-orange-500/10 text-orange-600" }
     case 4:
       return { label: "项目", icon: <FolderGit2 className="h-3 w-3" />, className: "bg-purple-500/10 text-purple-600" }
@@ -126,7 +131,7 @@ export function FeedList({ feeds = fallbackFeeds }: FeedListProps) {
                   {typeBadge.label}
                 </Badge>
                 {/* 节点标签（仅话题显示） */}
-                {nodeName && feed.Objtype === 1 && (
+                {nodeName && feed.Objtype === 0 && (
                   <Badge
                     variant="secondary"
                     className="bg-primary/10 text-xs font-medium text-primary"

@@ -12,19 +12,25 @@ import type { SearchData } from "@/lib/types"
 import { fetchAPINullable } from "@/lib/api"
 
 // objtype 对应后端 model/comment.go iota 常量
-// TypeTopic=0, TypeArticle=1, TypeResource=2, TypeProject=4
+// TypeTopic=0, TypeArticle=1, TypeResource=2, TypeWiki=3, TypeProject=4, TypeBook=5, TypeInterview=6
 const typeColorMap: Record<number, string> = {
   0: "bg-blue-100 text-blue-700",
   1: "bg-green-100 text-green-700",
   2: "bg-orange-100 text-orange-700",
+  3: "bg-cyan-100 text-cyan-700",
   4: "bg-purple-100 text-purple-700",
+  5: "bg-amber-100 text-amber-700",
+  6: "bg-pink-100 text-pink-700",
 }
 
 const typeLabelMap: Record<number, string> = {
   0: "话题",
   1: "文章",
   2: "资源",
+  3: "Wiki",
   4: "项目",
+  5: "图书",
+  6: "面试题",
 }
 
 // 根据 objtype 和 objid 生成详情页 URL
@@ -33,8 +39,10 @@ function buildResultUrl(objtype: number, objid: number): string {
     case 0: return `/topics/${objid}`
     case 1: return `/articles/${objid}`
     case 2: return `/resources/${objid}`
+    case 3: return `/wiki/${objid}`
     case 4: return `/p/${objid}`
-    default: return `/resources/${objid}`
+    case 5: return `/book/${objid}`
+    default: return `/topics/${objid}`
   }
 }
 

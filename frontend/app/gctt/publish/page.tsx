@@ -9,10 +9,12 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
-import { userAPI, gcttAPI } from '@/lib/api'
+import { useAuth } from "@/lib/auth-context"
+import { gcttAPI } from '@/lib/api'
 
 export default function GCTTPublishPage() {
   const router = useRouter()
+  const { isLoggedIn, isLoading: authLoading } = useAuth()
   const [loading, setLoading] = useState(true)
   const [isTranslator, setIsTranslator] = useState(false)
   const [applying, setApplying] = useState(false)
@@ -21,17 +23,15 @@ export default function GCTTPublishPage() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    async function checkAuth() {
-      try {
-        // 检查登录状态
-        const user = await userAPI.getMe()
-        if (!user) {
-          toast.error('请先登录')
-          router.push('/account/login')
-          return
-        }
+    if (authLoading) return
+    if (!isLoggedIn) {
+      toast.error('请先登录')
+      router.push('/account/login')
+      return
+    }
 
-        // 检查译者身份
+    async function checkTranslator() {
+      try {
         const data = await gcttAPI.getMe()
         setIsTranslator(data.is_translator)
       } catch {
@@ -42,8 +42,8 @@ export default function GCTTPublishPage() {
       }
     }
 
-    checkAuth()
-  }, [router])
+    checkTranslator()
+  }, [authLoading, isLoggedIn, router])
 
   const handleApply = async () => {
     if (applying) return

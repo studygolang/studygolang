@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 import { Clock, MessageSquare } from "lucide-react"
 import { formatTime } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { MarkdownContent } from "@/components/markdown-content"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { fetchAPI } from "@/lib/api"
@@ -71,11 +72,11 @@ export default async function ArticleCommentPage({
   ])
 
   if (!articleData?.article) {
-    notFound()
+    return notFound()
   }
 
   if (!commentData?.comment) {
-    notFound()
+    return notFound()
   }
 
   const { article } = articleData
@@ -130,7 +131,7 @@ export default async function ArticleCommentPage({
           </div>
 
           <div className="prose prose-sm max-w-none dark:prose-invert">
-            <p className="whitespace-pre-wrap leading-relaxed">{comment.content}</p>
+            <MarkdownContent content={comment.content} />
           </div>
 
           <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
@@ -183,9 +184,7 @@ export default async function ArticleCommentPage({
                       </div>
                     </div>
 
-                    <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">
-                      {nearbyComment.content}
-                    </p>
+                    <MarkdownContent content={nearbyComment.content} />
                   </div>
                 )
               })}

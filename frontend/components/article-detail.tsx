@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   ThumbsUp,
   MessageSquare,
@@ -18,6 +19,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { MarkdownContent } from "@/components/markdown-content"
+import { CommentForm } from "@/components/comment-form"
 import type { Article, ArticleComment } from "@/lib/types"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8090"
@@ -49,6 +52,7 @@ function formatTime(ctime: string): string {
 }
 
 export function ArticleDetail({ id, article, prev, next, comments = [] }: ArticleDetailProps) {
+  const router = useRouter()
   const [liked, setLiked] = useState(false)
   const [bookmarked, setBookmarked] = useState(false)
   const [likeCount, setLikeCount] = useState(article?.likenum || 0)
@@ -135,8 +139,6 @@ export function ArticleDetail({ id, article, prev, next, comments = [] }: Articl
     ...(next ? [{ title: next.title, href: `/articles/${next.id}` }] : []),
   ]
 
-  const contentParagraphs = article.content ? article.content.split("\n") : []
-
   return (
     <div className="space-y-4">
       {/* Article Card */}
@@ -158,10 +160,10 @@ export function ArticleDetail({ id, article, prev, next, comments = [] }: Articl
               <div>
                 {/* author 为原文作者名，站内用 author_txt 对应 username，API 暂未返回 author_uid，用 author 作路由参数 */}
                 <Link
-                  href={`/user/${article.author}`}
+                  href={`/user/${article.author || ""}`}
                   className="text-sm font-medium text-foreground hover:text-primary"
                 >
-                  {article.author}
+                  {article.author || "未知作者"}
                 </Link>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
@@ -187,41 +189,7 @@ export function ArticleDetail({ id, article, prev, next, comments = [] }: Articl
           <Separator className="my-6" />
 
           {/* Content */}
-          <div className="space-y-4">
-            {contentParagraphs.map((para, i) => {
-              if (para.startsWith("## ")) {
-                return (
-                  <h2
-                    key={i}
-                    className="mt-8 mb-3 text-xl font-bold text-foreground first:mt-0"
-                  >
-                    {para.replace("## ", "")}
-                  </h2>
-                )
-              }
-              if (para.startsWith("### ")) {
-                return (
-                  <h3 key={i} className="mb-2 mt-4 text-base font-semibold text-foreground">
-                    {para.replace("### ", "")}
-                  </h3>
-                )
-              }
-              if (/^\d+\.\s/.test(para)) {
-                return (
-                  <div key={i} className="flex gap-2 py-0.5 pl-4 text-sm leading-relaxed text-foreground">
-                    <span className="shrink-0 font-semibold text-primary">{para.match(/^\d+/)?.[0]}.</span>
-                    <span>{para.replace(/^\d+\.\s/, "")}</span>
-                  </div>
-                )
-              }
-              if (para.trim() === "") return <div key={i} className="h-2" />
-              return (
-                <p key={i} className="text-[15px] leading-relaxed text-foreground">
-                  {para}
-                </p>
-              )
-            })}
-          </div>
+          <MarkdownContent content={article.content ?? ""} />
 
           {/* Actions */}
           <Separator className="my-6" />
@@ -285,17 +253,12 @@ export function ArticleDetail({ id, article, prev, next, comments = [] }: Articl
             {"评论"} ({comments.length})
           </h2>
 
-          <div className="mt-4 rounded-lg border border-border p-3">
-            <textarea
-              placeholder="写下你的评论..."
-              className="min-h-[80px] w-full resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+          <div className="mt-4">
+            <CommentForm
+              objid={parseInt(id)}
+              objtype={1}
+              onSuccess={() => router.refresh()}
             />
-            <div className="mt-2 flex items-center justify-between">
-              <p className="text-xs text-muted-foreground">{"支持 Markdown 语法"}</p>
-              <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
-                {"发表评论"}
-              </Button>
-            </div>
           </div>
 
           <div className="mt-6 space-y-0 divide-y divide-border">
@@ -312,9 +275,7 @@ export function ArticleDetail({ id, article, prev, next, comments = [] }: Articl
                       <span className="text-sm font-semibold text-foreground">{comment.name}</span>
                       <span className="text-xs text-muted-foreground">{formatTime(comment.ctime)}</span>
                     </div>
-                    <p className="mt-1.5 text-sm leading-relaxed text-foreground">
-                      {comment.content}
-                    </p>
+                    <MarkdownContent content={comment.content} className="mt-1.5" />
                     <div className="mt-2 flex items-center gap-3">
                       <button className="flex cursor-pointer items-center gap-1 text-xs text-muted-foreground hover:text-primary">
                         <ChevronUp className="h-3.5 w-3.5" />

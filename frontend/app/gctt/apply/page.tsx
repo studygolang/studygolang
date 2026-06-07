@@ -6,12 +6,14 @@ import { PageHeader } from "@/components/page-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { gcttAPI } from "@/lib/api"
+import { useAuth } from "@/lib/auth-context"
 import { Loader2, CheckCircle2, BookOpen } from "lucide-react"
 import Link from "next/link"
 
 type Status = "loading" | "already_translator" | "apply_form" | "success" | "bind_github" | "error"
 
 export default function GcttApplyPage() {
+  const { user } = useAuth()
   const [status, setStatus] = useState<Status>("loading")
   const [errorMsg, setErrorMsg] = useState("")
   const [applying, setApplying] = useState(false)
@@ -107,7 +109,7 @@ export default function GcttApplyPage() {
             </p>
             <div className="flex gap-3">
               <Button asChild variant="outline">
-                <Link href="/user/settings">前往个人设置</Link>
+                <Link href={`/user/${user?.username || ''}/settings`}>前往个人设置</Link>
               </Button>
               <Button onClick={() => setStatus("apply_form")} variant="ghost">
                 返回

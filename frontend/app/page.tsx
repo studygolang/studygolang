@@ -84,7 +84,7 @@ async function getHomeData(tab: string = 'all'): Promise<HomeDataResult> {
 
   // 从 feeds 中提取话题用于趋势显示
   const trendingFromFeeds = feeds
-    .filter(f => f.Objtype === 1) // 只取话题类型
+    .filter(f => f.Objtype === 0) // 只取话题类型
     .slice(0, 5)
 
   return {

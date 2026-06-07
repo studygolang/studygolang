@@ -10,26 +10,24 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
-import { userAPI, wikiAPI } from "@/lib/api"
+import { useAuth } from "@/lib/auth-context"
+import { wikiAPI } from "@/lib/api"
 
 export default function WikiNewPage() {
   const router = useRouter()
+  const { isLoggedIn, isLoading: authLoading } = useAuth()
 
-  const [authLoading, setAuthLoading] = useState(true)
   const [title, setTitle] = useState("")
   const [uri, setUri] = useState("")
   const [content, setContent] = useState("")
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    userAPI.getMe().then((me) => {
-      if (!me) {
-        router.replace("/account/login?redirect=/wiki/new")
-      } else {
-        setAuthLoading(false)
-      }
-    })
-  }, [router])
+    if (authLoading) return
+    if (!isLoggedIn) {
+      router.replace("/account/login?redirect=/wiki/new")
+    }
+  }, [authLoading, isLoggedIn, router])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -40,6 +38,10 @@ export default function WikiNewPage() {
     }
     if (!uri.trim()) {
       toast.error("请填写 URI（用于 URL 路径）")
+      return
+    }
+    if (!/^[a-zA-Z0-9-]+$/.test(uri.trim())) {
+      toast.error("URI 仅支持字母、数字和连字符")
       return
     }
     if (!content.trim()) {

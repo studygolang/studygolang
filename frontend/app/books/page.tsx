@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import type { BookListData } from "@/lib/types"
+import { fetchAPINullable } from "@/lib/api"
 
 export const metadata: Metadata = {
   title: "Go 书籍 - Go语言中文网",
@@ -18,18 +19,6 @@ export const metadata: Metadata = {
     description: "Go语言经典图书推荐，从入门到精通",
     type: "website",
   },
-}
-
-async function fetchAPI<T>(path: string, options?: RequestInit): Promise<T | null> {
-  try {
-    const base = process.env.API_BASE_URL || "http://localhost:8090"
-    const res = await fetch(`${base}/api/v1${path}`, options)
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.code === 0 ? json.data : null
-  } catch {
-    return null
-  }
 }
 
 function getBookColor(id: number): string {
@@ -44,7 +33,7 @@ function getBookColor(id: number): string {
 }
 
 async function BookItems({ page }: { page: number }) {
-  const data = await fetchAPI<BookListData>(
+  const data = await fetchAPINullable<BookListData>(
     `/books?p=${page}`,
     { cache: "no-store" }
   )

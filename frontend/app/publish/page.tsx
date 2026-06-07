@@ -30,7 +30,7 @@ export default function PublishPage() {
 function PublishContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { isLoggedIn } = useAuth()
+  const { isLoggedIn, isLoading: authLoading } = useAuth()
 
   // 从 URL 参数读取初始内容类型
   const initialType = (searchParams.get("type") || "topic") as ContentType
@@ -42,10 +42,11 @@ function PublishContent() {
 
   // 未登录重定向
   useEffect(() => {
+    if (authLoading) return
     if (!isLoggedIn) {
       router.replace("/account/login?redirect=/publish")
     }
-  }, [isLoggedIn, router])
+  }, [isLoggedIn, authLoading, router])
 
   return (
     <div className="min-h-screen bg-background">

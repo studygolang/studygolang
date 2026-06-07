@@ -49,7 +49,7 @@ export default async function UserProjectsPage({ params, searchParams }: UserPro
   )
 
   if (!data?.user) {
-    notFound()
+    return notFound()
   }
 
   const { user, projects = [], total, has_more } = data

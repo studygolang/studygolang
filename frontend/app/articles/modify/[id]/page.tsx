@@ -34,7 +34,7 @@ export default function ArticleModifyPage() {
   const router = useRouter()
   const params = useParams()
   const id = params.id as string
-  const { isLoggedIn } = useAuth()
+  const { isLoggedIn, isLoading: authLoading } = useAuth()
 
   const [loading, setLoading] = useState(true)
   const [title, setTitle] = useState("")
@@ -46,12 +46,13 @@ export default function ArticleModifyPage() {
   const [success, setSuccess] = useState(false)
 
   useEffect(() => {
+    if (authLoading) return
     if (!isLoggedIn) {
       router.replace(`/account/login?redirect=/articles/modify/${id}`)
       return
     }
     fetchArticle()
-  }, [id, isLoggedIn, router])
+  }, [id, isLoggedIn, authLoading, router])
 
   async function fetchArticle() {
     try {
@@ -60,7 +61,7 @@ export default function ArticleModifyPage() {
       })
       const json = await res.json()
       if (json.code !== 0) {
-        setError(json.message || json.msg || "加载失败")
+        setError(json.msg || "加载失败")
         setLoading(false)
         return
       }
@@ -114,7 +115,7 @@ export default function ArticleModifyPage() {
       })
       const json = await res.json()
       if (json.code !== 0) {
-        setError(json.message || json.msg || "保存失败")
+        setError(json.msg || "保存失败")
         setSubmitting(false)
         return
       }

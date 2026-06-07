@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
+import { useAuth } from "@/lib/auth-context"
 import { userAPI, commentAPI, messageAPI } from "@/lib/api"
 import { toast } from "sonner"
 
@@ -18,6 +19,7 @@ interface UserOption {
 
 export default function MessageSendPage() {
   const router = useRouter()
+  const { isLoggedIn, isLoading: authLoading } = useAuth()
   const [loading, setLoading] = useState(true)
   const [toUsername, setToUsername] = useState("")
   const [toUid, setToUid] = useState<number | null>(null)
@@ -27,16 +29,13 @@ export default function MessageSendPage() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const me = await userAPI.getMe(undefined, { credentials: "include" })
-      if (!me) {
-        router.replace("/account/login?redirect=/messages/send")
-        return
-      }
-      setLoading(false)
+    if (authLoading) return
+    if (!isLoggedIn) {
+      router.replace("/account/login?redirect=/messages/send")
+      return
     }
-    checkAuth()
-  }, [router])
+    setLoading(false)
+  }, [authLoading, isLoggedIn, router])
 
   async function handleSearchUser(term: string) {
     if (!term.trim()) {

@@ -3,6 +3,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { ArrowLeft, Calendar, Clock } from "lucide-react"
 import { PageLayout } from "@/components/page-layout"
+import { MarkdownContent } from "@/components/markdown-content"
 import { PageHeader } from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
 import { announcementAPI } from "@/lib/api"
@@ -60,12 +61,12 @@ export default async function AnnouncementDetailPage({
   const { id } = await params
   const announcementId = parseInt(id, 10)
   if (!announcementId || Number.isNaN(announcementId)) {
-    notFound()
+    return notFound()
   }
 
   const announcement = await getAnnouncement(announcementId)
   if (!announcement) {
-    notFound()
+    return notFound()
   }
 
   const typeConfig = getAnnouncementType(announcement.type)
@@ -104,9 +105,7 @@ export default async function AnnouncementDetailPage({
           </div>
 
           <div className="border-t border-border pt-4">
-            <div className="prose prose-sm max-w-none whitespace-pre-wrap text-foreground">
-              {announcement.content}
-            </div>
+            <MarkdownContent content={announcement.content} />
           </div>
         </div>
       </article>

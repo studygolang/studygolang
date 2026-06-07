@@ -19,8 +19,18 @@ const ALLOWED_ATTR = ['href', 'src', 'alt', 'title', 'class', 'target', 'rel']
  * 用于所有 dangerouslySetInnerHTML 渲染场景
  */
 export function sanitizeHtml(html: string): string {
-  return DOMPurify.sanitize(html, {
+  const clean = DOMPurify.sanitize(html, {
     ALLOWED_TAGS,
     ALLOWED_ATTR,
+    ADD_ATTR: ['target'],
   })
+
+  // 为 target="_blank" 链接强制添加 rel="noopener noreferrer" 防止 tabnabbing
+  return clean.replace(
+    /<a\s+([^>]*target=["']_blank["'][^>]*)>/gi,
+    (_, attrs) => {
+      if (/rel=["'][^"']*noopener/.test(attrs)) return `<a ${attrs}>`
+      return `<a ${attrs} rel="noopener noreferrer">`
+    }
+  )
 }

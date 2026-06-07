@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Loader2 } from "lucide-react"
 import { fetchAPI } from "@/lib/api"
+import { useAuth } from "@/lib/auth-context"
 import Link from "next/link"
 
 interface Gift {
@@ -40,6 +41,7 @@ interface ExchangeRecord {
 
 export default function GiftPage() {
   const router = useRouter()
+  const { isLoggedIn, isLoading: authLoading } = useAuth()
   const [gifts, setGifts] = useState<Gift[]>([])
   const [records, setRecords] = useState<ExchangeRecord[]>([])
   const [loading, setLoading] = useState(true)
@@ -47,6 +49,13 @@ export default function GiftPage() {
   const [tab, setTab] = useState<"list" | "mine">("list")
   const [exchanging, setExchanging] = useState<number | null>(null)
   const [confirmGift, setConfirmGift] = useState<Gift | null>(null)
+
+  useEffect(() => {
+    if (authLoading) return
+    if (!isLoggedIn) {
+      router.replace("/account/login?redirect=/gift")
+    }
+  }, [isLoggedIn, authLoading, router])
 
   const loadData = useCallback(() => {
     setLoading(true)
@@ -76,10 +85,12 @@ export default function GiftPage() {
     setExchanging(giftId)
     setConfirmGift(null)
     try {
+      const form = new URLSearchParams()
+      form.set("gift_id", String(giftId))
       await fetchAPI<null>("/gift/exchange", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ gift_id: giftId }),
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: form.toString(),
         credentials: "include",
       })
       // 兑换成功后刷新列表以获取最新库存
@@ -201,7 +212,7 @@ export default function GiftPage() {
           积分余额
         </Link>
         {" · "}
-        <Link href="/mission/daily" className="text-primary hover:underline">
+        <Link href="/mission" className="text-primary hover:underline">
           每日任务
         </Link>
       </div>

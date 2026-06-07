@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, Suspense } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams, useParams } from "next/navigation"
 import { PageLayout } from "@/components/page-layout"
 import { Card, CardContent } from "@/components/ui/card"
 import { Loader2, CheckCircle2, XCircle } from "lucide-react"
@@ -16,13 +16,14 @@ interface OAuthResult {
 function OAuthCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const params = useParams<{ provider: string }>()
+  const provider = params.provider || "gitea"
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
   const [result, setResult] = useState<OAuthResult | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const code = searchParams.get("code")
-    const provider = window.location.pathname.includes("github") ? "github" : "gitea"
 
     if (!code) {
       setStatus("error")
@@ -42,7 +43,8 @@ function OAuthCallbackContent() {
           setResult(json.data)
           // 2秒后跳转
           setTimeout(() => {
-            const redirect = searchParams.get("redirect_url") || "/"
+            const raw = searchParams.get("redirect_url") || "/"
+            const redirect = (raw.startsWith("/") && !raw.startsWith("//")) ? raw : "/"
             router.push(redirect)
           }, 2000)
         } else {

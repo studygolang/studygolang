@@ -50,7 +50,7 @@ export default async function BookDetailPage({ params }: BookDetailPageProps) {
   const book = data?.book
 
   if (!book) {
-    notFound()
+    return notFound()
   }
 
   const jsonLd = {

@@ -16,7 +16,8 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8090"
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirect = searchParams.get("redirect") || "/"
+  const rawRedirect = searchParams.get("redirect") || "/"
+  const redirect = (rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")) ? rawRedirect : "/"
   const { login } = useAuth()
 
   const [username, setUsername] = useState("")

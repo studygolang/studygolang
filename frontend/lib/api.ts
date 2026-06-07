@@ -93,6 +93,7 @@ export async function fetchAPI<T>(
 
   try {
     const res = await fetch(url, {
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
@@ -507,13 +508,9 @@ export const messageAPI = {
 
   // 发送私信
   send(toUid: number, content: string) {
-    const form = new URLSearchParams()
-    form.set('to', String(toUid))
-    form.set('content', content)
     return fetchAPI<{ message: string }>('/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: form.toString(),
+      body: JSON.stringify({ to: toUid, content }),
       credentials: 'include',
     })
   },
@@ -810,7 +807,7 @@ export const likeAPI = {
 export const favoriteAPI = {
   // 收藏/取消收藏（toggle）
   toggle(objid: number, objtype: number, flag: boolean) {
-    return fetchAPI<{ message: string }>(`/favorites/${objid}?objtype=${objtype}&flag=${flag ? 1 : 0}`, {
+    return fetchAPI<{ message: string }>(`/favorites/${objid}?objtype=${objtype}&collect=${flag ? 1 : 0}`, {
       method: 'POST',
       credentials: 'include',
     })
@@ -836,7 +833,7 @@ export const favoriteAPI = {
 export const missionAPI = {
   // 获取每日任务状态（需登录）
   getDaily(fetchOptions?: RequestInit) {
-    return fetchAPI<{ missions: any[]; redeemed: boolean }>(`/mission/daily`, {
+    return fetchAPI<{ login_mission: { uid: number; date: number } | null; had_redeem: boolean }>(`/mission/daily`, {
       ...fetchOptions,
       credentials: 'include',
     })
@@ -844,7 +841,7 @@ export const missionAPI = {
 
   // 领取每日登录奖励
   dailyRedeem() {
-    return fetchAPI<{ message: string; balance: number }>('/mission/daily/redeem', {
+    return fetchAPI<{ message: string }>('/mission/daily/redeem', {
       method: 'POST',
       credentials: 'include',
     })

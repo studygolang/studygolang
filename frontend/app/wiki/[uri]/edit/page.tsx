@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
-import { userAPI, wikiAPI } from "@/lib/api"
+import { useAuth } from "@/lib/auth-context"
+import { wikiAPI } from "@/lib/api"
 
 interface WikiEdit {
   id: number
@@ -23,6 +24,7 @@ export default function WikiEditPage() {
   const router = useRouter()
   const params = useParams()
   const uri = params.uri as string
+  const { isLoggedIn, isLoading: authLoading } = useAuth()
 
   const [loading, setLoading] = useState(true)
   const [wiki, setWiki] = useState<WikiEdit | null>(null)
@@ -31,14 +33,13 @@ export default function WikiEditPage() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    userAPI.getMe().then((me) => {
-      if (!me) {
-        router.replace(`/account/login?redirect=/wiki/${uri}/edit`)
-        return
-      }
-      loadWiki()
-    })
-  }, [uri, router])
+    if (authLoading) return
+    if (!isLoggedIn) {
+      router.replace(`/account/login?redirect=/wiki/${uri}/edit`)
+      return
+    }
+    loadWiki()
+  }, [uri, isLoggedIn, authLoading, router])
 
   async function loadWiki() {
     try {

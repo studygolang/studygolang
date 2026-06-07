@@ -39,8 +39,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await fetch("/api/v1/user/me", { credentials: "include" })
       const json = await res.json()
-      if (json.code === 0 && json.data) {
-        setState({ user: json.data, isLoading: false, isLoggedIn: true })
+      if (json.code === 0 && json.data?.user) {
+        setState({ user: json.data.user, isLoading: false, isLoggedIn: true })
       } else {
         setState({ user: null, isLoading: false, isLoggedIn: false })
       }
@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
-      await fetch("/api/v1/user/logout", { credentials: "include" })
+      await fetch("/api/v1/user/logout", { method: "POST", credentials: "include" })
     } catch {
       // ignore
     }

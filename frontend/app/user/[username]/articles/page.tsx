@@ -9,7 +9,7 @@ import { fetchAPINullable } from "@/lib/api"
 
 interface UserArticlesData {
   user: User
-  list: Article[]
+  articles: Article[]
   total: number
   page: number
   has_more: boolean
@@ -49,10 +49,10 @@ export default async function UserArticlesPage({ params, searchParams }: UserArt
   )
 
   if (!data?.user) {
-    notFound()
+    return notFound()
   }
 
-  const { user, list: articles = [], total, has_more } = data
+  const { user, articles = [], total, has_more } = data
   const displayName = user.name || user.username
 
   return (

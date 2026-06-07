@@ -57,7 +57,7 @@ export default async function ResourceDetailPage({ params }: ResourceDetailPageP
   )
 
   if (!data?.resource) {
-    notFound()
+    return notFound()
   }
 
   const { resource, comments } = data

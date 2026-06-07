@@ -8,7 +8,6 @@ package api
 
 import (
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -37,13 +36,9 @@ func (MessageController) List(ctx echo.Context) error {
 		return fail(ctx, "未登录", NeedReLoginCode)
 	}
 
-	if !ValidateToken(token) {
+	uid, _, valid := ValidateTokenAuto(token)
+	if !valid || uid == 0 {
 		return fail(ctx, "token 已过期，请重新登录", NeedReLoginCode)
-	}
-
-	uid, ok := ParseToken(token)
-	if !ok || uid == 0 {
-		return fail(ctx, "无效的 token", NeedReLoginCode)
 	}
 
 	msgtype := ctx.QueryParam("type")
@@ -97,13 +92,9 @@ func (MessageController) Send(ctx echo.Context) error {
 		return fail(ctx, "未登录", NeedReLoginCode)
 	}
 
-	if !ValidateToken(token) {
+	uid, _, valid := ValidateTokenAuto(token)
+	if !valid || uid == 0 {
 		return fail(ctx, "token 已过期，请重新登录", NeedReLoginCode)
-	}
-
-	uid, ok := ParseToken(token)
-	if !ok || uid == 0 {
-		return fail(ctx, "无效的 token", NeedReLoginCode)
 	}
 
 	var req sendRequest
@@ -125,8 +116,7 @@ func (MessageController) Send(ctx echo.Context) error {
 		return fail(ctx, "收件人不存在")
 	}
 
-	ok = logic.DefaultMessage.SendMessageTo(context.EchoContext(ctx), uid, req.To, req.Content)
-	if !ok {
+	if !logic.DefaultMessage.SendMessageTo(context.EchoContext(ctx), uid, req.To, req.Content) {
 		return fail(ctx, "发送失败，请稍后重试")
 	}
 
@@ -219,13 +209,9 @@ func (MessageController) UnreadCount(ctx echo.Context) error {
 	// 私信未读数
 	inboxUnread := logic.DefaultMessage.ToMsgUnreadCount(context.EchoContext(ctx), uid)
 
-	return ctx.JSON(http.StatusOK, map[string]interface{}{
-		"code":    0,
-		"message": "",
-		"data": map[string]interface{}{
-			"system": sysUnread,
-			"inbox":  inboxUnread,
-		},
+	return success(ctx, map[string]interface{}{
+		"system": sysUnread,
+		"inbox":  inboxUnread,
 	})
 }
 

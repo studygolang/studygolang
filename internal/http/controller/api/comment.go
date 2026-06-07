@@ -83,13 +83,9 @@ func (CommentController) Create(ctx echo.Context) error {
 		return fail(ctx, "未登录", NeedReLoginCode)
 	}
 
-	if !ValidateToken(token) {
+	uid, _, valid := ValidateTokenAuto(token)
+	if !valid || uid == 0 {
 		return fail(ctx, "token 已过期，请重新登录", NeedReLoginCode)
-	}
-
-	uid, ok := ParseToken(token)
-	if !ok || uid == 0 {
-		return fail(ctx, "无效的 token", NeedReLoginCode)
 	}
 
 	objid := goutils.MustInt(ctx.Param("objid"))

@@ -1,4 +1,3 @@
-import Link from "next/link"
 import {
   User as UserIcon,
   MapPin,
@@ -6,7 +5,6 @@ import {
   Github,
   Building2,
   Clock,
-  Settings,
 } from "lucide-react"
 import { Metadata } from "next"
 import { PageLayout } from "@/components/page-layout"
@@ -109,14 +107,6 @@ export default async function UserPage({ params }: UserPageProps) {
                     Lv.{user.level}
                   </Badge>
                 )}
-                {/* 设置入口（仅本人可见，由客户端判断） */}
-                <Link
-                  href={`/user/${user.username}/settings`}
-                  className="ml-auto flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  <Settings className="h-3.5 w-3.5" />
-                  设置
-                </Link>
               </div>
 
               {user.introduce && (

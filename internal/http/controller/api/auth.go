@@ -226,7 +226,7 @@ func (AuthController) ForgotPassword(ctx echo.Context) error {
 	}
 
 	// 异步发送邮件
-	go logic.DefaultEmail.SendResetpwdMail(email, token)
+	go logic.DefaultEmail.SendResetpwdMail(email, token, CheckIsHttps(ctx))
 
 	return success(ctx, map[string]interface{}{
 		"message": "重置密码邮件已发送，请查收",

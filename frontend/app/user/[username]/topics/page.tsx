@@ -49,7 +49,7 @@ export default async function UserTopicsPage({ params, searchParams }: UserTopic
   )
 
   if (!data?.user) {
-    notFound()
+    return notFound()
   }
 
   const { user, topics = [], total, has_more } = data

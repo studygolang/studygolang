@@ -46,6 +46,7 @@ function ResetPasswordForm() {
       const res = await fetch("/api/v1/user/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ token, new_password: password }),
       })
       const json = await res.json()
@@ -53,7 +54,7 @@ function ResetPasswordForm() {
         setSuccess(true)
         setTimeout(() => router.push("/account/login"), 2000)
       } else {
-        setError(json.message || "重置失败，链接可能已过期")
+        setError(json.msg || "重置失败，链接可能已过期")
       }
     } catch {
       setError("网络错误，请稍后重试")

@@ -240,7 +240,7 @@ export default async function FavoritesPage({
                 <CardHeader>
                   <CardTitle>
                     <Link
-                      href={`/projects/${project.id}`}
+                      href={`/p/${project.uri || project.id}`}
                       className="hover:text-primary transition-colors"
                     >
                       {project.name}

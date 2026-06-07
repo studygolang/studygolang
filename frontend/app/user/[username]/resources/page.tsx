@@ -68,7 +68,7 @@ export default async function UserResourcesPage({ params, searchParams }: UserRe
   )
 
   if (!data?.user) {
-    notFound()
+    return notFound()
   }
 
   const { user, resources = [], total, has_more } = data

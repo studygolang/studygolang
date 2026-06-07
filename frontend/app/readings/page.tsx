@@ -84,9 +84,9 @@ export default async function ReadingsPage({ searchParams }: ReadingsPageProps) 
 
                     {/* 标题：后端用 content 字段存标题 */}
                     <a
-                      href={reading.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href={reading.url || "#"}
+                      target={reading.url ? "_blank" : undefined}
+                      rel={reading.url ? "noopener noreferrer" : undefined}
                       className="text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary"
                     >
                       {reading.content}
@@ -105,9 +105,9 @@ export default async function ReadingsPage({ searchParams }: ReadingsPageProps) 
                         </span>
                       </div>
                       <a
-                        href={reading.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href={reading.url || "#"}
+                        target={reading.url ? "_blank" : undefined}
+                        rel={reading.url ? "noopener noreferrer" : undefined}
                         className="flex items-center gap-1 text-xs font-medium text-primary transition-colors hover:text-primary/80"
                         aria-label={"阅读 " + reading.content}
                       >

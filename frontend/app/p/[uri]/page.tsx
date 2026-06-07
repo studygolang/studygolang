@@ -58,7 +58,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
   )
 
   if (!data?.project) {
-    notFound()
+    return notFound()
   }
 
   const { project, comments } = data

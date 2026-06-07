@@ -160,7 +160,7 @@ export default function MessagePage() {
   const params = useParams()
   const router = useRouter()
   const msgtype = (params.msgtype as MessageType) || "system"
-  const { isLoggedIn } = useAuth()
+  const { isLoggedIn, isLoading: authLoading } = useAuth()
 
   const [messages, setMessages] = useState<Message[]>([])
   const [page, setPage] = useState(1)
@@ -177,6 +177,7 @@ export default function MessagePage() {
     : "system"
 
   useEffect(() => {
+    if (authLoading) return
     // 未登录重定向
     if (!isLoggedIn) {
       router.replace(`/account/login?redirect=/message/${currentType}`)
@@ -190,7 +191,7 @@ export default function MessagePage() {
       setHasMore(data.has_more ?? false)
       setLoading(false)
     })
-  }, [currentType, page, isLoggedIn, router])
+  }, [currentType, page, isLoggedIn, authLoading, router])
 
   function handleTabChange(type: string) {
     setPage(1)
@@ -219,7 +220,7 @@ export default function MessagePage() {
         description="查看系统通知和私信"
         breadcrumbs={[{ label: "消息中心" }]}
         actions={
-          <Link href="/message/send">
+          <Link href="/messages/send">
             <Button size="sm" className="gap-1.5">
               <Send className="h-3.5 w-3.5" />
               发私信

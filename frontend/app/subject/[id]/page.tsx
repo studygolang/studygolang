@@ -68,7 +68,7 @@ export default async function SubjectPage({
   const id = parseInt(idStr, 10)
 
   if (!id || isNaN(id)) {
-    notFound()
+    return notFound()
     return null
   }
 
@@ -81,7 +81,7 @@ export default async function SubjectPage({
   )
 
   if (!data || !data.subject || data.subject.id === 0) {
-    notFound()
+    return notFound()
     return null
   }
 

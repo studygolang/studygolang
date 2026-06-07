@@ -1,19 +1,28 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { Card, CardContent } from "@/components/ui/card"
+import { useAuth } from "@/lib/auth-context"
 
 export default function NewSubjectPage() {
   const router = useRouter()
+  const { isLoggedIn, isLoading: authLoading } = useAuth()
   const [name, setName] = useState("")
   const [intro, setIntro] = useState("")
   const [cover, setCover] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
+
+  useEffect(() => {
+    if (authLoading) return
+    if (!isLoggedIn) {
+      router.replace("/account/login?redirect=/subject/new")
+    }
+  }, [isLoggedIn, authLoading, router])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()

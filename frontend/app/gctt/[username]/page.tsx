@@ -53,7 +53,7 @@ export default async function GCTTUserPage({
   const user = await getUser(username)
 
   if (!user || user.id === 0) {
-    notFound()
+    return notFound()
   }
 
   return (

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   ThumbsUp,
   MessageSquare,
@@ -19,7 +20,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { TopicAppendForm } from "@/components/topic-append-form"
-import { userAPI } from "@/lib/api"
+import { CommentForm } from "@/components/comment-form"
+import { MarkdownContent } from "@/components/markdown-content"
+import { useAuth } from "@/lib/auth-context"
 import type { Topic, TopicReply, TopicAppend } from "@/lib/types"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8090"
@@ -49,6 +52,7 @@ function formatTime(ctime: string): string {
 }
 
 export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDetailProps) {
+  const router = useRouter()
   const [liked, setLiked] = useState(false)
   const [bookmarked, setBookmarked] = useState(false)
   const [likeCount, setLikeCount] = useState(topic?.likenum || 0)
@@ -57,8 +61,7 @@ export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDeta
   useEffect(() => {
     const loadUserStatus = async () => {
       try {
-        // 检查点赞状态 (objtype=2 表示主题)
-        const likeRes = await fetch(`${API_BASE}/api/v1/likes/${id}/status?objtype=2`, {
+        const likeRes = await fetch(`${API_BASE}/api/v1/likes/${id}/status?objtype=0`, {
           credentials: "include",
         })
         if (likeRes.ok) {
@@ -69,7 +72,7 @@ export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDeta
         }
 
         // 检查收藏状态
-        const favRes = await fetch(`${API_BASE}/api/v1/favorites/${id}/status?objtype=2`, {
+        const favRes = await fetch(`${API_BASE}/api/v1/favorites/${id}/status?objtype=0`, {
           credentials: "include",
         })
         if (favRes.ok) {
@@ -87,7 +90,7 @@ export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDeta
 
   const handleLike = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/v1/likes/${id}?objtype=2&flag=${liked ? 0 : 1}`, {
+      const res = await fetch(`${API_BASE}/api/v1/likes/${id}?objtype=0&flag=${liked ? 0 : 1}`, {
         method: "POST",
         credentials: "include",
       })
@@ -105,7 +108,7 @@ export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDeta
 
   const handleBookmark = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/v1/favorites/${id}?objtype=2&collect=${bookmarked ? 0 : 1}`, {
+      const res = await fetch(`${API_BASE}/api/v1/favorites/${id}?objtype=0&collect=${bookmarked ? 0 : 1}`, {
         method: "POST",
         credentials: "include",
       })
@@ -174,41 +177,7 @@ export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDeta
           </div>
 
           {/* Content */}
-          <div className="prose prose-sm mt-6 max-w-none text-foreground">
-            {(topic.content ?? "").split("\n").map((line, i) => {
-              if (line.startsWith("## ")) {
-                return (
-                  <h2 key={i} className="mb-3 mt-6 text-lg font-bold text-foreground">
-                    {line.replace("## ", "")}
-                  </h2>
-                )
-              }
-              if (line.startsWith("### ")) {
-                return (
-                  <h3 key={i} className="mb-2 mt-4 text-base font-semibold text-foreground">
-                    {line.replace("### ", "")}
-                  </h3>
-                )
-              }
-              if (line.startsWith("```")) {
-                return null
-              }
-              if (line.startsWith("- ")) {
-                return (
-                  <div key={i} className="flex gap-2 py-0.5 text-sm leading-relaxed text-foreground">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-                    <span>{line.replace("- ", "")}</span>
-                  </div>
-                )
-              }
-              if (line.trim() === "") return <div key={i} className="h-2" />
-              return (
-                <p key={i} className="text-sm leading-relaxed text-foreground">
-                  {line}
-                </p>
-              )
-            })}
-          </div>
+          <MarkdownContent content={topic.content ?? ""} className="mt-6" />
 
           {/* Actions */}
           <Separator className="my-5" />
@@ -263,9 +232,7 @@ export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDeta
                     <span className="font-medium">附言 {index + 1}</span>
                     <span>{formatTime(append.created_at)}</span>
                   </div>
-                  <div className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground">
-                    {append.content}
-                  </div>
+                  <MarkdownContent content={append.content} className="mt-2" />
                 </div>
               ))}
             </div>
@@ -285,19 +252,12 @@ export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDeta
           </h2>
 
           {/* Comment Input */}
-          <div className="mt-4 rounded-lg border border-border p-3">
-            <textarea
-              placeholder="写下你的评论..."
-              className="min-h-[80px] w-full resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+          <div className="mt-4">
+            <CommentForm
+              objid={parseInt(id)}
+              objtype={0}
+              onSuccess={() => router.refresh()}
             />
-            <div className="mt-2 flex items-center justify-between">
-              <p className="text-xs text-muted-foreground">
-                {"支持 Markdown 语法"}
-              </p>
-              <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
-                {"发表评论"}
-              </Button>
-            </div>
           </div>
 
           {/* Comments List */}
@@ -330,9 +290,7 @@ export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDeta
                         #{index + 1}
                       </span>
                     </div>
-                    <div className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground">
-                      {reply.content}
-                    </div>
+                    <MarkdownContent content={reply.content} className="mt-2" />
                     <div className="mt-2 flex items-center gap-3">
                       <button className="flex cursor-pointer items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-primary">
                         <ChevronUp className="h-3.5 w-3.5" />
@@ -358,23 +316,8 @@ export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDeta
 
 // 追加表单区域：客户端判断当前用户是否为作者
 function TopicAppendSection({ tid, topicUid }: { tid: number; topicUid?: number }) {
-  const [isAuthor, setIsAuthor] = useState(false)
+  const { user } = useAuth()
 
-  useEffect(() => {
-    if (topicUid === undefined) return
-    const checkAuthor = async () => {
-      try {
-        const me = await userAPI.getMe()
-        if (me?.uid === topicUid) {
-          setIsAuthor(true)
-        }
-      } catch {
-        // 未登录或网络错误，忽略
-      }
-    }
-    checkAuthor()
-  }, [topicUid])
-
-  if (topicUid === undefined || !isAuthor) return null
+  if (topicUid === undefined || !user || user.uid !== topicUid) return null
   return <TopicAppendForm tid={tid} />
 }

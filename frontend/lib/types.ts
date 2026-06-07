@@ -14,10 +14,11 @@ export interface Pagination {
 }
 
 // ======================== 动态相关 ========================
-// 动态类型常量（与后端 model 保持一致）
-export const OBJTYPE_TOPIC = 1
-export const OBJTYPE_ARTICLE = 2
-export const OBJTYPE_RESOURCE = 3
+// 动态类型常量（与后端 model/comment.go iota 保持一致）
+// TypeTopic=0, TypeArticle=1, TypeResource=2, TypeWiki=3, TypeProject=4, TypeBook=5, TypeInterview=6
+export const OBJTYPE_TOPIC = 0
+export const OBJTYPE_ARTICLE = 1
+export const OBJTYPE_RESOURCE = 2
 export const OBJTYPE_PROJECT = 4
 export const OBJTYPE_BOOK = 5
 
@@ -28,7 +29,7 @@ export interface Feed {
   Id: number
   Title: string
   Objid: number
-  Objtype: number      // 1=话题 2=文章 3=资源 4=项目 5=书籍
+  Objtype: number      // 0=话题 1=文章 2=资源 3=Wiki 4=项目 5=书籍 6=面试题
   Uid: number
   Author: string
   Nid: number

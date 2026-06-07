@@ -23,7 +23,7 @@ export default function WidePage() {
           height="700"
           className="border-0"
           title="Go Playground"
-          loading="lazy"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
         />
       </div>
     </PageLayout>

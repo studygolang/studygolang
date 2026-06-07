@@ -20,8 +20,9 @@ interface WSController {
 }
 
 export function createWebSocket(opts: WSOptions): WSController {
+  // WebSocket 端点在 /api/v1/ws（通过 Next.js rewrite 或 Nginx 代理到 Go 后端）
   const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
-  const wsUrl = `${protocol}//${window.location.host}/ws`
+  const wsUrl = `${protocol}//${window.location.host}/api/v1/ws`
 
   let ws: WebSocket | null = null
   let retryCount = 0

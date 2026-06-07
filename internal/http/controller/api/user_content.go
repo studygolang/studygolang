@@ -9,10 +9,19 @@ package api
 import (
 	"github.com/studygolang/studygolang/context"
 	"github.com/studygolang/studygolang/internal/logic"
+	"github.com/studygolang/studygolang/internal/model"
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
 )
+
+func buildUserInfo(user *model.User) map[string]interface{} {
+	return map[string]interface{}{
+		"username": user.Username,
+		"name":     user.Name,
+		"avatar":   user.Avatar,
+	}
+}
 
 type UserContentController struct{}
 
@@ -45,6 +54,7 @@ func (UserContentController) UserComments(ctx echo.Context) error {
 	hasMore := int64(curPage*paginator.PerPage()) < total
 
 	return success(ctx, map[string]interface{}{
+		"user":     buildUserInfo(user),
 		"comments": comments,
 		"total":    total,
 		"page":     curPage,
@@ -73,6 +83,7 @@ func (UserContentController) UserTopics(ctx echo.Context) error {
 	hasMore := int64(curPage*paginator.PerPage()) < total
 
 	return success(ctx, map[string]interface{}{
+		"user":     buildUserInfo(user),
 		"topics":   topics,
 		"total":    total,
 		"page":     curPage,
@@ -101,6 +112,7 @@ func (UserContentController) UserArticles(ctx echo.Context) error {
 	hasMore := int64(curPage*paginator.PerPage()) < total
 
 	return success(ctx, map[string]interface{}{
+		"user":     buildUserInfo(user),
 		"articles": articles,
 		"total":    total,
 		"page":     curPage,
@@ -128,6 +140,7 @@ func (UserContentController) UserResources(ctx echo.Context) error {
 	hasMore := int64(curPage*paginator.PerPage()) < total
 
 	return success(ctx, map[string]interface{}{
+		"user":      buildUserInfo(user),
 		"resources": resources,
 		"total":     total,
 		"page":      curPage,
@@ -156,6 +169,7 @@ func (UserContentController) UserProjects(ctx echo.Context) error {
 	hasMore := int64(curPage*paginator.PerPage()) < total
 
 	return success(ctx, map[string]interface{}{
+		"user":     buildUserInfo(user),
 		"projects": projects,
 		"total":    total,
 		"page":     curPage,

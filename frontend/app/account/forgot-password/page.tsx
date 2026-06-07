@@ -25,13 +25,14 @@ export default function ForgotPasswordPage() {
       const res = await fetch("/api/v1/user/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email: email.trim() }),
       })
       const json = await res.json()
       if (json.code === 0) {
         setSuccess(true)
       } else {
-        setError(json.message || "请求失败，请稍后重试")
+        setError(json.msg || "请求失败，请稍后重试")
       }
     } catch {
       setError("网络错误，请稍后重试")

@@ -37,7 +37,7 @@ export default async function WikiDetailPage({ params }: WikiDetailPageProps) {
   const wiki = data?.wiki
 
   if (!wiki) {
-    notFound()
+    return notFound()
   }
 
   return (
