@@ -139,6 +139,11 @@ func (TopicController) Detail(ctx echo.Context) error {
 		return fail(ctx, "服务器异常")
 	}
 
+	// 防御性检查：确保 topic 不为 nil
+	if topic == nil {
+		return fail(ctx, "话题不存在")
+	}
+
 	me, ok := ctx.Get("user").(*model.Me)
 
 	permission, _ := topic["permission"].(int)
