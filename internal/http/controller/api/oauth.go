@@ -9,6 +9,7 @@ package api
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"net/http"
 
 	"github.com/gorilla/sessions"
 	"github.com/studygolang/studygolang/context"
@@ -19,14 +20,15 @@ import (
 )
 
 const oauthStateSessionKey = "oauth_state"
+const oauthRedirectSessionKey = "oauth_redirect"
 
 type OAuthController struct{}
 
 func (self OAuthController) RegisterRoute(g *echo.Group) {
 	g.GET("/oauth/github/url", self.GithubURL)
-	g.GET("/oauth/github/callback", self.GithubCallback)
+	g.GET("/oauth/github/callback", self.GithubCallbackRedirect)
 	g.GET("/oauth/gitea/url", self.GiteaURL)
-	g.GET("/oauth/gitea/callback", self.GiteaCallback)
+	g.GET("/oauth/gitea/callback", self.GiteaCallbackRedirect)
 }
 
 // generateOAuthState 生成随机 state 并存入 session，返回 state 值
@@ -73,33 +75,67 @@ func validateOAuthState(ctx echo.Context, state string) bool {
 	return true
 }
 
+// saveOAuthRedirect 将用户原始跳转目标保存到 session
+func saveOAuthRedirect(ctx echo.Context, redirect string) {
+	session := GetCookieSession(ctx)
+	session.Values[oauthRedirectSessionKey] = redirect
+	session.Save(Request(ctx), ResponseWriter(ctx))
+}
+
+// getOAuthRedirect 从 session 取出跳转目标并清除
+func getOAuthRedirect(ctx echo.Context) string {
+	session := GetCookieSession(ctx)
+	val, _ := session.Values[oauthRedirectSessionKey]
+	delete(session.Values, oauthRedirectSessionKey)
+	session.Save(Request(ctx), ResponseWriter(ctx))
+	if s, ok := val.(string); ok {
+		return s
+	}
+	return "/"
+}
+
+// oauthCallbackURL 构造 OAuth 提供商回调地址（指向后端 /api/v1/oauth/:provider/callback）
+func oauthCallbackURL(ctx echo.Context, provider string) string {
+	scheme := "http"
+	host := ctx.Request().Host
+	if ctx.Request().Header.Get("X-Forwarded-Proto") == "https" || ctx.Request().TLS != nil {
+		scheme = "https"
+	}
+	return scheme + "://" + host + "/api/v1/oauth/" + provider + "/callback"
+}
+
 // GithubURL 返回 GitHub OAuth 授权 URL（前端跳转用）
-// 生成随机 state 参数防止 CSRF 攻击
 func (OAuthController) GithubURL(ctx echo.Context) error {
-	uri := ctx.QueryParam("uri")
+	// uri 是用户登录后要跳转的前端页面，保存到 session
+	redirect := ctx.QueryParam("uri")
+	if redirect == "" {
+		redirect = "/"
+	}
+	saveOAuthRedirect(ctx, redirect)
+
 	state := generateOAuthState(ctx)
 	if state == "" {
 		return fail(ctx, "生成授权状态失败，请重试")
 	}
-	url := logic.DefaultThirdUser.GithubAuthCodeUrl(context.EchoContext(ctx), uri, state)
+	// 回调地址指向后端，而非前端页面
+	callbackURL := oauthCallbackURL(ctx, "github")
+	authURL := logic.DefaultThirdUser.GithubAuthCodeUrl(context.EchoContext(ctx), callbackURL, state)
 	return success(ctx, map[string]interface{}{
-		"url": url,
+		"url": authURL,
 	})
 }
 
-// GithubCallback GitHub OAuth 回调（登录或绑定）
-// 验证 state 参数防止 CSRF 攻击
-func (OAuthController) GithubCallback(ctx echo.Context) error {
-	// 验证 state 参数
+// GithubCallbackRedirect GitHub OAuth 回调（由 OAuth 提供商直接重定向到后端）
+// 处理完后重定向回前端页面
+func (OAuthController) GithubCallbackRedirect(ctx echo.Context) error {
 	state := ctx.QueryParam("state")
 	if !validateOAuthState(ctx, state) {
-		return fail(ctx, "无效的授权请求，请重试")
+		return ctx.Redirect(http.StatusSeeOther, "/account/login?error=oauth_invalid")
 	}
 
-	// OAuth 标准回调使用 Query 参数传递 code
 	code := ctx.QueryParam("code")
 	if code == "" {
-		return fail(ctx, "授权码不能为空")
+		return ctx.Redirect(http.StatusSeeOther, "/account/login?error=oauth_failed")
 	}
 
 	// 检查是否已登录（绑定场景）
@@ -107,96 +143,80 @@ func (OAuthController) GithubCallback(ctx echo.Context) error {
 	if err == nil && me != nil {
 		if bindErr := logic.DefaultThirdUser.BindGithub(context.EchoContext(ctx), code, me); bindErr != nil {
 			getLogger(ctx).Errorln("OAuth GitHub bind failed:", bindErr)
-			return fail(ctx, "绑定失败，请稍后重试")
+			return ctx.Redirect(http.StatusSeeOther, "/account/login?error=bind_failed")
 		}
-		return success(ctx, map[string]interface{}{
-			"action":  "bind",
-			"message": "GitHub 账号绑定成功",
-		})
+		redirect := getOAuthRedirect(ctx)
+		return ctx.Redirect(http.StatusSeeOther, redirect+"?oauth=bind_success")
 	}
 
 	// 未登录用户走登录流程
 	user, loginErr := logic.DefaultThirdUser.LoginFromGithub(context.EchoContext(ctx), code)
 	if loginErr != nil || user.Uid == 0 {
-		if loginErr != nil {
-			getLogger(ctx).Errorln("OAuth GitHub login failed:", loginErr)
-		}
-		return fail(ctx, "登录失败，请稍后重试")
+		getLogger(ctx).Errorln("OAuth GitHub login failed:", loginErr)
+		return ctx.Redirect(http.StatusSeeOther, "/account/login?error=oauth_login_failed")
 	}
 
-	// 登录成功，种 cookie
 	SetLoginCookie(ctx, user.Username)
-
-	// 设置 JWT auth cookie（Next.js 前端使用）
 	if jwtToken, err := GenJWTToken(user.Uid, user.Username); err == nil {
 		setAuthCookie(ctx, jwtToken)
 	}
 
-	return success(ctx, map[string]interface{}{
-		"action":   "login",
-		"username": user.Username,
-		"balance":  user.Balance,
-	})
+	redirect := getOAuthRedirect(ctx)
+	return ctx.Redirect(http.StatusSeeOther, redirect)
 }
 
 // GiteaURL 返回 Gitea OAuth 授权 URL（前端跳转用）
-// 生成随机 state 参数防止 CSRF 攻击
 func (OAuthController) GiteaURL(ctx echo.Context) error {
-	uri := ctx.QueryParam("uri")
+	redirect := ctx.QueryParam("uri")
+	if redirect == "" {
+		redirect = "/"
+	}
+	saveOAuthRedirect(ctx, redirect)
+
 	state := generateOAuthState(ctx)
 	if state == "" {
 		return fail(ctx, "生成授权状态失败，请重试")
 	}
-	url := logic.DefaultThirdUser.GiteaAuthCodeUrl(context.EchoContext(ctx), uri, state)
+	callbackURL := oauthCallbackURL(ctx, "gitea")
+	authURL := logic.DefaultThirdUser.GiteaAuthCodeUrl(context.EchoContext(ctx), callbackURL, state)
 	return success(ctx, map[string]interface{}{
-		"url": url,
+		"url": authURL,
 	})
 }
 
-// GiteaCallback Gitea OAuth 回调（登录或绑定）
-// 验证 state 参数防止 CSRF 攻击
-func (OAuthController) GiteaCallback(ctx echo.Context) error {
-	// 验证 state 参数
+// GiteaCallbackRedirect Gitea OAuth 回调（由 OAuth 提供商直接重定向到后端）
+func (OAuthController) GiteaCallbackRedirect(ctx echo.Context) error {
 	state := ctx.QueryParam("state")
 	if !validateOAuthState(ctx, state) {
-		return fail(ctx, "无效的授权请求，请重试")
+		return ctx.Redirect(http.StatusSeeOther, "/account/login?error=oauth_invalid")
 	}
 
 	code := ctx.QueryParam("code")
 	if code == "" {
-		return fail(ctx, "授权码不能为空")
+		return ctx.Redirect(http.StatusSeeOther, "/account/login?error=oauth_failed")
 	}
 
 	me, err := requireAuth(ctx)
 	if err == nil && me != nil {
 		if bindErr := logic.DefaultThirdUser.BindGitea(context.EchoContext(ctx), code, me); bindErr != nil {
 			getLogger(ctx).Errorln("OAuth Gitea bind failed:", bindErr)
-			return fail(ctx, "绑定失败，请稍后重试")
+			return ctx.Redirect(http.StatusSeeOther, "/account/login?error=bind_failed")
 		}
-		return success(ctx, map[string]interface{}{
-			"action":  "bind",
-			"message": "Gitea 账号绑定成功",
-		})
+		redirect := getOAuthRedirect(ctx)
+		return ctx.Redirect(http.StatusSeeOther, redirect+"?oauth=bind_success")
 	}
 
 	user, loginErr := logic.DefaultThirdUser.LoginFromGitea(context.EchoContext(ctx), code)
 	if loginErr != nil || user.Uid == 0 {
-		if loginErr != nil {
-			getLogger(ctx).Errorln("OAuth Gitea login failed:", loginErr)
-		}
-		return fail(ctx, "登录失败，请稍后重试")
+		getLogger(ctx).Errorln("OAuth Gitea login failed:", loginErr)
+		return ctx.Redirect(http.StatusSeeOther, "/account/login?error=oauth_login_failed")
 	}
 
 	SetLoginCookie(ctx, user.Username)
-
-	// 设置 JWT auth cookie（Next.js 前端使用）
 	if jwtToken, err := GenJWTToken(user.Uid, user.Username); err == nil {
 		setAuthCookie(ctx, jwtToken)
 	}
 
-	return success(ctx, map[string]interface{}{
-		"action":   "login",
-		"username": user.Username,
-		"balance":  user.Balance,
-	})
+	redirect := getOAuthRedirect(ctx)
+	return ctx.Redirect(http.StatusSeeOther, redirect)
 }

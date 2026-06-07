@@ -6,56 +6,38 @@ import { PageLayout } from "@/components/page-layout"
 import { Card, CardContent } from "@/components/ui/card"
 import { Loader2, CheckCircle2, XCircle } from "lucide-react"
 
-interface OAuthResult {
-  action: "login" | "bind"
-  username?: string
-  balance?: number
-  message?: string
-}
-
 function OAuthCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const params = useParams<{ provider: string }>()
-  const provider = params.provider || "gitea"
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
-  const [result, setResult] = useState<OAuthResult | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [errorMsg, setErrorMsg] = useState("")
 
   useEffect(() => {
-    const code = searchParams.get("code")
+    // 后端 OAuth 回调会直接重定向回前端页面，此时 URL 中可能带有 error 参数
+    const error = searchParams.get("error")
+    const oauth = searchParams.get("oauth")
 
-    if (!code) {
+    if (error) {
       setStatus("error")
-      setError("授权码缺失")
+      setErrorMsg(error === "oauth_invalid" ? "授权验证失败，请重试"
+        : error === "oauth_failed" ? "授权码获取失败"
+        : error === "bind_failed" ? "绑定失败，请稍后重试"
+        : error === "oauth_login_failed" ? "登录失败，请稍后重试"
+        : "登录失败")
       return
     }
 
-    // 调用后端回调 API
-    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8090"
-    fetch(`${apiBase}/api/v1/oauth/${provider}/callback?code=${code}`, {
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((json) => {
-        if (json.code === 0) {
-          setStatus("success")
-          setResult(json.data)
-          // 2秒后跳转
-          setTimeout(() => {
-            const raw = searchParams.get("redirect_url") || "/"
-            const redirect = (raw.startsWith("/") && !raw.startsWith("//")) ? raw : "/"
-            router.push(redirect)
-          }, 2000)
-        } else {
-          setStatus("error")
-          setError(json.msg || "登录失败")
-        }
-      })
-      .catch((e) => {
-        setStatus("error")
-        setError(e.message || "网络错误")
-      })
+    if (oauth === "bind_success") {
+      setStatus("success")
+      setTimeout(() => router.push("/"), 2000)
+      return
+    }
+
+    // 如果没有 error 和 oauth 参数，说明后端回调成功并重定向回来了
+    // 此时 Cookie 已经设好，直接视为登录成功
+    setStatus("success")
+    setTimeout(() => router.push("/"), 1500)
   }, [router, searchParams])
 
   return (
@@ -71,24 +53,18 @@ function OAuthCallbackContent() {
           {status === "success" && (
             <>
               <CheckCircle2 className="mb-4 h-12 w-12 text-green-500" />
-              <p className="font-medium">
-                {result?.action === "bind" ? "绑定成功" : "登录成功"}
-              </p>
-              {result?.username && (
-                <p className="mt-1 text-sm text-muted-foreground">
-                  欢迎回来，{result.username}
-                </p>
-              )}
-              <p className="mt-2 text-xs text-muted-foreground">
-                即将跳转...
-              </p>
+              <p className="font-medium">登录成功</p>
+              <p className="mt-2 text-xs text-muted-foreground">即将跳转...</p>
             </>
           )}
           {status === "error" && (
             <>
               <XCircle className="mb-4 h-12 w-12 text-destructive" />
               <p className="font-medium text-destructive">登录失败</p>
-              <p className="mt-1 text-sm text-muted-foreground">{error}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{errorMsg}</p>
+              <a href="/account/login" className="mt-4 text-sm text-primary hover:underline">
+                返回登录
+              </a>
             </>
           )}
         </CardContent>
