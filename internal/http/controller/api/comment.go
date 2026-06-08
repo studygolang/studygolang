@@ -12,6 +12,7 @@ import (
 	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/internal/http"
 	"github.com/studygolang/studygolang/internal/logic"
+	"github.com/studygolang/studygolang/internal/model"
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
@@ -93,11 +94,24 @@ func (CommentController) Create(ctx echo.Context) error {
 		return fail(ctx, "参数有误")
 	}
 
+	// 敏感词检查
+	me := &model.Me{Uid: uid}
+	if !sensitiveCheck(ctx, me) {
+		return failSensitive(ctx)
+	}
+	// 余额检查（评论要求余额 >= 5）
+	if !balanceCheck(me, true) {
+		return failBalance(ctx)
+	}
+
 	forms, _ := ctx.FormParams()
 	comment, err := logic.DefaultComment.Publish(context.EchoContext(ctx), uid, objid, forms)
 	if err != nil {
 		return fail(ctx, "发布评论失败", 2)
 	}
+
+	// 发布后邮件通知站长
+	publishNotice(ctx, me)
 
 	return success(ctx, map[string]interface{}{
 		"comment": comment,
@@ -139,9 +153,15 @@ func (CommentController) Modify(ctx echo.Context) error {
 		return fail(ctx, "评论不存在")
 	}
 
-	// 验证是否是评论作者
-	if comment.Uid != uid {
+	// 使用 CanEdit 进行权限校验（包含时间限制检查）
+	me := &model.Me{Uid: uid}
+	if !logic.CanEdit(me, comment) {
 		return fail(ctx, "没有修改权限")
+	}
+
+	// 敏感词检查
+	if !sensitiveCheck(ctx, me) {
+		return failSensitive(ctx)
 	}
 
 	errMsg, modifyErr := logic.DefaultComment.Modify(context.EchoContext(ctx), cid, content)

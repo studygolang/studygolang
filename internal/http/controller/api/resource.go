@@ -87,6 +87,19 @@ func (ResourceController) Publish(ctx echo.Context) error {
 		return err
 	}
 
+	// 敏感词检查
+	if !sensitiveCheck(ctx, me) {
+		return failSensitive(ctx)
+	}
+	// 余额检查
+	if !balanceCheck(me, false) {
+		return failBalance(ctx)
+	}
+	// 验证码检查
+	if !captchaCheck(ctx, me) {
+		return failCaptcha(ctx)
+	}
+
 	forms, _ := ctx.FormParams()
 
 	// 基本字段验证
@@ -114,6 +127,9 @@ func (ResourceController) Publish(ctx echo.Context) error {
 	if err != nil {
 		return fail(ctx, "发布失败："+err.Error())
 	}
+
+	// 发布后邮件通知站长
+	publishNotice(ctx, me)
 
 	// 获取刚发布的资源 ID（从逻辑层返回的 form 中获取）
 	id := forms.Get("id")
@@ -172,6 +188,11 @@ func (ResourceController) Update(ctx echo.Context) error {
 		return fail(ctx, "没有编辑权限")
 	}
 
+	// 敏感词检查
+	if !sensitiveCheck(ctx, me) {
+		return failSensitive(ctx)
+	}
+
 	forms, _ := ctx.FormParams()
 	forms.Set("id", strconv.Itoa(resource.Id))
 
@@ -195,12 +216,32 @@ func (ResourceController) Detail(ctx echo.Context) error {
 		return fail(ctx, "获取失败")
 	}
 
-	logic.Views.Incr(Request(ctx), model.TypeResource, id)
-
-	return success(ctx, map[string]interface{}{
+	result := map[string]interface{}{
 		"resource": resource,
 		"comments": comments,
-	})
+	}
+
+	me, ok := ctx.Get("user").(*model.Me)
+	if ok {
+		result["likeflag"] = logic.DefaultLike.HadLike(context.EchoContext(ctx), me.Uid, id, model.TypeResource)
+		result["hadcollect"] = logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), me.Uid, id, model.TypeResource)
+
+		logic.Views.Incr(Request(ctx), model.TypeResource, id, me.Uid)
+
+		resourceUid, _ := resource["uid"].(int)
+		if me.Uid != resourceUid {
+			go logic.DefaultViewRecord.Record(id, model.TypeResource, me.Uid)
+		}
+
+		if me.IsRoot || me.Uid == resourceUid {
+			result["view_user_num"] = logic.DefaultViewRecord.FindUserNum(context.EchoContext(ctx), id, model.TypeResource)
+			result["view_source"] = logic.DefaultViewSource.FindOne(context.EchoContext(ctx), id, model.TypeResource)
+		}
+	} else {
+		logic.Views.Incr(Request(ctx), model.TypeResource, id)
+	}
+
+	return success(ctx, result)
 }
 
 // Categories 获取资源分类列表

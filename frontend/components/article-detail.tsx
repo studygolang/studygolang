@@ -21,9 +21,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { MarkdownContent } from "@/components/markdown-content"
 import { CommentForm } from "@/components/comment-form"
+import { likeAPI, favoriteAPI } from "@/lib/api"
 import type { Article, ArticleComment } from "@/lib/types"
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8090"
 
 interface ArticleDetailProps {
   id: string
@@ -61,26 +60,14 @@ export function ArticleDetail({ id, article, prev, next, comments = [] }: Articl
   useEffect(() => {
     const loadUserStatus = async () => {
       try {
-        // 检查点赞状态
-        const likeRes = await fetch(`${API_BASE}/api/v1/likes/${id}/status?objtype=1`, {
-          credentials: "include",
-        })
-        if (likeRes.ok) {
-          const likeData = await likeRes.json()
-          if (likeData.code === 0 && likeData.data?.has_like) {
-            setLiked(true)
-          }
+        const likeData = await likeAPI.getStatus(parseInt(id), 1)
+        if (likeData?.has_like) {
+          setLiked(true)
         }
 
-        // 检查收藏状态
-        const favRes = await fetch(`${API_BASE}/api/v1/favorites/${id}/status?objtype=1`, {
-          credentials: "include",
-        })
-        if (favRes.ok) {
-          const favData = await favRes.json()
-          if (favData.code === 0 && favData.data?.has_favorite) {
-            setBookmarked(true)
-          }
+        const favData = await favoriteAPI.getStatus(parseInt(id), 1)
+        if (favData?.has_favorite) {
+          setBookmarked(true)
         }
       } catch {
         // 未登录或网络错误，忽略
@@ -91,17 +78,9 @@ export function ArticleDetail({ id, article, prev, next, comments = [] }: Articl
 
   const handleLike = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/v1/likes/${id}?objtype=1&flag=${liked ? 0 : 1}`, {
-        method: "POST",
-        credentials: "include",
-      })
-      if (res.ok) {
-        const data = await res.json()
-        if (data.code === 0) {
-          setLiked(!liked)
-          setLikeCount(liked ? likeCount - 1 : likeCount + 1)
-        }
-      }
+      await likeAPI.toggle(parseInt(id), 1, !liked)
+      setLiked(!liked)
+      setLikeCount(liked ? likeCount - 1 : likeCount + 1)
     } catch {
       // 网络错误
     }
@@ -109,16 +88,8 @@ export function ArticleDetail({ id, article, prev, next, comments = [] }: Articl
 
   const handleBookmark = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/v1/favorites/${id}?objtype=1&collect=${bookmarked ? 0 : 1}`, {
-        method: "POST",
-        credentials: "include",
-      })
-      if (res.ok) {
-        const data = await res.json()
-        if (data.code === 0) {
-          setBookmarked(!bookmarked)
-        }
-      }
+      await favoriteAPI.toggle(parseInt(id), 1, !bookmarked)
+      setBookmarked(!bookmarked)
     } catch {
       // 网络错误
     }

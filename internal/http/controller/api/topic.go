@@ -177,6 +177,15 @@ func (TopicController) Detail(ctx echo.Context) error {
 		result["hadcollect"] = logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), me.Uid, tidInt, model.TypeTopic)
 
 		logic.Views.Incr(Request(ctx), model.TypeTopic, tidInt, me.Uid)
+
+		if me.Uid != uid {
+			go logic.DefaultViewRecord.Record(tidInt, model.TypeTopic, me.Uid)
+		}
+
+		if me.IsRoot || me.Uid == uid {
+			result["view_user_num"] = logic.DefaultViewRecord.FindUserNum(context.EchoContext(ctx), tidInt, model.TypeTopic)
+			result["view_source"] = logic.DefaultViewSource.FindOne(context.EchoContext(ctx), tidInt, model.TypeTopic)
+		}
 	} else {
 		logic.Views.Incr(Request(ctx), model.TypeTopic, tid)
 	}
@@ -248,6 +257,11 @@ func (TopicController) Update(ctx echo.Context) error {
 		return fail(ctx, "没有编辑权限")
 	}
 
+	// 敏感词检查
+	if !sensitiveCheck(ctx, me) {
+		return failSensitive(ctx)
+	}
+
 	forms, _ := ctx.FormParams()
 	forms.Set("tid", ctx.Param("tid"))
 	errMsg, err := logic.DefaultTopic.Modify(context.EchoContext(ctx), me, forms)
@@ -305,11 +319,28 @@ func (TopicController) Publish(ctx echo.Context) error {
 		return err
 	}
 
+	// 敏感词检查
+	if !sensitiveCheck(ctx, me) {
+		return failSensitive(ctx)
+	}
+	// 余额检查
+	if !balanceCheck(me, false) {
+		return failBalance(ctx)
+	}
+	// 验证码检查
+	if !captchaCheck(ctx, me) {
+		return failCaptcha(ctx)
+	}
+
 	forms, _ := ctx.FormParams()
 	tid, err := logic.DefaultTopic.Publish(context.EchoContext(ctx), me, forms)
 	if err != nil {
 		return fail(ctx, "发布失败："+err.Error())
 	}
+
+	// 发布后邮件通知站长
+	publishNotice(ctx, me)
+
 	return success(ctx, map[string]interface{}{"tid": tid})
 }
 

@@ -60,25 +60,14 @@ export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDeta
   useEffect(() => {
     const loadUserStatus = async () => {
       try {
-        const likeRes = await fetch(`${API_BASE}/api/v1/likes/${id}/status?objtype=0`, {
-          credentials: "include",
-        })
-        if (likeRes.ok) {
-          const likeData = await likeRes.json()
-          if (likeData.code === 0 && likeData.data?.has_like) {
-            setLiked(true)
-          }
+        const likeData = await likeAPI.getStatus(parseInt(id), 0)
+        if (likeData?.has_like) {
+          setLiked(true)
         }
 
-        // 检查收藏状态
-        const favRes = await fetch(`${API_BASE}/api/v1/favorites/${id}/status?objtype=0`, {
-          credentials: "include",
-        })
-        if (favRes.ok) {
-          const favData = await favRes.json()
-          if (favData.code === 0 && favData.data?.has_favorite) {
-            setBookmarked(true)
-          }
+        const favData = await favoriteAPI.getStatus(parseInt(id), 0)
+        if (favData?.has_favorite) {
+          setBookmarked(true)
         }
       } catch {
         // 未登录或网络错误，忽略
@@ -89,17 +78,9 @@ export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDeta
 
   const handleLike = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/v1/likes/${id}?objtype=0&flag=${liked ? 0 : 1}`, {
-        method: "POST",
-        credentials: "include",
-      })
-      if (res.ok) {
-        const data = await res.json()
-        if (data.code === 0) {
-          setLiked(!liked)
-          setLikeCount(liked ? likeCount - 1 : likeCount + 1)
-        }
-      }
+      await likeAPI.toggle(parseInt(id), 0, !liked)
+      setLiked(!liked)
+      setLikeCount(liked ? likeCount - 1 : likeCount + 1)
     } catch {
       // 网络错误
     }
@@ -107,16 +88,8 @@ export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDeta
 
   const handleBookmark = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/v1/favorites/${id}?objtype=0&collect=${bookmarked ? 0 : 1}`, {
-        method: "POST",
-        credentials: "include",
-      })
-      if (res.ok) {
-        const data = await res.json()
-        if (data.code === 0) {
-          setBookmarked(!bookmarked)
-        }
-      }
+      await favoriteAPI.toggle(parseInt(id), 0, !bookmarked)
+      setBookmarked(!bookmarked)
     } catch {
       // 网络错误
     }

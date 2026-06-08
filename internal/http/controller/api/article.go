@@ -99,8 +99,9 @@ func (ArticleController) Detail(ctx echo.Context) error {
 		return success(ctx, map[string]interface{}{"article": map[string]interface{}{"id": 0}})
 	}
 
-	logic.Views.Incr(Request(ctx), model.TypeArticle, article.Id)
 	article.Viewnum++
+
+	articleGCTT := logic.DefaultArticle.FindArticleGCTT(context.EchoContext(ctx), article)
 
 	replies, _, lastReplyUser := logic.DefaultComment.FindObjComments(
 		context.EchoContext(ctx), article.Id, model.TypeArticle, 0, article.Lastreplyuid,
@@ -111,11 +112,34 @@ func (ArticleController) Detail(ctx echo.Context) error {
 
 	article.Txt = ""
 
-	return success(ctx, map[string]interface{}{
-		"article":   article,
-		"replies":   replies,
-		"prev_next": prevNext,
-	})
+	result := map[string]interface{}{
+		"article":      article,
+		"article_gctt": articleGCTT,
+		"replies":      replies,
+		"prev_next":    prevNext,
+		"subjects":     logic.DefaultSubject.FindArticleSubjects(context.EchoContext(ctx), article.Id),
+	}
+
+	me, ok := ctx.Get("user").(*model.Me)
+	if ok {
+		result["likeflag"] = logic.DefaultLike.HadLike(context.EchoContext(ctx), me.Uid, article.Id, model.TypeArticle)
+		result["hadcollect"] = logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), me.Uid, article.Id, model.TypeArticle)
+
+		logic.Views.Incr(Request(ctx), model.TypeArticle, article.Id, me.Uid)
+
+		if !article.IsSelf || me.Uid != article.User.Uid {
+			go logic.DefaultViewRecord.Record(article.Id, model.TypeArticle, me.Uid)
+		}
+
+		if me.IsRoot || (article.IsSelf && me.Uid == article.User.Uid) {
+			result["view_user_num"] = logic.DefaultViewRecord.FindUserNum(context.EchoContext(ctx), article.Id, model.TypeArticle)
+			result["view_source"] = logic.DefaultViewSource.FindOne(context.EchoContext(ctx), article.Id, model.TypeArticle)
+		}
+	} else {
+		logic.Views.Incr(Request(ctx), model.TypeArticle, article.Id)
+	}
+
+	return success(ctx, result)
 }
 
 // Edit 获取文章编辑数据（需要登录，验证权限）
@@ -159,6 +183,11 @@ func (ArticleController) Update(ctx echo.Context) error {
 		return fail(ctx, "没有编辑权限")
 	}
 
+	// 敏感词检查
+	if !sensitiveCheck(ctx, me) {
+		return failSensitive(ctx)
+	}
+
 	forms, _ := ctx.FormParams()
 	forms.Set("id", id)
 	errMsg, err := logic.DefaultArticle.Modify(context.EchoContext(ctx), me, forms)
@@ -177,6 +206,19 @@ func (ArticleController) Create(ctx echo.Context) error {
 	me, err := requireAuth(ctx)
 	if err != nil {
 		return err
+	}
+
+	// 敏感词检查
+	if !sensitiveCheck(ctx, me) {
+		return failSensitive(ctx)
+	}
+	// 余额检查
+	if !balanceCheck(me, false) {
+		return failBalance(ctx)
+	}
+	// 验证码检查（新注册用户或频繁发布时需要）
+	if !captchaCheck(ctx, me) {
+		return failCaptcha(ctx)
 	}
 
 	// 获取表单数据
@@ -198,6 +240,9 @@ func (ArticleController) Create(ctx echo.Context) error {
 	if err != nil {
 		return fail(ctx, "发布失败: "+err.Error())
 	}
+
+	// 发布后邮件通知站长
+	publishNotice(ctx, me)
 
 	return success(ctx, map[string]interface{}{"id": id})
 }

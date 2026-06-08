@@ -53,6 +53,7 @@ function getTypePath(objtype: number): string {
     case 0: return "topics"
     case 1: return "articles"
     case 2: return "resources"
+    case 3: return "wiki"
     case 4: return "projects"
     case 5: return "books"
     default: return "topics"
@@ -68,6 +69,8 @@ function getTypeBadge(objtype: number): { label: string; icon: React.ReactNode; 
       return { label: "文章", icon: <FileText className="h-3 w-3" />, className: "bg-green-500/10 text-green-600" }
     case 2:
       return { label: "资源", icon: <Link2 className="h-3 w-3" />, className: "bg-orange-500/10 text-orange-600" }
+    case 3:
+      return { label: "Wiki", icon: <BookOpen className="h-3 w-3" />, className: "bg-cyan-500/10 text-cyan-600" }
     case 4:
       return { label: "项目", icon: <FolderGit2 className="h-3 w-3" />, className: "bg-purple-500/10 text-purple-600" }
     case 5:

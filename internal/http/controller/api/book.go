@@ -56,6 +56,25 @@ func (BookController) Detail(ctx echo.Context) error {
 	me, ok := ctx.Get("user").(*model.Me)
 	if ok {
 		logic.Views.Incr(Request(ctx), model.TypeBook, book.Id, me.Uid)
+
+		result := map[string]interface{}{
+			"book": book,
+			"likeflag": logic.DefaultLike.HadLike(context.EchoContext(ctx), me.Uid, book.Id, model.TypeBook),
+			"hadcollect": logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), me.Uid, book.Id, model.TypeBook),
+		}
+
+		if me.Uid != book.Uid {
+			go logic.DefaultViewRecord.Record(book.Id, model.TypeBook, me.Uid)
+		}
+
+		if me.IsRoot || me.Uid == book.Uid {
+			result["view_user_num"] = logic.DefaultViewRecord.FindUserNum(context.EchoContext(ctx), book.Id, model.TypeBook)
+			result["view_source"] = logic.DefaultViewSource.FindOne(context.EchoContext(ctx), book.Id, model.TypeBook)
+		}
+
+		// 为了阅读数即时看到
+		book.Viewnum++
+		return success(ctx, result)
 	} else {
 		logic.Views.Incr(Request(ctx), model.TypeBook, book.Id)
 	}
@@ -75,6 +94,15 @@ func (BookController) Publish(ctx echo.Context) error {
 		return err
 	}
 
+	// 敏感词检查
+	if !sensitiveCheck(ctx, me) {
+		return failSensitive(ctx)
+	}
+	// 余额检查
+	if !balanceCheck(me, false) {
+		return failBalance(ctx)
+	}
+
 	forms, _ := ctx.FormParams()
 
 	// 基本字段验证
@@ -87,6 +115,9 @@ func (BookController) Publish(ctx echo.Context) error {
 	if err != nil {
 		return fail(ctx, "发布失败："+err.Error())
 	}
+
+	// 发布后邮件通知站长
+	publishNotice(ctx, me)
 
 	// 获取刚发布的图书 ID
 	id := forms.Get("id")

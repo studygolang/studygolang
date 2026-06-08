@@ -39,7 +39,7 @@ function buildResultUrl(objtype: number, objid: number): string {
     case 0: return `/topics/${objid}`
     case 1: return `/articles/${objid}`
     case 2: return `/resources/${objid}`
-    case 3: return `/wiki/${objid}`
+    case 3: return `/wiki/${objid}`  // TODO: Wiki 使用 URI slug，搜索结果中 objid 可能无法直接匹配
     case 4: return `/p/${objid}`
     case 5: return `/book/${objid}`
     default: return `/topics/${objid}`

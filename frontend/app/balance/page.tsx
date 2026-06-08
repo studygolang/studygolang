@@ -157,6 +157,10 @@ export default function BalancePage() {
       {/* 排行榜链接 */}
       <div className="mt-4 text-center text-sm text-muted-foreground">
         查看{" "}
+        <Link href="/balance/add" className="text-primary hover:underline">
+          充值
+        </Link>
+        {" · "}
         <Link href="/top/rich" className="text-primary hover:underline">
           财富排行榜
         </Link>

@@ -49,9 +49,13 @@ func (ProjectController) List(ctx echo.Context) error {
 		orderBy = "id DESC"
 	}
 
-	projects := logic.DefaultProject.FindAll(context.EchoContext(ctx), paginator, orderBy, "")
+	// 只展示在线和新建状态的项目（过滤已下线的）
+	projectFilter := "status IN(?,?)"
+	projectFilterArgs := []interface{}{model.ProjectStatusNew, model.ProjectStatusOnline}
 
-	total := logic.DefaultProject.Count(context.EchoContext(ctx), "")
+	projects := logic.DefaultProject.FindAll(context.EchoContext(ctx), paginator, orderBy, projectFilter, projectFilterArgs...)
+
+	total := logic.DefaultProject.Count(context.EchoContext(ctx), projectFilter, projectFilterArgs...)
 	hasMore := paginator.SetTotal(total).HasMorePage()
 
 	return success(ctx, map[string]interface{}{
@@ -67,6 +71,19 @@ func (ProjectController) Publish(ctx echo.Context) error {
 	me, err := requireAuth(ctx)
 	if err != nil {
 		return err
+	}
+
+	// 敏感词检查
+	if !sensitiveCheck(ctx, me) {
+		return failSensitive(ctx)
+	}
+	// 余额检查
+	if !balanceCheck(me, false) {
+		return failBalance(ctx)
+	}
+	// 验证码检查
+	if !captchaCheck(ctx, me) {
+		return failCaptcha(ctx)
 	}
 
 	forms, _ := ctx.FormParams()
@@ -85,6 +102,9 @@ func (ProjectController) Publish(ctx echo.Context) error {
 	if err != nil {
 		return fail(ctx, "发布失败："+err.Error())
 	}
+
+	// 发布后邮件通知站长
+	publishNotice(ctx, me)
 
 	// 获取刚发布的项目的 URI
 	uri := forms.Get("uri")
@@ -157,7 +177,28 @@ func (ProjectController) Detail(ctx echo.Context) error {
 		return fail(ctx, "获取失败或已下线")
 	}
 
-	logic.Views.Incr(Request(ctx), model.TypeProject, project.Id)
+	result := map[string]interface{}{
+		"project": project,
+	}
+
+	me, ok := ctx.Get("user").(*model.Me)
+	if ok {
+		result["likeflag"] = logic.DefaultLike.HadLike(context.EchoContext(ctx), me.Uid, project.Id, model.TypeProject)
+		result["hadcollect"] = logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), me.Uid, project.Id, model.TypeProject)
+
+		logic.Views.Incr(Request(ctx), model.TypeProject, project.Id, me.Uid)
+
+		if me.Uid != project.User.Uid {
+			go logic.DefaultViewRecord.Record(project.Id, model.TypeProject, me.Uid)
+		}
+
+		if me.IsRoot || me.Uid == project.User.Uid {
+			result["view_user_num"] = logic.DefaultViewRecord.FindUserNum(context.EchoContext(ctx), project.Id, model.TypeProject)
+			result["view_source"] = logic.DefaultViewSource.FindOne(context.EchoContext(ctx), project.Id, model.TypeProject)
+		}
+	} else {
+		logic.Views.Incr(Request(ctx), model.TypeProject, project.Id)
+	}
 
 	// 为了阅读数即时看到
 	project.Viewnum++
@@ -169,11 +210,9 @@ func (ProjectController) Detail(ctx echo.Context) error {
 	if project.Lastreplyuid != 0 {
 		project.LastReplyUser = lastReplyUser
 	}
+	result["replies"] = replies
 
-	return success(ctx, map[string]interface{}{
-		"project": project,
-		"replies": replies,
-	})
+	return success(ctx, result)
 }
 
 // CheckUri 检查项目 URI 是否已存在

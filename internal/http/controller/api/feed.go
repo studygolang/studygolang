@@ -56,7 +56,10 @@ func (FeedController) RSS(ctx echo.Context) error {
 	feed.Channel.Language = "zh-CN"
 
 	for _, article := range articles {
-		description := article.Txt
+		description := article.Content
+		if description == "" {
+			description = article.Txt
+		}
 		if len(description) > 200 {
 			description = description[:200]
 		}
