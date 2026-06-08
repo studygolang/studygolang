@@ -130,21 +130,18 @@ func (h *WSHub) Run() {
 			if err != nil {
 				continue
 			}
-			h.mu.RLock()
-			for _, client := range h.clients {
+			// 使用写锁遍历，避免 RLock→Lock 升级导致死锁
+			h.mu.Lock()
+			for uid, client := range h.clients {
 				select {
 				case client.send <- data:
 				default:
 					// 发送缓冲区满，关闭连接
-					h.mu.RUnlock()
-					h.mu.Lock()
-					delete(h.clients, client.uid)
+					delete(h.clients, uid)
 					close(client.send)
-					h.mu.Unlock()
-					h.mu.RLock()
 				}
 			}
-			h.mu.RUnlock()
+			h.mu.Unlock()
 
 		case req := <-h.sendTo:
 			// 定向发送：在 Hub 事件循环内处理，避免 send-on-closed-channel 竞态

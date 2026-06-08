@@ -70,8 +70,8 @@ func (LikeController) Toggle(ctx echo.Context) error {
 	}
 
 	objid := goutils.MustInt(ctx.Param("objid"))
-	objtype := goutils.MustInt(ctx.QueryParam("objtype"))
-	flag := goutils.MustInt(ctx.QueryParam("flag"))
+	objtype := goutils.MustInt(ctx.FormValue("objtype"))
+	flag := goutils.MustInt(ctx.FormValue("flag"))
 
 	if objid == 0 || objtype == 0 {
 		return fail(ctx, "参数错误")

@@ -147,23 +147,50 @@ func (TopicController) Detail(ctx echo.Context) error {
 	me, ok := ctx.Get("user").(*model.Me)
 
 	permission, _ := topic["permission"].(int)
+	uid, _ := topic["uid"].(int)
+
 	switch permission {
+	case model.PermissionOnlyMe:
+		// 仅作者和管理员可见
+		if !ok || (uid != me.Uid && !me.IsRoot) {
+			return fail(ctx, "话题不存在")
+		}
 	case model.PermissionLogin:
 		if !ok {
 			topic["content"] = "登录用户可见！"
 		}
 	case model.PermissionPay:
-		if !ok || (!me.IsVip && !me.IsRoot) {
+		if !ok || (!me.IsVip && !me.IsRoot && uid != me.Uid) {
 			topic["content"] = "付费用户可见！"
 		}
 	}
 
-	logic.Views.Incr(Request(ctx), model.TypeTopic, tid)
-
-	return success(ctx, map[string]interface{}{
+	// 已登录用户的附加信息
+	result := map[string]interface{}{
 		"topic":   topic,
 		"replies": replies,
-	})
+	}
+
+	if ok {
+		tidInt, _ := topic["tid"].(int)
+		result["likeflag"] = logic.DefaultLike.HadLike(context.EchoContext(ctx), me.Uid, tidInt, model.TypeTopic)
+		result["hadcollect"] = logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), me.Uid, tidInt, model.TypeTopic)
+
+		logic.Views.Incr(Request(ctx), model.TypeTopic, tidInt, me.Uid)
+	} else {
+		logic.Views.Incr(Request(ctx), model.TypeTopic, tid)
+	}
+
+	// 附言：公开、登录可见且已登录、付费且已满足条件
+	canViewAppends := permission == model.PermissionPublic ||
+		(permission == model.PermissionLogin && ok) ||
+		(permission == model.PermissionPay && ok && (me.IsVip || me.IsRoot || uid == me.Uid)) ||
+		permission == model.PermissionOnlyMe
+	if canViewAppends {
+		result["appends"] = logic.DefaultTopic.FindAppend(context.EchoContext(ctx), tid)
+	}
+
+	return success(ctx, result)
 }
 
 // Edit 获取话题编辑数据（需要登录，验证权限）

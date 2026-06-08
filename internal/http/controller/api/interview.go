@@ -23,6 +23,7 @@ func (self InterviewController) RegisterRoute(g *echo.Group) {
 	g.GET("/interviews", self.List)
 	g.GET("/interviews/today", self.Today)
 	g.GET("/interviews/question/:sn", self.Question)
+	g.POST("/interviews", self.Create)
 }
 
 // List 获取面试题列表（分页）
@@ -60,6 +61,33 @@ func (InterviewController) Today(ctx echo.Context) error {
 	}
 	return success(ctx, map[string]interface{}{
 		"question": question,
+	})
+}
+
+// Create 创建面试题（需要登录 + 管理员权限）
+// POST /api/v1/interviews
+func (InterviewController) Create(ctx echo.Context) error {
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
+	}
+	if !me.IsRoot {
+		return fail(ctx, "无权创建面试题")
+	}
+
+	forms, _ := ctx.FormParams()
+	question := forms.Get("question")
+	if question == "" {
+		return fail(ctx, "面试题内容不能为空")
+	}
+
+	result, err := logic.DefaultInterview.Publish(context.EchoContext(ctx), forms)
+	if err != nil {
+		return fail(ctx, "创建失败："+err.Error())
+	}
+
+	return success(ctx, map[string]interface{}{
+		"question": result,
 	})
 }
 

@@ -29,6 +29,7 @@ func (self DownloadController) RegisterRoute(g *echo.Group) {
 	g.GET("/downloads", self.List)
 	g.HEAD("/downloads/golang/:filename", self.FetchPackage)
 	g.GET("/downloads/golang/:filename", self.FetchPackage)
+	g.GET("/downloads/add_new_version", self.AddNewVersion)
 }
 
 // List Go 安装包下载列表
@@ -125,6 +126,27 @@ func (DownloadController) FetchPackage(ctx echo.Context) error {
 // httpClient 复用连接池，避免每次请求创建新 Client
 var httpClient = &http.Client{
 	Timeout: 5 * time.Second,
+}
+
+// AddNewVersion 拉取并入库新版本 Go 安装包信息
+// GET /api/v1/downloads/add_new_version?version=go1.22.0&selector=.toggleVisible
+func (DownloadController) AddNewVersion(ctx echo.Context) error {
+	version := ctx.QueryParam("version")
+	if version == "" {
+		return fail(ctx, "version 参数不能为空")
+	}
+
+	selector := ctx.QueryParam("selector")
+	if selector == "" {
+		selector = ".toggleVisible"
+	}
+
+	err := logic.DefaultDownload.AddNewDownload(context.EchoContext(ctx), version, selector)
+	if err != nil {
+		return fail(ctx, err.Error())
+	}
+
+	return success(ctx, nil)
 }
 
 // checkDownloadUrl 检查下载 URL 是否可用

@@ -11,31 +11,6 @@ import (
 	"time"
 )
 
-// pwdResetEntry 重置密码条目，带过期时间
-type pwdResetEntry struct {
-	email    string
-	expireAt time.Time
-}
-
-// resetPwdMap 存储重置密码 token -> *pwdResetEntry 的映射（内存存储，重启失效）
-var resetPwdMap = sync.Map{}
-
-func init() {
-	// 后台定期清理过期 token（每 10 分钟）
-	go func() {
-		for {
-			time.Sleep(10 * time.Minute)
-			now := time.Now()
-			resetPwdMap.Range(func(key, value interface{}) bool {
-				if entry, ok := value.(*pwdResetEntry); ok && now.After(entry.expireAt) {
-					resetPwdMap.Delete(key)
-				}
-				return true
-			})
-		}
-	}()
-}
-
 type UserController struct{}
 
 // ======================== 速率限制器 ========================
@@ -75,3 +50,26 @@ var (
 	loginLimiter    = &rateLimiter{attempts: make(map[string]*attemptInfo)}
 	registerLimiter = &rateLimiter{attempts: make(map[string]*attemptInfo)}
 )
+
+func init() {
+	// 后台定期清理过期速率限制条目，防止内存泄漏
+	go func() {
+		for {
+			time.Sleep(5 * time.Minute)
+			loginLimiter.cleanup()
+			registerLimiter.cleanup()
+		}
+	}()
+}
+
+// cleanup 清理过期的速率限制条目
+func (rl *rateLimiter) cleanup() {
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
+	now := time.Now()
+	for key, info := range rl.attempts {
+		if now.After(info.expireAt) {
+			delete(rl.attempts, key)
+		}
+	}
+}

@@ -69,7 +69,6 @@ export default async function SubjectPage({
 
   if (!id || isNaN(id)) {
     return notFound()
-    return null
   }
 
   const resolvedSearchParams = await searchParams
@@ -82,7 +81,6 @@ export default async function SubjectPage({
 
   if (!data || !data.subject || data.subject.id === 0) {
     return notFound()
-    return null
   }
 
   const subject = data.subject

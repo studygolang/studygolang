@@ -75,6 +75,10 @@ func (GCTTController) Issues(ctx echo.Context) error {
 	} else if state == "closed" {
 		queryStr = "state=?"
 		args = append(args, 1)
+	} else {
+		// 默认查询未关闭的 issue
+		queryStr = "state=?"
+		args = append(args, 0)
 	}
 
 	issues := logic.DefaultGCTT.FindIssues(context.EchoContext(ctx), paginator, queryStr, args...)

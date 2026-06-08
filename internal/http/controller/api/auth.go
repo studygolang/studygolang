@@ -213,14 +213,14 @@ func (AuthController) ForgotPassword(ctx echo.Context) error {
 		})
 	}
 
-	// 生成唯一 token
+	// 生成唯一 token，存储到 Redis（TTL 1 小时，与 uuid_redis.go 一致）
 	var token string
 	for {
 		token = guuid.NewV4().String()
-		if _, loaded := resetPwdMap.LoadOrStore(token, &pwdResetEntry{
-			email:    email,
-			expireAt: time.Now().Add(30 * time.Minute),
-		}); !loaded {
+		if logic.GetResetPwdUUID(token) == "" {
+			if err := logic.SetResetPwdUUID(token, email); err != nil {
+				return fail(ctx, "系统错误，请稍后重试")
+			}
 			break
 		}
 	}
@@ -250,17 +250,11 @@ func (AuthController) ResetPassword(ctx echo.Context) error {
 		return fail(ctx, "密码长度必须在6到32个字符之间")
 	}
 
-	// 验证 token（含过期检查）
-	val, ok := resetPwdMap.Load(token)
-	if !ok {
+	// 验证 token（从 Redis 获取）
+	email := logic.GetResetPwdUUID(token)
+	if email == "" {
 		return fail(ctx, "重置链接已过期或无效，请重新申请")
 	}
-	entry, ok := val.(*pwdResetEntry)
-	if !ok || time.Now().After(entry.expireAt) {
-		resetPwdMap.Delete(token)
-		return fail(ctx, "重置链接已过期，请重新申请")
-	}
-	email := entry.email
 
 	// 重置密码
 	_, err := logic.DefaultUser.ResetPasswd(context.EchoContext(ctx), email, newPassword)
@@ -269,7 +263,7 @@ func (AuthController) ResetPassword(ctx echo.Context) error {
 	}
 
 	// 清除 token
-	resetPwdMap.Delete(token)
+	_ = logic.DelResetPwdUUID(token)
 
 	return success(ctx, map[string]interface{}{
 		"message": "密码重置成功，请重新登录",

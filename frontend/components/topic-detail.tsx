@@ -23,9 +23,8 @@ import { TopicAppendForm } from "@/components/topic-append-form"
 import { CommentForm } from "@/components/comment-form"
 import { MarkdownContent } from "@/components/markdown-content"
 import { useAuth } from "@/lib/auth-context"
+import { likeAPI, favoriteAPI } from "@/lib/api"
 import type { Topic, TopicReply, TopicAppend } from "@/lib/types"
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8090"
 
 interface TopicDetailProps {
   id: string
