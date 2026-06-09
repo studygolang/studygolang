@@ -25,7 +25,9 @@ type UserInfoCache struct {
 	Email    string `json:"email"`
 	IsRoot   bool   `json:"is_root"`
 	IsVip    bool   `json:"is_vip"`
+	IsAdmin  bool   `json:"is_admin"`
 	Avatar   string `json:"avatar"`
+	Balance  int    `json:"balance"`
 }
 
 // GetCachedUserInfo 获取缓存的用户信息

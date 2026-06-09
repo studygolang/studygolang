@@ -8,11 +8,11 @@ package api
 
 import (
 	"encoding/xml"
-	"strconv"
+	"fmt"
 	"time"
 
-	"github.com/studygolang/studygolang/context"
 	"github.com/studygolang/studygolang/internal/logic"
+	"github.com/studygolang/studygolang/internal/model"
 
 	echo "github.com/labstack/echo/v4"
 )
@@ -46,29 +46,39 @@ type rssItem struct {
 
 // RSS 生成 RSS 2.0 格式的 Feed
 func (FeedController) RSS(ctx echo.Context) error {
-	paginator := logic.NewPaginatorWithPerPage(1, 20)
-	articles := logic.DefaultArticle.FindAll(context.EchoContext(ctx), paginator, "top DESC, ctime DESC", "")
+	respBody, err := logic.DefaultSearcher.FindAtomFeeds(50)
+	if err != nil {
+		return err
+	}
 
 	feed := rssFeed{Version: "2.0"}
-	feed.Channel.Title = "Go语言中文网"
-	feed.Channel.Link = "https://studygolang.com"
-	feed.Channel.Description = "Go语言中文网，打造最棒的Go语言社区"
+	feed.Channel.Title = logic.WebsiteSetting.Name
+	feed.Channel.Link = "https://" + logic.WebsiteSetting.Domain + "/"
+	feed.Channel.Description = logic.WebsiteSetting.Slogan
 	feed.Channel.Language = "zh-CN"
 
-	for _, article := range articles {
-		description := article.Content
-		if description == "" {
-			description = article.Txt
-		}
-		if len(description) > 200 {
-			description = description[:200]
+	for _, doc := range respBody.Docs {
+		url := ""
+		switch doc.Objtype {
+		case model.TypeTopic:
+			url = fmt.Sprintf("%stopics/%d", feed.Channel.Link, doc.Objid)
+		case model.TypeArticle:
+			url = fmt.Sprintf("%sarticles/%d", feed.Channel.Link, doc.Objid)
+		case model.TypeResource:
+			url = fmt.Sprintf("%sresources/%d", feed.Channel.Link, doc.Objid)
+		case model.TypeProject:
+			url = fmt.Sprintf("%sp/%d", feed.Channel.Link, doc.Objid)
+		case model.TypeWiki:
+			url = fmt.Sprintf("%swiki/%d", feed.Channel.Link, doc.Objid)
+		case model.TypeBook:
+			url = fmt.Sprintf("%sbook/%d", feed.Channel.Link, doc.Objid)
 		}
 
 		item := rssItem{
-			Title:       article.Title,
-			Link:        "https://studygolang.com/articles/" + strconv.Itoa(article.Id),
-			Description: description,
-			PubDate:     time.Time(article.Ctime).Format(time.RFC1123),
+			Title:       doc.Title,
+			Link:        url,
+			Description: doc.Content,
+			PubDate:     time.Time(doc.CreatedAt).Format(time.RFC1123),
 		}
 		feed.Channel.Items = append(feed.Channel.Items, item)
 	}

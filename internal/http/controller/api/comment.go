@@ -8,6 +8,7 @@ package api
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/internal/http"
@@ -94,8 +95,19 @@ func (CommentController) Create(ctx echo.Context) error {
 		return fail(ctx, "参数有误")
 	}
 
-	// 敏感词检查
+	// 获取完整用户信息（余额检查等需要 Balance 字段）
 	me := &model.Me{Uid: uid}
+	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid)
+	if user == nil || user.Uid == 0 {
+		return fail(ctx, "用户不存在")
+	}
+	me.Username = user.Username
+	me.Balance = user.Balance
+	me.IsRoot = user.IsRoot
+	me.IsAdmin = user.IsRoot
+	me.CreatedAt = time.Time(user.Ctime)
+
+	// 敏感词检查
 	if !sensitiveCheck(ctx, me) {
 		return failSensitive(ctx)
 	}
@@ -155,6 +167,13 @@ func (CommentController) Modify(ctx echo.Context) error {
 
 	// 使用 CanEdit 进行权限校验（包含时间限制检查）
 	me := &model.Me{Uid: uid}
+	// 补充完整用户信息（CanEdit 需要 IsAdmin/IsRoot）
+	if user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid); user != nil && user.Uid > 0 {
+		me.Username = user.Username
+		me.IsRoot = user.IsRoot
+		me.IsAdmin = user.IsRoot
+		me.CreatedAt = time.Time(user.Ctime)
+	}
 	if !logic.CanEdit(me, comment) {
 		return fail(ctx, "没有修改权限")
 	}
