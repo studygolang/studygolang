@@ -9,6 +9,7 @@ package logic
 import (
 	"os"
 	"strconv"
+	"sync"
 	"text/template"
 	"time"
 
@@ -33,21 +34,40 @@ var funcMap = template.FuncMap{
 	},
 }
 
-var sitemapTpl = template.Must(template.New("sitemap.xml").Funcs(funcMap).ParseFiles(config.TemplateDir + "/sitemap.xml"))
-var sitemapIndexTpl = template.Must(template.ParseFiles(config.TemplateDir + "/sitemapindex.xml"))
+var (
+	sitemapTplOnce      sync.Once
+	sitemapTpl          *template.Template
+	sitemapIndexTplOnce sync.Once
+	sitemapIndexTpl     *template.Template
+)
 
 var sitemapPath = config.ROOT + "/sitemap/"
 
-func init() {
+func getSitemapTpl() *template.Template {
+	sitemapTplOnce.Do(func() {
+		sitemapTpl = template.Must(template.New("sitemap.xml").Funcs(funcMap).ParseFiles(config.TemplateDir + "/sitemap.xml"))
+	})
+	return sitemapTpl
+}
+
+func getSitemapIndexTpl() *template.Template {
+	sitemapIndexTplOnce.Do(func() {
+		sitemapIndexTpl = template.Must(template.ParseFiles(config.TemplateDir + "/sitemapindex.xml"))
+	})
+	return sitemapIndexTpl
+}
+
+func ensureSitemapPath() {
 	if !util.Exist(sitemapPath) {
-		err := os.MkdirAll(sitemapPath, 0777)
-		if err != nil {
+		if err := os.MkdirAll(sitemapPath, 0777); err != nil {
 			panic(err)
 		}
 	}
 }
 
 func GenSitemap() {
+	ensureSitemapPath()
+
 	sitemapFiles := []string{}
 
 	loc := "http://" + WebsiteSetting.Domain
@@ -266,7 +286,7 @@ func GenSitemap() {
 	}
 	defer file.Close()
 
-	err = sitemapIndexTpl.Execute(file, map[string]interface{}{
+	err = getSitemapIndexTpl().Execute(file, map[string]interface{}{
 		"home":         home,
 		"sitemapFiles": sitemapFiles,
 	})
@@ -283,7 +303,7 @@ func output(filename string, data map[string]interface{}) (err error) {
 		return
 	}
 	defer file.Close()
-	if err = sitemapTpl.Execute(file, data); err != nil {
+	if err = getSitemapTpl().Execute(file, data); err != nil {
 		logger.Errorln("execute template error:", err)
 	}
 

@@ -13,6 +13,7 @@ import (
 	"html/template"
 	"net/smtp"
 	"strings"
+	"sync"
 	"time"
 
 	. "github.com/studygolang/studygolang/db"
@@ -139,7 +140,17 @@ var emailFuncMap = template.FuncMap{
 	"substring": util.Substring,
 }
 
-var emailTpl = template.Must(template.New("email.html").Funcs(emailFuncMap).ParseFiles(config.TemplateDir + "email.html"))
+var (
+	emailTplOnce sync.Once
+	emailTpl     *template.Template
+)
+
+func getEmailTpl() *template.Template {
+	emailTplOnce.Do(func() {
+		emailTpl = template.Must(template.New("email.html").Funcs(emailFuncMap).ParseFiles(config.TemplateDir + "email.html"))
+	})
+	return emailTpl
+}
 
 // 订阅邮件通知
 func (self EmailLogic) EmailNotice() {
@@ -251,7 +262,7 @@ func (EmailLogic) GenUnsubscribeToken(user *model.User) string {
 
 func (EmailLogic) genEmailContent(data map[string]interface{}) (string, error) {
 	buffer := &bytes.Buffer{}
-	if err := emailTpl.Execute(buffer, data); err != nil {
+	if err := getEmailTpl().Execute(buffer, data); err != nil {
 		logger.Errorln("email logic execute template error:", err)
 		return "", err
 	}
