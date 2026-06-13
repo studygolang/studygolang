@@ -1,3 +1,6 @@
+//go:build integration
+// +build integration
+
 package logic_test
 
 import (
