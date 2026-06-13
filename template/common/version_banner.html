@@ -1,0 +1,57 @@
+{{/* 版本切换横幅（旧版页面 → 引导体验新版）
+    仅在用户未关闭时显示。由于主导航是 navbar-fixed-top（固定定位），
+    显示横幅时需将导航栏及 body padding 同步下移，避免遮挡。
+*/}}
+<div id="sg-version-banner" style="display:none;background:linear-gradient(90deg,#0f766e,#0891b2);color:#fff;text-align:center;font-size:13px;padding:6px 40px 6px 12px;position:fixed;top:0;left:0;right:0;z-index:1040;">
+    <span style="font-weight:500;">StudyGolang 全新界面已上线</span>
+    <span style="margin:0 8px;opacity:.85;">更快 · 更现代 · 更好的阅读体验</span>
+    <a href="javascript:void(0)" id="sg-try-new" style="color:#fff;text-decoration:underline;font-weight:600;margin-left:4px;">立即体验 →</a>
+    <span id="sg-try-loading" style="display:none;margin-left:8px;opacity:.8;">切换中…</span>
+    <button type="button" id="sg-version-dismiss" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.75);font-size:18px;line-height:1;cursor:pointer;padding:2px 6px;">×</button>
+</div>
+<script>
+(function(){
+    var banner = document.getElementById('sg-version-banner');
+    if (!banner) return;
+    try {
+        if (localStorage.getItem('sg_old_version_banner_dismissed') === '1') return;
+    } catch(e) {}
+
+    function setCookie(name, value, days){
+        var expires = '';
+        if (days) {
+            var d = new Date();
+            d.setTime(d.getTime() + days*24*3600*1000);
+            expires = ';expires=' + d.toUTCString();
+        }
+        document.cookie = name + '=' + value + ';path=/' + expires + ';SameSite=Lax';
+    }
+
+    function hide(){
+        banner.style.display = 'none';
+        try { localStorage.setItem('sg_old_version_banner_dismissed', '1'); } catch(e){}
+    }
+
+    document.getElementById('sg-version-dismiss').onclick = hide;
+
+    document.getElementById('sg-try-new').onclick = function(){
+        var link = this;
+        var loading = document.getElementById('sg-try-loading');
+        link.style.display = 'none';
+        loading.style.display = 'inline';
+        setCookie('sg_version', 'new', 30);
+        // Cookie 写入后由 Nginx 路由到新版，刷新即可
+        window.location.reload();
+    };
+
+    // 固定导航栏存在，需同步下移导航栏并增加 body 顶部内边距
+    var navbar = document.querySelector('.navbar-fixed-top');
+    var offset = banner.offsetHeight;
+    if (navbar) { navbar.style.marginTop = offset + 'px'; }
+    var bodyPad = parseInt(window.getComputedStyle(document.body).paddingTop || '0', 10);
+    if (!isNaN(bodyPad)) {
+        document.body.style.paddingTop = (bodyPad + offset) + 'px';
+    }
+    banner.style.display = 'block';
+})();
+</script>

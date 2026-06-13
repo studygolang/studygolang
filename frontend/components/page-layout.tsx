@@ -1,6 +1,7 @@
 import { Suspense } from "react"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
+import { VersionBanner } from "@/components/version-banner"
 import {
   LoginCard,
   DailyQuestion,
@@ -78,6 +79,7 @@ export function PageLayout({
 }: PageLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
+      <VersionBanner />
       <SiteHeader />
 
       <main className="mx-auto max-w-7xl px-4 py-6 lg:px-6">
