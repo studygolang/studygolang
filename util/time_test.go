@@ -37,9 +37,9 @@ func TestTimeAgo(t *testing.T) {
 			"约 1 天前",
 		},
 		{
-			"11-02 14:00",
-			args{time.Date(2017, 11, 2, 14, 0, 0, 0, time.Local)},
-			"11-02 14:00",
+			"同年 MM-DD HH:MM",
+			args{time.Now().AddDate(0, 0, -10)},
+			time.Now().AddDate(0, 0, -10).Format("01-02 15:04"),
 		},
 		{
 			"2016-02-02",
