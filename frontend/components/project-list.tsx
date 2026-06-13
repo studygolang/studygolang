@@ -1,11 +1,12 @@
 import Link from "next/link"
 import {
-  Star,
-  GitFork,
+  Eye,
   ExternalLink,
   Globe,
   BookOpen,
   Github,
+  MessageSquare,
+  ThumbsUp,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -77,9 +78,9 @@ export function ProjectList({ projects = [] }: ProjectListProps) {
 
                 {/* Meta stats */}
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
-                  {project.homepage && (
+                  {project.home && (
                     <a
-                      href={project.homepage}
+                      href={project.home}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 text-xs text-primary transition-colors hover:text-primary/80"
@@ -88,9 +89,9 @@ export function ProjectList({ projects = [] }: ProjectListProps) {
                       官网
                     </a>
                   )}
-                  {project.doc_url && (
+                  {project.doc && (
                     <a
-                      href={project.doc_url}
+                      href={project.doc}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 text-xs text-primary transition-colors hover:text-primary/80"
@@ -99,9 +100,9 @@ export function ProjectList({ projects = [] }: ProjectListProps) {
                       文档
                     </a>
                   )}
-                  {project.src_url && (
+                  {project.src && (
                     <a
-                      href={project.src_url}
+                      href={project.src}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 text-xs text-primary transition-colors hover:text-primary/80"
@@ -111,12 +112,16 @@ export function ProjectList({ projects = [] }: ProjectListProps) {
                     </a>
                   )}
                   <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Star className="h-3 w-3" />
-                    {formatNum(project.star)}
+                    <Eye className="h-3 w-3" />
+                    {formatNum(project.viewnum)}
                   </span>
                   <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <GitFork className="h-3 w-3" />
-                    {formatNum(project.fork)}
+                    <MessageSquare className="h-3 w-3" />
+                    {formatNum(project.cmtnum)}
+                  </span>
+                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <ThumbsUp className="h-3 w-3" />
+                    {formatNum(project.likenum)}
                   </span>
                 </div>
               </div>

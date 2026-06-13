@@ -55,6 +55,9 @@ export function ArticleDetail({ id, article, prev, next, comments = [] }: Articl
   const [liked, setLiked] = useState(false)
   const [bookmarked, setBookmarked] = useState(false)
   const [likeCount, setLikeCount] = useState(article?.likenum || 0)
+  // 评论回复目标与评论点赞状态
+  const [replyTo, setReplyTo] = useState<{ floor: number; username: string } | null>(null)
+  const [commentLiked, setCommentLiked] = useState<Record<number, boolean>>({})
 
   // 加载用户的点赞和收藏状态
   useEffect(() => {
@@ -92,6 +95,17 @@ export function ArticleDetail({ id, article, prev, next, comments = [] }: Articl
       setBookmarked(!bookmarked)
     } catch {
       // 网络错误
+    }
+  }
+
+  // 点赞/取消点赞某条评论（objtype=100 = TypeComment）
+  const handleCommentLike = async (cid: number) => {
+    const nowLiked = commentLiked[cid] || false
+    try {
+      await likeAPI.toggle(cid, 100, !nowLiked)
+      setCommentLiked((prev) => ({ ...prev, [cid]: !nowLiked }))
+    } catch {
+      // 未登录或网络错误，忽略
     }
   }
 
@@ -228,7 +242,11 @@ export function ArticleDetail({ id, article, prev, next, comments = [] }: Articl
             <CommentForm
               objid={parseInt(id)}
               objtype={1}
-              onSuccess={() => router.refresh()}
+              onSuccess={() => {
+                setReplyTo(null)
+                router.refresh()
+              }}
+              replyTo={replyTo}
             />
           </div>
 
@@ -245,14 +263,25 @@ export function ArticleDetail({ id, article, prev, next, comments = [] }: Articl
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold text-foreground">{comment.name}</span>
                       <span className="text-xs text-muted-foreground">{formatTime(comment.ctime)}</span>
+                      <span className="ml-auto text-xs text-muted-foreground">
+                        #{comment.floor}
+                      </span>
                     </div>
                     <MarkdownContent content={comment.content} className="mt-1.5" />
                     <div className="mt-2 flex items-center gap-3">
-                      <button className="flex cursor-pointer items-center gap-1 text-xs text-muted-foreground hover:text-primary">
+                      <button
+                        onClick={() => comment.id && handleCommentLike(comment.id)}
+                        className={`flex cursor-pointer items-center gap-1 text-xs transition-colors hover:text-primary ${commentLiked[comment.id] ? "text-primary" : "text-muted-foreground"}`}
+                      >
                         <ChevronUp className="h-3.5 w-3.5" />
-                        0
+                        {commentLiked[comment.id] ? 1 : 0}
                       </button>
-                      <button className="cursor-pointer text-xs text-muted-foreground hover:text-primary">{"回复"}</button>
+                      <button
+                        onClick={() => comment.name && setReplyTo({ floor: comment.floor, username: comment.name })}
+                        className="cursor-pointer text-xs text-muted-foreground hover:text-primary"
+                      >
+                        {"回复"}
+                      </button>
                       <button className="ml-auto cursor-pointer text-muted-foreground hover:text-primary">
                         <MoreHorizontal className="h-3.5 w-3.5" />
                       </button>

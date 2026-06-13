@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import {
-  Star,
-  GitFork,
   Eye,
   ExternalLink,
   Github,
@@ -68,7 +66,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
     "@type": "SoftwareApplication",
     name: project.name,
     description: project.desc,
-    url: project.homepage || project.src_url,
+    url: project.home || project.src,
     applicationCategory: project.category,
     programmingLanguage: project.lang || "Go",
     author: {
@@ -139,24 +137,14 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
           {/* Stats row */}
           <div className="mt-6 flex flex-wrap gap-6 border-t border-border pt-5">
             <div className="flex items-center gap-2">
-              <Star className="h-4 w-4 text-chart-3" />
-              <span className="text-sm font-semibold">{formatNum(project.star)}</span>
-              <span className="text-xs text-muted-foreground">Stars</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <GitFork className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-semibold">{formatNum(project.fork)}</span>
-              <span className="text-xs text-muted-foreground">Forks</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Eye className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-semibold">{formatNum(project.watch)}</span>
-              <span className="text-xs text-muted-foreground">Watchers</span>
-            </div>
-            <div className="flex items-center gap-2">
               <Eye className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm font-semibold">{formatNum(project.viewnum)}</span>
               <span className="text-xs text-muted-foreground">浏览</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-semibold">{formatNum(project.cmtnum)}</span>
+              <span className="text-xs text-muted-foreground">评论</span>
             </div>
             <div className="flex items-center gap-2">
               <ThumbsUp className="h-4 w-4 text-muted-foreground" />
@@ -167,9 +155,9 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
 
           {/* Links */}
           <div className="mt-5 flex flex-wrap gap-3">
-            {project.src_url && (
+            {project.src && (
               <a
-                href={project.src_url}
+                href={project.src}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
@@ -179,9 +167,9 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
                 <ExternalLink className="h-3 w-3" />
               </a>
             )}
-            {project.homepage && (
+            {project.home && (
               <a
-                href={project.homepage}
+                href={project.home}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
@@ -191,9 +179,9 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
                 <ExternalLink className="h-3 w-3" />
               </a>
             )}
-            {project.doc_url && (
+            {project.doc && (
               <a
-                href={project.doc_url}
+                href={project.doc}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
@@ -203,9 +191,9 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
                 <ExternalLink className="h-3 w-3" />
               </a>
             )}
-            {project.download_url && (
+            {project.download && (
               <a
-                href={project.download_url}
+                href={project.download}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/30 hover:bg-primary/5 hover:text-primary"

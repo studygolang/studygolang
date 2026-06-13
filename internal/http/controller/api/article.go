@@ -115,7 +115,7 @@ func (ArticleController) Detail(ctx echo.Context) error {
 	result := map[string]interface{}{
 		"article":      article,
 		"article_gctt": articleGCTT,
-		"replies":      replies,
+		"replies":      normalizeReplies(replies),
 		"prev_next":    prevNext,
 		"subjects":     logic.DefaultSubject.FindArticleSubjects(context.EchoContext(ctx), article.Id),
 	}

@@ -43,7 +43,7 @@ func (CommentController) List(ctx echo.Context) error {
 	)
 
 	return success(ctx, map[string]interface{}{
-		"comments": comments,
+		"comments": normalizeReplies(comments),
 	})
 }
 

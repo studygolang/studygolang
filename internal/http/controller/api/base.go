@@ -28,6 +28,33 @@ const (
 	cookieMaxAge   = 7 * 24 * 3600 // Cookie 有效期 7 天
 )
 
+// normalizeReplies 将 FindObjComments 返回的评论 map（大写 Go 字段名 + 嵌套 user）
+// 规整为前端期望的扁平、小写 key 结构：id/uid/floor/content/ctime/name/avatar。
+// 旧的 Go 模板直接用大写 key 渲染没问题，但新的 JSON API 暴露给 Next.js 前端时，
+// 前端类型是扁平小写 key，因此需要转换，否则 reply.id/uid/floor 全部 undefined。
+func normalizeReplies(replies []map[string]interface{}) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, len(replies))
+	for _, reply := range replies {
+		item := map[string]interface{}{
+			"id":      reply["Cid"],
+			"objid":   reply["Objid"],
+			"objtype": reply["Objtype"],
+			"uid":     reply["Uid"],
+			"floor":   reply["Floor"],
+			"flag":    reply["Flag"],
+			"ctime":   reply["Ctime"],
+			"content": reply["content"],
+		}
+		if user, ok := reply["user"].(*model.User); ok && user != nil {
+			item["name"] = user.Username
+			item["avatar"] = user.Avatar
+			item["username"] = user.Username
+		}
+		result = append(result, item)
+	}
+	return result
+}
+
 // getAuthToken 读取认证 token：优先读 HttpOnly Cookie，回退到 X-Token header（兼容旧客户端）
 func getAuthToken(ctx echo.Context) string {
 	if cookie, err := ctx.Cookie(authCookieName); err == nil && cookie.Value != "" {

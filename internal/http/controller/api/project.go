@@ -42,7 +42,8 @@ func (ProjectController) List(ctx echo.Context) error {
 	var orderBy string
 	switch sort {
 	case "hot":
-		orderBy = "star DESC, watch DESC"
+		// OpenProject 没有 star/watch/fork 列，用 likenum（点赞）+ viewnum（浏览）表示热度
+		orderBy = "likenum DESC, viewnum DESC, id DESC"
 	case "noreply":
 		orderBy = "cmtnum ASC, id DESC"
 	default: // latest 或空值
@@ -210,7 +211,7 @@ func (ProjectController) Detail(ctx echo.Context) error {
 	if project.Lastreplyuid != 0 {
 		project.LastReplyUser = lastReplyUser
 	}
-	result["replies"] = replies
+	result["replies"] = normalizeReplies(replies)
 
 	return success(ctx, result)
 }

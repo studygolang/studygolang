@@ -77,7 +77,8 @@ func (UserContentController) UserTopics(ctx echo.Context) error {
 	}
 
 	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
-	topics := logic.DefaultTopic.FindAll(context.EchoContext(ctx), paginator, "tid DESC", "uid=?", user.Uid)
+	// FindAll JOIN topics_ex（同样含 tid），裸 tid 会 Ambiguous，需带表名前缀
+	topics := logic.DefaultTopic.FindAll(context.EchoContext(ctx), paginator, "topics.tid DESC", "uid=?", user.Uid)
 	total := logic.DefaultTopic.Count(context.EchoContext(ctx), "uid=?", user.Uid)
 
 	hasMore := int64(curPage*paginator.PerPage()) < total
@@ -135,7 +136,8 @@ func (UserContentController) UserResources(ctx echo.Context) error {
 	}
 
 	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
-	resources, total := logic.DefaultResource.FindAll(context.EchoContext(ctx), paginator, "id DESC", "uid=?", user.Uid)
+	// FindAll JOIN resource_ex（同样含 id），裸 id 会 Ambiguous，需带表名前缀
+	resources, total := logic.DefaultResource.FindAll(context.EchoContext(ctx), paginator, "resource.id DESC", "uid=?", user.Uid)
 
 	hasMore := int64(curPage*paginator.PerPage()) < total
 

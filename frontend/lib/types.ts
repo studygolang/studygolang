@@ -102,6 +102,7 @@ export interface TopicReply {
   avatar: string
   content: string
   ctime: string
+  floor: number
 }
 
 export interface TopicAppend {
@@ -182,17 +183,16 @@ export interface Project {
   lang: string
   logo: string
   desc: string
-  homepage: string
-  doc_url: string
-  src_url: string
-  download_url: string
+  home: string       // 后端字段名是 home（非 homepage）
+  doc: string        // 后端字段名是 doc（非 doc_url）
+  src: string        // 后端字段名是 src（非 src_url）
+  download: string   // 后端字段名是 download（非 download_url）
   author: string
-  author_uid: number
-  author_avatar: string
-  star: number
-  fork: number
-  watch: number
-  score: number
+  username: string   // 项目作者用户名（后端 username 字段）
+  repo: string       // 代码仓库地址
+  licence: string
+  os: string
+  tags: string
   viewnum: number
   cmtnum: number
   likenum: number

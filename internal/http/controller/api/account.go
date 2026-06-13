@@ -9,9 +9,11 @@ package api
 import (
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/internal/http"
+	"github.com/studygolang/studygolang/internal/http/internal/helper"
 	"github.com/studygolang/studygolang/internal/logic"
 	"github.com/studygolang/studygolang/internal/model"
 
@@ -49,7 +51,9 @@ func (AccountController) SendActivateEmail(ctx echo.Context) error {
 	// 生成激活 UUID 并发送邮件
 	email := strings.TrimSpace(user.Email)
 	isHttps := CheckIsHttps(ctx)
-	logic.DefaultEmail.SendActivateMail(email, "", isHttps)
+	// 生成真实 uuid 并登记 email 映射（master 用 RegActivateCode.GenUUID）
+	uuid := helper.RegActivateCode.GenUUID(email)
+	logic.DefaultEmail.SendActivateMail(email, uuid, isHttps)
 
 	return success(ctx, map[string]interface{}{
 		"message": "激活邮件已发送",
@@ -74,9 +78,20 @@ func (AccountController) Activate(ctx echo.Context) error {
 	uuid := values.Get("uuid")
 	timestamp := goutils.MustInt64(values.Get("timestamp"))
 	sign := values.Get("sign")
-	email := values.Get("email")
 
-	if uuid == "" || email == "" {
+	if uuid == "" {
+		return fail(ctx, "激活链接不完整")
+	}
+
+	// 通过 uuid 反查 email（master 用 RegActivateCode.GetEmail），链接里不含 email
+	email, ok := helper.RegActivateCode.GetEmail(uuid)
+	if !ok {
+		return fail(ctx, "非法请求")
+	}
+
+	// 激活链接有效期 4 小时（master 同此校验）
+	if timestamp < time.Now().Add(-4*time.Hour).Unix() {
+		helper.RegActivateCode.DelUUID(uuid)
 		return fail(ctx, "激活链接不完整")
 	}
 
@@ -84,6 +99,9 @@ func (AccountController) Activate(ctx echo.Context) error {
 	if err != nil {
 		return fail(ctx, "激活失败："+err.Error())
 	}
+
+	// 激活成功后清除 uuid 映射
+	helper.RegActivateCode.DelUUID(uuid)
 
 	return success(ctx, map[string]interface{}{
 		"message": "激活成功",

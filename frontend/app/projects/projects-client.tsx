@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Star, GitFork, Eye, ExternalLink, Github } from "lucide-react"
+import { Eye, ExternalLink, Github, MessageSquare, ThumbsUp } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { fetchAPINullable } from "@/lib/api"
@@ -106,9 +106,9 @@ export function ProjectsClient({ page, sort, total: initialTotal, projects: init
                         <p className="text-xs text-muted-foreground">{project.author}</p>
                       </div>
                     </div>
-                    {project.src_url && (
+                    {project.src && (
                       <a
-                        href={project.src_url}
+                        href={project.src}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-primary"
@@ -141,16 +141,16 @@ export function ProjectsClient({ page, sort, total: initialTotal, projects: init
                   {/* Stats */}
                   <div className="mt-3 flex items-center gap-4 border-t border-border pt-3">
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Star className="h-3.5 w-3.5" />
-                      {formatNum(project.star)}
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <GitFork className="h-3.5 w-3.5" />
-                      {formatNum(project.fork)}
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Eye className="h-3.5 w-3.5" />
-                      {formatNum(project.watch)}
+                      {formatNum(project.viewnum)}
+                    </div>
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <MessageSquare className="h-3.5 w-3.5" />
+                      {formatNum(project.cmtnum)}
+                    </div>
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <ThumbsUp className="h-3.5 w-3.5" />
+                      {formatNum(project.likenum)}
                     </div>
                   </div>
                 </CardContent>

@@ -55,6 +55,9 @@ export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDeta
   const [liked, setLiked] = useState(false)
   const [bookmarked, setBookmarked] = useState(false)
   const [likeCount, setLikeCount] = useState(topic?.likenum || 0)
+  // 评论回复目标与评论点赞状态
+  const [replyTo, setReplyTo] = useState<{ floor: number; username: string } | null>(null)
+  const [commentLiked, setCommentLiked] = useState<Record<number, boolean>>({})
 
   // 加载用户的点赞和收藏状态
   useEffect(() => {
@@ -92,6 +95,17 @@ export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDeta
       setBookmarked(!bookmarked)
     } catch {
       // 网络错误
+    }
+  }
+
+  // 点赞/取消点赞某条评论（objtype=100 = TypeComment）
+  const handleCommentLike = async (cid: number) => {
+    const nowLiked = commentLiked[cid] || false
+    try {
+      await likeAPI.toggle(cid, 100, !nowLiked)
+      setCommentLiked((prev) => ({ ...prev, [cid]: !nowLiked }))
+    } catch {
+      // 未登录或网络错误，忽略
     }
   }
 
@@ -228,7 +242,11 @@ export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDeta
             <CommentForm
               objid={parseInt(id)}
               objtype={0}
-              onSuccess={() => router.refresh()}
+              onSuccess={() => {
+                setReplyTo(null)
+                router.refresh()
+              }}
+              replyTo={replyTo}
             />
           </div>
 
@@ -259,16 +277,22 @@ export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDeta
                         {formatTime(reply.ctime)}
                       </span>
                       <span className="ml-auto text-xs text-muted-foreground">
-                        #{index + 1}
+                        #{reply.floor || index + 1}
                       </span>
                     </div>
                     <MarkdownContent content={reply.content} className="mt-2" />
                     <div className="mt-2 flex items-center gap-3">
-                      <button className="flex cursor-pointer items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-primary">
+                      <button
+                        onClick={() => reply.id && handleCommentLike(reply.id)}
+                        className={`flex cursor-pointer items-center gap-1 text-xs transition-colors hover:text-primary ${commentLiked[reply.id] ? "text-primary" : "text-muted-foreground"}`}
+                      >
                         <ChevronUp className="h-3.5 w-3.5" />
-                        0
+                        {commentLiked[reply.id] ? 1 : 0}
                       </button>
-                      <button className="cursor-pointer text-xs text-muted-foreground transition-colors hover:text-primary">
+                      <button
+                        onClick={() => reply.name && setReplyTo({ floor: reply.floor || index + 1, username: reply.name })}
+                        className="cursor-pointer text-xs text-muted-foreground transition-colors hover:text-primary"
+                      >
                         {"回复"}
                       </button>
                       <button className="ml-auto cursor-pointer text-muted-foreground transition-colors hover:text-primary">

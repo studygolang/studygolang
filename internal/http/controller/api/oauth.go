@@ -161,6 +161,11 @@ func (OAuthController) GithubCallbackRedirect(ctx echo.Context) error {
 		setAuthCookie(ctx, jwtToken)
 	}
 
+	// 新 OAuth 用户余额为 0，引导去领取初始资本（master 同此逻辑）
+	if user.Balance == 0 {
+		return ctx.Redirect(http.StatusSeeOther, "/balance")
+	}
+
 	redirect := getOAuthRedirect(ctx)
 	return ctx.Redirect(http.StatusSeeOther, redirect)
 }
@@ -215,6 +220,11 @@ func (OAuthController) GiteaCallbackRedirect(ctx echo.Context) error {
 	SetLoginCookie(ctx, user.Username)
 	if jwtToken, err := GenJWTToken(user.Uid, user.Username); err == nil {
 		setAuthCookie(ctx, jwtToken)
+	}
+
+	// 新 OAuth 用户余额为 0，引导去领取初始资本（master 同此逻辑）
+	if user.Balance == 0 {
+		return ctx.Redirect(http.StatusSeeOther, "/balance")
 	}
 
 	redirect := getOAuthRedirect(ctx)

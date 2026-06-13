@@ -60,11 +60,12 @@ func getTopicSortOrder(sort string) string {
 	switch sort {
 	case "hot":
 		// 回复数*2 + 点赞数，发布时间越近权重越高
-		return "topics.reply+topics.`like`*2 DESC, topics.id DESC"
+		// reply/like 位于 topics_ex（FindAll 已 JOIN），需带表名前缀，否则 Unknown column
+		return "topics_ex.reply+topics_ex.`like`*2 DESC, topics.id DESC"
 	case "latest":
 		return "topics.id DESC"
 	case "noreply":
-		return "topics.reply ASC, topics.id DESC"
+		return "topics_ex.reply ASC, topics.id DESC"
 	default:
 		// 默认按最近活动时间
 		return "topics.mtime DESC"
@@ -168,7 +169,7 @@ func (TopicController) Detail(ctx echo.Context) error {
 	// 已登录用户的附加信息
 	result := map[string]interface{}{
 		"topic":   topic,
-		"replies": replies,
+		"replies": normalizeReplies(replies),
 	}
 
 	if ok {
@@ -369,6 +370,14 @@ func (TopicController) Append(ctx echo.Context) error {
 	}
 	if len(content) > 65535 {
 		return fail(ctx, "附言内容过长")
+	}
+
+	// 附言也需敏感词和余额检查（master 路由：Sensivite + BalanceCheck）
+	if !sensitiveCheck(ctx, me) {
+		return failSensitive(ctx)
+	}
+	if !balanceCheck(me, false) {
+		return failBalance(ctx)
 	}
 
 	err = logic.DefaultTopic.Append(context.EchoContext(ctx), me.Uid, tid, content)
