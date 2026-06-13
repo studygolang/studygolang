@@ -58,8 +58,8 @@ func (BookController) Detail(ctx echo.Context) error {
 		logic.Views.Incr(Request(ctx), model.TypeBook, book.Id, me.Uid)
 
 		result := map[string]interface{}{
-			"book": book,
-			"likeflag": logic.DefaultLike.HadLike(context.EchoContext(ctx), me.Uid, book.Id, model.TypeBook),
+			"book":       book,
+			"likeflag":   logic.DefaultLike.HadLike(context.EchoContext(ctx), me.Uid, book.Id, model.TypeBook),
 			"hadcollect": logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), me.Uid, book.Id, model.TypeBook),
 		}
 

@@ -44,9 +44,9 @@ func (GCTTController) Index(ctx echo.Context) error {
 	untranslatedIssues := logic.DefaultGCTT.FindUnTranslateIssues(context.EchoContext(ctx), 10)
 
 	return success(ctx, map[string]interface{}{
-		"time_lines":            timeLines,
-		"core_users":            coreUsers,
-		"untranslated_issues":   untranslatedIssues,
+		"time_lines":          timeLines,
+		"core_users":          coreUsers,
+		"untranslated_issues": untranslatedIssues,
 	})
 }
 

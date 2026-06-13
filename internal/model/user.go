@@ -21,7 +21,7 @@ import (
 type UserLogin struct {
 	Uid        int       `json:"uid" xorm:"pk"`
 	Username   string    `json:"username"`
-	Passcode   string    `json:"passcode"`   // random salt for md5 hashing
+	Passcode   string    `json:"passcode"` // random salt for md5 hashing
 	Passwd     string    `json:"passwd"`
 	PasswdType string    `json:"passwd_type" xorm:"varchar(10) default('md5')"` // 'md5' or 'bcrypt'
 	Email      string    `json:"email"`

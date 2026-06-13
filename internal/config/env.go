@@ -9,8 +9,8 @@ import (
 	"os"
 	"strconv"
 
-	config "github.com/polaris1119/config"
 	"github.com/Unknwon/goconfig"
+	config "github.com/polaris1119/config"
 )
 
 // EnvConfig 提供配置读取功能，支持环境变量覆盖

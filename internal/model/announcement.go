@@ -9,7 +9,7 @@ package model
 import "time"
 
 const (
-	AnnouncementTypeNotice  = 1 // 公告
+	AnnouncementTypeNotice   = 1 // 公告
 	AnnouncementTypeActivity = 2 // 活动
 	AnnouncementTypeWarning  = 3 // 警告
 )

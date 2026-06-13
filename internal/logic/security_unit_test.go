@@ -20,8 +20,8 @@ func TestDecrUserWeightFieldValidation(t *testing.T) {
 	}
 
 	tests := []struct {
-		name      string
-		field     string
+		name       string
+		field      string
 		shouldPass bool
 	}{
 		{"valid uid field", "uid", true},
@@ -94,10 +94,10 @@ func TestPasswordStrength(t *testing.T) {
 	// 目前只是占位符，实际实现可能需要根据项目需求调整
 
 	tests := []struct {
-		name     string
-		password string
-		minLen   int
-		maxLen   int
+		name      string
+		password  string
+		minLen    int
+		maxLen    int
 		wantValid bool
 	}{
 		{"valid password", "MyP@ssw0rd", 8, 32, true},
@@ -158,9 +158,9 @@ func TestCacheTTLValues(t *testing.T) {
 		minValue int
 		maxValue int
 	}{
-		{"user cache TTL", 30 * 60, 60, 86400},      // 30分钟，1分钟到1天
-		{"reset pwd TTL", 3600, 1800, 7200},         // 1小时，30分钟到2小时
-		{"activate TTL", 86400, 43200, 172800},      // 24小时，12小时到48小时
+		{"user cache TTL", 30 * 60, 60, 86400}, // 30分钟，1分钟到1天
+		{"reset pwd TTL", 3600, 1800, 7200},    // 1小时，30分钟到2小时
+		{"activate TTL", 86400, 43200, 172800}, // 24小时，12小时到48小时
 	}
 
 	for _, tt := range tests {

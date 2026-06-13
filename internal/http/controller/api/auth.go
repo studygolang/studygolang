@@ -35,8 +35,8 @@ type registerRequest struct {
 	Username        string `json:"username" form:"username"`
 	Email           string `json:"email" form:"email"`
 	Passwd          string `json:"passwd" form:"passwd"`
-	Password        string `json:"password" form:"password"`        // 兼容两种字段名
-	CaptchaID       string `json:"captcha_id" form:"captcha_id"`   // 验证码 ID（可选）
+	Password        string `json:"password" form:"password"`                 // 兼容两种字段名
+	CaptchaID       string `json:"captcha_id" form:"captcha_id"`             // 验证码 ID（可选）
 	CaptchaSolution string `json:"captcha_solution" form:"captcha_solution"` // 验证码答案（可选）
 }
 

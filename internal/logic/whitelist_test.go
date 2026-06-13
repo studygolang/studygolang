@@ -72,8 +72,8 @@ func TestSQLInjectionDetection(t *testing.T) {
 	}
 
 	tests := []struct {
-		name       string
-		input      string
+		name         string
+		input        string
 		shouldDetect bool
 	}{
 		{"clean input", "username", false},
@@ -155,9 +155,9 @@ func TestRedisKeyFormat(t *testing.T) {
 	}
 
 	tests := []struct {
-		name       string
-		prefix     string
-		key        string
+		name        string
+		prefix      string
+		key         string
 		shouldValid bool
 	}{
 		{"valid user cache key", "user:", "user:info:123", true},
@@ -184,15 +184,15 @@ func TestTTLValues(t *testing.T) {
 	}
 
 	tests := []struct {
-		name       string
-		ttl        int
-		min        int
-		max        int
+		name        string
+		ttl         int
+		min         int
+		max         int
 		shouldValid bool
 	}{
-		{"valid user cache TTL", 1800, 60, 86400, true},      // 30分钟
-		{"valid reset pwd TTL", 3600, 1800, 7200, true},      // 1小时
-		{"valid activate TTL", 86400, 43200, 172800, true},   // 24小时
+		{"valid user cache TTL", 1800, 60, 86400, true},    // 30分钟
+		{"valid reset pwd TTL", 3600, 1800, 7200, true},    // 1小时
+		{"valid activate TTL", 86400, 43200, 172800, true}, // 24小时
 		{"invalid - too short", 30, 60, 86400, false},
 		{"invalid - too long", 200000, 60, 86400, false},
 	}

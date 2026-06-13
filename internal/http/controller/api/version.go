@@ -54,17 +54,18 @@ func VersionInfo(ctx echo.Context) error {
 	}
 
 	return success(ctx, map[string]interface{}{
-		"current":        current,
-		"grayscale":      getGrayscalePercent(),
-		"canary_target":  getCanaryTarget(),
-		"cookie_name":    versionCookieName,
+		"current":       current,
+		"grayscale":     getGrayscalePercent(),
+		"canary_target": getCanaryTarget(),
+		"cookie_name":   versionCookieName,
 	})
 }
 
 // SwitchVersion 设置版本偏好 Cookie
 //
 // 请求体（form 或 JSON）：
-//   version: "new" 切换到 Next.js 新版，"old" 切换到 Go 模板旧版，"auto" 清除偏好回到灰度默认
+//
+//	version: "new" 切换到 Next.js 新版，"old" 切换到 Go 模板旧版，"auto" 清除偏好回到灰度默认
 //
 // 设置 Cookie 后，浏览器下一次页面请求会带上 sg_version，
 // Nginx 据此路由到对应后端。前端收到响应后自行执行页面刷新。

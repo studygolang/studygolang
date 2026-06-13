@@ -527,9 +527,9 @@ func (self UserLogic) UpdatePasswd(ctx context.Context, username, curPasswd, new
 	}
 
 	changeData := map[string]interface{}{
-		"passwd":     userLogin.Passwd,
+		"passwd":      userLogin.Passwd,
 		"passwd_type": userLogin.PasswdType,
-		"passcode":   userLogin.Passcode,
+		"passcode":    userLogin.Passcode,
 	}
 	_, err = MasterDB.Table(userLogin).Where("username=?", username).Update(changeData)
 	if err != nil {
@@ -573,9 +573,9 @@ func (self UserLogic) ResetPasswd(ctx context.Context, email, passwd string) (st
 	}
 
 	changeData := map[string]interface{}{
-		"passwd":     userLogin.Passwd,
+		"passwd":      userLogin.Passwd,
 		"passwd_type": userLogin.PasswdType,
-		"passcode":   userLogin.Passcode,
+		"passcode":    userLogin.Passcode,
 	}
 	_, err = MasterDB.Table(userLogin).Where("email=?", email).Update(changeData)
 	if err != nil {

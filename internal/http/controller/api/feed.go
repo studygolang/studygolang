@@ -28,11 +28,11 @@ type rssFeed struct {
 	XMLName xml.Name `xml:"rss"`
 	Version string   `xml:"version,attr"`
 	Channel struct {
-		Title       string     `xml:"title"`
-		Link        string     `xml:"link"`
-		Description string     `xml:"description"`
-		Language    string     `xml:"language"`
-		Items       []rssItem  `xml:"item"`
+		Title       string    `xml:"title"`
+		Link        string    `xml:"link"`
+		Description string    `xml:"description"`
+		Language    string    `xml:"language"`
+		Items       []rssItem `xml:"item"`
 	} `xml:"channel"`
 }
 

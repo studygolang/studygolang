@@ -14,70 +14,70 @@ import (
 // TestIsSameOrigin 测试同源检查函数
 func TestIsSameOrigin(t *testing.T) {
 	tests := []struct {
-		name           string
+		name            string
 		originOrReferer string
-		targetHost     string
-		wantSame       bool
+		targetHost      string
+		wantSame        bool
 	}{
 		{
-			name:           "same origin - http",
+			name:            "same origin - http",
 			originOrReferer: "http://studygolang.com/messages",
-			targetHost:     "studygolang.com",
-			wantSame:       true,
+			targetHost:      "studygolang.com",
+			wantSame:        true,
 		},
 		{
-			name:           "same origin - https",
+			name:            "same origin - https",
 			originOrReferer: "https://studygolang.com/messages",
-			targetHost:     "studygolang.com",
-			wantSame:       true,
+			targetHost:      "studygolang.com",
+			wantSame:        true,
 		},
 		{
-			name:           "same origin - with port",
+			name:            "same origin - with port",
 			originOrReferer: "http://studygolang.com:8080/messages",
-			targetHost:     "studygolang.com:8080",
-			wantSame:       true,
+			targetHost:      "studygolang.com:8080",
+			wantSame:        true,
 		},
 		{
-			name:           "same origin - different port",
+			name:            "same origin - different port",
 			originOrReferer: "http://studygolang.com:8080/messages",
-			targetHost:     "studygolang.com:9090",
-			wantSame:       true, // 只比较主机名，忽略端口
+			targetHost:      "studygolang.com:9090",
+			wantSame:        true, // 只比较主机名，忽略端口
 		},
 		{
-			name:           "different origin",
+			name:            "different origin",
 			originOrReferer: "http://evil.com/messages",
-			targetHost:     "studygolang.com",
-			wantSame:       false,
+			targetHost:      "studygolang.com",
+			wantSame:        false,
 		},
 		{
-			name:           "invalid url",
+			name:            "invalid url",
 			originOrReferer: "not a url",
-			targetHost:     "studygolang.com",
-			wantSame:       false,
+			targetHost:      "studygolang.com",
+			wantSame:        false,
 		},
 		{
-			name:           "empty origin",
+			name:            "empty origin",
 			originOrReferer: "",
-			targetHost:     "studygolang.com",
-			wantSame:       false,
+			targetHost:      "studygolang.com",
+			wantSame:        false,
 		},
 		{
-			name:           "subdomain - different",
+			name:            "subdomain - different",
 			originOrReferer: "http://sub.studygolang.com/messages",
-			targetHost:     "studygolang.com",
-			wantSame:       false,
+			targetHost:      "studygolang.com",
+			wantSame:        false,
 		},
 		{
-			name:           "localhost - same",
+			name:            "localhost - same",
 			originOrReferer: "http://localhost:3000/messages",
-			targetHost:     "localhost:8090",
-			wantSame:       true, // 只比较主机名
+			targetHost:      "localhost:8090",
+			wantSame:        true, // 只比较主机名
 		},
 		{
-			name:           "127.0.0.1 - same",
+			name:            "127.0.0.1 - same",
 			originOrReferer: "http://127.0.0.1:3000/messages",
-			targetHost:     "127.0.0.1:8090",
-			wantSame:       true,
+			targetHost:      "127.0.0.1:8090",
+			wantSame:        true,
 		},
 	}
 
