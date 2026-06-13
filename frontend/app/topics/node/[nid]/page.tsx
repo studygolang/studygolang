@@ -17,7 +17,7 @@ interface NodeTopicsPageProps {
 export async function generateMetadata({ params }: NodeTopicsPageProps): Promise<Metadata> {
   const { nid } = await params
   const nodes = await fetchAPINullable<TopicNode[]>("/nodes", { cache: "no-store" })
-  const node = nodes?.find((n) => String(n.id) === nid)
+  const node = nodes?.find((n) => String(n.nid) === nid)
   const nodeName = node?.name ?? "节点"
   return {
     title: `${nodeName} - 话题 - Go语言中文网`,
@@ -36,7 +36,7 @@ export default async function NodeTopicsPage({ params, searchParams }: NodeTopic
   ])
 
   const nodeList = nodes ?? []
-  const currentNode = nodeList.find((n) => String(n.id) === nid)
+  const currentNode = nodeList.find((n) => String(n.nid) === nid)
   const nodeName = currentNode?.name ?? "节点话题"
 
   // 后端返回字段为 "list"，与 TopicListData.list 对应

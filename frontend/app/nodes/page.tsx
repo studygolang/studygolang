@@ -30,12 +30,12 @@ export default async function NodesPage() {
   const nodeList = nodes ?? []
 
   // 按 parent_id 分组，parent_id=0 为顶级
-  const topLevel = nodeList.filter((n) => n.parent_id === 0)
+  const topLevel = nodeList.filter((n) => n.parent === 0)
   const childMap = new Map<number, TopicNode[]>()
   for (const node of nodeList) {
-    if (node.parent_id !== 0) {
-      const children = childMap.get(node.parent_id) ?? []
-      childMap.set(node.parent_id, [...children, node])
+    if (node.parent !== 0) {
+      const children = childMap.get(node.parent) ?? []
+      childMap.set(node.parent, [...children, node])
     }
   }
 
@@ -55,12 +55,12 @@ export default async function NodesPage() {
       ) : topLevel.length > 0 ? (
         <div className="space-y-8">
           {topLevel.map((parent) => {
-            const children = childMap.get(parent.id) ?? []
+            const children = childMap.get(parent.nid) ?? []
             const displayNodes = children.length > 0 ? children : [parent]
             const isGrouped = children.length > 0
 
             return (
-              <section key={parent.id}>
+              <section key={parent.nid}>
                 {isGrouped && (
                   <h2 className="mb-3 flex items-center gap-2 text-base font-semibold text-foreground">
                     <Hash className="h-4 w-4 text-primary" />
@@ -75,8 +75,8 @@ export default async function NodesPage() {
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                   {displayNodes.map((node) => (
                     <Link
-                      key={node.id}
-                      href={`/topics/node/${node.id}`}
+                      key={node.nid}
+                      href={`/topics/node/${node.nid}`}
                       className="group"
                     >
                       <Card className="h-full transition-all hover:border-primary/30 hover:shadow-sm">
@@ -89,7 +89,7 @@ export default async function NodesPage() {
                             />
                           ) : (
                             <div
-                              className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-bold ${getNodeColor(node.id)}`}
+                              className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-bold ${getNodeColor(node.nid)}`}
                             >
                               {node.name.charAt(0)}
                             </div>
@@ -115,7 +115,7 @@ export default async function NodesPage() {
         // 无父级层级时，平铺所有节点
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {nodeList.map((node) => (
-            <Link key={node.id} href={`/topics/node/${node.id}`} className="group">
+            <Link key={node.nid} href={`/topics/node/${node.nid}`} className="group">
               <Card className="h-full transition-all hover:border-primary/30 hover:shadow-sm">
                 <CardContent className="flex flex-col items-center gap-2 p-4 text-center">
                   {node.logo ? (
@@ -126,7 +126,7 @@ export default async function NodesPage() {
                     />
                   ) : (
                     <div
-                      className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-bold ${getNodeColor(node.id)}`}
+                      className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-bold ${getNodeColor(node.nid)}`}
                     >
                       {node.name.charAt(0)}
                     </div>

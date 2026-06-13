@@ -17,18 +17,18 @@ export function NodeNavigation({ nodes }: NodeNavigationProps) {
   let nodeGroups: NodeGroup[]
 
   // 找出父节点，按层级分组
-  const parentNodes = nodes.filter((n) => n.pid === 0 || n.parent_id === 0)
+  const parentNodes = nodes.filter((n) => n.parent === 0)
   if (parentNodes.length > 0) {
     nodeGroups = parentNodes
       .map((parent) => ({
         label: parent.name,
         nodes: nodes
-          .filter((n) => (n.pid === parent.id || n.parent_id === parent.id) && n.id != null)
+          .filter((n) => n.parent === parent.nid && n.nid != null)
           .map((n) => ({
-            id: n.id,
+            id: n.nid,
             name: n.name,
             // 节点话题列表路由为 /topics/node/[nid]，使用数字 id
-            href: `/topics/node/${n.id}`,
+            href: `/topics/node/${n.nid}`,
           })),
       }))
       .filter((g) => g.nodes.length > 0)
@@ -38,12 +38,12 @@ export function NodeNavigation({ nodes }: NodeNavigationProps) {
       {
         label: "节点",
         nodes: nodes
-          .filter((n) => n.id != null)
+          .filter((n) => n.nid != null)
           .map((n) => ({
-            id: n.id,
+            id: n.nid,
             name: n.name,
             // 节点话题列表路由为 /topics/node/[nid]，使用数字 id
-            href: `/topics/node/${n.id}`,
+            href: `/topics/node/${n.nid}`,
           })),
       },
     ]

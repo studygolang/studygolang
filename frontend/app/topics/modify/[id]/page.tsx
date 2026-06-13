@@ -105,15 +105,14 @@ export default function TopicModifyPage() {
           for (const [category, categoryNodes] of Object.entries(group)) {
             if (Array.isArray(categoryNodes)) {
               const nodes: TopicNode[] = (categoryNodes as any[]).map((node) => ({
-                id: node.nid,
+                nid: node.nid,
                 name: node.name,
                 ename: node.ename,
-                parent_id: node.pid,
+                parent: node.pid ?? node.parent ?? 0,
                 seq: node.seq || 0,
-                pid: node.pid,
                 intro: node.intro || "",
                 logo: node.logo || "",
-                style: node.style || "",
+                show_index: node.show_index ?? false,
               }))
               groups.push({ category, nodes })
             }
@@ -234,7 +233,7 @@ export default function TopicModifyPage() {
                       {nid
                         ? nodeGroups
                             .flatMap((g) => g.nodes)
-                            .find((node) => String(node.id) === nid)?.name
+                            .find((node) => String(node.nid) === nid)?.name
                         : "选择节点"}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
@@ -248,17 +247,17 @@ export default function TopicModifyPage() {
                           <CommandGroup key={group.category} heading={group.category}>
                             {group.nodes.map((node) => (
                               <CommandItem
-                                key={node.id}
+                                key={node.nid}
                                 value={`${node.name} ${node.ename}`}
                                 onSelect={() => {
-                                  setNid(String(node.id))
+                                  setNid(String(node.nid))
                                   setNodeOpen(false)
                                 }}
                               >
                                 <Check
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    nid === String(node.id) ? "opacity-100" : "opacity-0"
+                                    nid === String(node.nid) ? "opacity-100" : "opacity-0"
                                   )}
                                 />
                                 {node.name}

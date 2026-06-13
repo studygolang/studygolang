@@ -29,15 +29,14 @@ async function fetchNodes(): Promise<NodeGroup[]> {
       for (const [category, categoryNodes] of Object.entries(group)) {
         if (Array.isArray(categoryNodes)) {
           const nodes: TopicNode[] = categoryNodes.map((node: any) => ({
-            id: node.nid,  // 后端使用 nid，前端类型定义使用 id
+            nid: node.nid,
             name: node.name,
             ename: node.ename,
-            parent_id: node.pid,
+            parent: node.pid ?? node.parent ?? 0,
             seq: node.seq || 0,
-            pid: node.pid,
             intro: node.intro || '',
             logo: node.logo || '',
-            style: node.style || '',
+            show_index: node.show_index ?? false,
           }))
           groups.push({ category, nodes })
         }

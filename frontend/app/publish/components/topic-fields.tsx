@@ -51,7 +51,7 @@ export function TopicFields({ nid, setNid, nodeGroups }: TopicFieldsProps) {
             {nid
               ? nodeGroups
                   .flatMap((g) => g.nodes)
-                  .find((node) => String(node.id) === nid)?.name
+                  .find((node) => String(node.nid) === nid)?.name
               : "选择节点"}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
@@ -65,17 +65,17 @@ export function TopicFields({ nid, setNid, nodeGroups }: TopicFieldsProps) {
                 <CommandGroup key={group.category} heading={group.category}>
                   {group.nodes.map((node) => (
                     <CommandItem
-                      key={node.id}
+                      key={node.nid}
                       value={`${node.name} ${node.ename}`}
                       onSelect={() => {
-                        setNid(String(node.id))
+                        setNid(String(node.nid))
                         setNodeOpen(false)
                       }}
                     >
                       <Check
                         className={cn(
                           "mr-2 h-4 w-4",
-                          nid === String(node.id) ? "opacity-100" : "opacity-0"
+                          nid === String(node.nid) ? "opacity-100" : "opacity-0"
                         )}
                       />
                       {node.name}

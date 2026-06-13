@@ -118,37 +118,6 @@ export default function UserSettingsPage() {
   // 保存资料
   const handleSave = async () => {
     setMessage(null)
-  }
-
-  // 修改密码
-  const handleChangePassword = async () => {
-    setMessage(null)
-    if (!curPassword) {
-      setMessage({ type: 'error', text: '请输入当前密码' })
-      return
-    }
-    if (!newPassword || newPassword.length < 6) {
-      setMessage({ type: 'error', text: '新密码长度至少6个字符' })
-      return
-    }
-    if (curPassword === newPassword) {
-      setMessage({ type: 'error', text: '新密码不能与当前密码相同' })
-      return
-    }
-    setChangingPassword(true)
-    try {
-      await userAPI.changePassword(curPassword, newPassword)
-      setMessage({ type: 'success', text: '密码修改成功' })
-      setCurPassword('')
-      setNewPassword('')
-      setShowPasswordForm(false)
-    } catch (err) {
-      setMessage({ type: 'error', text: err instanceof Error ? err.message : '密码修改失败' })
-    } finally {
-      setChangingPassword(false)
-    }
-  }
-
   // 客户端验证
   if (name.length > 50) {
       setMessage({ type: 'error', text: '昵称不能超过50个字符' })
@@ -190,6 +159,35 @@ export default function UserSettingsPage() {
       })
     } finally {
       setSaving(false)
+    }
+  }
+
+  // 修改密码
+  const handleChangePassword = async () => {
+    setMessage(null)
+    if (!curPassword) {
+      setMessage({ type: 'error', text: '请输入当前密码' })
+      return
+    }
+    if (!newPassword || newPassword.length < 6) {
+      setMessage({ type: 'error', text: '新密码长度至少6个字符' })
+      return
+    }
+    if (curPassword === newPassword) {
+      setMessage({ type: 'error', text: '新密码不能与当前密码相同' })
+      return
+    }
+    setChangingPassword(true)
+    try {
+      await userAPI.changePassword(curPassword, newPassword)
+      setMessage({ type: 'success', text: '密码修改成功' })
+      setCurPassword('')
+      setNewPassword('')
+      setShowPasswordForm(false)
+    } catch (err) {
+      setMessage({ type: 'error', text: err instanceof Error ? err.message : '密码修改失败' })
+    } finally {
+      setChangingPassword(false)
     }
   }
 

@@ -303,13 +303,11 @@ func (TopicController) OthersTopics(ctx echo.Context) error {
 // Nodes 获取所有节点列表
 // GET /api/v1/nodes
 func (TopicController) Nodes(ctx echo.Context) error {
-	data := make(map[string]interface{})
-	if len(logic.AllRecommendNodes) > 0 {
-		data["nodes"] = logic.DefaultNode.FindAll(context.EchoContext(ctx))
-	} else {
-		data["nodes"] = logic.GenNodes()
-	}
-	return success(ctx, data)
+	// 统一返回扁平的节点列表（前端 TopicNode 接口使用 id/parent_id/name 等字段）
+	nodes := logic.DefaultNode.FindAll(context.EchoContext(ctx))
+	return success(ctx, map[string]interface{}{
+		"nodes": nodes,
+	})
 }
 
 // Publish 发布新话题（需要登录，统一使用 requireAuth 认证）

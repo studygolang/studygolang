@@ -58,15 +58,14 @@ export interface FeedListData extends Pagination {
 
 // ======================== 话题相关 ========================
 export interface TopicNode {
-  id: number
+  nid: number
   name: string
   ename: string
-  parent_id: number
+  parent: number
   seq: number
-  pid: number
   intro: string
   logo: string
-  style: string
+  show_index: boolean
 }
 
 export interface Topic {
