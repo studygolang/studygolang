@@ -557,7 +557,7 @@ export const projectWriteAPI = {
 
   // 检查 URI 唯一性
   checkUri(uri: string) {
-    return fetchAPI<{ available: boolean }>(`/projects/check_uri?uri=${encodeURIComponent(uri)}`)
+    return fetchAPI<{ exists: boolean }>(`/projects/check_uri?uri=${encodeURIComponent(uri)}`)
   },
 }
 
@@ -791,8 +791,13 @@ export const topicWriteAPI = {
 export const likeAPI = {
   // 点赞/取消点赞（toggle）
   toggle(objid: number, objtype: number, flag: boolean) {
-    return fetchAPI<{ message: string }>(`/likes/${objid}?objtype=${objtype}&flag=${flag ? 1 : 0}`, {
+    const form = new URLSearchParams()
+    form.set('objtype', String(objtype))
+    form.set('flag', flag ? '1' : '0')
+    return fetchAPI<{ liked: boolean }>(`/likes/${objid}`, {
       method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
       credentials: 'include',
     })
   },
@@ -807,8 +812,13 @@ export const likeAPI = {
 export const favoriteAPI = {
   // 收藏/取消收藏（toggle）
   toggle(objid: number, objtype: number, flag: boolean) {
-    return fetchAPI<{ message: string }>(`/favorites/${objid}?objtype=${objtype}&collect=${flag ? 1 : 0}`, {
+    const form = new URLSearchParams()
+    form.set('objtype', String(objtype))
+    form.set('collect', flag ? '1' : '0')
+    return fetchAPI<{ collected: boolean }>(`/favorites/${objid}`, {
       method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
       credentials: 'include',
     })
   },

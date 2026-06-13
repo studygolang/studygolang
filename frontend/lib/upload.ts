@@ -139,24 +139,22 @@ function postFormData(
   })
 }
 
-/** 允许的图片 MIME 类型 */
+/** 允许的图片 MIME 类型（与后端 allowedMIMETypes 保持一致） */
 const ALLOWED_IMAGE_TYPES = [
   'image/jpeg',
   'image/png',
   'image/gif',
   'image/webp',
-  'image/svg+xml',
-  'image/bmp',
 ]
 
-/** 默认最大文件大小 2MB */
-const DEFAULT_MAX_SIZE = 2 * 1024 * 1024
+/** 默认最大文件大小 5MB（与后端 MaxImageSize 保持一致） */
+const DEFAULT_MAX_SIZE = 5 * 1024 * 1024
 
 /**
  * 校验文件是否为允许的图片类型
  */
 export function isValidImageType(file: File): boolean {
-  return ALLOWED_IMAGE_TYPES.includes(file.type) || file.type.startsWith('image/')
+  return ALLOWED_IMAGE_TYPES.includes(file.type)
 }
 
 /**

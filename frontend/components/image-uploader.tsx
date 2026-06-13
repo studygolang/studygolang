@@ -19,7 +19,7 @@ export interface ImageUploaderProps {
   onUploaded: (url: string) => void
   /** 接受的文件类型，默认 "image/*" */
   accept?: string
-  /** 最大文件大小（字节），默认 2MB */
+  /** 最大文件大小（字节），默认 5MB（与后端 MaxImageSize 一致） */
   maxSize?: number
   /** 自定义类名 */
   className?: string
@@ -34,7 +34,7 @@ type UploadStatus = "idle" | "uploading" | "success" | "error"
 export function ImageUploader({
   onUploaded,
   accept = "image/*",
-  maxSize = 2 * 1024 * 1024,
+  maxSize = 5 * 1024 * 1024,
   className,
   mode = "upload",
   disabled = false,
