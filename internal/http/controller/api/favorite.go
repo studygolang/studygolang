@@ -40,7 +40,7 @@ func (FavoriteController) Status(ctx echo.Context) error {
 	objid := goutils.MustInt(ctx.Param("objid"))
 	objtype := goutils.MustInt(ctx.QueryParam("objtype"))
 
-	if objid == 0 || objtype == 0 {
+	if objid == 0 || !isValidObjType(objtype) {
 		return success(ctx, map[string]interface{}{"has_favorite": false})
 	}
 
@@ -68,7 +68,7 @@ func (FavoriteController) Toggle(ctx echo.Context) error {
 	objtype := goutils.MustInt(ctx.FormValue("objtype"))
 	collect := goutils.MustInt(ctx.FormValue("collect"))
 
-	if objid == 0 || objtype == 0 {
+	if objid == 0 || !isValidObjType(objtype) {
 		return fail(ctx, "参数错误")
 	}
 

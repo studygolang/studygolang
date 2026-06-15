@@ -9,7 +9,13 @@ package logic
 import (
 	"encoding/json"
 	"strconv"
+
+	"github.com/polaris1119/logger"
+	"golang.org/x/sync/singleflight"
 )
+
+// userInfoSF 用于在缓存击穿时合并同一 uid 的并发请求
+var userInfoSF singleflight.Group
 
 const (
 	// Redis key 前缀
@@ -28,6 +34,7 @@ type UserInfoCache struct {
 	IsAdmin  bool   `json:"is_admin"`
 	Avatar   string `json:"avatar"`
 	Balance  int    `json:"balance"`
+	Status   int    `json:"status"`
 }
 
 // GetCachedUserInfo 获取缓存的用户信息
@@ -75,6 +82,7 @@ func InvalidateUserCache(uid int) error {
 }
 
 // GetOrFetchUserInfo 获取用户信息，优先从缓存获取
+// 使用 singleflight 防止缓存击穿：同一 uid 的并发请求只会触发一次 DB 查询
 func GetOrFetchUserInfo(uid int, fetchFunc func() *UserInfoCache) *UserInfoCache {
 	// 1. 尝试从缓存获取
 	cached := GetCachedUserInfo(uid)
@@ -82,14 +90,24 @@ func GetOrFetchUserInfo(uid int, fetchFunc func() *UserInfoCache) *UserInfoCache
 		return cached
 	}
 
-	// 2. 缓存未命中，从数据库获取
-	userInfo := fetchFunc()
-	if userInfo == nil {
+	// 2. 缓存未命中，使用 singleflight 合并并发请求
+	v, _, _ := userInfoSF.Do(strconv.Itoa(uid), func() (interface{}, error) {
+		// 双重检查：进入 singleflight 后再次查缓存，避免重复 DB
+		if cached := GetCachedUserInfo(uid); cached != nil {
+			return cached, nil
+		}
+		userInfo := fetchFunc()
+		if userInfo == nil {
+			return nil, nil
+		}
+		// 存入缓存
+		if err := SetCachedUserInfo(userInfo); err != nil {
+			logger.Errorln("GetOrFetchUserInfo: cache set failed for uid", uid, ":", err)
+		}
+		return userInfo, nil
+	})
+	if v == nil {
 		return nil
 	}
-
-	// 3. 存入缓存
-	_ = SetCachedUserInfo(userInfo)
-
-	return userInfo
+	return v.(*UserInfoCache)
 }

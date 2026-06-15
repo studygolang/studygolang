@@ -22,26 +22,33 @@ async function fetchNodes(): Promise<NodeGroup[]> {
 
     if (json.code !== 0 || !Array.isArray(json.data)) return []
 
-    // 后端返回的是分组结构：[{ "Go语言": [...], "StudyGolang": [...] }]
-    // 保留分组结构，方便在 UI 中显示层级关系
-    const groups: NodeGroup[] = []
-    for (const group of json.data) {
-      for (const [category, categoryNodes] of Object.entries(group)) {
-        if (Array.isArray(categoryNodes)) {
-          const nodes: TopicNode[] = categoryNodes.map((node: any) => ({
-            nid: node.nid,
-            name: node.name,
-            ename: node.ename,
-            parent: node.pid ?? node.parent ?? 0,
-            seq: node.seq || 0,
-            intro: node.intro || '',
-            logo: node.logo || '',
-            show_index: node.show_index ?? false,
-          }))
-          groups.push({ category, nodes })
-        }
-      }
+    // 后端返回扁平数组：TopicNode[]
+    // 按 parent 字段聚合：parent=0 的是分类节点（category），其他归到对应 parent 下
+    const allNodes: TopicNode[] = json.data.map((node: any) => ({
+      nid: node.nid,
+      name: node.name,
+      ename: node.ename,
+      parent: node.pid ?? node.parent ?? 0,
+      seq: node.seq || 0,
+      intro: node.intro || '',
+      logo: node.logo || '',
+      show_index: node.show_index ?? false,
+    }))
+
+    // 父节点（parent=0）作为分组标题，其子节点作为组内节点
+    const rootNodes = allNodes.filter(n => !n.parent)
+    const groups: NodeGroup[] = rootNodes.map(root => ({
+      category: root.name,
+      nodes: allNodes.filter(n => n.parent === root.nid),
+    }))
+
+    // 没有父节点的散落节点（理论上不应该有），合并到"其他"
+    const grouped = new Set<number>([0, ...rootNodes.map(n => n.nid)])
+    const orphan = allNodes.filter(n => !grouped.has(n.parent))
+    if (orphan.length > 0) {
+      groups.push({ category: '其他', nodes: orphan })
     }
+
     return groups
   } catch {
     return []

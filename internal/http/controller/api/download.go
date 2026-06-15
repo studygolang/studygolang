@@ -7,6 +7,7 @@
 package api
 
 import (
+	stdcontext "context"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -89,14 +90,16 @@ func (DownloadController) FetchPackage(ctx echo.Context) error {
 	}
 
 	// 异步记录下载次数，带 panic 恢复
-	go func() {
+	// 使用 Background ctx：请求 ctx 在 handler 返回后会被取消，
+	// 继续使用它会导致 RecordDLTimes 在被取消的 ctx 上执行
+	go func(filename string) {
 		defer func() {
 			if r := recover(); r != nil {
 				// 静默恢复，避免 goroutine panic 导致进程崩溃
 			}
 		}()
-		logic.DefaultDownload.RecordDLTimes(context.EchoContext(ctx), filename)
-	}()
+		logic.DefaultDownload.RecordDLTimes(stdcontext.Background(), filename)
+	}(filename)
 
 	// 优先从官方 CDN 下载
 	officialUrl := GoStoragePrefix + filename
@@ -128,9 +131,17 @@ var httpClient = &http.Client{
 	Timeout: 5 * time.Second,
 }
 
-// AddNewVersion 拉取并入库新版本 Go 安装包信息
+// AddNewVersion 拉取并入库新版本 Go 安装包信息（管理员操作）
 // GET /api/v1/downloads/add_new_version?version=go1.22.0&selector=.toggleVisible
 func (DownloadController) AddNewVersion(ctx echo.Context) error {
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
+	}
+	if !me.IsRoot {
+		return fail(ctx, "无权操作")
+	}
+
 	version := ctx.QueryParam("version")
 	if version == "" {
 		return fail(ctx, "version 参数不能为空")
@@ -141,7 +152,7 @@ func (DownloadController) AddNewVersion(ctx echo.Context) error {
 		selector = ".toggleVisible"
 	}
 
-	err := logic.DefaultDownload.AddNewDownload(context.EchoContext(ctx), version, selector)
+	err = logic.DefaultDownload.AddNewDownload(context.EchoContext(ctx), version, selector)
 	if err != nil {
 		return fail(ctx, err.Error())
 	}

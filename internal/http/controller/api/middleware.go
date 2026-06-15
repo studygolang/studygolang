@@ -1,6 +1,7 @@
 package api
 
 import (
+	stdcontext "context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -89,15 +90,16 @@ func publishNotice(ctx echo.Context, me *model.Me) {
 	content := ctx.FormValue("content")
 	if ctx.Request().Method == "POST" && (title != "" || content != "") {
 		requestURI := ctx.Request().RequestURI
-		go func() {
-			user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "is_root", 1)
+		// 捕获所需值，在独立 goroutine 中使用，避免使用已结束请求的 echo.Context
+		go func(uri, title, content string) {
+			user := logic.DefaultUser.FindOne(stdcontext.Background(), "is_root", 1)
 			if user.Uid == 0 {
 				return
 			}
 
-			emailContent := fmt.Sprintf("URI:%s<br/><h1>标题：%s</h1><br/>内容：%s", requestURI, title, content)
+			emailContent := fmt.Sprintf("URI:%s<br/><h1>标题：%s</h1><br/>内容：%s", uri, title, content)
 			logic.DefaultEmail.SendMail("网站有新内容产生", emailContent, []string{user.Email})
-		}()
+		}(requestURI, title, content)
 	}
 }
 

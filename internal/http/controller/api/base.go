@@ -10,7 +10,6 @@ package api
 import (
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/internal/http"
@@ -122,13 +121,9 @@ func originCheck(next echo.HandlerFunc) echo.HandlerFunc {
 		origin := ctx.Request().Header.Get("Origin")
 		referer := ctx.Request().Header.Get("Referer")
 
-		// Origin 和 Referer 都没有时，仅允许表单提交
+		// Origin 和 Referer 都没有时，拒绝写操作（CSRF 防护）
+		// 前端所有写请求（fetch/XHR）都会自动带上 Origin，表单提交也会带上 Referer
 		if origin == "" && referer == "" {
-			contentType := ctx.Request().Header.Get("Content-Type")
-			if contentType == "application/x-www-form-urlencoded" ||
-				strings.HasPrefix(contentType, "multipart/form-data") {
-				return next(ctx)
-			}
 			return fail(ctx, "缺少 Origin 或 Referer", 403)
 		}
 
@@ -234,6 +229,8 @@ func requireAuth(ctx echo.Context) (*model.Me, error) {
 			IsRoot:   user.IsRoot,
 			IsVip:    user.IsVip,
 			Avatar:   user.Avatar,
+			Balance:  user.Balance,
+			Status:   user.Status,
 		}
 	})
 
@@ -247,5 +244,18 @@ func requireAuth(ctx echo.Context) (*model.Me, error) {
 		IsRoot:   userInfo.IsRoot,
 		IsAdmin:  userInfo.IsRoot, // Root 用户即为管理员
 		IsVip:    userInfo.IsVip,
+		Balance:  userInfo.Balance,
+		Status:   userInfo.Status,
 	}, nil
+}
+
+// isValidObjType 校验对象类型是否在合法枚举内。
+// TypeTopic=0 是个陷阱（不能简单用 objtype==0 判断无效）。
+func isValidObjType(objtype int) bool {
+	switch objtype {
+	case model.TypeTopic, model.TypeArticle, model.TypeResource,
+		model.TypeWiki, model.TypeProject, model.TypeBook, model.TypeInterview:
+		return true
+	}
+	return false
 }

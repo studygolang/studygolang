@@ -32,7 +32,7 @@ import type {
 } from './types'
 
 // 服务端使用后端地址，客户端使用相对路径（经 rewrites 代理）
-function getAPIBase(): string {
+export function getAPIBase(): string {
   if (typeof window === 'undefined') {
     // 服务端 SSR 调用
     return process.env.API_BASE_URL || 'http://localhost:8090'

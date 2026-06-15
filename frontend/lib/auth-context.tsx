@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback } from "react"
 import type { Me } from "@/lib/types"
+import { getAPIBase } from "@/lib/api"
 
 interface AuthState {
   user: Me | null
@@ -37,7 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refresh = useCallback(async () => {
     try {
-      const res = await fetch("/api/v1/user/me", { credentials: "include" })
+      const res = await fetch(`${getAPIBase()}/api/v1/user/me`, { credentials: "include" })
       const json = await res.json()
       if (json.code === 0 && json.data?.user) {
         setState({ user: json.data.user, isLoading: false, isLoggedIn: true })

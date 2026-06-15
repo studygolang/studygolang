@@ -38,7 +38,7 @@ func (LikeController) Status(ctx echo.Context) error {
 	objid := goutils.MustInt(ctx.Param("objid"))
 	objtype := goutils.MustInt(ctx.QueryParam("objtype"))
 
-	if objid == 0 || objtype == 0 {
+	if objid == 0 || !isValidObjType(objtype) {
 		return success(ctx, map[string]interface{}{"has_like": false})
 	}
 
@@ -73,7 +73,7 @@ func (LikeController) Toggle(ctx echo.Context) error {
 	objtype := goutils.MustInt(ctx.FormValue("objtype"))
 	flag := goutils.MustInt(ctx.FormValue("flag"))
 
-	if objid == 0 || objtype == 0 {
+	if objid == 0 || !isValidObjType(objtype) {
 		return fail(ctx, "参数错误")
 	}
 

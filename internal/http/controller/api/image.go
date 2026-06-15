@@ -9,7 +9,6 @@ package api
 import (
 	"io"
 	"net/http"
-	"os"
 	"path/filepath"
 
 	"github.com/studygolang/studygolang/context"
@@ -46,10 +45,6 @@ func handleImageUpload(ctx echo.Context, fieldName string, imgDir string) (strin
 		return "", fail(ctx, "非法文件上传")
 	}
 	defer file.Close()
-
-	if _, ok := file.(*os.File); ok {
-		return "", fail(ctx, "文件太大")
-	}
 
 	buf, err := io.ReadAll(file)
 	if err != nil {

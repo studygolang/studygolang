@@ -10,6 +10,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/sessions"
 	"github.com/studygolang/studygolang/context"
@@ -76,10 +77,39 @@ func validateOAuthState(ctx echo.Context, state string) bool {
 }
 
 // saveOAuthRedirect 将用户原始跳转目标保存到 session
+// 仅接受相对路径（必须以 "/" 开头），拒绝绝对 URL 与协议相对 URL（"//evil.com"）
+// 以避免 open redirect 漏洞
 func saveOAuthRedirect(ctx echo.Context, redirect string) {
+	if !isSafeRedirect(redirect) {
+		redirect = "/"
+	}
 	session := GetCookieSession(ctx)
 	session.Values[oauthRedirectSessionKey] = redirect
 	session.Save(Request(ctx), ResponseWriter(ctx))
+}
+
+// isSafeRedirect 校验 redirect 字符串是否为安全的相对路径
+func isSafeRedirect(redirect string) bool {
+	if redirect == "" {
+		return false
+	}
+	// 必须以 "/" 开头（相对路径）
+	if !strings.HasPrefix(redirect, "/") {
+		return false
+	}
+	// 拒绝协议相对 URL（"//evil.com" → 浏览器会按 https://evil.com 解析）
+	if strings.HasPrefix(redirect, "//") {
+		return false
+	}
+	// 拒绝含反斜杠的 URL（浏览器会将 "\" 解析为 "/"，"/\evil.com" → "//evil.com"）
+	if strings.Contains(redirect, "\\") {
+		return false
+	}
+	// 拒绝以 "/\" 开头（Windows 风格路径分隔符，避免协议相对 URL 绕过）
+	if strings.HasPrefix(redirect, "/\\") {
+		return false
+	}
+	return true
 }
 
 // getOAuthRedirect 从 session 取出跳转目标并清除

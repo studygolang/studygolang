@@ -155,11 +155,8 @@ func (MessageController) Delete(ctx echo.Context) error {
 	}
 
 	msgtype := ctx.QueryParam("type")
-	if msgtype == "" {
-		msgtype = "system"
-	}
 
-	// 验证 msgtype 参数
+	// 验证 msgtype 参数（必填，避免误删 system vs inbox 路径上的消息）
 	if msgtype != "system" && msgtype != "inbox" && msgtype != "outbox" {
 		return fail(ctx, "参数有误：type 必须是 system、inbox 或 outbox")
 	}
@@ -233,7 +230,10 @@ func isOriginAllowed(originOrReferer string, allowedOrigins []string) bool {
 		// 支持通配符子域名（如 *.studygolang.com）
 		if strings.HasPrefix(allowed, "*.") {
 			domain := allowed[2:] // 去掉 "*."
-			if strings.HasSuffix(parsed.Host, domain) {
+			// 严格匹配：必须以 ".domain" 结尾（避免 evilstudygolang.com 匹配 studygolang.com）
+			// 使用 Hostname() 去掉端口（如 "host:port" → "host"）
+			host := parsed.Hostname()
+			if host != "" && strings.HasSuffix(host, "."+domain) {
 				return true
 			}
 		}

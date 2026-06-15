@@ -15,7 +15,8 @@ import { z } from "zod"
 const profileSchema = z.object({
   name: z.string().min(1, "昵称不能为空").max(50, "昵称最多50个字符"),
   email: z.string().email("邮箱格式不正确").optional().or(z.literal("")),
-  website: z.string().url("网站格式不正确").optional().or(z.literal("")),
+  // 必须以 http:// 或 https:// 开头（与后端校验对齐）
+  website: z.string().regex(/^https?:\/\//, "网址必须以 http:// 或 https:// 开头").optional().or(z.literal("")),
   introduce: z.string().max(500, "简介最多500个字符").optional().or(z.literal("")),
 })
 

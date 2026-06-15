@@ -174,6 +174,9 @@ func (TopicController) Detail(ctx echo.Context) error {
 
 	if ok {
 		tidInt, _ := topic["tid"].(int)
+		if tidInt <= 0 {
+			tidInt = tid
+		}
 		result["likeflag"] = logic.DefaultLike.HadLike(context.EchoContext(ctx), me.Uid, tidInt, model.TypeTopic)
 		result["hadcollect"] = logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), me.Uid, tidInt, model.TypeTopic)
 
@@ -303,12 +306,10 @@ func (TopicController) OthersTopics(ctx echo.Context) error {
 
 // Nodes 获取所有节点列表
 // GET /api/v1/nodes
+// 返回扁平数组（前端 TopicNode[] 直接消费；分组如需可前端按 parent 自行聚合）
 func (TopicController) Nodes(ctx echo.Context) error {
-	// 统一返回扁平的节点列表（前端 TopicNode 接口使用 id/parent_id/name 等字段）
 	nodes := logic.DefaultNode.FindAll(context.EchoContext(ctx))
-	return success(ctx, map[string]interface{}{
-		"nodes": nodes,
-	})
+	return success(ctx, nodes)
 }
 
 // Publish 发布新话题（需要登录，统一使用 requireAuth 认证）

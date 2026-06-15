@@ -11,122 +11,42 @@ import (
 	"testing"
 )
 
-// TestIsSameOrigin 测试同源检查函数
-func TestIsSameOrigin(t *testing.T) {
+// TestIsOriginAllowed 测试 CSRF 防护的 origin 白名单校验
+// 重点验证 M4 修复：通配符子域名匹配不再被 evil<domain>.com 利用
+func TestIsOriginAllowed(t *testing.T) {
 	tests := []struct {
-		name            string
-		originOrReferer string
-		targetHost      string
-		wantSame        bool
+		name           string
+		origin         string
+		allowedOrigins []string
+		expected       bool
 	}{
-		{
-			name:            "same origin - http",
-			originOrReferer: "http://studygolang.com/messages",
-			targetHost:      "studygolang.com",
-			wantSame:        true,
-		},
-		{
-			name:            "same origin - https",
-			originOrReferer: "https://studygolang.com/messages",
-			targetHost:      "studygolang.com",
-			wantSame:        true,
-		},
-		{
-			name:            "same origin - with port",
-			originOrReferer: "http://studygolang.com:8080/messages",
-			targetHost:      "studygolang.com:8080",
-			wantSame:        true,
-		},
-		{
-			name:            "same origin - different port",
-			originOrReferer: "http://studygolang.com:8080/messages",
-			targetHost:      "studygolang.com:9090",
-			wantSame:        true, // 只比较主机名，忽略端口
-		},
-		{
-			name:            "different origin",
-			originOrReferer: "http://evil.com/messages",
-			targetHost:      "studygolang.com",
-			wantSame:        false,
-		},
-		{
-			name:            "invalid url",
-			originOrReferer: "not a url",
-			targetHost:      "studygolang.com",
-			wantSame:        false,
-		},
-		{
-			name:            "empty origin",
-			originOrReferer: "",
-			targetHost:      "studygolang.com",
-			wantSame:        false,
-		},
-		{
-			name:            "subdomain - different",
-			originOrReferer: "http://sub.studygolang.com/messages",
-			targetHost:      "studygolang.com",
-			wantSame:        false,
-		},
-		{
-			name:            "localhost - same",
-			originOrReferer: "http://localhost:3000/messages",
-			targetHost:      "localhost:8090",
-			wantSame:        true, // 只比较主机名
-		},
-		{
-			name:            "127.0.0.1 - same",
-			originOrReferer: "http://127.0.0.1:3000/messages",
-			targetHost:      "127.0.0.1:8090",
-			wantSame:        true,
-		},
+		// 精确匹配
+		{"exact match", "https://studygolang.com", []string{"https://studygolang.com"}, true},
+		{"scheme mismatch rejected", "http://studygolang.com", []string{"https://studygolang.com"}, false},
+		{"port mismatch rejected", "https://studygolang.com:8443", []string{"https://studygolang.com"}, false},
+		// 通配符子域名
+		{"subdomain match", "https://www.studygolang.com", []string{"*.studygolang.com"}, true},
+		{"nested subdomain match", "https://api.v2.studygolang.com", []string{"*.studygolang.com"}, true},
+		{"subdomain with port match", "https://www.studygolang.com:8443", []string{"*.studygolang.com"}, true},
+		// M4 安全关键测试：evil<domain>.com 攻击
+		{"evil suffix rejected (M4 fix)", "https://evilstudygolang.com", []string{"*.studygolang.com"}, false},
+		{"evil prefix rejected", "https://studygolang.com.evil.com", []string{"*.studygolang.com"}, false},
+		{"evil in middle rejected", "https://a.studygolang.com.evil.com", []string{"*.studygolang.com"}, false},
+		// 根域名本身不匹配子域名通配符（避免攻击者注册 studygolang.com 后用 *.studygolang.com）
+		{"root not matched by wildcard", "https://studygolang.com", []string{"*.studygolang.com"}, false},
+		// 解析失败
+		{"malformed rejected", "not a url", []string{"https://studygolang.com"}, false},
+		{"empty rejected", "", []string{"https://studygolang.com"}, false},
+		// referer 形式
+		{"referer with path", "https://www.studygolang.com/some/path?q=1", []string{"*.studygolang.com"}, true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := isSameOrigin(tt.originOrReferer, tt.targetHost)
-			if got != tt.wantSame {
-				t.Errorf("isSameOrigin(%q, %q) = %v, want %v",
-					tt.originOrReferer, tt.targetHost, got, tt.wantSame)
+			if got := isOriginAllowed(tt.origin, tt.allowedOrigins); got != tt.expected {
+				t.Errorf("isOriginAllowed(%q, %v) = %v, want %v",
+					tt.origin, tt.allowedOrigins, got, tt.expected)
 			}
 		})
 	}
-}
-
-// TestCSRFProtectionScenarios 测试 CSRF 保护场景
-func TestCSRFProtectionScenarios(t *testing.T) {
-	// 场景 1: 正常的同源请求
-	t.Run("valid same-origin request", func(t *testing.T) {
-		origin := "https://studygolang.com"
-		host := "studygolang.com"
-		if !isSameOrigin(origin, host) {
-			t.Error("Same-origin request should be allowed")
-		}
-	})
-
-	// 场景 2: 跨站请求伪造
-	t.Run("cross-site request forgery", func(t *testing.T) {
-		referer := "http://evil.com/attack-page"
-		host := "studygolang.com"
-		if isSameOrigin(referer, host) {
-			t.Error("CSRF request should be blocked")
-		}
-	})
-
-	// 场景 3: 子域名攻击
-	t.Run("subdomain attack", func(t *testing.T) {
-		origin := "http://attacker.studygolang.com"
-		host := "studygolang.com"
-		if isSameOrigin(origin, host) {
-			t.Error("Different subdomain should be blocked")
-		}
-	})
-
-	// 场景 4: 本地开发环境
-	t.Run("localhost development", func(t *testing.T) {
-		origin := "http://localhost:3000"
-		host := "localhost:8090"
-		if !isSameOrigin(origin, host) {
-			t.Error("Localhost requests should be allowed")
-		}
-	})
 }
