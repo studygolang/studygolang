@@ -19,8 +19,10 @@ export interface Pagination {
 export const OBJTYPE_TOPIC = 0
 export const OBJTYPE_ARTICLE = 1
 export const OBJTYPE_RESOURCE = 2
+export const OBJTYPE_WIKI = 3
 export const OBJTYPE_PROJECT = 4
 export const OBJTYPE_BOOK = 5
+export const OBJTYPE_INTERVIEW = 6
 
 // Feed 动态（聚合话题、文章、项目、资源等）
 // 注意：后端 model.Feed 没有 JSON tag，字段名首字母大写
@@ -330,7 +332,6 @@ export interface Me {
 }
 
 export interface LoginData {
-  token: string
   uid: number
   username: string
 }

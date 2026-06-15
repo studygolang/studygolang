@@ -336,7 +336,7 @@ export const userAPI = {
 // ======================== 评论 ========================
 export const commentAPI = {
   getList(objid: number, objtype: number, fetchOptions?: RequestInit) {
-    return fetchAPI<Comment[]>(`/comments?objid=${objid}&objtype=${objtype}`, fetchOptions)
+    return fetchAPI<{ comments: Comment[] }>(`/comments?objid=${objid}&objtype=${objtype}`, fetchOptions)
   },
 
   getDetail(cid: number | string, objid: number | string, objtype: number, fetchOptions?: RequestInit) {
@@ -523,8 +523,8 @@ export const messageAPI = {
   },
 
   // 删除私信
-  delete(id: number | string) {
-    return fetchAPI<null>(`/messages/${id}`, {
+  delete(id: number | string, type: 'system' | 'inbox' | 'outbox') {
+    return fetchAPI<null>(`/messages/${id}?type=${type}`, {
       method: 'DELETE',
       credentials: 'include',
     })
@@ -613,6 +613,22 @@ export const bookWriteAPI = {
 
 // ======================== 专栏 ========================
 export const subjectAPI = {
+  // 专栏列表
+  list(params: { p?: number; num?: number } = {}, fetchOptions?: RequestInit) {
+    const q = new URLSearchParams()
+    if (params.p) q.set('p', String(params.p))
+    if (params.num) q.set('num', String(params.num))
+    return fetchAPI<{ subjects: any[]; total: number; page: number; has_more: boolean }>(
+      `/subjects?${q}`,
+      fetchOptions
+    )
+  },
+
+  // 专栏详情
+  getDetail(sid: number, fetchOptions?: RequestInit) {
+    return fetchAPI<{ subject: any }>(`/subject/${sid}`, fetchOptions)
+  },
+
   // 关注/取消关注专栏
   follow(sid: number) {
     const form = new URLSearchParams()
@@ -690,14 +706,15 @@ export const accountAPI = {
   },
 
   // 邮件退订确认
-  unsubscribePage(token: string, fetchOptions?: RequestInit) {
-    return fetchAPI<{ email: string }>(`/account/email/unsubscribe?token=${encodeURIComponent(token)}`, fetchOptions)
+  unsubscribePage(token: string, email: string, fetchOptions?: RequestInit) {
+    return fetchAPI<{ email: string }>(`/account/email/unsubscribe?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`, fetchOptions)
   },
 
   // 执行邮件退订
-  unsubscribe(token: string) {
+  unsubscribe(token: string, email: string) {
     const form = new URLSearchParams()
     form.set('token', token)
+    form.set('email', email)
     return fetchAPI<{ message: string }>('/account/email/unsubscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -756,6 +773,28 @@ export const gcttAPI = {
       body: form.toString(),
       credentials: 'include',
     })
+  },
+
+  // GCTT 用户列表
+  users(params: { p?: number; num?: number } = {}, fetchOptions?: RequestInit) {
+    const q = new URLSearchParams()
+    if (params.p) q.set('p', String(params.p))
+    if (params.num) q.set('num', String(params.num))
+    return fetchAPI<{ users: any[]; has_more: boolean }>(`/gctt/users?${q}`, fetchOptions)
+  },
+
+  // GCTT issue 列表
+  issues(params: { p?: number; num?: number; status?: string } = {}, fetchOptions?: RequestInit) {
+    const q = new URLSearchParams()
+    if (params.p) q.set('p', String(params.p))
+    if (params.num) q.set('num', String(params.num))
+    if (params.status) q.set('status', params.status)
+    return fetchAPI<{ issues: any[]; has_more: boolean }>(`/gctt/issues?${q}`, fetchOptions)
+  },
+
+  // GCTT 个人主页（某用户的翻译贡献）
+  userDetail(username: string, fetchOptions?: RequestInit) {
+    return fetchAPI<{ articles: any[]; user: any }>(`/gctt/${username}`, fetchOptions)
   },
 }
 
@@ -903,3 +942,159 @@ export const authAPI = {
     })
   },
 }
+
+// ======================== 验证码 ========================
+export const captchaAPI = {
+  // 申请新验证码（返回 captcha_id，前端 <img src="/api/v1/captcha/{id}.png">）
+  newCaptcha() {
+    return fetchAPI<{ captcha_id: string }>('/captcha/new', { cache: 'no-store' })
+  },
+}
+
+// ======================== 图片上传 ========================
+export const imageAPI = {
+  // 上传图片（form: file 字段；用于 markdown 编辑器/封面图等）
+  upload(file: File) {
+    const form = new FormData()
+    form.append('file', file)
+    return fetchAPI<{ url: string }>('/image/upload', {
+      method: 'POST',
+      body: form,
+      credentials: 'include',
+    })
+  },
+
+  // 粘贴板图片上传（粘贴剪贴板图片时使用）
+  pasteUpload(file: Blob, filename = 'pasted.png') {
+    const form = new FormData()
+    form.append('file', file, filename)
+    return fetchAPI<{ url: string }>('/image/paste_upload', {
+      method: 'POST',
+      body: form,
+      credentials: 'include',
+    })
+  },
+
+  // 快速上传（一步到位，常用于头像）
+  quickUpload(file: File) {
+    const form = new FormData()
+    form.append('file', file)
+    return fetchAPI<{ url: string }>('/image/quick_upload', {
+      method: 'POST',
+      body: form,
+      credentials: 'include',
+    })
+  },
+}
+
+// ======================== 面试题 ========================
+export const interviewAPI = {
+  // 今日推荐
+  getToday(fetchOptions?: RequestInit) {
+    return fetchAPI<{ questions: any[] }>('/interviews/today', fetchOptions)
+  },
+
+  // 面试题详情
+  getQuestion(sn: string, fetchOptions?: RequestInit) {
+    return fetchAPI<{ question: any }>(`/interviews/question/${sn}`, fetchOptions)
+  },
+}
+
+// ======================== 用户/会员列表 ========================
+export const usersAPI = {
+  // 会员列表
+  list(params: { p?: number; num?: number } = {}, fetchOptions?: RequestInit) {
+    const q = new URLSearchParams()
+    if (params.p) q.set('p', String(params.p))
+    if (params.num) q.set('num', String(params.num))
+    return fetchAPI<{ users: any[]; total: number; has_more: boolean }>(
+      `/users?${q}`,
+      fetchOptions
+    )
+  },
+}
+
+// ======================== 职位 ========================
+export const jobAPI = {
+  // 职位列表
+  list(params: { p?: number; num?: number } = {}, fetchOptions?: RequestInit) {
+    const q = new URLSearchParams()
+    if (params.p) q.set('p', String(params.p))
+    if (params.num) q.set('num', String(params.num))
+    return fetchAPI<{ jobs: any[]; total: number; has_more: boolean }>(
+      `/jobs?${q}`,
+      fetchOptions
+    )
+  },
+
+  // 职位详情
+  getDetail(id: number | string, fetchOptions?: RequestInit) {
+    return fetchAPI<{ job: any }>(`/jobs/${id}`, fetchOptions)
+  },
+}
+
+// ======================== 资源下载 ========================
+export const downloadAPI = {
+  // 下载列表
+  list(params: { p?: number; num?: number } = {}, fetchOptions?: RequestInit) {
+    const q = new URLSearchParams()
+    if (params.p) q.set('p', String(params.p))
+    if (params.num) q.set('num', String(params.num))
+    return fetchAPI<{ downloads: any[]; total: number; has_more: boolean }>(
+      `/downloads?${q}`,
+      fetchOptions
+    )
+  },
+
+  // 新增版本（需要登录）
+  addNewVersion(data: { name: string; url: string; remark?: string }) {
+    const form = new URLSearchParams()
+    Object.entries(data).forEach(([k, v]) => form.set(k, String(v)))
+    return fetchAPI<{ message: string }>('/downloads/add_new_version', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
+      credentials: 'include',
+    })
+  },
+}
+
+// ======================== 榜单 ========================
+export const topAPI = {
+  // 日活榜
+  getDau(limit = 20, fetchOptions?: RequestInit) {
+    return fetchAPI<{ users: any[] }>(`/top/dau?limit=${limit}`, fetchOptions)
+  },
+
+  // 财富榜
+  getRich(limit = 20, fetchOptions?: RequestInit) {
+    return fetchAPI<{ users: any[] }>(`/top/rich?limit=${limit}`, fetchOptions)
+  },
+}
+
+// ======================== 礼物 ========================
+export const giftAPI = {
+  // 礼物列表
+  list(fetchOptions?: RequestInit) {
+    return fetchAPI<{ gifts: any[] }>('/gift', fetchOptions)
+  },
+
+  // 我的礼物
+  mine(fetchOptions?: RequestInit) {
+    return fetchAPI<{ gifts: any[] }>('/gift/mine', fetchOptions)
+  },
+
+  // 兑换礼物（需要登录）
+  exchange(gid: number) {
+    const form = new URLSearchParams()
+    form.set('gid', String(gid))
+    return fetchAPI<{ message: string }>('/gift/exchange', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
+      credentials: 'include',
+    })
+  },
+}
+
+// ======================== GCTT 补缺方法已在 gcttAPI 内联 ========================

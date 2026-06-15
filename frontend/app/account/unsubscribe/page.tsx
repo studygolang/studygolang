@@ -12,7 +12,9 @@ import { Loader2, CheckCircle2, Mail } from "lucide-react"
 
 function UnsubscribeContent() {
   const searchParams = useSearchParams()
-  const token = searchParams.get("token")
+  // 邮件链接格式：?u={token}&email={email}（兼容旧参数名 token）
+  const token = searchParams.get("u") ?? searchParams.get("token")
+  const emailParam = searchParams.get("email")
 
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -22,28 +24,28 @@ function UnsubscribeContent() {
 
   // 加载退订信息
   useEffect(() => {
-    if (!token) {
-      setError("缺少 token 参数")
+    if (!token || !emailParam) {
+      setError("缺少 token 或 email 参数")
       setLoading(false)
       return
     }
 
-    accountAPI.unsubscribePage(token)
+    accountAPI.unsubscribePage(token, emailParam)
       .then((data) => {
-        setEmail(data.email)
+        setEmail(data.email || emailParam)
       })
       .catch((err) => {
         setError(err.message || "加载失败")
       })
       .finally(() => setLoading(false))
-  }, [token])
+  }, [token, emailParam])
 
   const handleUnsubscribe = async () => {
-    if (!token) return
+    if (!token || !emailParam) return
 
     setSubmitting(true)
     try {
-      await accountAPI.unsubscribe(token)
+      await accountAPI.unsubscribe(token, emailParam)
       setUnsubscribed(true)
       toast.success("已成功退订邮件")
     } catch (err: any) {

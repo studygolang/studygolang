@@ -124,14 +124,14 @@ func (*TopicNode) TableName() string {
 	return "topics_node"
 }
 
-// 推荐节点
+// 推荐节点（仅作 XORM 中间结构，NodeInfo 联合查询使用；不参与 JSON 序列化）
 type RecommendNode struct {
-	Id        int       `json:"id" xorm:"pk autoincr"`
-	Name      string    `json:"name"`
-	Parent    int       `json:"parent"`
-	Nid       int       `json:"nid"`
-	Seq       int       `json:"seq"`
-	CreatedAt time.Time `json:"created_at" xorm:"<-"`
+	Id        int       `xorm:"pk autoincr"`
+	Name      string
+	Parent    int
+	Nid       int
+	Seq       int
+	CreatedAt time.Time `xorm:"<-"`
 }
 
 type NodeInfo struct {
