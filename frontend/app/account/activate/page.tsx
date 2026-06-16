@@ -13,7 +13,9 @@ import { CheckCircle2, XCircle, Loader2 } from "lucide-react"
 function ActivateContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const token = searchParams.get("token")
+  // 邮件链接使用 `?param=xxx`（见 internal/logic/email.go:SendActivateMail）
+  // 同时兼容历史 `?token=xxx` 调用
+  const token = searchParams.get("param") || searchParams.get("token")
 
   const [loading, setLoading] = useState(false)
   const [activated, setActivated] = useState(false)

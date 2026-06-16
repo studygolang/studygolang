@@ -85,7 +85,11 @@ func saveOAuthRedirect(ctx echo.Context, redirect string) {
 	}
 	session := GetCookieSession(ctx)
 	session.Values[oauthRedirectSessionKey] = redirect
-	session.Save(Request(ctx), ResponseWriter(ctx))
+	if err := session.Save(Request(ctx), ResponseWriter(ctx)); err != nil {
+		// 记录失败原因，便于排查 OAuth 跳转目标丢失的问题
+		// （cookie secret 改变、Redis 故障、cookie 超长等）
+		getLogger(ctx).Errorln("saveOAuthRedirect session.Save failed:", err)
+	}
 }
 
 // isSafeRedirect 校验 redirect 字符串是否为安全的相对路径
@@ -117,7 +121,9 @@ func getOAuthRedirect(ctx echo.Context) string {
 	session := GetCookieSession(ctx)
 	val, _ := session.Values[oauthRedirectSessionKey]
 	delete(session.Values, oauthRedirectSessionKey)
-	session.Save(Request(ctx), ResponseWriter(ctx))
+	if err := session.Save(Request(ctx), ResponseWriter(ctx)); err != nil {
+		getLogger(ctx).Errorln("getOAuthRedirect session.Save failed:", err)
+	}
 	if s, ok := val.(string); ok {
 		return s
 	}

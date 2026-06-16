@@ -34,7 +34,7 @@ func (CommentController) List(ctx echo.Context) error {
 	objid := goutils.MustInt(ctx.QueryParam("objid"))
 	objtype := goutils.MustInt(ctx.QueryParam("objtype"))
 
-	if objid == 0 {
+	if objid == 0 || !isValidObjType(objtype) {
 		return fail(ctx, "参数有误")
 	}
 
@@ -95,6 +95,15 @@ func (CommentController) Create(ctx echo.Context) error {
 		return fail(ctx, "参数有误")
 	}
 
+	forms, _ := ctx.FormParams()
+	objtype := goutils.MustInt(forms.Get("objtype"))
+	// 校验 objtype 必须在合法枚举内：
+	//   1) 避免 Publish 内部把缺省/非法值写入 comment.objtype，造成评论挂错对象或孤儿评论
+	//   2) 保护楼层计数器（key 含 objtype），防止恶意构造的 objtype 污染计数器空间
+	if !isValidObjType(objtype) {
+		return fail(ctx, "objtype 参数非法")
+	}
+
 	// 获取完整用户信息（余额检查等需要 Balance 字段）
 	me := &model.Me{Uid: uid}
 	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid)
@@ -116,7 +125,6 @@ func (CommentController) Create(ctx echo.Context) error {
 		return failBalance(ctx)
 	}
 
-	forms, _ := ctx.FormParams()
 	comment, err := logic.DefaultComment.Publish(context.EchoContext(ctx), uid, objid, forms)
 	if err != nil {
 		return fail(ctx, "发布评论失败", 2)

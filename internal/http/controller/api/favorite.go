@@ -89,6 +89,12 @@ func (FavoriteController) Toggle(ctx echo.Context) error {
 }
 
 // List 用户收藏列表
+// 响应字段对齐前端 favoriteAPI.listByUsername 契约：
+//
+//	{ favorites[], total, page, has_more }
+//
+// 同时保留按 objtype 分键（topics/articles/...）以便兼容老客户端。
+// favorites 是统一字段，前端默认读它即可。
 func (FavoriteController) List(ctx echo.Context) error {
 	username := ctx.Param("username")
 	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "username", username)
@@ -111,27 +117,42 @@ func (FavoriteController) List(ctx echo.Context) error {
 		context.EchoContext(ctx), user.Uid, objtype, (p-1)*rows, rows,
 	)
 
-	data := map[string]interface{}{
-		"user":     user,
-		"objtype":  objtype,
-		"total":    total,
-		"page":     p,
-		"has_more": int64(p*rows) < total,
-	}
+	// 统一字段：前端默认读这个 key（任何 objtype 都有）
+	objList := make([]interface{}, 0)
 
 	if total > 0 {
 		objids := slices.StructsIntSlice(favorites, "Objid")
 
 		switch objtype {
 		case model.TypeTopic:
-			data["topics"] = logic.DefaultTopic.FindByTids(objids)
+			topics := logic.DefaultTopic.FindByTids(objids)
+			for i := range topics {
+				objList = append(objList, topics[i])
+			}
 		case model.TypeArticle:
-			data["articles"] = logic.DefaultArticle.FindByIds(objids)
+			articles := logic.DefaultArticle.FindByIds(objids)
+			for i := range articles {
+				objList = append(objList, articles[i])
+			}
 		case model.TypeResource:
-			data["resources"] = logic.DefaultResource.FindByIds(objids)
+			resources := logic.DefaultResource.FindByIds(objids)
+			for i := range resources {
+				objList = append(objList, resources[i])
+			}
 		case model.TypeProject:
-			data["projects"] = logic.DefaultProject.FindByIds(objids)
+			projects := logic.DefaultProject.FindByIds(objids)
+			for i := range projects {
+				objList = append(objList, projects[i])
+			}
 		}
+	}
+
+	data := map[string]interface{}{
+		"favorites": objList, // 统一字段（前端契约）
+		"objtype":   objtype,
+		"total":     total,
+		"page":      p,
+		"has_more":  int64(p*rows) < total,
 	}
 
 	return success(ctx, data)

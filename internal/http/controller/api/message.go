@@ -106,8 +106,20 @@ func (MessageController) Send(ctx echo.Context) error {
 		return fail(ctx, "收件人不能为空")
 	}
 
+	// 禁止自发自收（避免系统通知环路 / 自我刷屏）
+	if req.To == uid {
+		return fail(ctx, "不能给自己发送私信")
+	}
+
 	if req.Content == "" {
 		return fail(ctx, "消息内容不能为空")
+	}
+
+	// 内容长度限制（防止超大 payload 拖垮 DB 与邮件队列）
+	// 5000 字符约等于一条长私信，足以覆盖正常场景
+	const maxMessageLen = 5000
+	if len([]rune(req.Content)) > maxMessageLen {
+		return fail(ctx, "消息内容过长（最多 5000 字符）")
 	}
 
 	// 检查收件人是否存在

@@ -50,6 +50,16 @@ end
 
 return floor
 `
+
+	// Lua 脚本：原子性释放分布式锁（仅当持锁者匹配时才 DEL，避免误删别人的锁）
+	// KEYS[1] = lockKey, ARGV[1] = lockValue
+	releaseLockScript = `
+if redis.call('GET', KEYS[1]) == ARGV[1] then
+    return redis.call('DEL', KEYS[1])
+else
+    return 0
+end
+`
 )
 
 // GetNextCommentFloor 获取下一个评论楼层号（原子性保证）
@@ -103,7 +113,10 @@ func getNextFloorWithLock(objid, objtype int, key string, ttl int) (int, error) 
 		return 0, errors.New("failed to acquire distributed lock: timeout")
 	}
 
-	defer redisClient.Do("DEL", lockKey) // 释放锁
+	// 释放锁：用 Lua CAS 校验持锁者，避免锁 TTL 过期后误删其他进程的锁
+	defer func() {
+		_, _ = redisClient.Do("EVAL", releaseLockScript, 1, lockKey, lockValue)
+	}()
 
 	// 从数据库查询最大楼层号
 	tmpCmt := &model.Comment{}
@@ -308,21 +321,28 @@ func (self CommentLogic) Publish(ctx context.Context, uid, objid int, form url.V
 		Content: form.Get("content"),
 	}
 
-	// 使用 Redis 原子计数器获取下一个楼层号
-	var err error
+	// 先做重复提交检查（必须在分配楼层号之前，否则 Redis 计数器已 INCR 但
+	// 评论未入库，造成楼层号永久空洞）。
+	// 语义与 master 保持一致：只比对"最后一条"评论（OrderBy floor DESC + Get 取首行），
+	// 避免误判用户在历史上发过的相同内容（那种场景下应该允许再次发布）。
+	tmpCmt := &model.Comment{}
+	_, err := MasterDB.Where("objid=? AND objtype=?", objid, objtype).
+		OrderBy("floor DESC").Get(tmpCmt)
+	if err != nil {
+		objLog.Errorln("post comment find last floor error:", err)
+		return nil, err
+	}
+
+	if tmpCmt.Uid == uid && tmpCmt.Content == comment.Content {
+		objLog.Infof("had post comment: %+v", *comment)
+		return tmpCmt, nil
+	}
+
+	// 重复检查通过后再分配楼层号（Redis 原子计数器）
 	comment.Floor, err = GetNextCommentFloor(objid, objtype)
 	if err != nil {
 		objLog.Errorln("post comment get next floor error:", err)
 		return nil, err
-	}
-
-	// 检查是否重复提交（同一用户、同一内容）
-	tmpCmt := &model.Comment{}
-	_, err = MasterDB.Where("objid=? AND objtype=? AND uid=? AND content=?",
-		objid, objtype, uid, comment.Content).Get(tmpCmt)
-	if err == nil && tmpCmt.Cid > 0 {
-		objLog.Infof("had post comment: %+v", *comment)
-		return tmpCmt, nil
 	}
 
 	// 入评论库

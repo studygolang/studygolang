@@ -62,8 +62,14 @@ func (AccountController) SendActivateEmail(ctx echo.Context) error {
 
 // Activate 处理账号激活链接
 // GET /api/v1/account/activate?param=xxx
+//
+// 邮件链接格式（internal/logic/email.go:SendActivateMail）使用 `param=xxx`。
+// 同时接受 `token=xxx` 以兼容历史/其他客户端调用，避免激活流程被破坏。
 func (AccountController) Activate(ctx echo.Context) error {
 	param := ctx.QueryParam("param")
+	if param == "" {
+		param = ctx.QueryParam("token")
+	}
 	if param == "" {
 		return fail(ctx, "缺少激活参数")
 	}

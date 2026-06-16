@@ -23,6 +23,13 @@ func (self BalanceController) RegisterRoute(g *echo.Group) {
 }
 
 // MyBalance 当前登录用户的积分余额明细（需要登录）
+// 响应字段对齐前端 balanceAPI.getMyBalance 契约：
+//
+//	{ balance, incomes[], expenses[], total, page, has_more }
+//
+// incomes  = Num > 0 的明细（充值/奖励等）
+// expenses = Num < 0 的明细（消费/处罚等）
+// details  = 全部明细（保留以便老客户端兼容）
 func (BalanceController) MyBalance(ctx echo.Context) error {
 	uid, err := parseAuthUID(ctx)
 	if err != nil {
@@ -51,9 +58,24 @@ func (BalanceController) MyBalance(ctx echo.Context) error {
 		details = make([]*model.UserBalanceDetail, 0)
 	}
 
+	// 按收入/支出拆分（Num 正负）
+	incomes := make([]*model.UserBalanceDetail, 0, len(details))
+	expenses := make([]*model.UserBalanceDetail, 0, len(details))
+	for _, d := range details {
+		if d.Num >= 0 {
+			incomes = append(incomes, d)
+		} else {
+			expenses = append(expenses, d)
+		}
+	}
+
 	return success(ctx, map[string]interface{}{
+		"balance":  user.Balance,
+		"incomes":  incomes,
+		"expenses": expenses,
+		// 兼容字段（旧客户端或调试用）
 		"details":  details,
-		"total":    user.Balance,
+		"total":    total,
 		"page":     p,
 		"has_more": hasMore,
 	})
