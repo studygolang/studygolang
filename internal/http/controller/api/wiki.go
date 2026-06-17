@@ -54,22 +54,19 @@ func (WikiController) List(ctx echo.Context) error {
 		prevId, nextId   int
 	)
 
-	if lastId != 0 {
-		prevId = lastId
-		if prevId-wikis[0].Id > 5 {
-			hasPrev = false
-		} else {
-			prevId += limit
-			hasPrev = true
-		}
-	}
-
+	// 游标分页（id DESC）：
+	// - hasNext：拉取的条数 > limit，说明还有下一页；当前页截断到 limit 条，next_id 指向当前页最后一条
+	// - hasPrev：lastId > 0 表示不是第一页，prev_id 指向当前页第一条
+	// 不再使用魔数 5 或 prevId += limit（在 cursor 分页中无意义）
 	if num > limit {
 		hasNext = true
 		wikis = wikis[:limit]
 		nextId = wikis[limit-1].Id
-	} else {
-		nextId = wikis[num-1].Id
+	}
+
+	if lastId > 0 && num > 0 {
+		hasPrev = true
+		prevId = wikis[0].Id
 	}
 
 	return success(ctx, map[string]interface{}{

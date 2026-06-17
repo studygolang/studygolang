@@ -63,7 +63,11 @@ func handleImageUpload(ctx echo.Context, fieldName string, imgDir string) (strin
 	if imgDir == "" {
 		imgDir = times.Format("ymd")
 	}
-	file.Seek(0, io.SeekStart)
+	// Seek 失败时 reader 处于 EOF，UploadImage 上传会得到空文件，
+	// 但 MD5（基于 buf）正确，导致图片记录与存储内容不一致。
+	if _, err := file.Seek(0, io.SeekStart); err != nil {
+		return "", fail(ctx, "文件重置失败")
+	}
 	return logic.DefaultUploader.UploadImage(context.EchoContext(ctx), file, imgDir, buf, filepath.Ext(fileHeader.Filename))
 }
 

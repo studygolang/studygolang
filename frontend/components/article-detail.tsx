@@ -143,13 +143,19 @@ export function ArticleDetail({ id, article, prev, next, comments = [] }: Articl
                 </AvatarFallback>
               </Avatar>
               <div>
-                {/* author 为原文作者名，站内用 author_txt 对应 username，API 暂未返回 author_uid，用 author 作路由参数 */}
-                <Link
-                  href={`/user/${article.author || ""}`}
-                  className="text-sm font-medium text-foreground hover:text-primary"
-                >
-                  {article.author || "未知作者"}
-                </Link>
+                {/* 站内用户名取 author_txt（即 User.Username），原文作者名 author 仅用于显示 */}
+                {article.author_txt ? (
+                  <Link
+                    href={`/user/${article.author_txt}`}
+                    className="text-sm font-medium text-foreground hover:text-primary"
+                  >
+                    {article.author || article.author_txt}
+                  </Link>
+                ) : (
+                  <span className="text-sm font-medium text-foreground">
+                    {article.author || "未知作者"}
+                  </span>
+                )}
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />

@@ -113,7 +113,9 @@ func (CommentController) Create(ctx echo.Context) error {
 	me.Username = user.Username
 	me.Balance = user.Balance
 	me.IsRoot = user.IsRoot
-	me.IsAdmin = user.IsRoot
+	// IsAdmin 必须基于 user_role 表判断（AdminMinRoleId=7），不能简化为 IsRoot，
+	// 否则板块管理员/晨读管理员等角色会丢失权限（见 base.go requireAuth 同款修复）
+	me.IsAdmin = logic.DefaultUser.IsAdmin(user)
 	me.CreatedAt = time.Time(user.Ctime)
 
 	// 敏感词检查
@@ -179,7 +181,8 @@ func (CommentController) Modify(ctx echo.Context) error {
 	if user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid); user != nil && user.Uid > 0 {
 		me.Username = user.Username
 		me.IsRoot = user.IsRoot
-		me.IsAdmin = user.IsRoot
+		// IsAdmin 必须基于 user_role 表判断（见 base.go requireAuth 同款修复）
+		me.IsAdmin = logic.DefaultUser.IsAdmin(user)
 		me.CreatedAt = time.Time(user.Ctime)
 	}
 	if !logic.CanEdit(me, comment) {

@@ -16,6 +16,7 @@ import {
 } from "@/components/sidebar-widgets"
 import { HeroBanner } from "@/components/hero-banner"
 import type { Metadata } from "next"
+import Link from "next/link"
 import type {
   Topic,
   Feed,
@@ -57,7 +58,7 @@ interface HomeDataResult {
   activeUsers: User[]
 }
 
-async function getHomeData(tab: string = 'all'): Promise<HomeDataResult> {
+async function getHomeData(tab: string = 'all', page: number = 1): Promise<HomeDataResult> {
   const [
     homeData,
     stats,
@@ -67,7 +68,7 @@ async function getHomeData(tab: string = 'all'): Promise<HomeDataResult> {
     recentCommentsData,
     activeUsersData,
   ] = await Promise.allSettled([
-    fetchAPI<FeedListData>(`/home?tab=${tab}&p=1`, { cache: 'no-store' }),
+    fetchAPI<FeedListData>(`/home?tab=${tab}&p=${page}`, { cache: 'no-store' }),
     fetchAPI<SiteStats>('/stat/site', { cache: 'no-store' }),
     fetchAPI<{ readings: Reading[] }>('/sidebar/readings/recent?limit=7', { cache: 'no-store' }),
     fetchAPI<{ nodes: TopicNode[] }>('/sidebar/nodes/hot', { cache: 'no-store' }),
@@ -107,13 +108,14 @@ async function getHomeData(tab: string = 'all'): Promise<HomeDataResult> {
 }
 
 interface HomePageProps {
-  searchParams: Promise<{ tab?: string }>
+  searchParams: Promise<{ tab?: string; p?: string }>
 }
 
 export default async function HomePage({ searchParams }: HomePageProps) {
-  const { tab: tabParam } = await searchParams
+  const sp = await searchParams
   // tab 参数驱动首页内容筛选，有效值：all/recommend/no_reply/节点名
-  const tab = tabParam ?? 'all'
+  const tab = sp.tab ?? 'all'
+  const currentPage = Math.max(1, Number(sp.p) || 1)
 
   const {
     feeds,
@@ -127,7 +129,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     friendLinks,
     recentComments,
     activeUsers,
-  } = await getHomeData(tab)
+  } = await getHomeData(tab, currentPage)
 
   return (
     <div className="min-h-screen bg-background">
@@ -151,9 +153,12 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               {/* Load More - 只在有更多数据时显示 */}
               {hasMore && (
                 <div className="mt-6 text-center">
-                  <button className="cursor-pointer rounded-md bg-secondary px-6 py-2 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/80">
-                    {"加载更多"}
-                  </button>
+                  <Link
+                    href={`/?${new URLSearchParams({ ...(sp.tab ? { tab: sp.tab } : {}), p: String(currentPage + 1) }).toString()}`}
+                    className="inline-block cursor-pointer rounded-md bg-secondary px-6 py-2 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
+                  >
+                    加载更多
+                  </Link>
                 </div>
               )}
             </div>

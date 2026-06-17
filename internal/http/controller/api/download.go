@@ -82,11 +82,21 @@ func (DownloadController) List(ctx echo.Context) error {
 
 var filenameReg = regexp.MustCompile(`\d+\.\d[a-z\.]*\d+`)
 
+// safeFilenameReg 校验下载文件名只含字母、数字、点、下划线、连字符
+// 防止路径穿越攻击（如 ../../etc/passwd）和开放重定向
+var safeFilenameReg = regexp.MustCompile(`^[A-Za-z0-9._-]+$`)
+
 // FetchPackage 下载 Go 安装包（重定向到实际下载地址）
 func (DownloadController) FetchPackage(ctx echo.Context) error {
 	filename := ctx.Param("filename")
 	if filename == "" {
 		return fail(ctx, "文件名不能为空")
+	}
+
+	// 安全校验：filename 必须只含字母、数字、点、下划线、连字符
+	// 拒绝包含 / .. %2e 等的输入，避免路径穿越和重定向到非预期 URL
+	if !safeFilenameReg.MatchString(filename) || strings.Contains(filename, "..") {
+		return fail(ctx, "非法文件名")
 	}
 
 	// 异步记录下载次数，带 panic 恢复

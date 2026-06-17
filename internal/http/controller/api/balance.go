@@ -50,9 +50,8 @@ func (BalanceController) MyBalance(ctx echo.Context) error {
 	details := logic.DefaultUserRich.FindBalanceDetail(context.EchoContext(ctx), me, p)
 	total := logic.DefaultUserRich.Total(context.EchoContext(ctx), uid)
 
-	// 计算是否有更多
-	const pageSize = 20 // CommentPerNum 默认值
-	hasMore := int64(p*pageSize) < total
+	// 计算是否有更多（FindBalanceDetail 用 logic.CommentPerNum 作为每页大小）
+	hasMore := int64(p*logic.CommentPerNum) < total
 
 	if details == nil {
 		details = make([]*model.UserBalanceDetail, 0)

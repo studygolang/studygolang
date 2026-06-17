@@ -229,7 +229,8 @@ export function usePublish({ initialType }: UsePublishProps) {
         })
         const json = await res.json()
         if (json.code !== 0) { setError(json.msg || "发布失败"); return }
-        router.push(json.data?.uri ? `/projects/${json.data.uri}` : "/projects")
+        // 项目详情路由是 /p/[uri]（见 frontend/app/p/[uri]/page.tsx）
+        router.push(json.data?.uri ? `/p/${json.data.uri}` : "/projects")
       } else if (contentType === "resource") {
         const form = new URLSearchParams()
         form.set("title", title.trim())

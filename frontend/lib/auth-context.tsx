@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
-      await fetch("/api/v1/user/logout", { method: "POST", credentials: "include" })
+      await fetch(`${getAPIBase()}/api/v1/user/logout`, { method: "POST", credentials: "include" })
     } catch {
       // ignore
     }

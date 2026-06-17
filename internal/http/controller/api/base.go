@@ -152,6 +152,12 @@ func originCheck(next echo.HandlerFunc) echo.HandlerFunc {
 					}
 				}
 			}
+			// Referer 存在但不在白名单中，拒绝（CSRF 防护）
+			// 之前这里 fallthrough 到 next(ctx) 等于绕过校验
+			return ctx.JSON(http.StatusForbidden, map[string]interface{}{
+				"code":    1,
+				"message": "非法的请求来源",
+			})
 		}
 
 		return next(ctx)
@@ -222,11 +228,15 @@ func requireAuth(ctx echo.Context) (*model.Me, error) {
 		if user == nil || user.Uid == 0 {
 			return nil
 		}
+		// IsAdmin 必须基于 user_role 表判断（AdminMinRoleId=7），
+		// 不能简化为 IsRoot，否则板块管理员/晨读管理员等角色会丢失权限。
+		// FindOne 已填充 user.Roleids，UserLogic.IsAdmin 据此判断。
 		return &logic.UserInfoCache{
 			Uid:      user.Uid,
 			Username: user.Username,
 			Email:    user.Email,
 			IsRoot:   user.IsRoot,
+			IsAdmin:  logic.DefaultUser.IsAdmin(user),
 			IsVip:    user.IsVip,
 			Avatar:   user.Avatar,
 			Balance:  user.Balance,
@@ -238,11 +248,18 @@ func requireAuth(ctx echo.Context) (*model.Me, error) {
 		return nil, fail(ctx, "用户不存在")
 	}
 
+	// 状态校验：与 master 的 NeedLogin 中间件保持一致。
+	// 仅 UserStatusAudit（已激活）允许写操作；UserStatusOutage（冻结）等需重新登录。
+	// master 在中间件层统一拦截；refactor 把 requireAuth 作为唯一认证入口，故在此检查。
+	if userInfo.Status != model.UserStatusAudit {
+		return nil, fail(ctx, "账号已被冻结或未激活，请重新登录", NeedReLoginCode)
+	}
+
 	return &model.Me{
 		Uid:      userInfo.Uid,
 		Username: userInfo.Username,
 		IsRoot:   userInfo.IsRoot,
-		IsAdmin:  userInfo.IsRoot, // Root 用户即为管理员
+		IsAdmin:  userInfo.IsAdmin,
 		IsVip:    userInfo.IsVip,
 		Balance:  userInfo.Balance,
 		Status:   userInfo.Status,

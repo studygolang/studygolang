@@ -136,6 +136,7 @@ export interface Article {
   content: string
   // 后端 Article 无 summary 字段，用 content 前段截取作摘要
   author: string       // 原文作者
+  author_txt?: string  // 站内发布者用户名（User.Username）
   name?: string        // 发布者用户名（来自 User 关联）
   lang: number
   pub_date: string
