@@ -13,7 +13,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/internal/http"
 	"github.com/studygolang/studygolang/internal/logic"
 	"github.com/studygolang/studygolang/internal/model"
@@ -295,15 +294,9 @@ func WSHandler(ctx echo.Context) error {
 	// 用户状态校验：与 requireAuth / parseActiveAuthUID 保持一致。
 	// 冻结/未激活用户的所有 HTTP 写操作都会被拒，但若不在此处拦截，
 	// 他们仍能维持长连接继续接收未读/通知，与 HTTP 侧的鉴权语义不一致。
+	// 复用 fetchFullUserInfo 避免最小化缓存污染其他 requireAuth 路径。
 	userInfo := logic.GetOrFetchUserInfo(uid, func() *logic.UserInfoCache {
-		user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid)
-		if user == nil || user.Uid == 0 {
-			return nil
-		}
-		return &logic.UserInfoCache{
-			Uid:    user.Uid,
-			Status: user.Status,
-		}
+		return fetchFullUserInfo(ctx, uid)
 	})
 	if userInfo == nil || userInfo.Status != model.UserStatusAudit {
 		return ctx.JSON(http.StatusUnauthorized, map[string]interface{}{

@@ -231,21 +231,7 @@ func optionalAuth(ctx echo.Context) *model.Me {
 		return nil
 	}
 	userInfo := logic.GetOrFetchUserInfo(uid, func() *logic.UserInfoCache {
-		user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid)
-		if user == nil || user.Uid == 0 {
-			return nil
-		}
-		return &logic.UserInfoCache{
-			Uid:      user.Uid,
-			Username: user.Username,
-			Email:    user.Email,
-			IsRoot:   user.IsRoot,
-			IsAdmin:  logic.DefaultUser.IsAdmin(user),
-			IsVip:    user.IsVip,
-			Avatar:   user.Avatar,
-			Balance:  user.Balance,
-			Status:   user.Status,
-		}
+		return fetchFullUserInfo(ctx, uid)
 	})
 	if userInfo == nil {
 		return nil
@@ -266,6 +252,32 @@ func optionalAuth(ctx echo.Context) *model.Me {
 	}
 }
 
+// fetchFullUserInfo 从 DB 读取用户信息并构造完整的 UserInfoCache。
+// parseActiveAuthUID 与 requireAuth 必须使用同一个 fetchFunc 填充缓存，
+// 否则先调用的最小化版本会把 Username/Email/IsVip/Avatar/Balance 留空，
+// 后续读取同一缓存的 requireAuth 拿到不完整的 Me，导致 balanceCheck 误判、
+// 通知邮件 username 为空、PermissionPay 对 VIP 用户错误隐藏内容等。
+func fetchFullUserInfo(ctx echo.Context, uid int) *logic.UserInfoCache {
+	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid)
+	if user == nil || user.Uid == 0 {
+		return nil
+	}
+	// IsAdmin 必须基于 user_role 表判断（AdminMinRoleId=7），
+	// 不能简化为 IsRoot，否则板块管理员/晨读管理员等角色会丢失权限。
+	// FindOne 已填充 user.Roleids，UserLogic.IsAdmin 据此判断。
+	return &logic.UserInfoCache{
+		Uid:      user.Uid,
+		Username: user.Username,
+		Email:    user.Email,
+		IsRoot:   user.IsRoot,
+		IsAdmin:  logic.DefaultUser.IsAdmin(user),
+		IsVip:    user.IsVip,
+		Avatar:   user.Avatar,
+		Balance:  user.Balance,
+		Status:   user.Status,
+	}
+}
+
 // parseActiveAuthUID 在 parseAuthUID 基础上额外校验用户状态。
 // 用于写操作（点赞/收藏/发消息/改资料等），与 master 的 NeedLogin 中间件一致：
 // 仅 UserStatusAudit（已激活）允许；冻结/未激活/拒绝/停用 均拒绝。
@@ -280,16 +292,7 @@ func parseActiveAuthUID(ctx echo.Context) (int, error) {
 	}
 
 	userInfo := logic.GetOrFetchUserInfo(uid, func() *logic.UserInfoCache {
-		user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid)
-		if user == nil || user.Uid == 0 {
-			return nil
-		}
-		return &logic.UserInfoCache{
-			Uid:     user.Uid,
-			Status:  user.Status,
-			IsRoot:  user.IsRoot,
-			IsAdmin: logic.DefaultUser.IsAdmin(user),
-		}
+		return fetchFullUserInfo(ctx, uid)
 	})
 
 	if userInfo == nil {
@@ -313,26 +316,10 @@ func requireAuth(ctx echo.Context) (*model.Me, error) {
 		return nil, fail(ctx, "token 已过期，请重新登录", NeedReLoginCode)
 	}
 
-	// 优先从缓存获取用户信息
+	// 优先从缓存获取用户信息（与 parseActiveAuthUID 共享 fetchFullUserInfo，
+	// 避免任一路径用最小字段集污染缓存导致另一路径拿到不完整 Me）
 	userInfo := logic.GetOrFetchUserInfo(uid, func() *logic.UserInfoCache {
-		user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid)
-		if user == nil || user.Uid == 0 {
-			return nil
-		}
-		// IsAdmin 必须基于 user_role 表判断（AdminMinRoleId=7），
-		// 不能简化为 IsRoot，否则板块管理员/晨读管理员等角色会丢失权限。
-		// FindOne 已填充 user.Roleids，UserLogic.IsAdmin 据此判断。
-		return &logic.UserInfoCache{
-			Uid:      user.Uid,
-			Username: user.Username,
-			Email:    user.Email,
-			IsRoot:   user.IsRoot,
-			IsAdmin:  logic.DefaultUser.IsAdmin(user),
-			IsVip:    user.IsVip,
-			Avatar:   user.Avatar,
-			Balance:  user.Balance,
-			Status:   user.Status,
-		}
+		return fetchFullUserInfo(ctx, uid)
 	})
 
 	if userInfo == nil {
