@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/smtp"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -30,6 +31,26 @@ import (
 type EmailLogic struct{}
 
 var DefaultEmail = EmailLogic{}
+
+// activateSignSalt 注册激活邮件的签名 salt。空值是严重安全漏洞：
+// genActivateSign 在 salt="" 时退化成 Md5("uuid=Xemail=Ytimestamp=Z")，
+// 攻击者无需任何 secret 即可伪造任意邮箱的激活签名，绕过邮箱所有权校验。
+// 因此启动时强制校验：env 优先 → config 回退 → 生产环境 panic。
+var activateSignSalt string
+
+func init() {
+	activateSignSalt = os.Getenv("ACTIVATE_SIGN_SALT")
+	if activateSignSalt == "" {
+		activateSignSalt = config.ConfigFile.MustValue("security", "activate_sign_salt")
+	}
+	if activateSignSalt == "" {
+		env := config.ConfigFile.MustValue("global", "env", "dev")
+		if env == "prod" {
+			panic("security.activate_sign_salt not configured! Please set ACTIVATE_SIGN_SALT env var or config/env.ini. Empty salt enables activation signature forgery.")
+		}
+		logger.Errorln("security.activate_sign_salt is empty; activation signatures are insecure. Fix before production.")
+	}
+}
 
 // SendMail 发送普通（通知）电子邮件
 func (e EmailLogic) SendMail(subject, content string, tos []string) (err error) {
@@ -106,8 +127,13 @@ func (self EmailLogic) SendActivateMail(email, uuid string, isHttps ...bool) {
 }
 
 func (EmailLogic) genActivateSign(email, uuid string, ts int64) string {
-	emailSignSalt := config.ConfigFile.MustValue("security", "activate_sign_salt")
-	origStr := fmt.Sprintf("uuid=%semail=%stimestamp=%d%s", uuid, email, ts, emailSignSalt)
+	// 使用启动时校验过的全局 salt；若部署时漏配，init() 已 panic 或告警，
+	// 这里再多一道防御：salt 为空时返回空串，让所有签名校验失败（fail-closed）
+	// 而不是退化成无 secret 的可伪造签名。
+	if activateSignSalt == "" {
+		return ""
+	}
+	origStr := fmt.Sprintf("uuid=%semail=%stimestamp=%d%s", uuid, email, ts, activateSignSalt)
 	return goutils.Md5(origStr)
 }
 
