@@ -150,6 +150,10 @@ func (TopicController) Detail(ctx echo.Context) error {
 	permission, _ := topic["permission"].(int)
 	uid, _ := topic["uid"].(int)
 
+	// 内容可见性：master 用模板 can_view 标志位控制 content + replies 渲染，
+	// refactor 改 JSON 后必须显式屏蔽 content 与 replies，否则未授权用户仍能读到
+	// 评论（虽然话题正文被替换为占位文案）。
+	hideReplies := false
 	switch permission {
 	case model.PermissionOnlyMe:
 		// 仅作者和管理员可见
@@ -159,11 +163,17 @@ func (TopicController) Detail(ctx echo.Context) error {
 	case model.PermissionLogin:
 		if !ok {
 			topic["content"] = "登录用户可见！"
+			hideReplies = true
 		}
 	case model.PermissionPay:
 		if !ok || (!me.IsVip && !me.IsRoot && uid != me.Uid) {
 			topic["content"] = "付费用户可见！"
+			hideReplies = true
 		}
+	}
+
+	if hideReplies {
+		replies = nil
 	}
 
 	// 已登录用户的附加信息
@@ -390,10 +400,44 @@ func (TopicController) Append(ctx echo.Context) error {
 }
 
 // Appends 获取话题附言列表
+// 权限：与 Detail 端点的 canViewAppends 保持一致。
+//   - PermissionPublic：所有人可见
+//   - PermissionLogin：仅登录用户可见
+//   - PermissionPay：仅 VIP/Root/作者 可见
+//   - PermissionOnlyMe：仅作者/管理员可见（Detail 走 fail 路径，这里也拒绝）
+//
+// 之前直接返回所有 appends，导致 PermissionOnlyMe/PermissionLogin/PermissionPay
+// 话题的附言可被未授权用户读取（绕过 Detail 的可见性判断）。
 func (TopicController) Appends(ctx echo.Context) error {
 	tid := goutils.MustInt(ctx.Param("tid"))
 	if tid == 0 {
 		return fail(ctx, "tid 非法")
+	}
+
+	topic, _, err := logic.DefaultTopic.FindByTid(context.EchoContext(ctx), tid)
+	if err != nil || topic == nil {
+		return fail(ctx, "话题不存在")
+	}
+
+	permission, _ := topic["permission"].(int)
+	ownerUID, _ := topic["uid"].(int)
+
+	me, ok := ctx.Get("user").(*model.Me)
+
+	// 与 Detail 中的可见性判断完全对齐
+	switch permission {
+	case model.PermissionOnlyMe:
+		if !ok || (ownerUID != me.Uid && !me.IsRoot) {
+			return fail(ctx, "话题不存在")
+		}
+	case model.PermissionLogin:
+		if !ok {
+			return success(ctx, map[string]interface{}{"appends": []*model.TopicAppend{}})
+		}
+	case model.PermissionPay:
+		if !ok || (!me.IsVip && !me.IsRoot && ownerUID != me.Uid) {
+			return success(ctx, map[string]interface{}{"appends": []*model.TopicAppend{}})
+		}
 	}
 
 	appends := logic.DefaultTopic.FindAppend(context.EchoContext(ctx), tid)
