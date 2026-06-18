@@ -176,6 +176,12 @@ func (BookController) Update(ctx echo.Context) error {
 		return fail(ctx, "没有编辑权限")
 	}
 
+	// 敏感词检查（与 master /books/modify 中间件保持一致；
+	// 同文件 Publish 已挂，Update 漏挂会导致更新书名/简介时塞广告不被检测）
+	if !sensitiveCheck(ctx, me) {
+		return failSensitive(ctx)
+	}
+
 	forms, _ := ctx.FormParams()
 	forms.Set("id", strconv.Itoa(book.Id))
 
