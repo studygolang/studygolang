@@ -369,10 +369,12 @@ func (UserRichObserver) Update(action string, uid, objtype, objid int) {
 
 				if uid != wiki.Uid {
 					// WIKI发起人获得收益
-					replyDesc := fmt.Sprintf(`收到 <a href="/user/%s">%s</a> 的回复 › <a href="/wiki/%d">%s</a>`,
+					// 注意 URL 用 wiki.Uri（slug 字符串），不能用 objid（数字 id），
+					// 否则生成的链接 /wiki/123 是 404。上方自己的 desc 也是 %s+Uri。
+					replyDesc := fmt.Sprintf(`收到 <a href="/user/%s">%s</a> 的回复 › <a href="/wiki/%s">%s</a>`,
 						user.Username,
 						user.Username,
-						objid,
+						wiki.Uri,
 						wiki.Title)
 					author := DefaultUser.FindOne(nil, "uid", wiki.Uid)
 					// WIKI 作者可能已注销：FindOne 返回 &User{} 但 Uid=0，

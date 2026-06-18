@@ -420,11 +420,15 @@ func (self SubjectLogic) FindMine(ctx context.Context, me *model.Me, articleId i
 
 	adminSubjects := make([]*model.Subject, 0)
 	// 获取我管理的专栏
+	// 注意：kw 必须以参数形式传入，不能字符串拼接——之前用 "LIKE '%" + kw + "%'"
+	// 会形成 SQL 注入（kw 来自前端 form/查询参数）。
 	strSql := "SELECT s.* FROM subject s,subject_admin sa WHERE s.id=sa.sid AND sa.uid=?"
+	args := []interface{}{me.Uid}
 	if kw != "" {
-		strSql += " AND s.name LIKE '%" + kw + "%'"
+		strSql += " AND s.name LIKE ?"
+		args = append(args, "%"+kw+"%")
 	}
-	err = MasterDB.SQL(strSql, me.Uid).Find(&adminSubjects)
+	err = MasterDB.SQL(strSql, args...).Find(&adminSubjects)
 	if err != nil {
 		objLog.Errorln("SubjectLogic FindMine find admin subject error:", err)
 	}

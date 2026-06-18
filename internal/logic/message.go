@@ -530,6 +530,9 @@ func (MessageLogic) FromMsgCount(ctx context.Context, uid int) int64 {
 }
 
 // MarkHasRead 标记消息已读
+// 必须按 uid 过滤：之前的 UPDATE 只按 id 过滤，恶意用户知道 message id 后
+// 可以把别人的私信/系统消息标记为已读，破坏隐私不变式。
+// 现加入 `to`=uid（SystemMessage 和 Message 都有 To 列）作为所有权过滤。
 func (MessageLogic) MarkHasRead(ctx context.Context, ids []int, isSysMsg bool, uid int) bool {
 	if len(ids) == 0 {
 		return true
@@ -537,9 +540,9 @@ func (MessageLogic) MarkHasRead(ctx context.Context, ids []int, isSysMsg bool, u
 
 	var session *xorm.Session
 	if isSysMsg {
-		session = MasterDB.Table(new(model.SystemMessage))
+		session = MasterDB.Table(new(model.SystemMessage)).Where("`to`=?", uid)
 	} else {
-		session = MasterDB.Table(new(model.Message))
+		session = MasterDB.Table(new(model.Message)).Where("`to`=?", uid)
 	}
 
 	if len(ids) > 1 {
