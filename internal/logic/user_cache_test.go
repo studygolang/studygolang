@@ -8,18 +8,12 @@
 package logic
 
 import (
-	"context"
 	"testing"
-	"time"
-
-	"github.com/studygolang/studygolang/internal/model"
 )
 
 // TestUserCacheIntegration 测试用户缓存集成
 // 运行方式：go test -v -tags=integration -run TestUserCacheIntegration ./internal/logic/
 func TestUserCacheIntegration(t *testing.T) {
-	ctx := context.Background()
-
 	t.Run("SetAndGetCachedUserInfo", func(t *testing.T) {
 		userInfo := &UserInfoCache{
 			Uid:      999991,

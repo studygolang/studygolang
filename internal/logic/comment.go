@@ -35,20 +35,19 @@ const (
 	// Redis key 前缀用于评论楼层计数器
 	commentFloorKeyPrefix = "comment:floor:"
 
-	// Lua 脚本：原子性获取并递增楼层号
-	getNextFloorScript = `
+	// Lua 脚本：原子性获取并递增楼层号（仅当 key 已存在时）。
+	// 返回 0 表示 key 不存在（首次创建或 TTL 过期），由调用方走 DB 初始化路径。
+	// 这样可以避免 INCR 在 key 不存在时自动创建为 1，导致与 DB 已有楼层号冲突。
+	// KEYS[1] = floor key, ARGV[1] = ttl（仅在 key 存在时刷新）
+	checkAndIncrFloorScript = `
 local key = KEYS[1]
 local ttl = ARGV[1]
 
--- 尝试递增
-local floor = redis.call('INCR', key)
-
--- 如果是第一次创建，设置过期时间
-if floor == 1 then
-    redis.call('EXPIRE', key, ttl)
+if redis.call('EXISTS', key) == 1 then
+    return redis.call('INCR', key)
 end
 
-return floor
+return 0
 `
 
 	// Lua 脚本：原子性释放分布式锁（仅当持锁者匹配时才 DEL，避免误删别人的锁）
@@ -62,7 +61,13 @@ end
 `
 )
 
-// GetNextCommentFloor 获取下一个评论楼层号（原子性保证）
+// GetNextCommentFloor 获取下一个评论楼层号（原子性保证）。
+//
+// 实现要点：
+//   - 热路径用 Lua 原子 INCR（key 已存在）；
+//   - 冷路径（key 不存在：首次评论或 7 天 TTL 过期）走 DB + 分布式锁初始化，
+//     避免 INCR 自动从 1 开始导致与历史 DB 楼层号冲突；
+//   - 锁路径获取锁后会再次 Lua 探测，确保并发场景下只有一个 goroutine 真正查询 DB。
 func GetNextCommentFloor(objid, objtype int) (int, error) {
 	redisClient := nosql.NewRedisClient()
 	defer redisClient.Close()
@@ -70,15 +75,17 @@ func GetNextCommentFloor(objid, objtype int) (int, error) {
 	key := fmt.Sprintf("%s%d:%d", commentFloorKeyPrefix, objtype, objid)
 	ttl := 7 * 24 * 3600 // 7 天
 
-	// 使用带前缀的 key
+	// 使用带前缀的 key（Lua EVAL 不会自动加前缀）
 	prefixedKey := nosql.KeyPrefix + key
 
 	// 执行 Lua 脚本（原子性）
-	result, err := redisClient.Do("EVAL", getNextFloorScript, 1, prefixedKey, ttl)
+	result, err := redisClient.Do("EVAL", checkAndIncrFloorScript, 1, prefixedKey, ttl)
 	if err == nil {
-		if floor, ok := result.(int64); ok {
+		if floor, ok := result.(int64); ok && floor > 0 {
 			return int(floor), nil
 		}
+		// floor == 0：key 不存在，需要走 DB 初始化
+		return getNextFloorWithLock(objid, objtype, key, ttl)
 	}
 
 	logger.Errorln("GetNextCommentFloor: Redis Lua script execution failed:", err)
@@ -87,7 +94,8 @@ func GetNextCommentFloor(objid, objtype int) (int, error) {
 	return getNextFloorWithLock(objid, objtype, key, ttl)
 }
 
-// getNextFloorWithLock 使用分布式锁从数据库获取楼层号
+// getNextFloorWithLock 使用分布式锁从数据库初始化楼层号。
+// 进入此函数意味着 Redis key 不存在（首次评论或 TTL 过期）。
 func getNextFloorWithLock(objid, objtype int, key string, ttl int) (int, error) {
 	redisClient := nosql.NewRedisClient()
 	defer redisClient.Close()
@@ -118,9 +126,18 @@ func getNextFloorWithLock(objid, objtype int, key string, ttl int) (int, error) 
 		_, _ = redisClient.Do("EVAL", releaseLockScript, 1, lockKey, lockValue)
 	}()
 
+	// 双重检查：等待锁期间可能有其他 goroutine 已经初始化了 Redis key，
+	// 此时直接走原子 INCR 路径即可，避免重复查询 DB 导致楼层号回退。
+	result, err := redisClient.Do("EVAL", checkAndIncrFloorScript, 1, prefixedKey, ttl)
+	if err == nil {
+		if floor, ok := result.(int64); ok && floor > 0 {
+			return int(floor), nil
+		}
+	}
+
 	// 从数据库查询最大楼层号
 	tmpCmt := &model.Comment{}
-	_, err := MasterDB.Where("objid=? AND objtype=?", objid, objtype).
+	_, err = MasterDB.Where("objid=? AND objtype=?", objid, objtype).
 		OrderBy("floor DESC").
 		Get(tmpCmt)
 
@@ -131,7 +148,7 @@ func getNextFloorWithLock(objid, objtype int, key string, ttl int) (int, error) 
 
 	nextFloor := tmpCmt.Floor + 1
 
-	// 初始化 Redis 计数器
+	// 初始化 Redis 计数器（SET 会自动加 KeyPrefix）
 	if err := redisClient.SET(key, nextFloor, ttl); err != nil {
 		logger.Errorln("GetNextCommentFloor: failed to initialize Redis counter:", err)
 	}

@@ -159,3 +159,45 @@ func TestGetNextCommentFloorConcurrency(t *testing.T) {
 
 	t.Logf("Concurrency test passed: %d unique floors generated", goroutines)
 }
+
+// TestGetNextCommentFloorTTLExpiry 测试 Redis key TTL 过期后不会回退到 1。
+//
+// 场景：对象已有 N 条评论（DB max floor = N），但 Redis key 因长时间无活动被 TTL 回收。
+// 此时新评论不应获得 floor=1（与历史 DB 楼层冲突），而应通过 DB 初始化路径拿到 N+1。
+//
+// 注意：本测试需要 DB 中存在 objid=9999995, objtype=99 的评论数据。
+// 若 DB 为空，则验证 floor=1（首次评论路径）。
+// 运行方式：go test -v -tags=integration -run TestGetNextCommentFloorTTLExpiry ./internal/logic/
+func TestGetNextCommentFloorTTLExpiry(t *testing.T) {
+	objid := 9999995
+	objtype := 99
+
+	// 1. 预热：获取一个楼层号，确保 Redis key 存在
+	firstFloor, err := GetNextCommentFloor(objid, objtype)
+	if err != nil {
+		t.Fatalf("first call failed: %v", err)
+	}
+	if firstFloor < 1 {
+		t.Fatalf("firstFloor = %d, want >= 1", firstFloor)
+	}
+
+	// 2. 模拟 TTL 过期：手动删除 Redis key
+	redisClient := nosql.NewRedisClient()
+	key := fmt.Sprintf("%s%d:%d", commentFloorKeyPrefix, objtype, objid)
+	if err := redisClient.DEL(key); err != nil {
+		t.Fatalf("DEL failed: %v", err)
+	}
+	redisClient.Close()
+
+	// 3. 再次获取：应大于等于 firstFloor（不能回退）
+	afterExpiry, err := GetNextCommentFloor(objid, objtype)
+	if err != nil {
+		t.Fatalf("call after TTL expiry failed: %v", err)
+	}
+	if afterExpiry < firstFloor {
+		t.Errorf("after TTL expiry floor = %d, want >= %d (bug: regressed to smaller value)",
+			afterExpiry, firstFloor)
+	}
+
+	t.Logf("TTL expiry test passed: first=%d, afterExpiry=%d", firstFloor, afterExpiry)
+}
