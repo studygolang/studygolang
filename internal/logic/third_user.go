@@ -178,6 +178,13 @@ func (self ThirdUserLogic) BindGithub(ctx context.Context, code string, me *mode
 	}
 
 	if bindUser.Uid > 0 {
+		// 该 GitHub 账号已绑定到某个 StudyGolang 账号。
+		// 如果就是当前用户：刷新 token（原行为）。
+		// 如果是其他用户：返回错误而非静默 success，否则用户 B 看到绑定成功
+		// 但绑定记录仍属于 A，且会顺手用 B 拿到的新 token 覆盖 A 的旧 token。
+		if bindUser.Uid != me.Uid {
+			return errors.New("该 GitHub 账号已绑定到其他账号，请先在原账号解绑")
+		}
 		// 更新 token 信息
 		bindUser.AccessToken = token.AccessToken
 		bindUser.RefreshToken = token.RefreshToken
@@ -342,6 +349,10 @@ func (self ThirdUserLogic) BindGitea(ctx context.Context, code string, me *model
 	}
 
 	if bindUser.Uid > 0 {
+		// 同 BindGithub：跨账号绑定必须报错而非静默 success + 覆盖他人 token
+		if bindUser.Uid != me.Uid {
+			return errors.New("该 Gitea 账号已绑定到其他账号，请先在原账号解绑")
+		}
 		// 更新 token 信息
 		bindUser.AccessToken = token.AccessToken
 		bindUser.RefreshToken = token.RefreshToken
@@ -359,7 +370,7 @@ func (self ThirdUserLogic) BindGitea(ctx context.Context, code string, me *model
 
 	bindUser = &model.BindUser{
 		Uid:          me.Uid,
-		Type:         model.BindTypeGithub,
+		Type:         model.BindTypeGitea,
 		Email:        giteaUser.Email,
 		Tuid:         int(giteaUser.ID),
 		Username:     giteaUser.UserName,
