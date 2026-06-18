@@ -38,17 +38,34 @@ var DefaultEmail = EmailLogic{}
 // 因此启动时强制校验：env 优先 → config 回退 → 生产环境 panic。
 var activateSignSalt string
 
+// unsubscribeTokenKey 退订邮件 token 的 secret。空值时 token 退化为
+// Md5(user.String())，user 字段大多公开（username/email/avatar 等），
+// 攻击者可伪造任意用户退订 token，让受害者静默收不到邮件通知。
+var unsubscribeTokenKey string
+
 func init() {
+	env := config.ConfigFile.MustValue("global", "env", "dev")
+
 	activateSignSalt = os.Getenv("ACTIVATE_SIGN_SALT")
 	if activateSignSalt == "" {
 		activateSignSalt = config.ConfigFile.MustValue("security", "activate_sign_salt")
 	}
 	if activateSignSalt == "" {
-		env := config.ConfigFile.MustValue("global", "env", "dev")
 		if env == "prod" {
 			panic("security.activate_sign_salt not configured! Please set ACTIVATE_SIGN_SALT env var or config/env.ini. Empty salt enables activation signature forgery.")
 		}
 		logger.Errorln("security.activate_sign_salt is empty; activation signatures are insecure. Fix before production.")
+	}
+
+	unsubscribeTokenKey = os.Getenv("UNSUBSCRIBE_TOKEN_KEY")
+	if unsubscribeTokenKey == "" {
+		unsubscribeTokenKey = config.ConfigFile.MustValue("security", "unsubscribe_token_key")
+	}
+	if unsubscribeTokenKey == "" {
+		if env == "prod" {
+			panic("security.unsubscribe_token_key not configured! Empty key enables unsubscribe token forgery (silent email suppression for any victim).")
+		}
+		logger.Errorln("security.unsubscribe_token_key is empty; unsubscribe tokens are insecure. Fix before production.")
 	}
 }
 
@@ -283,7 +300,11 @@ func (self EmailLogic) EmailNotice() {
 
 // 生成 退订 邮件的 token
 func (EmailLogic) GenUnsubscribeToken(user *model.User) string {
-	return goutils.Md5(user.String() + config.ConfigFile.MustValue("security", "unsubscribe_token_key"))
+	// fail-closed：key 为空时返回空串，让所有 token 校验失败而非可伪造
+	if unsubscribeTokenKey == "" {
+		return ""
+	}
+	return goutils.Md5(user.String() + unsubscribeTokenKey)
 }
 
 func (EmailLogic) genEmailContent(data map[string]interface{}) (string, error) {
