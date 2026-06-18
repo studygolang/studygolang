@@ -7,14 +7,16 @@
 package api
 
 import (
-	"context"
+	stdcontext "context"
 	"encoding/json"
 	"net/http"
 	"sync"
 	"time"
 
+	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/internal/http"
 	"github.com/studygolang/studygolang/internal/logic"
+	"github.com/studygolang/studygolang/internal/model"
 
 	"github.com/gorilla/websocket"
 	echo "github.com/labstack/echo/v4"
@@ -176,7 +178,7 @@ func (h *WSHub) SendToUser(uid int, msg *WSMessage) {
 
 // pushInitialUnread 推送初始未读消息计数（在 register case 中调用，确保 client 已注册）
 func (h *WSHub) pushInitialUnread(client *WSClient) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := stdcontext.WithTimeout(stdcontext.Background(), 5*time.Second)
 	defer cancel()
 
 	sysUnread := logic.DefaultMessage.SysMsgUnreadCount(ctx, client.uid)
@@ -287,6 +289,26 @@ func WSHandler(ctx echo.Context) error {
 		return ctx.JSON(http.StatusUnauthorized, map[string]interface{}{
 			"code":    1,
 			"message": "token 已过期，请重新登录",
+		})
+	}
+
+	// 用户状态校验：与 requireAuth / parseActiveAuthUID 保持一致。
+	// 冻结/未激活用户的所有 HTTP 写操作都会被拒，但若不在此处拦截，
+	// 他们仍能维持长连接继续接收未读/通知，与 HTTP 侧的鉴权语义不一致。
+	userInfo := logic.GetOrFetchUserInfo(uid, func() *logic.UserInfoCache {
+		user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid)
+		if user == nil || user.Uid == 0 {
+			return nil
+		}
+		return &logic.UserInfoCache{
+			Uid:    user.Uid,
+			Status: user.Status,
+		}
+	})
+	if userInfo == nil || userInfo.Status != model.UserStatusAudit {
+		return ctx.JSON(http.StatusUnauthorized, map[string]interface{}{
+			"code":    1,
+			"message": "账号已被冻结或未激活，请重新登录",
 		})
 	}
 

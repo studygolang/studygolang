@@ -237,27 +237,3 @@ func isOriginAllowed(originOrReferer string, allowedOrigins []string) bool {
 
 	return false
 }
-
-// isSameOrigin 检查请求来源是否与目标主机同源（已废弃，使用 isOriginAllowed）
-// Deprecated: 使用 isOriginAllowed 对照白名单验证
-func isSameOrigin(originOrReferer, targetHost string) bool {
-	// 简单检查：提取 origin/referer 中的 host 部分
-	// 格式：http(s)://host:port/path
-	parsed, err := url.Parse(originOrReferer)
-	if err != nil {
-		return false
-	}
-
-	// 比较主机名（忽略端口）
-	originHost := parsed.Host
-	if strings.Contains(originHost, ":") {
-		originHost = strings.Split(originHost, ":")[0]
-	}
-
-	targetHostClean := targetHost
-	if strings.Contains(targetHostClean, ":") {
-		targetHostClean = strings.Split(targetHostClean, ":")[0]
-	}
-
-	return originHost == targetHostClean
-}
