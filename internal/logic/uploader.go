@@ -193,11 +193,11 @@ var allowedImageExts = map[string]bool{
 	".webp": true,
 }
 
-// isPrivateHost 判断主机名是否解析到私网/环回/链路本地地址，
+// IsPrivateHost 判断主机名是否解析到私网/环回/链路本地地址，
 // 阻断 SSRF 攻击者通过 URL 让服务器访问云元数据、内网服务等敏感目标。
 // 同时对 IP 字面量直接判断，避免一次 DNS 解析窗口内的 TOCTOU 竞态（仍可能在二次解析中被绕过，
 // 但配合 http.Client.Dial 控制可彻底锁死；这里做基础防护，已阻挡绝大多数攻击向量）。
-func isPrivateHost(host string) bool {
+func IsPrivateHost(host string) bool {
 	// 先尝试作为 IP 字面量直接判断
 	if ip := net.ParseIP(host); ip != nil {
 		return ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast() || ip.IsUnspecified()
@@ -217,11 +217,12 @@ func isPrivateHost(host string) bool {
 	return false
 }
 
-// validateImageUrl 校验外站图片 URL 是否安全（防 SSRF）
+// ValidateHttpURL 校验外部 URL 是否安全（防 SSRF）。
+// 适用于服务端会主动发起 HTTP 请求的场景（图片转存、文章抓取等）。
 // 要求：
 //  1. scheme 必须是 http/https
 //  2. host 不能解析到私网/环回/链路本地地址
-func validateImageUrl(rawUrl string) error {
+func ValidateHttpURL(rawUrl string) error {
 	parsed, err := url.Parse(rawUrl)
 	if err != nil {
 		return errors.New("invalid url")
@@ -233,10 +234,15 @@ func validateImageUrl(rawUrl string) error {
 	if host == "" {
 		return errors.New("missing host")
 	}
-	if isPrivateHost(host) {
+	if IsPrivateHost(host) {
 		return errors.New("blocked private/internal host")
 	}
 	return nil
+}
+
+// validateImageUrl 校验外站图片 URL 是否安全（防 SSRF），保留旧名以减少调用点变更。
+func validateImageUrl(rawUrl string) error {
+	return ValidateHttpURL(rawUrl)
 }
 
 // TransferUrl 将外站图片URL转为本站，如果失败，返回原图

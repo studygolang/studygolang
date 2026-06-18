@@ -131,10 +131,20 @@ func (WikiController) Edit(ctx echo.Context) error {
 }
 
 // Create 创建 Wiki（需要登录）
+// master 在路由层挂了 Sensivite + BalanceCheck，refactor 漏挂；此处补回。
 func (WikiController) Create(ctx echo.Context) error {
 	me, err := requireAuth(ctx)
 	if err != nil {
 		return err
+	}
+
+	// 敏感词检查（与 master /wiki/new 中间件保持一致）
+	if !sensitiveCheck(ctx, me) {
+		return failSensitive(ctx)
+	}
+	// 余额检查（与 master /wiki/new 中间件保持一致）
+	if !balanceCheck(me, false) {
+		return failBalance(ctx)
 	}
 
 	form, err := ctx.FormParams()
@@ -155,6 +165,7 @@ func (WikiController) Create(ctx echo.Context) error {
 }
 
 // Update 更新 Wiki（需要登录，通过 ID 更新）
+// master 在路由层挂了 Sensivite，refactor 漏挂；此处补回。
 func (WikiController) Update(ctx echo.Context) error {
 	me, err := requireAuth(ctx)
 	if err != nil {
@@ -173,6 +184,11 @@ func (WikiController) Update(ctx echo.Context) error {
 
 	if !logic.CanEdit(me, wiki) {
 		return fail(ctx, "无权限编辑")
+	}
+
+	// 敏感词检查（与 master /wiki/modify 中间件保持一致）
+	if !sensitiveCheck(ctx, me) {
+		return failSensitive(ctx)
 	}
 
 	form, err := ctx.FormParams()

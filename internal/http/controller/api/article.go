@@ -258,6 +258,23 @@ func (ArticleController) Crawl(ctx echo.Context) error {
 		return fail(ctx, "url 参数不能为空")
 	}
 
+	// SSRF 防护：在 ParseArticle 内部 http.Get 之前阻断私网/云元数据等敏感目标。
+	// master 分支同样存在该漏洞，refactor 一并修复。
+	// 注：ParseArticle 内部对 http:// 前缀做自动补全，这里在补全前先校验一次，
+	// 补全后再补一次保险（避免 ftp://、file:// 等被自动改成 http://ftp:// 绕过）。
+	if err := logic.ValidateHttpURL(strUrl); err != nil {
+		getLogger(ctx).Errorln("Crawl blocked url:", strUrl, "reason:", err)
+		return fail(ctx, "非法文章地址")
+	}
+	normalized := strUrl
+	if !strings.HasPrefix(strings.ToLower(normalized), "http") {
+		normalized = "http://" + normalized
+	}
+	if err := logic.ValidateHttpURL(normalized); err != nil {
+		getLogger(ctx).Errorln("Crawl blocked normalized url:", normalized, "reason:", err)
+		return fail(ctx, "非法文章地址")
+	}
+
 	article, err := logic.DefaultArticle.ParseArticle(context.EchoContext(ctx), strUrl, false)
 	if err != nil {
 		return fail(ctx, "抓取文章失败: "+err.Error())
