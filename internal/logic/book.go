@@ -77,8 +77,12 @@ func (this *UserData) InitMessageQueue(serverId int) {
 }
 
 func (this *UserData) SendMessage(message *Message) {
-	this.rwMutex.RLock()
-	defer this.rwMutex.RUnlock()
+	// 不能用 RLock：分支里会 delete map，多个 SendMessage 并发时
+	// RLock 允许多个读者同时进入，其中一个 delete 会触发
+	// "concurrent map iteration and map write" 让 Go 运行时直接 panic。
+	// 必须用写锁保护整个遍历+删除过程。
+	this.rwMutex.Lock()
+	defer this.rwMutex.Unlock()
 
 	for serverId, messageQueue := range this.serverMsgQueue {
 		// 有可能用户已经退出，导致 messageQueue 满，阻塞

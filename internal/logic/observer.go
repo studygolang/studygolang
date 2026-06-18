@@ -202,6 +202,12 @@ func (UserRichObserver) Update(action string, uid, objtype, objid int) {
 	}
 
 	user := DefaultUser.FindOne(nil, "uid", uid)
+	// actor 可能在 action 之后被删除，FindOne 返回 &User{} 但 Uid=0。
+	// 若不拦截，下面所有 user.Username 引用会拼出空字符串描述，
+	// 最后 IncrUserRich(user, ...) 还会用 uid=0 写入 bogus 余额记录。
+	if user.Uid == 0 {
+		return
+	}
 
 	var (
 		typ   int
@@ -246,7 +252,11 @@ func (UserRichObserver) Update(action string, uid, objtype, objid int) {
 						objid,
 						topic.Title)
 					author := DefaultUser.FindOne(nil, "uid", topic.Uid)
-					DefaultUserRich.IncrUserRich(author, model.MissionTypeReplied, 5, replyDesc)
+					// 主题作者可能已注销：FindOne 返回 &User{} 但 Uid=0，
+					// 直接 IncrUserRich 会写入 uid=0 的 bogus 余额记录。
+					if author.Uid != 0 {
+						DefaultUserRich.IncrUserRich(author, model.MissionTypeReplied, 5, replyDesc)
+					}
 				}
 			} else {
 				desc = fmt.Sprintf(`创建了长度为 %d 个字符的主题 › <a href="/topics/%d">%s</a>`,
@@ -273,7 +283,11 @@ func (UserRichObserver) Update(action string, uid, objtype, objid int) {
 						objid,
 						article.Title)
 					author := DefaultUser.FindOne(nil, "username", article.Author)
-					DefaultUserRich.IncrUserRich(author, model.MissionTypeReplied, 5, replyDesc)
+					// 文章作者账号可能已注销（外部站文章 author 字段为昵称，也可能匹配不到本站用户），
+					// FindOne 返回 &User{} 但 Uid=0，IncrUserRich 会写入 uid=0 的 bogus 记录。
+					if author.Uid != 0 {
+						DefaultUserRich.IncrUserRich(author, model.MissionTypeReplied, 5, replyDesc)
+					}
 				}
 			} else {
 				desc = fmt.Sprintf(`发表了长度为 %d 个字符的文章 › <a href="/articles/%d">%s</a>`,
@@ -300,7 +314,11 @@ func (UserRichObserver) Update(action string, uid, objtype, objid int) {
 						objid,
 						resource.Title)
 					author := DefaultUser.FindOne(nil, "uid", resource.Uid)
-					DefaultUserRich.IncrUserRich(author, model.MissionTypeReplied, 5, replyDesc)
+					// 资源作者可能已注销：FindOne 返回 &User{} 但 Uid=0，
+					// IncrUserRich 会写入 uid=0 的 bogus 余额记录。
+					if author.Uid != 0 {
+						DefaultUserRich.IncrUserRich(author, model.MissionTypeReplied, 5, replyDesc)
+					}
 				}
 			} else {
 
@@ -327,7 +345,11 @@ func (UserRichObserver) Update(action string, uid, objtype, objid int) {
 						objid,
 						project.Category+project.Name)
 					author := DefaultUser.FindOne(nil, "username", project.Username)
-					DefaultUserRich.IncrUserRich(author, model.MissionTypeReplied, 5, replyDesc)
+					// 项目作者可能已注销：FindOne 返回 &User{} 但 Uid=0，
+					// IncrUserRich 会写入 uid=0 的 bogus 余额记录。
+					if author.Uid != 0 {
+						DefaultUserRich.IncrUserRich(author, model.MissionTypeReplied, 5, replyDesc)
+					}
 				}
 			} else {
 				desc = fmt.Sprintf(`发布了一个开源项目 › <a href="/p/%d">%s</a>`,
@@ -353,7 +375,11 @@ func (UserRichObserver) Update(action string, uid, objtype, objid int) {
 						objid,
 						wiki.Title)
 					author := DefaultUser.FindOne(nil, "uid", wiki.Uid)
-					DefaultUserRich.IncrUserRich(author, model.MissionTypeReplied, 5, replyDesc)
+					// WIKI 作者可能已注销：FindOne 返回 &User{} 但 Uid=0，
+					// IncrUserRich 会写入 uid=0 的 bogus 余额记录。
+					if author.Uid != 0 {
+						DefaultUserRich.IncrUserRich(author, model.MissionTypeReplied, 5, replyDesc)
+					}
 				}
 			} else {
 				desc = fmt.Sprintf(`创建了长度为 %d 个字符的WIKI › <a href="/wiki/%s">%s</a>`,
