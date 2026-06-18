@@ -49,6 +49,7 @@ func (rl *rateLimiter) check(key string, maxAttempts int, window time.Duration) 
 var (
 	loginLimiter    = &rateLimiter{attempts: make(map[string]*attemptInfo)}
 	registerLimiter = &rateLimiter{attempts: make(map[string]*attemptInfo)}
+	forgotLimiter   = &rateLimiter{attempts: make(map[string]*attemptInfo)}
 )
 
 func init() {
@@ -58,6 +59,7 @@ func init() {
 			time.Sleep(5 * time.Minute)
 			loginLimiter.cleanup()
 			registerLimiter.cleanup()
+			forgotLimiter.cleanup()
 		}
 	}()
 }

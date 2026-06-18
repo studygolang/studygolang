@@ -17,7 +17,9 @@ import (
 	gio "io"
 	"io/ioutil"
 	"mime"
+	"net"
 	"net/http"
+	"net/url"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -181,6 +183,62 @@ func (this *UploaderLogic) UploadImage(ctx context.Context, reader gio.Reader, i
 	return path, nil
 }
 
+// allowedImageExts TransferUrl 允许的图片扩展名白名单
+var allowedImageExts = map[string]bool{
+	".png":  true,
+	".jpg":  true,
+	".jpeg": true,
+	".gif":  true,
+	".bmp":  true,
+	".webp": true,
+}
+
+// isPrivateHost 判断主机名是否解析到私网/环回/链路本地地址，
+// 阻断 SSRF 攻击者通过 URL 让服务器访问云元数据、内网服务等敏感目标。
+// 同时对 IP 字面量直接判断，避免一次 DNS 解析窗口内的 TOCTOU 竞态（仍可能在二次解析中被绕过，
+// 但配合 http.Client.Dial 控制可彻底锁死；这里做基础防护，已阻挡绝大多数攻击向量）。
+func isPrivateHost(host string) bool {
+	// 先尝试作为 IP 字面量直接判断
+	if ip := net.ParseIP(host); ip != nil {
+		return ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast() || ip.IsUnspecified()
+	}
+
+	// 主机名：解析所有 A/AAAA 记录，任一是私网即拒绝
+	ips, err := net.LookupIP(host)
+	if err != nil {
+		// DNS 解析失败按可疑处理（拒绝）
+		return true
+	}
+	for _, ip := range ips {
+		if ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast() || ip.IsUnspecified() {
+			return true
+		}
+	}
+	return false
+}
+
+// validateImageUrl 校验外站图片 URL 是否安全（防 SSRF）
+// 要求：
+//  1. scheme 必须是 http/https
+//  2. host 不能解析到私网/环回/链路本地地址
+func validateImageUrl(rawUrl string) error {
+	parsed, err := url.Parse(rawUrl)
+	if err != nil {
+		return errors.New("invalid url")
+	}
+	if parsed.Scheme != "http" && parsed.Scheme != "https" {
+		return errors.New("unsupported scheme")
+	}
+	host := parsed.Hostname()
+	if host == "" {
+		return errors.New("missing host")
+	}
+	if isPrivateHost(host) {
+		return errors.New("blocked private/internal host")
+	}
+	return nil
+}
+
 // TransferUrl 将外站图片URL转为本站，如果失败，返回原图
 func (this *UploaderLogic) TransferUrl(ctx context.Context, origUrl string, prefixs ...string) (string, error) {
 	if origUrl == "" || strings.Contains(origUrl, WebsiteSetting.Domain) {
@@ -189,6 +247,12 @@ func (this *UploaderLogic) TransferUrl(ctx context.Context, origUrl string, pref
 
 	if !strings.HasPrefix(origUrl, "http") {
 		origUrl = "https:" + origUrl
+	}
+
+	// SSRF 防护：拒绝私网/环回/链路本地目标
+	if err := validateImageUrl(origUrl); err != nil {
+		logger.Errorln("TransferUrl blocked url:", origUrl, "reason:", err)
+		return origUrl, errors.New("非法图片地址")
 	}
 
 	resp, err := http.Get(origUrl)
@@ -224,9 +288,12 @@ func (this *UploaderLogic) TransferUrl(ctx context.Context, origUrl string, pref
 		}
 	}
 
-	if ext == "" && !strings.Contains("png,jpg,jpeg,gif,bmp", strings.ToLower(ext)) {
-		logger.Errorln("can't fetch extension, url:", origUrl)
-		return origUrl, errors.New("can't fetch extension")
+	// 扩展名校验：必须命中白名单（图片），拒绝 .exe/.html 等非图片或空扩展名
+	// 旧实现的 `&&` 短路逻辑会让 ext=="" 时跳过白名单检查；改为 `||` 后任一不满足都拒绝
+	lowerExt := strings.ToLower(ext)
+	if ext == "" || !allowedImageExts[lowerExt] {
+		logger.Errorln("can't fetch valid image extension, url:", origUrl, "ext:", ext)
+		return origUrl, errors.New("unsupported image format")
 	}
 
 	prefix := times.Format("ymd")

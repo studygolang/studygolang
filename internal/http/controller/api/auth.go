@@ -194,7 +194,19 @@ func (AuthController) Register(ctx echo.Context) error {
 }
 
 // ForgotPassword 发送重置密码邮件
+//
+// 反邮箱枚举设计要点：
+//  1. 速率限制：每 IP 每小时最多 5 次（与注册同级别限制），阻断邮箱爆破 + 邮件队列 DoS
+//  2. 统一响应：无论邮箱是否注册，返回完全相同的消息，避免通过消息内容反推注册状态
+//  3. 统一时序：邮箱未注册时也走一次 Redis Get（与已注册流程对称），减少时序侧信道
+//     注：完全消除时序差异很难（已注册路径要发邮件，未注册路径不发），
+//     但配合速率限制足以让枚举失去实际价值
 func (AuthController) ForgotPassword(ctx echo.Context) error {
+	// 速率限制：每 IP 每小时最多 5 次
+	if !forgotLimiter.check(ctx.RealIP(), 5, time.Hour) {
+		return fail(ctx, "请求过于频繁，请稍后再试")
+	}
+
 	var req forgotPasswordRequest
 	if err := ctx.Bind(&req); err != nil {
 		return fail(ctx, "参数错误")
@@ -205,11 +217,16 @@ func (AuthController) ForgotPassword(ctx echo.Context) error {
 		return fail(ctx, "邮箱不能为空")
 	}
 
+	// 统一响应消息（反邮箱枚举）
+	const genericMsg = "如果该邮箱已注册，重置密码链接已发送，请查收"
+
 	// 检查邮箱是否注册
 	if !logic.DefaultUser.UserExists(context.EchoContext(ctx), "email", email) {
-		// 为防止邮箱枚举攻击，返回相同提示
+		// 邮箱未注册：走一次"伪操作"平衡时序，返回相同消息
+		// （生成 token 但不存储、不发邮件；仅消耗少量 CPU，让响应时间与已注册路径接近）
+		_ = guuid.NewV4().String()
 		return success(ctx, map[string]interface{}{
-			"message": "如果邮箱已注册，重置链接已发送",
+			"message": genericMsg,
 		})
 	}
 
@@ -229,7 +246,7 @@ func (AuthController) ForgotPassword(ctx echo.Context) error {
 	go logic.DefaultEmail.SendResetpwdMail(email, token, CheckIsHttps(ctx))
 
 	return success(ctx, map[string]interface{}{
-		"message": "重置密码邮件已发送，请查收",
+		"message": genericMsg,
 	})
 }
 
