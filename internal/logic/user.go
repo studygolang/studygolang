@@ -175,6 +175,21 @@ func (self UserLogic) Update(ctx context.Context, me *model.Me, form url.Values)
 	return
 }
 
+// loginStatusErrMap 与 UserLogic.Login 中的状态映射保持一致，
+// 抽到包级以供 OAuth 登录（LoginFromGithub / LoginFromGitea）复用，
+// 避免状态校验逻辑分散导致后续维护漏改。
+var loginStatusErrMap = map[int]error{
+	model.UserStatusRefuse: errors.New("您的账号审核拒绝"),
+	model.UserStatusFreeze: errors.New("您的账号因为非法发布信息已被冻结，请联系管理员！"),
+	model.UserStatusOutage: errors.New("您的账号因为非法发布信息已被停号，请联系管理员！"),
+}
+
+// loginStatusErr 返回用户状态对应的登录拒绝错误；nil 表示状态正常可登录。
+// NoAudit(0)/Audit(1) 放行，Refuse(2)/Freeze(3)/Outage(4) 拒绝。
+func loginStatusErr(status int) error {
+	return loginStatusErrMap[status]
+}
+
 // UpdateUserStatus 更新用户状态
 func (UserLogic) UpdateUserStatus(ctx context.Context, uid, status int) error {
 	objLog := GetLogger(ctx)
@@ -449,12 +464,7 @@ func (self UserLogic) Login(ctx context.Context, username, passwd string) (*mode
 	MasterDB.ID(userLogin.Uid).Get(user)
 	if user.Status > model.UserStatusAudit {
 		objLog.Infof("用户 %q 的状态非审核通过, 用户的状态值：%d", username, user.Status)
-		var errMap = map[int]error{
-			model.UserStatusRefuse: errors.New("您的账号审核拒绝"),
-			model.UserStatusFreeze: errors.New("您的账号因为非法发布信息已被冻结，请联系管理员！"),
-			model.UserStatusOutage: errors.New("您的账号因为非法发布信息已被停号，请联系管理员！"),
-		}
-		return nil, errMap[user.Status]
+		return nil, loginStatusErr(user.Status)
 	}
 
 	// Use new unified password verification method

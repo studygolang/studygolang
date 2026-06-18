@@ -96,6 +96,13 @@ func (self ThirdUserLogic) LoginFromGithub(ctx context.Context, code string) (*m
 		}
 
 		user := DefaultUser.FindOne(ctx, "uid", bindUser.Uid)
+		// 与 UserLogic.Login 对齐：拒绝 Refuse/Freeze/Outage 状态的用户，
+		// 否则管理员冻结/停号后用户可绕过限制直接通过 GitHub OAuth 登录。
+		// NoAudit(0)/Audit(1) 放行，未激活用户可登录但不能发布信息。
+		if err := loginStatusErr(user.Status); err != nil {
+			objLog.Infof("LoginFromGithub 用户 %q 状态异常: %d", user.Username, user.Status)
+			return nil, err
+		}
 		return user, nil
 	}
 
@@ -267,6 +274,12 @@ func (self ThirdUserLogic) LoginFromGitea(ctx context.Context, code string) (*mo
 		}
 
 		user := DefaultUser.FindOne(ctx, "uid", bindUser.Uid)
+		// 与 UserLogic.Login 对齐：拒绝 Refuse/Freeze/Outage 状态的用户，
+		// 否则管理员冻结/停号后用户可绕过限制直接通过 Gitea OAuth 登录。
+		if err := loginStatusErr(user.Status); err != nil {
+			objLog.Infof("LoginFromGitea 用户 %q 状态异常: %d", user.Username, user.Status)
+			return nil, err
+		}
 		return user, nil
 	}
 
