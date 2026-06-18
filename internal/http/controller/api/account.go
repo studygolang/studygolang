@@ -152,6 +152,11 @@ func (AccountController) SocialUnbind(ctx echo.Context) error {
 	})
 }
 
+// unsubscribeInvalidMsg 邮箱退订端点的统一错误信息，避免泄露邮箱是否已注册
+// （枚举攻击）。master 通过统一 redirect 到 "/" 实现无差异响应；
+// refactor 改为 JSON 后必须显式统一文案才能达到同等效果。
+const unsubscribeInvalidMsg = "参数错误或链接已失效"
+
 // UnsubscribePage 邮件退订页面数据
 // GET /api/v1/account/email/unsubscribe?token=xxx&email=xxx
 func (AccountController) UnsubscribePage(ctx echo.Context) error {
@@ -159,18 +164,18 @@ func (AccountController) UnsubscribePage(ctx echo.Context) error {
 	email := ctx.QueryParam("email")
 
 	if token == "" || email == "" {
-		return fail(ctx, "参数不完整")
+		return fail(ctx, unsubscribeInvalidMsg)
 	}
 
 	// 校验 token 的合法性
 	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "email", email)
 	if user == nil || user.Email == "" {
-		return fail(ctx, "用户不存在")
+		return fail(ctx, unsubscribeInvalidMsg)
 	}
 
 	realToken := logic.DefaultEmail.GenUnsubscribeToken(user)
 	if token != realToken {
-		return fail(ctx, "验证失败")
+		return fail(ctx, unsubscribeInvalidMsg)
 	}
 
 	return success(ctx, map[string]interface{}{
@@ -187,18 +192,18 @@ func (AccountController) Unsubscribe(ctx echo.Context) error {
 	email := ctx.FormValue("email")
 
 	if token == "" || email == "" {
-		return fail(ctx, "参数不完整")
+		return fail(ctx, unsubscribeInvalidMsg)
 	}
 
 	// 校验 token 的合法性
 	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "email", email)
 	if user == nil || user.Email == "" {
-		return fail(ctx, "用户不存在")
+		return fail(ctx, unsubscribeInvalidMsg)
 	}
 
 	realToken := logic.DefaultEmail.GenUnsubscribeToken(user)
 	if token != realToken {
-		return fail(ctx, "验证失败")
+		return fail(ctx, unsubscribeInvalidMsg)
 	}
 
 	unsubscribe := goutils.MustInt(ctx.FormValue("unsubscribe"))

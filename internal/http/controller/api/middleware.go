@@ -3,6 +3,7 @@ package api
 import (
 	stdcontext "context"
 	"fmt"
+	"html"
 	"net/http"
 	"strings"
 	"time"
@@ -97,7 +98,15 @@ func publishNotice(ctx echo.Context, me *model.Me) {
 				return
 			}
 
-			emailContent := fmt.Sprintf("URI:%s<br/><h1>标题：%s</h1><br/>内容：%s", uri, title, content)
+			// HTML escape：title/content/uri 来自用户提交，直接拼到 HTML 邮件里
+			// 会被注入 <script>/<img onerror> 等，导致站长邮箱被钓鱼或 XSS。
+			// 收件人是站长（is_root=1），影响面有限但仍需修复。
+			emailContent := fmt.Sprintf(
+				"URI:%s<br/><h1>标题：%s</h1><br/>内容：%s",
+				html.EscapeString(uri),
+				html.EscapeString(title),
+				html.EscapeString(content),
+			)
 			logic.DefaultEmail.SendMail("网站有新内容产生", emailContent, []string{user.Email})
 		}(requestURI, title, content)
 	}
