@@ -31,6 +31,10 @@ func (SearchController) Search(ctx echo.Context) error {
 	if q == "" {
 		return fail(ctx, "搜索关键词不能为空")
 	}
+	// 限制关键词长度，避免超长 query 打满搜索引擎（master 也未限制，refactor 顺手补上）
+	if len([]rune(q)) > 64 {
+		return fail(ctx, "搜索关键词过长")
+	}
 
 	p := goutils.MustInt(ctx.QueryParam("p"), 1)
 	field := ctx.QueryParam("type")

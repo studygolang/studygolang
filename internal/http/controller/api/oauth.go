@@ -140,6 +140,18 @@ func oauthCallbackURL(ctx echo.Context, provider string) string {
 	return scheme + "://" + host + "/api/v1/oauth/" + provider + "/callback"
 }
 
+// appendOAuthFlag 在 redirect 上拼接 oauth 状态标记。
+// 当 redirect 已带 query（例如 /topics?tab=hot）时，必须用 & 分隔，
+// 否则 /topics?tab=hot?oauth=bind_success 会被解析为 tab=hot?oauth=bind_success，
+// 前端无法读到 oauth 标志。
+func appendOAuthFlag(redirect, flag string) string {
+	sep := "?"
+	if strings.Contains(redirect, "?") {
+		sep = "&"
+	}
+	return redirect + sep + flag
+}
+
 // GithubURL 返回 GitHub OAuth 授权 URL（前端跳转用）
 func (OAuthController) GithubURL(ctx echo.Context) error {
 	// uri 是用户登录后要跳转的前端页面，保存到 session
@@ -182,7 +194,7 @@ func (OAuthController) GithubCallbackRedirect(ctx echo.Context) error {
 			return ctx.Redirect(http.StatusSeeOther, "/account/login?error=bind_failed")
 		}
 		redirect := getOAuthRedirect(ctx)
-		return ctx.Redirect(http.StatusSeeOther, redirect+"?oauth=bind_success")
+		return ctx.Redirect(http.StatusSeeOther, appendOAuthFlag(redirect, "oauth=bind_success"))
 	}
 
 	// 未登录用户走登录流程
@@ -244,7 +256,7 @@ func (OAuthController) GiteaCallbackRedirect(ctx echo.Context) error {
 			return ctx.Redirect(http.StatusSeeOther, "/account/login?error=bind_failed")
 		}
 		redirect := getOAuthRedirect(ctx)
-		return ctx.Redirect(http.StatusSeeOther, redirect+"?oauth=bind_success")
+		return ctx.Redirect(http.StatusSeeOther, appendOAuthFlag(redirect, "oauth=bind_success"))
 	}
 
 	user, loginErr := logic.DefaultThirdUser.LoginFromGitea(context.EchoContext(ctx), code)

@@ -126,6 +126,10 @@ func (CommentController) AtUsers(ctx echo.Context) error {
 	if term == "" {
 		return ctx.JSON(http.StatusOK, []map[string]string{})
 	}
+	// 限制 term 长度，避免超长串触发 LIKE '%term%' 全表/索引扫描
+	if len([]rune(term)) > 32 {
+		return ctx.JSON(http.StatusOK, []map[string]string{})
+	}
 	users := logic.DefaultUser.GetUserMentions(term, 10, false)
 	if users == nil {
 		users = make([]map[string]string, 0)
