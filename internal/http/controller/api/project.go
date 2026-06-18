@@ -159,6 +159,12 @@ func (ProjectController) Update(ctx echo.Context) error {
 		return fail(ctx, "没有编辑权限")
 	}
 
+	// 敏感词检查（与 master /projects/modify 中间件保持一致；
+	// 漏挂会导致更新时塞入广告内容不被检测/冻结）
+	if !sensitiveCheck(ctx, me) {
+		return failSensitive(ctx)
+	}
+
 	forms, _ := ctx.FormParams()
 	forms.Set("id", strconv.Itoa(project.Id))
 
