@@ -87,14 +87,10 @@ type sendRequest struct {
 
 // Send 发送私信（支持 Cookie 和 X-Token header）
 func (MessageController) Send(ctx echo.Context) error {
-	token := getAuthToken(ctx)
-	if token == "" {
-		return fail(ctx, "未登录", NeedReLoginCode)
-	}
-
-	uid, _, valid := ValidateTokenAuto(token)
-	if !valid || uid == 0 {
-		return fail(ctx, "token 已过期，请重新登录", NeedReLoginCode)
+	// 写操作必须校验用户状态（与 master NeedLogin 一致）
+	uid, err := parseActiveAuthUID(ctx)
+	if err != nil {
+		return err
 	}
 
 	var req sendRequest
@@ -139,26 +135,14 @@ func (MessageController) Send(ctx echo.Context) error {
 
 // Delete 删除消息（支持 Cookie 和 X-Token header）
 // 查询参数：type=system|inbox|outbox
+//
+// CSRF 校验由全局 originCheck 中间件统一处理（routes.go: g.Use(originCheck)），
+// 这里不再重复实现。鉴权用 parseActiveAuthUID 与 master NeedLogin 对齐：
+// 冻结/未激活用户不允许删除消息。
 func (MessageController) Delete(ctx echo.Context) error {
-	uid, err := parseAuthUID(ctx)
+	uid, err := parseActiveAuthUID(ctx)
 	if err != nil {
 		return err
-	}
-
-	// CSRF 保护：验证 Origin 或 Referer 头
-	origin := ctx.Request().Header.Get("Origin")
-	referer := ctx.Request().Header.Get("Referer")
-	if origin == "" && referer == "" {
-		return fail(ctx, "缺少 Origin 或 Referer 头", 403)
-	}
-
-	// 验证来源是否合法（对照 ALLOWED_ORIGINS 白名单）
-	allowedOrigins := getAllowedOrigins()
-	if origin != "" && !isOriginAllowed(origin, allowedOrigins) {
-		return fail(ctx, "非法的跨域请求", 403)
-	}
-	if referer != "" && !isOriginAllowed(referer, allowedOrigins) {
-		return fail(ctx, "非法的跨域请求", 403)
 	}
 
 	id := ctx.Param("id")

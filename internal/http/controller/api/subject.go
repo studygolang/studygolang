@@ -65,10 +65,10 @@ func (SubjectController) Index(ctx echo.Context) error {
 	followers := logic.DefaultSubject.FindFollowers(context.EchoContext(ctx), id)
 	followerNum := logic.DefaultSubject.FindFollowerTotal(context.EchoContext(ctx), id)
 
-	// 检查当前用户是否已关注
+	// 检查当前用户是否已关注（登录可选，未登录 followed=false）
+	// 不能用 requireAuth —— 它失败时会 fail() 写错误响应，之后 success() 会触发双写
 	followed := false
-	me, _ := requireAuth(ctx)
-	if me != nil {
+	if me := optionalAuth(ctx); me != nil {
 		followed = logic.DefaultSubject.HadFollow(context.EchoContext(ctx), id, me)
 	}
 

@@ -104,7 +104,8 @@ func (UserProfileController) Me(ctx echo.Context) error {
 // SyncSession 同步 session（用于前端跳转到后端管理页面前建立 session）
 // 从 token 中获取用户信息，设置到 session 中
 func (UserProfileController) SyncSession(ctx echo.Context) error {
-	uid, err := parseAuthUID(ctx)
+	// 用于跨子域跳进 /admin 等旧路由，必须要求账号已激活（冻结用户不允许建立 admin session）
+	uid, err := parseActiveAuthUID(ctx)
 	if err != nil {
 		return err
 	}
@@ -184,7 +185,8 @@ func (UserProfileController) GetProfile(ctx echo.Context) error {
 
 // UpdateProfile 更新个人信息（需要登录）
 func (UserProfileController) UpdateProfile(ctx echo.Context) error {
-	uid, err := parseAuthUID(ctx)
+	// 写操作：parseActiveAuthUID 同时校验用户状态（拦截冻结用户）
+	uid, err := parseActiveAuthUID(ctx)
 	if err != nil {
 		return err
 	}
@@ -262,7 +264,8 @@ func (UserProfileController) UpdateProfile(ctx echo.Context) error {
 
 // ChangePassword 修改密码（需要登录）
 func (UserProfileController) ChangePassword(ctx echo.Context) error {
-	uid, err := parseAuthUID(ctx)
+	// 写操作：parseActiveAuthUID 同时校验用户状态（拦截冻结用户）
+	uid, err := parseActiveAuthUID(ctx)
 	if err != nil {
 		return err
 	}
@@ -302,7 +305,8 @@ func (UserProfileController) ChangePassword(ctx echo.Context) error {
 
 // UploadAvatar 更换头像（需要登录）
 func (UserProfileController) UploadAvatar(ctx echo.Context) error {
-	uid, err := parseAuthUID(ctx)
+	// 写操作：parseActiveAuthUID 同时校验用户状态（拦截冻结用户）
+	uid, err := parseActiveAuthUID(ctx)
 	if err != nil {
 		return err
 	}

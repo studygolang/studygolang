@@ -50,18 +50,10 @@ func (FavoriteController) Status(ctx echo.Context) error {
 
 // Toggle 收藏/取消收藏
 func (FavoriteController) Toggle(ctx echo.Context) error {
-	token := getAuthToken(ctx)
-	if token == "" {
-		return fail(ctx, "未登录", NeedReLoginCode)
-	}
-
-	uid, _, valid := ValidateTokenAuto(token)
-	if !valid {
-		return fail(ctx, "token 已过期，请重新登录", NeedReLoginCode)
-	}
-
-	if uid == 0 {
-		return fail(ctx, "无效的 token", NeedReLoginCode)
+	// 写操作必须校验用户状态（与 master NeedLogin 一致）
+	uid, err := parseActiveAuthUID(ctx)
+	if err != nil {
+		return err
 	}
 
 	objid := goutils.MustInt(ctx.Param("objid"))
@@ -72,7 +64,6 @@ func (FavoriteController) Toggle(ctx echo.Context) error {
 		return fail(ctx, "参数错误")
 	}
 
-	var err error
 	if collect == 1 {
 		err = logic.DefaultFavorite.Save(context.EchoContext(ctx), uid, objid, objtype)
 	} else {

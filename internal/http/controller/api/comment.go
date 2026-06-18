@@ -8,12 +8,9 @@ package api
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/studygolang/studygolang/context"
-	. "github.com/studygolang/studygolang/internal/http"
 	"github.com/studygolang/studygolang/internal/logic"
-	"github.com/studygolang/studygolang/internal/model"
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
@@ -80,15 +77,12 @@ func (CommentController) Detail(ctx echo.Context) error {
 
 // Create 创建评论（支持 Cookie 和 X-Token header）
 func (CommentController) Create(ctx echo.Context) error {
-	token := getAuthToken(ctx)
-	if token == "" {
-		return fail(ctx, "未登录", NeedReLoginCode)
+	// 用 requireAuth：统一鉴权 + 用户状态校验（拦截冻结用户），避免重复造 Me
+	me, err := requireAuth(ctx)
+	if err != nil {
+		return err
 	}
-
-	uid, _, valid := ValidateTokenAuto(token)
-	if !valid || uid == 0 {
-		return fail(ctx, "token 已过期，请重新登录", NeedReLoginCode)
-	}
+	uid := me.Uid
 
 	objid := goutils.MustInt(ctx.Param("objid"))
 	if objid == 0 {
@@ -103,20 +97,6 @@ func (CommentController) Create(ctx echo.Context) error {
 	if !isValidObjType(objtype) {
 		return fail(ctx, "objtype 参数非法")
 	}
-
-	// 获取完整用户信息（余额检查等需要 Balance 字段）
-	me := &model.Me{Uid: uid}
-	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid)
-	if user == nil || user.Uid == 0 {
-		return fail(ctx, "用户不存在")
-	}
-	me.Username = user.Username
-	me.Balance = user.Balance
-	me.IsRoot = user.IsRoot
-	// IsAdmin 必须基于 user_role 表判断（AdminMinRoleId=7），不能简化为 IsRoot，
-	// 否则板块管理员/晨读管理员等角色会丢失权限（见 base.go requireAuth 同款修复）
-	me.IsAdmin = logic.DefaultUser.IsAdmin(user)
-	me.CreatedAt = time.Time(user.Ctime)
 
 	// 敏感词检查
 	if !sensitiveCheck(ctx, me) {
@@ -155,7 +135,8 @@ func (CommentController) AtUsers(ctx echo.Context) error {
 
 // Modify 修改评论（需要登录，且只有作者可修改）
 func (CommentController) Modify(ctx echo.Context) error {
-	uid, err := parseAuthUID(ctx)
+	// 用 requireAuth：统一鉴权 + 状态校验 + 完整 Me（CanEdit 需要 IsAdmin/IsRoot）
+	me, err := requireAuth(ctx)
 	if err != nil {
 		return err
 	}
@@ -176,15 +157,6 @@ func (CommentController) Modify(ctx echo.Context) error {
 	}
 
 	// 使用 CanEdit 进行权限校验（包含时间限制检查）
-	me := &model.Me{Uid: uid}
-	// 补充完整用户信息（CanEdit 需要 IsAdmin/IsRoot）
-	if user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid); user != nil && user.Uid > 0 {
-		me.Username = user.Username
-		me.IsRoot = user.IsRoot
-		// IsAdmin 必须基于 user_role 表判断（见 base.go requireAuth 同款修复）
-		me.IsAdmin = logic.DefaultUser.IsAdmin(user)
-		me.CreatedAt = time.Time(user.Ctime)
-	}
 	if !logic.CanEdit(me, comment) {
 		return fail(ctx, "没有修改权限")
 	}

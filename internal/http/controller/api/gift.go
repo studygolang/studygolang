@@ -30,9 +30,8 @@ func (GiftController) GiftList(ctx echo.Context) error {
 		gifts = make([]*model.Gift, 0)
 	}
 
-	// 已登录用户检查兑换状态
-	me, _ := requireAuth(ctx)
-	if me != nil && len(gifts) > 0 {
+	// 已登录用户检查兑换状态（登录可选；不能用 requireAuth，会触发响应双写）
+	if me := optionalAuth(ctx); me != nil && len(gifts) > 0 {
 		logic.DefaultGift.UserCanExchange(context.EchoContext(ctx), me, gifts)
 	}
 

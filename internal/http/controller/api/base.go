@@ -194,6 +194,8 @@ func fail(ctx echo.Context, msg string, codes ...int) error {
 
 // parseAuthUID 从请求中获取并验证 token，返回 uid。
 // 支持 JWT 和旧版 MD5 Token 双轨验证。
+// 注意：本函数不校验 user.Status，仅适用于读操作。
+// 写操作请用 parseActiveAuthUID 或 requireAuth，以拦截冻结/未激活用户。
 func parseAuthUID(ctx echo.Context) (int, error) {
 	token := getAuthToken(ctx)
 	if token == "" {
@@ -206,6 +208,95 @@ func parseAuthUID(ctx echo.Context) (int, error) {
 	}
 	if uid == 0 {
 		return 0, fail(ctx, "无效的 token", NeedReLoginCode)
+	}
+
+	return uid, nil
+}
+
+// optionalAuth 返回当前登录用户信息；未登录或 token 无效时返回 nil（不写错误响应）。
+//
+// 使用场景：GET 接口对登录状态可选（登录用户带额外字段，未登录用户看公开数据）。
+// 不能用 requireAuth 替代——requireAuth 失败时会调用 fail() 写错误响应，
+// 之后再调用 success() 会触发 "HTTP response already written" 双写问题，
+// 导致未登录用户拿到 "请先登录" 而不是公开数据。
+//
+// 实现上不调用 fail()，仅返回 nil 让调用方自行处理。
+func optionalAuth(ctx echo.Context) *model.Me {
+	token := getAuthToken(ctx)
+	if token == "" {
+		return nil
+	}
+	uid, _, valid := ValidateTokenAuto(token)
+	if !valid || uid == 0 {
+		return nil
+	}
+	userInfo := logic.GetOrFetchUserInfo(uid, func() *logic.UserInfoCache {
+		user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid)
+		if user == nil || user.Uid == 0 {
+			return nil
+		}
+		return &logic.UserInfoCache{
+			Uid:      user.Uid,
+			Username: user.Username,
+			Email:    user.Email,
+			IsRoot:   user.IsRoot,
+			IsAdmin:  logic.DefaultUser.IsAdmin(user),
+			IsVip:    user.IsVip,
+			Avatar:   user.Avatar,
+			Balance:  user.Balance,
+			Status:   user.Status,
+		}
+	})
+	if userInfo == nil {
+		return nil
+	}
+	// 可选鉴权同样不应让冻结用户享有"登录用户"特权（如兑换状态等）
+	if userInfo.Status != model.UserStatusAudit {
+		return nil
+	}
+	return &model.Me{
+		Uid:      userInfo.Uid,
+		Username: userInfo.Username,
+		Email:    userInfo.Email,
+		IsRoot:   userInfo.IsRoot,
+		IsAdmin:  userInfo.IsAdmin,
+		IsVip:    userInfo.IsVip,
+		Balance:  userInfo.Balance,
+		Status:   userInfo.Status,
+	}
+}
+
+// parseActiveAuthUID 在 parseAuthUID 基础上额外校验用户状态。
+// 用于写操作（点赞/收藏/发消息/改资料等），与 master 的 NeedLogin 中间件一致：
+// 仅 UserStatusAudit（已激活）允许；冻结/未激活/拒绝/停用 均拒绝。
+//
+// 为什么需要这个函数：requireAuth 会返回完整 Me（带 Balance/IsAdmin 等），
+// 但有些写 handler 只需要 uid（如 like/favorite toggle）。直接用 parseAuthUID
+// 又会绕过状态校验，导致冻结用户仍可写。本函数补齐这一缺口。
+func parseActiveAuthUID(ctx echo.Context) (int, error) {
+	uid, err := parseAuthUID(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	userInfo := logic.GetOrFetchUserInfo(uid, func() *logic.UserInfoCache {
+		user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid)
+		if user == nil || user.Uid == 0 {
+			return nil
+		}
+		return &logic.UserInfoCache{
+			Uid:     user.Uid,
+			Status:  user.Status,
+			IsRoot:  user.IsRoot,
+			IsAdmin: logic.DefaultUser.IsAdmin(user),
+		}
+	})
+
+	if userInfo == nil {
+		return 0, fail(ctx, "用户不存在")
+	}
+	if userInfo.Status != model.UserStatusAudit {
+		return 0, fail(ctx, "账号已被冻结或未激活，请重新登录", NeedReLoginCode)
 	}
 
 	return uid, nil

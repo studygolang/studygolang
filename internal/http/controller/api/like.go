@@ -55,18 +55,10 @@ func (LikeController) Status(ctx echo.Context) error {
 
 // Toggle 点赞/取消点赞
 func (LikeController) Toggle(ctx echo.Context) error {
-	token := getAuthToken(ctx)
-	if token == "" {
-		return fail(ctx, "未登录", NeedReLoginCode)
-	}
-
-	uid, _, valid := ValidateTokenAuto(token)
-	if !valid {
-		return fail(ctx, "token 已过期，请重新登录", NeedReLoginCode)
-	}
-
-	if uid == 0 {
-		return fail(ctx, "无效的 token", NeedReLoginCode)
+	// 写操作必须校验用户状态（与 master NeedLogin 一致）
+	uid, err := parseActiveAuthUID(ctx)
+	if err != nil {
+		return err
 	}
 
 	objid := goutils.MustInt(ctx.Param("objid"))
@@ -83,7 +75,7 @@ func (LikeController) Toggle(ctx echo.Context) error {
 		likeFlag = model.FlagLike
 	}
 
-	err := logic.DefaultLike.LikeObject(context.EchoContext(ctx), uid, objid, objtype, likeFlag)
+	err = logic.DefaultLike.LikeObject(context.EchoContext(ctx), uid, objid, objtype, likeFlag)
 	if err != nil {
 		return fail(ctx, "操作失败")
 	}
