@@ -179,11 +179,17 @@ func (self RankLogic) FindDAURank(ctx context.Context, num int, ymds ...string) 
 	}
 
 	userMap := DefaultUser.FindDAUUsers(ctx, uids)
-	users := make([]*model.User, len(userMap))
+	// userMap 可能不包含某些 uid（用户被删除但仍在 Redis DAU 排行中），
+	// 此时 userMap[uid] 返回 nil，直接访问 user.Weight 会 panic。
+	// 同时长度需要按返回的有效用户计算，避免返回包含 nil 的切片。
+	users := make([]*model.User, 0, len(uids))
 	for i, uid := range uids {
 		user := userMap[uid]
+		if user == nil {
+			continue
+		}
 		user.Weight = weights[i]
-		users[i] = user
+		users = append(users, user)
 	}
 
 	return users

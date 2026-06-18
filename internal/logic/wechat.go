@@ -308,8 +308,10 @@ func (self WechatLogic) checkCaptchaAndFetch(ctx context.Context, me *model.Me, 
 
 	key := "wechat:captcha:$username:" + me.Username
 	store := redisClient.GET(key)
-	if store[:4] != captcha {
-		return "", errors.New("验证码错误")
+	// 验证码格式：4 位 captcha + openid，总长度必须 > 4
+	// Redis GET 在 key 不存在或过期时返回 ""，此时 store[:4] 会越界 panic
+	if len(store) <= 4 || store[:4] != captcha {
+		return "", errors.New("验证码错误或已过期")
 	}
 
 	redisClient.DEL(key)

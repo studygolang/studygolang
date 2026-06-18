@@ -10,6 +10,7 @@ package api
 import (
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/internal/http"
@@ -369,4 +370,27 @@ func boundLimit(limit, def int) int {
 		return maxSidebarLimit
 	}
 	return limit
+}
+
+// maxPageNumber 分页接口允许的最大页码。
+// 防止恶意构造 p=N（如 100000）触发搜索引擎/DB 深度分页 DoS：
+// - Solr/Lucene 的 start+offset 模式在深分页时性能急剧下降
+// - MySQL OFFSET 在大偏移量下需要扫描跳过大量行
+// 100 页 * 50 行/页 = 5000 条，对社区搜索已足够；超出视为越界，回退到第 1 页。
+const maxPageNumber = 100
+
+// boundPage 将客户端传入的页码规整到 [1, maxPageNumber]。
+// 缺省/非法（非正整数）时返回 1；超过上限时回退到 1（视为越界，不展示数据）。
+func boundPage(pageStr string) int {
+	p := 1
+	if pageStr != "" {
+		if v, err := strconv.Atoi(pageStr); err == nil && v > 0 {
+			p = v
+		}
+	}
+	if p > maxPageNumber {
+		// 越界页码回退到 1，避免向搜索引擎/DB 传递超大 offset
+		return 1
+	}
+	return p
 }

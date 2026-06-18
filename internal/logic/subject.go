@@ -467,10 +467,19 @@ func (self SubjectLogic) genSubjectMapSlice(subject *model.Subject, subjectMapSl
 		hadAdd = 1
 	}
 
+	// 用户可能被删除但专栏仍存在，此时 usersMap[subject.Uid] 为 nil，
+	// 直接访问 .Username/.Avatar/.Email 会 panic，需要做空值兜底。
+	user := usersMap[subject.Uid]
+	username := ""
+	if user != nil {
+		username = user.Username
+	}
+
 	cover := subject.Cover
 	if cover == "" {
-		user := usersMap[subject.Uid]
-		cover = util.Gravatar(user.Avatar, user.Email, 48, true)
+		if user != nil {
+			cover = util.Gravatar(user.Avatar, user.Email, 48, true)
+		}
 	} else if !strings.HasPrefix(cover, "http") {
 		cdnDomain := global.App.CanonicalCDN(true)
 		cover = cdnDomain + subject.Cover
@@ -480,7 +489,7 @@ func (self SubjectLogic) genSubjectMapSlice(subject *model.Subject, subjectMapSl
 		"id":       subject.Id,
 		"name":     subject.Name,
 		"cover":    cover,
-		"username": usersMap[subject.Uid].Username,
+		"username": username,
 		"had_add":  hadAdd,
 	})
 }

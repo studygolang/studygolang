@@ -15,7 +15,6 @@ import (
 	"github.com/studygolang/studygolang/internal/model"
 
 	echo "github.com/labstack/echo/v4"
-	"github.com/polaris1119/goutils"
 )
 
 type SearchController struct{}
@@ -36,7 +35,7 @@ func (SearchController) Search(ctx echo.Context) error {
 		return fail(ctx, "搜索关键词过长")
 	}
 
-	p := goutils.MustInt(ctx.QueryParam("p"), 1)
+	p := boundPage(ctx.QueryParam("p"))
 	field := ctx.QueryParam("type")
 
 	rows := 50
@@ -82,7 +81,7 @@ func (SearchController) TagList(ctx echo.Context) error {
 		return fail(ctx, "标签名称过长")
 	}
 
-	p := goutils.MustInt(ctx.QueryParam("p"), 1)
+	p := boundPage(ctx.QueryParam("p"))
 	rows := 50
 
 	respBody, err := logic.DefaultSearcher.DoSearch(name, "tag", (p-1)*rows, rows)
