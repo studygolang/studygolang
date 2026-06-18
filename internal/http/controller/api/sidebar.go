@@ -40,7 +40,7 @@ func (self SidebarController) RegisterRoute(g *echo.Group) {
 // RecentReading 最近晨读，limit 参数默认 7
 // 返回格式: { readings: [...] }
 func (SidebarController) RecentReading(ctx echo.Context) error {
-	limit := goutils.MustInt(ctx.QueryParam("limit"), 7)
+	limit := boundLimit(goutils.MustInt(ctx.QueryParam("limit"), 7), 7)
 	readings := logic.DefaultReading.FindBy(context.EchoContext(ctx), limit, model.RtypeGo)
 	if len(readings) == 1 {
 		if time.Time(readings[0].Ctime).Before(time.Now().Add(-3 * 24 * time.Hour)) {
@@ -55,7 +55,7 @@ func (SidebarController) RecentReading(ctx echo.Context) error {
 // RecentTopic 最近话题，limit 参数默认 10
 // 返回格式: { topics: [...] }
 func (SidebarController) RecentTopic(ctx echo.Context) error {
-	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
+	limit := boundLimit(goutils.MustInt(ctx.QueryParam("limit"), 10), 10)
 	topicList := logic.DefaultTopic.FindRecent(limit)
 	return success(ctx, map[string]interface{}{
 		"topics": topicList,
@@ -65,7 +65,7 @@ func (SidebarController) RecentTopic(ctx echo.Context) error {
 // RecentArticle 最近文章，limit 参数默认 10
 // 返回格式: { articles: [...] }
 func (SidebarController) RecentArticle(ctx echo.Context) error {
-	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
+	limit := boundLimit(goutils.MustInt(ctx.QueryParam("limit"), 10), 10)
 	recentArticles := logic.DefaultArticle.FindBy(context.EchoContext(ctx), limit)
 	return success(ctx, map[string]interface{}{
 		"articles": recentArticles,
@@ -75,7 +75,7 @@ func (SidebarController) RecentArticle(ctx echo.Context) error {
 // RecentProject 最近项目，limit 参数默认 10
 // 返回格式: { projects: [...] }
 func (SidebarController) RecentProject(ctx echo.Context) error {
-	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
+	limit := boundLimit(goutils.MustInt(ctx.QueryParam("limit"), 10), 10)
 	recentProjects := logic.DefaultProject.FindBy(context.EchoContext(ctx), limit)
 	return success(ctx, map[string]interface{}{
 		"projects": recentProjects,
@@ -85,7 +85,7 @@ func (SidebarController) RecentProject(ctx echo.Context) error {
 // RecentResource 最近资源，limit 参数默认 10
 // 返回格式: { resources: [...] }
 func (SidebarController) RecentResource(ctx echo.Context) error {
-	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
+	limit := boundLimit(goutils.MustInt(ctx.QueryParam("limit"), 10), 10)
 	recentResources := logic.DefaultResource.FindBy(context.EchoContext(ctx), limit)
 	return success(ctx, map[string]interface{}{
 		"resources": recentResources,
@@ -95,7 +95,7 @@ func (SidebarController) RecentResource(ctx echo.Context) error {
 // RecentComment 最近评论，limit 参数默认 10
 // 返回格式: { comments: [...], "<uid>": user }
 func (SidebarController) RecentComment(ctx echo.Context) error {
-	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
+	limit := boundLimit(goutils.MustInt(ctx.QueryParam("limit"), 10), 10)
 	recentComments := logic.DefaultComment.FindRecent(context.EchoContext(ctx), 0, -1, limit)
 
 	uids := slices.StructsIntSlice(recentComments, "Uid")
@@ -151,7 +151,7 @@ func (SidebarController) FriendLinks(ctx echo.Context) error {
 // RecentDynamics 最近综合动态（话题、文章、评论、资源等)
 // 返回格式: { dynamics: [...] }
 func (SidebarController) RecentDynamics(ctx echo.Context) error {
-	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
+	limit := boundLimit(goutils.MustInt(ctx.QueryParam("limit"), 10), 10)
 
 	// 获取最近的话题
 	recentTopics := logic.DefaultTopic.FindRecent(limit)
@@ -214,7 +214,7 @@ func (SidebarController) RecentDynamics(ctx echo.Context) error {
 // ViewRank 浏览量排行榜
 // 返回格式: { topics: [...], articles: [...], resources: [...] }
 func (SidebarController) ViewRank(ctx echo.Context) error {
-	limit := goutils.MustInt(ctx.QueryParam("limit"), 10)
+	limit := boundLimit(goutils.MustInt(ctx.QueryParam("limit"), 10), 10)
 
 	// 获取话题浏览量排行（本周）
 	weekTopics := logic.DefaultRank.FindWeekRank(context.EchoContext(ctx), model.TypeTopic, limit, true)

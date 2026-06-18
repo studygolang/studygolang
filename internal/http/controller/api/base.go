@@ -354,3 +354,19 @@ func isValidObjType(objtype int) bool {
 	}
 	return false
 }
+
+// maxSidebarLimit 侧边栏/列表类接口允许的 limit 上限。
+// 防止恶意构造 limit=N（如 100000）触发 DB 全表扫描 + 大对象序列化 DoS。
+const maxSidebarLimit = 50
+
+// boundLimit 将客户端传入的 limit 规整到 [1, maxSidebarLimit]。
+// def 为 limit 缺省/非法时的默认值（会被 clamp 到上限内）。
+func boundLimit(limit, def int) int {
+	if limit <= 0 {
+		return def
+	}
+	if limit > maxSidebarLimit {
+		return maxSidebarLimit
+	}
+	return limit
+}
