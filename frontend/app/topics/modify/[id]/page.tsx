@@ -150,6 +150,7 @@ export default function TopicModifyPage() {
     if (!nid) { setError("请选择节点"); return }
 
     setSubmitting(true)
+    let succeeded = false
     try {
       const form = new URLSearchParams()
       form.set("title", title.trim())
@@ -166,15 +167,15 @@ export default function TopicModifyPage() {
       const json = await res.json()
       if (json.code !== 0) {
         setError(json.msg || "保存失败")
-        setSubmitting(false)
         return
       }
+      succeeded = true
       setSuccess(true)
       setTimeout(() => router.push(`/topics/${id}`), 1200)
     } catch {
       setError("网络错误，请稍后重试")
     } finally {
-      if (!success) {
+      if (!succeeded) {
         setSubmitting(false)
       }
     }

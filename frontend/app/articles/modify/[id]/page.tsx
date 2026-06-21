@@ -101,6 +101,7 @@ export default function ArticleModifyPage() {
     if (!content.trim()) { setError("请填写内容"); return }
 
     setSubmitting(true)
+    let succeeded = false
     try {
       const form = new URLSearchParams()
       form.set("title", title.trim())
@@ -116,15 +117,15 @@ export default function ArticleModifyPage() {
       const json = await res.json()
       if (json.code !== 0) {
         setError(json.msg || "保存失败")
-        setSubmitting(false)
         return
       }
+      succeeded = true
       setSuccess(true)
       setTimeout(() => router.push(`/articles/${id}`), 1200)
     } catch {
       setError("网络错误，请稍后重试")
     } finally {
-      if (!success) {
+      if (!succeeded) {
         setSubmitting(false)
       }
     }
