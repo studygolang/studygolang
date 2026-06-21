@@ -412,7 +412,13 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginato
 		if val, ok := ext["content"]; ok {
 			tmpMap["content"] = val.(string)
 		} else if val, ok := ext["cid"]; ok {
-			tmpMap["content"] = template.HTML(DefaultComment.decodeCmtContent(ctx, commentMap[int(val.(float64))]))
+			// 评论可能已被删除（或 findByIds 因 DB 错误返回 nil map），
+			// 此时 commentMap[cid] 为 nil，传给 decodeCmtContent 会访问
+			// comment.Content 触发 nil 解引用 panic，整个消息列表接口 500。
+			comment := commentMap[int(val.(float64))]
+			if comment != nil {
+				tmpMap["content"] = template.HTML(DefaultComment.decodeCmtContent(ctx, comment))
+			}
 		}
 		tmpMap["title"] = title
 		result[i] = tmpMap

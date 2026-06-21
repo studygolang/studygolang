@@ -95,6 +95,15 @@ func (self UserRichLogic) IncrUserRich(user *model.User, typ, award int, desc st
 		logger.Errorln("IncrUserRich, but award is empty!")
 		return
 	}
+	// user 可能为 nil（极少数调用方传 nil）或 Uid=0（FindOne 找不到用户返回 &User{}）。
+	// 不拦截会向 user_balance_detail 写入 uid=0 的 bogus 记录，且 user.balance
+	// 改动会落到 uid=0 的幽灵行（如存在）。各调用方（observer.go / topic.go Modify 等）
+	// 原先各自防护，但容易漏（topic.go Modify 的管理员改节点扣铜币路径就漏了），
+	// 统一在此处兜底。
+	if user == nil || user.Uid == 0 {
+		logger.Errorln("IncrUserRich skipped: user is nil or uid=0, typ:", typ, "award:", award)
+		return
+	}
 
 	var (
 		total int64 = -1
