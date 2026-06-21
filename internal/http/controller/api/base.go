@@ -394,3 +394,31 @@ func boundPage(pageStr string) int {
 	}
 	return p
 }
+
+// sanitizeUserForPublic 对外公开接口返回 User 前的字段脱敏。
+//
+// master 模板 profile.html 中 Email 显示受 `{{if .user.Open}}` 控制：
+// 仅当用户勾选"公开 Email"(Open==1) 时才在主页展示邮箱。
+// 重构为 JSON API 后，model.User 全字段带 JSON tag 自动序列化，
+// 若不显式过滤，不公开邮箱的用户主页 /api/v1/user/:username 与
+// 用户列表 /api/v1/users 都会把邮箱泄露给任意访客（含未登录用户）。
+//
+// 规则：Open==0 时清空 Email，与 master 模板语义对齐。
+// 就地修改（不复制）以避免大量分配；调用方已不再使用原 Email。
+func sanitizeUserForPublic(user *model.User) *model.User {
+	if user == nil {
+		return nil
+	}
+	if user.Open == 0 {
+		user.Email = ""
+	}
+	return user
+}
+
+// sanitizeUsersForPublic 批量脱敏，便于 List 类接口使用。
+func sanitizeUsersForPublic(users []*model.User) []*model.User {
+	for _, u := range users {
+		sanitizeUserForPublic(u)
+	}
+	return users
+}

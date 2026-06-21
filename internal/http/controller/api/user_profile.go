@@ -132,6 +132,11 @@ func (UserProfileController) List(ctx echo.Context) error {
 	// 获取会员总数
 	total := logic.DefaultUser.Total()
 
+	// Email 脱敏：未勾选"公开 Email"的用户清空 Email 字段，
+	// 与 master 模板 profile.html `{{if .user.Open}}` 语义对齐。
+	sanitizeUsersForPublic(activeUsers)
+	sanitizeUsersForPublic(newUsers)
+
 	return success(ctx, map[string]interface{}{
 		"active_users": activeUsers,
 		"new_users":    newUsers,
@@ -152,6 +157,10 @@ func (UserProfileController) Home(ctx echo.Context) error {
 	resources := logic.DefaultResource.FindRecent(context.EchoContext(ctx), user.Uid)
 	projects := logic.DefaultProject.FindRecent(context.EchoContext(ctx), user.Username)
 	comments := logic.DefaultComment.FindRecent(context.EchoContext(ctx), user.Uid, -1, 5)
+
+	// Email 脱敏：访客访问他人主页时，未公开邮箱的用户清空 Email 字段，
+	// 与 master 模板 profile.html `{{if .user.Open}}` 语义对齐。
+	sanitizeUserForPublic(user)
 
 	return success(ctx, map[string]interface{}{
 		"user":      user,

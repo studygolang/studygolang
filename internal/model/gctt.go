@@ -94,7 +94,7 @@ func (*GCTTGit) TableName() string {
 type GCTTIssue struct {
 	Id            int `xorm:"pk autoincr"`
 	Translator    string
-	Email         string
+	Email         string `json:"-"`
 	Title         string
 	TranslatingAt int64
 	TranslatedAt  int64
