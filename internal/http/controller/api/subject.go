@@ -212,6 +212,11 @@ func (SubjectController) Create(ctx echo.Context) error {
 		return fail(ctx, "专栏名称已存在")
 	}
 
+	// 敏感词检查：专栏名/简介也是用户输入，应过敏感词
+	if !sensitiveCheck(ctx, me) {
+		return failSensitive(ctx)
+	}
+
 	forms, _ := ctx.FormParams()
 	sid, err2 := logic.DefaultSubject.Publish(context.EchoContext(ctx), me, forms)
 	if err2 != nil {
@@ -245,6 +250,11 @@ func (SubjectController) Modify(ctx echo.Context) error {
 		if subject.Uid != me.Uid {
 			return fail(ctx, "无权修改此专栏")
 		}
+	}
+
+	// 敏感词检查：与 Create 对齐
+	if !sensitiveCheck(ctx, me) {
+		return failSensitive(ctx)
 	}
 
 	forms, _ := ctx.FormParams()

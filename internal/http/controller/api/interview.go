@@ -81,6 +81,12 @@ func (InterviewController) Create(ctx echo.Context) error {
 		return fail(ctx, "面试题内容不能为空")
 	}
 
+	// 敏感词检查：管理员账号也可能被盗用，所有写操作都应过敏感词
+	// master 的 /interview/new 路由同样挂了敏感词中间件
+	if !sensitiveCheck(ctx, me) {
+		return failSensitive(ctx)
+	}
+
 	result, err := logic.DefaultInterview.Publish(context.EchoContext(ctx), forms)
 	if err != nil {
 		return fail(ctx, "创建失败："+err.Error())

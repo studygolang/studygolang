@@ -16,6 +16,10 @@ import (
 	"github.com/polaris1119/goutils"
 )
 
+// maxCommentContentLen 评论/回复正文最大长度（按 rune 计），与 message.go 对齐。
+// 缺失上限会让攻击者一次 Post 多 MB 内容，落库 + 渲染 + 邮件通知都会被拖垮。
+const maxCommentContentLen = 5000
+
 type CommentController struct{}
 
 func (self CommentController) RegisterRoute(g *echo.Group) {
@@ -103,6 +107,11 @@ func (CommentController) Create(ctx echo.Context) error {
 		return fail(ctx, "objtype 参数非法")
 	}
 
+	// 内容长度限制：防止多 MB 内容落库 + 渲染 + 邮件通知被拖垮（DoS）
+	if len([]rune(forms.Get("content"))) > maxCommentContentLen {
+		return fail(ctx, "评论内容过长")
+	}
+
 	// 敏感词检查
 	if !sensitiveCheck(ctx, me) {
 		return failSensitive(ctx)
@@ -158,6 +167,10 @@ func (CommentController) Modify(ctx echo.Context) error {
 	content := ctx.FormValue("content")
 	if content == "" {
 		return fail(ctx, "评论内容不能为空")
+	}
+	// 内容长度限制：与 Create 对齐，防止 Modify 路径被用来塞入大文本
+	if len([]rune(content)) > maxCommentContentLen {
+		return fail(ctx, "评论内容过长")
 	}
 
 	comment, findErr := logic.DefaultComment.FindById(cid)

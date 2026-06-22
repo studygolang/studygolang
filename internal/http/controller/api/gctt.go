@@ -179,6 +179,19 @@ func (GCTTController) Publish(ctx echo.Context) error {
 		return fail(ctx, "非 GCTT 译者,不允许发布")
 	}
 
+	// 敏感词/余额/验证码检查：GCTT 复用文章发布管线 (logic.DefaultArticle.Publish)，
+	// 必须与 ArticleController.Create (article.go:213-223) 对齐，否则译者账号被盗后
+	// 可绕过敏感词冻结发布广告内容，或零余额用户刷 GCTT 文章。
+	if !sensitiveCheck(ctx, me) {
+		return failSensitive(ctx)
+	}
+	if !balanceCheck(me, false) {
+		return failBalance(ctx)
+	}
+	if !captchaCheck(ctx, me) {
+		return failCaptcha(ctx)
+	}
+
 	// 获取表单参数并设置 GCTT 标记
 	forms, _ := ctx.FormParams()
 	forms.Set("gctt", "true")
