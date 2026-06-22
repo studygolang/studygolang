@@ -43,6 +43,8 @@ func (SubjectController) Index(ctx echo.Context) error {
 	if subject.Id == 0 {
 		return fail(ctx, "专题不存在")
 	}
+	// Email 脱敏：Subject.User 字段会自动序列化暴露 Email
+	sanitizeSubjectForPublic(subject)
 
 	// 补全封面 CDN URL
 	if subject.Cover != "" && !strings.HasPrefix(subject.Cover, "http") {
@@ -64,6 +66,9 @@ func (SubjectController) Index(ctx echo.Context) error {
 
 	followers := logic.DefaultSubject.FindFollowers(context.EchoContext(ctx), id)
 	followerNum := logic.DefaultSubject.FindFollowerTotal(context.EchoContext(ctx), id)
+
+	// Email 脱敏：SubjectFollower.User 字段会自动序列化暴露 Email
+	sanitizeSubjectFollowersForPublic(followers)
 
 	// 检查当前用户是否已关注（登录可选，未登录 followed=false）
 	// 不能用 requireAuth —— 它失败时会 fail() 写错误响应，之后 success() 会触发双写
@@ -266,6 +271,9 @@ func (SubjectController) List(ctx echo.Context) error {
 
 	// 通过返回数量判断是否有更多
 	hasMore := len(subjects) >= perPage
+
+	// Email 脱敏：Subject.User 字段会自动序列化暴露 Email
+	sanitizeSubjectsForPublic(subjects)
 
 	return success(ctx, map[string]interface{}{
 		"subjects": subjects,

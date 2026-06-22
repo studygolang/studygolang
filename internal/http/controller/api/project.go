@@ -59,6 +59,9 @@ func (ProjectController) List(ctx echo.Context) error {
 	total := logic.DefaultProject.Count(context.EchoContext(ctx), projectFilter, projectFilterArgs...)
 	hasMore := paginator.SetTotal(total).HasMorePage()
 
+	// Email 脱敏：OpenProject.User / LastReplyUser 字段会自动序列化暴露 Email
+	sanitizeProjectsForPublic(projects)
+
 	return success(ctx, map[string]interface{}{
 		"projects": projects,
 		"total":    total,
@@ -136,6 +139,9 @@ func (ProjectController) Edit(ctx echo.Context) error {
 		return fail(ctx, "没有编辑权限")
 	}
 
+	// Email 脱敏：OpenProject.User / LastReplyUser 字段会自动序列化暴露 Email
+	sanitizeProjectForPublic(project)
+
 	return success(ctx, map[string]interface{}{
 		"project": project,
 	})
@@ -184,6 +190,9 @@ func (ProjectController) Detail(ctx echo.Context) error {
 		return fail(ctx, "获取失败或已下线")
 	}
 
+	// Email 脱敏：OpenProject.User / LastReplyUser 字段会自动序列化暴露 Email
+	sanitizeProjectForPublic(project)
+
 	result := map[string]interface{}{
 		"project": project,
 	}
@@ -215,7 +224,8 @@ func (ProjectController) Detail(ctx echo.Context) error {
 		context.EchoContext(ctx), project.Id, model.TypeProject, 0, project.Lastreplyuid,
 	)
 	if project.Lastreplyuid != 0 {
-		project.LastReplyUser = lastReplyUser
+		// Email 脱敏：未公开邮箱的用户清空 Email，与 profile.html 语义对齐
+		project.LastReplyUser = sanitizeUserForPublic(lastReplyUser)
 	}
 	result["replies"] = normalizeReplies(replies)
 

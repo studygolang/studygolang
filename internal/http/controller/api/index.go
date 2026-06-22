@@ -49,6 +49,9 @@ func (IndexController) Home(ctx echo.Context) error {
 		allFeeds := append(topFeeds, feeds...)
 		hasMore := paginator.SetTotal(total).HasMorePage()
 
+		// Email 脱敏：Feed.User / Lastreplyuser 自动序列化会暴露 Email
+		sanitizeFeedsForPublic(allFeeds)
+
 		return success(ctx, map[string]interface{}{
 			"feeds":    allFeeds,
 			"tab":      tab,

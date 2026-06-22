@@ -422,3 +422,74 @@ func sanitizeUsersForPublic(users []*model.User) []*model.User {
 	}
 	return users
 }
+
+// sanitizeFeedForPublic 对 Feed 的内嵌 User / Lastreplyuser 做脱敏。
+//
+// Feed struct 无 JSON tag，User / Lastreplyuser 会带 Email 等敏感字段
+// 自动序列化。master 模板通过 `{{if .user.Open}}` 控制邮箱展示，
+// 这里在 API 边界统一脱敏，未勾选"公开 Email"的用户清空 Email。
+func sanitizeFeedForPublic(feed *model.Feed) *model.Feed {
+	if feed == nil {
+		return nil
+	}
+	sanitizeUserForPublic(feed.User)
+	sanitizeUserForPublic(feed.Lastreplyuser)
+	return feed
+}
+
+// sanitizeFeedsForPublic 批量脱敏 Feed 切片。
+func sanitizeFeedsForPublic(feeds []*model.Feed) []*model.Feed {
+	for _, f := range feeds {
+		sanitizeFeedForPublic(f)
+	}
+	return feeds
+}
+
+// sanitizeSubjectForPublic 对 Subject 的内嵌 User 做脱敏。
+// Subject.User 字段带 `json:"user"`，会自动序列化暴露 Email。
+func sanitizeSubjectForPublic(subject *model.Subject) *model.Subject {
+	if subject == nil {
+		return nil
+	}
+	sanitizeUserForPublic(subject.User)
+	return subject
+}
+
+// sanitizeSubjectsForPublic 批量脱敏 Subject 切片。
+func sanitizeSubjectsForPublic(subjects []*model.Subject) []*model.Subject {
+	for _, s := range subjects {
+		sanitizeSubjectForPublic(s)
+	}
+	return subjects
+}
+
+// sanitizeProjectForPublic 对 OpenProject 的内嵌 User / LastReplyUser 做脱敏。
+// 两个字段都带 JSON tag，会自动序列化暴露 Email。
+func sanitizeProjectForPublic(project *model.OpenProject) *model.OpenProject {
+	if project == nil {
+		return nil
+	}
+	sanitizeUserForPublic(project.User)
+	sanitizeUserForPublic(project.LastReplyUser)
+	return project
+}
+
+// sanitizeProjectsForPublic 批量脱敏 OpenProject 切片。
+func sanitizeProjectsForPublic(projects []*model.OpenProject) []*model.OpenProject {
+	for _, p := range projects {
+		sanitizeProjectForPublic(p)
+	}
+	return projects
+}
+
+// sanitizeSubjectFollowersForPublic 批量脱敏 SubjectFollower。
+// SubjectFollower.User 无 JSON tag，Go 默认按字段名序列化，
+// 会暴露 Email。
+func sanitizeSubjectFollowersForPublic(followers []*model.SubjectFollower) []*model.SubjectFollower {
+	for _, f := range followers {
+		if f != nil {
+			sanitizeUserForPublic(f.User)
+		}
+	}
+	return followers
+}

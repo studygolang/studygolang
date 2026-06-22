@@ -107,7 +107,8 @@ func (ArticleController) Detail(ctx echo.Context) error {
 		context.EchoContext(ctx), article.Id, model.TypeArticle, 0, article.Lastreplyuid,
 	)
 	if article.Lastreplyuid != 0 {
-		article.LastReplyUser = lastReplyUser
+		// Email 脱敏：未公开邮箱的用户清空 Email，与 profile.html 语义对齐
+		article.LastReplyUser = sanitizeUserForPublic(lastReplyUser)
 	}
 
 	article.Txt = ""
