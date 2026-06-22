@@ -64,7 +64,7 @@ function LoginForm() {
       if (res.ok) {
         const data = await res.json()
         if (data.code === 0) {
-          if (data.data) {
+          if (data.data && data.data.uid) {
             login({
               uid: data.data.uid,
               username: data.data.username,
@@ -73,8 +73,12 @@ function LoginForm() {
               is_root: false,
               is_vip: false,
             })
+            // 用 router.replace 保持 SPA 状态（auth context 已更新），避免整页刷新丢失 context
+            router.replace(redirect)
+          } else {
+            // data.data 为空却不报错，说明后端响应异常（如账号被冻结时只回 msg）
+            setError(data.msg || "登录失败")
           }
-          window.location.href = redirect
         } else {
           setError(data.msg || "登录失败")
         }

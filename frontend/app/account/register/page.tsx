@@ -50,8 +50,10 @@ export default function RegisterPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  // 刷新验证码：通过递增 key 让 CaptchaField 重新挂载
+  // 刷新验证码：通过递增 key 让 CaptchaField 重新挂载；同时清空旧 solution
+  // 防止用户刷新后未重新输入就提交：新 captchaId 配旧 solution 必然校验失败
   const refreshCaptcha = useCallback(() => {
+    setCaptchaSolution("")
     setCaptchaRefreshKey((prev) => prev + 1)
   }, [])
 

@@ -183,6 +183,8 @@ export function usePublish({ initialType }: UsePublishProps) {
           credentials: "include",
           body: form.toString(),
         })
+        // 反向代理（Nginx）在 502/504 时会返回 HTML 错误页，直接 .json() 会抛异常被吞掉
+        if (!res.ok) { setError("发布失败，请稍后重试"); return }
         const json = await res.json()
         if (json.code !== 0) { setError(json.msg || "发布失败"); return }
         router.push(json.data?.tid ? `/topics/${json.data.tid}` : "/topics")
@@ -202,6 +204,7 @@ export function usePublish({ initialType }: UsePublishProps) {
           credentials: "include",
           body: form.toString(),
         })
+        if (!res.ok) { setError("发布失败，请稍后重试"); return }
         const json = await res.json()
         if (json.code !== 0) { setError(json.msg || "发布失败"); return }
         router.push(json.data?.id ? `/articles/${json.data.id}` : "/articles")
@@ -227,6 +230,7 @@ export function usePublish({ initialType }: UsePublishProps) {
           credentials: "include",
           body: form.toString(),
         })
+        if (!res.ok) { setError("发布失败，请稍后重试"); return }
         const json = await res.json()
         if (json.code !== 0) { setError(json.msg || "发布失败"); return }
         // 项目详情路由是 /p/[uri]（见 frontend/app/p/[uri]/page.tsx）
@@ -251,6 +255,7 @@ export function usePublish({ initialType }: UsePublishProps) {
           credentials: "include",
           body: form.toString(),
         })
+        if (!res.ok) { setError("发布失败，请稍后重试"); return }
         const json = await res.json()
         if (json.code !== 0) { setError(json.msg || "发布失败"); return }
         router.push(json.data?.id ? `/resources/${json.data.id}` : "/resources")
@@ -278,11 +283,14 @@ export function usePublish({ initialType }: UsePublishProps) {
           credentials: "include",
           body: form.toString(),
         })
+        if (!res.ok) { setError("发布失败，请稍后重试"); return }
         const json = await res.json()
         if (json.code !== 0) { setError(json.msg || "发布失败"); return }
         router.push(json.data?.id ? `/books/${json.data.id}` : "/books")
       }
-    } catch {
+    } catch (err) {
+      // 记录实际错误便于排查；用户侧只显示友好提示
+      console.error("publish failed:", err)
       setError("网络错误，请稍后重试")
     } finally {
       setSubmitting(false)

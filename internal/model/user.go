@@ -21,9 +21,9 @@ import (
 type UserLogin struct {
 	Uid        int       `json:"uid" xorm:"pk"`
 	Username   string    `json:"username"`
-	Passcode   string    `json:"passcode"` // random salt for md5 hashing
-	Passwd     string    `json:"passwd"`
-	PasswdType string    `json:"passwd_type" xorm:"varchar(10) default('md5')"` // 'md5' or 'bcrypt'
+	Passcode   string    `json:"-"` // random salt for md5 hashing，敏感字段：永不序列化到 JSON
+	Passwd     string    `json:"-"` // 密码哈希，敏感字段：永不序列化到 JSON
+	PasswdType string    `json:"-"` // 密码类型，敏感字段：永不序列化到 JSON
 	Email      string    `json:"email"`
 	LoginIp    string    `json:"login_ip"`
 	LoginTime  time.Time `json:"login_time" xorm:"<-"`
