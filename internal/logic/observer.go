@@ -11,6 +11,8 @@ import (
 	"unicode/utf8"
 
 	"github.com/studygolang/studygolang/internal/model"
+
+	"github.com/polaris1119/logger"
 )
 
 var (
@@ -118,7 +120,16 @@ func (this *ConcreteObservable) RemoveObserver(o Observer) {
 
 func (this *ConcreteObservable) NotifyObservers(uid, objtype, objid int) {
 	for _, observer := range this.observers {
-		observer.Update(this.action, uid, objtype, objid)
+		// 每个 observer 独立 recover：任一 observer panic 不能中断其他 observer，
+		// 也不能让 panic 冒泡到调用方（多处 go NotifyObservers 会让进程崩溃）。
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					logger.Errorln("NotifyObservers observer panic:", observer, "action:", this.action, "recover:", r)
+				}
+			}()
+			observer.Update(this.action, uid, objtype, objid)
+		}()
 	}
 }
 

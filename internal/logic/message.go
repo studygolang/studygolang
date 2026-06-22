@@ -276,25 +276,52 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginato
 			objTitle := ""
 			objUrl := ""
 			objid := int(val.(float64))
+			// 被引用的对象可能已被删除（或 findByIds 因 DB 错误返回 nil map），
+			// 所有 map 访问必须用 , ok 守卫，任一 nil 访问会让整个系统消息列表接口 panic 500。
+			// 由于消息表只能标记已读不能删除，一旦产生指向已删除对象的消息就会永久 panic。
 			switch message.Msgtype {
 			case model.MsgtypeTopicReply:
-				objTitle = topicMap[objid].Title
-				objUrl = "/topics/" + strconv.Itoa(topicMap[objid].Tid)
+				topic, ok := topicMap[objid]
+				if !ok || topic == nil {
+					result[i] = tmpMap
+					continue
+				}
+				objTitle = topic.Title
+				objUrl = "/topics/" + strconv.Itoa(topic.Tid)
 				title = "回复了你的主题："
 			case model.MsgtypeArticleComment:
-				objTitle = articleMap[objid].Title
-				objUrl = "/articles/" + strconv.Itoa(articleMap[objid].Id)
+				article, ok := articleMap[objid]
+				if !ok || article == nil {
+					result[i] = tmpMap
+					continue
+				}
+				objTitle = article.Title
+				objUrl = "/articles/" + strconv.Itoa(article.Id)
 				title = "回复了你的文章："
 			case model.MsgtypeResourceComment:
-				objTitle = resourceMap[objid].Title
-				objUrl = "/resources/" + strconv.Itoa(resourceMap[objid].Id)
+				resource, ok := resourceMap[objid]
+				if !ok || resource == nil {
+					result[i] = tmpMap
+					continue
+				}
+				objTitle = resource.Title
+				objUrl = "/resources/" + strconv.Itoa(resource.Id)
 				title = "评论了你的资源："
 			case model.MsgtypeWikiComment:
-				objTitle = wikiMap[objid].Title
-				objUrl = "/wiki/" + strconv.Itoa(wikiMap[objid].Id)
+				wiki, ok := wikiMap[objid]
+				if !ok || wiki == nil {
+					result[i] = tmpMap
+					continue
+				}
+				objTitle = wiki.Title
+				objUrl = "/wiki/" + strconv.Itoa(wiki.Id)
 				title = "评论了你的Wiki页："
 			case model.MsgtypeProjectComment:
-				project := projectMap[objid]
+				project, ok := projectMap[objid]
+				if !ok || project == nil {
+					result[i] = tmpMap
+					continue
+				}
 				objTitle = project.Category + project.Name
 				objUrl = "/p/"
 				if project.Uri != "" {
@@ -307,27 +334,47 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginato
 				title = "评论时提到了你，在"
 				switch int(ext["objtype"].(float64)) {
 				case model.TypeTopic:
-					topic := topicMap[objid]
+					topic, ok := topicMap[objid]
+					if !ok || topic == nil {
+						result[i] = tmpMap
+						continue
+					}
 					objTitle = topic.Title
 					objUrl = "/topics/" + strconv.Itoa(topic.Tid) + "#commentForm"
 					title += "主题："
 				case model.TypeArticle:
-					article := articleMap[objid]
+					article, ok := articleMap[objid]
+					if !ok || article == nil {
+						result[i] = tmpMap
+						continue
+					}
 					objTitle = article.Title
 					objUrl = "/articles/" + strconv.Itoa(article.Id) + "#commentForm"
 					title += "文章："
 				case model.TypeResource:
-					resource := resourceMap[objid]
+					resource, ok := resourceMap[objid]
+					if !ok || resource == nil {
+						result[i] = tmpMap
+						continue
+					}
 					objTitle = resource.Title
 					objUrl = "/resources/" + strconv.Itoa(resource.Id) + "#commentForm"
 					title += "资源："
 				case model.TypeWiki:
-					wiki := wikiMap[objid]
+					wiki, ok := wikiMap[objid]
+					if !ok || wiki == nil {
+						result[i] = tmpMap
+						continue
+					}
 					objTitle = wiki.Title
 					objUrl = "/wiki/" + strconv.Itoa(wiki.Id) + "#commentForm"
 					title += "wiki："
 				case model.TypeProject:
-					project := projectMap[objid]
+					project, ok := projectMap[objid]
+					if !ok || project == nil {
+						result[i] = tmpMap
+						continue
+					}
 					objTitle = project.Category + project.Name
 					objUrl = "/p/"
 					if project.Uri != "" {
@@ -338,12 +385,20 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginato
 					objUrl += "#commentForm"
 					title += "项目："
 				case model.TypeBook:
-					book := bookMap[objid]
+					book, ok := bookMap[objid]
+					if !ok || book == nil {
+						result[i] = tmpMap
+						continue
+					}
 					objTitle = book.Name
 					objUrl = "/book/" + strconv.Itoa(book.Id) + "#commentForm"
 					title += "图书："
 				case model.TypeInterview:
-					question := questionMap[objid]
+					question, ok := questionMap[objid]
+					if !ok || question == nil {
+						result[i] = tmpMap
+						continue
+					}
 					strID := strconv.Itoa(question.Id)
 					objTitle = "Go每日一题（" + strID + "）"
 					objUrl = "/interview/question/" + question.ShowSn + "#commentForm"
@@ -354,27 +409,47 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginato
 				title = "发布"
 				switch int(ext["objtype"].(float64)) {
 				case model.TypeTopic:
-					topic := topicMap[objid]
+					topic, ok := topicMap[objid]
+					if !ok || topic == nil {
+						result[i] = tmpMap
+						continue
+					}
 					objTitle = topic.Title
 					objUrl = "/topics/" + strconv.Itoa(topic.Tid)
 					title += "主题"
 				case model.TypeArticle:
-					article := articleMap[objid]
+					article, ok := articleMap[objid]
+					if !ok || article == nil {
+						result[i] = tmpMap
+						continue
+					}
 					objTitle = article.Title
 					objUrl = "/articles/" + strconv.Itoa(article.Id)
 					title += "文章"
 				case model.TypeResource:
-					resource := resourceMap[objid]
+					resource, ok := resourceMap[objid]
+					if !ok || resource == nil {
+						result[i] = tmpMap
+						continue
+					}
 					objTitle = resource.Title
 					objUrl = "/resources/" + strconv.Itoa(resource.Id)
 					title += "资源"
 				case model.TypeWiki:
-					wiki := wikiMap[objid]
+					wiki, ok := wikiMap[objid]
+					if !ok || wiki == nil {
+						result[i] = tmpMap
+						continue
+					}
 					objTitle = wiki.Title
 					objUrl = "/wiki/" + strconv.Itoa(wiki.Id)
 					title += "wiki"
 				case model.TypeProject:
-					project := projectMap[objid]
+					project, ok := projectMap[objid]
+					if !ok || project == nil {
+						result[i] = tmpMap
+						continue
+					}
 					objTitle = project.Category + project.Name
 					objUrl = "/p/"
 					if project.Uri != "" {
@@ -388,8 +463,16 @@ func (self MessageLogic) FindSysMsgsByUid(ctx context.Context, uid int, paginato
 				title += "时提到了你："
 
 			case model.MsgtypeSubjectContribute:
-				subject := subjectMap[int(ext["sid"].(float64))]
-				article := articleMap[objid]
+				subject, ok := subjectMap[int(ext["sid"].(float64))]
+				if !ok || subject == nil {
+					result[i] = tmpMap
+					continue
+				}
+				article, ok := articleMap[objid]
+				if !ok || article == nil {
+					result[i] = tmpMap
+					continue
+				}
 				objTitle = article.Title
 				objUrl = "/articles/" + strconv.Itoa(article.Id)
 				title += "收录了新文章"

@@ -577,6 +577,9 @@ func (TopicLogic) FindHotNodes(ctx context.Context) []map[string]interface{} {
 		objLog.Errorln("TopicLogic FindHotNodes error:", err)
 		return nil
 	}
+	// 关键：必须 defer Close，否则缓存未命中时每次调用泄漏一个 DB 连接，
+	// 长期运行会耗尽连接池。此函数带 1 小时缓存，泄漏积累缓慢不易察觉。
+	defer rows.Close()
 
 	nids := make([]int, 0, 15)
 	for rows.Next() {
