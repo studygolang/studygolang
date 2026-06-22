@@ -23,7 +23,7 @@ func (self TopController) RegisterRoute(g *echo.Group) {
 
 // TopDAU 日活跃用户排行榜（当日 top10）
 func (TopController) TopDAU(ctx echo.Context) error {
-	users := logic.DefaultRank.FindDAURank(context.EchoContext(ctx), 10)
+	users := sanitizeUsersForPublic(logic.DefaultRank.FindDAURank(context.EchoContext(ctx), 10))
 	activeNum := logic.DefaultRank.TotalDAUUser(context.EchoContext(ctx))
 
 	return success(ctx, map[string]interface{}{
@@ -35,7 +35,7 @@ func (TopController) TopDAU(ctx echo.Context) error {
 
 // TopRich 财富排行榜
 func (TopController) TopRich(ctx echo.Context) error {
-	users := logic.DefaultRank.FindRichRank(context.EchoContext(ctx))
+	users := sanitizeUsersForPublic(logic.DefaultRank.FindRichRank(context.EchoContext(ctx)))
 
 	return success(ctx, map[string]interface{}{
 		"users": users,

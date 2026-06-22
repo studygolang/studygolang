@@ -101,6 +101,11 @@ func (SidebarController) RecentComment(ctx echo.Context) error {
 	uids := slices.StructsIntSlice(recentComments, "Uid")
 	users := logic.DefaultUser.FindUserInfos(context.EchoContext(ctx), uids)
 
+	// Email 脱敏：未公开邮箱的用户清空 Email，与 profile.html 语义对齐。
+	for uid, u := range users {
+		users[uid] = sanitizeUserForPublic(u)
+	}
+
 	result := map[string]interface{}{
 		"comments": recentComments,
 	}
@@ -124,7 +129,7 @@ func (SidebarController) HotNodes(ctx echo.Context) error {
 // ActiveUser 活跃用户
 // 返回格式: { users: [...] }
 func (SidebarController) ActiveUser(ctx echo.Context) error {
-	activeUsers := logic.DefaultRank.FindDAURank(context.EchoContext(ctx), 9)
+	activeUsers := sanitizeUsersForPublic(logic.DefaultRank.FindDAURank(context.EchoContext(ctx), 9))
 	return success(ctx, map[string]interface{}{
 		"users": activeUsers,
 	})
@@ -133,7 +138,7 @@ func (SidebarController) ActiveUser(ctx echo.Context) error {
 // NewestUser 最新用户
 // 返回格式: { users: [...] }
 func (SidebarController) NewestUser(ctx echo.Context) error {
-	newestUsers := logic.DefaultUser.FindNewUsers(context.EchoContext(ctx), 9)
+	newestUsers := sanitizeUsersForPublic(logic.DefaultUser.FindNewUsers(context.EchoContext(ctx), 9))
 	return success(ctx, map[string]interface{}{
 		"users": newestUsers,
 	})

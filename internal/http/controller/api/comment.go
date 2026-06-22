@@ -68,6 +68,11 @@ func (CommentController) Detail(ctx echo.Context) error {
 	}
 	users := logic.DefaultUser.FindUserInfos(context.EchoContext(ctx), uids)
 
+	// Email 脱敏：与 profile.html `{{if .user.Open}}` 语义对齐，未公开邮箱的用户清空 Email。
+	for uid, u := range users {
+		users[uid] = sanitizeUserForPublic(u)
+	}
+
 	return success(ctx, map[string]interface{}{
 		"comment":         comment,
 		"nearby_comments": nearbyComments,
