@@ -30,7 +30,8 @@ func (self BookController) RegisterRoute(g *echo.Group) {
 
 // List 书籍列表
 func (BookController) List(ctx echo.Context) error {
-	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	// 统一走 boundPage：拒绝负页码与超大页码（与 topics/articles 列表对齐）
+	curPage := boundPage(ctx.QueryParam("p"))
 	paginator := logic.NewPaginator(curPage)
 
 	books := logic.DefaultGoBook.FindAll(context.EchoContext(ctx), paginator, "likenum DESC,id DESC")

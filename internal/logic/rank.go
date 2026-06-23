@@ -49,6 +49,10 @@ func (self RankLogic) GenDayRank(objtype, objid, num int) {
 	if err != nil {
 		logger.Errorln("view redis ZINCRBY error:", err)
 	}
+	// TODO: TTL 失效语义破坏 — 每次 ZINCRBY 后无条件 EXPIRE(60 天) 会让长期热 key 永不过期，
+	// 冷启动后旧日排行榜数据混入新统计窗口。理想做法是 `EXPIRE key sec NX`（只在没 TTL 时设），
+	// 但当前 nosql 库未暴露 EXISTS/TTL/EXPIRE-NX 接口。短期方案：运维侧定期清理超过 60 天的
+	// rank:* key；长期方案：升级 nosql 库或绕过它直接用 redis.Conn 调原生命令。
 	redisClient.EXPIRE(key, 2*30*86400)
 }
 

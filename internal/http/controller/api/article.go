@@ -236,6 +236,20 @@ func (ArticleController) Create(ctx echo.Context) error {
 		return fail(ctx, "内容不能为空")
 	}
 
+	// 长度上限：title 200 rune（与数据库对齐），content/txt 65535 bytes
+	// 不加上限会落库超大 payload + 触发 observer 异步渲染（observer 还会读全文算字数）
+	const maxArticleTitleLen = 200
+	const maxArticleContentLen = 65535
+	if len([]rune(title)) > maxArticleTitleLen {
+		return fail(ctx, "标题过长（上限 200 字符）")
+	}
+	if len(content) > maxArticleContentLen {
+		return fail(ctx, "内容过长")
+	}
+	if txt := ctx.FormValue("txt"); len(txt) > maxArticleContentLen {
+		return fail(ctx, "txt 字段过长")
+	}
+
 	// 调用业务逻辑发布文章
 	id, err := logic.DefaultArticle.Publish(context.EchoContext(ctx), me, forms)
 	if err != nil {

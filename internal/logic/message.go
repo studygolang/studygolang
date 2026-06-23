@@ -79,6 +79,11 @@ func (MessageLogic) SendSystemMsgTo(ctx context.Context, to, msgtype int, ext ma
 	return true
 }
 
+// maxAtMentionRecipients 限制单次 @ 通知的收件人数量。
+// 评论区/话题发布表单的 `uid`、`usernames` 字段以逗号分隔循环落库 + WebSocket 推送，
+// 不加上限可被攻击者构造超长列表（如 10000 项）做 DoS。
+const maxAtMentionRecipients = 30
+
 // SendSysMsgAtUids 给被@的用户发系统消息
 // authors 是被评论对象的作者
 func (MessageLogic) SendSysMsgAtUids(ctx context.Context, uids string, ext map[string]interface{}, author int) bool {
@@ -95,6 +100,10 @@ func (MessageLogic) SendSysMsgAtUids(ctx context.Context, uids string, ext map[s
 	msg := NewMessage(WsMsgNotify, 1)
 
 	uidSlice := strings.Split(uids, ",")
+	// 截断：防止构造超长 uid 列表做 DoS（顺序 DB 写 + WS 推送）
+	if len(uidSlice) > maxAtMentionRecipients {
+		uidSlice = uidSlice[:maxAtMentionRecipients]
+	}
 	for _, uidStr := range uidSlice {
 		uid := goutils.MustInt(strings.TrimSpace(uidStr))
 
@@ -140,6 +149,10 @@ func (MessageLogic) SendSysMsgAtUsernames(ctx context.Context, usernames string,
 	msg := NewMessage(WsMsgNotify, 1)
 
 	usernameSlice := strings.Split(usernames, ",")
+	// 截断：防止构造超长 username 列表做 DoS（顺序 DB FindOne + Insert + WS 推送）
+	if len(usernameSlice) > maxAtMentionRecipients {
+		usernameSlice = usernameSlice[:maxAtMentionRecipients]
+	}
 	for _, username := range usernameSlice {
 		user := DefaultUser.FindOne(ctx, "username", strings.TrimSpace(username))
 		// @ 的用户不存在

@@ -16,7 +16,6 @@ import (
 	"github.com/studygolang/studygolang/internal/logic"
 
 	echo "github.com/labstack/echo/v4"
-	"github.com/polaris1119/goutils"
 )
 
 type MessageController struct{}
@@ -51,7 +50,8 @@ func (MessageController) List(ctx echo.Context) error {
 		return fail(ctx, "参数有误：type 必须是 system、inbox 或 outbox")
 	}
 
-	curPage := goutils.MustInt(ctx.QueryParam("p"), 1)
+	// 统一走 boundPage：拒绝负页码与超大页码，避免 has_more 语义错乱
+	curPage := boundPage(ctx.QueryParam("p"))
 	paginator := logic.NewPaginator(curPage)
 
 	var (

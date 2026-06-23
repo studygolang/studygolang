@@ -194,11 +194,19 @@ func (self MissionLogic) changeUserBalance(session *xorm.Session, me *model.Me, 
 		return errors.New("服务内部错误")
 	}
 
+	// 修复明细流水写陈旧值：me.Balance 是会话开始前加载的旧值，并发消费场景下
+	// 写入的 balanceDetail.Balance 与 DB 真实余额不符，账目无法对账。
+	// 事务内 Get 最新余额作为明细依据（行锁 / 同事务可见性保证读到 Incr 后的值）。
+	latest := &model.User{}
+	if _, err = session.Where("uid=?", me.Uid).Get(latest); err != nil {
+		return errors.New("服务内部错误")
+	}
+
 	balanceDetail := &model.UserBalanceDetail{
 		Uid:     me.Uid,
 		Type:    typ,
 		Num:     award,
-		Balance: me.Balance + award,
+		Balance: latest.Balance,
 		Desc:    desc,
 	}
 	return DefaultUserRich.add(session, balanceDetail)

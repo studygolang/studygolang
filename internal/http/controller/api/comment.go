@@ -35,7 +35,9 @@ func (CommentController) List(ctx echo.Context) error {
 	objid := goutils.MustInt(ctx.QueryParam("objid"))
 	objtype := goutils.MustInt(ctx.QueryParam("objtype"))
 
-	if objid == 0 || !isValidObjType(objtype) {
+	// objid <= 0：防止负 ID 污染 Redis 楼层 key（comment:floor:<type>:-123）
+	// 并形成孤儿评论（按 objid=? 永远 join 不到主体）
+	if objid <= 0 || !isValidObjType(objtype) {
 		return fail(ctx, "参数有误")
 	}
 
@@ -54,7 +56,8 @@ func (CommentController) Detail(ctx echo.Context) error {
 	objid := goutils.MustInt(ctx.QueryParam("objid"))
 	objtype := goutils.MustInt(ctx.QueryParam("objtype"))
 
-	if cid == 0 || objid == 0 {
+	// cid/objid 均须为正：负 ID 同样会穿透到 Redis key 与 DB 索引
+	if cid <= 0 || objid <= 0 {
 		return fail(ctx, "参数有误")
 	}
 
@@ -94,7 +97,7 @@ func (CommentController) Create(ctx echo.Context) error {
 	uid := me.Uid
 
 	objid := goutils.MustInt(ctx.Param("objid"))
-	if objid == 0 {
+	if objid <= 0 {
 		return fail(ctx, "参数有误")
 	}
 

@@ -8,6 +8,7 @@ package http
 
 import (
 	"bytes"
+	"crypto/subtle"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -45,13 +46,27 @@ func init() {
 func SetLoginCookie(ctx echo.Context, username string) {
 	Store.Options.HttpOnly = true
 
+	// 生产环境强制 Secure，避免 admin 等旧路由的会话 cookie 走明文 HTTP 被窃取。
+	// 与 setAuthCookie（新 JWT cookie）行为对齐。
+	secure := config.ConfigFile.MustValue("global", "env", "prod") == "prod"
+
 	session := GetCookieSession(ctx)
 	if ctx.FormValue("remember_me") != "1" {
 		// 浏览器关闭，cookie删除，否则保存30天(github.com/gorilla/sessions 包的默认值)
 		session.Options = &sessions.Options{
 			Path:     "/",
 			HttpOnly: true,
+			Secure:   secure,
 			SameSite: http.SameSiteLaxMode,
+		}
+	} else {
+		// remember_me 分支复用 Store.Options；确保 Secure 也同步设置
+		session.Options = &sessions.Options{
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   secure,
+			SameSite: http.SameSiteLaxMode,
+			MaxAge:   86400 * 30,
 		}
 	}
 	session.Values["username"] = username
@@ -527,7 +542,9 @@ func ValidateToken(token string) bool {
 	buffer := goutils.NewBuffer().Append(expireTimeStr).Append(uid).Append(TokenSalt)
 	actualMD5 := goutils.Md5(buffer.String())
 
-	if actualMD5 != expectedMD5 {
+	// 恒定时间比较：防止逐字节计时侧信道推断 MD5（虽影响范围有限，
+	// 但旧 token 仍可被外部直接构造调用，subtle.ConstantTimeCompare 成本极低）
+	if subtle.ConstantTimeCompare([]byte(actualMD5), []byte(expectedMD5)) != 1 {
 		logger.Errorln("ValidateToken: signature mismatch, possible token forgery! uid:", uid)
 		return false
 	}

@@ -134,13 +134,27 @@ func (self UserRichLogic) IncrUserRich(user *model.User, typ, award int, desc st
 		}
 	}
 
-	user.Balance += initialAward + award
-	if user.Balance < 0 {
-		user.Balance = 0
-	}
-	_, err = session.Where("uid=?", user.Uid).Cols("balance").Update(user)
+	// 修复 lost update：原先 user.Balance += delta 再 Cols("balance").Update(user)
+	// 等价于 SET balance=?（非原子），两笔并发奖励/扣费会互相覆盖，造成余额丢失或多发。
+	// 改为 SQL 表达式 balance = CASE WHEN balance+delta<0 THEN 0 ELSE balance+delta END，
+	// 原子地完成「增量 + 负数 clamp」。
+	delta := initialAward + award
+	_, err = session.Exec(
+		"UPDATE "+new(model.User).TableName()+" SET balance = CASE WHEN balance + ? < 0 THEN 0 ELSE balance + ? END WHERE uid = ?",
+		delta, delta, user.Uid,
+	)
 	if err != nil {
 		logger.Errorln("IncrUserRich update error:", err)
+		session.Rollback()
+		return
+	}
+
+	// 事务内重新读取最新余额作为明细流水落库依据。
+	// 之前的实现用 `user.Balance` 是会话开始前加载的陈旧值，并发场景下明细与真实余额不符。
+	latest := &model.User{}
+	has, err := session.Where("uid=?", user.Uid).Get(latest)
+	if err != nil || !has {
+		logger.Errorln("IncrUserRich reload balance error:", err)
 		session.Rollback()
 		return
 	}
@@ -149,7 +163,7 @@ func (self UserRichLogic) IncrUserRich(user *model.User, typ, award int, desc st
 		Uid:     user.Uid,
 		Type:    typ,
 		Num:     award,
-		Balance: user.Balance,
+		Balance: latest.Balance,
 		Desc:    desc,
 	}
 	_, err = session.Insert(balanceDetail)
@@ -158,6 +172,9 @@ func (self UserRichLogic) IncrUserRich(user *model.User, typ, award int, desc st
 		session.Rollback()
 		return
 	}
+
+	// 同步刷新内存中 user.Balance，避免上层调用方继续使用陈旧值
+	user.Balance = latest.Balance
 
 	session.Commit()
 }

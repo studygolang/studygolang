@@ -343,6 +343,21 @@ func (TopicController) Publish(ctx echo.Context) error {
 	}
 
 	forms, _ := ctx.FormParams()
+
+	// 长度上限：与 Append 一致（65535 bytes ≈ 64KB）。
+	// 不加上限时攻击者可提交 MB 级 payload，落库 + parseAtUser 正则 + 异步渲染放大开销。
+	// 标题额外收紧到 200 rune（与 model.Topic.Title 的 VARCHAR(200) 对齐，防 truncate 静默失败）。
+	const maxTopicTitleLen = 200
+	const maxTopicContentLen = 65535
+	title := forms.Get("title")
+	content := forms.Get("content")
+	if len([]rune(title)) > maxTopicTitleLen {
+		return fail(ctx, "标题过长（上限 200 字符）")
+	}
+	if len(content) > maxTopicContentLen {
+		return fail(ctx, "内容过长")
+	}
+
 	tid, err := logic.DefaultTopic.Publish(context.EchoContext(ctx), me, forms)
 	if err != nil {
 		return fail(ctx, "发布失败："+err.Error())
