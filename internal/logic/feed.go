@@ -305,6 +305,10 @@ func (self FeedLogic) updateSeq(objid, objtype, cmtnum, likenum, viewnum int) {
 			logger.Errorln("update feed seq error:", err)
 			return
 		}
+
+		// 主动失效缓存：原 TTL 300s 期间列表页会显示旧排序/旧评论数。
+		// 频繁更新场景的权衡：失效比持久陈旧更好（读取下次从 DB 拉新）。
+		cache.Feed.InvalidateAll(context.Background())
 	}()
 }
 
@@ -314,8 +318,13 @@ func (FeedLogic) setTop(session *xorm.Session, objid, objtype int, top int) erro
 		Update(map[string]interface{}{
 			"top": top,
 		})
+	if err != nil {
+		return err
+	}
 
-	return err
+	// 置顶变更直接影响列表头位置，必须立即失效缓存
+	go cache.Feed.InvalidateAll(context.Background())
+	return nil
 }
 
 // updateComment 更新动态评论数据
@@ -328,6 +337,7 @@ func (self FeedLogic) updateComment(objid, objtype, uid int, cmttime time.Time) 
 		})
 
 		self.updateSeq(objid, objtype, 1, 0, 0)
+		// updateSeq 内已 InvalidateAll
 	}()
 }
 
@@ -339,6 +349,7 @@ func (self FeedLogic) updateLike(objid, objtype, uid, num int) {
 			Update(new(model.Feed))
 	}()
 	self.updateSeq(objid, objtype, 0, num, 0)
+	// updateSeq 内已 InvalidateAll
 }
 
 func (self FeedLogic) modifyTopicNode(tid, nid int) {
