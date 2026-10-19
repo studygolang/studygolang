@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { useAuth } from "@/lib/auth-context"
+import { CaptchaField } from "@/components/captcha-field"
 import { PublishHeader } from "./components/publish-header"
 import { TopicFields } from "./components/topic-fields"
 import { ProjectFields } from "./components/project-fields"
@@ -171,6 +172,16 @@ function PublishContent() {
               content={publishState.content}
               setContent={publishState.setContent}
             />
+
+            {/* 发布验证码（后端风控触发后展示） */}
+            {publishState.needCaptcha && (
+              <CaptchaField
+                value={publishState.captchaValue}
+                onChange={publishState.setCaptchaValue}
+                captchaId={publishState.captchaId}
+                onCaptchaIdChange={publishState.setCaptchaId}
+              />
+            )}
 
             {/* 错误提示 */}
             {publishState.error && <p className="text-sm text-destructive">{publishState.error}</p>}

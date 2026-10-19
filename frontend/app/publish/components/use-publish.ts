@@ -6,6 +6,9 @@ import { loadDraft, clearDraft, draftKey, type DraftData } from "@/lib/draft"
 // 客户端组件使用相对路径，通过 next.config.mjs 中的 rewrites 代理到后端
 const API_BASE = ""
 
+// 后端返回该错误码表示发布操作需要验证码（对应 internal/http 的 NeedCaptchaCode）
+const NEED_CAPTCHA_CODE = 601
+
 type ContentType = "topic" | "article" | "project" | "resource" | "book"
 
 // 节点分组类型
@@ -72,6 +75,11 @@ export function usePublish({ initialType }: UsePublishProps) {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
   const [draftData, setDraftData] = useState<DraftData | null>(null)
+
+  // 发布验证码（后端风控触发 NEED_CAPTCHA_CODE 后展示）
+  const [needCaptcha, setNeedCaptcha] = useState(false)
+  const [captchaId, setCaptchaId] = useState("")
+  const [captchaValue, setCaptchaValue] = useState("")
 
   // 项目特定字段
   const [src, setSrc] = useState("")
@@ -154,6 +162,36 @@ export function usePublish({ initialType }: UsePublishProps) {
     }
   }
 
+  // 统一提交发布表单：附加验证码字段、处理响应错误码。
+  // 返回 null 表示失败（错误信息已写入 error 状态），成功返回响应 JSON
+  async function submitPublish(url: string, form: URLSearchParams): Promise<any | null> {
+    if (needCaptcha) {
+      form.set("captcha_id", captchaId)
+      form.set("captcha_solution", captchaValue)
+    }
+
+    const res = await fetch(`${API_BASE}${url}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      credentials: "include",
+      body: form.toString(),
+    })
+    // 反向代理（Nginx）在 502/504 时会返回 HTML 错误页，直接 .json() 会抛异常被吞掉
+    if (!res.ok) { setError("发布失败，请稍后重试"); return null }
+    const json = await res.json()
+
+    if (json.code === NEED_CAPTCHA_CODE) {
+      // 触发风控：展示验证码，用户填写后重新提交
+      setNeedCaptcha(true)
+      setError(json.msg || "请输入验证码后重新发布")
+      return null
+    }
+    if (json.code !== 0) { setError(json.msg || "发布失败"); return null }
+    return json
+  }
+
   // 发布处理
   async function handlePublish() {
     setError("")
@@ -163,6 +201,7 @@ export function usePublish({ initialType }: UsePublishProps) {
     if (contentType === "resource" && resourceForm === "link" && !resourceUrl.trim()) { setError("请填写资源链接"); return }
     if (contentType === "resource" && resourceForm === "content" && !content.trim()) { setError("请填写资源内容"); return }
     if (contentType === "book" && !bookAuthor.trim()) { setError("请填写作者"); return }
+    if (needCaptcha && !captchaValue.trim()) { setError("请输入验证码"); return }
 
     setSubmitting(true)
     // 发布时清除草稿
@@ -175,18 +214,8 @@ export function usePublish({ initialType }: UsePublishProps) {
         form.set("nid", nid)
         if (tags.length > 0) form.set("tags", tags.join(","))
 
-        const res = await fetch(`${API_BASE}/api/v1/topics`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          credentials: "include",
-          body: form.toString(),
-        })
-        // 反向代理（Nginx）在 502/504 时会返回 HTML 错误页，直接 .json() 会抛异常被吞掉
-        if (!res.ok) { setError("发布失败，请稍后重试"); return }
-        const json = await res.json()
-        if (json.code !== 0) { setError(json.msg || "发布失败"); return }
+        const json = await submitPublish("/api/v1/topics", form)
+        if (!json) return
         router.push(json.data?.tid ? `/topics/${json.data.tid}` : "/topics")
       } else if (contentType === "article") {
         const form = new URLSearchParams()
@@ -196,17 +225,8 @@ export function usePublish({ initialType }: UsePublishProps) {
         form.set("cover", "")
         if (tags.length > 0) form.set("tags", tags.join(","))
 
-        const res = await fetch(`${API_BASE}/api/v1/articles`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          credentials: "include",
-          body: form.toString(),
-        })
-        if (!res.ok) { setError("发布失败，请稍后重试"); return }
-        const json = await res.json()
-        if (json.code !== 0) { setError(json.msg || "发布失败"); return }
+        const json = await submitPublish("/api/v1/articles", form)
+        if (!json) return
         router.push(json.data?.id ? `/articles/${json.data.id}` : "/articles")
       } else if (contentType === "project") {
         const form = new URLSearchParams()
@@ -222,17 +242,8 @@ export function usePublish({ initialType }: UsePublishProps) {
         if (os.trim()) form.set("os", os.trim())
         if (tags.length > 0) form.set("tags", tags.join(","))
 
-        const res = await fetch(`${API_BASE}/api/v1/projects`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          credentials: "include",
-          body: form.toString(),
-        })
-        if (!res.ok) { setError("发布失败，请稍后重试"); return }
-        const json = await res.json()
-        if (json.code !== 0) { setError(json.msg || "发布失败"); return }
+        const json = await submitPublish("/api/v1/projects", form)
+        if (!json) return
         // 项目详情路由是 /p/[uri]（见 frontend/app/p/[uri]/page.tsx）
         router.push(json.data?.uri ? `/p/${json.data.uri}` : "/projects")
       } else if (contentType === "resource") {
@@ -247,17 +258,8 @@ export function usePublish({ initialType }: UsePublishProps) {
         if (resourceCatid) form.set("catid", resourceCatid)
         if (tags.length > 0) form.set("tags", tags.join(","))
 
-        const res = await fetch(`${API_BASE}/api/v1/resources`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          credentials: "include",
-          body: form.toString(),
-        })
-        if (!res.ok) { setError("发布失败，请稍后重试"); return }
-        const json = await res.json()
-        if (json.code !== 0) { setError(json.msg || "发布失败"); return }
+        const json = await submitPublish("/api/v1/resources", form)
+        if (!json) return
         router.push(json.data?.id ? `/resources/${json.data.id}` : "/resources")
       } else if (contentType === "book") {
         const form = new URLSearchParams()
@@ -275,17 +277,8 @@ export function usePublish({ initialType }: UsePublishProps) {
         if (bookPrice.trim()) form.set("price", bookPrice.trim())
         if (tags.length > 0) form.set("tags", tags.join(","))
 
-        const res = await fetch(`${API_BASE}/api/v1/books`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          credentials: "include",
-          body: form.toString(),
-        })
-        if (!res.ok) { setError("发布失败，请稍后重试"); return }
-        const json = await res.json()
-        if (json.code !== 0) { setError(json.msg || "发布失败"); return }
+        const json = await submitPublish("/api/v1/books", form)
+        if (!json) return
         router.push(json.data?.id ? `/books/${json.data.id}` : "/books")
       }
     } catch (err) {
@@ -320,6 +313,12 @@ export function usePublish({ initialType }: UsePublishProps) {
     error,
     handlePublish,
     handleCancel,
+    // 发布验证码（后端风控触发后展示）
+    needCaptcha,
+    captchaId,
+    setCaptchaId,
+    captchaValue,
+    setCaptchaValue,
     // 草稿
     draftData,
     restoreDraft,

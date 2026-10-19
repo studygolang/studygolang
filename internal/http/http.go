@@ -462,6 +462,9 @@ var (
 	TokenSalt       string // 保留用于 MD5 Token（兼容旧 Token）
 	JWTSecret       []byte // 新增 JWT Secret
 	NeedReLoginCode = 600
+	// NeedCaptchaCode 发布操作需要验证码：前端收到该错误码后应展示验证码，
+	// 并携带 captcha_id/captcha_solution 重新提交
+	NeedCaptchaCode = 601
 )
 
 // Claims JWT claims 结构

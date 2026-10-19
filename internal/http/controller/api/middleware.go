@@ -10,6 +10,7 @@ import (
 
 	"github.com/dchest/captcha"
 	"github.com/studygolang/studygolang/context"
+	. "github.com/studygolang/studygolang/internal/http"
 	"github.com/studygolang/studygolang/internal/logic"
 	"github.com/studygolang/studygolang/internal/model"
 
@@ -139,7 +140,8 @@ func hasSensitive(content, sensitive string) bool {
 
 	sensitives := strings.Split(sensitive, ",")
 	for _, s := range sensitives {
-		if strings.Contains(content, s) {
+		// 跳过空词项：配置出现多余逗号时 Contains(x, "") 恒真，会导致所有内容误判
+		if s != "" && strings.Contains(content, s) {
 			return true
 		}
 	}
@@ -181,7 +183,9 @@ func failBalance(ctx echo.Context) error {
 	return fail(ctx, "对不起，您的账号余额不足，可以领取初始资本！")
 }
 
-// failCaptcha 返回验证码错误响应
+// failCaptcha 返回验证码错误响应。
+// 使用 NeedCaptchaCode（601）而非普通错误码：前端（发布页）据此展示
+// 验证码输入框，用户填写后携带 captcha_id/captcha_solution 重新提交
 func failCaptcha(ctx echo.Context) error {
-	return fail(ctx, "验证码错误，记得刷新验证码！")
+	return fail(ctx, "请输入验证码后重新发布", NeedCaptchaCode)
 }
