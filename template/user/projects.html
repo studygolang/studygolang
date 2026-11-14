@@ -14,9 +14,9 @@
 				<div>
 					<h2>
 						{{if .Logo}}<img src="{{.Logo}}" alt="{{.Name}}" width="36px" />{{end}}
-						<a href="/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}" target="_blank" title="{{.Name}}">{{.Category}} <em>{{.Name}}</em></a>
+						<a href="/p/{{if .Uri}}{{urlquery .Uri}}{{else}}{{.Id}}{{end}}" target="_blank" title="{{.Name}}">{{.Category}} <em>{{.Name}}</em></a>
 					</h2>
-					<p class="text">{{substring .Desc 250 "..."}}<a href="/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}" target="_blank" title="阅读全文">阅读全文</a></p>
+					<p class="text">{{substring .Desc 250 "..."}}<a href="/p/{{if .Uri}}{{urlquery .Uri}}{{else}}{{.Id}}{{end}}" target="_blank" title="阅读全文">阅读全文</a></p>
 				</div>
 			</div>
 			<div class="row">
@@ -31,7 +31,7 @@
 						<i class="glyphicon glyphicon-eye-open"></i>
 						阅读:<span>{{.Viewnum}}</span>次
 					</span>
-					<a href="/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}#commentForm" class="cmt" target="_blank" title="评论数">
+					<a href="/p/{{if .Uri}}{{urlquery .Uri}}{{else}}{{.Id}}{{end}}#commentForm" class="cmt" target="_blank" title="评论数">
 						<i class="glyphicon glyphicon-comment"></i>
 						评论:<span>{{.Cmtnum}}</span>条
 					</a>

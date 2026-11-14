@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/page-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { fetchAPI } from "@/lib/api"
+import { fetchAPI, needRelogin } from "@/lib/api"
 import type { Subject } from "@/lib/types"
 import { Loader2, BookOpen, PlusCircle, Users, FileText } from "lucide-react"
 import Link from "next/link"
@@ -26,7 +26,7 @@ export default function MySubjectPage() {
     fetchAPI<MineSubjectData>("/subject/mine", { credentials: "include" })
       .then((data) => setSubjects(data?.subjects ?? []))
       .catch((err: Error) => {
-        if (err.message.includes("未登录") || err.message.includes("401")) {
+        if (needRelogin(err)) {
           router.push("/account/login?redirect=/subject/mine")
         } else {
           setError(err.message)
@@ -98,8 +98,8 @@ export default function MySubjectPage() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
-                {subject.intro && (
-                  <p className="text-sm text-muted-foreground line-clamp-2">{subject.intro}</p>
+                {subject.description && (
+                  <p className="text-sm text-muted-foreground line-clamp-2">{subject.description}</p>
                 )}
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
@@ -116,7 +116,7 @@ export default function MySubjectPage() {
                     <Link href={`/subject/${subject.id}`}>查看</Link>
                   </Button>
                   <Button asChild size="sm" variant="ghost" className="h-7 text-xs">
-                    <Link href={`/subject/modify?sid=${subject.id}`}>编辑</Link>
+                    <Link href={`/subject/modify/${subject.id}`}>编辑</Link>
                   </Button>
                 </div>
               </CardContent>

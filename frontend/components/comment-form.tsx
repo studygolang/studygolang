@@ -1,10 +1,11 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { commentAPI } from "@/lib/api"
+import { AtUserAutocomplete } from "@/components/at-user-autocomplete"
+import { commentAPI, needRelogin } from "@/lib/api"
 import { toast } from "sonner"
 
 interface CommentFormProps {
@@ -18,17 +19,19 @@ interface CommentFormProps {
 export function CommentForm({ objid, objtype, onSuccess, replyTo }: CommentFormProps) {
   const [content, setContent] = useState("")
   const [submitting, setSubmitting] = useState(false)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const router = useRouter()
+
+  const replyTarget = replyTo && replyTo.floor > 0 ? replyTo : null
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (submitting) return
 
     // 回复某楼层时自动加上 `#N楼 @username ` 前缀（与后端 decodeCmtContentForShow 正则一致）
-    let finalContent = content
-    if (replyTo && replyTo.floor > 0) {
-      finalContent = `#${replyTo.floor}楼 @${replyTo.username} ${content}`
-    }
+    const finalContent = replyTarget
+      ? `#${replyTarget.floor}楼 @${replyTarget.username} ${content}`
+      : content
 
     if (!finalContent.trim()) return
 
@@ -39,11 +42,11 @@ export function CommentForm({ objid, objtype, onSuccess, replyTo }: CommentFormP
       toast.success("评论发表成功")
       setContent("")
       onSuccess()
-    } catch (err: any) {
-      if (err.message?.includes("未登录")) {
+    } catch (err) {
+      if (needRelogin(err)) {
         router.push("/account/login")
       } else {
-        toast.error(err.message || "评论发表失败")
+        toast.error(err instanceof Error ? err.message : "评论发表失败")
       }
     } finally {
       setSubmitting(false)
@@ -52,16 +55,18 @@ export function CommentForm({ objid, objtype, onSuccess, replyTo }: CommentFormP
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
-      {replyTo && replyTo.floor > 0 && (
+      {replyTarget && (
         <div className="rounded-md border border-border bg-muted/40 px-3 py-1.5 text-xs text-muted-foreground">
-          回复 #{replyTo.floor}楼 @{replyTo.username}
+          回复 #{replyTarget.floor}楼 @{replyTarget.username}
         </div>
       )}
-      <textarea
+      <AtUserAutocomplete
+        textareaRef={textareaRef}
         value={content}
-        onChange={(e) => setContent(e.target.value)}
-        placeholder={replyTo && replyTo.floor > 0 ? `回复 @${replyTo.username}...` : "发表评论..."}
-        className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+        onChange={setContent}
+        placeholder={
+          replyTarget ? `回复 @${replyTarget.username}...` : "发表评论，输入 @ 可提及用户"
+        }
         rows={3}
       />
       <div className="flex justify-end">

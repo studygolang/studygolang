@@ -126,7 +126,7 @@ func (*TopicNode) TableName() string {
 
 // 推荐节点（仅作 XORM 中间结构，NodeInfo 联合查询使用；不参与 JSON 序列化）
 type RecommendNode struct {
-	Id        int       `xorm:"pk autoincr"`
+	Id        int `xorm:"pk autoincr"`
 	Name      string
 	Parent    int
 	Nid       int

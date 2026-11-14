@@ -68,15 +68,23 @@ func (BalanceController) MyBalance(ctx echo.Context) error {
 		}
 	}
 
+	// 没有任何积分记录 = 还没领过初始资本。旧版 balance.html 用「明细为空」
+	// 渲染领取卡片，前后端分离后把这个判断所需的数据下发给前端。
+	var initialMission *model.Mission
+	if total == 0 {
+		initialMission = logic.DefaultMission.InitialMission(context.EchoContext(ctx))
+	}
+
 	return success(ctx, map[string]interface{}{
 		"balance":  user.Balance,
 		"incomes":  incomes,
 		"expenses": expenses,
 		// 兼容字段（旧客户端或调试用）
-		"details":  details,
-		"total":    total,
-		"page":     p,
-		"has_more": hasMore,
+		"details":         details,
+		"total":           total,
+		"page":            p,
+		"has_more":        hasMore,
+		"initial_mission": initialMission,
 	})
 }
 

@@ -64,14 +64,13 @@ export default async function SubjectListPage({
                     )}
                     <div className="min-w-0 flex-1">
                       <h3 className="truncate font-medium">{subject.name}</h3>
-                      {subject.intro && (
+                      {subject.description && (
                         <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                          {subject.intro}
+                          {subject.description}
                         </p>
                       )}
                       <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
                         <span>{subject.article_num} 篇</span>
-                        <span>{subject.follower_num} 关注</span>
                       </div>
                     </div>
                   </div>

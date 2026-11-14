@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Bookmark } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { favoriteAPI } from '@/lib/api'
+import { favoriteAPI, needRelogin } from '@/lib/api'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 
@@ -35,11 +35,10 @@ export function FavoriteButton({
       await favoriteAPI.toggle(objid, objtype, newFavorited)
       setFavorited(newFavorited)
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : ''
-      if (msg.includes('未登录') || msg.includes('600')) {
+      if (needRelogin(err)) {
         router.push('/account/login')
       } else {
-        toast.error(msg || '操作失败')
+        toast.error(err instanceof Error ? err.message : '操作失败')
       }
     } finally {
       setLoading(false)

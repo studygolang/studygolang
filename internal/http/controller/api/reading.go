@@ -86,6 +86,10 @@ func (ReadingController) Detail(ctx echo.Context) error {
 		return fail(ctx, "晨读不存在")
 	}
 
+	// 旧版在 IReading 跳转时累加点击数；分离后由详情接口承担
+	go logic.DefaultReading.IncrClicknum(context.EchoContext(ctx), id)
+	reading.Clicknum++
+
 	return success(ctx, map[string]interface{}{
 		"reading": reading,
 	})

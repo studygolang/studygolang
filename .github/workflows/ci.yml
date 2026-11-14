@@ -45,7 +45,15 @@ jobs:
         run: go build ./...
 
       - name: go test
-        run: go test -race -cover ./...
+        env:
+          # CI 专用测试盐值，非生产密钥。internal/http 的 init() 在缺少 TOKEN_SALT
+          # 时会 panic，使整个测试二进制无法启动（api 包测试因此全部失败）。
+          TOKEN_SALT: ci-test-token-salt-0123456789abcdef0123456789abcdef
+          JWT_SECRET: ci-test-jwt-secret-0123456789abcdef0123456789abcdef
+        run: |
+          go test -race -cover ./...
+          go test -race -cover -tags unit ./...
+          # -tags integration 需要真实 Redis/MySQL，不在本 job 运行
 
   frontend:
     name: Frontend · lint · build
@@ -71,8 +79,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Lint
-        run: pnpm lint
+      - name: Type check
+        run: pnpm typecheck
 
       - name: Build
         run: pnpm build

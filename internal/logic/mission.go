@@ -129,6 +129,7 @@ func (self MissionLogic) RedeemLoginAward(ctx context.Context, me *model.Me) err
 	}
 
 	session.Commit()
+	_ = InvalidateUserCache(me.Uid)
 
 	return nil
 }
@@ -180,6 +181,16 @@ func (MissionLogic) Complete(ctx context.Context, me *model.Me, id string) error
 	DefaultUserRich.IncrUserRich(user, mission.Type, mission.Fixed, desc)
 
 	return nil
+}
+
+// InitialMission 返回初始资本任务，供前端渲染领取入口；不存在或已下线时返回 nil。
+func (MissionLogic) InitialMission(ctx context.Context) *model.Mission {
+	mission := &model.Mission{}
+	MasterDB.ID(model.InitialMissionId).Get(mission)
+	if mission.Id == 0 || mission.State != 0 {
+		return nil
+	}
+	return mission
 }
 
 func (MissionLogic) findMission(ctx context.Context, typ int) *model.Mission {

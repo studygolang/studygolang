@@ -17,6 +17,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
 import type { TopicNode } from "@/lib/types"
 
@@ -30,12 +38,22 @@ interface TopicFieldsProps {
   nid: string
   setNid: (nid: string) => void
   nodeGroups: NodeGroup[]
+  permission: string
+  setPermission: (permission: string) => void
 }
 
-export function TopicFields({ nid, setNid, nodeGroups }: TopicFieldsProps) {
+export function TopicFields({
+  nid,
+  setNid,
+  nodeGroups,
+  permission,
+  setPermission,
+}: TopicFieldsProps) {
   const [nodeOpen, setNodeOpen] = useState(false)
+  const { user } = useAuth()
 
   return (
+    <>
     <div className="w-56 space-y-1.5">
       <Label htmlFor="nid" className="text-sm font-medium">
         节点 <span className="text-destructive">*</span>
@@ -88,6 +106,26 @@ export function TopicFields({ nid, setNid, nodeGroups }: TopicFieldsProps) {
         </PopoverContent>
       </Popover>
     </div>
+
+    {/* 可见性：与旧版 template/topics/new.html 一致，付费可见仅 root/VIP 可选 */}
+    <div className="w-56 space-y-1.5">
+      <Label htmlFor="permission" className="text-sm font-medium">
+        可见性
+      </Label>
+      <Select value={permission} onValueChange={setPermission}>
+        <SelectTrigger id="permission" className="h-10">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="0">公开</SelectItem>
+          <SelectItem value="1">登录可见</SelectItem>
+          {(user?.is_root || user?.is_vip) && (
+            <SelectItem value="3">付费可见</SelectItem>
+          )}
+        </SelectContent>
+      </Select>
+    </div>
+    </>
   )
 }
 

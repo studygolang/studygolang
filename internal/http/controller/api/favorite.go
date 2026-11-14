@@ -80,12 +80,8 @@ func (FavoriteController) Toggle(ctx echo.Context) error {
 }
 
 // List 用户收藏列表
-// 响应字段对齐前端 favoriteAPI.listByUsername 契约：
-//
-//	{ favorites[], total, page, has_more }
-//
-// 同时保留按 objtype 分键（topics/articles/...）以便兼容老客户端。
-// favorites 是统一字段，前端默认读它即可。
+// 响应字段：{ user, favorites[], objtype, total, page, has_more }
+// favorites 是统一字段，元素类型由 objtype 决定（话题/文章/资源/项目）。
 func (FavoriteController) List(ctx echo.Context) error {
 	username := ctx.Param("username")
 	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "username", username)
@@ -139,6 +135,7 @@ func (FavoriteController) List(ctx echo.Context) error {
 	}
 
 	data := map[string]interface{}{
+		"user":      sanitizeUserForPublic(user),
 		"favorites": objList, // 统一字段（前端契约）
 		"objtype":   objtype,
 		"total":     total,

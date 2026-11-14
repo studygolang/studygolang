@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { Loader2 } from "lucide-react"
+import { ExternalLink, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -135,9 +135,21 @@ export default function WikiEditPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="content" className="text-sm font-medium">
-                  内容 <span className="text-destructive">*</span>
-                </Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="content" className="text-sm font-medium">
+                    内容 <span className="text-destructive">*</span>
+                  </Label>
+                  <a
+                    href="/wide"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
+                    title="通过 Wide 在线编写和运行 Go 代码"
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                    通过 Wide 编辑代码
+                  </a>
+                </div>
                 <Textarea
                   id="content"
                   placeholder="请输入 Wiki 内容，支持 Markdown 语法"

@@ -34,12 +34,38 @@ Run the following SQL to add the `passwd_type` column:
 mysql -u username -p database_name < migrations/20260329_add_passwd_type_column.sql
 ```
 
+Then widen `passwd` — **this step is mandatory**. The legacy column is `char(32)`,
+which fits an MD5 hex digest but not a 60-character bcrypt hash:
+
+```bash
+mysql -u username -p database_name < migrations/20261114_widen_user_login_passwd.sql
+```
+
+Without it, every bcrypt write is corrupted:
+
+| sql_mode | Effect |
+| --- | --- |
+| non-strict (MySQL 5.7 default) | hash silently truncated to 32 chars → **account permanently locked out** |
+| strict (MySQL 8.0 default) | `Data too long for column 'passwd'` → registration, password change and password reset all fail |
+
+All four write paths are affected: registration (`doCreateUser`), `UpdatePasswd`,
+`ResetPasswd`, and the md5→bcrypt auto-upgrade on login.
+
+The widening migration is idempotent, also adds `passwd_type` if the database was
+created from an older `config/db.sql`, and clears any already-truncated hashes.
+A truncated hash is unrecoverable, so those accounts are left password-less and
+must regain access through the "forgot password" email flow.
+
 ### Schema Definition
 
 ```sql
 ALTER TABLE user_login
 ADD COLUMN passwd_type VARCHAR(10) DEFAULT 'md5'
 COMMENT 'password type: md5(legacy) or bcrypt(new)';
+
+ALTER TABLE user_login
+MODIFY COLUMN passwd VARCHAR(255) NOT NULL DEFAULT ''
+COMMENT '密码哈希：md5 为 32 字符，bcrypt 为 60 字符';
 ```
 
 ## Code Changes
@@ -112,6 +138,13 @@ PASS
 
 3. **Login failures**: Monitor for any increase in login errors
 
+4. **Corrupted hashes** (must return 0 rows once the widening migration has run):
+   ```sql
+   SELECT uid, username, CHAR_LENGTH(passwd) AS len
+   FROM user_login
+   WHERE passwd_type = 'bcrypt' AND CHAR_LENGTH(passwd) <> 60;
+   ```
+
 ## Rollback Plan
 
 If issues arise:
@@ -124,6 +157,10 @@ If issues arise:
 2. **Database remains compatible** (MD5 passwords still work)
 
 3. **No data loss**: Users with bcrypt passwords can still login (code will check both types)
+
+> Caveat: reverting the code does not repair hashes that were already truncated by
+> the `char(32)` column. Those accounts stay locked out until the widening
+> migration clears them and the user resets their password by email.
 
 ## Security Considerations
 

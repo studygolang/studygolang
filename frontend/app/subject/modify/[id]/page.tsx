@@ -6,6 +6,14 @@ import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { useAuth } from "@/lib/auth-context"
@@ -17,7 +25,8 @@ interface Subject {
   name: string
   description: string
   cover: string
-  tags: string
+  contribute: boolean
+  audit: boolean
 }
 
 export default function SubjectModifyPage() {
@@ -31,7 +40,8 @@ export default function SubjectModifyPage() {
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
   const [cover, setCover] = useState("")
-  const [tags, setTags] = useState("")
+  const [contribute, setContribute] = useState("0")
+  const [audit, setAudit] = useState("1")
 
   useEffect(() => {
     if (authLoading) return
@@ -51,7 +61,8 @@ export default function SubjectModifyPage() {
       setName(subject.name || "")
       setDescription(subject.description || "")
       setCover(subject.cover || "")
-      setTags(subject.tags || "")
+      setContribute(subject.contribute ? "1" : "0")
+      setAudit(subject.audit ? "1" : "0")
     } catch (error) {
       toast.error("加载失败")
       router.push("/")
@@ -69,11 +80,13 @@ export default function SubjectModifyPage() {
     setSubmitting(true)
     try {
       await subjectAPI.modify({
-        id,
+        // 后端读的是 sid，不是 id
+        sid: id,
         name: name.trim(),
         description: description.trim(),
         cover: cover.trim(),
-        tags: tags.trim(),
+        contribute,
+        audit,
       })
       toast.success("修改成功")
       router.push(`/subject/${id}`)
@@ -127,11 +140,13 @@ export default function SubjectModifyPage() {
               <Label htmlFor="description" className="text-sm font-medium">
                 专栏描述
               </Label>
-              <Input
+              <Textarea
                 id="description"
-                placeholder="请输入专栏描述"
+                placeholder="请输入专栏描述（最多1000字，支持 markdown 语法）"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                rows={6}
+                maxLength={1000}
               />
             </div>
 
@@ -148,15 +163,33 @@ export default function SubjectModifyPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="tags" className="text-sm font-medium">
-                标签
+              <Label htmlFor="contribute" className="text-sm font-medium">
+                投稿
               </Label>
-              <Input
-                id="tags"
-                placeholder="多个标签用逗号分隔"
-                value={tags}
-                onChange={(e) => setTags(e.target.value)}
-              />
+              <Select value={contribute} onValueChange={setContribute}>
+                <SelectTrigger id="contribute" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0">不允许</SelectItem>
+                  <SelectItem value="1">允许</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="audit" className="text-sm font-medium">
+                审核
+              </Label>
+              <Select value={audit} onValueChange={setAudit}>
+                <SelectTrigger id="audit" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">需要</SelectItem>
+                  <SelectItem value="0">不需要</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

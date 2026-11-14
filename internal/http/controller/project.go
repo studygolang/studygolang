@@ -120,7 +120,7 @@ func (ProjectController) Modify(ctx echo.Context) error {
 
 // Detail 项目详情
 func (ProjectController) Detail(ctx echo.Context) error {
-	project := logic.DefaultProject.FindOne(context.EchoContext(ctx), ctx.Param("uri"))
+	project := logic.DefaultProject.FindOne(context.EchoContext(ctx), PathParam(ctx, "uri"))
 	if project == nil || project.Id == 0 {
 		return ctx.Redirect(http.StatusSeeOther, "/projects")
 	}

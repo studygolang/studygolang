@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
+import { cookies } from "next/headers"
 import {
   Eye,
   ExternalLink,
@@ -8,29 +9,46 @@ import {
   Download,
   MessageSquare,
   ThumbsUp,
-  Clock,
-  User,
 } from "lucide-react"
 import { Metadata } from "next"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import type { ProjectDetailData } from "@/lib/types"
+import { CommentSection } from "@/components/comment-section"
+import { ContentActions } from "@/components/content-actions"
+import { OBJTYPE_PROJECT, type ProjectDetailData } from "@/lib/types"
 import { fetchAPINullable } from "@/lib/api"
-import { formatNum } from "@/lib/utils"
+import { encodeProjectUri, formatNum } from "@/lib/utils"
 import { sanitizeHtml } from "@/lib/sanitize"
 
+// 点赞/收藏状态与评论 liked 都是当前用户维度的数据，不能进 ISR 缓存
+export const dynamic = "force-dynamic"
+
+async function authHeaders(): Promise<Record<string, string>> {
+  const store = await cookies()
+  const cookie = store
+    .getAll()
+    .map((c) => `${c.name}=${c.value}`)
+    .join("; ")
+  return cookie ? { Cookie: cookie } : {}
+}
+
 interface ProjectPageProps {
-  params: Promise<{ uri: string }>
+  // catch-all：历史项目的 uri 由名称派生，可能含 /（如 gin-gonic/gin）
+  params: Promise<{ uri: string[] }>
+}
+
+async function getProjectDetail(uri: string): Promise<ProjectDetailData | null> {
+  return fetchAPINullable<ProjectDetailData>(`/projects/${encodeURIComponent(uri)}`, {
+    cache: "no-store",
+    headers: await authHeaders(),
+  })
 }
 
 export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
-  const { uri } = await params
-  const data = await fetchAPINullable<ProjectDetailData>(
-    `/projects/${uri}`,
-    { next: { revalidate: 60 } }
-  )
+  const uri = (await params).uri.join("/")
+  const data = await getProjectDetail(uri)
 
   if (!data?.project) {
     return { title: "项目未找到 - Go语言中文网" }
@@ -49,17 +67,14 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
 }
 
 export default async function ProjectDetailPage({ params }: ProjectPageProps) {
-  const { uri } = await params
-  const data = await fetchAPINullable<ProjectDetailData>(
-    `/projects/${uri}`,
-    { next: { revalidate: 60 } }
-  )
+  const uri = (await params).uri.join("/")
+  const data = await getProjectDetail(uri)
 
   if (!data?.project) {
     return notFound()
   }
 
-  const { project, comments } = data
+  const { project, replies } = data
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -120,10 +135,10 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
               <p className="mt-1 text-sm text-muted-foreground">
                 by{" "}
                 <Link
-                  href={`/user/${project.author}`}
+                  href={`/user/${project.username || project.author}`}
                   className="font-medium text-foreground hover:text-primary"
                 >
-                  {project.author}
+                  {project.username || project.author}
                 </Link>
               </p>
               {project.desc && (
@@ -204,65 +219,26 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
               </a>
             )}
           </div>
+
+          <ContentActions
+            className="mt-5 border-t border-border pt-5"
+            objid={project.id}
+            objtype={OBJTYPE_PROJECT}
+            likeCount={project.likenum || 0}
+            initialLiked={Boolean(data.likeflag)}
+            initialFavorited={Boolean(data.hadcollect)}
+            ownerUsername={project.username}
+            editHref={`/projects/modify/${encodeProjectUri(uri)}`}
+          />
         </CardContent>
       </Card>
 
-      {/* Comments */}
-      <div className="space-y-4">
-        <h2 className="flex items-center gap-2 text-base font-semibold text-foreground">
-          <MessageSquare className="h-4 w-4" />
-          评论
-          {comments && comments.length > 0 && (
-            <Badge variant="secondary" className="text-xs">
-              {comments.length}
-            </Badge>
-          )}
-        </h2>
-
-        {!comments || comments.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-10 text-center">
-            <MessageSquare className="mb-2 h-8 w-8 text-muted-foreground/40" />
-            <p className="text-sm text-muted-foreground">暂无评论，来发表第一条评论吧</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {comments.map((comment) => (
-              <Card key={comment.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    {comment.avatar ? (
-                      <img
-                        src={comment.avatar}
-                        alt={comment.name}
-                        className="h-8 w-8 shrink-0 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                        <User className="h-4 w-4 text-primary" />
-                      </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-foreground">
-                          {comment.name}
-                        </span>
-                        <span className="text-xs text-muted-foreground/60">#{comment.floor}</span>
-                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Clock className="h-3 w-3" />
-                          {comment.ctime}
-                        </span>
-                      </div>
-                      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                        {comment.content}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
+      <CommentSection
+        objid={project.id}
+        objtype={OBJTYPE_PROJECT}
+        comments={replies}
+        ownerUid={project.user?.uid}
+      />
     </PageLayout>
   )
 }

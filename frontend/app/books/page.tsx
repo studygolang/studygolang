@@ -88,7 +88,7 @@ async function BookItems({ page }: { page: number }) {
                   <h3 className="text-sm font-bold leading-snug text-foreground group-hover:text-primary">
                     {book.name}
                   </h3>
-                  {book.buyer_show === 0 && (
+                  {book.is_free && (
                     <Badge className="shrink-0 bg-accent/10 text-[10px] font-semibold text-accent">
                       免费
                     </Badge>
@@ -100,11 +100,9 @@ async function BookItems({ page }: { page: number }) {
                   {book.translator && ` / 译：${book.translator}`}
                 </p>
 
-                {book.lang && (
-                  <Badge variant="outline" className="mt-1.5 text-[10px]">
-                    {book.lang}
-                  </Badge>
-                )}
+                <Badge variant="outline" className="mt-1.5 text-[10px]">
+                  {book.lang === 1 ? "英文版" : "中文版"}
+                </Badge>
 
                 {/* Description */}
                 {book.desc && (
@@ -115,9 +113,9 @@ async function BookItems({ page }: { page: number }) {
 
                 {/* Link */}
                 <div className="mt-3 flex items-center justify-end border-t border-border pt-3">
-                  {book.url ? (
+                  {book.online_url || book.buy_url || book.download_url ? (
                     <a
-                      href={book.url}
+                      href={book.online_url || book.buy_url || book.download_url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 text-xs font-medium text-primary transition-colors hover:text-primary/80"

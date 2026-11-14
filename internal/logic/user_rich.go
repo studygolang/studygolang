@@ -177,6 +177,10 @@ func (self UserRichLogic) IncrUserRich(user *model.User, typ, award int, desc st
 	user.Balance = latest.Balance
 
 	session.Commit()
+
+	// 余额进了用户缓存（30 分钟 TTL），不失效的话发布门槛会继续按旧余额判断：
+	// 刚领完初始资本的用户仍被「余额不足」挡最长半小时。
+	_ = InvalidateUserCache(user.Uid)
 }
 
 func (UserRichLogic) FindBalanceDetail(ctx context.Context, me *model.Me, p int, types ...int) []*model.UserBalanceDetail {
@@ -254,6 +258,7 @@ func (self UserRichLogic) Recharge(ctx context.Context, uid string, form url.Val
 		return
 	}
 	session.Commit()
+	_ = InvalidateUserCache(me.Uid)
 }
 
 func (UserRichLogic) add(session *xorm.Session, balanceDetail *model.UserBalanceDetail) error {

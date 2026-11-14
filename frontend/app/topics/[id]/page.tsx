@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { cookies } from "next/headers"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { TopicDetail } from "@/components/topic-detail"
@@ -7,11 +8,25 @@ import type { TopicDetailData, TopicAppend } from "@/lib/types"
 import { fetchAPI } from "@/lib/api"
 import { sanitizeHtml } from "@/lib/sanitize"
 
+// 话题有可见性（公开/登录可见/付费可见/仅自己可见），后端按当前登录用户判定。
+// 必须动态渲染并透传 Cookie：ISR 会把匿名结果缓存给所有人（受限话题永远读不到），
+// 也可能把付费用户的结果缓存给访客（内容泄露）。
+export const dynamic = "force-dynamic"
+
+async function authHeaders(): Promise<Record<string, string>> {
+  const store = await cookies()
+  const cookie = store
+    .getAll()
+    .map((c) => `${c.name}=${c.value}`)
+    .join("; ")
+  return cookie ? { Cookie: cookie } : {}
+}
+
 async function getTopicAppends(id: string): Promise<TopicAppend[]> {
   try {
     const data = await fetchAPI<{ appends: TopicAppend[] }>(
       `/topics/${id}/appends`,
-      { next: { revalidate: 60 } }
+      { cache: "no-store", headers: await authHeaders() }
     )
     return data?.appends ?? []
   } catch {
@@ -23,7 +38,7 @@ async function getTopicDetail(id: string): Promise<TopicDetailData | null> {
   try {
     return await fetchAPI<TopicDetailData>(
       `/topics/${id}`,
-      { next: { revalidate: 60 } }
+      { cache: "no-store", headers: await authHeaders() }
     )
   } catch {
     return null
@@ -111,7 +126,14 @@ export default async function TopicDetailPage({
           { label: topic ? topic.title.slice(0, 20) + (topic.title.length > 20 ? "..." : "") : `#${id}` },
         ]}
       />
-      <TopicDetail id={id} topic={topic} replies={replies} appends={appends} />
+      <TopicDetail
+        id={id}
+        topic={topic}
+        replies={replies}
+        appends={appends}
+        likeflag={data?.likeflag}
+        hadcollect={data?.hadcollect}
+      />
     </PageLayout>
   )
 }

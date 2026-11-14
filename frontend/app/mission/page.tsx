@@ -6,7 +6,7 @@ import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calendar, Gift, CheckCircle2, Loader2 } from "lucide-react"
-import { fetchAPI } from "@/lib/api"
+import { fetchAPI, needRelogin } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
@@ -35,7 +35,7 @@ export default function MissionPage() {
     fetchAPI<MissionData>("/mission/daily", { credentials: "include" })
       .then(setData)
       .catch((err: Error) => {
-        if (err.message.includes("未登录") || err.message.includes("401")) {
+        if (needRelogin(err)) {
           // 防止重定向循环：已在登录页则不跳转
           if (typeof window !== "undefined" && !window.location.pathname.startsWith("/account/login")) {
             router.push("/account/login?redirect=/mission/daily")

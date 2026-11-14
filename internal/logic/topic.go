@@ -163,9 +163,16 @@ func (TopicLogic) Modify(ctx context.Context, user *model.Me, form url.Values) (
 		"editor_uid": user.Uid,
 	}
 
-	fields := []string{"title", "content", "nid", "permission"}
+	fields := []string{"title", "content", "nid"}
 	for _, field := range fields {
 		change[field] = form.Get(field)
+	}
+
+	// permission 是 int 列。表单未提交时写入空串会被 MySQL 严格模式拒绝，
+	// 非严格模式下则静默置 0（公开），把受限话题变成所有人可见。
+	// 因此仅在显式提交时更新，并转成 int 避免类型不匹配。
+	if form.Has("permission") {
+		change["permission"] = goutils.MustInt(form.Get("permission"))
 	}
 
 	tid := form.Get("tid")

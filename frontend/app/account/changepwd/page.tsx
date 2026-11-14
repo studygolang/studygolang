@@ -52,8 +52,8 @@ export default function ChangePasswordPage() {
     setError("")
     setSuccess(false)
 
-    // 验证表单
-    if (!hasPasswd && !formData.curPasswd) {
+    // 验证表单：只有已设过密码的账号才需要填当前密码（纯 OAuth 用户是首次设密）
+    if (hasPasswd && !formData.curPasswd) {
       setError("请输入当前密码")
       return
     }

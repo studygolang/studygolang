@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { BookOpen, ExternalLink, Clock, Eye } from "lucide-react"
@@ -63,10 +64,8 @@ export async function generateMetadata({
 }
 
 const rtypeLabelMap: Record<number, string> = {
-  1: "文章",
-  2: "视频",
-  3: "工具",
-  4: "资讯",
+  0: "Go晨读",
+  1: "综合晨读",
 }
 
 export default async function ReadingDetailPage({
@@ -147,7 +146,7 @@ export default async function ReadingDetailPage({
             <div className="p-6">
               {/* 标签 */}
               <div className="mb-3 flex flex-wrap gap-1.5">
-                {reading.rtype && rtypeLabelMap[reading.rtype] && (
+                {rtypeLabelMap[reading.rtype] != null && (
                   <Badge variant="secondary" className="text-xs">
                     {rtypeLabelMap[reading.rtype]}
                   </Badge>
@@ -157,7 +156,7 @@ export default async function ReadingDetailPage({
                     {reading.rdate}
                   </Badge>
                 )}
-                {reading.inner === 1 && (
+                {reading.inner > 0 && (
                   <Badge variant="default" className="text-xs">
                     站内内容
                   </Badge>
@@ -169,16 +168,28 @@ export default async function ReadingDetailPage({
                 {reading.content}
               </h1>
 
-              {/* 主链接 */}
-              <a
-                href={reading.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-              >
-                阅读原文
-                <ExternalLink className="h-4 w-4" />
-              </a>
+              {/* 主链接：inner 为站内文章 ID（>0 跳站内文章，0 跳外链） */}
+              {reading.inner > 0 ? (
+                <Link
+                  href={`/articles/${reading.inner}`}
+                  className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                >
+                  阅读原文
+                  <BookOpen className="h-4 w-4" />
+                </Link>
+              ) : (
+                reading.url && (
+                  <a
+                    href={reading.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                  >
+                    阅读原文
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                )
+              )}
 
               {/* 多链接支持 */}
               {reading.urls && reading.urls.length > 0 && (

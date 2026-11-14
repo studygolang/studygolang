@@ -114,6 +114,12 @@ func (self GiftLogic) UserCanExchange(ctx context.Context, me *model.Me, gifts [
 			}
 		}
 	}
+
+	// 与 Exchange/doExchange 的准入条件保持一致：库存、剩余可兑次数、余额。
+	// BuyLimit 上面已按历史兑换记录扣减，此处 >0 即表示还能再兑。
+	for _, gift := range gifts {
+		gift.CanExchange = gift.RemainNum > 0 && gift.BuyLimit > 0 && me.Balance >= gift.Price
+	}
 }
 
 func (self GiftLogic) exchangeRedeem(gift *model.Gift, me *model.Me) error {
@@ -182,7 +188,11 @@ func (self GiftLogic) doExchange(gift *model.Gift, me *model.Me, remark string, 
 		return err
 	}
 
-	return session.Commit()
+	if err = session.Commit(); err != nil {
+		return err
+	}
+	_ = InvalidateUserCache(me.Uid)
+	return nil
 }
 
 func (self GiftLogic) doExpire(gift *model.Gift) {

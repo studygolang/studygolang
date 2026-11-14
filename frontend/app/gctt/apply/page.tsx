@@ -5,7 +5,7 @@ import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { gcttAPI } from "@/lib/api"
+import { gcttAPI, needRelogin } from "@/lib/api"
 import { useAuth } from "@/lib/auth-context"
 import { Loader2, CheckCircle2, BookOpen } from "lucide-react"
 import Link from "next/link"
@@ -29,7 +29,7 @@ export default function GcttApplyPage() {
         }
       })
       .catch((err: Error) => {
-        if (err.message.includes("未登录") || err.message.includes("401")) {
+        if (needRelogin(err)) {
           window.location.href = "/account/login?redirect=/gctt/apply"
         } else {
           setStatus("error")

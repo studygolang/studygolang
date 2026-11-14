@@ -35,25 +35,47 @@ func (self AccountController) RegisterRoute(g *echo.Group) {
 	g.POST("/account/social/unbind", self.SocialUnbind)
 }
 
-// SendActivateEmail 发送激活邮件（需要登录）
+// SendActivateEmail 发送激活邮件
 // POST /api/v1/account/send-activate-email
+//
+// 两种入口：
+//  1. 带 uuid（注册页「未收到？再发一次」）：匿名可用，uuid 由注册响应下发
+//  2. 不带 uuid：用当前登录账号的邮箱重发
+//
+// 这里必须用 parseAuthUID 而不是 requireAuth：未激活用户恰恰是最需要重发的人，
+// requireAuth 会因 Status != UserStatusAudit 把他们挡死，形成「收不到邮件→
+// 无法激活→无法重发」的死锁。
 func (AccountController) SendActivateEmail(ctx echo.Context) error {
-	me, err := requireAuth(ctx)
+	if !activateLimiter.check(ctx.RealIP(), 5, time.Hour) {
+		return fail(ctx, "请求过于频繁，请稍后再试")
+	}
+
+	isHttps := CheckIsHttps(ctx)
+
+	if uuid := ctx.FormValue("uuid"); uuid != "" {
+		email, ok := helper.RegActivateCode.GetEmail(uuid)
+		if !ok {
+			return fail(ctx, "非法请求")
+		}
+		go logic.DefaultEmail.SendActivateMail(email, uuid, isHttps)
+		return success(ctx, map[string]interface{}{
+			"message": "激活邮件已发送",
+		})
+	}
+
+	uid, err := parseAuthUID(ctx)
 	if err != nil {
 		return err
 	}
 
-	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", me.Uid)
+	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid)
 	if user == nil || user.Email == "" {
 		return fail(ctx, "用户不存在或未设置邮箱")
 	}
 
-	// 生成激活 UUID 并发送邮件
 	email := strings.TrimSpace(user.Email)
-	isHttps := CheckIsHttps(ctx)
-	// 生成真实 uuid 并登记 email 映射（master 用 RegActivateCode.GenUUID）
 	uuid := helper.RegActivateCode.GenUUID(email)
-	logic.DefaultEmail.SendActivateMail(email, uuid, isHttps)
+	go logic.DefaultEmail.SendActivateMail(email, uuid, isHttps)
 
 	return success(ctx, map[string]interface{}{
 		"message": "激活邮件已发送",

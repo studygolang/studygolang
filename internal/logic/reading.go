@@ -168,3 +168,10 @@ func (ReadingLogic) FindById(ctx context.Context, id int) *model.MorningReading 
 
 	return reading
 }
+
+// IncrClicknum 记录晨读点击数（旧版 IReading 跳转时累加，前后端分离后在详情接口累加）
+func (ReadingLogic) IncrClicknum(ctx context.Context, id int) {
+	if _, err := MasterDB.ID(id).Incr("clicknum", 1).Update(new(model.MorningReading)); err != nil {
+		GetLogger(ctx).Errorln("reading logic IncrClicknum Error:", err)
+	}
+}

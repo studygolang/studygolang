@@ -21,6 +21,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { cn } from "@/lib/utils"
@@ -48,18 +55,20 @@ interface Topic {
   content: string
   nid: number
   tags: string
+  permission: number
 }
 
 export default function TopicModifyPage() {
   const router = useRouter()
   const params = useParams()
   const id = params.id as string
-  const { isLoggedIn, isLoading: authLoading } = useAuth()
+  const { isLoggedIn, isLoading: authLoading, user } = useAuth()
 
   const [loading, setLoading] = useState(true)
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [nid, setNid] = useState("")
+  const [permission, setPermission] = useState("0")
   const [nodeGroups, setNodeGroups] = useState<NodeGroup[]>([])
   const [nodeOpen, setNodeOpen] = useState(false)
   const [tags, setTags] = useState<string[]>([])
@@ -93,6 +102,7 @@ export default function TopicModifyPage() {
       setTitle(topic.title || "")
       setContent(topic.content || "")
       setNid(String(topic.nid || ""))
+      setPermission(String(topic.permission ?? 0))
       if (topic.tags) {
         setTags(topic.tags.split(",").filter(Boolean))
       }
@@ -156,6 +166,7 @@ export default function TopicModifyPage() {
       form.set("title", title.trim())
       form.set("content", content.trim())
       form.set("nid", nid)
+      form.set("permission", permission)
       if (tags.length > 0) form.set("tags", tags.join(","))
 
       const res = await fetch(`${API_BASE}/api/v1/topics/${id}`, {
@@ -270,6 +281,25 @@ export default function TopicModifyPage() {
                     </Command>
                   </PopoverContent>
                 </Popover>
+              </div>
+
+              {/* 可见性：不提交会被后端跳过更新，此处始终显式提交 */}
+              <div className="w-40 space-y-1.5">
+                <Label htmlFor="permission" className="text-sm font-medium">
+                  可见性
+                </Label>
+                <Select value={permission} onValueChange={setPermission}>
+                  <SelectTrigger id="permission" className="h-10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">公开</SelectItem>
+                    <SelectItem value="1">登录可见</SelectItem>
+                    {(user?.is_root || user?.is_vip) && (
+                      <SelectItem value="3">付费可见</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="min-w-0 flex-1 space-y-1.5">

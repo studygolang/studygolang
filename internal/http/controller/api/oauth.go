@@ -187,10 +187,10 @@ func (OAuthController) GithubCallbackRedirect(ctx echo.Context) error {
 	}
 
 	// 检查是否已登录（绑定场景）
-	// 必须用 optionalAuth —— requireAuth 失败时会 fail() 写错误响应，
+	// 必须用 oauthBindUser —— requireAuth 失败时会 fail() 写错误响应，
 	// 之后走到 ctx.Redirect() 会触发 "HTTP response already written" 双写问题，
 	// 且 token 过期的登录用户会看到 JSON 401 而不是绑定成功跳转。
-	me := optionalAuth(ctx)
+	me := oauthBindUser(ctx)
 	if me != nil {
 		if bindErr := logic.DefaultThirdUser.BindGithub(context.EchoContext(ctx), code, me); bindErr != nil {
 			getLogger(ctx).Errorln("OAuth GitHub bind failed:", bindErr)
@@ -252,8 +252,8 @@ func (OAuthController) GiteaCallbackRedirect(ctx echo.Context) error {
 		return ctx.Redirect(http.StatusSeeOther, "/account/login?error=oauth_failed")
 	}
 
-	// 同 GithubCallbackRedirect：必须用 optionalAuth 避免双写
-	me := optionalAuth(ctx)
+	// 同 GithubCallbackRedirect：必须用 oauthBindUser 避免双写，且允许未激活用户绑定
+	me := oauthBindUser(ctx)
 	if me != nil {
 		if bindErr := logic.DefaultThirdUser.BindGitea(context.EchoContext(ctx), code, me); bindErr != nil {
 			getLogger(ctx).Errorln("OAuth Gitea bind failed:", bindErr)

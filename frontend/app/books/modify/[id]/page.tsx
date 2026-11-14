@@ -7,6 +7,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { useAuth } from "@/lib/auth-context"
@@ -37,6 +44,7 @@ export default function BookModifyPage() {
   const [tags, setTags] = useState("")
   const [catalogue, setCatalogue] = useState("")
   const [isFree, setIsFree] = useState(false)
+  const [lang, setLang] = useState("0")
 
   useEffect(() => {
     if (authLoading) return
@@ -65,6 +73,7 @@ export default function BookModifyPage() {
       setTags(book.tags || "")
       setCatalogue(book.catalogue || "")
       setIsFree(book.is_free || false)
+      setLang(String(book.lang ?? 0))
     } catch (err: any) {
       toast.error(err.message || "加载失败")
     } finally {
@@ -99,9 +108,11 @@ export default function BookModifyPage() {
         tags: tags.trim(),
         catalogue: catalogue.trim(),
         is_free: isFree ? "1" : "0",
+        lang,
       })
       toast.success("保存成功")
-      setTimeout(() => router.push(`/books/${id}`), 1200)
+      // 图书详情路由是 /book/[id]（/books 是列表页）
+      setTimeout(() => router.push(`/book/${id}`), 1200)
     } catch (err: any) {
       toast.error(err.message || "保存失败")
     } finally {
@@ -278,6 +289,22 @@ export default function BookModifyPage() {
                   className="h-10"
                 />
               </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="lang" className="text-sm font-medium">
+                语言
+              </Label>
+              {/* model.Book.Lang 是 int：0=中文版，1=英文版 */}
+              <Select value={lang} onValueChange={setLang}>
+                <SelectTrigger id="lang" className="w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0">中文</SelectItem>
+                  <SelectItem value="1">英文</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-1.5">

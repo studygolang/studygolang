@@ -83,7 +83,7 @@ func (WikiController) Modify(ctx echo.Context) error {
 
 // Detail 展示wiki页
 func (WikiController) Detail(ctx echo.Context) error {
-	wiki := logic.DefaultWiki.FindOne(context.EchoContext(ctx), ctx.Param("uri"))
+	wiki := logic.DefaultWiki.FindOne(context.EchoContext(ctx), PathParam(ctx, "uri"))
 	if wiki == nil {
 		return ctx.Redirect(http.StatusSeeOther, "/wiki")
 	}

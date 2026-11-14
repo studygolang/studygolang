@@ -12,7 +12,8 @@ import { Lock, ArrowLeft, Loader2, CheckCircle } from "lucide-react"
 function ResetPasswordForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const token = searchParams.get("token") || ""
+  // 旧版邮件链接用的是 ?code=，重定向只换路径不换参数名，两种都得认
+  const token = searchParams.get("token") || searchParams.get("code") || ""
 
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")

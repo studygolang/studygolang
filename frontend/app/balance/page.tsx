@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Coins, TrendingUp, TrendingDown, Loader2 } from "lucide-react"
+import { Coins, TrendingUp, TrendingDown, Loader2, Sparkles } from "lucide-react"
 import Link from "next/link"
-import { fetchAPI } from "@/lib/api"
+import { fetchAPI, needRelogin } from "@/lib/api"
+import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 
 interface BalanceDetail {
   id: number
@@ -16,11 +18,19 @@ interface BalanceDetail {
   ctime: string
 }
 
+interface InitialMission {
+  id: number
+  name: string
+  fixed: number
+}
+
 interface BalanceData {
+  balance: number
   details: BalanceDetail[]
   total: number
   page: number
   has_more: boolean
+  initial_mission: InitialMission | null
 }
 
 async function fetchBalance(page: number): Promise<BalanceData> {
@@ -33,6 +43,8 @@ export default function BalancePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(1)
+  const [reload, setReload] = useState(0)
+  const [claiming, setClaiming] = useState(false)
 
   useEffect(() => {
     setLoading(true)
@@ -40,14 +52,33 @@ export default function BalancePage() {
     fetchBalance(page)
       .then(setData)
       .catch((err: Error) => {
-        if (err.message.includes("未登录") || err.message.includes("401")) {
+        if (needRelogin(err)) {
           router.push("/account/login?redirect=/balance")
         } else {
           setError(err.message)
         }
       })
       .finally(() => setLoading(false))
-  }, [page, router])
+  }, [page, reload, router])
+
+  const handleClaimInitial = async () => {
+    const mission = data?.initial_mission
+    if (!mission || claiming) return
+    setClaiming(true)
+    try {
+      await fetchAPI<null>(`/mission/complete/${mission.id}`, {
+        method: "POST",
+        credentials: "include",
+      })
+      toast.success(`已领取初始资本 +${mission.fixed} 铜币`)
+      setPage(1)
+      setReload((r) => r + 1)
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "领取失败")
+    } finally {
+      setClaiming(false)
+    }
+  }
 
   return (
     <PageLayout sidebar={false}>
@@ -67,8 +98,35 @@ export default function BalancePage() {
           <CardContent>
             <div className="flex items-center gap-2">
               <Coins className="h-8 w-8 text-amber-500" />
-              <span className="text-4xl font-bold text-amber-600">{data.total}</span>
+              <span className="text-4xl font-bold text-amber-600">{data.balance}</span>
               <span className="text-sm text-muted-foreground">积分</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* 初始资本：没有任何积分记录时才出现，领取后后端不再下发 */}
+      {data?.initial_mission && (
+        <Card className="mb-6 border-amber-200 bg-amber-50/50 dark:border-amber-900 dark:bg-amber-950/30">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Sparkles className="h-5 w-5 text-amber-600" />
+              获得初始资本
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              欢迎来到社区。领取初始资本后你才能发布主题、文章等内容；发布和回复会消耗铜币，
+              完成有意义的事情（被回复、被采纳等）则会收获铜币。请优先把内容发布在
+              <span className="font-medium text-foreground">主题</span>中。
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-amber-600">
+                任务奖励 +{data.initial_mission.fixed} 铜币
+              </span>
+              <Button size="sm" onClick={handleClaimInitial} disabled={claiming}>
+                {claiming ? "领取中..." : "完成任务"}
+              </Button>
             </div>
           </CardContent>
         </Card>

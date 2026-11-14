@@ -7,14 +7,17 @@
 package api
 
 import (
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
 	"github.com/dchest/captcha"
 	"github.com/gorilla/sessions"
+	"github.com/polaris1119/config"
 	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/internal/http"
+	"github.com/studygolang/studygolang/internal/http/internal/helper"
 	"github.com/studygolang/studygolang/internal/logic"
 
 	echo "github.com/labstack/echo/v4"
@@ -54,6 +57,7 @@ type resetPasswordRequest struct {
 func (self AuthController) RegisterRoute(g *echo.Group) {
 	g.POST("/user/login", self.Login)
 	g.POST("/user/logout", self.Logout)
+	g.GET("/user/logout", self.LogoutRedirect)
 	g.POST("/user/register", self.Register)
 	g.POST("/user/forgot-password", self.ForgotPassword)
 	g.POST("/user/reset-password", self.ResetPassword)
@@ -109,12 +113,23 @@ func (AuthController) Login(ctx echo.Context) error {
 
 // Logout 退出登录，清除认证 Cookie 和 session
 func (AuthController) Logout(ctx echo.Context) error {
+	clearLoginState(ctx)
+	return success(ctx, nil)
+}
+
+// LogoutRedirect 兼容旧版 GET /account/logout（书签、外链）：清 Cookie 后回首页。
+// 新版前端走 POST /user/logout 拿 JSON。
+func (AuthController) LogoutRedirect(ctx echo.Context) error {
+	clearLoginState(ctx)
+	return ctx.Redirect(http.StatusSeeOther, "/")
+}
+
+func clearLoginState(ctx echo.Context) {
 	clearAuthCookie(ctx)
 	// 同时清除旧的 session（用于 /admin 等旧路由）
 	session := GetCookieSession(ctx)
 	session.Options = &sessions.Options{Path: "/", MaxAge: -1}
 	session.Save(Request(ctx), ResponseWriter(ctx))
-	return success(ctx, nil)
 }
 
 // Register 用户注册
@@ -168,11 +183,23 @@ func (AuthController) Register(ctx echo.Context) error {
 		return fail(ctx, errMsg)
 	}
 
+	// 与老版 controller/account.go 一致：开启邮箱验证时发激活邮件。
+	// 此时 user.Status = UserStatusNoAudit，可以登录但不能发布内容，
+	// 不发邮件用户就永远无法激活。
+	needActivate := config.ConfigFile.MustBool("account", "verify_email", true)
+	activateUUID := ""
+	if needActivate {
+		activateUUID = helper.RegActivateCode.GenUUID(email)
+		go logic.DefaultEmail.SendActivateMail(email, activateUUID, CheckIsHttps(ctx))
+	}
+
 	// 注册成功后自动登录，设置 Cookie
 	userLogin, err := logic.DefaultUser.Login(context.EchoContext(ctx), username, passwd)
 	if err != nil {
 		return success(ctx, map[string]interface{}{
-			"username": username,
+			"username":      username,
+			"need_activate": needActivate,
+			"activate_uuid": activateUUID,
 		})
 	}
 
@@ -188,8 +215,11 @@ func (AuthController) Register(ctx echo.Context) error {
 	SetLoginCookie(ctx, userLogin.Username)
 
 	return success(ctx, map[string]interface{}{
-		"uid":      userLogin.Uid,
-		"username": userLogin.Username,
+		"uid":           userLogin.Uid,
+		"username":      userLogin.Username,
+		"need_activate": needActivate,
+		// 供注册页「未收到？再发一次」匿名重发，无需依赖登录态
+		"activate_uuid": activateUUID,
 	})
 }
 

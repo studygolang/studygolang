@@ -356,9 +356,17 @@ func (SubjectLogic) Modify(ctx context.Context, user *model.Me, form url.Values)
 
 	change := map[string]interface{}{}
 
-	fields := []string{"name", "description", "cover", "contribute", "audit"}
+	fields := []string{"name", "description", "cover"}
 	for _, field := range fields {
 		change[field] = form.Get(field)
+	}
+
+	// contribute/audit 是 bool 列。表单未提交时写入空串会被 MySQL 严格模式拒绝，
+	// 非严格模式下则静默置 false，把「允许投稿」「需要审核」悄悄关掉。
+	for _, field := range []string{"contribute", "audit"} {
+		if form.Has(field) {
+			change[field] = goutils.MustInt(form.Get(field)) == 1
+		}
 	}
 
 	sid := form.Get("sid")
@@ -490,10 +498,11 @@ func (self SubjectLogic) genSubjectMapSlice(subject *model.Subject, subjectMapSl
 	}
 
 	*subjectMapSlice = append(*subjectMapSlice, map[string]interface{}{
-		"id":       subject.Id,
-		"name":     subject.Name,
-		"cover":    cover,
-		"username": username,
-		"had_add":  hadAdd,
+		"id":          subject.Id,
+		"name":        subject.Name,
+		"cover":       cover,
+		"description": subject.Description,
+		"username":    username,
+		"had_add":     hadAdd,
 	})
 }

@@ -17,16 +17,16 @@ const (
 
 // Download go 下载
 type Download struct {
-	Id          int `xorm:"pk autoincr"`
-	Version     string
-	Filename    string
-	Kind        string
-	OS          string `xorm:"os"`
-	Arch        string
-	Size        int
-	Checksum    string
-	Category    int
-	IsRecommend bool
-	Seq         int
-	CreatedAt   time.Time `xorm:"created"`
+	Id          int       `json:"id" xorm:"pk autoincr"`
+	Version     string    `json:"version"`
+	Filename    string    `json:"filename"`
+	Kind        string    `json:"kind"`
+	OS          string    `json:"os" xorm:"os"`
+	Arch        string    `json:"arch"`
+	Size        int       `json:"size"`
+	Checksum    string    `json:"checksum"`
+	Category    int       `json:"category"`
+	IsRecommend bool      `json:"is_recommend"`
+	Seq         int       `json:"seq"`
+	CreatedAt   time.Time `json:"created_at" xorm:"created"`
 }

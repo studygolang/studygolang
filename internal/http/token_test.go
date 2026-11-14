@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build integration
-// +build integration
+//go:build unit
+// +build unit
 
 package http
 
@@ -17,7 +17,7 @@ import (
 )
 
 // 注意：这些单元测试不依赖外部配置，可以直接运行
-// 运行方式：go test -v -run TestToken ./internal/http/
+// 运行方式：go test -v -tags unit -run TestToken ./internal/http/
 
 func TestGenToken(t *testing.T) {
 	// 初始化 TokenSalt（测试用）

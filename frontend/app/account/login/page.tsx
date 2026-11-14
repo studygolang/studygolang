@@ -18,7 +18,7 @@ function LoginForm() {
   const searchParams = useSearchParams()
   const rawRedirect = searchParams.get("redirect") || "/"
   const redirect = (rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")) ? rawRedirect : "/"
-  const { login } = useAuth()
+  const { refresh } = useAuth()
 
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
@@ -65,14 +65,9 @@ function LoginForm() {
         const data = await res.json()
         if (data.code === 0) {
           if (data.data && data.data.uid) {
-            login({
-              uid: data.data.uid,
-              username: data.data.username,
-              name: data.data.username,
-              avatar: "",
-              is_root: false,
-              is_vip: false,
-            })
+            // 登录响应只有 uid/username，is_root/is_admin/avatar 需从 /user/me 取，
+            // 否则管理员登录后看不到管理入口
+            await refresh()
             // 用 router.replace 保持 SPA 状态（auth context 已更新），避免整页刷新丢失 context
             router.replace(redirect)
           } else {

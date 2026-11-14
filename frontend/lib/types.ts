@@ -23,6 +23,8 @@ export const OBJTYPE_WIKI = 3
 export const OBJTYPE_PROJECT = 4
 export const OBJTYPE_BOOK = 5
 export const OBJTYPE_INTERVIEW = 6
+// 评论点赞用（model.TypeComment），不属于内容对象枚举
+export const OBJTYPE_COMMENT = 100
 
 // Feed 动态（聚合话题、文章、项目、资源等）
 // 注意：后端 model.Feed 没有 JSON tag，字段名首字母大写
@@ -94,17 +96,7 @@ export interface Topic {
   ctime: string
   mtime: string
   permission: number
-}
-
-export interface TopicReply {
-  id: number
-  tid: number
-  uid: number
-  name: string
-  avatar: string
-  content: string
-  ctime: string
-  floor: number
+  close_reply?: boolean
 }
 
 export interface TopicAppend {
@@ -126,6 +118,8 @@ export interface TopicListData extends Pagination {
 export interface TopicDetailData {
   topic: Topic
   replies: TopicReply[]
+  likeflag?: number
+  hadcollect?: number
 }
 
 // ======================== 文章相关 ========================
@@ -150,6 +144,22 @@ export interface Article {
   // mtime 在后端 Article 中没有直接的 JSON 字段（xorm 只读），按实际情况可能返回
   markdown: boolean
   gctt: boolean
+  close_reply?: boolean
+  // 自主发布（url == id）；转载文章带 domain/name 来源信息
+  is_self?: boolean
+  domain?: string
+}
+
+// GCTT 译文署名信息。后端 model.ArticleGCTT 没有 json tag，字段名首字母大写
+export interface ArticleGCTT {
+  ArticleID: number
+  Author: string
+  AuthorURL: string
+  Translator: string
+  Checker: string
+  URL: string
+  Avatar: string
+  Checkers: string[] | null
 }
 
 // 文章列表 API 返回：{ list, total, page, has_more }
@@ -160,21 +170,17 @@ export interface ArticleListData {
   has_more: boolean
 }
 
-// 文章详情 API 返回：{ article, replies, prev_next }
-export interface ArticleComment {
-  id: number
-  uid: number
-  name: string
-  avatar: string
-  content: string
-  ctime: string
-  floor: number
-}
-
+// 文章详情 API 返回：{ article, article_gctt, read_time, replies, prev_next, subjects }
 export interface ArticleDetailData {
   article: Article
+  article_gctt?: ArticleGCTT | null
+  // 预计阅读分钟数，0 表示不到 1 分钟
+  read_time?: number
   replies?: ArticleComment[]   // 后端字段名是 replies，非 comments
   prev_next?: Article[]        // 后端字段名是 prev_next（数组，[prev, next]）
+  subjects?: Subject[] | null
+  likeflag?: number
+  hadcollect?: number
 }
 
 // ======================== 项目相关 ========================
@@ -200,6 +206,7 @@ export interface Project {
   cmtnum: number
   likenum: number
   ctime: string
+  user?: User
 }
 
 export interface ProjectListData extends Pagination {
@@ -208,7 +215,10 @@ export interface ProjectListData extends Pagination {
 
 export interface ProjectDetailData {
   project: Project
-  comments?: Comment[]
+  // 后端字段名是 replies（与话题/文章详情一致），非 comments
+  replies?: Comment[]
+  likeflag?: number
+  hadcollect?: number
 }
 
 // ======================== 资源相关 ========================
@@ -277,22 +287,37 @@ export interface ReadingListData {
 export interface Book {
   id: number
   name: string
+  ename: string
   cover: string
   author: string
   translator: string
-  lang: string
+  lang: number // 0=中文版，1=英文版（model.Book.Lang 是 int）
+  pub_date: string
   desc: string
-  url: string
-  buyer_show: number
-  status: number
+  tags: string
+  catalogue: string
+  is_free: boolean
+  online_url: string
+  download_url: string
+  buy_url: string
+  price: number
   viewnum: number
   cmtnum: number
   likenum: number
-  ctime: string
+  uid: number
+  created_at: string
+  updated_at: string
 }
 
 export interface BookListData extends Pagination {
   books: Book[]
+}
+
+export interface BookDetailData {
+  book: Book
+  replies?: Comment[]
+  likeflag?: number
+  hadcollect?: number
 }
 
 // ======================== 用户相关 ========================
@@ -329,6 +354,7 @@ export interface Me {
   name: string
   avatar: string
   is_root: boolean
+  is_admin: boolean
   is_vip: boolean
 }
 
@@ -338,15 +364,38 @@ export interface LoginData {
 }
 
 // ======================== 评论相关 ========================
+// 对应后端 api.normalizeReplies 的输出（各详情页的 replies / comments 共用此结构）
 export interface Comment {
   id: number
+  objid?: number
+  objtype?: number
   uid: number
   name: string
   avatar: string
+  username?: string
   content: string
+  // 未转义的原始文本，编辑评论时回填（content 已被后端链接化）
+  raw_content?: string
   ctime: string
   floor: number
+  flag?: number
+  likenum?: number
+  // 仅登录用户的详情接口返回
+  liked?: boolean
+  // 侧边栏「最新评论」返回：评论所属对象的标题与 URL 前缀
+  objinfo?: {
+    title?: string
+    type_name?: string
+    uri?: string
+    // 完整详情页路径。项目用 uri 而非数字 id 作路由参数，必须优先用它
+    url?: string
+  }
+  reply_floor?: number
 }
+
+// 话题回复 / 文章评论与通用评论同构
+export type TopicReply = Comment
+export type ArticleComment = Comment
 
 // 后端 model.Comment 的完整字段
 export interface CommentDetail {
@@ -475,10 +524,13 @@ export interface Subject {
   id: number
   name: string
   cover: string
-  intro: string
+  description: string
   article_num: number
-  follower_num: number
   uid: number
+  // /subject/mine 额外返回的字段
+  username?: string
+  follower_num?: number
+  had_add?: number
 }
 
 export interface SubjectListData {
@@ -497,6 +549,14 @@ export interface Wiki {
   author: string
   ctime: string
   mtime: string
+  viewnum?: number
+  contributors?: WikiContributor[]
+}
+
+export interface WikiContributor {
+  uid: number
+  username: string
+  avatar: string
 }
 
 // ======================== 公告相关 ========================

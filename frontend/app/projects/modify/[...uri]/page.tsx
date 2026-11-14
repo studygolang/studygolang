@@ -11,12 +11,14 @@ import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { useAuth } from "@/lib/auth-context"
 import { projectWriteAPI } from "@/lib/api"
+import { encodeProjectUri } from "@/lib/utils"
 import { toast } from "sonner"
 
 export default function ProjectModifyPage() {
   const router = useRouter()
   const params = useParams()
-  const uri = params.uri as string
+  // catch-all：历史项目的 uri 可能含 /
+  const uri = Array.isArray(params.uri) ? params.uri.join("/") : (params.uri as string)
   const { isLoggedIn, isLoading: authLoading } = useAuth()
 
   const [loading, setLoading] = useState(true)
@@ -40,7 +42,7 @@ export default function ProjectModifyPage() {
   useEffect(() => {
     if (authLoading) return
     if (!isLoggedIn) {
-      router.replace(`/account/login?redirect=/projects/modify/${uri}`)
+      router.replace(`/account/login?redirect=/projects/modify/${encodeProjectUri(uri)}`)
       return
     }
     fetchProject()
@@ -82,7 +84,7 @@ export default function ProjectModifyPage() {
 
     setSubmitting(true)
     try {
-      await projectWriteAPI.update(uri, {
+      const result = await projectWriteAPI.update(uri, {
         name: name.trim(),
         category: category.trim(),
         logo: logo.trim(),
@@ -98,7 +100,9 @@ export default function ProjectModifyPage() {
         os: os.trim(),
       })
       toast.success("保存成功")
-      setTimeout(() => router.push(`/projects/${uri}`), 1200)
+      // 项目详情路由是 /p/[...uri]（/projects 是列表页）
+      const nextUri = result?.uri || uri
+      setTimeout(() => router.push(`/p/${encodeProjectUri(nextUri)}`), 1200)
     } catch (err: any) {
       toast.error(err.message || "保存失败")
     } finally {

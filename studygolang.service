@@ -1,0 +1,55 @@
+[Unit]
+Description=StudyGolang - Go 语言中文网社区服务
+Documentation=https://github.com/studygolang/studygolang
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+# 运行用户（根据实际环境修改）
+User=www-data
+Group=www-data
+
+# 安装目录（根据实际部署路径修改）
+WorkingDirectory=/opt/studygolang
+
+# 启动命令
+ExecStart=/opt/studygolang/bin/studygolang
+
+# 优雅重载（对应 Makefile 中的 reload target，发送 SIGUSR2）
+ExecReload=/bin/kill -USR2 $MAINPID
+
+# 优雅停止（Go 的 gracefulRun 支持 SIGINT/SIGTERM）
+KillSignal=SIGINT
+TimeoutStopSec=30
+
+# 环境变量
+Environment=GOTRACEBACK=crash
+
+# 进程管理
+Restart=on-failure
+RestartSec=5
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+# 安全加固
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/studygolang/log /opt/studygolang/pid /opt/studygolang/data
+PrivateTmp=true
+
+# 日志
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=studygolang
+
+# 资源限制（对应 Makefile 中的 ulimit 设置）
+LimitCORE=infinity
+
+# 文件描述符
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

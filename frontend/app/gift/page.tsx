@@ -24,19 +24,32 @@ import Link from "next/link"
 interface Gift {
   id: number
   name: string
-  cover: string
-  intro: string
+  description: string
   price: number
-  num: number
+  remain_num: number
+  buy_limit: number
+  typ_show: string
   can_exchange: boolean
 }
 
 interface ExchangeRecord {
   id: number
   gift_id: number
-  gift_name: string
-  num: number
+  remark: string
+  expire_time: string
   created_at: string
+}
+
+// 兑换码/履约说明存在 remark 里，是用户兑换后真正要拿到的东西
+function exchangeLabel(gift: Gift): string {
+  if (gift.remain_num <= 0) return "已兑完"
+  if (gift.buy_limit <= 0) return "已达上限"
+  if (!gift.can_exchange) return "积分不足"
+  return "兑换"
+}
+
+function isZeroTime(value: string): boolean {
+  return !value || value.startsWith("0001-")
 }
 
 export default function GiftPage() {
@@ -93,8 +106,8 @@ export default function GiftPage() {
         body: form.toString(),
         credentials: "include",
       })
-      // 兑换成功后刷新列表以获取最新库存
-      loadData()
+      // 兑换码在「兑换记录」里，切过去让用户直接拿到（tab 变化会触发重新拉取）
+      setTab("mine")
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "兑换失败"
       setError(message)
@@ -146,10 +159,13 @@ export default function GiftPage() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <h3 className="font-medium">{gift.name}</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">{gift.intro}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{gift.description}</p>
                       <div className="mt-2 flex items-center gap-3">
-                        <span className="text-sm font-semibold text-amber-600">{gift.price} 积分</span>
-                        <span className="text-sm text-muted-foreground">· 剩余 {gift.num}</span>
+                        <span className="text-sm font-semibold text-amber-600">{gift.price} 铜币</span>
+                        <span className="text-sm text-muted-foreground">· 剩余 {gift.remain_num}</span>
+                        {gift.typ_show && (
+                          <span className="text-sm text-muted-foreground">· {gift.typ_show}</span>
+                        )}
                       </div>
                     </div>
                     <Button
@@ -157,7 +173,7 @@ export default function GiftPage() {
                       onClick={() => setConfirmGift(gift)}
                       disabled={!gift.can_exchange || exchanging === gift.id}
                     >
-                      {exchanging === gift.id ? "兑换中..." : gift.can_exchange ? "兑换" : "积分不足"}
+                      {exchanging === gift.id ? "兑换中..." : exchangeLabel(gift)}
                     </Button>
                   </div>
                 </CardContent>
@@ -175,12 +191,18 @@ export default function GiftPage() {
             records.map((record) => (
               <Card key={record.id}>
                 <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-medium">{record.gift_name}</h3>
-                      <p className="text-sm text-muted-foreground">兑换于 {record.created_at}</p>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0 flex-1">
+                      <p className="break-all font-mono text-sm">{record.remark || "处理中"}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        兑换于 {record.created_at}
+                      </p>
                     </div>
-                    <span className="text-sm text-muted-foreground">数量: {record.num}</span>
+                    {!isZeroTime(record.expire_time) && (
+                      <span className="shrink-0 text-sm text-muted-foreground">
+                        有效期至 {record.expire_time.slice(0, 10)}
+                      </span>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -195,8 +217,8 @@ export default function GiftPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>确认兑换</AlertDialogTitle>
             <AlertDialogDescription>
-              确定要使用 <span className="font-semibold text-amber-600">{confirmGift?.price} 积分</span> 兑换{" "}
-              <span className="font-medium">{confirmGift?.name}</span> 吗？兑换后积分将无法退回。
+              确定要使用 <span className="font-semibold text-amber-600">{confirmGift?.price} 铜币</span> 兑换{" "}
+              <span className="font-medium">{confirmGift?.name}</span> 吗？兑换后铜币将无法退回。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

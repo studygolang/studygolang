@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { BookOpen, ExternalLink, Clock, Eye, ChevronLeft, ChevronRight } from "lucide-react"
+import { BookOpen, Clock, Eye, ChevronLeft, ChevronRight } from "lucide-react"
 import { Metadata } from "next"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
@@ -18,33 +18,57 @@ export const metadata: Metadata = {
   },
 }
 
-// 后端 MorningReading 无 lang 字段
+// 后端 rtype 是晨读分类：0=Go晨读，1=综合晨读（见 model.RtypeGo/RtypeComp）
 const rtypeLabelMap: Record<number, string> = {
-  1: "文章",
-  2: "视频",
-  3: "工具",
-  4: "资讯",
+  0: "Go晨读",
+  1: "综合晨读",
 }
 
+const rtypeTabs = [
+  { rtype: 0, label: "Go晨读" },
+  { rtype: 1, label: "综合晨读" },
+]
+
 interface ReadingsPageProps {
-  searchParams: Promise<{ id?: string }>
+  searchParams: Promise<{ rtype?: string; lastid?: string }>
 }
 
 export default async function ReadingsPage({ searchParams }: ReadingsPageProps) {
   const params = await searchParams
-  const idParam = params.id
+  const rtype = params.rtype === "1" ? 1 : 0
+  const lastId = params.lastid
 
-  // 后端参数名为 lastid（非 id）
-  const apiPath = idParam ? `/readings?lastid=${idParam}` : "/readings"
-  const data = await fetchAPINullable<ReadingListData>(apiPath, { cache: "no-store" })
+  const query = new URLSearchParams()
+  query.set("rtype", String(rtype))
+  if (lastId) query.set("lastid", lastId)
+  const data = await fetchAPINullable<ReadingListData>(`/readings?${query.toString()}`, {
+    cache: "no-store",
+  })
 
   return (
     <PageLayout sidebar={false}>
       <PageHeader
         title="技术晨读"
         description="每日精选技术文章，开启你的技术早读时间"
-        breadcrumbs={[{ label: "技术晨读" }]}
+        breadcrumbs={[{ label: "技术晨读" }, { label: rtypeLabelMap[rtype] }]}
       />
+
+      {/* 分类切换：Go晨读 / 综合晨读 */}
+      <div className="mb-6 flex gap-2">
+        {rtypeTabs.map((tab) => (
+          <Link
+            key={tab.rtype}
+            href={`/readings?rtype=${tab.rtype}`}
+            className={
+              tab.rtype === rtype
+                ? "rounded-md bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground"
+                : "rounded-md bg-secondary px-4 py-1.5 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
+            }
+          >
+            {tab.label}
+          </Link>
+        ))}
+      </div>
 
       {!data || !data.readings || data.readings.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-20 text-center">
@@ -68,9 +92,9 @@ export default async function ReadingsPage({ searchParams }: ReadingsPageProps) 
 
                   {/* Content */}
                   <div className="flex flex-1 flex-col p-4">
-                    {/* Badges：后端无 lang 字段，只显示 rtype */}
+                    {/* Badges：rtype 分类（0 也是有效值，不能用 truthy 判断） */}
                     <div className="mb-2 flex flex-wrap gap-1.5">
-                      {reading.rtype && rtypeLabelMap[reading.rtype] && (
+                      {rtypeLabelMap[reading.rtype] != null && (
                         <Badge variant="secondary" className="text-[10px]">
                           {rtypeLabelMap[reading.rtype]}
                         </Badge>
@@ -82,15 +106,13 @@ export default async function ReadingsPage({ searchParams }: ReadingsPageProps) 
                       )}
                     </div>
 
-                    {/* 标题：后端用 content 字段存标题 */}
-                    <a
-                      href={reading.url || "#"}
-                      target={reading.url ? "_blank" : undefined}
-                      rel={reading.url ? "noopener noreferrer" : undefined}
+                    {/* 标题：后端用 content 字段存标题；跳详情页（站内/外链由详情页判定） */}
+                    <Link
+                      href={`/readings/${reading.id}`}
                       className="text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary"
                     >
                       {reading.content}
-                    </a>
+                    </Link>
 
                     {/* Meta */}
                     <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
@@ -104,16 +126,14 @@ export default async function ReadingsPage({ searchParams }: ReadingsPageProps) 
                           {reading.clicknum}
                         </span>
                       </div>
-                      <a
-                        href={reading.url || "#"}
-                        target={reading.url ? "_blank" : undefined}
-                        rel={reading.url ? "noopener noreferrer" : undefined}
+                      <Link
+                        href={`/readings/${reading.id}`}
                         className="flex items-center gap-1 text-xs font-medium text-primary transition-colors hover:text-primary/80"
                         aria-label={"阅读 " + reading.content}
                       >
                         阅读
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
+                        <BookOpen className="h-3 w-3" />
+                      </Link>
                     </div>
                   </div>
                 </CardContent>
@@ -123,12 +143,12 @@ export default async function ReadingsPage({ searchParams }: ReadingsPageProps) 
 
           {/* Prev / Next navigation
               后端分页信息嵌套在 data.page 对象中：{ has_prev, prev_id, has_next, next_id }
-              翻页参数使用 lastid（后端参数名）
+              翻页保留 rtype 分类，参数名 lastid（与后端一致）
           */}
           <div className="mt-8 flex items-center justify-center gap-4">
             {data.page?.has_prev && (
               <Link
-                href={`/readings?id=${data.page.prev_id}`}
+                href={`/readings?rtype=${rtype}&lastid=${data.page.prev_id}`}
                 className="flex items-center gap-1.5 rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -137,7 +157,7 @@ export default async function ReadingsPage({ searchParams }: ReadingsPageProps) 
             )}
             {data.page?.has_next && (
               <Link
-                href={`/readings?id=${data.page.next_id}`}
+                href={`/readings?rtype=${rtype}&lastid=${data.page.next_id}`}
                 className="flex items-center gap-1.5 rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
               >
                 下一期

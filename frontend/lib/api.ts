@@ -79,6 +79,28 @@ function createTimeoutSignal(existingSignal?: AbortSignal): {
 }
 
 /**
+ * 后端业务错误。携带 code 以便区分「需要重新登录」等语义，
+ * 不能靠 msg 字符串匹配：后端文案有「请先登录」「token 已过期，请重新登录」
+ * 「账号已被冻结或未激活，请重新登录」多种，都不含「未登录」。
+ */
+export class APIError extends Error {
+  code: number
+
+  constructor(code: number, message: string) {
+    super(message)
+    this.name = 'APIError'
+    this.code = code
+  }
+}
+
+// 与后端 internal/http/http.go 的 NeedReLoginCode 一致
+export const NEED_RELOGIN_CODE = 600
+
+export function needRelogin(err: unknown): boolean {
+  return err instanceof APIError && err.code === NEED_RELOGIN_CODE
+}
+
+/**
  * 统一的 API 请求函数（抛异常模式）
  * 错误时抛出异常，成功时返回 json.data
  */
@@ -90,16 +112,18 @@ export async function fetchAPI<T>(
   const url = `${base}/api/v1${path}`
 
   const { signal, cleanup } = createTimeoutSignal(options.signal ?? undefined)
+  // headers 必须单独取出：直接 ...options 会用调用方的 headers 整体覆盖默认头
+  const { headers, ...restOptions } = options
 
   try {
     const res = await fetch(url, {
       credentials: 'include',
+      ...restOptions,
       headers: {
         'Content-Type': 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
-        ...options.headers,
+        ...headers,
       },
-      ...options,
       signal,
     })
 
@@ -110,7 +134,7 @@ export async function fetchAPI<T>(
     const json: APIResponse<T> = await res.json()
     if (json.code !== 0) {
       // 后端错误字段为 msg（非 message）
-      throw new Error(json.msg || '请求失败')
+      throw new APIError(json.code, json.msg || '请求失败')
     }
 
     return json.data
@@ -195,7 +219,8 @@ export const projectAPI = {
   },
 
   getDetail(uri: string, fetchOptions?: RequestInit) {
-    return fetchAPI<ProjectDetailData>(`/projects/${uri}`, fetchOptions)
+    // uri 可能含斜杠（如 github.com/user/repo），不编码会被当成多级路径
+    return fetchAPI<ProjectDetailData>(`/projects/${encodeURIComponent(uri)}`, fetchOptions)
   },
 }
 
@@ -535,7 +560,7 @@ export const messageAPI = {
 export const projectWriteAPI = {
   // 获取项目编辑数据（需要登录）
   getEdit(uri: string, fetchOptions?: RequestInit) {
-    return fetchAPI<{ project: any }>(`/projects/${uri}/edit`, {
+    return fetchAPI<{ project: any }>(`/projects/${encodeURIComponent(uri)}/edit`, {
       ...fetchOptions,
       credentials: 'include',
     })
@@ -547,7 +572,7 @@ export const projectWriteAPI = {
     for (const [key, value] of Object.entries(data)) {
       form.set(key, value)
     }
-    return fetchAPI<{ message: string }>(`/projects/${uri}`, {
+    return fetchAPI<{ uri: string }>(`/projects/${encodeURIComponent(uri)}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: form.toString(),
@@ -682,11 +707,18 @@ export const subjectAPI = {
   },
 
   // 获取我的文章列表（用于投稿选择）
-  myArticles(fetchOptions?: RequestInit) {
-    return fetchAPI<{ articles: any[] }>('/subject/my_articles', {
-      ...fetchOptions,
-      credentials: 'include',
-    })
+  myArticles(params: { sid?: number; kw?: string } = {}, fetchOptions?: RequestInit) {
+    const q = new URLSearchParams()
+    if (params.sid) q.set('sid', String(params.sid))
+    if (params.kw) q.set('kw', params.kw)
+    const qs = q.toString()
+    return fetchAPI<{ articles: { id: number; title: string; had_add?: number }[] }>(
+      `/subject/my_articles${qs ? `?${qs}` : ''}`,
+      {
+        ...fetchOptions,
+        credentials: 'include',
+      }
+    )
   },
 }
 
@@ -697,9 +729,11 @@ export const accountAPI = {
     return fetchAPI<{ message: string }>('/account/activate?token=' + encodeURIComponent(token))
   },
 
-  // 发送激活邮件
-  sendActivateEmail() {
-    return fetchAPI<{ message: string }>('/account/send-activate-email', {
+  // 发送激活邮件。传 uuid 时走匿名重发（注册页「未收到？再发一次」），
+  // 不传则用当前登录账号的邮箱重发。
+  sendActivateEmail(uuid?: string) {
+    const qs = uuid ? `?uuid=${encodeURIComponent(uuid)}` : ''
+    return fetchAPI<{ message: string }>(`/account/send-activate-email${qs}`, {
       method: 'POST',
       credentials: 'include',
     })
@@ -715,6 +749,8 @@ export const accountAPI = {
     const form = new URLSearchParams()
     form.set('token', token)
     form.set('email', email)
+    // 后端按 unsubscribe 字段写库（1=退订，0=订阅），缺省会被解析成 0 导致退订变订阅
+    form.set('unsubscribe', '1')
     return fetchAPI<{ message: string }>('/account/email/unsubscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

@@ -267,21 +267,48 @@ export function LatestComments({ comments }: LatestCommentsProps) {
       </CardHeader>
       <CardContent className="px-4 pb-4">
         <div className="space-y-3">
-          {displayComments.map((comment, i) => (
-            <div key={comment.id} className="space-y-1">
-              <div className="flex items-center gap-2">
-                <Avatar className="h-5 w-5">
-                  <AvatarFallback className="bg-primary/10 text-[10px] font-semibold text-primary">
-                    {comment.name ? comment.name.charAt(0).toUpperCase() : "?"}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-xs font-medium text-foreground">{comment.name}</span>
-                <span className="text-[10px] text-muted-foreground">{formatTime(comment.ctime)}</span>
+          {displayComments.map((comment, i) => {
+            const author = comment.username || comment.name
+            // 项目详情页用 uri 而非数字 id，后端给了完整路径就优先用
+            const base = comment.objinfo?.url ?? (comment.objinfo?.uri ? `${comment.objinfo.uri}${comment.objid}` : null)
+            const target = base ? `${base}#comment${comment.id}` : null
+            return (
+              <div key={comment.id} className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Avatar className="h-5 w-5">
+                    <AvatarFallback className="bg-primary/10 text-[10px] font-semibold text-primary">
+                      {author ? author.charAt(0).toUpperCase() : "?"}
+                    </AvatarFallback>
+                  </Avatar>
+                  {author ? (
+                    <Link
+                      href={`/user/${author}`}
+                      className="text-xs font-medium text-foreground hover:text-primary"
+                    >
+                      {author}
+                    </Link>
+                  ) : (
+                    <span className="text-xs font-medium text-foreground">{"匿名用户"}</span>
+                  )}
+                  <span className="text-[10px] text-muted-foreground">{formatTime(comment.ctime)}</span>
+                </div>
+                {/* content 已被后端转义并链接化 @user / #N楼，必须按 HTML 渲染 */}
+                <SafeHtml
+                  html={comment.content}
+                  className="line-clamp-1 pl-7 text-xs text-muted-foreground [&_a]:text-primary"
+                />
+                {target && (
+                  <Link
+                    href={target}
+                    className="line-clamp-1 block pl-7 text-[10px] text-muted-foreground hover:text-primary"
+                  >
+                    {comment.objinfo?.type_name}：{comment.objinfo?.title}
+                  </Link>
+                )}
+                {i < displayComments.length - 1 && <Separator className="mt-2" />}
               </div>
-              <p className="line-clamp-1 pl-7 text-xs text-muted-foreground">{comment.content}</p>
-              {i < displayComments.length - 1 && <Separator className="mt-2" />}
-            </div>
-          ))}
+            )
+          })}
         </div>
       </CardContent>
     </Card>

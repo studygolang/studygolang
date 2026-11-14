@@ -7,7 +7,6 @@
 package api
 
 import (
-	"strconv"
 	"time"
 
 	"github.com/studygolang/studygolang/context"
@@ -93,7 +92,8 @@ func (SidebarController) RecentResource(ctx echo.Context) error {
 }
 
 // RecentComment 最近评论，limit 参数默认 10
-// 返回格式: { comments: [...], "<uid>": user }
+// 返回格式: { comments: [...] }
+// 每条评论内联作者 name/username/avatar，并保留 objinfo 供前端链接到所属对象。
 func (SidebarController) RecentComment(ctx echo.Context) error {
 	limit := boundLimit(goutils.MustInt(ctx.QueryParam("limit"), 10), 10)
 	recentComments := logic.DefaultComment.FindRecent(context.EchoContext(ctx), 0, -1, limit)
@@ -101,20 +101,32 @@ func (SidebarController) RecentComment(ctx echo.Context) error {
 	uids := slices.StructsIntSlice(recentComments, "Uid")
 	users := logic.DefaultUser.FindUserInfos(context.EchoContext(ctx), uids)
 
-	// Email 脱敏：未公开邮箱的用户清空 Email，与 profile.html 语义对齐。
-	for uid, u := range users {
-		users[uid] = sanitizeUserForPublic(u)
+	comments := make([]map[string]interface{}, 0, len(recentComments))
+	for _, c := range recentComments {
+		item := map[string]interface{}{
+			"id":          c.Cid,
+			"objid":       c.Objid,
+			"objtype":     c.Objtype,
+			"uid":         c.Uid,
+			"floor":       c.Floor,
+			"flag":        c.Flag,
+			"likenum":     c.Likenum,
+			"ctime":       c.Ctime,
+			"content":     c.Content,
+			"objinfo":     c.Objinfo,
+			"reply_floor": c.ReplyFloor,
+		}
+		if u := users[c.Uid]; u != nil {
+			item["name"] = u.Username
+			item["username"] = u.Username
+			item["avatar"] = u.Avatar
+		}
+		comments = append(comments, item)
 	}
 
-	result := map[string]interface{}{
-		"comments": recentComments,
-	}
-	// json encode 不支持 map[int]...，转换为字符串 key
-	for uid, user := range users {
-		result[strconv.Itoa(uid)] = user
-	}
-
-	return success(ctx, result)
+	return success(ctx, map[string]interface{}{
+		"comments": comments,
+	})
 }
 
 // HotNodes 热门节点

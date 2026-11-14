@@ -21,7 +21,7 @@
 				<td><a href="/p/{{.Id}}" target="_blank" class="blue">{{.Id}}</a></td>
 				<td>{{.Name}}</td>
 				<td>{{.Category}}</td>
-				<td><a href="/p/{{.Uri}}" target="_blank" class="blue">{{.Uri}}</a></td>
+				<td><a href="/p/{{urlquery .Uri}}" target="_blank" class="blue">{{.Uri}}</a></td>
 				<td>{{ .Src }}</td>
 				<td>{{ .Author }}</td>
 				<td class="status">{{.Status}}</td>

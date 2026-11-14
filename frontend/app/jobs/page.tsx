@@ -52,12 +52,13 @@ async function JobItems({ page }: { page: number }) {
 }
 
 interface JobsPageProps {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ p?: string }>
 }
 
 export default async function JobsPage({ searchParams }: JobsPageProps) {
   const params = await searchParams
-  const page = Math.max(1, parseInt(params.page || "1", 10))
+  // 分页链接与后端 /jobs 都用 p，不是 page
+  const page = Math.max(1, parseInt(params.p || "1", 10) || 1)
 
   return (
     <PageLayout sidebar={false}>

@@ -1,27 +1,43 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { cookies } from "next/headers"
 import { BookOpen, ExternalLink, Eye, MessageSquare, ThumbsUp } from "lucide-react"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { CommentSection } from "@/components/comment-section"
+import { ContentActions } from "@/components/content-actions"
+import { SafeHtml } from "@/components/safe-html"
 import { cn } from "@/lib/utils"
-import type { Book } from "@/lib/types"
+import { OBJTYPE_BOOK, type BookDetailData } from "@/lib/types"
 import { fetchAPINullable } from "@/lib/api"
 import { sanitizeHtml } from "@/lib/sanitize"
 
-export const revalidate = 60
+// 点赞/收藏状态与评论 liked 都是当前用户维度的数据，不能进 ISR 缓存
+export const dynamic = "force-dynamic"
 
 interface BookDetailPageProps {
   params: Promise<{ id: string }>
 }
 
+async function getBookDetail(id: string): Promise<BookDetailData | null> {
+  const store = await cookies()
+  const cookie = store
+    .getAll()
+    .map((c) => `${c.name}=${c.value}`)
+    .join("; ")
+  return fetchAPINullable<BookDetailData>(`/books/${id}`, {
+    cache: "no-store",
+    headers: cookie ? { Cookie: cookie } : {},
+  })
+}
+
 export async function generateMetadata({ params }: BookDetailPageProps): Promise<Metadata> {
   const { id } = await params
-  // 后端返回 { book: {...} }，需要取 book 字段
-  const data = await fetchAPINullable<{ book: Book }>(`/books/${id}`)
+  const data = await getBookDetail(id)
   const book = data?.book
   if (!book) {
     return { title: "书籍详情 - Go语言中文网" }
@@ -45,13 +61,15 @@ function getBookColor(id: number): string {
 
 export default async function BookDetailPage({ params }: BookDetailPageProps) {
   const { id } = await params
-  // 后端返回 { book: {...} }，需要取 book 字段
-  const data = await fetchAPINullable<{ book: Book }>(`/books/${id}`)
+  const data = await getBookDetail(id)
   const book = data?.book
 
   if (!book) {
     return notFound()
   }
+
+  const bid = parseInt(id)
+  const tags = (book.tags ?? "").split(",").map((t) => t.trim()).filter(Boolean)
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -69,8 +87,8 @@ export default async function BookDetailPage({ params }: BookDetailPageProps) {
     }),
     description: book.desc,
     image: book.cover,
-    url: book.url,
-    inLanguage: book.lang || "zh-CN",
+    url: book.online_url || book.buy_url || book.download_url,
+    inLanguage: book.lang === 1 ? "en" : "zh-CN",
   }
 
   return (
@@ -125,12 +143,10 @@ export default async function BookDetailPage({ params }: BookDetailPageProps) {
                   <h1 className="text-2xl font-bold text-foreground">{book.name}</h1>
 
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {book.lang && (
-                      <Badge variant="outline" className="text-xs">
-                        {book.lang}
-                      </Badge>
-                    )}
-                    {book.buyer_show === 0 && (
+                    <Badge variant="outline" className="text-xs">
+                      {book.lang === 1 ? "英文版" : "中文版"}
+                    </Badge>
+                    {book.is_free && (
                       <Badge className="bg-accent/10 text-xs font-semibold text-accent">
                         免费
                       </Badge>
@@ -168,19 +184,33 @@ export default async function BookDetailPage({ params }: BookDetailPageProps) {
                   </span>
                 </div>
 
-                {/* Buy / View Link */}
-                {book.url && (
-                  <div className="mt-2">
-                    <a
-                      href={book.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Button className="gap-2">
-                        {book.buyer_show === 0 ? "免费获取" : "购买此书"}
-                        <ExternalLink className="h-4 w-4" />
-                      </Button>
-                    </a>
+                {/* 在线阅读 / 下载 / 去购买，对齐旧版 template/books/detail.html 的三个入口 */}
+                {(book.online_url || book.download_url || book.buy_url) && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {book.online_url && (
+                      <a href={book.online_url} target="_blank" rel="noopener noreferrer">
+                        <Button className="gap-2">
+                          在线阅读
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                      </a>
+                    )}
+                    {book.download_url && (
+                      <a href={book.download_url} target="_blank" rel="noopener noreferrer">
+                        <Button variant="outline" className="gap-2">
+                          下载
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                      </a>
+                    )}
+                    {book.buy_url && (
+                      <a href={book.buy_url} target="_blank" rel="noopener noreferrer">
+                        <Button variant="outline" className="gap-2">
+                          去购买
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                      </a>
+                    )}
                   </div>
                 )}
               </div>
@@ -195,8 +225,51 @@ export default async function BookDetailPage({ params }: BookDetailPageProps) {
                 </p>
               </div>
             )}
+
+            {/* Catalogue：后端存的是富文本 HTML（旧版 noescape 输出） */}
+            {book.catalogue && (
+              <div className="mt-8 border-t border-border pt-6">
+                <h2 className="mb-3 text-base font-semibold text-foreground">目录</h2>
+                <SafeHtml
+                  html={book.catalogue}
+                  className="prose prose-sm max-w-none text-muted-foreground"
+                />
+              </div>
+            )}
+
+            {tags.length > 0 && (
+              <div className="mt-8 flex flex-wrap items-center gap-1.5 border-t border-border pt-6">
+                {tags.map((tag) => (
+                  <Link key={tag} href={`/tag/${encodeURIComponent(tag)}`}>
+                    <Badge variant="outline" className="text-xs">
+                      {tag}
+                    </Badge>
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            <ContentActions
+              className="mt-8 border-t border-border pt-6"
+              objid={bid}
+              objtype={OBJTYPE_BOOK}
+              likeCount={book.likenum || 0}
+              initialLiked={Boolean(data.likeflag)}
+              initialFavorited={Boolean(data.hadcollect)}
+              ownerUid={book.uid}
+              editHref={`/books/modify/${bid}`}
+            />
           </CardContent>
         </Card>
+
+        <div className="mt-4">
+          <CommentSection
+            objid={bid}
+            objtype={OBJTYPE_BOOK}
+            comments={data.replies}
+            ownerUid={book.uid}
+          />
+        </div>
 
         <div className="mt-4 text-center">
           <Link

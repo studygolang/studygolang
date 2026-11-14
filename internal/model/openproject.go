@@ -7,7 +7,6 @@
 package model
 
 import (
-	"net/url"
 	"time"
 
 	"xorm.io/xorm"
@@ -78,8 +77,4 @@ func (this *OpenProject) AfterSet(name string, cell xorm.Cell) {
 	if name == "logo" && this.Logo == "" {
 		this.Logo = WebsiteSetting.ProjectDfLogo
 	}
-}
-
-func (this *OpenProject) AfterLoad() {
-	this.Uri = url.QueryEscape(this.Uri)
 }

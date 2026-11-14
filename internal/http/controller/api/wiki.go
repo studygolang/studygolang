@@ -7,6 +7,7 @@
 package api
 
 import (
+	"sort"
 	"strconv"
 
 	"github.com/studygolang/studygolang/context"
@@ -19,6 +20,32 @@ import (
 )
 
 type WikiController struct{}
+
+// publicWiki 把 logic 填充的 Users（完整 model.User，含 Email/Balance/IsRoot 等）
+// 投影为公开字段：author（所有者用户名）+ contributors（uid/username/avatar）。
+// Users 已带 json:"-" 不会序列化，这里再置空避免内存中残留敏感数据被其他编码路径输出。
+func publicWiki(wiki *model.Wiki) {
+	if wiki == nil {
+		return
+	}
+	if owner, ok := wiki.Users[wiki.Uid]; ok && owner != nil {
+		wiki.Author = owner.Username
+	}
+	contributors := make([]model.WikiContributor, 0, len(wiki.Users))
+	for _, u := range wiki.Users {
+		if u == nil {
+			continue
+		}
+		contributors = append(contributors, model.WikiContributor{
+			Uid:      u.Uid,
+			Username: u.Username,
+			Avatar:   u.Avatar,
+		})
+	}
+	sort.Slice(contributors, func(i, j int) bool { return contributors[i].Uid < contributors[j].Uid })
+	wiki.Contributors = contributors
+	wiki.Users = nil
+}
 
 func (self WikiController) RegisterRoute(g *echo.Group) {
 	g.GET("/wiki", self.List)
@@ -69,6 +96,10 @@ func (WikiController) List(ctx echo.Context) error {
 		prevId = wikis[0].Id
 	}
 
+	for _, wiki := range wikis {
+		publicWiki(wiki)
+	}
+
 	return success(ctx, map[string]interface{}{
 		"wikis": wikis,
 		"page": map[string]interface{}{
@@ -82,7 +113,7 @@ func (WikiController) List(ctx echo.Context) error {
 
 // Detail Wiki 详情（通过 URI 查询）
 func (WikiController) Detail(ctx echo.Context) error {
-	uri := ctx.Param("uri")
+	uri := PathParam(ctx, "uri")
 	wiki := logic.DefaultWiki.FindOne(context.EchoContext(ctx), uri)
 	if wiki == nil || wiki.Id == 0 {
 		return fail(ctx, "Wiki 不存在")
@@ -98,6 +129,8 @@ func (WikiController) Detail(ctx echo.Context) error {
 	// 为了阅读数即时看到
 	wiki.Viewnum++
 
+	publicWiki(wiki)
+
 	return success(ctx, map[string]interface{}{
 		"wiki": wiki,
 	})
@@ -110,7 +143,7 @@ func (WikiController) Edit(ctx echo.Context) error {
 		return err
 	}
 
-	uri := ctx.Param("uri")
+	uri := PathParam(ctx, "uri")
 	wiki := logic.DefaultWiki.FindOne(context.EchoContext(ctx), uri)
 	if wiki == nil || wiki.Id == 0 {
 		return fail(ctx, "Wiki 不存在")

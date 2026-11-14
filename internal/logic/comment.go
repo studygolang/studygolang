@@ -61,13 +61,24 @@ end
 `
 )
 
+// redisDo 执行 Redis 命令。nosql.RedisClient 内嵌 redis.Conn 接口，Redis 不可用时
+// Conn 为 nil，而 Do 是接口的提升方法（不像 SET/GET 那样有 err 守卫），直接调用会 panic。
+// 统一在此判空并返回 error，让调用方走 DB 回退分支。
+func redisDo(client *nosql.RedisClient, command string, args ...interface{}) (interface{}, error) {
+	if client == nil || client.Conn == nil {
+		return nil, errors.New("redis connection unavailable")
+	}
+	return client.Do(command, args...)
+}
+
 // GetNextCommentFloor 获取下一个评论楼层号（原子性保证）。
 //
 // 实现要点：
 //   - 热路径用 Lua 原子 INCR（key 已存在）；
 //   - 冷路径（key 不存在：首次评论或 7 天 TTL 过期）走 DB + 分布式锁初始化，
 //     避免 INCR 自动从 1 开始导致与历史 DB 楼层号冲突；
-//   - 锁路径获取锁后会再次 Lua 探测，确保并发场景下只有一个 goroutine 真正查询 DB。
+//   - 锁路径获取锁后会再次 Lua 探测，确保并发场景下只有一个 goroutine 真正查询 DB；
+//   - Redis 整体不可用时退化为纯 DB 取号，保证评论功能不因缓存故障而中断。
 func GetNextCommentFloor(objid, objtype int) (int, error) {
 	redisClient := nosql.NewRedisClient()
 	defer redisClient.Close()
@@ -79,7 +90,7 @@ func GetNextCommentFloor(objid, objtype int) (int, error) {
 	prefixedKey := nosql.KeyPrefix + key
 
 	// 执行 Lua 脚本（原子性）
-	result, err := redisClient.Do("EVAL", checkAndIncrFloorScript, 1, prefixedKey, ttl)
+	result, err := redisDo(redisClient, "EVAL", checkAndIncrFloorScript, 1, prefixedKey, ttl)
 	if err == nil {
 		if floor, ok := result.(int64); ok && floor > 0 {
 			return int(floor), nil
@@ -95,49 +106,55 @@ func GetNextCommentFloor(objid, objtype int) (int, error) {
 }
 
 // getNextFloorWithLock 使用分布式锁从数据库初始化楼层号。
-// 进入此函数意味着 Redis key 不存在（首次评论或 TTL 过期）。
+// 进入此函数意味着 Redis key 不存在（首次评论或 TTL 过期），或 Redis 不可用。
 func getNextFloorWithLock(objid, objtype int, key string, ttl int) (int, error) {
 	redisClient := nosql.NewRedisClient()
 	defer redisClient.Close()
 
-	prefixedKey := nosql.KeyPrefix + key
-	lockKey := prefixedKey + ":lock"
-	lockValue := fmt.Sprintf("%d", time.Now().UnixNano())
+	// Redis 不可用时无法加分布式锁，退化为纯 DB 取号（等价于重构前实现），
+	// 避免缓存故障导致评论整体不可用；代价是并发下可能产生重复楼层号。
+	redisUsable := redisClient.Conn != nil
 
-	// 尝试获取锁（最多等待 3 秒）
-	locked := false
-	for i := 0; i < 30; i++ {
-		// SET NX EX（原子性获取锁）
-		reply, err := redisClient.Do("SET", lockKey, lockValue, "NX", "EX", 10)
-		if err == nil && reply != nil {
-			locked = true
-			break
+	if redisUsable {
+		prefixedKey := nosql.KeyPrefix + key
+		lockKey := prefixedKey + ":lock"
+		lockValue := fmt.Sprintf("%d", time.Now().UnixNano())
+
+		// 尝试获取锁（最多等待 3 秒）
+		locked := false
+		for i := 0; i < 30; i++ {
+			// SET NX EX（原子性获取锁）
+			reply, err := redisDo(redisClient, "SET", lockKey, lockValue, "NX", "EX", 10)
+			if err == nil && reply != nil {
+				locked = true
+				break
+			}
+
+			time.Sleep(100 * time.Millisecond)
 		}
 
-		time.Sleep(100 * time.Millisecond)
-	}
+		if !locked {
+			return 0, errors.New("failed to acquire distributed lock: timeout")
+		}
 
-	if !locked {
-		return 0, errors.New("failed to acquire distributed lock: timeout")
-	}
+		// 释放锁：用 Lua CAS 校验持锁者，避免锁 TTL 过期后误删其他进程的锁
+		defer func() {
+			_, _ = redisDo(redisClient, "EVAL", releaseLockScript, 1, lockKey, lockValue)
+		}()
 
-	// 释放锁：用 Lua CAS 校验持锁者，避免锁 TTL 过期后误删其他进程的锁
-	defer func() {
-		_, _ = redisClient.Do("EVAL", releaseLockScript, 1, lockKey, lockValue)
-	}()
-
-	// 双重检查：等待锁期间可能有其他 goroutine 已经初始化了 Redis key，
-	// 此时直接走原子 INCR 路径即可，避免重复查询 DB 导致楼层号回退。
-	result, err := redisClient.Do("EVAL", checkAndIncrFloorScript, 1, prefixedKey, ttl)
-	if err == nil {
-		if floor, ok := result.(int64); ok && floor > 0 {
-			return int(floor), nil
+		// 双重检查：等待锁期间可能有其他 goroutine 已经初始化了 Redis key，
+		// 此时直接走原子 INCR 路径即可，避免重复查询 DB 导致楼层号回退。
+		result, err := redisDo(redisClient, "EVAL", checkAndIncrFloorScript, 1, prefixedKey, ttl)
+		if err == nil {
+			if floor, ok := result.(int64); ok && floor > 0 {
+				return int(floor), nil
+			}
 		}
 	}
 
 	// 从数据库查询最大楼层号
 	tmpCmt := &model.Comment{}
-	_, err = MasterDB.Where("objid=? AND objtype=?", objid, objtype).
+	_, err := MasterDB.Where("objid=? AND objtype=?", objid, objtype).
 		OrderBy("floor DESC").
 		Get(tmpCmt)
 
@@ -148,9 +165,11 @@ func getNextFloorWithLock(objid, objtype int, key string, ttl int) (int, error) 
 
 	nextFloor := tmpCmt.Floor + 1
 
-	// 初始化 Redis 计数器（SET 会自动加 KeyPrefix）
-	if err := redisClient.SET(key, nextFloor, ttl); err != nil {
-		logger.Errorln("GetNextCommentFloor: failed to initialize Redis counter:", err)
+	if redisUsable {
+		// 初始化 Redis 计数器（SET 会自动加 KeyPrefix）
+		if err := redisClient.SET(key, nextFloor, ttl); err != nil {
+			logger.Errorln("GetNextCommentFloor: failed to initialize Redis counter:", err)
+		}
 	}
 
 	return nextFloor, nil
@@ -185,6 +204,8 @@ func (self CommentLogic) FindObjComments(ctx context.Context, objid, objtype int
 	comments = make([]map[string]interface{}, 0, len(commentList))
 	for _, comment := range commentList {
 		tmpMap := structs.Map(comment)
+		// decodeCmtContent 会转义并链接化 content，编辑评论需要原始文本
+		tmpMap["raw_content"] = comment.Content
 		tmpMap["content"] = template.HTML(self.decodeCmtContent(ctx, comment))
 		tmpMap["user"] = userMap[comment.Uid]
 		comments = append(comments, tmpMap)
@@ -519,6 +540,19 @@ func (CommentLogic) FindById(cid int) (*model.Comment, error) {
 	return comment, err
 }
 
+// objCommentPath 返回评论所属对象的详情页路径。
+// 项目的路由是 /p/:uri（不是数字 id），其余类型都用 id。
+func objCommentPath(objtype, objid int) string {
+	if objtype == model.TypeProject {
+		project := &model.OpenProject{}
+		has, err := MasterDB.ID(objid).Cols("uri").Get(project)
+		if err == nil && has && project.Uri != "" {
+			return model.PathUrlMap[objtype] + project.Uri
+		}
+	}
+	return fmt.Sprintf("%s%d", model.PathUrlMap[objtype], objid)
+}
+
 func (CommentLogic) decodeCmtContent(ctx context.Context, comment *model.Comment) string {
 	// 安全过滤
 	content := template.HTMLEscapeString(comment.Content)
@@ -527,7 +561,7 @@ func (CommentLogic) decodeCmtContent(ctx context.Context, comment *model.Comment
 
 	// 回复某一楼层
 	reg := regexp.MustCompile(`#(\d+)楼`)
-	url := fmt.Sprintf("%s%d#comment", model.PathUrlMap[comment.Objtype], comment.Objid)
+	url := objCommentPath(comment.Objtype, comment.Objid) + "#comment"
 	content = reg.ReplaceAllString(content, `<a href="`+url+`$1" title="$1">#$1<span>楼</span></a>`)
 
 	comment.Content = content
@@ -641,7 +675,7 @@ type CommentLike struct{}
 // objid：被喜欢对象id；num: 喜欢数(负数表示取消喜欢)
 func (self CommentLike) UpdateLike(objid, num int) {
 	// 更新喜欢数（TODO：暂时每次都更新表）
-	_, err := MasterDB.Where("id=?", objid).Incr("likenum", num).Update(new(model.Comment))
+	_, err := MasterDB.Where("cid=?", objid).Incr("likenum", num).Update(new(model.Comment))
 	if err != nil {
 		logger.Errorln("更新回复喜欢数失败：", err)
 	}

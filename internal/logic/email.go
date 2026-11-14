@@ -165,7 +165,7 @@ func (self EmailLogic) SendResetpwdMail(email, uuid string, isHttps ...bool) {
 	content := `您好，` + email + `,<br/><br/>
 &nbsp;&nbsp;&nbsp;&nbsp;我们的系统收到一个请求，说您希望通过电子邮件重新设置您在 <a href="` + domain + `">` + WebsiteSetting.Name + `</a> 的密码。您可以点击下面的链接重设密码：<br/><br/>
 
-&nbsp;&nbsp;&nbsp;&nbsp;` + domain + `/account/resetpwd?code=` + uuid + ` <br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;` + domain + `/account/reset-password?token=` + uuid + ` <br/><br/>
 
 如果这个请求不是由您发起的，那没问题，您不用担心，您可以安全地忽略这封邮件。<br/><br/>
 

@@ -23,6 +23,13 @@ func (self *LikeController) RegisterRoute(g *echo.Group) {
 	g.GET("/likes/:objid/status", self.Status)
 }
 
+// isValidLikeObjType 点赞对象类型校验。
+// 比 isValidObjType 多一个 TypeComment：旧版 /like/:objid 只校验参数是整数、
+// 不校验枚举，评论点赞（objtype=100）是既有功能，且 logic 侧已注册 CommentLike 回调。
+func isValidLikeObjType(objtype int) bool {
+	return isValidObjType(objtype) || objtype == model.TypeComment
+}
+
 // Status 查询当前用户是否已点赞
 func (LikeController) Status(ctx echo.Context) error {
 	token := getAuthToken(ctx)
@@ -38,7 +45,7 @@ func (LikeController) Status(ctx echo.Context) error {
 	objid := goutils.MustInt(ctx.Param("objid"))
 	objtype := goutils.MustInt(ctx.QueryParam("objtype"))
 
-	if objid == 0 || !isValidObjType(objtype) {
+	if objid == 0 || !isValidLikeObjType(objtype) {
 		return success(ctx, map[string]interface{}{"has_like": false})
 	}
 
@@ -65,7 +72,7 @@ func (LikeController) Toggle(ctx echo.Context) error {
 	objtype := goutils.MustInt(ctx.FormValue("objtype"))
 	flag := goutils.MustInt(ctx.FormValue("flag"))
 
-	if objid == 0 || !isValidObjType(objtype) {
+	if objid == 0 || !isValidLikeObjType(objtype) {
 		return fail(ctx, "参数错误")
 	}
 

@@ -128,8 +128,9 @@ func (self UserLogic) Update(ctx context.Context, me *model.Me, form url.Values)
 	}
 
 	cols := "name,open,city,company,github,weibo,website,monlog,introduce"
-	// 变更了邮箱
-	if user.Email != me.Email {
+	// 变更了邮箱。空值表示调用方未提交邮箱（例如只更新部分资料的表单），
+	// 不能据此把邮箱清空并将账号重置为未激活，否则用户会被永久锁死。
+	if user.Email != "" && user.Email != me.Email {
 		cols += ",email,status"
 		user.Status = model.UserStatusNoAudit
 	}

@@ -29,6 +29,7 @@ type meResponse struct {
 	Name     string `json:"name"`
 	Status   int    `json:"status"`
 	IsRoot   bool   `json:"is_root"`
+	IsAdmin  bool   `json:"is_admin"`
 	IsVip    bool   `json:"is_vip"`
 	Balance  int    `json:"balance"`
 	Gold     int    `json:"gold"`
@@ -89,6 +90,7 @@ func (UserProfileController) Me(ctx echo.Context) error {
 		Name:     user.Name,
 		Status:   user.Status,
 		IsRoot:   user.IsRoot,
+		IsAdmin:  logic.DefaultUser.IsAdmin(user),
 		IsVip:    user.IsVip,
 		Balance:  user.Balance,
 		Gold:     user.Gold,
@@ -289,7 +291,10 @@ func (UserProfileController) ChangePassword(ctx echo.Context) error {
 		return fail(ctx, "请求参数错误")
 	}
 
-	if req.CurPasswd == "" {
+	// 纯 OAuth 注册的用户没有密码，这里是「设置密码」而非「修改密码」。
+	// logic.UpdatePasswd 在 Passwd 为空时本就跳过原密码校验，API 层不能反过来硬性要求。
+	hasPasswd := logic.DefaultUser.HasPasswd(context.EchoContext(ctx), uid)
+	if hasPasswd && req.CurPasswd == "" {
 		return fail(ctx, "当前密码不能为空")
 	}
 	if req.NewPasswd == "" {
@@ -300,7 +305,7 @@ func (UserProfileController) ChangePassword(ctx echo.Context) error {
 		return fail(ctx, "密码长度必须在6到32个字符之间")
 	}
 
-	if req.CurPasswd == req.NewPasswd {
+	if hasPasswd && req.CurPasswd == req.NewPasswd {
 		return fail(ctx, "新密码不能与当前密码相同")
 	}
 

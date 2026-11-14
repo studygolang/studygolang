@@ -55,14 +55,14 @@ func (BookController) Detail(ctx echo.Context) error {
 	}
 
 	me, ok := ctx.Get("user").(*model.Me)
+	viewerUID := 0
+	result := map[string]interface{}{"book": book}
 	if ok {
-		logic.Views.Incr(Request(ctx), model.TypeBook, book.Id, me.Uid)
+		viewerUID = me.Uid
+		result["likeflag"] = logic.DefaultLike.HadLike(context.EchoContext(ctx), me.Uid, book.Id, model.TypeBook)
+		result["hadcollect"] = logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), me.Uid, book.Id, model.TypeBook)
 
-		result := map[string]interface{}{
-			"book":       book,
-			"likeflag":   logic.DefaultLike.HadLike(context.EchoContext(ctx), me.Uid, book.Id, model.TypeBook),
-			"hadcollect": logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), me.Uid, book.Id, model.TypeBook),
-		}
+		logic.Views.Incr(Request(ctx), model.TypeBook, book.Id, me.Uid)
 
 		if me.Uid != book.Uid {
 			go logic.DefaultViewRecord.Record(book.Id, model.TypeBook, me.Uid)
@@ -72,10 +72,6 @@ func (BookController) Detail(ctx echo.Context) error {
 			result["view_user_num"] = logic.DefaultViewRecord.FindUserNum(context.EchoContext(ctx), book.Id, model.TypeBook)
 			result["view_source"] = logic.DefaultViewSource.FindOne(context.EchoContext(ctx), book.Id, model.TypeBook)
 		}
-
-		// 为了阅读数即时看到
-		book.Viewnum++
-		return success(ctx, result)
 	} else {
 		logic.Views.Incr(Request(ctx), model.TypeBook, book.Id)
 	}
@@ -83,9 +79,13 @@ func (BookController) Detail(ctx echo.Context) error {
 	// 为了阅读数即时看到
 	book.Viewnum++
 
-	return success(ctx, map[string]interface{}{
-		"book": book,
-	})
+	// 旧版由 common/comment.html 异步拉取评论，前后端分离后随详情一起返回
+	replies, _, _ := logic.DefaultComment.FindObjComments(
+		context.EchoContext(ctx), book.Id, model.TypeBook, book.Uid, 0,
+	)
+	result["replies"] = normalizeReplies(ctx, replies, viewerUID)
+
+	return success(ctx, result)
 }
 
 // Publish 发布新图书（需要登录，支持 Cookie 和 X-Token header）

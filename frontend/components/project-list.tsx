@@ -10,7 +10,7 @@ import {
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { formatNum } from "@/lib/utils"
+import { encodeProjectUri, formatNum } from "@/lib/utils"
 import type { Project } from "@/lib/types"
 
 interface ProjectListProps {
@@ -52,7 +52,7 @@ export function ProjectList({ projects = [] }: ProjectListProps) {
               <div className="min-w-0 flex-1 space-y-2">
                 <div className="flex items-start gap-2">
                   <Link
-                    href={`/p/${project.uri || project.id}`}
+                    href={`/p/${encodeProjectUri(project.uri || project.id)}`}
                     className="text-base font-semibold leading-snug text-foreground transition-colors group-hover:text-primary"
                   >
                     {project.name}

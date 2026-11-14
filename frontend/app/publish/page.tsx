@@ -3,6 +3,7 @@
 import "./blocknote.css"
 import { Suspense, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { SiteHeader } from "@/components/site-header"
@@ -14,6 +15,7 @@ import { ProjectFields } from "./components/project-fields"
 import { ResourceFields } from "./components/resource-fields"
 import { BookFields } from "./components/book-fields"
 import { TagsInput } from "./components/tags-input"
+import { CaptchaField } from "@/components/captcha-field"
 import { EditorSection } from "./components/editor-section"
 import { FormActions } from "./components/form-actions"
 import { usePublish } from "./components/use-publish"
@@ -151,6 +153,8 @@ function PublishContent() {
                   nid={publishState.nid}
                   setNid={publishState.setNid}
                   nodeGroups={publishState.nodeGroups}
+                  permission={publishState.topicPermission}
+                  setPermission={publishState.setTopicPermission}
                 />
               )}
 
@@ -172,8 +176,28 @@ function PublishContent() {
               setContent={publishState.setContent}
             />
 
+            {/* 验证码：仅后端要求时显示（注册 30 分钟内或发布过频） */}
+            {publishState.captchaRequired && (
+              <CaptchaField
+                key={publishState.captchaKey}
+                value={publishState.captchaSolution}
+                onChange={publishState.setCaptchaSolution}
+                captchaId={publishState.captchaId}
+                onCaptchaIdChange={publishState.setCaptchaId}
+              />
+            )}
+
             {/* 错误提示 */}
-            {publishState.error && <p className="text-sm text-destructive">{publishState.error}</p>}
+            {publishState.error && (
+              <p className="text-sm text-destructive">
+                {publishState.error}
+                {publishState.error.includes("余额不足") && (
+                  <Link href="/balance" className="ml-2 underline">
+                    去领取初始资本
+                  </Link>
+                )}
+              </p>
+            )}
           </div>
 
           {/* 草稿恢复提示 */}

@@ -8,6 +8,7 @@ package api
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/studygolang/studygolang/context"
 	"github.com/studygolang/studygolang/internal/logic"
@@ -45,8 +46,13 @@ func (CommentController) List(ctx echo.Context) error {
 		context.EchoContext(ctx), objid, objtype, 0, 0,
 	)
 
+	viewerUID := 0
+	if me := optionalAuth(ctx); me != nil {
+		viewerUID = me.Uid
+	}
+
 	return success(ctx, map[string]interface{}{
-		"comments": normalizeReplies(comments),
+		"comments": normalizeReplies(ctx, comments, viewerUID),
 	})
 }
 
@@ -108,6 +114,11 @@ func (CommentController) Create(ctx echo.Context) error {
 	//   2) 保护楼层计数器（key 含 objtype），防止恶意构造的 objtype 污染计数器空间
 	if !isValidObjType(objtype) {
 		return fail(ctx, "objtype 参数非法")
+	}
+
+	// 空内容会白占一个楼层号并渲染成空白评论，与 Modify 的校验保持一致
+	if strings.TrimSpace(forms.Get("content")) == "" {
+		return fail(ctx, "评论内容不能为空")
 	}
 
 	// 内容长度限制：防止多 MB 内容落库 + 渲染 + 邮件通知被拖垮（DoS）

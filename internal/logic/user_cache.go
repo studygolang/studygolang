@@ -11,6 +11,7 @@ import (
 	"strconv"
 
 	"github.com/polaris1119/logger"
+	"github.com/polaris1119/nosql"
 	"golang.org/x/sync/singleflight"
 )
 
@@ -40,7 +41,8 @@ type UserInfoCache struct {
 // GetCachedUserInfo 获取缓存的用户信息
 // 返回 nil 表示缓存未命中
 func GetCachedUserInfo(uid int) *UserInfoCache {
-	redisClient := GetRedisClient()
+	redisClient := nosql.NewRedisClient()
+	defer redisClient.Close()
 
 	key := userInfoCachePrefix + strconv.Itoa(uid)
 	data := redisClient.GET(key)
@@ -63,7 +65,8 @@ func SetCachedUserInfo(userInfo *UserInfoCache) error {
 		return nil
 	}
 
-	redisClient := GetRedisClient()
+	redisClient := nosql.NewRedisClient()
+	defer redisClient.Close()
 
 	key := userInfoCachePrefix + strconv.Itoa(userInfo.Uid)
 	data, err := json.Marshal(userInfo)
@@ -76,7 +79,9 @@ func SetCachedUserInfo(userInfo *UserInfoCache) error {
 
 // InvalidateUserCache 使用户缓存失效
 func InvalidateUserCache(uid int) error {
-	redisClient := GetRedisClient()
+	redisClient := nosql.NewRedisClient()
+	defer redisClient.Close()
+
 	key := userInfoCachePrefix + strconv.Itoa(uid)
 	return redisClient.DEL(key)
 }

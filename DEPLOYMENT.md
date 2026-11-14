@@ -270,12 +270,14 @@ echo "✅ 部署完成！"
 **变更内容：**
 - 新用户：使用 bcrypt 哈希存储密码
 - 现有用户：MD5 密码仍然有效，登录成功后自动升级到 bcrypt
-- 影响表：`user_login` 新增 `passwd_type` 字段（`varchar(10) default('md5')`）
+- 影响表：`user_login` 新增 `passwd_type` 字段（`varchar(10) default('md5')`），
+  并把 `passwd` 从 `char(32)` 加宽到 `varchar(255)`
 
 **迁移步骤：**
 ```bash
-# 1. 执行数据库迁移
+# 1. 执行数据库迁移（两条都必须执行，顺序不能颠倒）
 mysql -u username -p database_name < migrations/20260329_add_passwd_type_column.sql
+mysql -u username -p database_name < migrations/20261114_widen_user_login_passwd.sql
 
 # 2. 部署新代码（自动迁移，无需停机）
 systemctl restart studygolang
@@ -284,14 +286,20 @@ systemctl restart studygolang
 # 查看日志中 "自动升级用户密码到 bcrypt" 消息
 ```
 
+> ⚠️ **第 2 条迁移不可跳过。** bcrypt 哈希固定 60 字符，而旧的 `passwd` 列只有
+> `char(32)`：非严格 sql_mode 下会被静默截断，用户此后**永久无法登录**；严格
+> sql_mode 下直接报 `Data too long`，导致注册、改密、重置密码全部失败。
+> 该迁移可重复执行，并会清理已经被截断的坏数据（这些账号需走「忘记密码」邮件重置）。
+
 **监控指标：**
 - 登录失败率（应保持不变）
 - bcrypt 升级成功数
 - 升级失败数（仅记录错误，不影响登录）
+- 坏哈希数量：`SELECT COUNT(*) FROM user_login WHERE passwd_type='bcrypt' AND CHAR_LENGTH(passwd)<>60;`（应为 0）
 
 **注意事项：**
 - ✅ 无停机时间，用户无感知
-- ✅ 现有用户无需重置密码
+- ✅ 现有用户无需重置密码（前提：两条迁移都已执行）
 - ✅ 升级失败不影响登录（降级到 MD5 验证）
 - ⚠️ 建议观察 6 个月迁移进度，考虑强制未升级用户重置密码
 
@@ -322,21 +330,18 @@ grep "使用.*Token" /var/log/studygolang/app.log | \
 
 ---
 
-### Redis 连接池优化
+### Redis 连接使用约定
 
-**变更内容：**
-- 新增全局 Redis 连接池（`internal/logic/redis_pool.go`）
-- `uuid_redis.go` 和 `user_cache.go` 使用连接池
-- 避免每次操作创建新连接
+`uuid_redis.go`、`user_cache.go` 与仓库其余 Redis 调用一致：每次操作通过
+`nosql.NewRedisClient()` 取独立连接，并 `defer Close()`。
 
-**性能提升：**
-- 减少连接创建开销
-- 降低 Redis 服务器负载
-- 提升并发处理能力
+**不要改回共享单例。** redigo 的单个 `redis.Conn` 不支持并发 `Do`
+（见 redigo `doc.go` 的 Concurrency 说明）。这些函数位于鉴权热路径，
+多请求共享一条连接会交错读写同一 socket，导致协议错乱甚至读到其他用户的数据。
 
-**注意事项：**
-- ✅ 向后兼容，行为不变
-- ⚠️ 程序退出时应调用 `logic.CloseRedisClient()`（可选）
+需要连接复用时，应配置 `[redis] max_idle` 并改用 `nosql.NewRedisFromPool()`
+（同样必须 `defer Close()`，归还连接到池）。注意该函数在缺少 `[redis]` 配置时
+会因内部 pool 为 nil 而 panic，仅适用于配置齐全的运行环境。
 
 ---
 

@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Heart } from 'lucide-react'
+import { ThumbsUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { likeAPI } from '@/lib/api'
+import { likeAPI, needRelogin } from '@/lib/api'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 
@@ -39,11 +39,10 @@ export function LikeButton({
       setLiked(newLiked)
       setCount(prev => newLiked ? prev + 1 : Math.max(0, prev - 1))
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : ''
-      if (msg.includes('未登录') || msg.includes('600')) {
+      if (needRelogin(err)) {
         router.push('/account/login')
       } else {
-        toast.error(msg || '操作失败')
+        toast.error(err instanceof Error ? err.message : '操作失败')
       }
     } finally {
       setLoading(false)
@@ -58,17 +57,17 @@ export function LikeButton({
       disabled={loading}
       className={cn(
         'gap-1 transition-all',
-        liked && 'text-red-500 hover:text-red-600',
+        liked && 'text-primary hover:text-primary/80',
         className
       )}
     >
-      <Heart
+      <ThumbsUp
         className={cn(
           'h-4 w-4 transition-all',
           liked && 'fill-current'
         )}
       />
-      <span>{count > 0 ? count : ''}</span>
+      <span>{count > 0 ? count : '赞'}</span>
     </Button>
   )
 }

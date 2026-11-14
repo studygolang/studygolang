@@ -14,6 +14,8 @@ export default function NewSubjectPage() {
   const [name, setName] = useState("")
   const [intro, setIntro] = useState("")
   const [cover, setCover] = useState("")
+  const [contribute, setContribute] = useState("0")
+  const [audit, setAudit] = useState("1")
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
 
@@ -34,8 +36,11 @@ export default function NewSubjectPage() {
     try {
       const params = new URLSearchParams()
       params.set("name", name)
-      if (intro) params.set("desc", intro)
+      // 后端按 model.Subject 的 json tag 解码，字段名是 description 而非 desc
+      if (intro) params.set("description", intro)
       if (cover) params.set("cover", cover)
+      params.set("contribute", contribute)
+      params.set("audit", audit)
 
       const res = await fetch("/api/v1/subject/new", {
         method: "POST",
@@ -95,7 +100,8 @@ export default function NewSubjectPage() {
               <textarea
                 value={intro}
                 onChange={(e) => setIntro(e.target.value)}
-                placeholder="专栏简介"
+                placeholder="专栏简介（最多1000字，支持 markdown 语法）"
+                maxLength={1000}
                 className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                 rows={4}
               />
@@ -110,6 +116,30 @@ export default function NewSubjectPage() {
                 placeholder="封面图片 URL（可选）"
                 className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-medium">投稿</label>
+              <select
+                value={contribute}
+                onChange={(e) => setContribute(e.target.value)}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+              >
+                <option value="0">不允许</option>
+                <option value="1">允许</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-medium">审核</label>
+              <select
+                value={audit}
+                onChange={(e) => setAudit(e.target.value)}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+              >
+                <option value="1">需要</option>
+                <option value="0">不需要</option>
+              </select>
             </div>
 
             <div className="flex gap-2 pt-2">

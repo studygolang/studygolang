@@ -1047,7 +1047,7 @@ func (ArticleLogic) Modify(ctx context.Context, user *model.Me, form url.Values)
 
 	fields := []string{
 		"title", "url", "cover", "author", "author_txt",
-		"lang", "pub_date", "content",
+		"lang", "pub_date", "content", "txt", "markdown",
 		"tags", "status", "op_user",
 	}
 	change := make(map[string]string)

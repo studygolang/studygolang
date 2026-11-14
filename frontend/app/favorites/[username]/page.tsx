@@ -3,39 +3,23 @@ import Link from "next/link"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import type { User } from "@/lib/types"
+import { encodeProjectUri } from "@/lib/utils"
 
-// favorites API 返回的精简数据类型（字段为后端实际返回的子集）
-interface FavoriteArticle {
-  id: number
-  title: string
+// 后端统一返回 favorites 数组，元素类型由 objtype 决定，
+// 字段是 model.Article / Topic / Resource / OpenProject 的并集子集。
+interface FavoriteItem {
+  id?: number
+  tid?: number
+  title?: string
+  name?: string
+  uri?: string
+  desc?: string
   author?: string
   ctime?: string
   viewnum?: number
-}
-
-interface FavoriteTopic {
-  tid: number
-  title: string
-  author?: string
-  ctime?: string
-  view?: number
-}
-
-interface FavoriteResource {
-  id: number
-  title: string
-  author?: string
-  ctime?: string
-}
-
-interface FavoriteProject {
-  id: number
-  name: string
-  uri?: string
-  description?: string
 }
 
 interface FavoriteData {
@@ -44,10 +28,7 @@ interface FavoriteData {
   total: number
   page: number
   has_more: boolean
-  articles?: FavoriteArticle[]
-  topics?: FavoriteTopic[]
-  resources?: FavoriteResource[]
-  projects?: FavoriteProject[]
+  favorites: FavoriteItem[]
 }
 
 import { fetchAPI } from "@/lib/api"
@@ -66,10 +47,27 @@ const OBJTYPE_TO_TAB: Record<number, string> = Object.fromEntries(
   FAVORITE_TABS.map((t) => [t.objtype, t.value])
 )
 
-async function getFavorites(username: string, objtype: number = 1): Promise<FavoriteData | null> {
+function itemHref(objtype: number, item: FavoriteItem): string {
+  switch (objtype) {
+    case 0:
+      return `/topics/${item.tid}`
+    case 2:
+      return `/resources/${item.id}`
+    case 4:
+      return `/p/${encodeProjectUri(item.uri || item.id || "")}`
+    default:
+      return `/articles/${item.id}`
+  }
+}
+
+async function getFavorites(
+  username: string,
+  objtype: number,
+  page: number
+): Promise<FavoriteData | null> {
   try {
     return await fetchAPI<FavoriteData>(
-      `/users/${username}/favorites?objtype=${objtype}`,
+      `/users/${username}/favorites?objtype=${objtype}&p=${page}`,
       { cache: 'no-store' }
     )
   } catch {
@@ -83,7 +81,7 @@ export async function generateMetadata({
   params: Promise<{ username: string }>
 }): Promise<Metadata> {
   const { username } = await params
-  const data = await getFavorites(username)
+  const data = await getFavorites(username, 1, 1)
 
   if (!data?.user) {
     return {
@@ -102,16 +100,17 @@ export default async function FavoritesPage({
   searchParams,
 }: {
   params: Promise<{ username: string }>
-  searchParams: Promise<{ objtype?: string }>
+  searchParams: Promise<{ objtype?: string; p?: string }>
 }) {
   const { username } = await params
-  const { objtype: objtypeStr } = await searchParams
+  const { objtype: objtypeStr, p: pageStr } = await searchParams
   // 默认显示"文章"（TypeArticle=1，与后端 default 一致）
   const objtype = parseInt(objtypeStr || '1', 10)
+  const page = Math.max(1, parseInt(pageStr || '1', 10) || 1)
   // URL 里的 objtype 是后端 iota 值（0,1,2,4），UI tab 用连续 1-4 编号
   const activeTab = OBJTYPE_TO_TAB[objtype] ?? '1'
 
-  const data = await getFavorites(username, objtype)
+  const data = await getFavorites(username, objtype, page)
 
   if (!data?.user) {
     return (
@@ -124,7 +123,8 @@ export default async function FavoritesPage({
     )
   }
 
-  const { user, articles, topics, resources, projects, total } = data
+  const { user, favorites, total } = data
+  const emptyLabel = FAVORITE_TABS.find((t) => t.objtype === objtype)?.label ?? '内容'
 
   return (
     <PageLayout>
@@ -141,7 +141,7 @@ export default async function FavoritesPage({
         </div>
       </div>
 
-      <Tabs defaultValue={activeTab} className="space-y-4">
+      <Tabs value={activeTab} className="space-y-4">
         <TabsList>
           {FAVORITE_TABS.map((tab) => (
             <TabsTrigger key={tab.value} value={tab.value} asChild>
@@ -149,116 +149,60 @@ export default async function FavoritesPage({
             </TabsTrigger>
           ))}
         </TabsList>
-
-        <TabsContent value="1" className="space-y-4">
-          {articles && articles.length > 0 ? (
-            articles.map((article) => (
-              <Card key={article.id}>
-                <CardHeader>
-                  <CardTitle>
-                    <Link
-                      href={`/articles/${article.id}`}
-                      className="hover:text-primary transition-colors"
-                    >
-                      {article.title}
-                    </Link>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    {article.author && <span>作者: {article.author}</span>}
-                    {article.ctime && <span>{article.ctime}</span>}
-                    {article.viewnum !== undefined && <span>{article.viewnum} 浏览</span>}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          ) : (
-            <p className="text-center text-muted-foreground py-8">暂无收藏的文章</p>
-          )}
-        </TabsContent>
-
-        <TabsContent value="2" className="space-y-4">
-          {topics && topics.length > 0 ? (
-            topics.map((topic) => (
-              <Card key={topic.tid}>
-                <CardHeader>
-                  <CardTitle>
-                    <Link
-                      href={`/topics/${topic.tid}`}
-                      className="hover:text-primary transition-colors"
-                    >
-                      {topic.title}
-                    </Link>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    {topic.author && <span>作者: {topic.author}</span>}
-                    {topic.ctime && <span>{topic.ctime}</span>}
-                    {topic.view !== undefined && <span>{topic.view} 浏览</span>}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          ) : (
-            <p className="text-center text-muted-foreground py-8">暂无收藏的话题</p>
-          )}
-        </TabsContent>
-
-        <TabsContent value="3" className="space-y-4">
-          {resources && resources.length > 0 ? (
-            resources.map((resource) => (
-              <Card key={resource.id}>
-                <CardHeader>
-                  <CardTitle>
-                    <Link
-                      href={`/resources/${resource.id}`}
-                      className="hover:text-primary transition-colors"
-                    >
-                      {resource.title}
-                    </Link>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    {resource.author && <span>作者: {resource.author}</span>}
-                    {resource.ctime && <span>{resource.ctime}</span>}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          ) : (
-            <p className="text-center text-muted-foreground py-8">暂无收藏的资源</p>
-          )}
-        </TabsContent>
-
-        <TabsContent value="4" className="space-y-4">
-          {projects && projects.length > 0 ? (
-            projects.map((project) => (
-              <Card key={project.id}>
-                <CardHeader>
-                  <CardTitle>
-                    <Link
-                      href={`/p/${project.uri || project.id}`}
-                      className="hover:text-primary transition-colors"
-                    >
-                      {project.name}
-                    </Link>
-                  </CardTitle>
-                </CardHeader>
-                {project.description && (
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">{project.description}</p>
-                  </CardContent>
-                )}
-              </Card>
-            ))
-          ) : (
-            <p className="text-center text-muted-foreground py-8">暂无收藏的项目</p>
-          )}
-        </TabsContent>
       </Tabs>
+
+      <div className="space-y-4">
+        {favorites && favorites.length > 0 ? (
+          favorites.map((item) => (
+            <Card key={item.tid ?? item.id}>
+              <CardHeader>
+                <CardTitle>
+                  <Link
+                    href={itemHref(objtype, item)}
+                    className="hover:text-primary transition-colors"
+                  >
+                    {item.title || item.name}
+                  </Link>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  {item.author && <span>作者: {item.author}</span>}
+                  {item.ctime && <span>{item.ctime}</span>}
+                  {item.viewnum !== undefined && <span>{item.viewnum} 浏览</span>}
+                </div>
+                {item.desc && (
+                  <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{item.desc}</p>
+                )}
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <p className="text-center text-muted-foreground py-8">暂无收藏的{emptyLabel}</p>
+        )}
+      </div>
+
+      {(page > 1 || data.has_more) && (
+        <div className="mt-6 flex items-center justify-center gap-4 text-sm">
+          {page > 1 && (
+            <Link
+              href={`/favorites/${username}?objtype=${objtype}&p=${page - 1}`}
+              className="text-primary hover:underline"
+            >
+              上一页
+            </Link>
+          )}
+          <span className="text-muted-foreground">第 {page} 页</span>
+          {data.has_more && (
+            <Link
+              href={`/favorites/${username}?objtype=${objtype}&p=${page + 1}`}
+              className="text-primary hover:underline"
+            >
+              下一页
+            </Link>
+          )}
+        </div>
+      )}
     </PageLayout>
   )
 }

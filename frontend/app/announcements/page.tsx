@@ -59,6 +59,15 @@ export default async function AnnouncementsPage({ searchParams }: AnnouncementsP
     pageNumbers.push(i)
   }
 
+  // type 缺省时不能直接拼 "&p="，否则得到 /announcements&p=2 这种非法 URL
+  const pageHref = (p: number) => {
+    const q = new URLSearchParams()
+    if (type) q.set("type", String(type))
+    if (p > 1) q.set("p", String(p))
+    const qs = q.toString()
+    return `/announcements${qs ? `?${qs}` : ""}`
+  }
+
   return (
     <PageLayout>
       <PageHeader
@@ -99,7 +108,7 @@ export default async function AnnouncementsPage({ searchParams }: AnnouncementsP
           <div className="mt-6 flex items-center justify-center gap-2">
             {page > 1 ? (
               <Link
-                href={`/announcements${type ? `?type=${type}` : ""}${page > 2 ? `&p=${page - 1}` : ""}`}
+                href={pageHref(page - 1)}
                 className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
               >
                 上一页
@@ -115,7 +124,7 @@ export default async function AnnouncementsPage({ searchParams }: AnnouncementsP
             {pageNumbers.map((p) => (
               <Link
                 key={p}
-                href={`/announcements${type ? `?type=${type}` : ""}${p > 1 ? `&p=${p}` : ""}`}
+                href={pageHref(p)}
                 className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                   p === page
                     ? "bg-primary text-primary-foreground"
@@ -129,7 +138,7 @@ export default async function AnnouncementsPage({ searchParams }: AnnouncementsP
               <>
                 <span className="px-1 text-sm text-muted-foreground">...</span>
                 <Link
-                  href={`/announcements${type ? `?type=${type}` : ""}&p=${totalPages}`}
+                  href={pageHref(totalPages)}
                   className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
                 >
                   {totalPages}
@@ -138,7 +147,7 @@ export default async function AnnouncementsPage({ searchParams }: AnnouncementsP
             )}
             {page < totalPages ? (
               <Link
-                href={`/announcements${type ? `?type=${type}` : ""}&p=${page + 1}`}
+                href={pageHref(page + 1)}
                 className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
               >
                 下一页

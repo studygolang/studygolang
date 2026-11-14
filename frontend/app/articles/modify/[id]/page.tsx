@@ -106,6 +106,10 @@ export default function ArticleModifyPage() {
       const form = new URLSearchParams()
       form.set("title", title.trim())
       form.set("content", content.trim())
+      // 编辑器输出 Markdown：同步 txt（阅读时长/搜索用）并置位 markdown，
+      // 否则详情页继续按旧的渲染轨道显示，且下次编辑会读到陈旧 txt
+      form.set("txt", content.trim())
+      form.set("markdown", "1")
       if (tags.length > 0) form.set("tags", tags.join(","))
 
       const res = await fetch(`${API_BASE}/api/v1/articles/${id}`, {

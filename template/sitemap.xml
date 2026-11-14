@@ -26,7 +26,7 @@
         <priority>0.6</priority>
     </url>{{end}}{{range .projects}}
     <url>
-        <loc>{{$.home.loc}}/p/{{if .Uri}}{{.Uri}}{{else}}{{.Id}}{{end}}</loc>
+        <loc>{{$.home.loc}}/p/{{if .Uri}}{{urlquery .Uri}}{{else}}{{.Id}}{{end}}</loc>
         <lastmod>{{time_format .Mtime}}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>

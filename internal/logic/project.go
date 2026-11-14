@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	. "github.com/studygolang/studygolang/db"
 	"github.com/studygolang/studygolang/internal/model"
@@ -63,12 +64,21 @@ func (self ProjectLogic) Publish(ctx context.Context, user *model.Me, form url.V
 
 		project.Username = user.Username
 	}
-	if project.Uri == "" {
-		project.Uri = strings.Replace(project.Name, " ", "-", -1)
+	// 只有表单显式给了 uri 才规范化；否则沿用库里已有的值——编辑项目不该换 URL，
+	// 重新 slug 会把历史 uri（可能含 /）改掉，让旧链接全部失效。
+	if formUri := form.Get("uri"); formUri != "" {
+		project.Uri = projectUriSlug(formUri)
+	} else if project.Uri == "" {
+		project.Uri = projectUriSlug(project.Name)
 	}
-	project.Uri = strings.ToLower(project.Uri)
+	if project.Uri == "" {
+		err = errors.New("项目名称需包含字母、数字或中文")
+		return
+	}
 
-	if !isModify && self.UriExists(ctx, form.Get("uri")) {
+	// 必须查 project.Uri 而不是 form.Get("uri")：uri 通常由名称自动派生，
+	// 表单里根本没有这个字段，查重名会永远落空。
+	if !isModify && self.UriExists(ctx, project.Uri) {
 		err = errors.New("项目已存在")
 		return
 	}
@@ -105,6 +115,26 @@ func (self ProjectLogic) Publish(ctx context.Context, user *model.Me, form url.V
 }
 
 // UriExists 通过 uri 是否存在 project
+// projectUriSlug 把项目名转成能安全放进 /p/{uri} 路径段的标识。
+// 保留中文等非 ASCII 字母数字（链接侧 encodeURIComponent 处理），
+// 但 / ? # % 空格这类会破坏路由的字符统一折叠成 -。
+func projectUriSlug(name string) string {
+	var b strings.Builder
+	lastDash := false
+	for _, r := range strings.ToLower(strings.TrimSpace(name)) {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) || r == '.' || r == '_' {
+			b.WriteRune(r)
+			lastDash = false
+			continue
+		}
+		if !lastDash && b.Len() > 0 {
+			b.WriteByte('-')
+			lastDash = true
+		}
+	}
+	return strings.Trim(b.String(), "-")
+}
+
 func (ProjectLogic) UriExists(ctx context.Context, uri string) bool {
 	total, err := MasterDB.Where("uri=?", uri).Count(new(model.OpenProject))
 	if err != nil || total == 0 {
@@ -511,6 +541,8 @@ func (self ProjectComment) SetObjinfo(ids []int, commentMap map[int][]*model.Com
 		objinfo := make(map[string]interface{})
 		objinfo["title"] = project.Category + project.Name
 		objinfo["uri"] = model.PathUrlMap[model.TypeProject]
+		// 项目详情页用 uri 而非数字 id 作路由参数，给出完整路径供前端直接用
+		objinfo["url"] = model.PathUrlMap[model.TypeProject] + project.Uri
 		objinfo["type_name"] = model.TypeNameMap[model.TypeProject]
 
 		for _, comment := range commentMap[project.Id] {

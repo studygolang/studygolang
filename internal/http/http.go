@@ -16,6 +16,7 @@ import (
 	"math"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -106,6 +107,17 @@ func Request(ctx echo.Context) *http.Request {
 
 func ResponseWriter(ctx echo.Context) http.ResponseWriter {
 	return ctx.Response()
+}
+
+// PathParam 读取路径参数并解码。
+// Echo 按 URL.RawPath 路由，ctx.Param 返回的是未解码的原始串：
+// 中文 uri（%E4%B8%AD…）或含斜杠的 uri（%2F）直接拿去查库必然查不到。
+func PathParam(ctx echo.Context, name string) string {
+	raw := ctx.Param(name)
+	if unescaped, err := url.PathUnescape(raw); err == nil {
+		return unescaped
+	}
+	return raw
 }
 
 // 自定义模板函数

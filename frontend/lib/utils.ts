@@ -6,6 +6,17 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
+ * 项目 uri 转路径段：逐段编码，保留 / 作为 catch-all 路由的分隔符。
+ * 历史 uri 由项目名派生，可能含 / # ? 空格等字符。
+ */
+export function encodeProjectUri(uri: string | number): string {
+  return String(uri)
+    .split("/")
+    .map(encodeURIComponent)
+    .join("/")
+}
+
+/**
  * 格式化数字：>=10000 显示 x.xw，>=1000 显示 x.xk，否则原样
  */
 export function formatNum(n: number): string {

@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { cookies } from "next/headers"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { ArticleDetail } from "@/components/article-detail"
@@ -7,11 +8,24 @@ import type { ArticleDetailData } from "@/lib/types"
 import { fetchAPI } from "@/lib/api"
 import { sanitizeHtml } from "@/lib/sanitize"
 
+// replies[].liked / likeflag / hadcollect 都是「当前用户」维度的数据，
+// ISR 会把某个用户的点赞状态缓存给所有人，必须动态渲染并透传 Cookie。
+export const dynamic = "force-dynamic"
+
+async function authHeaders(): Promise<Record<string, string>> {
+  const store = await cookies()
+  const cookie = store
+    .getAll()
+    .map((c) => `${c.name}=${c.value}`)
+    .join("; ")
+  return cookie ? { Cookie: cookie } : {}
+}
+
 async function getArticleDetail(id: string): Promise<ArticleDetailData | null> {
   try {
     return await fetchAPI<ArticleDetailData>(
       `/articles/${id}`,
-      { next: { revalidate: 60 } }
+      { cache: "no-store", headers: await authHeaders() }
     )
   } catch {
     return null
@@ -108,6 +122,11 @@ export default async function ArticleDetailPage({
         prev={prev}
         next={next}
         comments={comments}
+        gctt={data?.article_gctt}
+        subjects={data?.subjects}
+        readTime={data?.read_time}
+        likeflag={data?.likeflag}
+        hadcollect={data?.hadcollect}
       />
     </PageLayout>
   )

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { CaptchaField } from "@/components/captcha-field"
+import { accountAPI } from "@/lib/api"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8090"
 
@@ -26,6 +27,10 @@ export default function RegisterPage() {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [needActivate, setNeedActivate] = useState(false)
+  const [activateUuid, setActivateUuid] = useState("")
+  const [resending, setResending] = useState(false)
+  const [resendMsg, setResendMsg] = useState("")
 
   // 检查是否已登录
   useEffect(() => {
@@ -102,6 +107,8 @@ export default function RegisterPage() {
       if (res.ok) {
         const data = await res.json()
         if (data.code === 0) {
+          setNeedActivate(Boolean(data.data?.need_activate))
+          setActivateUuid(data.data?.activate_uuid || "")
           setSuccess(true)
         } else {
           setError(data.msg || "注册失败")
@@ -120,6 +127,19 @@ export default function RegisterPage() {
     }
   }
 
+  const handleResend = async () => {
+    setResending(true)
+    setResendMsg("")
+    try {
+      await accountAPI.sendActivateEmail(activateUuid || undefined)
+      setResendMsg("激活邮件已重新发送，请查收（含垃圾邮件箱）")
+    } catch (err) {
+      setResendMsg(err instanceof Error ? err.message : "发送失败，请稍后再试")
+    } finally {
+      setResending(false)
+    }
+  }
+
   if (success) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-muted/30 p-4">
@@ -131,19 +151,34 @@ export default function RegisterPage() {
             <CardTitle>注册成功</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              注册成功！请查收激活邮件。
-            </p>
+            {needActivate ? (
+              <>
+                <p className="text-sm text-muted-foreground">
+                  我们已经发送一封激活邮件到{" "}
+                  <span className="font-semibold text-foreground">{formData.email}</span>
+                  ，请点击邮件中的链接完成邮箱验证。激活前可以登录，但不能发布内容。
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button variant="outline" onClick={handleResend} disabled={resending}>
+                    {resending ? "发送中..." : "未收到？再发一次"}
+                  </Button>
+                  <Button onClick={() => router.push("/account/login")}>前往登录</Button>
+                </div>
+                {resendMsg && <p className="text-sm text-muted-foreground">{resendMsg}</p>}
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-muted-foreground">注册成功，现在可以登录了。</p>
+                <div className="flex justify-center">
+                  <Button onClick={() => router.push("/account/login")}>前往登录</Button>
+                </div>
+              </>
+            )}
             <p className="text-sm text-muted-foreground">
               如果没有收到激活邮件,可以关注站长公众号,回复{" "}
               <span className="text-destructive font-semibold">{formData.username}</span>{" "}
               获取验证码来激活。
             </p>
-            <div className="flex justify-center">
-              <Button onClick={() => router.push("/account/login")}>
-                前往登录
-              </Button>
-            </div>
           </CardContent>
         </Card>
       </div>

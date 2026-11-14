@@ -47,20 +47,20 @@ var faMap = map[int]string{
 }
 
 type GCTTUser struct {
-	Id        int `xorm:"pk autoincr"`
-	Username  string
-	Avatar    string
-	Uid       int
-	JoinedAt  int64
-	LastAt    int64
-	Num       int
-	Words     int
-	AvgTime   int
-	Role      int
-	CreatedAt time.Time `xorm:"<-"`
+	Id        int       `json:"id" xorm:"pk autoincr"`
+	Username  string    `json:"username"`
+	Avatar    string    `json:"avatar"`
+	Uid       int       `json:"uid"`
+	JoinedAt  int64     `json:"joined_at"`
+	LastAt    int64     `json:"last_at"`
+	Num       int       `json:"num"`
+	Words     int       `json:"words"`
+	AvgTime   int       `json:"avg_time"`
+	Role      int       `json:"role"`
+	CreatedAt time.Time `json:"created_at" xorm:"<-"`
 
-	RoleName string `xorm:"-"`
-	Fa       string `xorm:"-"`
+	RoleName string `json:"role_name" xorm:"-"`
+	Fa       string `json:"fa" xorm:"-"`
 }
 
 func (this *GCTTUser) AfterSet(name string, cell xorm.Cell) {
@@ -92,15 +92,15 @@ func (*GCTTGit) TableName() string {
 }
 
 type GCTTIssue struct {
-	Id            int `xorm:"pk autoincr"`
-	Translator    string
-	Email         string `json:"-"`
-	Title         string
-	TranslatingAt int64
-	TranslatedAt  int64
-	Label         string
-	State         uint8
-	CreatedAt     time.Time `xorm:"<-"`
+	Id            int       `json:"id" xorm:"pk autoincr"`
+	Translator    string    `json:"translator"`
+	Email         string    `json:"-"`
+	Title         string    `json:"title"`
+	TranslatingAt int64     `json:"translating_at"`
+	TranslatedAt  int64     `json:"translated_at"`
+	Label         string    `json:"label"`
+	State         uint8     `json:"state"`
+	CreatedAt     time.Time `json:"created_at" xorm:"<-"`
 }
 
 func (*GCTTIssue) TableName() string {
@@ -108,9 +108,9 @@ func (*GCTTIssue) TableName() string {
 }
 
 type GCTTTimeLine struct {
-	Id        int `xorm:"pk autoincr"`
-	Content   string
-	CreatedAt time.Time
+	Id        int       `json:"id" xorm:"pk autoincr"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 func (*GCTTTimeLine) TableName() string {

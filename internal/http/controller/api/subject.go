@@ -107,7 +107,9 @@ func (SubjectController) Follow(ctx echo.Context) error {
 		return fail(ctx, "关注失败")
 	}
 
-	return success(ctx, nil)
+	// Follow 是切换语义，前端需要切换后的状态来渲染按钮
+	followed := logic.DefaultSubject.HadFollow(context.EchoContext(ctx), sid, me)
+	return success(ctx, map[string]interface{}{"followed": followed})
 }
 
 // MyArticles 搜索当前用户的文章（需登录，用于投稿选择）
@@ -186,20 +188,27 @@ func (SubjectController) Mine(ctx echo.Context) error {
 
 	subjects := logic.DefaultSubject.FindMine(context.EchoContext(ctx), me, articleId, kw)
 
+	// FindMine 面向投稿选择器，只带 id/name/cover/description/username/had_add；
+	// 管理页还要展示文章数与关注数，这里补齐。
+	for _, subject := range subjects {
+		sid, _ := subject["id"].(int)
+		if sid == 0 {
+			continue
+		}
+		subject["article_num"] = logic.DefaultSubject.FindArticleTotal(context.EchoContext(ctx), sid)
+		subject["follower_num"] = logic.DefaultSubject.FindFollowerTotal(context.EchoContext(ctx), sid)
+	}
+
 	return success(ctx, map[string]interface{}{
 		"subjects": subjects,
 	})
 }
 
-// Create 创建专栏（需登录 + 权限校验，form: name, cover, desc 等）
+// Create 创建专栏（需登录，form: name, description, cover, contribute, audit）
 func (SubjectController) Create(ctx echo.Context) error {
 	me, err := requireAuth(ctx)
 	if err != nil {
 		return err
-	}
-
-	if !me.IsRoot {
-		return fail(ctx, "无权创建专栏")
 	}
 
 	name := ctx.FormValue("name")

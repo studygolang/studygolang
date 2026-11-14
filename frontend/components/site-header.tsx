@@ -60,8 +60,7 @@ const docItems: DocItem[] = [
   { label: "\u4e2d\u6587\u6587\u6863", href: "https://go-zh.org/doc/", external: true },
   {
     label: "\u6807\u51c6\u5e93\u4e2d\u6587\u7248",
-    href: "https://books.studygolang.com/The-Golang-Standard-Library-by-Example/",
-    external: true,
+    href: "/pkgdoc",
   },
   // Go 指南指向 wiki 内部页面
   { label: "Go \u6307\u5357", href: "/wiki" },
@@ -214,7 +213,7 @@ export function SiteHeader() {
             size="icon"
             className="relative h-9 w-9 text-muted-foreground"
             aria-label={"\u6d88\u606f"}
-            onClick={() => router.push('/messages')}
+            onClick={() => router.push('/message/system')}
           >
             <Bell className="h-4 w-4" />
             {totalUnread > 0 && (

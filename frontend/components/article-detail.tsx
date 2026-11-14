@@ -1,28 +1,17 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import {
-  ThumbsUp,
-  MessageSquare,
-  Bookmark,
-  Share2,
-  Eye,
-  Clock,
-  ExternalLink,
-  ChevronUp,
-  MoreHorizontal,
-} from "lucide-react"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Clock, Eye, ExternalLink, Timer } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { MarkdownContent } from "@/components/markdown-content"
-import { CommentForm } from "@/components/comment-form"
-import { likeAPI, favoriteAPI } from "@/lib/api"
-import type { Article, ArticleComment } from "@/lib/types"
+import { SafeHtml } from "@/components/safe-html"
+import { CommentSection } from "@/components/comment-section"
+import { ContentActions } from "@/components/content-actions"
+import { formatTime } from "@/lib/utils"
+import { OBJTYPE_ARTICLE, type Article, type ArticleComment, type ArticleGCTT, type Subject } from "@/lib/types"
 
 interface ArticleDetailProps {
   id: string
@@ -31,84 +20,25 @@ interface ArticleDetailProps {
   next?: Article
   // 后端文章详情评论字段名为 replies，类型为 ArticleComment
   comments?: ArticleComment[]
+  gctt?: ArticleGCTT | null
+  subjects?: Subject[] | null
+  readTime?: number
+  likeflag?: number
+  hadcollect?: number
 }
 
-function formatTime(ctime: string): string {
-  try {
-    const date = new Date(ctime)
-    const now = new Date()
-    const diff = now.getTime() - date.getTime()
-    const minutes = Math.floor(diff / 60000)
-    if (minutes < 60) return `${minutes} 分钟前`
-    const hours = Math.floor(minutes / 60)
-    if (hours < 24) return `${hours} 小时前`
-    const days = Math.floor(hours / 24)
-    if (days < 30) return `${days} 天前`
-    return ctime.slice(0, 10)
-  } catch {
-    return ctime
-  }
-}
-
-export function ArticleDetail({ id, article, prev, next, comments = [] }: ArticleDetailProps) {
-  const router = useRouter()
-  const [liked, setLiked] = useState(false)
-  const [bookmarked, setBookmarked] = useState(false)
-  const [likeCount, setLikeCount] = useState(article?.likenum || 0)
-  // 评论回复目标与评论点赞状态
-  const [replyTo, setReplyTo] = useState<{ floor: number; username: string } | null>(null)
-  const [commentLiked, setCommentLiked] = useState<Record<number, boolean>>({})
-
-  // 加载用户的点赞和收藏状态
-  useEffect(() => {
-    const loadUserStatus = async () => {
-      try {
-        const likeData = await likeAPI.getStatus(parseInt(id), 1)
-        if (likeData?.has_like) {
-          setLiked(true)
-        }
-
-        const favData = await favoriteAPI.getStatus(parseInt(id), 1)
-        if (favData?.has_favorite) {
-          setBookmarked(true)
-        }
-      } catch {
-        // 未登录或网络错误，忽略
-      }
-    }
-    loadUserStatus()
-  }, [id])
-
-  const handleLike = async () => {
-    try {
-      await likeAPI.toggle(parseInt(id), 1, !liked)
-      setLiked(!liked)
-      setLikeCount(liked ? likeCount - 1 : likeCount + 1)
-    } catch {
-      // 网络错误
-    }
-  }
-
-  const handleBookmark = async () => {
-    try {
-      await favoriteAPI.toggle(parseInt(id), 1, !bookmarked)
-      setBookmarked(!bookmarked)
-    } catch {
-      // 网络错误
-    }
-  }
-
-  // 点赞/取消点赞某条评论（objtype=100 = TypeComment）
-  const handleCommentLike = async (cid: number) => {
-    const nowLiked = commentLiked[cid] || false
-    try {
-      await likeAPI.toggle(cid, 100, !nowLiked)
-      setCommentLiked((prev) => ({ ...prev, [cid]: !nowLiked }))
-    } catch {
-      // 未登录或网络错误，忽略
-    }
-  }
-
+export function ArticleDetail({
+  id,
+  article,
+  prev,
+  next,
+  comments = [],
+  gctt,
+  subjects,
+  readTime,
+  likeflag,
+  hadcollect,
+}: ArticleDetailProps) {
   if (!article) {
     return (
       <Card>
@@ -118,6 +48,13 @@ export function ArticleDetail({ id, article, prev, next, comments = [] }: Articl
       </Card>
     )
   }
+
+  const aid = parseInt(id)
+  const tags = (article.tags ?? "").split(",").map((t) => t.trim()).filter(Boolean)
+  // 与旧版一致：超过 100 天的文章提示时效性
+  const outdated =
+    !!article.ctime && (Date.now() - new Date(article.ctime).getTime()) / 86400000 > 100
+  const translator = article.gctt ? gctt?.Translator : undefined
 
   const relatedArticles = [
     ...(prev ? [{ title: prev.title, href: `/articles/${prev.id}` }] : []),
@@ -138,80 +75,187 @@ export function ArticleDetail({ id, article, prev, next, comments = [] }: Articl
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2">
               <Avatar className="h-8 w-8">
+                {article.gctt && gctt?.Avatar && (
+                  <AvatarImage src={gctt.Avatar} alt={gctt.Translator} />
+                )}
                 <AvatarFallback className="bg-primary/10 text-sm font-semibold text-primary">
-                  {article.author ? article.author.charAt(0).toUpperCase() : "?"}
+                  {(translator || article.author || "?").charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div>
-                {/* 站内用户名取 author_txt（即 User.Username），原文作者名 author 仅用于显示 */}
-                {article.author_txt ? (
+                {/* GCTT 译文署名译者；自主发布署站内账号；转载只显示原文作者名 */}
+                {translator ? (
+                  <Link
+                    href={`/gctt/${translator}`}
+                    className="text-sm font-medium text-foreground hover:text-primary"
+                  >
+                    {translator}
+                  </Link>
+                ) : article.is_self && article.author_txt ? (
                   <Link
                     href={`/user/${article.author_txt}`}
                     className="text-sm font-medium text-foreground hover:text-primary"
                   >
-                    {article.author || article.author_txt}
+                    {article.author_txt}
                   </Link>
                 ) : (
                   <span className="text-sm font-medium text-foreground">
-                    {article.author || "未知作者"}
+                    {article.author_txt || article.author || "未知作者"}
                   </span>
                 )}
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
                     {formatTime(article.ctime)}
                   </span>
+                  <span className="flex items-center gap-1">
+                    <Eye className="h-3 w-3" />
+                    {article.viewnum} 次点击
+                  </span>
+                  {readTime !== undefined && (
+                    <span className="flex items-center gap-1">
+                      <Timer className="h-3 w-3" />
+                      {readTime >= 1 ? `预计阅读 ${readTime} 分钟` : "预计阅读不到 1 分钟"}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
-            <div className="ml-auto hidden items-center gap-2 sm:flex">
-              {article.tags && (
-                <Badge variant="secondary" className="bg-primary/10 text-xs text-primary">
-                  {article.tags.split(",")[0]}
-                </Badge>
-              )}
-              <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Eye className="h-3 w-3" />
-                {article.viewnum}
-              </span>
-            </div>
+            {tags.length > 0 && (
+              <div className="ml-auto flex flex-wrap items-center gap-1.5">
+                {tags.map((tag) => (
+                  <Link key={tag} href={`/tag/${encodeURIComponent(tag)}`}>
+                    <Badge variant="secondary" className="bg-primary/10 text-xs text-primary">
+                      {tag}
+                    </Badge>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
+
+          {outdated && (
+            <p className="mt-4 rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+              这是一篇创建于 {formatTime(article.ctime)} 的文章，其中的信息可能已经有所发展或是发生改变。
+            </p>
+          )}
 
           <Separator className="my-6" />
 
-          {/* Content */}
-          <MarkdownContent content={article.content ?? ""} />
+          {/* Content：markdown 走渲染，富文本直接安全输出 HTML（旧版双轨） */}
+          {article.markdown ? (
+            <MarkdownContent content={article.content ?? ""} />
+          ) : (
+            <SafeHtml html={article.content ?? ""} className="prose prose-sm max-w-none text-foreground" />
+          )}
+
+          {/* GCTT 译文出处与署名 */}
+          {article.gctt && gctt && (
+            <div className="mt-6 space-y-2 border-t border-border pt-4 text-xs text-muted-foreground">
+              {gctt.URL && (
+                <p>
+                  via:{" "}
+                  <a href={gctt.URL} target="_blank" rel="external nofollow noopener" className="text-primary hover:underline">
+                    {gctt.URL}
+                  </a>
+                </p>
+              )}
+              <p className="flex flex-wrap gap-x-3 gap-y-1">
+                {gctt.Author && (
+                  <span>
+                    作者：
+                    <a href={gctt.AuthorURL || undefined} target="_blank" rel="external nofollow noopener" className="text-primary hover:underline">
+                      {gctt.Author}
+                    </a>
+                  </span>
+                )}
+                {gctt.Translator && (
+                  <span>
+                    译者：
+                    <a href={`https://github.com/${gctt.Translator}`} target="_blank" rel="external nofollow noopener" className="text-primary hover:underline">
+                      {gctt.Translator}
+                    </a>
+                  </span>
+                )}
+                {!!gctt.Checkers?.length && (
+                  <span>
+                    校对：
+                    {gctt.Checkers.map((checker) => (
+                      <a
+                        key={checker}
+                        href={`https://github.com/${checker}`}
+                        target="_blank"
+                        rel="external nofollow noopener"
+                        className="mr-1 text-primary hover:underline"
+                      >
+                        {checker}
+                      </a>
+                    ))}
+                  </span>
+                )}
+              </p>
+              <p>
+                本文由{" "}
+                <a href="https://github.com/studygolang/GCTT" target="_blank" rel="external nofollow noopener" className="text-primary hover:underline">
+                  GCTT
+                </a>{" "}
+                原创编译，
+                <Link href={`/articles/${aid}`} className="text-primary hover:underline">
+                  Go语言中文网
+                </Link>{" "}
+                荣誉推出。翻译工作遵照 CC-BY-NC-SA 协议规定，转载敬请保留原文/译文链接和作者/译者信息。
+              </p>
+            </div>
+          )}
+
+          {/* 转载来源 */}
+          {!article.is_self && (article.domain || article.url) && (
+            <div className="mt-6 space-y-1 border-t border-border pt-4 text-xs text-muted-foreground">
+              {article.domain && (
+                <p>
+                  本文来自：
+                  <a href={`https://${article.domain}`} target="_blank" rel="external nofollow noopener" className="text-primary hover:underline">
+                    {article.name || article.domain}
+                  </a>
+                </p>
+              )}
+              {article.author_txt && <p>感谢作者：{article.author_txt}</p>}
+              {article.url && (
+                <p>
+                  查看原文：
+                  <a href={article.url} target="_blank" rel="external nofollow noopener" className="text-primary hover:underline">
+                    {article.title}
+                  </a>
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* 所属专栏 */}
+          {!!subjects?.length && (
+            <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-border pt-4">
+              <span className="text-xs text-muted-foreground">所属专栏：</span>
+              {subjects.map((subject) => (
+                <Link key={subject.id} href={`/subject/${subject.id}`}>
+                  <Badge variant="outline" className="text-xs">
+                    {subject.name}
+                  </Badge>
+                </Link>
+              ))}
+            </div>
+          )}
 
           {/* Actions */}
           <Separator className="my-6" />
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              variant={liked ? "default" : "outline"}
-              size="sm"
-              className={`gap-1.5 ${
-                liked ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-              }`}
-              onClick={handleLike}
-            >
-              <ThumbsUp className="h-3.5 w-3.5" />
-              {likeCount}
-            </Button>
-            <Button
-              variant={bookmarked ? "default" : "outline"}
-              size="sm"
-              className={`gap-1.5 ${
-                bookmarked ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-              }`}
-              onClick={handleBookmark}
-            >
-              <Bookmark className="h-3.5 w-3.5" />
-              {bookmarked ? "已收藏" : "收藏"}
-            </Button>
-            <Button variant="outline" size="sm" className="gap-1.5 text-muted-foreground">
-              <Share2 className="h-3.5 w-3.5" />
-              {"分享"}
-            </Button>
-          </div>
+          <ContentActions
+            objid={aid}
+            objtype={OBJTYPE_ARTICLE}
+            likeCount={article.likenum || 0}
+            initialLiked={Boolean(likeflag)}
+            initialFavorited={Boolean(hadcollect)}
+            ownerUsername={article.author}
+            editHref={`/articles/modify/${aid}`}
+          />
         </CardContent>
       </Card>
 
@@ -236,69 +280,12 @@ export function ArticleDetail({ id, article, prev, next, comments = [] }: Articl
         </Card>
       )}
 
-      {/* Comments */}
-      <Card>
-        <CardContent className="p-5 sm:p-6">
-          <h2 className="flex items-center gap-2 text-base font-semibold text-foreground">
-            <MessageSquare className="h-4 w-4 text-primary" />
-            {"评论"} ({comments.length})
-          </h2>
-
-          <div className="mt-4">
-            <CommentForm
-              objid={parseInt(id)}
-              objtype={1}
-              onSuccess={() => {
-                setReplyTo(null)
-                router.refresh()
-              }}
-              replyTo={replyTo}
-            />
-          </div>
-
-          <div className="mt-6 space-y-0 divide-y divide-border">
-            {comments.map((comment) => (
-              <div key={comment.id} className="py-4 first:pt-0">
-                <div className="flex gap-3">
-                  <Avatar className="mt-0.5 h-8 w-8 shrink-0">
-                    <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
-                      {comment.name ? comment.name.charAt(0).toUpperCase() : "?"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-foreground">{comment.name}</span>
-                      <span className="text-xs text-muted-foreground">{formatTime(comment.ctime)}</span>
-                      <span className="ml-auto text-xs text-muted-foreground">
-                        #{comment.floor}
-                      </span>
-                    </div>
-                    <MarkdownContent content={comment.content} className="mt-1.5" />
-                    <div className="mt-2 flex items-center gap-3">
-                      <button
-                        onClick={() => comment.id && handleCommentLike(comment.id)}
-                        className={`flex cursor-pointer items-center gap-1 text-xs transition-colors hover:text-primary ${commentLiked[comment.id] ? "text-primary" : "text-muted-foreground"}`}
-                      >
-                        <ChevronUp className="h-3.5 w-3.5" />
-                        {commentLiked[comment.id] ? 1 : 0}
-                      </button>
-                      <button
-                        onClick={() => comment.name && setReplyTo({ floor: comment.floor, username: comment.name })}
-                        className="cursor-pointer text-xs text-muted-foreground hover:text-primary"
-                      >
-                        {"回复"}
-                      </button>
-                      <button className="ml-auto cursor-pointer text-muted-foreground hover:text-primary">
-                        <MoreHorizontal className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <CommentSection
+        objid={aid}
+        objtype={OBJTYPE_ARTICLE}
+        comments={comments}
+        closed={article.close_reply}
+      />
     </div>
   )
 }

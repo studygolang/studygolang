@@ -116,10 +116,9 @@ export function BookFields({
               <SelectValue placeholder="选择语言" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="中文">中文</SelectItem>
-              <SelectItem value="英文">英文</SelectItem>
-              <SelectItem value="中英双语">中英双语</SelectItem>
-              <SelectItem value="其他">其他</SelectItem>
+              {/* model.Book.Lang 是 int：0=中文版，1=英文版，与旧版 template/books/new.html 一致 */}
+              <SelectItem value="0">中文</SelectItem>
+              <SelectItem value="1">英文</SelectItem>
             </SelectContent>
           </Select>
         </div>

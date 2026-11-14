@@ -13,7 +13,7 @@ interface GCTTUser {
   words: number
   role_name: string
   avg_time: number
-  joined_at: string
+  joined_at: number
 }
 
 async function getUser(username: string): Promise<GCTTUser | null> {
@@ -97,9 +97,9 @@ export default async function GCTTUserPage({
             </div>
           </div>
 
-          {user.joined_at && (
+          {user.joined_at > 0 && (
             <div className="mt-4 text-sm text-muted-foreground">
-              加入时间：{user.joined_at?.slice(0, 10)}
+              加入时间：{new Date(user.joined_at * 1000).toISOString().slice(0, 10)}
             </div>
           )}
         </CardContent>

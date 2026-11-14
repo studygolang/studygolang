@@ -7,6 +7,7 @@
 package api
 
 import (
+	"math"
 	"strings"
 
 	"github.com/studygolang/studygolang/context"
@@ -51,11 +52,18 @@ func (ArticleController) List(ctx echo.Context) error {
 	sort := strings.ToLower(strings.TrimSpace(ctx.QueryParam("sort")))
 	orderBy := getArticleSortOrder(sort)
 
-	// 置顶文章单独查询，不受 sort 参数影响（置顶优先）
-	topArticles := logic.DefaultArticle.FindAll(context.EchoContext(ctx), paginator, "id DESC", "top=1")
-	articles := logic.DefaultArticle.FindAll(context.EchoContext(ctx), paginator, orderBy, tagCondition, tagArgs...)
+	// 置顶文章单独查询，不受 sort 参数影响（置顶优先）。
+	// 普通列表必须排除置顶，否则置顶文章每页都重复出现、单页条数也超过 perPage。
+	topCondition := "top=1"
+	unTopCondition := "top!=1"
+	if tagCondition != "" {
+		topCondition += " AND " + tagCondition
+		unTopCondition += " AND " + tagCondition
+	}
+	topArticles := logic.DefaultArticle.FindAll(context.EchoContext(ctx), paginator, "id DESC", topCondition, tagArgs...)
+	articles := logic.DefaultArticle.FindAll(context.EchoContext(ctx), paginator, orderBy, unTopCondition, tagArgs...)
 
-	total := logic.DefaultArticle.Count(context.EchoContext(ctx), tagCondition, tagArgs...)
+	total := logic.DefaultArticle.Count(context.EchoContext(ctx), unTopCondition, tagArgs...)
 	hasMore := paginator.SetTotal(total).HasMorePage()
 
 	return success(ctx, map[string]interface{}{
@@ -111,17 +119,25 @@ func (ArticleController) Detail(ctx echo.Context) error {
 		article.LastReplyUser = sanitizeUserForPublic(lastReplyUser)
 	}
 
+	// 旧版按纯文本字数估算阅读时长（txt 长度 / 900），Txt 随后被清空不下发
+	readTime := int(math.Round(float64(len([]rune(article.Txt))) / 900))
 	article.Txt = ""
+
+	me, ok := ctx.Get("user").(*model.Me)
+	viewerUID := 0
+	if ok {
+		viewerUID = me.Uid
+	}
 
 	result := map[string]interface{}{
 		"article":      article,
 		"article_gctt": articleGCTT,
-		"replies":      normalizeReplies(replies),
+		"read_time":    readTime,
+		"replies":      normalizeReplies(ctx, replies, viewerUID),
 		"prev_next":    prevNext,
 		"subjects":     logic.DefaultSubject.FindArticleSubjects(context.EchoContext(ctx), article.Id),
 	}
 
-	me, ok := ctx.Get("user").(*model.Me)
 	if ok {
 		result["likeflag"] = logic.DefaultLike.HadLike(context.EchoContext(ctx), me.Uid, article.Id, model.TypeArticle)
 		result["hadcollect"] = logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), me.Uid, article.Id, model.TypeArticle)
@@ -191,6 +207,20 @@ func (ArticleController) Update(ctx echo.Context) error {
 
 	forms, _ := ctx.FormParams()
 	forms.Set("id", id)
+
+	// 与 Create 一致的长度上限，防止 PUT 绕过 64KB 限制落库超大 payload
+	const maxArticleTitleLen = 200
+	const maxArticleContentLen = 65535
+	if title := forms.Get("title"); len([]rune(title)) > maxArticleTitleLen {
+		return fail(ctx, "标题过长（上限 200 字符）")
+	}
+	if content := forms.Get("content"); len(content) > maxArticleContentLen {
+		return fail(ctx, "内容过长")
+	}
+	if txt := forms.Get("txt"); len(txt) > maxArticleContentLen {
+		return fail(ctx, "txt 字段过长")
+	}
+
 	errMsg, err := logic.DefaultArticle.Modify(context.EchoContext(ctx), me, forms)
 	if err != nil {
 		if errMsg != "" {

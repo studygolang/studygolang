@@ -216,12 +216,24 @@ func (ResourceController) Detail(ctx echo.Context) error {
 		return fail(ctx, "获取失败")
 	}
 
-	result := map[string]interface{}{
-		"resource": resource,
-		"comments": comments,
+	// logic 层把作者 *model.User 原样塞进 map，需与 article/project 详情一样脱敏
+	if owner, _ := resource["user"].(*model.User); owner != nil {
+		resource["user"] = sanitizeUserForPublic(owner)
 	}
 
 	me, ok := ctx.Get("user").(*model.Me)
+	viewerUID := 0
+	if ok {
+		viewerUID = me.Uid
+	}
+
+	result := map[string]interface{}{
+		"resource": resource,
+		// logic 层返回的是未归一化的评论 map（key 为 cid 而非 id），必须归一化，
+		// 否则前端读到的 id/name/floor/ctime 全是 undefined。
+		"comments": normalizeReplies(ctx, comments, viewerUID),
+	}
+
 	if ok {
 		result["likeflag"] = logic.DefaultLike.HadLike(context.EchoContext(ctx), me.Uid, id, model.TypeResource)
 		result["hadcollect"] = logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), me.Uid, id, model.TypeResource)

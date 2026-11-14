@@ -60,6 +60,7 @@ type Comment struct {
 	Content string    `json:"content"`
 	Uid     int       `json:"uid"`
 	Floor   int       `json:"floor"`
+	Likenum int       `json:"likenum"`
 	Flag    int       `json:"flag"`
 	Ctime   OftenTime `json:"ctime" xorm:"created"`
 

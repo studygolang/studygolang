@@ -8,6 +8,7 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -28,30 +29,50 @@ const (
 	cookieMaxAge   = 7 * 24 * 3600 // Cookie 有效期 7 天
 )
 
-// normalizeReplies 将 FindObjComments 返回的评论 map（大写 Go 字段名 + 嵌套 user）
-// 规整为前端期望的扁平、小写 key 结构：id/uid/floor/content/ctime/name/avatar。
-// 旧的 Go 模板直接用大写 key 渲染没问题，但新的 JSON API 暴露给 Next.js 前端时，
-// 前端类型是扁平小写 key，因此需要转换，否则 reply.id/uid/floor 全部 undefined。
-func normalizeReplies(replies []map[string]interface{}) []map[string]interface{} {
+// normalizeReplies 将 FindObjComments 返回的评论 map 规整为前端期望的结构。
+//
+// 注意 key 的大小写：cmd/studygolang/main.go 的 init() 设置了
+// structs.DefaultTagName = "json"，因此 structs.Map 产出的是 json tag（小写），
+// 不是 Go 字段名。按大写字段名取值会全部拿到 nil，评论的 id/uid/floor/ctime
+// 就都丢了（点赞、回复、编辑全部失效）。
+// uid > 0 时额外补上当前用户对每条评论的点赞状态，避免刷新后按钮状态丢失。
+func normalizeReplies(ctx echo.Context, replies []map[string]interface{}, uid int) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(replies))
+	cids := make([]int, 0, len(replies))
 	for _, reply := range replies {
 		item := map[string]interface{}{
-			"id":      reply["Cid"],
-			"objid":   reply["Objid"],
-			"objtype": reply["Objtype"],
-			"uid":     reply["Uid"],
-			"floor":   reply["Floor"],
-			"flag":    reply["Flag"],
-			"ctime":   reply["Ctime"],
-			"content": reply["content"],
+			"id":          reply["cid"],
+			"objid":       reply["objid"],
+			"objtype":     reply["objtype"],
+			"uid":         reply["uid"],
+			"floor":       reply["floor"],
+			"flag":        reply["flag"],
+			"likenum":     reply["likenum"],
+			"ctime":       reply["ctime"],
+			"content":     reply["content"],
+			"raw_content": reply["raw_content"],
 		}
 		if user, ok := reply["user"].(*model.User); ok && user != nil {
 			item["name"] = user.Username
 			item["avatar"] = user.Avatar
 			item["username"] = user.Username
 		}
+		if cid, ok := reply["cid"].(int); ok && cid > 0 {
+			cids = append(cids, cid)
+		}
 		result = append(result, item)
 	}
+
+	if uid > 0 && len(cids) > 0 {
+		likeFlags := logic.DefaultLike.FindUserLikeFlagsByIds(
+			context.EchoContext(ctx), uid, model.TypeComment, cids,
+		)
+		for _, item := range result {
+			cid, _ := item["id"].(int)
+			item["liked"] = likeFlags[cid] == model.FlagLike
+		}
+	}
+
 	return result
 }
 
@@ -71,22 +92,19 @@ func isSecure(ctx echo.Context) bool {
 	return config.ConfigFile.MustValue("global", "env", "prod") == "prod"
 }
 
-// setAuthCookie 设置认证 Cookie（HttpOnly, Secure, SameSite=Strict）
+// setAuthCookie 设置认证 Cookie（HttpOnly, Secure, SameSite=Lax）
+//
+// 必须用 Lax 而不是 Strict：OAuth 回调是从 github.com/gitea 跳回来的跨站顶层
+// 导航，Strict 下浏览器不携带 Cookie，optionalAuth 取不到当前用户，
+// 「绑定到已有账号」会静默退化成「登录/新建账号」。
+// Lax 已经能挡住跨站 POST（CSRF 的主要载体），另有 originCheck 二次校验。
 func setAuthCookie(ctx echo.Context, token string) {
 	cookie := new(http.Cookie)
 	cookie.Name = authCookieName
 	cookie.Value = token
 	cookie.HttpOnly = true
 	cookie.Secure = isSecure(ctx) // 根据 X-Forwarded-Proto 或环境动态决定
-
-	// 生产环境使用 Strict，开发环境可以使用 Lax
-	env := config.ConfigFile.MustValue("global", "env", "prod")
-	if env == "prod" {
-		cookie.SameSite = http.SameSiteStrictMode
-	} else {
-		cookie.SameSite = http.SameSiteLaxMode // 开发环境允许部分跨站请求
-	}
-
+	cookie.SameSite = http.SameSiteLaxMode
 	cookie.Path = "/"
 	cookie.MaxAge = cookieMaxAge
 	ctx.SetCookie(cookie)
@@ -101,12 +119,7 @@ func clearAuthCookie(ctx echo.Context) {
 	cookie.Path = "/"
 	cookie.MaxAge = -1
 	// SameSite 与 setAuthCookie 保持一致
-	env := config.ConfigFile.MustValue("global", "env", "prod")
-	if env == "prod" {
-		cookie.SameSite = http.SameSiteStrictMode
-	} else {
-		cookie.SameSite = http.SameSiteLaxMode
-	}
+	cookie.SameSite = http.SameSiteLaxMode
 	ctx.SetCookie(cookie)
 }
 
@@ -178,6 +191,14 @@ func success(ctx echo.Context, data interface{}) error {
 	})
 }
 
+// errResponseWritten 表示错误响应已由 fail() 写出，调用方必须立即返回。
+//
+// 不能直接把 ctx.JSON 的返回值当错误：Echo 写入成功时返回 nil，
+// 于是 `return 0, fail(...)` 实际是 (0, nil)，调用方的 `if err != nil` 守卫全部失效，
+// 未登录请求会继续执行业务逻辑（甚至 nil deref requireAuth 返回的 me）。
+// middleware.HTTPError 见到 Response().Committed 为 true 会吞掉它，不会二次写入。
+var errResponseWritten = errors.New("api: error response already written")
+
 // fail 返回错误响应
 func fail(ctx echo.Context, msg string, codes ...int) error {
 	code := 1
@@ -187,10 +208,13 @@ func fail(ctx echo.Context, msg string, codes ...int) error {
 
 	getLogger(ctx).Errorln("api fail:", msg)
 
-	return ctx.JSON(http.StatusOK, map[string]interface{}{
+	if err := ctx.JSON(http.StatusOK, map[string]interface{}{
 		"code": code,
 		"msg":  msg,
-	})
+	}); err != nil {
+		return err
+	}
+	return errResponseWritten
 }
 
 // parseAuthUID 从请求中获取并验证 token，返回 uid。
@@ -223,6 +247,31 @@ func parseAuthUID(ctx echo.Context) (int, error) {
 //
 // 实现上不调用 fail()，仅返回 nil 让调用方自行处理。
 func optionalAuth(ctx echo.Context) *model.Me {
+	me := meFromToken(ctx)
+	// 可选鉴权同样不应让冻结用户享有"登录用户"特权（如兑换状态等）
+	if me == nil || me.Status != model.UserStatusAudit {
+		return nil
+	}
+	return me
+}
+
+// oauthBindUser 返回 OAuth「绑定到当前账号」场景下的用户。
+//
+// 与 optionalAuth 的区别：允许未激活（UserStatusNoAudit）用户绑定。刚注册、
+// 还没点激活邮件的用户正是最需要绑定第三方账号的人；若沿用 optionalAuth，
+// 他们会拿到 nil 从而掉进登录分支，静默变成新建/登录另一个账号。
+// 冻结/停用用户仍然拒绝。
+func oauthBindUser(ctx echo.Context) *model.Me {
+	me := meFromToken(ctx)
+	if me == nil || me.Status > model.UserStatusAudit {
+		return nil
+	}
+	return me
+}
+
+// meFromToken 解析 token 得到当前用户，不做状态校验、不写错误响应。
+// 状态策略由调用方决定（optionalAuth / oauthBindUser）。
+func meFromToken(ctx echo.Context) *model.Me {
 	token := getAuthToken(ctx)
 	if token == "" {
 		return nil
@@ -235,10 +284,6 @@ func optionalAuth(ctx echo.Context) *model.Me {
 		return fetchFullUserInfo(ctx, uid)
 	})
 	if userInfo == nil {
-		return nil
-	}
-	// 可选鉴权同样不应让冻结用户享有"登录用户"特权（如兑换状态等）
-	if userInfo.Status != model.UserStatusAudit {
 		return nil
 	}
 	return &model.Me{

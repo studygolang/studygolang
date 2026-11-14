@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Plus, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { subjectAPI } from "@/lib/api"
+import { subjectAPI, needRelogin } from "@/lib/api"
 import { toast } from "sonner"
 
 interface SubjectFollowButtonProps {
@@ -37,12 +37,11 @@ export function SubjectFollowButton({
       onToggle?.(result.followed)
       toast.success(result.followed ? "关注成功" : "已取消关注")
     } catch (error) {
-      const message = error instanceof Error ? error.message : "操作失败"
-      if (message.includes("登录") || message.includes("600")) {
+      if (needRelogin(error)) {
         router.push("/account/login")
         return
       }
-      toast.error(message)
+      toast.error(error instanceof Error ? error.message : "操作失败")
     } finally {
       setLoading(false)
     }

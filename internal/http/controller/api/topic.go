@@ -145,6 +145,11 @@ func (TopicController) Detail(ctx echo.Context) error {
 		return fail(ctx, "话题不存在")
 	}
 
+	// logic 层把作者 *model.User 原样塞进 map，需与 article/project 详情一样脱敏
+	if owner, _ := topic["user"].(*model.User); owner != nil {
+		topic["user"] = sanitizeUserForPublic(owner)
+	}
+
 	me, ok := ctx.Get("user").(*model.Me)
 
 	permission, _ := topic["permission"].(int)
@@ -177,9 +182,13 @@ func (TopicController) Detail(ctx echo.Context) error {
 	}
 
 	// 已登录用户的附加信息
+	viewerUID := 0
+	if ok {
+		viewerUID = me.Uid
+	}
 	result := map[string]interface{}{
 		"topic":   topic,
-		"replies": normalizeReplies(replies),
+		"replies": normalizeReplies(ctx, replies, viewerUID),
 	}
 
 	if ok {

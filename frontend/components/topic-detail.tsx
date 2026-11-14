@@ -1,114 +1,29 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import {
-  ThumbsUp,
-  MessageSquare,
-  Bookmark,
-  Share2,
-  Eye,
-  Clock,
-  Flag,
-  ChevronUp,
-  MoreHorizontal,
-} from "lucide-react"
+import { Clock, Eye } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { TopicAppendForm } from "@/components/topic-append-form"
-import { CommentForm } from "@/components/comment-form"
+import { CommentSection } from "@/components/comment-section"
+import { ContentActions } from "@/components/content-actions"
 import { MarkdownContent } from "@/components/markdown-content"
 import { useAuth } from "@/lib/auth-context"
-import { likeAPI, favoriteAPI } from "@/lib/api"
-import type { Topic, TopicReply, TopicAppend } from "@/lib/types"
+import { formatTime } from "@/lib/utils"
+import { OBJTYPE_TOPIC, type Topic, type TopicReply, type TopicAppend } from "@/lib/types"
 
 interface TopicDetailProps {
   id: string
   topic?: Topic
   replies?: TopicReply[]
   appends?: TopicAppend[]
+  likeflag?: number
+  hadcollect?: number
 }
 
-function formatTime(ctime: string): string {
-  try {
-    const date = new Date(ctime)
-    const now = new Date()
-    const diff = now.getTime() - date.getTime()
-    const minutes = Math.floor(diff / 60000)
-    if (minutes < 60) return `${minutes} 分钟前`
-    const hours = Math.floor(minutes / 60)
-    if (hours < 24) return `${hours} 小时前`
-    const days = Math.floor(hours / 24)
-    if (days < 30) return `${days} 天前`
-    return ctime.slice(0, 10)
-  } catch {
-    return ctime
-  }
-}
-
-export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDetailProps) {
-  const router = useRouter()
-  const [liked, setLiked] = useState(false)
-  const [bookmarked, setBookmarked] = useState(false)
-  const [likeCount, setLikeCount] = useState(topic?.likenum || 0)
-  // 评论回复目标与评论点赞状态
-  const [replyTo, setReplyTo] = useState<{ floor: number; username: string } | null>(null)
-  const [commentLiked, setCommentLiked] = useState<Record<number, boolean>>({})
-
-  // 加载用户的点赞和收藏状态
-  useEffect(() => {
-    const loadUserStatus = async () => {
-      try {
-        const likeData = await likeAPI.getStatus(parseInt(id), 0)
-        if (likeData?.has_like) {
-          setLiked(true)
-        }
-
-        const favData = await favoriteAPI.getStatus(parseInt(id), 0)
-        if (favData?.has_favorite) {
-          setBookmarked(true)
-        }
-      } catch {
-        // 未登录或网络错误，忽略
-      }
-    }
-    loadUserStatus()
-  }, [id])
-
-  const handleLike = async () => {
-    try {
-      await likeAPI.toggle(parseInt(id), 0, !liked)
-      setLiked(!liked)
-      setLikeCount(liked ? likeCount - 1 : likeCount + 1)
-    } catch {
-      // 网络错误
-    }
-  }
-
-  const handleBookmark = async () => {
-    try {
-      await favoriteAPI.toggle(parseInt(id), 0, !bookmarked)
-      setBookmarked(!bookmarked)
-    } catch {
-      // 网络错误
-    }
-  }
-
-  // 点赞/取消点赞某条评论（objtype=100 = TypeComment）
-  const handleCommentLike = async (cid: number) => {
-    const nowLiked = commentLiked[cid] || false
-    try {
-      await likeAPI.toggle(cid, 100, !nowLiked)
-      setCommentLiked((prev) => ({ ...prev, [cid]: !nowLiked }))
-    } catch {
-      // 未登录或网络错误，忽略
-    }
-  }
-
+export function TopicDetail({ id, topic, replies = [], appends = [], likeflag, hadcollect }: TopicDetailProps) {
   if (!topic) {
     return (
       <Card>
@@ -118,6 +33,8 @@ export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDeta
       </Card>
     )
   }
+
+  const tid = parseInt(id)
 
   return (
     <div className="space-y-4">
@@ -167,42 +84,17 @@ export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDeta
 
           {/* Actions */}
           <Separator className="my-5" />
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              variant={liked ? "default" : "outline"}
-              size="sm"
-              className={`gap-1.5 ${
-                liked
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground"
-              }`}
-              onClick={handleLike}
-            >
-              <ThumbsUp className="h-3.5 w-3.5" />
-              {likeCount}
-            </Button>
-            <Button
-              variant={bookmarked ? "default" : "outline"}
-              size="sm"
-              className={`gap-1.5 ${
-                bookmarked
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground"
-              }`}
-              onClick={handleBookmark}
-            >
-              <Bookmark className="h-3.5 w-3.5" />
-              {bookmarked ? "已收藏" : "收藏"}
-            </Button>
-            <Button variant="outline" size="sm" className="gap-1.5 text-muted-foreground">
-              <Share2 className="h-3.5 w-3.5" />
-              {"分享"}
-            </Button>
-            <Button variant="ghost" size="sm" className="ml-auto gap-1.5 text-muted-foreground">
-              <Flag className="h-3.5 w-3.5" />
-              {"举报"}
-            </Button>
-          </div>
+          <ContentActions
+            objid={tid}
+            objtype={OBJTYPE_TOPIC}
+            likeCount={topic.like || topic.likenum || 0}
+            initialLiked={Boolean(likeflag)}
+            initialFavorited={Boolean(hadcollect)}
+            ownerUid={topic.uid}
+            editHref={`/topics/modify/${tid}`}
+            showTop
+            isTop={topic.top === 1}
+          />
         </CardContent>
       </Card>
 
@@ -227,85 +119,15 @@ export function TopicDetail({ id, topic, replies = [], appends = [] }: TopicDeta
       )}
 
       {/* 追加表单（仅作者可见，客户端判断） */}
-      <TopicAppendSection tid={parseInt(id)} topicUid={topic?.uid} />
+      <TopicAppendSection tid={tid} topicUid={topic.uid} />
 
-      {/* Comments Section */}
-      <Card>
-        <CardContent className="p-5 sm:p-6">
-          <h2 className="flex items-center gap-2 text-base font-semibold text-foreground">
-            <MessageSquare className="h-4 w-4 text-primary" />
-            {"评论"} ({replies.length})
-          </h2>
-
-          {/* Comment Input */}
-          <div className="mt-4">
-            <CommentForm
-              objid={parseInt(id)}
-              objtype={0}
-              onSuccess={() => {
-                setReplyTo(null)
-                router.refresh()
-              }}
-              replyTo={replyTo}
-            />
-          </div>
-
-          {/* Comments List */}
-          <div className="mt-6 space-y-0 divide-y divide-border">
-            {replies.map((reply, index) => (
-              <div key={reply.id} className="py-4 first:pt-0">
-                <div className="flex gap-3">
-                  <Avatar className="mt-0.5 h-8 w-8 shrink-0">
-                    <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
-                      {reply.name ? reply.name.charAt(0).toUpperCase() : "?"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <Link
-                        href={`/user/${reply.name}`}
-                        className="text-sm font-semibold text-foreground hover:text-primary"
-                      >
-                        {reply.name}
-                      </Link>
-                      {reply.uid === topic.uid && (
-                        <Badge variant="secondary" className="bg-primary/10 text-[10px] text-primary">
-                          {"楼主"}
-                        </Badge>
-                      )}
-                      <span className="text-xs text-muted-foreground">
-                        {formatTime(reply.ctime)}
-                      </span>
-                      <span className="ml-auto text-xs text-muted-foreground">
-                        #{reply.floor || index + 1}
-                      </span>
-                    </div>
-                    <MarkdownContent content={reply.content} className="mt-2" />
-                    <div className="mt-2 flex items-center gap-3">
-                      <button
-                        onClick={() => reply.id && handleCommentLike(reply.id)}
-                        className={`flex cursor-pointer items-center gap-1 text-xs transition-colors hover:text-primary ${commentLiked[reply.id] ? "text-primary" : "text-muted-foreground"}`}
-                      >
-                        <ChevronUp className="h-3.5 w-3.5" />
-                        {commentLiked[reply.id] ? 1 : 0}
-                      </button>
-                      <button
-                        onClick={() => reply.name && setReplyTo({ floor: reply.floor || index + 1, username: reply.name })}
-                        className="cursor-pointer text-xs text-muted-foreground transition-colors hover:text-primary"
-                      >
-                        {"回复"}
-                      </button>
-                      <button className="ml-auto cursor-pointer text-muted-foreground transition-colors hover:text-primary">
-                        <MoreHorizontal className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <CommentSection
+        objid={tid}
+        objtype={OBJTYPE_TOPIC}
+        comments={replies}
+        ownerUid={topic.uid}
+        closed={topic.close_reply}
+      />
     </div>
   )
 }

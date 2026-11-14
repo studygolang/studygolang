@@ -50,6 +50,7 @@ var (
 	loginLimiter    = &rateLimiter{attempts: make(map[string]*attemptInfo)}
 	registerLimiter = &rateLimiter{attempts: make(map[string]*attemptInfo)}
 	forgotLimiter   = &rateLimiter{attempts: make(map[string]*attemptInfo)}
+	activateLimiter = &rateLimiter{attempts: make(map[string]*attemptInfo)}
 )
 
 func init() {
@@ -60,6 +61,7 @@ func init() {
 			loginLimiter.cleanup()
 			registerLimiter.cleanup()
 			forgotLimiter.cleanup()
+			activateLimiter.cleanup()
 		}
 	}()
 }

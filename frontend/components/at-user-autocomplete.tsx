@@ -4,9 +4,11 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { commentAPI } from '@/lib/api'
 
 interface AtUserAutocompleteProps {
-  textareaRef: React.RefObject<HTMLTextAreaElement>
+  textareaRef: React.RefObject<HTMLTextAreaElement | null>
   value: string
   onChange: (val: string) => void
+  placeholder?: string
+  rows?: number
 }
 
 interface User {
@@ -14,7 +16,7 @@ interface User {
   avatar: string
 }
 
-export function AtUserAutocomplete({ textareaRef, value, onChange }: AtUserAutocompleteProps) {
+export function AtUserAutocomplete({ textareaRef, value, onChange, placeholder, rows = 4 }: AtUserAutocompleteProps) {
   const [showDropdown, setShowDropdown] = useState(false)
   const [users, setUsers] = useState<User[]>([])
   const [selectedIndex, setSelectedIndex] = useState(0)
@@ -65,6 +67,10 @@ export function AtUserAutocomplete({ textareaRef, value, onChange }: AtUserAutoc
         const results = await commentAPI.getAtUsers(searchTerm)
         setUsers(results)
         setShowDropdown(results.length > 0)
+      } else {
+        // @ 后还没输入字符时收起候选，否则会一直挂着上一次的搜索结果
+        setUsers([])
+        setShowDropdown(false)
       }
     }, 300)
 
@@ -120,8 +126,9 @@ export function AtUserAutocomplete({ textareaRef, value, onChange }: AtUserAutoc
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
-        className="w-full min-h-[100px] rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-        rows={4}
+        placeholder={placeholder}
+        className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+        rows={rows}
       />
       {showDropdown && users.length > 0 && (
         <div className="absolute z-50 mt-1 w-full max-w-xs rounded-md border border-border bg-popover shadow-lg">

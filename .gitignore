@@ -46,6 +46,9 @@ welcome.png
 
 *.json
 !package.json
+# 前端构建必需：tsconfig.json 定义 @/* 路径别名，被上面的 *.json 误伤会导致干净 clone 构建失败
+!frontend/tsconfig.json
+!frontend/components.json
 
 .DS_Store
 /env.ini

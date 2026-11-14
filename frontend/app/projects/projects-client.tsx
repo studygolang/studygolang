@@ -6,7 +6,7 @@ import { Eye, ExternalLink, Github, MessageSquare, ThumbsUp } from "lucide-react
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { fetchAPINullable } from "@/lib/api"
-import { formatNum } from "@/lib/utils"
+import { encodeProjectUri, formatNum } from "@/lib/utils"
 import { Pagination } from "@/components/pagination"
 import { ProjectSortSelect } from "@/components/project-sort-select"
 import type { ProjectListData, Project } from "@/lib/types"
@@ -98,7 +98,7 @@ export function ProjectsClient({ page, sort, total: initialTotal, projects: init
                         </div>
                       )}
                       <div>
-                        <Link href={`/p/${project.uri}`}>
+                        <Link href={`/p/${encodeProjectUri(project.uri)}`}>
                           <h3 className="text-sm font-bold text-foreground group-hover:text-primary">
                             {project.name}
                           </h3>

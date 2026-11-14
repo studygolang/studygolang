@@ -128,7 +128,7 @@ func (ProjectController) Edit(ctx echo.Context) error {
 		return err
 	}
 
-	uri := ctx.Param("uri")
+	uri := PathParam(ctx, "uri")
 	project := logic.DefaultProject.FindOne(context.EchoContext(ctx), uri)
 	if project == nil || project.Id == 0 {
 		return fail(ctx, "项目不存在或已下线")
@@ -154,7 +154,7 @@ func (ProjectController) Update(ctx echo.Context) error {
 		return err
 	}
 
-	uri := ctx.Param("uri")
+	uri := PathParam(ctx, "uri")
 	project := logic.DefaultProject.FindOne(context.EchoContext(ctx), uri)
 	if project == nil || project.Id == 0 {
 		return fail(ctx, "项目不存在或已下线")
@@ -184,7 +184,7 @@ func (ProjectController) Update(ctx echo.Context) error {
 
 // Detail 项目详情（通过 URI 查询）
 func (ProjectController) Detail(ctx echo.Context) error {
-	uri := ctx.Param("uri")
+	uri := PathParam(ctx, "uri")
 	project := logic.DefaultProject.FindOne(context.EchoContext(ctx), uri)
 	if project == nil || project.Id == 0 {
 		return fail(ctx, "获取失败或已下线")
@@ -198,7 +198,9 @@ func (ProjectController) Detail(ctx echo.Context) error {
 	}
 
 	me, ok := ctx.Get("user").(*model.Me)
+	viewerUID := 0
 	if ok {
+		viewerUID = me.Uid
 		result["likeflag"] = logic.DefaultLike.HadLike(context.EchoContext(ctx), me.Uid, project.Id, model.TypeProject)
 		result["hadcollect"] = logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), me.Uid, project.Id, model.TypeProject)
 
@@ -227,7 +229,7 @@ func (ProjectController) Detail(ctx echo.Context) error {
 		// Email 脱敏：未公开邮箱的用户清空 Email，与 profile.html 语义对齐
 		project.LastReplyUser = sanitizeUserForPublic(lastReplyUser)
 	}
-	result["replies"] = normalizeReplies(replies)
+	result["replies"] = normalizeReplies(ctx, replies, viewerUID)
 
 	return success(ctx, result)
 }

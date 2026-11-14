@@ -20,7 +20,18 @@ type Wiki struct {
 	Ctime   OftenTime `json:"ctime" xorm:"created"`
 	Mtime   time.Time `json:"mtime" xorm:"<-"`
 
-	Users map[int]*User `xorm:"-"`
+	Users map[int]*User `xorm:"-" json:"-"`
+
+	// 公开投影字段（API 边界填充，避免直接序列化 Users 泄露 Email/Balance 等）
+	Author       string            `json:"author" xorm:"-"`
+	Contributors []WikiContributor `json:"contributors" xorm:"-"`
+}
+
+// WikiContributor 公开贡献者信息，仅含展示所需字段
+type WikiContributor struct {
+	Uid      int    `json:"uid"`
+	Username string `json:"username"`
+	Avatar   string `json:"avatar"`
 }
 
 func (this *Wiki) BeforeInsert() {

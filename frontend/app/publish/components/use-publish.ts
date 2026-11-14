@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import type { TopicNode } from "@/lib/types"
 import { loadDraft, clearDraft, draftKey, type DraftData } from "@/lib/draft"
+import { encodeProjectUri } from "@/lib/utils"
 
 // 客户端组件使用相对路径，通过 next.config.mjs 中的 rewrites 代理到后端
 const API_BASE = ""
@@ -67,11 +68,18 @@ export function usePublish({ initialType }: UsePublishProps) {
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [nid, setNid] = useState("")
+  const [topicPermission, setTopicPermission] = useState("0")
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
   const [draftData, setDraftData] = useState<DraftData | null>(null)
+
+  // 验证码：注册 30 分钟内或发布过频时后端要求校验（logic.NeedCaptcha）
+  const [captchaRequired, setCaptchaRequired] = useState(false)
+  const [captchaId, setCaptchaId] = useState("")
+  const [captchaSolution, setCaptchaSolution] = useState("")
+  const [captchaKey, setCaptchaKey] = useState(0)
 
   // 项目特定字段
   const [src, setSrc] = useState("")
@@ -93,7 +101,7 @@ export function usePublish({ initialType }: UsePublishProps) {
   const [bookTranslator, setBookTranslator] = useState("")
   const [bookCover, setBookCover] = useState("")
   const [bookPubDate, setBookPubDate] = useState("")
-  const [bookLang, setBookLang] = useState("中文")
+  const [bookLang, setBookLang] = useState("0")
   const [bookIsFree, setBookIsFree] = useState(false)
   const [bookOnlineUrl, setBookOnlineUrl] = useState("")
   const [bookDownloadUrl, setBookDownloadUrl] = useState("")
@@ -103,6 +111,16 @@ export function usePublish({ initialType }: UsePublishProps) {
   // 加载节点
   useEffect(() => {
     fetchNodes().then(setNodeGroups)
+  }, [])
+
+  // 查询当前用户发布是否需要验证码
+  useEffect(() => {
+    fetch(`${API_BASE}/api/v1/captcha/required`, { credentials: "include" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (json?.code === 0) setCaptchaRequired(Boolean(json.data?.required))
+      })
+      .catch(() => {})
   }, [])
 
   // 加载草稿
@@ -154,6 +172,25 @@ export function usePublish({ initialType }: UsePublishProps) {
     }
   }
 
+  // 需要验证码时随表单一起提交，后端 captchaCheck 读的就是这两个字段
+  function newPublishForm() {
+    const form = new URLSearchParams()
+    if (captchaRequired) {
+      form.set("captcha_id", captchaId)
+      form.set("captcha_solution", captchaSolution.trim())
+    }
+    return form
+  }
+
+  function publishFailed(msg: string) {
+    setError(msg)
+    // 验证码可能已输错或被消耗，换一张让用户重试
+    if (captchaRequired) {
+      setCaptchaSolution("")
+      setCaptchaKey((k) => k + 1)
+    }
+  }
+
   // 发布处理
   async function handlePublish() {
     setError("")
@@ -163,16 +200,18 @@ export function usePublish({ initialType }: UsePublishProps) {
     if (contentType === "resource" && resourceForm === "link" && !resourceUrl.trim()) { setError("请填写资源链接"); return }
     if (contentType === "resource" && resourceForm === "content" && !content.trim()) { setError("请填写资源内容"); return }
     if (contentType === "book" && !bookAuthor.trim()) { setError("请填写作者"); return }
+    if (captchaRequired && !captchaSolution.trim()) { setError("请填写验证码"); return }
 
     setSubmitting(true)
     // 发布时清除草稿
     clearDraft(draftKey(contentType))
     try {
       if (contentType === "topic") {
-        const form = new URLSearchParams()
+        const form = newPublishForm()
         form.set("title", title.trim())
         form.set("content", content.trim())
         form.set("nid", nid)
+        form.set("permission", topicPermission)
         if (tags.length > 0) form.set("tags", tags.join(","))
 
         const res = await fetch(`${API_BASE}/api/v1/topics`, {
@@ -184,15 +223,17 @@ export function usePublish({ initialType }: UsePublishProps) {
           body: form.toString(),
         })
         // 反向代理（Nginx）在 502/504 时会返回 HTML 错误页，直接 .json() 会抛异常被吞掉
-        if (!res.ok) { setError("发布失败，请稍后重试"); return }
+        if (!res.ok) { publishFailed("发布失败，请稍后重试"); return }
         const json = await res.json()
-        if (json.code !== 0) { setError(json.msg || "发布失败"); return }
+        if (json.code !== 0) { publishFailed(json.msg || "发布失败"); return }
         router.push(json.data?.tid ? `/topics/${json.data.tid}` : "/topics")
       } else if (contentType === "article") {
-        const form = new URLSearchParams()
+        const form = newPublishForm()
         form.set("title", title.trim())
         form.set("content", content.trim())
         form.set("txt", content.trim())
+        // 编辑器输出 Markdown，必须置位，否则详情页按富文本 HTML 渲染出源码
+        form.set("markdown", "1")
         form.set("cover", "")
         if (tags.length > 0) form.set("tags", tags.join(","))
 
@@ -204,12 +245,12 @@ export function usePublish({ initialType }: UsePublishProps) {
           credentials: "include",
           body: form.toString(),
         })
-        if (!res.ok) { setError("发布失败，请稍后重试"); return }
+        if (!res.ok) { publishFailed("发布失败，请稍后重试"); return }
         const json = await res.json()
-        if (json.code !== 0) { setError(json.msg || "发布失败"); return }
+        if (json.code !== 0) { publishFailed(json.msg || "发布失败"); return }
         router.push(json.data?.id ? `/articles/${json.data.id}` : "/articles")
       } else if (contentType === "project") {
-        const form = new URLSearchParams()
+        const form = newPublishForm()
         form.set("name", title.trim())
         form.set("src", src.trim())
         form.set("desc", content.trim())
@@ -230,13 +271,13 @@ export function usePublish({ initialType }: UsePublishProps) {
           credentials: "include",
           body: form.toString(),
         })
-        if (!res.ok) { setError("发布失败，请稍后重试"); return }
+        if (!res.ok) { publishFailed("发布失败，请稍后重试"); return }
         const json = await res.json()
-        if (json.code !== 0) { setError(json.msg || "发布失败"); return }
-        // 项目详情路由是 /p/[uri]（见 frontend/app/p/[uri]/page.tsx）
-        router.push(json.data?.uri ? `/p/${json.data.uri}` : "/projects")
+        if (json.code !== 0) { publishFailed(json.msg || "发布失败"); return }
+        // 项目详情路由是 /p/[...uri]（/projects 是列表页）
+        router.push(json.data?.uri ? `/p/${encodeProjectUri(json.data.uri)}` : "/projects")
       } else if (contentType === "resource") {
-        const form = new URLSearchParams()
+        const form = newPublishForm()
         form.set("title", title.trim())
         form.set("form", resourceForm === "link" ? "只是链接" : "包括内容")
         if (resourceForm === "link") {
@@ -255,12 +296,12 @@ export function usePublish({ initialType }: UsePublishProps) {
           credentials: "include",
           body: form.toString(),
         })
-        if (!res.ok) { setError("发布失败，请稍后重试"); return }
+        if (!res.ok) { publishFailed("发布失败，请稍后重试"); return }
         const json = await res.json()
-        if (json.code !== 0) { setError(json.msg || "发布失败"); return }
+        if (json.code !== 0) { publishFailed(json.msg || "发布失败"); return }
         router.push(json.data?.id ? `/resources/${json.data.id}` : "/resources")
       } else if (contentType === "book") {
-        const form = new URLSearchParams()
+        const form = newPublishForm()
         form.set("name", title.trim())
         form.set("author", bookAuthor.trim())
         form.set("desc", content.trim())
@@ -283,10 +324,11 @@ export function usePublish({ initialType }: UsePublishProps) {
           credentials: "include",
           body: form.toString(),
         })
-        if (!res.ok) { setError("发布失败，请稍后重试"); return }
+        if (!res.ok) { publishFailed("发布失败，请稍后重试"); return }
         const json = await res.json()
-        if (json.code !== 0) { setError(json.msg || "发布失败"); return }
-        router.push(json.data?.id ? `/books/${json.data.id}` : "/books")
+        if (json.code !== 0) { publishFailed(json.msg || "发布失败"); return }
+        // 图书详情路由是 /book/[id]（/books 是列表页）
+        router.push(json.data?.id ? `/book/${json.data.id}` : "/books")
       }
     } catch (err) {
       // 记录实际错误便于排查；用户侧只显示友好提示
@@ -311,6 +353,8 @@ export function usePublish({ initialType }: UsePublishProps) {
     setContent,
     nid,
     setNid,
+    topicPermission,
+    setTopicPermission,
     tags,
     setTags,
     tagInput,
@@ -320,6 +364,13 @@ export function usePublish({ initialType }: UsePublishProps) {
     error,
     handlePublish,
     handleCancel,
+    // 验证码
+    captchaRequired,
+    captchaId,
+    setCaptchaId,
+    captchaSolution,
+    setCaptchaSolution,
+    captchaKey,
     // 草稿
     draftData,
     restoreDraft,

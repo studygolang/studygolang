@@ -66,6 +66,33 @@ func (LikeLogic) FindUserLikeObjects(ctx context.Context, uid, objtype int, obji
 	return likeFlags, nil
 }
 
+// FindUserLikeFlagsByIds 按离散的 objid 集合查询点赞标记。
+// FindUserLikeObjects 只支持 BETWEEN 区间，评论 cid 不连续，用区间会扫到无关对象。
+func (LikeLogic) FindUserLikeFlagsByIds(ctx context.Context, uid, objtype int, objids []int) map[int]int {
+	objLog := GetLogger(ctx)
+
+	likeFlags := make(map[int]int, len(objids))
+	if uid == 0 || len(objids) == 0 {
+		return likeFlags
+	}
+
+	likes := make([]*model.Like, 0, len(objids))
+	ids := make([]interface{}, 0, len(objids))
+	for _, objid := range objids {
+		ids = append(ids, objid)
+	}
+	err := MasterDB.Where("uid=? AND objtype=?", uid, objtype).In("objid", ids...).Find(&likes)
+	if err != nil {
+		objLog.Errorln("LikeLogic FindUserLikeFlagsByIds error:", err)
+		return likeFlags
+	}
+
+	for _, like := range likes {
+		likeFlags[like.Objid] = like.Flag
+	}
+	return likeFlags
+}
+
 // FindUserRecentLikes 获取用户最近喜欢的对象（不过滤对象）
 func (LikeLogic) FindUserRecentLikes(ctx context.Context, uid, limit int) (map[int]map[int]int, error) {
 	objLog := GetLogger(ctx)

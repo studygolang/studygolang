@@ -17,6 +17,7 @@ import { toast } from "sonner"
 interface Article {
   id: number
   title: string
+  had_add?: number
 }
 
 interface SubjectContributeDialogProps {
@@ -42,7 +43,7 @@ export function SubjectContributeDialog({
   async function loadArticles() {
     setLoading(true)
     try {
-      const result = await subjectAPI.myArticles()
+      const result = await subjectAPI.myArticles({ sid })
       setArticles(result.articles || [])
     } catch (error) {
       const message = error instanceof Error ? error.message : "加载失败"
@@ -101,12 +102,15 @@ export function SubjectContributeDialog({
                 </div>
                 <Button
                   size="sm"
+                  variant={article.had_add === 1 ? "outline" : "default"}
                   onClick={() => handleContribute(article.id)}
-                  disabled={submitting === article.id}
+                  disabled={submitting === article.id || article.had_add === 1}
                   className="ml-3 shrink-0"
                 >
                   {submitting === article.id ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : article.had_add === 1 ? (
+                    "已收录"
                   ) : (
                     "投稿"
                   )}
