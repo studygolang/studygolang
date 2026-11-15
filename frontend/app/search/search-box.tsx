@@ -6,12 +6,21 @@ import { Search } from "lucide-react"
 
 interface SearchBoxProps {
   defaultValue?: string
+  defaultType?: string
 }
 
-export function SearchBox({ defaultValue = "" }: SearchBoxProps) {
+// 搜索字段：空=全文，title=标题，author=作者（与后端 DoSearch 的 df 对应）
+const fieldOptions = [
+  { value: "", label: "全文" },
+  { value: "title", label: "标题" },
+  { value: "author", label: "作者" },
+]
+
+export function SearchBox({ defaultValue = "", defaultType = "" }: SearchBoxProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [query, setQuery] = useState(defaultValue)
+  const [field, setField] = useState(defaultType)
   const [isPending, startTransition] = useTransition()
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -22,6 +31,11 @@ export function SearchBox({ defaultValue = "" }: SearchBoxProps) {
       const params = new URLSearchParams(searchParams.toString())
       params.set("q", q)
       params.delete("page")
+      if (field) {
+        params.set("type", field)
+      } else {
+        params.delete("type")
+      }
       router.push(`/search?${params.toString()}`)
     })
   }
@@ -38,6 +52,18 @@ export function SearchBox({ defaultValue = "" }: SearchBoxProps) {
           className="w-full rounded-md border border-border bg-background py-2.5 pl-9 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
         />
       </div>
+      <select
+        value={field}
+        onChange={(e) => setField(e.target.value)}
+        aria-label="搜索字段"
+        className="rounded-md border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+      >
+        {fieldOptions.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
       <button
         type="submit"
         disabled={isPending || !query.trim()}

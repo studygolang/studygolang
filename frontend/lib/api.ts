@@ -369,10 +369,12 @@ export const commentAPI = {
   },
 
   // 发表评论（使用 form-urlencoded + Cookie 认证）
-  create(objid: number, objtype: number, content: string) {
+  // usernames：被 @ 提及的用户名（逗号分隔），后端据此发系统消息
+  create(objid: number, objtype: number, content: string, usernames?: string) {
     const form = new URLSearchParams()
     form.set('objtype', String(objtype))
     form.set('content', content)
+    if (usernames) form.set('usernames', usernames)
     return fetchAPI<Comment>(`/comments/${objid}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

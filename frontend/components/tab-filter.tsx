@@ -3,10 +3,13 @@
 import { useRouter, useSearchParams } from "next/navigation"
 import { cn } from "@/lib/utils"
 
+// 与后端 /home 的 tab 契约一致（见 api/index.go Home 与 app/page.tsx 注释）：
+// all=feed 动态，recommend=按 seq 推荐，no_reply=未回复话题。
+// 节点筛选由 NodeNavigation 单独承担，不在此处。
 const primaryTabs = [
   { id: "all", label: "全部" },
-  { id: "hot", label: "最热" },
-  { id: "latest", label: "最新" },
+  { id: "recommend", label: "推荐" },
+  { id: "no_reply", label: "未回复" },
 ]
 
 // 首页 TabFilter：tab 切换通过 URL 参数 ?tab=xxx 驱动，实际数据由 SSR 父页面根据 tab 从 API 获取

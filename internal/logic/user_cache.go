@@ -9,6 +9,7 @@ package logic
 import (
 	"encoding/json"
 	"strconv"
+	"time"
 
 	"github.com/polaris1119/logger"
 	"github.com/polaris1119/nosql"
@@ -27,15 +28,16 @@ const (
 
 // UserInfoCache 用户信息缓存
 type UserInfoCache struct {
-	Uid      int    `json:"uid"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	IsRoot   bool   `json:"is_root"`
-	IsVip    bool   `json:"is_vip"`
-	IsAdmin  bool   `json:"is_admin"`
-	Avatar   string `json:"avatar"`
-	Balance  int    `json:"balance"`
-	Status   int    `json:"status"`
+	Uid       int       `json:"uid"`
+	Username  string    `json:"username"`
+	Email     string    `json:"email"`
+	IsRoot    bool      `json:"is_root"`
+	IsVip     bool      `json:"is_vip"`
+	IsAdmin   bool      `json:"is_admin"`
+	Avatar    string    `json:"avatar"`
+	Balance   int       `json:"balance"`
+	Status    int       `json:"status"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // GetCachedUserInfo 获取缓存的用户信息

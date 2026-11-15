@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import type { TopicNode } from "@/lib/types"
 import { loadDraft, clearDraft, draftKey, type DraftData } from "@/lib/draft"
-import { encodeProjectUri } from "@/lib/utils"
+import { encodeProjectUri, extractMentionedUsernames } from "@/lib/utils"
 
 // 客户端组件使用相对路径，通过 next.config.mjs 中的 rewrites 代理到后端
 const API_BASE = ""
@@ -212,6 +212,8 @@ export function usePublish({ initialType }: UsePublishProps) {
         form.set("content", content.trim())
         form.set("nid", nid)
         form.set("permission", topicPermission)
+        // @ 提及的用户发系统消息（后端 SendSysMsgAtUsernames）
+        form.set("usernames", extractMentionedUsernames(content))
         if (tags.length > 0) form.set("tags", tags.join(","))
 
         const res = await fetch(`${API_BASE}/api/v1/topics`, {
@@ -285,6 +287,8 @@ export function usePublish({ initialType }: UsePublishProps) {
         } else {
           form.set("content", content.trim())
         }
+        // @ 提及的用户发系统消息（后端 SendSysMsgAtUsernames）
+        form.set("usernames", extractMentionedUsernames(content))
         if (resourceCatid) form.set("catid", resourceCatid)
         if (tags.length > 0) form.set("tags", tags.join(","))
 

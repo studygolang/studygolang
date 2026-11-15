@@ -6,7 +6,9 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/studygolang/studygolang/internal/logic"
 	"github.com/studygolang/studygolang/internal/model"
 
 	studyhttp "github.com/studygolang/studygolang/internal/http"
@@ -180,5 +182,39 @@ func TestRequireAuthRejectsAnonymous(t *testing.T) {
 	}
 	if me != nil {
 		t.Errorf("me = %+v, want nil", me)
+	}
+}
+
+// TestCheckNewUserWait 锁定新用户等待期（master NeedLogin 的等价物）：
+// wait=0 不限制；CreatedAt 为零（旧缓存）放行避免误伤；未满等待期拒绝；已满放行。
+func TestCheckNewUserWait(t *testing.T) {
+	orig := logic.UserSetting
+	defer func() { logic.UserSetting = orig }()
+
+	newCtx := func() echo.Context {
+		return echo.New().NewContext(httptest.NewRequest(http.MethodPost, "/", nil), httptest.NewRecorder())
+	}
+
+	logic.UserSetting = map[string]int{model.KeyNewUserWait: 0}
+	if err := checkNewUserWait(newCtx(), time.Now()); err != nil {
+		t.Errorf("wait=0 应放行，got %v", err)
+	}
+
+	logic.UserSetting = map[string]int{model.KeyNewUserWait: 3600}
+	if err := checkNewUserWait(newCtx(), time.Time{}); err != nil {
+		t.Errorf("CreatedAt 为零应放行，got %v", err)
+	}
+
+	rec := httptest.NewRecorder()
+	ctx := echo.New().NewContext(httptest.NewRequest(http.MethodPost, "/", nil), rec)
+	if err := checkNewUserWait(ctx, time.Now()); err == nil {
+		t.Error("注册未满等待期应拒绝")
+	}
+	if !strings.Contains(rec.Body.String(), "等待") {
+		t.Errorf("响应缺少等待提示，got %q", rec.Body.String())
+	}
+
+	if err := checkNewUserWait(newCtx(), time.Now().Add(-2*time.Hour)); err != nil {
+		t.Errorf("超过等待期应放行，got %v", err)
 	}
 }

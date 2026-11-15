@@ -47,8 +47,12 @@ function buildResultUrl(objtype: number, objid: number): string {
 }
 
 interface SearchPageProps {
-  searchParams: Promise<{ q?: string; page?: string }>
+  searchParams: Promise<{ q?: string; page?: string; type?: string }>
 }
+
+// 搜索字段过滤（对应后端 DoSearch 的 df）：空=全文，title=标题，author=作者。
+// 白名单校验，避免把任意字符串透传给 Solr 的 df 参数。
+const allowedSearchFields = ["", "title", "author"]
 
 export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
   const params = await searchParams
@@ -65,7 +69,7 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
   }
 }
 
-async function SearchResults({ q, page }: { q: string; page: number }) {
+async function SearchResults({ q, page, field }: { q: string; page: number; field: string }) {
   if (!q) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
@@ -75,8 +79,9 @@ async function SearchResults({ q, page }: { q: string; page: number }) {
     )
   }
 
+  const typeQuery = field ? `&type=${encodeURIComponent(field)}` : ""
   const data = await fetchAPINullable<SearchData>(
-    `/search?q=${encodeURIComponent(q)}&p=${page}`,
+    `/search?q=${encodeURIComponent(q)}&p=${page}${typeQuery}`,
     { cache: "no-store" }
   )
 
@@ -167,7 +172,7 @@ async function SearchResults({ q, page }: { q: string; page: number }) {
       <div className="mt-6 flex items-center justify-center gap-2">
         {page > 1 && (
           <Link
-            href={`/search?q=${encodeURIComponent(q)}&page=${page - 1}`}
+            href={`/search?q=${encodeURIComponent(q)}&page=${page - 1}${typeQuery}`}
             className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
           >
             上一页
@@ -178,7 +183,7 @@ async function SearchResults({ q, page }: { q: string; page: number }) {
         </span>
         {data.has_more && (
           <Link
-            href={`/search?q=${encodeURIComponent(q)}&page=${page + 1}`}
+            href={`/search?q=${encodeURIComponent(q)}&page=${page + 1}${typeQuery}`}
             className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
           >
             下一页
@@ -193,6 +198,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams
   const q = params.q?.trim() || ""
   const page = Math.max(1, parseInt(params.page || "1", 10))
+  const field = allowedSearchFields.includes(params.type || "") ? (params.type || "") : ""
 
   return (
     <PageLayout sidebar={false}>
@@ -208,13 +214,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             <div className="h-12 w-full max-w-2xl animate-pulse rounded-md bg-muted" />
           }
         >
-          <SearchBox defaultValue={q} />
+          <SearchBox defaultValue={q} defaultType={field} />
         </Suspense>
       </div>
 
       {/* Results */}
       <Suspense
-        key={`${q}-${page}`}
+        key={`${q}-${page}-${field}`}
         fallback={
           <div className="space-y-3">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -223,7 +229,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </div>
         }
       >
-        <SearchResults q={q} page={page} />
+        <SearchResults q={q} page={page} field={field} />
       </Suspense>
     </PageLayout>
   )

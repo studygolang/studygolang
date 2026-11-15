@@ -54,3 +54,17 @@ export function formatTime(ctime: string): string {
     return ctime
   }
 }
+
+// 提取内容中被 @ 提及的用户名，返回逗号分隔、去重的字符串，
+// 随表单发送 usernames 字段，后端 SendSysMsgAtUsernames 据此发系统消息。
+// 仅匹配行首或空白后的 @，避免把邮箱 foo@bar.com 误判为提及。
+export function extractMentionedUsernames(content: string): string {
+  if (!content) return ''
+  const re = /(?:^|\s)@([a-zA-Z0-9_]{1,20})/g
+  const names = new Set<string>()
+  let m: RegExpExecArray | null
+  while ((m = re.exec(content)) !== null) {
+    names.add(m[1])
+  }
+  return Array.from(names).join(',')
+}

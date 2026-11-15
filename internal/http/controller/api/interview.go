@@ -12,6 +12,7 @@ import (
 
 	"github.com/studygolang/studygolang/context"
 	"github.com/studygolang/studygolang/internal/logic"
+	"github.com/studygolang/studygolang/internal/model"
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
@@ -112,5 +113,14 @@ func (InterviewController) Question(ctx echo.Context) error {
 	if question == nil || question.Id == 0 {
 		return fail(ctx, "面试题不存在")
 	}
+
+	// 浏览计数（与 master interview.detail 一致）：登录用户记录 uid 并异步留痕，匿名用户仅计数
+	if me := optionalAuth(ctx); me != nil {
+		logic.Views.Incr(ctx.Request(), model.TypeInterview, question.Id, me.Uid)
+		go logic.DefaultViewRecord.Record(question.Id, model.TypeInterview, me.Uid)
+	} else {
+		logic.Views.Incr(ctx.Request(), model.TypeInterview, question.Id)
+	}
+
 	return success(ctx, map[string]interface{}{"question": question})
 }

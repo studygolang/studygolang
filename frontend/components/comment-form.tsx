@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AtUserAutocomplete } from "@/components/at-user-autocomplete"
 import { commentAPI, needRelogin } from "@/lib/api"
+import { extractMentionedUsernames } from "@/lib/utils"
 import { toast } from "sonner"
 
 interface CommentFormProps {
@@ -38,7 +39,7 @@ export function CommentForm({ objid, objtype, onSuccess, replyTo }: CommentFormP
     setSubmitting(true)
 
     try {
-      await commentAPI.create(objid, objtype, finalContent)
+      await commentAPI.create(objid, objtype, finalContent, extractMentionedUsernames(finalContent))
       toast.success("评论发表成功")
       setContent("")
       onSuccess()

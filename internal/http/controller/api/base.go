@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"time"
 
 	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/internal/http"
@@ -20,6 +21,7 @@ import (
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/config"
+	"github.com/polaris1119/goutils"
 	"github.com/polaris1119/logger"
 )
 
@@ -217,6 +219,29 @@ func fail(ctx echo.Context, msg string, codes ...int) error {
 	return errResponseWritten
 }
 
+// ipBanned 与 master AutoLogin 一致：黑名单 IP 拒绝认证（视为匿名）。
+// refactor 把鉴权收敛到 parseAuthUID/requireAuth/meFromToken，故在此统一拦截，
+// 否则 sensitiveCheck 写入的黑名单只写不读、形同虚设。
+func ipBanned(ctx echo.Context) bool {
+	return logic.DefaultRisk.IsBlackIP(goutils.RemoteIp(ctx.Request()))
+}
+
+// checkNewUserWait 与 master NeedLogin 一致：注册未满等待期的新用户禁止写操作。
+// 等待期由 UserSetting[KeyNewUserWait]（秒）控制，0 表示不限制。
+// CreatedAt 为零（旧缓存未含该字段）时放行，避免误伤；缓存刷新后自然生效。
+// 返回非 nil 表示已写拒绝响应，调用方应直接返回该 error。
+func checkNewUserWait(ctx echo.Context, createdAt time.Time) error {
+	wait := logic.UserSetting[model.KeyNewUserWait]
+	if wait <= 0 || createdAt.IsZero() {
+		return nil
+	}
+	remain := time.Duration(wait)*time.Second - time.Since(createdAt)
+	if remain > 0 {
+		return fail(ctx, "您需要再等待"+remain.String()+"才能进行此操作")
+	}
+	return nil
+}
+
 // parseAuthUID 从请求中获取并验证 token，返回 uid。
 // 支持 JWT 和旧版 MD5 Token 双轨验证。
 // 注意：本函数不校验 user.Status，仅适用于读操作。
@@ -233,6 +258,9 @@ func parseAuthUID(ctx echo.Context) (int, error) {
 	}
 	if uid == 0 {
 		return 0, fail(ctx, "无效的 token", NeedReLoginCode)
+	}
+	if ipBanned(ctx) {
+		return 0, fail(ctx, "请求被拒绝")
 	}
 
 	return uid, nil
@@ -280,6 +308,9 @@ func meFromToken(ctx echo.Context) *model.Me {
 	if !valid || uid == 0 {
 		return nil
 	}
+	if ipBanned(ctx) {
+		return nil
+	}
 	userInfo := logic.GetOrFetchUserInfo(uid, func() *logic.UserInfoCache {
 		return fetchFullUserInfo(ctx, uid)
 	})
@@ -312,15 +343,16 @@ func fetchFullUserInfo(ctx echo.Context, uid int) *logic.UserInfoCache {
 	// 不能简化为 IsRoot，否则板块管理员/晨读管理员等角色会丢失权限。
 	// FindOne 已填充 user.Roleids，UserLogic.IsAdmin 据此判断。
 	return &logic.UserInfoCache{
-		Uid:      user.Uid,
-		Username: user.Username,
-		Email:    user.Email,
-		IsRoot:   user.IsRoot,
-		IsAdmin:  logic.DefaultUser.IsAdmin(user),
-		IsVip:    user.IsVip,
-		Avatar:   user.Avatar,
-		Balance:  user.Balance,
-		Status:   user.Status,
+		Uid:       user.Uid,
+		Username:  user.Username,
+		Email:     user.Email,
+		IsRoot:    user.IsRoot,
+		IsAdmin:   logic.DefaultUser.IsAdmin(user),
+		IsVip:     user.IsVip,
+		Avatar:    user.Avatar,
+		Balance:   user.Balance,
+		Status:    user.Status,
+		CreatedAt: time.Time(user.Ctime),
 	}
 }
 
@@ -346,6 +378,9 @@ func parseActiveAuthUID(ctx echo.Context) (int, error) {
 	}
 	if userInfo.Status != model.UserStatusAudit {
 		return 0, fail(ctx, "账号已被冻结或未激活，请重新登录", NeedReLoginCode)
+	}
+	if err := checkNewUserWait(ctx, userInfo.CreatedAt); err != nil {
+		return 0, err
 	}
 
 	return uid, nil
@@ -377,6 +412,13 @@ func requireAuth(ctx echo.Context) (*model.Me, error) {
 	// master 在中间件层统一拦截；refactor 把 requireAuth 作为唯一认证入口，故在此检查。
 	if userInfo.Status != model.UserStatusAudit {
 		return nil, fail(ctx, "账号已被冻结或未激活，请重新登录", NeedReLoginCode)
+	}
+
+	if ipBanned(ctx) {
+		return nil, fail(ctx, "请求被拒绝")
+	}
+	if err := checkNewUserWait(ctx, userInfo.CreatedAt); err != nil {
+		return nil, err
 	}
 
 	return &model.Me{
