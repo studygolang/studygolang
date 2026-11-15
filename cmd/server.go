@@ -35,14 +35,19 @@ func IndexingServer() {
 		indexing(true)
 	}
 
-	c := cron.New()
+	c := cron.New(cron.WithSeconds())
+	addFunc := func(spec string, cmd func()) {
+		if _, err := c.AddFunc(spec, cmd); err != nil {
+			logger.Errorln("register cron job error:", err)
+		}
+	}
 	// 构建 solr 需要的索引数据
 	// 1 分钟一次增量
-	c.AddFunc("@every 1m", func() {
+	addFunc("@every 1m", func() {
 		indexing(false)
 	})
 	// 一周一次全量（周六晚上2点开始）
-	c.AddFunc("0 0 2 * * 6", func() {
+	addFunc("0 0 2 * * 6", func() {
 		indexing(true)
 	})
 
@@ -78,8 +83,8 @@ func autocrawl(needAll bool, whichSite string) {
 	}
 
 	// 定时增量
-	c := cron.New()
-	c.AddFunc(config.ConfigFile.MustValue("crawl", "spec", "0 0 */1 * * ?"), func() {
+	c := cron.New(cron.WithSeconds())
+	if _, err := c.AddFunc(config.ConfigFile.MustValue("crawl", "spec", "0 0 */1 * * ?"), func() {
 		// 抓取 reddit
 		go logic.DefaultReddit.Parse("")
 
@@ -91,6 +96,8 @@ func autocrawl(needAll bool, whichSite string) {
 
 		// 抓取 article
 		go logic.DefaultAutoCrawl.DoCrawl(false)
-	})
+	}); err != nil {
+		logger.Errorln("register crawl cron job error:", err)
+	}
 	c.Start()
 }

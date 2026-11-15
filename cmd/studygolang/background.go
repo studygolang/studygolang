@@ -47,41 +47,46 @@ func ServeBackGround() {
 	// 常驻内存的数据
 	go loadData()
 
-	c := cron.New()
+	c := cron.New(cron.WithSeconds())
+	addFunc := func(spec string, cmd func()) {
+		if _, err := c.AddFunc(spec, cmd); err != nil {
+			logger.Errorln("register cron job error:", err)
+		}
+	}
 
 	if config.ConfigFile.MustBool("global", "is_master", false) {
 		// 每天对非活跃用户降频
-		c.AddFunc("@daily", decrUserActiveWeight)
+		addFunc("@daily", decrUserActiveWeight)
 
 		// 生成阅读排行榜
-		c.AddFunc("@daily", genViewRank)
+		addFunc("@daily", genViewRank)
 
 		if global.OnlineEnv() {
 			// 每天生成 sitemap 文件
-			c.AddFunc("@daily", logic.GenSitemap)
+			addFunc("@daily", logic.GenSitemap)
 
 			// 给用户发邮件，如通知网站最近的动态，每周的晨读汇总等
-			c.AddFunc("0 0 0 * * *", logic.DefaultEmail.EmailNotice)
+			addFunc("0 0 0 * * *", logic.DefaultEmail.EmailNotice)
 
 			// webhook 方式增量，每天补漏
-			c.AddFunc("@daily", syncGCTTRepo)
+			addFunc("@daily", syncGCTTRepo)
 		}
 
 		// 取消置顶
-		c.AddFunc("0 * * * * *", unsetTop)
+		addFunc("0 * * * * *", unsetTop)
 
 		// 每天对活跃用户奖励铜币
-		c.AddFunc("@daily", logic.DefaultUserRich.AwardCooper)
+		addFunc("@daily", logic.DefaultUserRich.AwardCooper)
 
 		// 首页推荐自动调整
-		c.AddFunc("@every 5m", logic.DefaultFeed.AutoUpdateSeq)
+		addFunc("@every 5m", logic.DefaultFeed.AutoUpdateSeq)
 
 		// 每日题目
-		c.AddFunc("@daily", logic.DefaultInterview.UpdateTodayQuestionID)
+		addFunc("@daily", logic.DefaultInterview.UpdateTodayQuestionID)
 	}
 
 	// 两分钟刷一次浏览数（TODO：重启丢失问题？信号控制重启？）
-	c.AddFunc("@every 2m", logic.Views.Flush)
+	addFunc("@every 2m", logic.Views.Flush)
 
 	c.Start()
 }

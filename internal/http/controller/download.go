@@ -7,6 +7,7 @@
 package controller
 
 import (
+	stdcontext "context"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -14,6 +15,7 @@ import (
 	"time"
 
 	"github.com/studygolang/studygolang/context"
+	"github.com/studygolang/studygolang/internal/http/middleware"
 	"github.com/studygolang/studygolang/internal/logic"
 	"github.com/studygolang/studygolang/internal/model"
 
@@ -29,7 +31,7 @@ type DownloadController struct{}
 func (self DownloadController) RegisterRoute(g *echo.Group) {
 	g.GET("/dl", self.GoDl)
 	g.Match([]string{"GET", "HEAD"}, "/dl/golang/:filename", self.FetchGoInstallPackage)
-	g.GET("/dl/add_new_version", self.AddNewDownload)
+	g.GET("/dl/add_new_version", self.AddNewDownload, middleware.NeedLogin())
 }
 
 // GoDl Go 语言安装包下载
@@ -45,7 +47,7 @@ func (DownloadController) GoDl(ctx echo.Context) error {
 
 	for _, download := range downloads {
 		version := download.Version
-		if download.Category == model.DLStable {
+		if download.Category == model.DLStable || download.Category == model.DLFeatured {
 			if _, ok := stables[version]; !ok {
 				stableVersions = append(stableVersions, version)
 				stables[version] = make([]*model.Download, 0, 15)
@@ -83,11 +85,18 @@ func (DownloadController) GoDl(ctx echo.Context) error {
 }
 
 var filenameReg = regexp.MustCompile(`\d+\.\d[a-z\.]*\d+`)
+var safeFilenameReg = regexp.MustCompile(`^[A-Za-z0-9._-]+$`)
 
 func (self DownloadController) FetchGoInstallPackage(ctx echo.Context) error {
 	filename := ctx.Param("filename")
+	if filename == "" {
+		return fail(ctx, 1, "文件名不能为空")
+	}
+	if !safeFilenameReg.MatchString(filename) || strings.Contains(filename, "..") {
+		return fail(ctx, 1, "非法文件名")
+	}
 
-	go logic.DefaultDownload.RecordDLTimes(context.EchoContext(ctx), filename)
+	go logic.DefaultDownload.RecordDLTimes(stdcontext.Background(), filename)
 
 	officalUrl := GoStoragePrefix + filename
 	resp, err := self.headWithTimeout(officalUrl)
@@ -100,6 +109,9 @@ func (self DownloadController) FetchGoInstallPackage(ctx echo.Context) error {
 	}
 
 	goVersion := filenameReg.FindString(filename)
+	if goVersion == "" {
+		return fail(ctx, 1, "无法解析 Go 版本号")
+	}
 	filePath := fmt.Sprintf("go/%s/%s", goVersion, filename)
 
 	dlUrls := strings.Split(config.ConfigFile.MustValue("download", "dl_urls"), ",")
@@ -121,6 +133,11 @@ func (self DownloadController) FetchGoInstallPackage(ctx echo.Context) error {
 }
 
 func (DownloadController) AddNewDownload(ctx echo.Context) error {
+	me, ok := ctx.Get("user").(*model.Me)
+	if !ok || !me.IsRoot {
+		return fail(ctx, 1, "无权操作")
+	}
+
 	version := ctx.QueryParam("version")
 	selector := ctx.QueryParam("selector")
 
@@ -140,10 +157,8 @@ func (DownloadController) AddNewDownload(ctx echo.Context) error {
 	return success(ctx, nil)
 }
 
-func (DownloadController) headWithTimeout(dlUrl string) (*http.Response, error) {
-	client := http.Client{
-		Timeout: 5 * time.Second,
-	}
+var downloadHTTPClient = &http.Client{Timeout: 5 * time.Second}
 
-	return client.Head(dlUrl)
+func (DownloadController) headWithTimeout(dlUrl string) (*http.Response, error) {
+	return downloadHTTPClient.Head(dlUrl)
 }

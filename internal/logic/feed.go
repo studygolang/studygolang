@@ -40,7 +40,7 @@ func (self FeedLogic) GetTotalCount(ctx context.Context) int64 {
 func (self FeedLogic) FindRecentWithPaginator(ctx context.Context, paginator *Paginator, tab string) []*model.Feed {
 	objLog := GetLogger(ctx)
 
-	feeds := cache.Feed.GetList(ctx, paginator.curPage)
+	feeds := cache.Feed.GetList(ctx, paginator.curPage, tab)
 	if len(feeds) > 0 {
 		return feeds
 	}
@@ -58,7 +58,7 @@ func (self FeedLogic) FindRecentWithPaginator(ctx context.Context, paginator *Pa
 
 	feeds = self.fillOtherInfo(ctx, feeds, true)
 	if len(feeds) > 0 {
-		cache.Feed.SetList(ctx, paginator.curPage, feeds)
+		cache.Feed.SetList(ctx, paginator.curPage, tab, feeds)
 	}
 	return feeds
 }
@@ -102,6 +102,7 @@ func (self FeedLogic) AutoUpdateSeq() {
 	if curHour < 7 {
 		return
 	}
+	defer cache.Feed.InvalidateAll(context.Background())
 
 	feedDay := config.ConfigFile.MustInt("feed", "day", 3)
 	cmtWeight := config.ConfigFile.MustInt("feed", "cmt_weight", 80)

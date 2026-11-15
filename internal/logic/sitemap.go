@@ -268,8 +268,8 @@ func GenSitemap() {
 		}
 
 		data := map[string]interface{}{
-			"home":  home,
-			"wikis": wikis,
+			"home": home,
+			"wiki": wikis,
 		}
 
 		if err = output(sitemapFile, data); err == nil {
