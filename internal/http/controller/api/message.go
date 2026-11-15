@@ -35,9 +35,9 @@ func (MessageController) List(ctx echo.Context) error {
 		return fail(ctx, "未登录", NeedReLoginCode)
 	}
 
-	uid, _, valid := ValidateTokenAuto(token)
-	if !valid || uid == 0 {
-		return fail(ctx, "token 已过期，请重新登录", NeedReLoginCode)
+	uid, err := parseAuthUID(ctx)
+	if err != nil {
+		return err
 	}
 
 	msgtype := ctx.QueryParam("type")

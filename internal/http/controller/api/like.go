@@ -8,7 +8,6 @@ package api
 
 import (
 	"github.com/studygolang/studygolang/context"
-	. "github.com/studygolang/studygolang/internal/http"
 	"github.com/studygolang/studygolang/internal/logic"
 	"github.com/studygolang/studygolang/internal/model"
 
@@ -37,8 +36,8 @@ func (LikeController) Status(ctx echo.Context) error {
 		return success(ctx, map[string]interface{}{"has_like": false})
 	}
 
-	uid, _, valid := ValidateTokenAuto(token)
-	if !valid || uid == 0 {
+	me := meFromToken(ctx)
+	if me == nil {
 		return success(ctx, map[string]interface{}{"has_like": false})
 	}
 
@@ -50,7 +49,7 @@ func (LikeController) Status(ctx echo.Context) error {
 	}
 
 	likeFlags, err := logic.DefaultLike.FindUserLikeObjects(
-		context.EchoContext(ctx), uid, objtype, objid, objid,
+		context.EchoContext(ctx), me.Uid, objtype, objid, objid,
 	)
 	if err != nil {
 		return success(ctx, map[string]interface{}{"has_like": false})

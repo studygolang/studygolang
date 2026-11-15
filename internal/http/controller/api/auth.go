@@ -134,6 +134,10 @@ func clearLoginState(ctx echo.Context) {
 
 // Register 用户注册
 func (AuthController) Register(ctx echo.Context) error {
+	if ipBanned(ctx) {
+		return fail(ctx, "请求被拒绝")
+	}
+
 	// 速率限制：每 IP 每小时最多 5 次注册尝试
 	if !registerLimiter.check(ctx.RealIP(), 5, time.Hour) {
 		return fail(ctx, "注册尝试过于频繁，请稍后再试")
@@ -144,17 +148,24 @@ func (AuthController) Register(ctx echo.Context) error {
 		return fail(ctx, "请求参数错误")
 	}
 
+	username := req.Username
+	if username == "" {
+		return fail(ctx, "用户名不能为空")
+	}
+
+	disallowUsers := config.ConfigFile.MustValueArray("account", "disallow_user", ",")
+	for _, disallowUser := range disallowUsers {
+		if disallowUser == username {
+			return fail(ctx, username+" 被禁止使用，请换一个")
+		}
+	}
+
 	// 验证码校验（强制要求，防止绕过）
 	if req.CaptchaID == "" || req.CaptchaSolution == "" {
 		return fail(ctx, "请完成验证码")
 	}
 	if !captcha.VerifyString(req.CaptchaID, req.CaptchaSolution) {
 		return fail(ctx, "验证码错误")
-	}
-
-	username := req.Username
-	if username == "" {
-		return fail(ctx, "用户名不能为空")
 	}
 
 	email := req.Email

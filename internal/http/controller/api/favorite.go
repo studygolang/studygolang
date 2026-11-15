@@ -8,7 +8,6 @@ package api
 
 import (
 	"github.com/studygolang/studygolang/context"
-	. "github.com/studygolang/studygolang/internal/http"
 	"github.com/studygolang/studygolang/internal/logic"
 	"github.com/studygolang/studygolang/internal/model"
 
@@ -32,8 +31,8 @@ func (FavoriteController) Status(ctx echo.Context) error {
 		return success(ctx, map[string]interface{}{"has_favorite": false})
 	}
 
-	uid, _, valid := ValidateTokenAuto(token)
-	if !valid || uid == 0 {
+	me := meFromToken(ctx)
+	if me == nil {
 		return success(ctx, map[string]interface{}{"has_favorite": false})
 	}
 
@@ -44,7 +43,7 @@ func (FavoriteController) Status(ctx echo.Context) error {
 		return success(ctx, map[string]interface{}{"has_favorite": false})
 	}
 
-	hasFavorite := logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), uid, objid, objtype)
+	hasFavorite := logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), me.Uid, objid, objtype)
 	return success(ctx, map[string]interface{}{"has_favorite": hasFavorite})
 }
 
