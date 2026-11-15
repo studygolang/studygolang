@@ -13,6 +13,7 @@ import (
 
 	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/internal/http"
+	"github.com/studygolang/studygolang/internal/http/internal/helper"
 	"github.com/studygolang/studygolang/internal/logic"
 	"github.com/studygolang/studygolang/internal/model"
 
@@ -270,7 +271,17 @@ func (UserProfileController) UpdateProfile(ctx echo.Context) error {
 		return fail(ctx, errMsg)
 	}
 
-	return success(ctx, nil)
+	emailChanged := req.Email != "" && req.Email != user.Email
+	activateUUID := ""
+	if emailChanged {
+		activateUUID = helper.RegActivateCode.GenUUID(req.Email)
+		go logic.DefaultEmail.SendActivateMail(req.Email, activateUUID, CheckIsHttps(ctx))
+	}
+
+	return success(ctx, map[string]interface{}{
+		"need_activate": emailChanged,
+		"activate_uuid": activateUUID,
+	})
 }
 
 // ChangePassword 修改密码（需要登录）

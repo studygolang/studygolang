@@ -26,7 +26,7 @@ export default function EditProfilePage() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
-  const [success, setSuccess] = useState(false)
+  const [successMessage, setSuccessMessage] = useState("")
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
   const [formData, setFormData] = useState({
@@ -84,22 +84,30 @@ export default function EditProfilePage() {
     setAvatarInput(e.target.value)
   }
 
-  const handleAvatarSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const saveAvatar = async (avatar: string) => {
     setError("")
     setSubmitting(true)
 
     try {
-      await userAPI.updateAvatar(avatarInput)
-      setAvatarUrl(avatarInput)
+      await userAPI.updateAvatar(avatar)
+      setAvatarUrl(avatar)
       setAvatarInput("")
-      setSuccess(true)
-      setTimeout(() => setSuccess(false), 3000)
+      setSuccessMessage("头像更新成功！")
+      setTimeout(() => setSuccessMessage(""), 3000)
     } catch (err: any) {
       setError(err.message || "更新头像失败")
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const handleAvatarSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    await saveAvatar(avatarInput)
+  }
+
+  const handleGravatarRestore = async () => {
+    await saveAvatar("")
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -130,7 +138,7 @@ export default function EditProfilePage() {
     }
 
     try {
-      await userAPI.updateProfile({
+      const result = await userAPI.updateProfile({
         name: formData.name,
         email: formData.email,
         city: formData.city,
@@ -140,8 +148,8 @@ export default function EditProfilePage() {
         introduce: formData.introduce,
         open: formData.open ? "1" : "0",
       })
-      setSuccess(true)
-      setTimeout(() => setSuccess(false), 3000)
+      setSuccessMessage(result.need_activate ? "资料已保存，请查收新邮箱中的激活邮件并重新激活账号。" : "保存成功！")
+      setTimeout(() => setSuccessMessage(""), 3000)
     } catch (err: any) {
       setError(err.message || "更新失败")
     } finally {
@@ -203,19 +211,20 @@ export default function EditProfilePage() {
                       {error}
                     </div>
                   )}
-                  {success && (
+                  {successMessage && (
                     <div className="bg-green-500/10 text-green-600 px-4 py-3 rounded-md text-sm">
-                      头像更新成功！
+                      {successMessage}
                     </div>
                   )}
                   {avatarUrl && (
                     <div className="flex justify-center mb-4">
                       <img
+                        key={avatarUrl}
                         src={avatarUrl}
                         alt="当前头像"
                         className="w-24 h-24 rounded-full object-cover border-2 border-muted"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = "/default-avatar.png"
+                          e.currentTarget.style.display = "none"
                         }}
                       />
                     </div>
@@ -233,9 +242,14 @@ export default function EditProfilePage() {
                       支持 http:// 或 https:// 开头的图片地址
                     </p>
                   </div>
-                  <Button type="submit" disabled={submitting || !avatarInput}>
-                    {submitting ? "更新中..." : "更新头像"}
-                  </Button>
+                  <div className="flex flex-wrap gap-2">
+                    <Button type="submit" disabled={submitting || !avatarInput}>
+                      {submitting ? "更新中..." : "更新头像"}
+                    </Button>
+                    <Button type="button" variant="outline" onClick={handleGravatarRestore} disabled={submitting || !avatarUrl}>
+                      使用 Gravatar 头像
+                    </Button>
+                  </div>
                 </form>
               </CardContent>
             </Card>
@@ -253,9 +267,9 @@ export default function EditProfilePage() {
                       {error}
                     </div>
                   )}
-                  {success && (
+                  {successMessage && (
                     <div className="bg-green-500/10 text-green-600 px-4 py-3 rounded-md text-sm">
-                      保存成功！
+                      {successMessage}
                     </div>
                   )}
                   <div className="space-y-2">

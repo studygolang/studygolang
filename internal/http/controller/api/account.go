@@ -52,7 +52,11 @@ func (AccountController) SendActivateEmail(ctx echo.Context) error {
 
 	isHttps := CheckIsHttps(ctx)
 
-	if uuid := ctx.FormValue("uuid"); uuid != "" {
+	uuid := ctx.FormValue("uuid")
+	if uuid == "" {
+		uuid = ctx.QueryParam("uuid")
+	}
+	if uuid != "" {
 		email, ok := helper.RegActivateCode.GetEmail(uuid)
 		if !ok {
 			return fail(ctx, "非法请求")
@@ -74,7 +78,7 @@ func (AccountController) SendActivateEmail(ctx echo.Context) error {
 	}
 
 	email := strings.TrimSpace(user.Email)
-	uuid := helper.RegActivateCode.GenUUID(email)
+	uuid = helper.RegActivateCode.GenUUID(email)
 	go logic.DefaultEmail.SendActivateMail(email, uuid, isHttps)
 
 	return success(ctx, map[string]interface{}{
@@ -139,8 +143,8 @@ func (AccountController) Activate(ctx echo.Context) error {
 
 // socialUnbindRequest 解绑社交账号请求体
 type socialUnbindRequest struct {
-	BindID   int    `json:"bind_id"`
-	Platform string `json:"platform"` // github 或 gitea
+	BindID   int    `json:"bind_id" form:"bind_id"`
+	Platform string `json:"platform" form:"platform"` // github 或 gitea
 }
 
 // SocialUnbind 解绑社交账号（需要登录）

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { PageLayout } from '@/components/page-layout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -11,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { userAPI, accountAPI } from '@/lib/api'
 import type { User, BindUser } from '@/lib/types'
-import { User as UserIcon, Save, Loader2, Link2, Unlink } from 'lucide-react'
+import { User as UserIcon, Save, Loader2, Link2, Unlink, Lock } from 'lucide-react'
 
 // 平台图标映射
 function PlatformIcon({ type }: { type: string }) {
@@ -35,6 +36,7 @@ export default function UserSettingsPage() {
   const [bindUsers, setBindUsers] = useState<BindUser[]>([])
   const [bindLoading, setBindLoading] = useState(false)
   const [unbinding, setUnbinding] = useState<number | null>(null)
+  const boundPlatforms = new Set(bindUsers.map((bu) => bu.platform))
 
   // 表单字段
   const [name, setName] = useState('')
@@ -392,6 +394,29 @@ export default function UserSettingsPage() {
                 ))}
               </ul>
             )}
+            {(!boundPlatforms.has('github') || !boundPlatforms.has('gitea')) && (
+              <div className="mt-4 border-t border-border pt-4">
+                <p className="mb-3 text-sm text-muted-foreground">绑定新账号</p>
+                <div className="flex flex-wrap gap-2">
+                  {!boundPlatforms.has('github') && (
+                    <Button asChild size="sm" variant="outline" className="gap-1.5">
+                      <Link href={`/oauth/github/login?redirect=${encodeURIComponent(`/user/${username}/settings`)}`}>
+                        <PlatformIcon type="github" />
+                        绑定 GitHub
+                      </Link>
+                    </Button>
+                  )}
+                  {!boundPlatforms.has('gitea') && (
+                    <Button asChild size="sm" variant="outline" className="gap-1.5">
+                      <Link href={`/oauth/gitea/login?redirect=${encodeURIComponent(`/user/${username}/settings`)}`}>
+                        <Link2 className="h-4 w-4" />
+                        绑定 Gitea
+                      </Link>
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -446,4 +471,3 @@ export default function UserSettingsPage() {
     </PageLayout>
   )
 }
-import { Lock } from 'lucide-react'

@@ -153,8 +153,12 @@ func (self UserLogic) Update(ctx context.Context, me *model.Me, form url.Values)
 		return
 	}
 
+	loginEmail := me.Email
+	if user.Email != "" {
+		loginEmail = user.Email
+	}
 	_, err = session.Table(new(model.UserLogin)).
-		Where("uid=?", me.Uid).Update(map[string]interface{}{"email": me.Email})
+		Where("uid=?", me.Uid).Update(map[string]interface{}{"email": loginEmail})
 	if err != nil {
 		session.Rollback()
 		objLog.Errorf("更新用户 【%d】 信息失败：%s", me.Uid, err)

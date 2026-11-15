@@ -322,7 +322,7 @@ export const userAPI = {
     introduce?: string
     open?: string
   }) {
-    return fetchAPI<null>('/user/profile', {
+    return fetchAPI<{ need_activate: boolean; activate_uuid: string }>('/user/profile', {
       method: 'PUT',
       body: JSON.stringify(data),
       credentials: 'include',

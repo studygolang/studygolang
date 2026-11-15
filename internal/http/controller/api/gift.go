@@ -54,8 +54,7 @@ func (GiftController) Exchange(ctx echo.Context) error {
 
 	err2 := logic.DefaultGift.Exchange(context.EchoContext(ctx), me, giftId)
 	if err2 != nil {
-		getLogger(ctx).Errorln("gift exchange failed:", err2)
-		return fail(ctx, "兑换失败，请稍后重试")
+		return fail(ctx, err2.Error())
 	}
 
 	return success(ctx, nil)

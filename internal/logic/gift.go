@@ -46,13 +46,26 @@ func (self GiftLogic) Exchange(ctx context.Context, me *model.Me, giftId int) er
 	objLog := GetLogger(ctx)
 
 	gift := &model.Gift{}
-	_, err := MasterDB.ID(giftId).Get(gift)
+	has, err := MasterDB.ID(giftId).Get(gift)
 	if err != nil {
 		objLog.Errorln("GiftLogic Exchange error:", err)
 		return err
 	}
+	if !has {
+		return errors.New("礼品不存在")
+	}
+	if gift.ExpireTime.Before(time.Now()) {
+		if gift.State != model.GiftStateExpired {
+			gift.State = model.GiftStateExpired
+			go self.doExpire(gift)
+		}
+		return errors.New("礼品已过期")
+	}
+	if gift.State != model.GiftStateOnline {
+		return errors.New("礼品未上架或已下架")
+	}
 
-	if gift.RemainNum == 0 {
+	if gift.RemainNum <= 0 {
 		return errors.New("已兑完")
 	}
 
@@ -115,10 +128,11 @@ func (self GiftLogic) UserCanExchange(ctx context.Context, me *model.Me, gifts [
 		}
 	}
 
-	// 与 Exchange/doExchange 的准入条件保持一致：库存、剩余可兑次数、余额。
+	// 与 Exchange/doExchange 的准入条件保持一致：上架且未过期、库存、剩余可兑次数、余额。
 	// BuyLimit 上面已按历史兑换记录扣减，此处 >0 即表示还能再兑。
 	for _, gift := range gifts {
-		gift.CanExchange = gift.RemainNum > 0 && gift.BuyLimit > 0 && me.Balance >= gift.Price
+		gift.CanExchange = gift.State == model.GiftStateOnline && gift.ExpireTime.After(time.Now()) &&
+			gift.RemainNum > 0 && gift.BuyLimit > 0 && me.Balance >= gift.Price
 	}
 }
 
@@ -161,7 +175,7 @@ func (self GiftLogic) doExchange(gift *model.Gift, me *model.Me, remark string, 
 		Remark:     remark,
 		ExpireTime: gift.ExpireTime,
 	}
-	_, err := MasterDB.Insert(exchangeRecord)
+	_, err := session.Insert(exchangeRecord)
 	if err != nil {
 		session.Rollback()
 		return err

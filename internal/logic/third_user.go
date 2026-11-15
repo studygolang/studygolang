@@ -320,7 +320,7 @@ func (self ThirdUserLogic) LoginFromGitea(ctx context.Context, code string) (*mo
 
 	bindUser = &model.BindUser{
 		Uid:          user.Uid,
-		Type:         model.BindTypeGithub,
+		Type:         model.BindTypeGitea,
 		Email:        user.Email,
 		Tuid:         int(giteaUser.ID),
 		Username:     giteaUser.UserName,
