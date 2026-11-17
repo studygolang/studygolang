@@ -5,15 +5,15 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Rss } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "RSS/Atom 订阅 - Go语言中文网",
-  description: "订阅 Go语言中文网的最新内容，支持 RSS 和 Atom 格式",
+  title: "RSS 订阅 - Go语言中文网",
+  description: "通过 RSS 2.0 订阅 Go语言中文网的最新内容",
 }
 
 const feedList = [
   {
     title: "Go语言中文网全站动态",
     url: "/feed.xml",
-    format: "Atom",
+    format: "RSS 2.0",
     description: "包含话题、文章、资源等全站最新动态",
   },
 ]
@@ -22,7 +22,7 @@ export default function FeedPage() {
   return (
     <PageLayout sidebar={false}>
       <PageHeader
-        title="RSS/Atom 订阅"
+        title="RSS 订阅"
         description="通过订阅获取 Go语言中文网最新内容"
         breadcrumbs={[{ label: "RSS 订阅" }]}
       />

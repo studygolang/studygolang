@@ -28,11 +28,13 @@ import (
 
 type SearcherLogic struct {
 	maxRows int
-
-	engineUrl string
 }
 
-var DefaultSearcher = SearcherLogic{maxRows: 100, engineUrl: config.ConfigFile.MustValue("search", "engine_url")}
+var DefaultSearcher = SearcherLogic{maxRows: 100}
+
+func searchEngineURL() string {
+	return config.ConfigFile.MustValue("search", "engine_url")
+}
 
 // 准备索引数据，post 给 solr
 // isAll: 是否全量
@@ -308,7 +310,7 @@ const searchContentLen = 350
 
 // DoSearch 搜索
 func (this *SearcherLogic) DoSearch(q, field string, start, rows int) (*model.ResponseBody, error) {
-	selectUrl := this.engineUrl + "/select?"
+	selectUrl := searchEngineURL() + "/select?"
 
 	var values = url.Values{
 		"wt":             []string{"json"},
@@ -411,7 +413,7 @@ func (this *SearcherLogic) DoSearch(q, field string, start, rows int) (*model.Re
 
 // DoSearch 搜索
 func (this *SearcherLogic) SearchByField(field, value string, start, rows int, sorts ...string) (*model.ResponseBody, error) {
-	selectUrl := this.engineUrl + "/select?"
+	selectUrl := searchEngineURL() + "/select?"
 
 	sort := "sort_time desc,cmtnum desc,viewnum desc"
 	if len(sorts) > 0 {
@@ -453,7 +455,7 @@ func (this *SearcherLogic) SearchByField(field, value string, start, rows int, s
 }
 
 func (this *SearcherLogic) FindAtomFeeds(rows int) (*model.ResponseBody, error) {
-	selectUrl := this.engineUrl + "/select?"
+	selectUrl := searchEngineURL() + "/select?"
 
 	var values = url.Values{
 		"q":     []string{"*:*"},
@@ -583,7 +585,7 @@ func (this *SolrClient) Post() error {
 
 	logger.Infoln("start post data to solr...")
 
-	resp, err := http.Post(config.ConfigFile.MustValue("search", "engine_url")+"/update?wt=json&commit=true", "application/json", stringBuilder)
+	resp, err := http.Post(searchEngineURL()+"/update?wt=json&commit=true", "application/json", stringBuilder)
 	if err != nil {
 		logger.Errorln("post error:", err)
 		return err

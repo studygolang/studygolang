@@ -78,14 +78,14 @@ const nextConfig = {
         source: '/sitemap/:path*',
         destination: `${backend}/sitemap/:path*`,
       },
-      // RSS/Atom Feed 代理
+      // RSS Feed 代理；旧版订阅说明页交给新版页面渲染
       {
         source: '/feed.xml',
         destination: `${backend}/api/v1/feed`,
       },
       {
         source: '/feed.html',
-        destination: `${backend}/api/v1/feed`,
+        destination: '/feed',
       },
       // OAuth 回调：提供商后台登记的 redirect_uri 可能还是旧路径，
       // 用 rewrite 而非 redirect，避免多一跳导致 state/code 丢失。

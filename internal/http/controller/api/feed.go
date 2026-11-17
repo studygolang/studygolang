@@ -9,6 +9,7 @@ package api
 import (
 	"encoding/xml"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/studygolang/studygolang/internal/logic"
@@ -40,6 +41,8 @@ type rssItem struct {
 	XMLName     xml.Name `xml:"item"`
 	Title       string   `xml:"title"`
 	Link        string   `xml:"link"`
+	GUID        string   `xml:"guid"`
+	Author      string   `xml:"author"`
 	Description string   `xml:"description"`
 	PubDate     string   `xml:"pubDate"`
 }
@@ -53,7 +56,11 @@ func (FeedController) RSS(ctx echo.Context) error {
 
 	feed := rssFeed{Version: "2.0"}
 	feed.Channel.Title = logic.WebsiteSetting.Name
-	feed.Channel.Link = "https://" + logic.WebsiteSetting.Domain + "/"
+	scheme := "http"
+	if logic.WebsiteSetting.OnlyHttps {
+		scheme = "https"
+	}
+	feed.Channel.Link = scheme + "://" + logic.WebsiteSetting.Domain + "/"
 	feed.Channel.Description = logic.WebsiteSetting.Slogan
 	feed.Channel.Language = "zh-CN"
 
@@ -72,17 +79,24 @@ func (FeedController) RSS(ctx echo.Context) error {
 			url = fmt.Sprintf("%swiki/%d", feed.Channel.Link, doc.Objid)
 		case model.TypeBook:
 			url = fmt.Sprintf("%sbook/%d", feed.Channel.Link, doc.Objid)
+		case model.TypeInterview:
+			url = fmt.Sprintf("%sinterview/%d", feed.Channel.Link, doc.Objid)
 		}
 
 		item := rssItem{
 			Title:       doc.Title,
 			Link:        url,
+			GUID:        url,
+			Author:      doc.Author,
 			Description: doc.Content,
-			PubDate:     time.Time(doc.CreatedAt).Format(time.RFC1123),
+			PubDate:     time.Time(doc.CreatedAt).UTC().Format(time.RFC1123Z),
 		}
 		feed.Channel.Items = append(feed.Channel.Items, item)
 	}
 
-	ctx.Response().Header().Set("Content-Type", "application/xml; charset=utf-8")
-	return xml.NewEncoder(ctx.Response().Writer).Encode(feed)
+	data, err := xml.Marshal(feed)
+	if err != nil {
+		return err
+	}
+	return ctx.Blob(http.StatusOK, echo.MIMEApplicationXMLCharsetUTF8, append([]byte(xml.Header), data...))
 }

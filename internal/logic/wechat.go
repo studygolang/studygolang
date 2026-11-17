@@ -35,7 +35,11 @@ import (
 // 环境变量命名规则: WECHAT_{SECTION}_{KEY}（全大写，点号替换为下划线）
 // 例如: WECHAT_XCX_APPID, WECHAT_APPSECRET, WECHAT_SUBSCRIBE
 func getWechatConfig(section, key string) string {
-	envKey := "WECHAT_" + strings.ToUpper(strings.ReplaceAll(section+"."+key, ".", "_"))
+	envName := key
+	if section != "wechat" {
+		envName = strings.TrimPrefix(section, "wechat.") + "." + key
+	}
+	envKey := "WECHAT_" + strings.ToUpper(strings.ReplaceAll(envName, ".", "_"))
 	if val := os.Getenv(envKey); val != "" {
 		return val
 	}
