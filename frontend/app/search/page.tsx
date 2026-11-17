@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { SearchBox } from "./search-box"
 import type { SearchData } from "@/lib/types"
 
-import { fetchAPINullable } from "@/lib/api"
+import { fetchAPI } from "@/lib/api"
 
 // objtype 对应后端 model/comment.go iota 常量
 // TypeTopic=0, TypeArticle=1, TypeResource=2, TypeWiki=3, TypeProject=4, TypeBook=5, TypeInterview=6
@@ -80,12 +80,22 @@ async function SearchResults({ q, page, field }: { q: string; page: number; fiel
   }
 
   const typeQuery = field ? `&type=${encodeURIComponent(field)}` : ""
-  const data = await fetchAPINullable<SearchData>(
+  const data = await fetchAPI<SearchData>(
     `/search?q=${encodeURIComponent(q)}&p=${page}${typeQuery}`,
     { cache: "no-store" }
-  )
+  ).catch(() => null)
 
-  if (!data || !data.results || data.results.length === 0) {
+  if (!data) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
+        <Search className="mb-3 h-10 w-10 text-muted-foreground/40" />
+        <p className="text-sm font-medium text-foreground">搜索服务暂时不可用</p>
+        <p className="mt-1 text-sm text-muted-foreground">请稍后重试</p>
+      </div>
+    )
+  }
+
+  if (!data.results || data.results.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
         <Search className="mb-3 h-10 w-10 text-muted-foreground/40" />
@@ -123,7 +133,7 @@ async function SearchResults({ q, page, field }: { q: string; page: number; fiel
                 <div className="flex items-start gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      {result.objtype && (
+                      {result.objtype !== undefined && (
                         <span
                           className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
                             typeColorMap[result.objtype] ?? "bg-secondary text-secondary-foreground"

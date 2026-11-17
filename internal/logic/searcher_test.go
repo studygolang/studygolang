@@ -46,3 +46,59 @@ func TestFindAtomFeedsUsesCurrentEngineURL(t *testing.T) {
 		t.Fatalf("修改配置后返回 %+v, want second", respBody.Docs)
 	}
 }
+
+func TestDoSearchRejectsInvalidSolrResponses(t *testing.T) {
+	tests := []struct {
+		name   string
+		status int
+		body   string
+	}{
+		{name: "http error", status: http.StatusServiceUnavailable, body: `<html>unavailable</html>`},
+		{name: "missing response with highlighting", status: http.StatusOK, body: `{"highlighting":{"01":{"title":["title"]}}}`},
+		{name: "null response", status: http.StatusOK, body: `{"response":null}`},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			solr := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(tt.status)
+				_, _ = w.Write([]byte(tt.body))
+			}))
+			defer solr.Close()
+
+			oldEngineURL := config.ConfigFile.MustValue("search", "engine_url")
+			config.ConfigFile.SetValue("search", "engine_url", solr.URL)
+			t.Cleanup(func() { config.ConfigFile.SetValue("search", "engine_url", oldEngineURL) })
+
+			if _, err := DefaultSearcher.DoSearch("", "", 0, 10); err == nil {
+				t.Fatal("异常 Solr 响应必须返回 error")
+			}
+		})
+	}
+}
+
+func TestDoSearchSkipsNullDocsAndHighlighting(t *testing.T) {
+	solr := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{
+			"response":{"numFound":2,"start":0,"docs":[null,{"id":"01","objid":1,"objtype":0,"title":"topic","content":"content"}]},
+			"highlighting":{"01":null}
+		}`))
+	}))
+	defer solr.Close()
+
+	oldEngineURL := config.ConfigFile.MustValue("search", "engine_url")
+	config.ConfigFile.SetValue("search", "engine_url", solr.URL)
+	t.Cleanup(func() { config.ConfigFile.SetValue("search", "engine_url", oldEngineURL) })
+
+	respBody, err := DefaultSearcher.DoSearch("", "", 0, 10)
+	if err != nil {
+		t.Fatalf("包含空文档的响应应被安全处理：%v", err)
+	}
+	if len(respBody.Docs) != 1 {
+		t.Fatalf("文档数量 = %d, want 1", len(respBody.Docs))
+	}
+	if respBody.Docs[0].Title != "topic" || respBody.Docs[0].HlTitle != "topic" {
+		t.Errorf("文档或高亮标题未正确保留：%+v", respBody.Docs[0])
+	}
+}

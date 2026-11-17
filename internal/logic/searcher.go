@@ -10,6 +10,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -34,6 +35,34 @@ var DefaultSearcher = SearcherLogic{maxRows: 100}
 
 func searchEngineURL() string {
 	return config.ConfigFile.MustValue("search", "engine_url")
+}
+
+func checkSolrStatus(resp *http.Response) error {
+	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
+		return fmt.Errorf("solr status: %s", resp.Status)
+	}
+	return nil
+}
+
+func decodeSearchResponse(resp *http.Response, searchResponse *model.SearchResponse) error {
+	if err := checkSolrStatus(resp); err != nil {
+		return err
+	}
+	if err := json.NewDecoder(resp.Body).Decode(searchResponse); err != nil {
+		return err
+	}
+	if searchResponse.RespBody == nil {
+		return errors.New("solr response is missing response")
+	}
+
+	docs := searchResponse.RespBody.Docs[:0]
+	for _, doc := range searchResponse.RespBody.Docs {
+		if doc != nil {
+			docs = append(docs, doc)
+		}
+	}
+	searchResponse.RespBody.Docs = docs
+	return nil
 }
 
 // 准备索引数据，post 给 solr
@@ -367,8 +396,7 @@ func (this *SearcherLogic) DoSearch(q, field string, start, rows int) (*model.Re
 	defer resp.Body.Close()
 
 	var searchResponse model.SearchResponse
-	err = json.NewDecoder(resp.Body).Decode(&searchResponse)
-	if err != nil {
+	if err = decodeSearchResponse(resp, &searchResponse); err != nil {
 		logger.Errorln("parse response error:", err)
 		return &model.ResponseBody{}, err
 	}
@@ -376,7 +404,7 @@ func (this *SearcherLogic) DoSearch(q, field string, start, rows int) (*model.Re
 	if len(searchResponse.Highlight) > 0 {
 		for _, doc := range searchResponse.RespBody.Docs {
 			highlighting, ok := searchResponse.Highlight[doc.Id]
-			if ok {
+			if ok && highlighting != nil {
 				if len(highlighting.Title) > 0 {
 					doc.HlTitle = highlighting.Title[0]
 				}
@@ -401,11 +429,6 @@ func (this *SearcherLogic) DoSearch(q, field string, start, rows int) (*model.Re
 
 			doc.HlContent += "..."
 		}
-
-	}
-
-	if searchResponse.RespBody == nil {
-		searchResponse.RespBody = &model.ResponseBody{}
 	}
 
 	return searchResponse.RespBody, nil
@@ -441,14 +464,9 @@ func (this *SearcherLogic) SearchByField(field, value string, start, rows int, s
 	defer resp.Body.Close()
 
 	var searchResponse model.SearchResponse
-	err = json.NewDecoder(resp.Body).Decode(&searchResponse)
-	if err != nil {
+	if err = decodeSearchResponse(resp, &searchResponse); err != nil {
 		logger.Errorln("parse response error:", err)
 		return &model.ResponseBody{}, err
-	}
-
-	if searchResponse.RespBody == nil {
-		searchResponse.RespBody = &model.ResponseBody{}
 	}
 
 	return searchResponse.RespBody, nil
@@ -474,14 +492,9 @@ func (this *SearcherLogic) FindAtomFeeds(rows int) (*model.ResponseBody, error) 
 	defer resp.Body.Close()
 
 	var searchResponse model.SearchResponse
-	err = json.NewDecoder(resp.Body).Decode(&searchResponse)
-	if err != nil {
+	if err = decodeSearchResponse(resp, &searchResponse); err != nil {
 		logger.Errorln("parse response error:", err)
 		return &model.ResponseBody{}, err
-	}
-
-	if searchResponse.RespBody == nil {
-		searchResponse.RespBody = &model.ResponseBody{}
 	}
 
 	return searchResponse.RespBody, nil
@@ -592,6 +605,11 @@ func (this *SolrClient) Post() error {
 	}
 
 	defer resp.Body.Close()
+
+	if err = checkSolrStatus(resp); err != nil {
+		logger.Errorln("post error:", err)
+		return err
+	}
 
 	var result map[string]interface{}
 	err = json.NewDecoder(resp.Body).Decode(&result)
