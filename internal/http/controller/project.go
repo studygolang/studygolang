@@ -86,7 +86,7 @@ func (ProjectController) Create(ctx echo.Context) error {
 	}
 
 	forms, _ := ctx.FormParams()
-	err := logic.DefaultProject.Publish(context.EchoContext(ctx), me, forms)
+	_, err := logic.DefaultProject.Publish(context.EchoContext(ctx), me, forms)
 	if err != nil {
 		return fail(ctx, 1, "内部服务错误！")
 	}
@@ -108,7 +108,7 @@ func (ProjectController) Modify(ctx echo.Context) error {
 
 	user := ctx.Get("user").(*model.Me)
 	forms, _ := ctx.FormParams()
-	err := logic.DefaultProject.Publish(context.EchoContext(ctx), user, forms)
+	_, err := logic.DefaultProject.Publish(context.EchoContext(ctx), user, forms)
 	if err != nil {
 		if err == logic.NotModifyAuthorityErr {
 			return ctx.String(http.StatusForbidden, "没有权限")

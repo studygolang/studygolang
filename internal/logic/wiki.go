@@ -88,13 +88,33 @@ func (self WikiLogic) Modify(ctx context.Context, me *model.Me, form url.Values)
 }
 
 // FindBy 获取 wiki 列表（分页）
-func (WikiLogic) FindBy(ctx context.Context, limit int, lastIds ...int) []*model.Wiki {
+func (self WikiLogic) FindBy(ctx context.Context, limit int, lastIds ...int) []*model.Wiki {
+	lastId := 0
+	if len(lastIds) > 0 {
+		lastId = lastIds[0]
+	}
+	return self.findPage(ctx, limit, lastId, false)
+}
+
+func (self WikiLogic) FindPrev(ctx context.Context, limit, firstId int) []*model.Wiki {
+	return self.findPage(ctx, limit, firstId, true)
+}
+
+func (WikiLogic) findPage(ctx context.Context, limit, cursor int, previous bool) []*model.Wiki {
 	objLog := GetLogger(ctx)
 
-	dbSession := MasterDB.OrderBy("id DESC")
+	orderBy := "id DESC"
+	if previous {
+		orderBy = "id ASC"
+	}
+	dbSession := MasterDB.OrderBy(orderBy)
 
-	if len(lastIds) > 0 && lastIds[0] > 0 {
-		dbSession.Where("id<?", lastIds[0])
+	if cursor > 0 {
+		if previous {
+			dbSession.Where("id>?", cursor)
+		} else {
+			dbSession.Where("id<?", cursor)
+		}
 	}
 
 	wikis := make([]*model.Wiki, 0)
@@ -102,6 +122,11 @@ func (WikiLogic) FindBy(ctx context.Context, limit int, lastIds ...int) []*model
 	if err != nil {
 		objLog.Errorln("WikiLogic FindBy Error:", err)
 		return nil
+	}
+	if previous {
+		for left, right := 0, len(wikis)-1; left < right; left, right = left+1, right-1 {
+			wikis[left], wikis[right] = wikis[right], wikis[left]
+		}
 	}
 
 	uidSet := set.New(set.NonThreadSafe)

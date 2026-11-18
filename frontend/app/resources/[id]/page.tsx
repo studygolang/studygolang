@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { CommentSection } from "@/components/comment-section"
 import { ContentActions } from "@/components/content-actions"
+import { MarkdownContent } from "@/components/markdown-content"
 import { OBJTYPE_RESOURCE, type Resource, type Comment } from "@/lib/types"
 import { fetchAPINullable } from "@/lib/api"
 import { formatNum } from "@/lib/utils"
@@ -115,11 +116,11 @@ export default async function ResourceDetailPage({ params }: ResourceDetailPageP
                   <span className="font-medium text-foreground">uid:{resource.uid}</span>
                 )}
               </p>
-              {/* 后端 Resource 用 content 字段存描述，无 desc 字段 */}
               {resource.content && (
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  {resource.content}
-                </p>
+                <MarkdownContent
+                  content={resource.content}
+                  className="mt-3 text-muted-foreground"
+                />
               )}
             </div>
           </div>

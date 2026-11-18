@@ -741,18 +741,16 @@ export const accountAPI = {
     })
   },
 
-  // 邮件退订确认
+  // 邮件订阅设置
   unsubscribePage(token: string, email: string, fetchOptions?: RequestInit) {
-    return fetchAPI<{ email: string }>(`/account/email/unsubscribe?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`, fetchOptions)
+    return fetchAPI<{ email: string; unsubscribe: number }>(`/account/email/unsubscribe?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`, fetchOptions)
   },
 
-  // 执行邮件退订
-  unsubscribe(token: string, email: string) {
+  updateSubscription(token: string, email: string, unsubscribe: 0 | 1) {
     const form = new URLSearchParams()
     form.set('token', token)
     form.set('email', email)
-    // 后端按 unsubscribe 字段写库（1=退订，0=订阅），缺省会被解析成 0 导致退订变订阅
-    form.set('unsubscribe', '1')
+    form.set('unsubscribe', String(unsubscribe))
     return fetchAPI<{ message: string }>('/account/email/unsubscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -801,10 +799,28 @@ export const gcttAPI = {
   },
 
   // 发布翻译文章
-  publish(title: string, content: string) {
+  publish(
+    title: string,
+    content: string,
+    metadata: {
+      cover: string
+      author: string
+      author_url: string
+      translator: string
+      checker: string
+      url: string
+    },
+    captcha?: { id: string; solution: string },
+  ) {
     const form = new URLSearchParams()
     form.set('title', title)
     form.set('content', content)
+    form.set('markdown', '1')
+    Object.entries(metadata).forEach(([key, value]) => form.set(key, value))
+    if (captcha) {
+      form.set('captcha_id', captcha.id)
+      form.set('captcha_solution', captcha.solution)
+    }
     return fetchAPI<{ id: number }>('/gctt/articles', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -983,6 +999,15 @@ export const authAPI = {
 
 // ======================== 验证码 ========================
 export const captchaAPI = {
+  async required() {
+    const res = await fetch('/api/v1/captcha/required', { credentials: 'include' })
+    const json: APIResponse<{ required: boolean }> = await res.json()
+    if (!res.ok || json.code !== 0) {
+      throw new APIError(json.code || res.status, json.msg || '获取验证码状态失败')
+    }
+    return json.data
+  },
+
   // 申请新验证码（返回 captcha_id，前端 <img src="/api/v1/captcha/{id}.png">）
   newCaptcha() {
     return fetchAPI<{ captcha_id: string }>('/captcha/new', { cache: 'no-store' })

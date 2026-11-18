@@ -57,36 +57,37 @@ async function BookItems({ page }: { page: number }) {
             className="group overflow-hidden transition-all hover:border-primary/20 hover:shadow-sm"
           >
             <CardContent className="p-0">
-              {/* Book cover */}
-              {book.cover ? (
-                <div className="relative h-44 overflow-hidden bg-muted">
-                  <img
-                    src={book.cover}
-                    alt={book.name}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-              ) : (
-                <div
-                  className={cn(
-                    "flex h-44 items-center justify-center bg-gradient-to-br",
-                    getBookColor(book.id)
-                  )}
-                >
-                  <div className="flex flex-col items-center gap-2">
-                    <BookOpen className="h-10 w-10 text-primary-foreground/80" />
-                    <span className="max-w-[120px] text-center text-sm font-bold text-primary-foreground/90 line-clamp-2">
-                      {book.name}
-                    </span>
+              <Link href={`/book/${book.id}`} className="block" aria-label={`查看《${book.name}》详情`}>
+                {book.cover ? (
+                  <div className="relative h-44 overflow-hidden bg-muted">
+                    <img
+                      src={book.cover}
+                      alt={book.name}
+                      className="h-full w-full object-cover"
+                    />
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div
+                    className={cn(
+                      "flex h-44 items-center justify-center bg-gradient-to-br",
+                      getBookColor(book.id)
+                    )}
+                  >
+                    <div className="flex flex-col items-center gap-2">
+                      <BookOpen className="h-10 w-10 text-primary-foreground/80" />
+                      <span className="max-w-[120px] text-center text-sm font-bold text-primary-foreground/90 line-clamp-2">
+                        {book.name}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </Link>
 
               {/* Info */}
               <div className="p-4">
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="text-sm font-bold leading-snug text-foreground group-hover:text-primary">
-                    {book.name}
+                    <Link href={`/book/${book.id}`}>{book.name}</Link>
                   </h3>
                   {book.is_free && (
                     <Badge className="shrink-0 bg-accent/10 text-[10px] font-semibold text-accent">
@@ -111,9 +112,8 @@ async function BookItems({ page }: { page: number }) {
                   </p>
                 )}
 
-                {/* Link */}
-                <div className="mt-3 flex items-center justify-end border-t border-border pt-3">
-                  {book.online_url || book.buy_url || book.download_url ? (
+                <div className="mt-3 flex items-center justify-end gap-4 border-t border-border pt-3">
+                  {(book.online_url || book.buy_url || book.download_url) && (
                     <a
                       href={book.online_url || book.buy_url || book.download_url}
                       target="_blank"
@@ -124,16 +124,13 @@ async function BookItems({ page }: { page: number }) {
                       查看
                       <ExternalLink className="h-3 w-3" />
                     </a>
-                  ) : (
-                    // 书籍详情页路由是 /book/[id]（注意是单数），非 /books/[id]
-                    <Link
-                      href={`/book/${book.id}`}
-                      className="flex items-center gap-1 text-xs font-medium text-primary transition-colors hover:text-primary/80"
-                    >
-                      详情
-                      <ExternalLink className="h-3 w-3" />
-                    </Link>
                   )}
+                  <Link
+                    href={`/book/${book.id}`}
+                    className="flex items-center gap-1 text-xs font-medium text-primary transition-colors hover:text-primary/80"
+                  >
+                    详情
+                  </Link>
                 </div>
               </div>
             </CardContent>

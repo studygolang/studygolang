@@ -22,11 +22,22 @@ export const metadata: Metadata = {
   description: "Go语言中文网 Wiki，汇集 Go 语言相关知识文档",
 }
 
-export default async function WikiListPage() {
-  // 后端返回 { wikis: [...], page: {...} }，需要取 wikis 字段
-  const wikisData = await fetchAPINullable<WikiListData>("/wiki", { cache: "no-store" })
+interface WikiListPageProps {
+  searchParams: Promise<{ lastid?: string; direction?: string }>
+}
+
+export default async function WikiListPage({ searchParams }: WikiListPageProps) {
+  const params = await searchParams
+  const lastId = Math.max(0, parseInt(params.lastid || "0", 10) || 0)
+  const direction = params.direction === "prev" && lastId > 0 ? "prev" : ""
+  const query = new URLSearchParams()
+  if (lastId > 0) query.set("lastid", String(lastId))
+  if (direction) query.set("direction", direction)
+  const suffix = query.size > 0 ? `?${query.toString()}` : ""
+  const wikisData = await fetchAPINullable<WikiListData>(`/wiki${suffix}`, { cache: "no-store" })
 
   const wikiList: Wiki[] = wikisData?.wikis ?? []
+  const page = wikisData?.page
 
   return (
     <PageLayout sidebar={false}>
@@ -42,39 +53,60 @@ export default async function WikiListPage() {
           <p className="text-sm text-muted-foreground">暂无 Wiki 文档</p>
         </div>
       ) : (
-        <div className="rounded-lg border border-border bg-card">
-          <ul className="divide-y divide-border">
-            {wikiList.map((wiki) => (
-              <li key={wiki.id}>
-                <Link
-                  href={`/wiki/${wiki.uri}`}
-                  className="group flex items-start gap-4 px-5 py-4 transition-colors hover:bg-secondary/30"
-                >
-                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary/10">
-                    <BookOpen className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h2 className="text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">
-                      {wiki.title}
-                    </h2>
-                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                      {wiki.author && (
-                        <span>{wiki.author}</span>
-                      )}
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {formatDate(wiki.mtime || wiki.ctime)}
-                      </span>
+        <>
+          <div className="rounded-lg border border-border bg-card">
+            <ul className="divide-y divide-border">
+              {wikiList.map((wiki) => (
+                <li key={wiki.id}>
+                  <Link
+                    href={`/wiki/${wiki.uri}`}
+                    className="group flex items-start gap-4 px-5 py-4 transition-colors hover:bg-secondary/30"
+                  >
+                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary/10">
+                      <BookOpen className="h-4 w-4 text-primary" />
                     </div>
-                  </div>
-                  <span className="mt-1 shrink-0 text-xs text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
-                    查看 →
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+                    <div className="min-w-0 flex-1">
+                      <h2 className="text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">
+                        {wiki.title}
+                      </h2>
+                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                        {wiki.author && (
+                          <span>{wiki.author}</span>
+                        )}
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {formatDate(wiki.mtime || wiki.ctime)}
+                        </span>
+                      </div>
+                    </div>
+                    <span className="mt-1 shrink-0 text-xs text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
+                      查看 →
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="mt-6 flex items-center justify-center gap-2">
+            {page?.has_prev && (
+              <Link
+                href={`/wiki?lastid=${page.prev_id}&direction=prev`}
+                className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
+              >
+                上一页
+              </Link>
+            )}
+            {page?.has_next && (
+              <Link
+                href={`/wiki?lastid=${page.next_id}`}
+                className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
+              >
+                下一页
+              </Link>
+            )}
+          </div>
+        </>
       )}
     </PageLayout>
   )

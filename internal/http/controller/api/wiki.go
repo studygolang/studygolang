@@ -59,8 +59,14 @@ func (self WikiController) RegisterRoute(g *echo.Group) {
 func (WikiController) List(ctx echo.Context) error {
 	limit := 20
 	lastId := goutils.MustInt(ctx.QueryParam("lastid"))
+	previous := lastId > 0 && ctx.QueryParam("direction") == "prev"
 
-	wikis := logic.DefaultWiki.FindBy(context.EchoContext(ctx), limit+5, lastId)
+	var wikis []*model.Wiki
+	if previous {
+		wikis = logic.DefaultWiki.FindPrev(context.EchoContext(ctx), limit+1, lastId)
+	} else {
+		wikis = logic.DefaultWiki.FindBy(context.EchoContext(ctx), limit+1, lastId)
+	}
 	if wikis == nil {
 		return success(ctx, map[string]interface{}{
 			"wikis": []*model.Wiki{},
@@ -76,26 +82,20 @@ func (WikiController) List(ctx echo.Context) error {
 		})
 	}
 
-	var (
-		hasPrev, hasNext bool
-		prevId, nextId   int
-	)
-
-	// 游标分页（id DESC）：
-	// - hasNext：拉取的条数 > limit，说明还有下一页；当前页截断到 limit 条，next_id 指向当前页最后一条
-	// - hasPrev：lastId > 0 表示不是第一页，prev_id 指向当前页第一条
-	// 不再使用魔数 5 或 prevId += limit（在 cursor 分页中无意义）
+	hasPrev := lastId > 0 && !previous
+	hasNext := previous
 	if num > limit {
-		hasNext = true
-		wikis = wikis[:limit]
-		nextId = wikis[limit-1].Id
+		if previous {
+			hasPrev = true
+			wikis = wikis[num-limit:]
+		} else {
+			hasNext = true
+			wikis = wikis[:limit]
+		}
 	}
 
-	if lastId > 0 && num > 0 {
-		hasPrev = true
-		prevId = wikis[0].Id
-	}
-
+	prevId := wikis[0].Id
+	nextId := wikis[len(wikis)-1].Id
 	for _, wiki := range wikis {
 		publicWiki(wiki)
 	}

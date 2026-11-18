@@ -19,6 +19,7 @@ function UnsubscribeContent() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [unsubscribed, setUnsubscribed] = useState(false)
+  const [completed, setCompleted] = useState(false)
   const [email, setEmail] = useState("")
   const [error, setError] = useState("")
 
@@ -33,6 +34,7 @@ function UnsubscribeContent() {
     accountAPI.unsubscribePage(token, emailParam)
       .then((data) => {
         setEmail(data.email || emailParam)
+        setUnsubscribed(data.unsubscribe === 1)
       })
       .catch((err) => {
         setError(err.message || "加载失败")
@@ -40,16 +42,18 @@ function UnsubscribeContent() {
       .finally(() => setLoading(false))
   }, [token, emailParam])
 
-  const handleUnsubscribe = async () => {
+  const handleSubscriptionChange = async () => {
     if (!token || !emailParam) return
 
+    const nextUnsubscribed = !unsubscribed
     setSubmitting(true)
     try {
-      await accountAPI.unsubscribe(token, emailParam)
-      setUnsubscribed(true)
-      toast.success("已成功退订邮件")
+      await accountAPI.updateSubscription(token, emailParam, nextUnsubscribed ? 1 : 0)
+      setUnsubscribed(nextUnsubscribed)
+      setCompleted(true)
+      toast.success(nextUnsubscribed ? "已成功退订邮件" : "已重新订阅每周精选")
     } catch (err: any) {
-      toast.error(err.message || "退订失败")
+      toast.error(err.message || "操作失败")
     } finally {
       setSubmitting(false)
     }
@@ -82,16 +86,17 @@ function UnsubscribeContent() {
     )
   }
 
-  // 退订成功
-  if (unsubscribed) {
+  if (completed) {
     return (
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-col items-center gap-4 py-8">
             <CheckCircle2 className="h-12 w-12 text-green-600" />
-            <h2 className="text-xl font-semibold">退订成功</h2>
+            <h2 className="text-xl font-semibold">{unsubscribed ? "退订成功" : "订阅成功"}</h2>
             <p className="text-muted-foreground text-center">
-              你将不再收到来自 Go语言中文网 的邮件通知
+              {unsubscribed
+                ? "你将不再收到来自 Go语言中文网 的每周精选邮件"
+                : "你将恢复接收来自 Go语言中文网 的每周精选邮件"}
             </p>
           </div>
         </CardContent>
@@ -99,13 +104,14 @@ function UnsubscribeContent() {
     )
   }
 
-  // 退订确认
   return (
     <Card>
       <CardHeader>
-        <CardTitle>邮件退订</CardTitle>
+        <CardTitle>邮件订阅设置</CardTitle>
         <CardDescription>
-          确认退订后，你将不再收到来自 Go语言中文网 的邮件通知
+          {unsubscribed
+            ? "你当前已退订每周精选，可以重新订阅"
+            : "确认退订后，你将不再收到来自 Go语言中文网 的每周精选邮件"}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -120,15 +126,17 @@ function UnsubscribeContent() {
 
           <div className="flex flex-col gap-3">
             <Button
-              onClick={handleUnsubscribe}
+              onClick={handleSubscriptionChange}
               disabled={submitting}
-              variant="destructive"
+              variant={unsubscribed ? "default" : "destructive"}
               size="lg"
             >
-              {submitting ? "处理中..." : "确认退订"}
+              {submitting ? "处理中..." : unsubscribed ? "重新订阅" : "确认退订"}
             </Button>
             <p className="text-xs text-muted-foreground text-center">
-              退订后，你仍可以在个人设置中重新订阅
+              {unsubscribed
+                ? "重新订阅后，将恢复接收每周精选邮件"
+                : "退订后，仍可通过邮件中的此链接重新订阅"}
             </p>
           </div>
         </div>

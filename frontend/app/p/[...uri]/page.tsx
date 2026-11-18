@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { CommentSection } from "@/components/comment-section"
 import { ContentActions } from "@/components/content-actions"
+import { MarkdownContent } from "@/components/markdown-content"
 import { OBJTYPE_PROJECT, type ProjectDetailData } from "@/lib/types"
 import { fetchAPINullable } from "@/lib/api"
 import { encodeProjectUri, formatNum } from "@/lib/utils"
@@ -99,7 +100,6 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
 
       <PageHeader
         title={project.name}
-        description={project.desc}
         breadcrumbs={[
           { label: "开源项目", href: "/projects" },
           { label: project.name },
@@ -142,9 +142,10 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
                 </Link>
               </p>
               {project.desc && (
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  {project.desc}
-                </p>
+                <MarkdownContent
+                  content={project.desc}
+                  className="mt-3 text-muted-foreground"
+                />
               )}
             </div>
           </div>

@@ -102,19 +102,13 @@ func (ProjectController) Publish(ctx echo.Context) error {
 		return fail(ctx, "项目源码地址不能为空")
 	}
 
-	err = logic.DefaultProject.Publish(context.EchoContext(ctx), me, forms)
+	uri, err := logic.DefaultProject.Publish(context.EchoContext(ctx), me, forms)
 	if err != nil {
 		return fail(ctx, "发布失败："+err.Error())
 	}
 
 	// 发布后邮件通知站长
 	publishNotice(ctx, me)
-
-	// 获取刚发布的项目的 URI
-	uri := forms.Get("uri")
-	if uri == "" {
-		uri = forms.Get("name")
-	}
 
 	return success(ctx, map[string]interface{}{
 		"uri": uri,
@@ -174,12 +168,12 @@ func (ProjectController) Update(ctx echo.Context) error {
 	forms, _ := ctx.FormParams()
 	forms.Set("id", strconv.Itoa(project.Id))
 
-	err = logic.DefaultProject.Publish(context.EchoContext(ctx), me, forms)
+	updatedURI, err := logic.DefaultProject.Publish(context.EchoContext(ctx), me, forms)
 	if err != nil {
 		return fail(ctx, "更新失败："+err.Error())
 	}
 
-	return success(ctx, map[string]interface{}{"uri": project.Uri})
+	return success(ctx, map[string]interface{}{"uri": updatedURI})
 }
 
 // Detail 项目详情（通过 URI 查询）

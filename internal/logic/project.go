@@ -30,7 +30,7 @@ type ProjectLogic struct{}
 
 var DefaultProject = ProjectLogic{}
 
-func (self ProjectLogic) Publish(ctx context.Context, user *model.Me, form url.Values) (err error) {
+func (self ProjectLogic) Publish(ctx context.Context, user *model.Me, form url.Values) (uri string, err error) {
 	objLog := GetLogger(ctx)
 
 	id := form.Get("id")
@@ -82,6 +82,8 @@ func (self ProjectLogic) Publish(ctx context.Context, user *model.Me, form url.V
 		err = errors.New("项目已存在")
 		return
 	}
+
+	uri = project.Uri
 
 	github := "github.com"
 	pos := strings.Index(project.Src, github)

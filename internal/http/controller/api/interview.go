@@ -72,7 +72,7 @@ func (InterviewController) Create(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	if !me.IsRoot {
+	if !me.IsRoot && !me.IsAdmin {
 		return fail(ctx, "无权创建面试题")
 	}
 

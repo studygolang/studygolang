@@ -287,10 +287,10 @@ func (TopicController) Update(ctx echo.Context) error {
 
 	forms, _ := ctx.FormParams()
 	forms.Set("tid", ctx.Param("tid"))
-	errMsg, err := logic.DefaultTopic.Modify(context.EchoContext(ctx), me, forms)
+	_, err = logic.DefaultTopic.Publish(context.EchoContext(ctx), me, forms)
 	if err != nil {
-		if errMsg != "" {
-			return fail(ctx, errMsg)
+		if err == logic.NotModifyAuthorityErr {
+			return fail(ctx, "没有编辑权限")
 		}
 		return fail(ctx, "更新失败")
 	}
