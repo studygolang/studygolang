@@ -163,7 +163,10 @@ func (TopicController) Detail(ctx echo.Context) error {
 		topic["user"] = sanitizeUserForPublic(owner)
 	}
 
-	me, ok := ctx.Get("user").(*model.Me)
+	// optionalAuth 用 sg_token JWT 取当前用户，与 /user/me、requireAuth 同源；
+	// ctx.Get("user") 依赖 AutoLogin 的 session cookie，浏览器重启后丢失，
+	// 会导致详情页点赞/收藏状态与登录态不一致。
+	me := optionalAuth(ctx)
 
 	permission, _ := topic["permission"].(int)
 	uid, _ := topic["uid"].(int)
@@ -186,9 +189,13 @@ func (TopicController) Detail(ctx echo.Context) error {
 		}
 	}
 
-	// 已登录用户的附加信息
+	// 已登录用户的附加信息。用 optionalAuth（sg_token JWT）而不是 ctx.Get("user")
+	// （AutoLogin 的 session cookie）：session cookie 随浏览器关闭即失效，JWT cookie
+	// 持久 30 天；走 session 的话浏览器重启后 /user/me 显示已登录（JWT 路径），
+	// 但详情页 likeflag/hadcollect 全部消失（session 路径），状态自相矛盾。
+	// resource.go 详情已是 optionalAuth，这里对齐。
 	viewerUID := 0
-	if ok {
+	if me != nil {
 		viewerUID = me.Uid
 	}
 	result := map[string]interface{}{
@@ -197,7 +204,7 @@ func (TopicController) Detail(ctx echo.Context) error {
 		"can_view": canView,
 	}
 
-	if ok {
+	if me != nil {
 		tidInt, _ := topic["tid"].(int)
 		if tidInt <= 0 {
 			tidInt = tid
@@ -447,7 +454,7 @@ func (TopicController) Appends(ctx echo.Context) error {
 	permission, _ := topic["permission"].(int)
 	ownerUID, _ := topic["uid"].(int)
 
-	me, _ := ctx.Get("user").(*model.Me)
+	me := optionalAuth(ctx)
 	canView := canViewTopic(permission, ownerUID, me)
 	if permission == model.PermissionOnlyMe && !canView {
 		return fail(ctx, "话题不存在")

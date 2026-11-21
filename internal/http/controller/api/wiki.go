@@ -119,8 +119,9 @@ func (WikiController) Detail(ctx echo.Context) error {
 		return fail(ctx, "Wiki 不存在")
 	}
 
-	me, ok := ctx.Get("user").(*model.Me)
-	if ok {
+	// optionalAuth（sg_token JWT）与登录态判定同源，避免 session cookie 失效后浏览计数丢 uid
+	me := optionalAuth(ctx)
+	if me != nil {
 		logic.Views.Incr(Request(ctx), model.TypeWiki, wiki.Id, me.Uid)
 	} else {
 		logic.Views.Incr(Request(ctx), model.TypeWiki, wiki.Id)

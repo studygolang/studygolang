@@ -191,9 +191,9 @@ func (ProjectController) Detail(ctx echo.Context) error {
 		"project": project,
 	}
 
-	me, ok := ctx.Get("user").(*model.Me)
+	me := optionalAuth(ctx)
 	viewerUID := 0
-	if ok {
+	if me != nil {
 		viewerUID = me.Uid
 		result["likeflag"] = logic.DefaultLike.HadLike(context.EchoContext(ctx), me.Uid, project.Id, model.TypeProject)
 		result["hadcollect"] = logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), me.Uid, project.Id, model.TypeProject)

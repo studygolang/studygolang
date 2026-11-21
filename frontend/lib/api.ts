@@ -114,14 +114,19 @@ export async function fetchAPI<T>(
   const { signal, cleanup } = createTimeoutSignal(options.signal ?? undefined)
   // headers 必须单独取出：直接 ...options 会用调用方的 headers 整体覆盖默认头
   const { headers, ...restOptions } = options
+  // FormData body 不能手动设 Content-Type：浏览器需要自动生成
+  // multipart/form-data; boundary=... 才能被服务端正确解析（图片上传依赖此行为）
+  const defaultHeaders: Record<string, string> = { 'X-Requested-With': 'XMLHttpRequest' }
+  if (!(options.body instanceof FormData)) {
+    defaultHeaders['Content-Type'] = 'application/json'
+  }
 
   try {
     const res = await fetch(url, {
       credentials: 'include',
       ...restOptions,
       headers: {
-        'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
+        ...defaultHeaders,
         ...headers,
       },
       signal,

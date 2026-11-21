@@ -54,10 +54,10 @@ func (BookController) Detail(ctx echo.Context) error {
 		return fail(ctx, "书籍不存在")
 	}
 
-	me, ok := ctx.Get("user").(*model.Me)
+	me := optionalAuth(ctx)
 	viewerUID := 0
 	result := map[string]interface{}{"book": book}
-	if ok {
+	if me != nil {
 		viewerUID = me.Uid
 		result["likeflag"] = logic.DefaultLike.HadLike(context.EchoContext(ctx), me.Uid, book.Id, model.TypeBook)
 		result["hadcollect"] = logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), me.Uid, book.Id, model.TypeBook)

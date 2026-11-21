@@ -123,9 +123,11 @@ func (ArticleController) Detail(ctx echo.Context) error {
 	readTime := int(math.Round(float64(len([]rune(article.Txt))) / 900))
 	article.Txt = ""
 
-	me, ok := ctx.Get("user").(*model.Me)
+	// optionalAuth（sg_token JWT）与 /user/me 同源；session cookie 浏览器重启即失效，
+	// 走 session 会导致详情页点赞/收藏状态与登录态不一致（见 topic.go Detail 注释）。
+	me := optionalAuth(ctx)
 	viewerUID := 0
-	if ok {
+	if me != nil {
 		viewerUID = me.Uid
 	}
 
@@ -138,7 +140,7 @@ func (ArticleController) Detail(ctx echo.Context) error {
 		"subjects":     logic.DefaultSubject.FindArticleSubjects(context.EchoContext(ctx), article.Id),
 	}
 
-	if ok {
+	if me != nil {
 		result["likeflag"] = logic.DefaultLike.HadLike(context.EchoContext(ctx), me.Uid, article.Id, model.TypeArticle)
 		result["hadcollect"] = logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), me.Uid, article.Id, model.TypeArticle)
 

@@ -26,9 +26,10 @@ import (
 )
 
 const (
-	perPage        = 20            // 每页默认条数
-	authCookieName = "sg_token"    // HttpOnly 认证 Cookie 名
-	cookieMaxAge   = 7 * 24 * 3600 // Cookie 有效期 7 天
+	perPage        = 20             // 每页默认条数
+	authCookieName = "sg_token"     // HttpOnly 认证 Cookie 名
+	cookieMaxAge   = 30 * 24 * 3600 // Cookie 有效期与 GenJWTToken 的 30 天对齐，
+	// 之前是 7 天：JWT 本身 30 天有效，cookie 先过期导致用户每周被迫重新登录。
 )
 
 // normalizeReplies 将 FindObjComments 返回的评论 map 规整为前端期望的结构。
