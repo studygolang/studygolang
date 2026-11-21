@@ -9,13 +9,13 @@ import { Label } from "@/components/ui/label"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { useAuth } from "@/lib/auth-context"
+import { CaptchaField } from "@/components/captcha-field"
 import { PublishHeader } from "./components/publish-header"
 import { TopicFields } from "./components/topic-fields"
 import { ProjectFields } from "./components/project-fields"
 import { ResourceFields } from "./components/resource-fields"
 import { BookFields } from "./components/book-fields"
 import { TagsInput } from "./components/tags-input"
-import { CaptchaField } from "@/components/captcha-field"
 import { EditorSection } from "./components/editor-section"
 import { FormActions } from "./components/form-actions"
 import { usePublish } from "./components/use-publish"
@@ -191,8 +191,8 @@ function PublishContent() {
               setContent={publishState.setContent}
             />
 
-            {/* 验证码：仅后端要求时显示（注册 30 分钟内或发布过频） */}
-            {publishState.captchaRequired && (
+            {/* 发布前查询或 601 响应要求验证码时显示 */}
+            {(publishState.captchaRequired || publishState.needCaptcha) && (
               <CaptchaField
                 key={publishState.captchaKey}
                 value={publishState.captchaSolution}
