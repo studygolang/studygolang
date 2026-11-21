@@ -27,7 +27,7 @@ type MorningReading struct {
 	Url      string    `json:"url"`
 	Moreurls string    `json:"moreurls"`
 	Username string    `json:"username"`
-	Clicknum int       `json:"clicknum,omitempty"`
+	Clicknum int       `json:"clicknum"`
 	Ctime    OftenTime `json:"ctime" xorm:"<-"`
 
 	// 晨读日期，从 ctime 中提取

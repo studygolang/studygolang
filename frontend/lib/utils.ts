@@ -31,9 +31,11 @@ export function encodeProjectUri(uri: string | number): string {
  * 格式化数字：>=10000 显示 x.xw，>=1000 显示 x.xk，否则原样
  */
 export function formatNum(n: number): string {
-  if (n >= 10000) return (n / 10000).toFixed(1) + "w"
-  if (n >= 1000) return (n / 1000).toFixed(1) + "k"
-  return String(n)
+  // 防御性兜底：旧响应/缓存里计数字段可能缺失
+  const num = n ?? 0
+  if (num >= 10000) return (num / 10000).toFixed(1) + "w"
+  if (num >= 1000) return (num / 1000).toFixed(1) + "k"
+  return String(num)
 }
 
 /**

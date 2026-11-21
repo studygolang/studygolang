@@ -37,9 +37,11 @@ type OpenProject struct {
 	Os            string    `json:"os"`
 	Tags          string    `json:"tags"`
 	Username      string    `json:"username,omitempty"`
-	Viewnum       int       `json:"viewnum,omitempty"`
-	Cmtnum        int       `json:"cmtnum,omitempty"`
-	Likenum       int       `json:"likenum,omitempty"`
+	// omitempty 会吞掉 0 值：0 评论/0 赞的新项目 JSON 里直接没有这些字段，
+	// 前端渲染出 undefined 字样。计数字段必须始终下发。
+	Viewnum       int       `json:"viewnum"`
+	Cmtnum        int       `json:"cmtnum"`
+	Likenum       int       `json:"likenum"`
 	Lastreplyuid  int       `json:"lastreplyuid"`
 	Lastreplytime OftenTime `json:"lastreplytime"`
 	Status        int       `json:"status"`
