@@ -19,9 +19,11 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import type { Reading, SiteStats, Topic, Comment, User, FriendLink } from "@/lib/types"
+import type { Reading, SiteStats, Topic, Comment, User, FriendLink, TopicNode } from "@/lib/types"
 import { SafeHtml } from "@/components/safe-html"
 import { useAuth } from "@/lib/auth-context"
+import { fetchAPINullable } from "@/lib/api"
+import { NodeNavigation } from "@/components/node-navigation"
 
 /* ---------- Login Card ---------- */
 export function LoginCard() {
@@ -425,5 +427,68 @@ export function FriendLinks({ links }: FriendLinksProps) {
         </div>
       </CardContent>
     </Card>
+  )
+}
+
+/* ---------- Auto Sidebar（客户端自动取数，服务端/客户端页面均可安全使用） ---------- */
+export function AutoSidebar() {
+  const [data, setData] = useState<{
+    stats?: SiteStats
+    readings: Reading[]
+    comments: Comment[]
+    activeUsers: User[]
+    friendLinks: FriendLink[]
+    nodes: TopicNode[]
+  } | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    Promise.all([
+      fetchAPINullable<SiteStats>("/stat/site", { cache: "no-store" }),
+      fetchAPINullable<{ readings: Reading[] }>("/sidebar/readings/recent?limit=7", { cache: "no-store" }),
+      fetchAPINullable<{ comments: Comment[] }>("/sidebar/comments/recent", { cache: "no-store" }),
+      fetchAPINullable<{ users: User[] }>("/sidebar/users/active", { cache: "no-store" }),
+      fetchAPINullable<{ links: FriendLink[] }>("/sidebar/friend/links", { cache: "no-store" }),
+      fetchAPINullable<{ nodes: TopicNode[] }>("/sidebar/nodes/hot", { cache: "no-store" }),
+    ]).then(([stats, readings, comments, activeUsers, friendLinks, nodes]) => {
+      if (cancelled) return
+      setData({
+        stats: stats ?? undefined,
+        readings: readings?.readings ?? [],
+        comments: comments?.comments ?? [],
+        activeUsers: activeUsers?.users ?? [],
+        friendLinks: friendLinks?.links ?? [],
+        nodes: nodes?.nodes ?? [],
+      })
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  if (!data) {
+    return (
+      <div className="space-y-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="h-24 animate-pulse rounded-lg bg-muted" />
+        ))}
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <LoginCard />
+      <DailyQuestion />
+      <MorningReading readings={data.readings} />
+      <TrendingTopics topics={undefined} />
+      <div className="hidden lg:block">
+        <NodeNavigation nodes={data.nodes} />
+      </div>
+      <LatestComments comments={data.comments} />
+      <ActiveMembers users={data.activeUsers} />
+      <StatsCard stats={data.stats} />
+      <FriendLinks links={data.friendLinks} />
+    </>
   )
 }
