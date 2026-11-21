@@ -102,6 +102,7 @@ export function usePublish({ initialType }: UsePublishProps) {
   const [resourceCategories, setResourceCategories] = useState<Array<{ catid: number; name: string }>>([])
 
   // 图书特定字段
+  const [bookEname, setBookEname] = useState("")
   const [bookAuthor, setBookAuthor] = useState("")
   const [bookTranslator, setBookTranslator] = useState("")
   const [bookCover, setBookCover] = useState("")
@@ -112,6 +113,7 @@ export function usePublish({ initialType }: UsePublishProps) {
   const [bookDownloadUrl, setBookDownloadUrl] = useState("")
   const [bookBuyUrl, setBookBuyUrl] = useState("")
   const [bookPrice, setBookPrice] = useState("")
+  const [bookCatalogue, setBookCatalogue] = useState("")
 
   // 加载节点
   useEffect(() => {
@@ -218,6 +220,8 @@ export function usePublish({ initialType }: UsePublishProps) {
     if (contentType === "resource" && resourceForm === "link" && !resourceUrl.trim()) { setError("请填写资源链接"); return }
     if (contentType === "resource" && resourceForm === "content" && !content.trim()) { setError("请填写资源内容"); return }
     if (contentType === "book" && !bookAuthor.trim()) { setError("请填写作者"); return }
+    if (contentType === "book" && !bookPubDate.trim()) { setError("请填写出版日期"); return }
+    if (contentType === "book" && !content.trim()) { setError("请填写图书简介"); return }
     if (captchaRequired && !captchaSolution.trim()) { setError("请填写验证码"); return }
 
     setSubmitting(true)
@@ -330,6 +334,8 @@ export function usePublish({ initialType }: UsePublishProps) {
         form.set("name", title.trim())
         form.set("author", bookAuthor.trim())
         form.set("desc", content.trim())
+        if (bookEname.trim()) form.set("ename", bookEname.trim())
+        if (bookCatalogue.trim()) form.set("catalogue", bookCatalogue.trim())
         if (bookTranslator.trim()) form.set("translator", bookTranslator.trim())
         if (bookCover.trim()) form.set("cover", bookCover.trim())
         if (bookPubDate.trim()) form.set("pub_date", bookPubDate.trim())
@@ -432,6 +438,8 @@ export function usePublish({ initialType }: UsePublishProps) {
     setResourceCatid,
     resourceCategories,
     // 图书字段
+    bookEname,
+    setBookEname,
     bookAuthor,
     setBookAuthor,
     bookTranslator,
@@ -452,6 +460,8 @@ export function usePublish({ initialType }: UsePublishProps) {
     setBookBuyUrl,
     bookPrice,
     setBookPrice,
+    bookCatalogue,
+    setBookCatalogue,
   }
 }
 

@@ -2,6 +2,7 @@
 
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
   SelectContent,
@@ -11,6 +12,8 @@ import {
 } from "@/components/ui/select"
 
 interface BookFieldsProps {
+  bookEname: string
+  setBookEname: (ename: string) => void
   bookAuthor: string
   setBookAuthor: (author: string) => void
   bookTranslator: string
@@ -31,9 +34,13 @@ interface BookFieldsProps {
   setBookBuyUrl: (url: string) => void
   bookPrice: string
   setBookPrice: (price: string) => void
+  bookCatalogue: string
+  setBookCatalogue: (catalogue: string) => void
 }
 
 export function BookFields({
+  bookEname,
+  setBookEname,
   bookAuthor,
   setBookAuthor,
   bookTranslator,
@@ -54,12 +61,25 @@ export function BookFields({
   setBookBuyUrl,
   bookPrice,
   setBookPrice,
+  bookCatalogue,
+  setBookCatalogue,
 }: BookFieldsProps) {
   return (
     <>
+      <div className="space-y-1.5">
+        <Label htmlFor="bookEname" className="text-sm font-medium">英文书名</Label>
+        <Input
+          id="bookEname"
+          placeholder="英文书名"
+          value={bookEname}
+          onChange={(e) => setBookEname(e.target.value)}
+          className="h-10"
+        />
+      </div>
+
       {/* 作者 + 译者 */}
-      <div className="flex gap-4">
-        <div className="flex-1 space-y-1.5">
+      <div className="flex flex-col gap-4 sm:flex-row">
+        <div className="min-w-0 flex-1 space-y-1.5">
           <Label htmlFor="bookAuthor" className="text-sm font-medium">
             作者 <span className="text-destructive">*</span>
           </Label>
@@ -71,7 +91,7 @@ export function BookFields({
             className="h-10"
           />
         </div>
-        <div className="flex-1 space-y-1.5">
+        <div className="min-w-0 flex-1 space-y-1.5">
           <Label htmlFor="bookTranslator" className="text-sm font-medium">译者</Label>
           <Input
             id="bookTranslator"
@@ -84,8 +104,8 @@ export function BookFields({
       </div>
 
       {/* 封面 + 出版日期 */}
-      <div className="flex gap-4">
-        <div className="flex-1 space-y-1.5">
+      <div className="flex flex-col gap-4 sm:flex-row">
+        <div className="min-w-0 flex-1 space-y-1.5">
           <Label htmlFor="bookCover" className="text-sm font-medium">封面图片</Label>
           <Input
             id="bookCover"
@@ -95,8 +115,10 @@ export function BookFields({
             className="h-10"
           />
         </div>
-        <div className="flex-1 space-y-1.5">
-          <Label htmlFor="bookPubDate" className="text-sm font-medium">出版日期</Label>
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <Label htmlFor="bookPubDate" className="text-sm font-medium">
+            出版日期 <span className="text-destructive">*</span>
+          </Label>
           <Input
             id="bookPubDate"
             placeholder="例如：2024-01"
@@ -108,8 +130,8 @@ export function BookFields({
       </div>
 
       {/* 语言 + 是否免费 */}
-      <div className="flex gap-4">
-        <div className="flex-1 space-y-1.5">
+      <div className="flex flex-col gap-4 sm:flex-row">
+        <div className="min-w-0 flex-1 space-y-1.5">
           <Label htmlFor="bookLang" className="text-sm font-medium">语言</Label>
           <Select value={bookLang} onValueChange={setBookLang}>
             <SelectTrigger className="h-10">
@@ -122,7 +144,7 @@ export function BookFields({
             </SelectContent>
           </Select>
         </div>
-        <div className="flex-1 space-y-1.5">
+        <div className="min-w-0 flex-1 space-y-1.5">
           <Label className="text-sm font-medium">是否免费</Label>
           <label className="flex items-center gap-2 h-10 cursor-pointer">
             <input
@@ -137,8 +159,8 @@ export function BookFields({
       </div>
 
       {/* 在线阅读 + 下载地址 */}
-      <div className="flex gap-4">
-        <div className="flex-1 space-y-1.5">
+      <div className="flex flex-col gap-4 sm:flex-row">
+        <div className="min-w-0 flex-1 space-y-1.5">
           <Label htmlFor="bookOnlineUrl" className="text-sm font-medium">在线阅读</Label>
           <Input
             id="bookOnlineUrl"
@@ -148,7 +170,7 @@ export function BookFields({
             className="h-10"
           />
         </div>
-        <div className="flex-1 space-y-1.5">
+        <div className="min-w-0 flex-1 space-y-1.5">
           <Label htmlFor="bookDownloadUrl" className="text-sm font-medium">下载地址</Label>
           <Input
             id="bookDownloadUrl"
@@ -161,8 +183,8 @@ export function BookFields({
       </div>
 
       {/* 购买地址 + 价格 */}
-      <div className="flex gap-4">
-        <div className="flex-1 space-y-1.5">
+      <div className="flex flex-col gap-4 sm:flex-row">
+        <div className="min-w-0 flex-1 space-y-1.5">
           <Label htmlFor="bookBuyUrl" className="text-sm font-medium">购买地址</Label>
           <Input
             id="bookBuyUrl"
@@ -172,7 +194,7 @@ export function BookFields({
             className="h-10"
           />
         </div>
-        <div className="flex-1 space-y-1.5">
+        <div className="min-w-0 flex-1 space-y-1.5">
           <Label htmlFor="bookPrice" className="text-sm font-medium">价格</Label>
           <Input
             id="bookPrice"
@@ -182,6 +204,17 @@ export function BookFields({
             className="h-10"
           />
         </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="bookCatalogue" className="text-sm font-medium">图书目录</Label>
+        <Textarea
+          id="bookCatalogue"
+          placeholder="图书目录"
+          value={bookCatalogue}
+          onChange={(e) => setBookCatalogue(e.target.value)}
+          rows={6}
+        />
       </div>
     </>
   )

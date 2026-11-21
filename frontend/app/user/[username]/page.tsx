@@ -11,13 +11,16 @@ import { PageLayout } from "@/components/page-layout"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { UserContentTabs } from "./user-content-tabs"
-import type { User, Topic, Article } from "@/lib/types"
+import { UserActions } from "./user-actions"
+import type { User, Topic, Article, Resource, Project } from "@/lib/types"
 import { fetchAPINullable } from "@/lib/api"
 
 interface UserDetailData {
   user: User
   topics?: Topic[]
   articles?: Article[]
+  resources?: Resource[]
+  projects?: Project[]
 }
 
 interface UserPageProps {
@@ -67,7 +70,7 @@ export default async function UserPage({ params }: UserPageProps) {
     )
   }
 
-  const { user, topics = [], articles = [] } = data
+  const { user, topics = [], articles = [], resources = [], projects = [] } = data
   const displayName = user.name || user.username
 
   return (
@@ -151,6 +154,8 @@ export default async function UserPage({ params }: UserPageProps) {
                 )}
               </div>
 
+              <UserActions username={user.username} />
+
               {/* Stats */}
               <div className="mt-4 flex flex-wrap gap-6 border-t border-border pt-4">
                 <div className="flex items-center gap-1.5">
@@ -163,11 +168,12 @@ export default async function UserPage({ params }: UserPageProps) {
         </CardContent>
       </Card>
 
-      {/* 内容 Tab 区：话题、文章、评论 */}
       <UserContentTabs
         username={user.username}
         initialTopics={topics}
         initialArticles={articles}
+        initialResources={resources}
+        initialProjects={projects}
       />
     </PageLayout>
   )

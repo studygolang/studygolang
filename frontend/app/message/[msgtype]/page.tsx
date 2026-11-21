@@ -140,8 +140,17 @@ function MessageItem({
           </p>
         )}
 
-        {/* 时间 */}
-        <p className="mt-2 text-xs text-muted-foreground">{msg.ctime}</p>
+        <div className="mt-2 flex items-center gap-3">
+          <p className="text-xs text-muted-foreground">{msg.ctime}</p>
+          {msgtype === "inbox" && msg.user && (
+            <Link
+              href={`/messages/send?username=${encodeURIComponent(msg.user.username)}&id=${msg.id}`}
+              className="text-xs text-primary hover:underline"
+            >
+              回复
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* 删除按钮 */}

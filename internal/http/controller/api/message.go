@@ -24,8 +24,9 @@ type MessageController struct{}
 func (self MessageController) RegisterRoute(g *echo.Group) {
 	g.GET("/messages", self.List)
 	g.POST("/messages", self.Send)
-	g.DELETE("/messages/:id", self.Delete)
 	g.GET("/messages/unread-count", self.UnreadCount)
+	g.GET("/messages/:id", self.Detail)
+	g.DELETE("/messages/:id", self.Delete)
 }
 
 // List 消息列表（支持 Cookie 和 X-Token header）
@@ -82,6 +83,28 @@ func (MessageController) List(ctx echo.Context) error {
 		"page":     curPage,
 		"total":    total,
 		"has_more": int64(curPage*paginator.PerPage()) < total,
+	})
+}
+
+// Detail 读取本人收件箱中的私信，用于回复时展示原文。
+func (MessageController) Detail(ctx echo.Context) error {
+	uid, err := parseActiveAuthUID(ctx)
+	if err != nil {
+		return err
+	}
+
+	message := logic.DefaultMessage.FindMsgById(context.EchoContext(ctx), ctx.Param("id"))
+	if message == nil || message.To != uid {
+		return fail(ctx, "消息不存在或无权查看")
+	}
+
+	return success(ctx, map[string]interface{}{
+		"message": map[string]interface{}{
+			"id":      message.Id,
+			"content": message.Content,
+			"from":    message.From,
+			"ctime":   message.Ctime,
+		},
 	})
 }
 

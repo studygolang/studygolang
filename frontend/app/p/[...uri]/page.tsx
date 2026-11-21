@@ -18,6 +18,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { CommentSection } from "@/components/comment-section"
 import { ContentActions } from "@/components/content-actions"
 import { MarkdownContent } from "@/components/markdown-content"
+import { ViewStats } from "@/components/view-stats"
 import { OBJTYPE_PROJECT, type ProjectDetailData } from "@/lib/types"
 import { fetchAPINullable } from "@/lib/api"
 import { encodeProjectUri, formatNum } from "@/lib/utils"
@@ -233,6 +234,8 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
           />
         </CardContent>
       </Card>
+
+      <ViewStats viewUserNum={data.view_user_num} viewSource={data.view_source} />
 
       <CommentSection
         objid={project.id}

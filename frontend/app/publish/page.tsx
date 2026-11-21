@@ -133,6 +133,8 @@ function PublishContent() {
             {/* 图书特定字段 */}
             {publishState.contentType === "book" && (
               <BookFields
+                bookEname={publishState.bookEname}
+                setBookEname={publishState.setBookEname}
                 bookAuthor={publishState.bookAuthor}
                 setBookAuthor={publishState.setBookAuthor}
                 bookTranslator={publishState.bookTranslator}
@@ -153,6 +155,8 @@ function PublishContent() {
                 setBookBuyUrl={publishState.setBookBuyUrl}
                 bookPrice={publishState.bookPrice}
                 setBookPrice={publishState.setBookPrice}
+                bookCatalogue={publishState.bookCatalogue}
+                setBookCatalogue={publishState.setBookCatalogue}
               />
             )}
 

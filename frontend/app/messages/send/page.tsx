@@ -1,7 +1,7 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import React, { Suspense, useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,11 +17,42 @@ interface UserOption {
   avatar: string
 }
 
+interface ReplyMessage {
+  id: number
+  content: string
+  from: number
+  ctime: string
+}
+
+function MessageSendLoading() {
+  return (
+    <div className="min-h-screen bg-background">
+      <SiteHeader />
+      <main className="mx-auto flex max-w-3xl items-center justify-center px-4 py-8 lg:px-6">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </main>
+      <SiteFooter />
+    </div>
+  )
+}
+
 export default function MessageSendPage() {
+  return (
+    <Suspense fallback={<MessageSendLoading />}>
+      <MessageSendForm />
+    </Suspense>
+  )
+}
+
+function MessageSendForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const usernameParam = searchParams.get("username")?.trim() ?? ""
+  const replyId = searchParams.get("id") ?? ""
   const { isLoggedIn, isLoading: authLoading } = useAuth()
   const [loading, setLoading] = useState(true)
-  const [toUsername, setToUsername] = useState("")
+  const [toUsername, setToUsername] = useState(usernameParam)
+  const [replyMessage, setReplyMessage] = useState<ReplyMessage | null>(null)
   const [users, setUsers] = useState<UserOption[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [content, setContent] = useState("")
@@ -30,11 +61,38 @@ export default function MessageSendPage() {
   useEffect(() => {
     if (authLoading) return
     if (!isLoggedIn) {
-      router.replace("/account/login?redirect=/messages/send")
+      const query = searchParams.toString()
+      const redirect = `/messages/send${query ? `?${query}` : ""}`
+      router.replace(`/account/login?redirect=${encodeURIComponent(redirect)}`)
       return
     }
     setLoading(false)
-  }, [authLoading, isLoggedIn, router])
+  }, [authLoading, isLoggedIn, router, searchParams])
+
+  useEffect(() => {
+    setReplyMessage(null)
+    if (!isLoggedIn || !usernameParam || !replyId) return
+
+    let cancelled = false
+    async function loadReplyMessage() {
+      try {
+        const [profile, data] = await Promise.all([
+          userAPI.getProfile(usernameParam),
+          messageAPI.detail(replyId),
+        ])
+        if (!cancelled && profile.user.uid === data.message.from) {
+          setReplyMessage(data.message)
+        }
+      } catch {
+        if (!cancelled) setReplyMessage(null)
+      }
+    }
+
+    void loadReplyMessage()
+    return () => {
+      cancelled = true
+    }
+  }, [isLoggedIn, replyId, usernameParam])
 
   async function handleSearchUser(term: string) {
     if (!term.trim()) {
@@ -90,15 +148,7 @@ export default function MessageSendPage() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <SiteHeader />
-        <main className="mx-auto max-w-3xl px-4 py-8 lg:px-6 flex items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </main>
-        <SiteFooter />
-      </div>
-    )
+    return <MessageSendLoading />
   }
 
   return (
@@ -147,6 +197,17 @@ export default function MessageSendPage() {
                 </div>
               )}
             </div>
+
+            {replyMessage && toUsername.trim() === usernameParam && (
+              <div className="rounded-md border border-border bg-muted/40 p-3">
+                <p className="text-xs font-medium text-muted-foreground">
+                  回复 {usernameParam} 的私信
+                </p>
+                <p className="mt-1 whitespace-pre-wrap text-sm text-foreground">
+                  {replyMessage.content}
+                </p>
+              </div>
+            )}
 
             <div className="space-y-1.5">
               <Label htmlFor="content" className="text-sm font-medium">

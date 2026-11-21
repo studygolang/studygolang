@@ -4,6 +4,30 @@ import { mockLogin } from "../../fixtures/auth"
 test.describe("资源和图书发布功能", () => {
   test.beforeEach(async ({ page }) => {
     await mockLogin(page)
+    await page.route("**/api/v1/nodes", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ code: 0, data: [] }),
+      })
+    })
+    await page.route("**/api/v1/captcha/required", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ code: 0, data: { required: false } }),
+      })
+    })
+    await page.route("**/api/v1/resources/categories", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          code: 0,
+          data: { categories: [{ catid: 7, name: "Go 语言" }] },
+        }),
+      })
+    })
     await page.goto("/publish")
   })
 
@@ -64,6 +88,9 @@ test.describe("资源和图书发布功能", () => {
       const titleInput = page.locator('input[placeholder*="资源标题"]')
       await titleInput.fill("测试资源")
 
+      await page.locator("#resourceCatid").click()
+      await page.getByRole("option", { name: "Go 语言" }).click()
+
       // 点击发布（使用 main 区域内的按钮，避免匹配导航栏）
       const publishButton = page.locator("main").getByRole("button", { name: /^发布$/ })
       await publishButton.click()
@@ -79,6 +106,9 @@ test.describe("资源和图书发布功能", () => {
       // 填写标题
       const titleInput = page.locator('input[placeholder*="资源标题"]')
       await titleInput.fill("测试资源")
+
+      await page.locator("#resourceCatid").click()
+      await page.getByRole("option", { name: "Go 语言" }).click()
 
       // 点击发布（使用 main 区域内的按钮，避免匹配导航栏）
       const publishButton = page.locator("main").getByRole("button", { name: /^发布$/ })
@@ -105,9 +135,8 @@ test.describe("资源和图书发布功能", () => {
       // 验证表单数据
       await expect(titleInput).toHaveValue("Go语言学习资源")
       await expect(urlInput).toHaveValue("https://golang.org/doc/")
-      // 验证标签已添加（通过 Badge 文本 "Go ×" 验证）
-      const addedTag = page.locator("main").locator("span", { hasText: /^Go\s*×$/ })
-      await expect(addedTag).toBeVisible()
+      // 验证标签已添加
+      await expect(page.getByRole("button", { name: "删除标签 Go" })).toBeVisible()
     })
   })
 
@@ -129,6 +158,9 @@ test.describe("资源和图书发布功能", () => {
       // 必填字段：书名、作者
       const titleInput = page.locator('input[placeholder*="图书名称"]')
       await expect(titleInput).toBeVisible()
+
+      await expect(page.locator("#bookEname")).toBeVisible()
+      await expect(page.locator("#bookCatalogue")).toBeVisible()
 
       const authorInput = page.locator('input[placeholder*="作者姓名"]')
       await expect(authorInput).toBeVisible()
@@ -176,8 +208,6 @@ test.describe("资源和图书发布功能", () => {
       // 验证选项
       await expect(page.getByRole("option", { name: "中文" })).toBeVisible()
       await expect(page.getByRole("option", { name: "英文" })).toBeVisible()
-      await expect(page.getByRole("option", { name: "中英双语" })).toBeVisible()
-      await expect(page.getByRole("option", { name: "其他" })).toBeVisible()
     })
 
     test("是否免费复选框应可切换", async ({ page }) => {
@@ -210,6 +240,9 @@ test.describe("资源和图书发布功能", () => {
       // 填写书名
       const titleInput = page.locator('input[placeholder*="图书名称"]')
       await titleInput.fill("Go语言圣经")
+
+      await page.locator("#bookEname").fill("The Go Programming Language")
+      await page.locator("#bookCatalogue").fill("第一章 入门")
 
       // 填写作者
       const authorInput = page.locator('input[placeholder*="作者姓名"]')
@@ -260,9 +293,8 @@ test.describe("资源和图书发布功能", () => {
       await expect(titleInput).toHaveValue("Go语言圣经")
       await expect(authorInput).toHaveValue("Alan A. A. Donovan")
       await expect(translatorInput).toHaveValue("李笑")
-      // 验证标签已添加（通过 Badge 文本 "Go ×" 验证）
-      const addedTag = page.locator("main").locator("span", { hasText: /^Go\s*×$/ })
-      await expect(addedTag).toBeVisible()
+      // 验证标签已添加
+      await expect(page.getByRole("button", { name: "删除标签 Go" })).toBeVisible()
     })
   })
 

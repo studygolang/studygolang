@@ -10,7 +10,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { CommentSection } from "@/components/comment-section"
 import { ContentActions } from "@/components/content-actions"
 import { MarkdownContent } from "@/components/markdown-content"
-import { OBJTYPE_RESOURCE, type Resource, type Comment } from "@/lib/types"
+import { ViewStats } from "@/components/view-stats"
+import { OBJTYPE_RESOURCE, type Resource, type Comment, type ViewStatsData } from "@/lib/types"
 import { fetchAPINullable } from "@/lib/api"
 import { formatNum } from "@/lib/utils"
 
@@ -26,7 +27,7 @@ async function authHeaders(): Promise<Record<string, string>> {
   return cookie ? { Cookie: cookie } : {}
 }
 
-interface ResourceDetailData {
+interface ResourceDetailData extends ViewStatsData {
   resource: Resource
   comments?: Comment[]
   likeflag?: number
@@ -75,6 +76,9 @@ export default async function ResourceDetailPage({ params }: ResourceDetailPageP
   const { resource, comments } = data
   const rid = parseInt(id)
   const tags = (resource.tags ?? "").split(",").map((t) => t.trim()).filter(Boolean)
+  const resourceUrl = resource.url?.startsWith("/r/golang/")
+    ? `https://reddit.com${resource.url}`
+    : resource.url
 
   return (
     <PageLayout>
@@ -149,10 +153,10 @@ export default async function ResourceDetailPage({ params }: ResourceDetailPageP
           </div>
 
           {/* External link */}
-          {resource.url && (
+          {resourceUrl && (
             <div className="mt-5">
               <a
-                href={resource.url}
+                href={resourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
@@ -187,6 +191,8 @@ export default async function ResourceDetailPage({ params }: ResourceDetailPageP
           />
         </CardContent>
       </Card>
+
+      <ViewStats viewUserNum={data.view_user_num} viewSource={data.view_source} />
 
       <CommentSection
         objid={rid}

@@ -43,11 +43,14 @@ export default function UserSettingsPage() {
   const [city, setCity] = useState('')
   const [company, setCompany] = useState('')
   const [github, setGithub] = useState('')
+  const [weibo, setWeibo] = useState('')
   const [website, setWebsite] = useState('')
+  const [monlog, setMonlog] = useState('')
   const [introduce, setIntroduce] = useState('')
   const [open, setOpen] = useState('0')
 
   // 密码修改
+  const [hasPasswd, setHasPasswd] = useState(false)
   const [showPasswordForm, setShowPasswordForm] = useState(false)
   const [curPassword, setCurPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -64,9 +67,12 @@ export default function UserSettingsPage() {
         setCity(u.city || '')
         setCompany(u.company || '')
         setGithub(u.github || '')
+        setWeibo(u.weibo || '')
         setWebsite(u.website || '')
+        setMonlog(u.monlog || '')
         setIntroduce(u.introduce || '')
         setOpen(u.open === 1 ? '1' : '0')
+        setHasPasswd(Boolean(data.has_passwd))
 
         // 验证当前登录用户是否与 URL 中的 username 匹配
         if (u.username !== username) {
@@ -149,7 +155,9 @@ export default function UserSettingsPage() {
         city,
         company,
         github,
+        weibo,
         website,
+        monlog,
         introduce,
         open,
       })
@@ -167,7 +175,7 @@ export default function UserSettingsPage() {
   // 修改密码
   const handleChangePassword = async () => {
     setMessage(null)
-    if (!curPassword) {
+    if (hasPasswd && !curPassword) {
       setMessage({ type: 'error', text: '请输入当前密码' })
       return
     }
@@ -175,14 +183,15 @@ export default function UserSettingsPage() {
       setMessage({ type: 'error', text: '新密码长度至少6个字符' })
       return
     }
-    if (curPassword === newPassword) {
+    if (hasPasswd && curPassword === newPassword) {
       setMessage({ type: 'error', text: '新密码不能与当前密码相同' })
       return
     }
     setChangingPassword(true)
     try {
       await userAPI.changePassword(curPassword, newPassword)
-      setMessage({ type: 'success', text: '密码修改成功' })
+      setMessage({ type: 'success', text: hasPasswd ? '密码修改成功' : '密码设置成功' })
+      setHasPasswd(true)
       setCurPassword('')
       setNewPassword('')
       setShowPasswordForm(false)
@@ -250,7 +259,17 @@ export default function UserSettingsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="introduce">个人签名</Label>
+              <Label htmlFor="monlog">签名</Label>
+              <Input
+                id="monlog"
+                value={monlog}
+                onChange={(e) => setMonlog(e.target.value)}
+                placeholder="个性签名"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="introduce">个人介绍</Label>
               <Textarea
                 id="introduce"
                 value={introduce}
@@ -299,6 +318,16 @@ export default function UserSettingsPage() {
                 value={github}
                 onChange={(e) => setGithub(e.target.value)}
                 placeholder="GitHub 用户名"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="weibo">微博</Label>
+              <Input
+                id="weibo"
+                value={weibo}
+                onChange={(e) => setWeibo(e.target.value)}
+                placeholder="微博用户名"
               />
             </div>
 
@@ -425,26 +454,28 @@ export default function UserSettingsPage() {
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <Lock className="h-4 w-4" />
-              修改密码
+              {hasPasswd ? '修改密码' : '设置密码'}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {!showPasswordForm ? (
               <Button variant="outline" onClick={() => setShowPasswordForm(true)}>
-                修改密码
+                {hasPasswd ? '修改密码' : '设置密码'}
               </Button>
             ) : (
               <div className="space-y-3">
-                <div className="space-y-2">
-                  <Label htmlFor="curPassword">当前密码</Label>
-                  <Input
-                    id="curPassword"
-                    type="password"
-                    value={curPassword}
-                    onChange={(e) => setCurPassword(e.target.value)}
-                    placeholder="请输入当前密码"
-                  />
-                </div>
+                {hasPasswd && (
+                  <div className="space-y-2">
+                    <Label htmlFor="curPassword">当前密码</Label>
+                    <Input
+                      id="curPassword"
+                      type="password"
+                      value={curPassword}
+                      onChange={(e) => setCurPassword(e.target.value)}
+                      placeholder="请输入当前密码"
+                    />
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="newPassword">新密码</Label>
                   <Input
@@ -457,7 +488,7 @@ export default function UserSettingsPage() {
                 </div>
                 <div className="flex gap-2">
                   <Button onClick={handleChangePassword} disabled={changingPassword} className="gap-2">
-                    {changingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : '确认修改'}
+                    {changingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : hasPasswd ? '确认修改' : '确认设置'}
                   </Button>
                   <Button variant="ghost" onClick={() => { setShowPasswordForm(false); setCurPassword(''); setNewPassword('') }}>
                     取消

@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { CommentSection } from "@/components/comment-section"
 import { ContentActions } from "@/components/content-actions"
 import { SafeHtml } from "@/components/safe-html"
+import { ViewStats } from "@/components/view-stats"
 import { cn } from "@/lib/utils"
 import { OBJTYPE_BOOK, type BookDetailData } from "@/lib/types"
 import { fetchAPINullable } from "@/lib/api"
@@ -141,6 +142,11 @@ export default async function BookDetailPage({ params }: BookDetailPageProps) {
               <div className="flex min-w-0 flex-1 flex-col gap-4">
                 <div>
                   <h1 className="text-2xl font-bold text-foreground">{book.name}</h1>
+                  {book.ename && (
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      英文书名：<span className="font-medium text-foreground">{book.ename}</span>
+                    </p>
+                  )}
 
                   <div className="mt-2 flex flex-wrap gap-2">
                     <Badge variant="outline" className="text-xs">
@@ -164,6 +170,18 @@ export default async function BookDetailPage({ params }: BookDetailPageProps) {
                     <div className="flex gap-2">
                       <dt className="text-muted-foreground">译者</dt>
                       <dd className="font-medium text-foreground">{book.translator}</dd>
+                    </div>
+                  )}
+                  {book.pub_date && (
+                    <div className="flex gap-2">
+                      <dt className="text-muted-foreground">出版日期</dt>
+                      <dd className="font-medium text-foreground">{book.pub_date}</dd>
+                    </div>
+                  )}
+                  {book.price > 0 && (
+                    <div className="flex gap-2">
+                      <dt className="text-muted-foreground">参考价格</dt>
+                      <dd className="font-medium text-foreground">¥ {book.price}</dd>
                     </div>
                   )}
                 </dl>
@@ -270,6 +288,8 @@ export default async function BookDetailPage({ params }: BookDetailPageProps) {
             ownerUid={book.uid}
           />
         </div>
+
+        <ViewStats viewUserNum={data.view_user_num} viewSource={data.view_source} />
 
         <div className="mt-4 text-center">
           <Link

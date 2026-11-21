@@ -13,6 +13,21 @@ export interface Pagination {
   has_more: boolean
 }
 
+export interface ViewSource {
+  Id: number
+  Google: number
+  Baidu: number
+  Bing: number
+  Sogou: number
+  So: number
+  Other: number
+}
+
+export interface ViewStatsData {
+  view_user_num?: number
+  view_source?: ViewSource | null
+}
+
 // ======================== 动态相关 ========================
 // 动态类型常量（与后端 model/comment.go iota 保持一致）
 // TypeTopic=0, TypeArticle=1, TypeResource=2, TypeWiki=3, TypeProject=4, TypeBook=5, TypeInterview=6
@@ -115,7 +130,7 @@ export interface TopicListData extends Pagination {
   tab_list: TopicNode[]
 }
 
-export interface TopicDetailData {
+export interface TopicDetailData extends ViewStatsData {
   topic: Topic
   replies: TopicReply[]
   can_view?: boolean
@@ -172,7 +187,7 @@ export interface ArticleListData {
 }
 
 // 文章详情 API 返回：{ article, article_gctt, read_time, replies, prev_next, subjects }
-export interface ArticleDetailData {
+export interface ArticleDetailData extends ViewStatsData {
   article: Article
   article_gctt?: ArticleGCTT | null
   // 预计阅读分钟数，0 表示不到 1 分钟
@@ -214,7 +229,7 @@ export interface ProjectListData extends Pagination {
   projects: Project[]
 }
 
-export interface ProjectDetailData {
+export interface ProjectDetailData extends ViewStatsData {
   project: Project
   // 后端字段名是 replies（与话题/文章详情一致），非 comments
   replies?: Comment[]
@@ -314,7 +329,7 @@ export interface BookListData extends Pagination {
   books: Book[]
 }
 
-export interface BookDetailData {
+export interface BookDetailData extends ViewStatsData {
   book: Book
   replies?: Comment[]
   likeflag?: number

@@ -535,6 +535,14 @@ export const messageAPI = {
     })
   },
 
+  detail(id: number | string) {
+    return fetchAPI<{
+      message: { id: number; content: string; from: number; ctime: string }
+    }>(`/messages/${encodeURIComponent(id)}`, {
+      credentials: 'include',
+    })
+  },
+
   // 发送私信
   send(toUid: number, content: string) {
     return fetchAPI<{ message: string }>('/messages', {

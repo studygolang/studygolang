@@ -172,6 +172,41 @@ test.describe("发布页面 /publish", () => {
     await expect(page.locator("#author")).toHaveValue("StudyGolang")
   })
 
+  test("图书发布应该提交英文名和目录", async ({ page }) => {
+    let submitted: Record<string, string> | null = null
+    await page.route("**/api/v1/books", async (route) => {
+      const form = new URLSearchParams(route.request().postData() ?? "")
+      submitted = Object.fromEntries(form.entries())
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ code: 0, data: { id: "8" } }),
+      })
+    })
+
+    await page.getByRole("button", { name: "图书", exact: true }).click()
+    await page.locator("#title").fill("Go 语言圣经")
+    await page.locator("#bookEname").fill("The Go Programming Language")
+    await page.locator("#bookAuthor").fill("Alan Donovan")
+    await page.locator("#bookPubDate").fill("2016-01")
+    await page.locator("#bookCatalogue").fill("第一章 入门")
+    await page.locator(".bn-editor").fill("图书简介")
+    const responsePromise = page.waitForResponse(
+      (response) => response.url().endsWith("/api/v1/books") && response.request().method() === "POST"
+    )
+    await page.getByRole("main").locator("[data-publish-btn]").click()
+
+    expect((await responsePromise).ok()).toBe(true)
+    expect(submitted).toMatchObject({
+      name: "Go 语言圣经",
+      ename: "The Go Programming Language",
+      author: "Alan Donovan",
+      pub_date: "2016-01",
+      catalogue: "第一章 入门",
+      desc: "图书简介",
+    })
+  })
+
   test("恢复草稿后应该同步标题和编辑器内容", async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem("draft:topic:new", JSON.stringify({

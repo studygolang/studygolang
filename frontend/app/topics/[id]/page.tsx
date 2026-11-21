@@ -3,6 +3,7 @@ import { cookies } from "next/headers"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { TopicDetail } from "@/components/topic-detail"
+import { ViewStats } from "@/components/view-stats"
 import type { TopicDetailData, TopicAppend } from "@/lib/types"
 
 import { fetchAPI } from "@/lib/api"
@@ -135,6 +136,7 @@ export default async function TopicDetailPage({
         likeflag={data?.likeflag}
         hadcollect={data?.hadcollect}
       />
+      <ViewStats viewUserNum={data?.view_user_num} viewSource={data?.view_source} />
     </PageLayout>
   )
 }

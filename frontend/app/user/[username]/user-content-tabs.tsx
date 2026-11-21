@@ -1,26 +1,37 @@
 "use client"
 
 import { useState } from "react"
-import { MessageSquare, FileText, MessageCircle } from "lucide-react"
+import { MessageSquare, FileText, MessageCircle, Library, FolderGit2 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
-import type { Topic, Article, UserComment } from "@/lib/types"
+import type { Topic, Article, Resource, Project, UserComment } from "@/lib/types"
 import { userAPI } from "@/lib/api"
+import { encodeProjectUri } from "@/lib/utils"
 
 interface UserContentTabsProps {
   username: string
   initialTopics: Topic[]
   initialArticles: Article[]
+  initialResources: Resource[]
+  initialProjects: Project[]
 }
 
 const TABS = [
   { key: "topics", label: "话题", icon: MessageSquare },
   { key: "articles", label: "文章", icon: FileText },
+  { key: "resources", label: "资源", icon: Library },
+  { key: "projects", label: "项目", icon: FolderGit2 },
   { key: "comments", label: "评论", icon: MessageCircle },
 ] as const
 
 type TabKey = (typeof TABS)[number]["key"]
 
-export function UserContentTabs({ username, initialTopics, initialArticles }: UserContentTabsProps) {
+export function UserContentTabs({
+  username,
+  initialTopics,
+  initialArticles,
+  initialResources,
+  initialProjects,
+}: UserContentTabsProps) {
   const [activeTab, setActiveTab] = useState<TabKey>("topics")
   const [comments, setComments] = useState<UserComment[]>([])
   const [loading, setLoading] = useState(false)
@@ -43,7 +54,7 @@ export function UserContentTabs({ username, initialTopics, initialArticles }: Us
   return (
     <div>
       {/* Tab header */}
-      <div className="mb-4 flex gap-1 rounded-lg border border-border bg-muted/50 p-1">
+      <div className="mb-4 flex flex-wrap gap-1 rounded-lg border border-border bg-muted/50 p-1">
         {TABS.map(({ key, label, icon: Icon }) => (
           <button
             key={key}
@@ -110,6 +121,64 @@ export function UserContentTabs({ username, initialTopics, initialArticles }: Us
                   <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
                     {article.viewnum != null && <span>{article.viewnum} 浏览</span>}
                     <span>{article.ctime}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
+      )}
+
+      {activeTab === "resources" && (
+        <div className="space-y-3">
+          {initialResources.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-12 text-center">
+              <Library className="mb-2 h-8 w-8 text-muted-foreground/30" />
+              <p className="text-sm text-muted-foreground">暂无资源</p>
+            </div>
+          ) : (
+            initialResources.map((resource) => (
+              <Card key={resource.id} className="transition-colors hover:border-primary/20">
+                <CardContent className="p-4">
+                  <a
+                    href={`/resources/${resource.id}`}
+                    className="text-sm font-medium text-foreground transition-colors hover:text-primary"
+                  >
+                    {resource.title}
+                  </a>
+                  <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
+                    {resource.catname && <span>{resource.catname}</span>}
+                    <span>{resource.viewnum} 浏览</span>
+                    <span>{resource.ctime}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
+      )}
+
+      {activeTab === "projects" && (
+        <div className="space-y-3">
+          {initialProjects.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-12 text-center">
+              <FolderGit2 className="mb-2 h-8 w-8 text-muted-foreground/30" />
+              <p className="text-sm text-muted-foreground">暂无项目</p>
+            </div>
+          ) : (
+            initialProjects.map((project) => (
+              <Card key={project.id} className="transition-colors hover:border-primary/20">
+                <CardContent className="p-4">
+                  <a
+                    href={`/p/${encodeProjectUri(project.uri || project.id)}`}
+                    className="text-sm font-medium text-foreground transition-colors hover:text-primary"
+                  >
+                    {project.name}
+                  </a>
+                  <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
+                    {project.category && <span>{project.category}</span>}
+                    <span>{project.viewnum} 浏览</span>
+                    <span>{project.ctime}</span>
                   </div>
                 </CardContent>
               </Card>
