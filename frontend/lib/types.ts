@@ -330,11 +330,13 @@ export interface User {
   is_root: boolean
   is_vip: boolean
   open_id: string
-  open: number       // 是否公开个人信息（1=公开，0=不公开）
+  open: number       // 是否公开 Email（1=公开，0=不公开）
   introduce: string  // 个人简介（后端字段名）
   website: string
   city: string
   github: string
+  weibo: string
+  monlog: string
   company: string
   level: number
   balance: number

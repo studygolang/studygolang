@@ -9,6 +9,7 @@ package api
 import (
 	"github.com/studygolang/studygolang/context"
 	"github.com/studygolang/studygolang/internal/logic"
+	"github.com/studygolang/studygolang/internal/model"
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
@@ -85,6 +86,11 @@ func (NodeController) NodeTopics(ctx echo.Context) error {
 	topics := logic.DefaultTopic.FindAll(context.EchoContext(ctx), paginator, "topics.mtime DESC", querystring, nid)
 	total := logic.DefaultTopic.Count(context.EchoContext(ctx), querystring, nid)
 	hasMore := paginator.SetTotal(total).HasMorePage()
+	for _, topic := range topics {
+		if user, _ := topic["user"].(*model.User); user != nil {
+			topic["user"] = sanitizeUserForPublic(user)
+		}
+	}
 
 	return success(ctx, map[string]interface{}{
 		"node":     node,

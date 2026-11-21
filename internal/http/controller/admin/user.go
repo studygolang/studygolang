@@ -78,7 +78,9 @@ func (UserController) Modify(ctx echo.Context) error {
 	if amount > 0 {
 		logic.DefaultUserRich.Recharge(context.EchoContext(ctx), uid, forms)
 	}
-	logic.DefaultUser.AdminUpdateUser(context.EchoContext(ctx), uid, forms)
+	if err := logic.DefaultUser.AdminUpdateUser(context.EchoContext(ctx), uid, forms); err != nil {
+		return fail(ctx, 1, err.Error())
+	}
 
 	return success(ctx, nil)
 }

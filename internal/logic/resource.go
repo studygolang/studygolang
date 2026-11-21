@@ -105,6 +105,7 @@ func (ResourceLogic) Publish(ctx context.Context, me *model.Me, form url.Values)
 			objLog.Errorln("Publish Resource commit error:", err)
 			return
 		}
+		form.Set("id", strconv.Itoa(resource.Id))
 
 		// 发布动态
 		DefaultFeed.publish(resource, resourceEx, me)

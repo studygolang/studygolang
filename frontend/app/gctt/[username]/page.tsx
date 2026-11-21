@@ -91,7 +91,7 @@ export default async function GCTTUserPage({
             </div>
             <div className="rounded-lg border border-border p-3">
               <div className="text-2xl font-bold">
-                {user.avg_time > 0 ? `${user.avg_time}h` : "-"}
+                {user.avg_time > 0 ? `${(user.avg_time / 86400).toFixed(1)} 天/篇` : "-"}
               </div>
               <div className="text-xs text-muted-foreground">平均耗时</div>
             </div>

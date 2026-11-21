@@ -35,7 +35,9 @@ export default function EditProfilePage() {
     city: "",
     company: "",
     github: "",
+    weibo: "",
     website: "",
+    monlog: "",
     introduce: "",
     open: false,
   })
@@ -57,7 +59,9 @@ export default function EditProfilePage() {
           city: data.user.city || "",
           company: data.user.company || "",
           github: data.user.github || "",
+          weibo: data.user.weibo || "",
           website: data.user.website || "",
+          monlog: data.user.monlog || "",
           introduce: data.user.introduce || "",
           open: data.user.open === 1,
         })
@@ -144,7 +148,9 @@ export default function EditProfilePage() {
         city: formData.city,
         company: formData.company,
         github: formData.github,
+        weibo: formData.weibo,
         website: formData.website,
+        monlog: formData.monlog,
         introduce: formData.introduce,
         open: formData.open ? "1" : "0",
       })
@@ -336,6 +342,17 @@ export default function EditProfilePage() {
                     />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="weibo">微博</Label>
+                    <Input
+                      id="weibo"
+                      name="weibo"
+                      type="text"
+                      placeholder="请输入微博账号或地址"
+                      value={formData.weibo}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="website">个人网站</Label>
                     <Input
                       id="website"
@@ -352,6 +369,17 @@ export default function EditProfilePage() {
                     <p className="text-xs text-muted-foreground">
                       必须以 http:// 或 https:// 开头
                     </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="monlog">个性签名</Label>
+                    <Input
+                      id="monlog"
+                      name="monlog"
+                      type="text"
+                      placeholder="请输入个性签名"
+                      value={formData.monlog}
+                      onChange={handleChange}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="introduce">个人简介</Label>
@@ -375,7 +403,7 @@ export default function EditProfilePage() {
                       onCheckedChange={handleCheckboxChange}
                     />
                     <Label htmlFor="open" className="text-sm font-normal cursor-pointer">
-                      公开我的个人资料
+                      公开我的 Email
                     </Label>
                   </div>
                   <Button type="submit" disabled={submitting}>

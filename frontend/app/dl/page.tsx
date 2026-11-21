@@ -43,11 +43,8 @@ async function getDownloads(): Promise<DownloadsData | null> {
   }
 }
 
-function formatSize(bytes: number): string {
-  if (bytes >= 1073741824) return (bytes / 1073741824).toFixed(1) + " GB"
-  if (bytes >= 1048576) return (bytes / 1048576).toFixed(1) + " MB"
-  if (bytes >= 1024) return (bytes / 1024).toFixed(1) + " KB"
-  return bytes + " B"
+function formatSize(size: number): string {
+  return `${size} MB`
 }
 
 function DownloadTable({ downloads }: { downloads: GoDownload[] }) {
@@ -177,7 +174,7 @@ export default async function DownloadPage() {
             查看归档版本（{data.archived_versions.length} 个版本）
           </summary>
           <div className="mt-3 space-y-4">
-            {data.archived_versions.slice(0, 10).map((version) => (
+            {data.archived_versions.map((version) => (
               <Card key={version}>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm">{version}</CardTitle>

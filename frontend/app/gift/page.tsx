@@ -41,8 +41,9 @@ interface ExchangeRecord {
 }
 
 // 兑换码/履约说明存在 remark 里，是用户兑换后真正要拿到的东西
-function exchangeLabel(gift: Gift): string {
+function exchangeLabel(gift: Gift, isLoggedIn: boolean): string {
   if (gift.remain_num <= 0) return "已兑完"
+  if (!isLoggedIn) return "登录后兑换"
   if (gift.buy_limit <= 0) return "已达上限"
   if (!gift.can_exchange) return "积分不足"
   return "兑换"
@@ -62,13 +63,6 @@ export default function GiftPage() {
   const [tab, setTab] = useState<"list" | "mine">("list")
   const [exchanging, setExchanging] = useState<number | null>(null)
   const [confirmGift, setConfirmGift] = useState<Gift | null>(null)
-
-  useEffect(() => {
-    if (authLoading) return
-    if (!isLoggedIn) {
-      router.replace("/account/login?redirect=/gift")
-    }
-  }, [isLoggedIn, authLoading, router])
 
   const loadData = useCallback(() => {
     setLoading(true)
@@ -129,7 +123,14 @@ export default function GiftPage() {
           礼品列表
         </button>
         <button
-          onClick={() => setTab("mine")}
+          onClick={() => {
+            if (authLoading) return
+            if (!isLoggedIn) {
+              router.push("/account/login?redirect=/gift")
+              return
+            }
+            setTab("mine")
+          }}
           className={`rounded-md px-4 py-2 text-sm font-medium ${
             tab === "mine" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"
           }`}
@@ -170,10 +171,25 @@ export default function GiftPage() {
                     </div>
                     <Button
                       size="sm"
-                      onClick={() => setConfirmGift(gift)}
-                      disabled={!gift.can_exchange || exchanging === gift.id}
+                      onClick={() => {
+                        if (!isLoggedIn) {
+                          router.push("/account/login?redirect=/gift")
+                          return
+                        }
+                        setConfirmGift(gift)
+                      }}
+                      disabled={
+                        authLoading ||
+                        gift.remain_num <= 0 ||
+                        (isLoggedIn && !gift.can_exchange) ||
+                        exchanging === gift.id
+                      }
                     >
-                      {exchanging === gift.id ? "兑换中..." : exchangeLabel(gift)}
+                      {exchanging === gift.id
+                        ? "兑换中..."
+                        : authLoading
+                          ? "加载中..."
+                          : exchangeLabel(gift, isLoggedIn)}
                     </Button>
                   </div>
                 </CardContent>

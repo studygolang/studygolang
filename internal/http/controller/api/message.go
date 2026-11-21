@@ -14,6 +14,7 @@ import (
 	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/internal/http"
 	"github.com/studygolang/studygolang/internal/logic"
+	"github.com/studygolang/studygolang/internal/model"
 
 	echo "github.com/labstack/echo/v4"
 )
@@ -35,7 +36,7 @@ func (MessageController) List(ctx echo.Context) error {
 		return fail(ctx, "未登录", NeedReLoginCode)
 	}
 
-	uid, err := parseAuthUID(ctx)
+	uid, err := parseActiveAuthUID(ctx)
 	if err != nil {
 		return err
 	}
@@ -70,6 +71,11 @@ func (MessageController) List(ctx echo.Context) error {
 		messages = logic.DefaultMessage.FindFromMsgsByUid(context.EchoContext(ctx), uid, paginator)
 		total = logic.DefaultMessage.FromMsgCount(context.EchoContext(ctx), uid)
 	}
+	for _, message := range messages {
+		if user, _ := message["user"].(*model.User); user != nil {
+			message["user"] = sanitizeUserForPublic(user)
+		}
+	}
 
 	return success(ctx, map[string]interface{}{
 		"messages": messages,
@@ -81,8 +87,8 @@ func (MessageController) List(ctx echo.Context) error {
 
 // sendRequest 发送私信请求体
 type sendRequest struct {
-	To      int    `json:"to"`
-	Content string `json:"content"`
+	To      int    `json:"to" form:"to"`
+	Content string `json:"content" form:"content"`
 }
 
 // Send 发送私信（支持 Cookie 和 X-Token header）
@@ -192,7 +198,7 @@ func (MessageController) Delete(ctx echo.Context) error {
 // GET /api/v1/messages/unread-count
 // 返回 { code, data: { system, inbox }, message }
 func (MessageController) UnreadCount(ctx echo.Context) error {
-	uid, err := parseAuthUID(ctx)
+	uid, err := parseActiveAuthUID(ctx)
 	if err != nil {
 		return err
 	}

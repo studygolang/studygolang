@@ -238,7 +238,7 @@ export const resourceAPI = {
   },
 
   getCategories(fetchOptions?: RequestInit) {
-    return fetchAPI<{ categories: Array<{ id: number; name: string }> }>('/resources/categories', fetchOptions)
+    return fetchAPI<{ categories: Array<{ catid: number; name: string }> }>('/resources/categories', fetchOptions)
   },
 }
 
@@ -318,7 +318,9 @@ export const userAPI = {
     city?: string
     company?: string
     github?: string
+    weibo?: string
     website?: string
+    monlog?: string
     introduce?: string
     open?: string
   }) {
@@ -1144,13 +1146,13 @@ export const giftAPI = {
 
   // 我的礼物
   mine(fetchOptions?: RequestInit) {
-    return fetchAPI<{ gifts: any[] }>('/gift/mine', fetchOptions)
+    return fetchAPI<{ records: any[] }>('/gift/mine', fetchOptions)
   },
 
   // 兑换礼物（需要登录）
   exchange(gid: number) {
     const form = new URLSearchParams()
-    form.set('gid', String(gid))
+    form.set('gift_id', String(gid))
     return fetchAPI<{ message: string }>('/gift/exchange', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

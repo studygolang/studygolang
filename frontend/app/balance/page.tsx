@@ -10,12 +10,15 @@ import Link from "next/link"
 import { fetchAPI, needRelogin } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
+import { SafeHtml } from "@/components/safe-html"
 
 interface BalanceDetail {
   id: number
   desc: string
+  type_show: string
   num: number
-  ctime: string
+  balance: number
+  created_at: string
 }
 
 interface InitialMission {
@@ -173,13 +176,22 @@ export default function BalancePage() {
                           )}
                         </div>
                         <div>
-                          <p className="text-sm font-medium">{item.desc}</p>
-                          <p className="text-xs text-muted-foreground">{item.ctime}</p>
+                          <p className="text-sm font-medium">{item.type_show}</p>
+                          <p className="text-xs text-muted-foreground">{item.created_at}</p>
+                          {item.desc && (
+                            <SafeHtml
+                              html={item.desc}
+                              className="text-xs text-muted-foreground [&_a]:text-primary [&_a]:hover:underline"
+                            />
+                          )}
                         </div>
                       </div>
-                      <span className={`text-sm font-semibold ${item.num > 0 ? "text-green-600" : "text-red-600"}`}>
-                        {item.num > 0 ? `+${item.num}` : item.num}
-                      </span>
+                      <div className="text-right">
+                        <p className={`text-sm font-semibold ${item.num > 0 ? "text-green-600" : "text-red-600"}`}>
+                          {item.num > 0 ? `+${item.num}` : item.num}
+                        </p>
+                        <p className="text-xs text-muted-foreground">余额 {item.balance}</p>
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -160,7 +160,7 @@ func getNextFloorWithLock(objid, objtype int, key string, ttl int) (int, error) 
 
 	if err != nil {
 		logger.Errorln("GetNextCommentFloor: database query failed:", err)
-		return 1, nil // 默认从 1 开始
+		return 0, err
 	}
 
 	nextFloor := tmpCmt.Floor + 1

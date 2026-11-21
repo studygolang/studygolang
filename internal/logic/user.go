@@ -770,8 +770,11 @@ func (UserLogic) FindUserByPage(ctx context.Context, conds map[string]string, cu
 	return userList, int(total)
 }
 
-func (self UserLogic) AdminUpdateUser(ctx context.Context, uid string, form url.Values) {
+func (self UserLogic) AdminUpdateUser(ctx context.Context, uid string, form url.Values) error {
 	user := self.FindOne(ctx, "uid", uid)
+	if user == nil || user.Uid == 0 {
+		return errors.New("用户不存在")
+	}
 	user.DauAuth = 0
 
 	for k := range form {
@@ -798,7 +801,14 @@ func (self UserLogic) AdminUpdateUser(ctx context.Context, uid string, form url.
 	user.IsVip = goutils.MustBool(form.Get("is_vip"), false)
 	user.VipExpire = goutils.MustInt(form.Get("vip_expire"))
 
-	MasterDB.ID(user.Uid).UseBool("is_vip").Update(user)
+	if _, err := MasterDB.ID(user.Uid).UseBool("is_vip").Update(user); err != nil {
+		GetLogger(ctx).Errorln("AdminUpdateUser error:", err)
+		return err
+	}
+	if err := InvalidateUserCache(user.Uid); err != nil {
+		GetLogger(ctx).Errorln("AdminUpdateUser invalidate cache error:", err)
+	}
+	return nil
 }
 
 // GetUserMentions 获取 @ 的 suggest 列表

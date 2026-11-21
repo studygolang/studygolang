@@ -8,6 +8,7 @@ package logic
 
 import (
 	"net/url"
+	"strconv"
 	"time"
 
 	. "github.com/studygolang/studygolang/db"
@@ -71,6 +72,9 @@ func (self GoBookLogic) Publish(ctx context.Context, user *model.Me, form url.Va
 
 	if affected == 0 {
 		return
+	}
+	if !isModify {
+		form.Set("id", strconv.Itoa(book.Id))
 	}
 
 	if isModify {

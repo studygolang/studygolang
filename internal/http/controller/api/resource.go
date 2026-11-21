@@ -44,7 +44,7 @@ func (ResourceController) List(ctx echo.Context) error {
 	order := resolveResourceOrder(sort)
 
 	var (
-		resources interface{}
+		resources []map[string]interface{}
 		total     int64
 	)
 
@@ -55,6 +55,11 @@ func (ResourceController) List(ctx echo.Context) error {
 	}
 
 	hasMore := paginator.SetTotal(total).HasMorePage()
+	for _, resource := range resources {
+		if owner, _ := resource["user"].(*model.User); owner != nil {
+			resource["user"] = sanitizeUserForPublic(owner)
+		}
+	}
 
 	return success(ctx, map[string]interface{}{
 		"resources": resources,
@@ -221,9 +226,9 @@ func (ResourceController) Detail(ctx echo.Context) error {
 		resource["user"] = sanitizeUserForPublic(owner)
 	}
 
-	me, ok := ctx.Get("user").(*model.Me)
+	me := optionalAuth(ctx)
 	viewerUID := 0
-	if ok {
+	if me != nil {
 		viewerUID = me.Uid
 	}
 
@@ -234,7 +239,7 @@ func (ResourceController) Detail(ctx echo.Context) error {
 		"comments": normalizeReplies(ctx, comments, viewerUID),
 	}
 
-	if ok {
+	if me != nil {
 		result["likeflag"] = logic.DefaultLike.HadLike(context.EchoContext(ctx), me.Uid, id, model.TypeResource)
 		result["hadcollect"] = logic.DefaultFavorite.HadFavorite(context.EchoContext(ctx), me.Uid, id, model.TypeResource)
 

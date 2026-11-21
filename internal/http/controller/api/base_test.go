@@ -218,3 +218,40 @@ func TestCheckNewUserWait(t *testing.T) {
 		t.Errorf("超过等待期应放行，got %v", err)
 	}
 }
+
+func TestIsVIPActive(t *testing.T) {
+	now := time.Date(2026, time.November, 19, 12, 0, 0, 0, time.Local)
+	tests := []struct {
+		name      string
+		isVip     bool
+		vipExpire int
+		want      bool
+	}{
+		{name: "expires today", isVip: true, vipExpire: 20261119, want: true},
+		{name: "expires in future", isVip: true, vipExpire: 20261120, want: true},
+		{name: "expired", isVip: true, vipExpire: 20261118, want: false},
+		{name: "not vip", isVip: false, vipExpire: 20261120, want: false},
+		{name: "legacy vip without expiry", isVip: true, vipExpire: 0, want: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := isVIPActive(tt.isVip, tt.vipExpire, now); got != tt.want {
+				t.Errorf("isVIPActive() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSanitizeUserForPublic(t *testing.T) {
+	privateUser := &model.User{Email: "private@example.com", Open: 0}
+	sanitizeUserForPublic(privateUser)
+	if privateUser.Email != "" {
+		t.Fatalf("private email = %q, want empty", privateUser.Email)
+	}
+
+	publicUser := &model.User{Email: "public@example.com", Open: 1}
+	sanitizeUserForPublic(publicUser)
+	if publicUser.Email != "public@example.com" {
+		t.Fatalf("public email = %q, want preserved", publicUser.Email)
+	}
+}

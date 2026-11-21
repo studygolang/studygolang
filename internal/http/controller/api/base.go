@@ -297,6 +297,11 @@ func oauthBindUser(ctx echo.Context) *model.Me {
 	return me
 }
 
+func isVIPActive(isVip bool, vipExpire int, now time.Time) bool {
+	today, _ := strconv.Atoi(now.Format("20060102"))
+	return isVip && vipExpire >= today
+}
+
 // meFromToken 解析 token 得到当前用户，不做状态校验、不写错误响应。
 // 状态策略由调用方决定（optionalAuth / oauthBindUser）。
 func meFromToken(ctx echo.Context) *model.Me {
@@ -323,7 +328,7 @@ func meFromToken(ctx echo.Context) *model.Me {
 		Email:    userInfo.Email,
 		IsRoot:   userInfo.IsRoot,
 		IsAdmin:  userInfo.IsAdmin,
-		IsVip:    userInfo.IsVip,
+		IsVip:    isVIPActive(userInfo.IsVip, userInfo.VipExpire, time.Now()),
 		Balance:  userInfo.Balance,
 		Status:   userInfo.Status,
 	}
@@ -349,6 +354,7 @@ func fetchFullUserInfo(ctx echo.Context, uid int) *logic.UserInfoCache {
 		IsRoot:    user.IsRoot,
 		IsAdmin:   logic.DefaultUser.IsAdmin(user),
 		IsVip:     user.IsVip,
+		VipExpire: user.VipExpire,
 		Avatar:    user.Avatar,
 		Balance:   user.Balance,
 		Status:    user.Status,
@@ -426,7 +432,7 @@ func requireAuth(ctx echo.Context) (*model.Me, error) {
 		Username: userInfo.Username,
 		IsRoot:   userInfo.IsRoot,
 		IsAdmin:  userInfo.IsAdmin,
-		IsVip:    userInfo.IsVip,
+		IsVip:    isVIPActive(userInfo.IsVip, userInfo.VipExpire, time.Now()),
 		Balance:  userInfo.Balance,
 		Status:   userInfo.Status,
 	}, nil

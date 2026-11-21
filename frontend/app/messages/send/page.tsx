@@ -22,7 +22,6 @@ export default function MessageSendPage() {
   const { isLoggedIn, isLoading: authLoading } = useAuth()
   const [loading, setLoading] = useState(true)
   const [toUsername, setToUsername] = useState("")
-  const [toUid, setToUid] = useState<number | null>(null)
   const [users, setUsers] = useState<UserOption[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [content, setContent] = useState("")
@@ -57,25 +56,13 @@ export default function MessageSendPage() {
   function selectUser(user: UserOption) {
     setToUsername(user.username)
     setShowSuggestions(false)
-    // 查找 uid（通过用户名搜索）
-    fetchUidByUsername(user.username)
-  }
-
-  async function fetchUidByUsername(username: string) {
-    try {
-      const data = await userAPI.getProfile(username)
-      if (data?.user?.uid) {
-        setToUid(data.user.uid)
-      }
-    } catch {
-      toast.error("无法获取用户信息")
-    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    if (!toUid) {
+    const username = toUsername.trim()
+    if (!username) {
       toast.error("请选择收件人")
       return
     }
@@ -87,7 +74,12 @@ export default function MessageSendPage() {
     setSubmitting(true)
 
     try {
-      await messageAPI.send(toUid, content)
+      const data = await userAPI.getProfile(username)
+      if (!data?.user?.uid) {
+        toast.error("收件人不存在")
+        return
+      }
+      await messageAPI.send(data.user.uid, content.trim())
       toast.success("私信发送成功")
       router.back()
     } catch (err: any) {
@@ -183,7 +175,7 @@ export default function MessageSendPage() {
               <Button
                 type="submit"
                 size="sm"
-                disabled={submitting || !toUid || !content.trim()}
+                disabled={submitting || !toUsername.trim() || !content.trim()}
                 className="gap-1.5"
               >
                 {submitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}

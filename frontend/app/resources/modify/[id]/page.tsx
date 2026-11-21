@@ -37,7 +37,7 @@ export default function ResourceModifyPage() {
   const [form, setForm] = useState("")
 
   // 分类列表
-  const [categories, setCategories] = useState<Array<{ id: number; name: string }>>([])
+  const [categories, setCategories] = useState<Array<{ catid: number; name: string }>>([])
 
   useEffect(() => {
     if (authLoading) return
@@ -56,11 +56,11 @@ export default function ResourceModifyPage() {
     } catch {
       // 忽略错误，使用默认分类
       setCategories([
-        { id: 1, name: "Go语言" },
-        { id: 2, name: "Web开发" },
-        { id: 3, name: "工具" },
-        { id: 4, name: "教程" },
-        { id: 5, name: "其他" },
+        { catid: 1, name: "Go语言" },
+        { catid: 2, name: "Web开发" },
+        { catid: 3, name: "工具" },
+        { catid: 4, name: "教程" },
+        { catid: 5, name: "其他" },
       ])
     }
   }
@@ -157,7 +157,7 @@ export default function ResourceModifyPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={String(cat.id)}>
+                      <SelectItem key={cat.catid} value={String(cat.catid)}>
                         {cat.name}
                       </SelectItem>
                     ))}

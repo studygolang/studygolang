@@ -10,6 +10,7 @@ import (
 	"net/mail"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/studygolang/studygolang/context"
 	. "github.com/studygolang/studygolang/internal/http"
@@ -45,7 +46,9 @@ type updateProfileRequest struct {
 	City      string `json:"city"`
 	Company   string `json:"company"`
 	Github    string `json:"github"`
+	Weibo     string `json:"weibo"`
 	Website   string `json:"website"`
+	Monlog    string `json:"monlog"`
 	Introduce string `json:"introduce"`
 	Open      string `json:"open"` // "1" 或 "0"
 }
@@ -92,7 +95,7 @@ func (UserProfileController) Me(ctx echo.Context) error {
 		Status:   user.Status,
 		IsRoot:   user.IsRoot,
 		IsAdmin:  logic.DefaultUser.IsAdmin(user),
-		IsVip:    user.IsVip,
+		IsVip:    isVIPActive(user.IsVip, user.VipExpire, time.Now()),
 		Balance:  user.Balance,
 		Gold:     user.Gold,
 		Silver:   user.Silver,
@@ -256,7 +259,9 @@ func (UserProfileController) UpdateProfile(ctx echo.Context) error {
 	form.Set("city", req.City)
 	form.Set("company", req.Company)
 	form.Set("github", req.Github)
+	form.Set("weibo", req.Weibo)
 	form.Set("website", req.Website)
+	form.Set("monlog", req.Monlog)
 	form.Set("introduce", req.Introduce)
 	form.Set("open", req.Open)
 

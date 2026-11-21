@@ -33,6 +33,7 @@ type UserInfoCache struct {
 	Email     string    `json:"email"`
 	IsRoot    bool      `json:"is_root"`
 	IsVip     bool      `json:"is_vip"`
+	VipExpire int       `json:"vip_expire"`
 	IsAdmin   bool      `json:"is_admin"`
 	Avatar    string    `json:"avatar"`
 	Balance   int       `json:"balance"`
