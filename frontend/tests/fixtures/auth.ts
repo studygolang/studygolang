@@ -6,7 +6,7 @@ export const TEST_USER = {
   email: "testuser@example.com",
 }
 
-/** 通过 localStorage 模拟已登录状态（无需真实网络请求） */
+/** 模拟当前 Cookie 会话对应的登录用户（无需真实网络请求） */
 export async function mockLogin(page: Page, username = TEST_USER.username) {
   await page.addInitScript(
     ({ username }) => {
@@ -16,6 +16,32 @@ export async function mockLogin(page: Page, username = TEST_USER.username) {
     },
     { username }
   )
+  await page.route("**/api/v1/user/me", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        code: 0,
+        data: {
+          user: {
+            uid: 999,
+            username,
+            name: username,
+            is_root: false,
+            is_vip: true,
+            balance: 100,
+          },
+        },
+      }),
+    })
+  })
+  await page.route("**/api/v1/interviews/today", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ code: 0, data: { question: null } }),
+    })
+  })
 }
 
 /** 清除登录状态 */

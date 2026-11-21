@@ -120,6 +120,10 @@ func (ResourceController) Publish(ctx echo.Context) error {
 	if form != model.LinkForm && form != model.ContentForm {
 		return fail(ctx, "资源类型不合法")
 	}
+	catid := goutils.MustInt(forms.Get("catid"))
+	if catid <= 0 || logic.GetCategoryName(catid) == "" {
+		return fail(ctx, "请选择有效的资源分类")
+	}
 	// 链接类型需要 url，内容类型需要 content
 	if form == model.LinkForm && forms.Get("url") == "" {
 		return fail(ctx, "链接类型资源需要填写 URL")
@@ -200,6 +204,10 @@ func (ResourceController) Update(ctx echo.Context) error {
 
 	forms, _ := ctx.FormParams()
 	forms.Set("id", strconv.Itoa(resource.Id))
+	catid := goutils.MustInt(forms.Get("catid"))
+	if catid <= 0 || logic.GetCategoryName(catid) == "" {
+		return fail(ctx, "请选择有效的资源分类")
+	}
 
 	err = logic.DefaultResource.Publish(context.EchoContext(ctx), me, forms)
 	if err != nil {

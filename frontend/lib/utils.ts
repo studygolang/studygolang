@@ -1,8 +1,19 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { marked } from 'marked'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
+}
+
+export function markdownToPlainText(markdown: string): string {
+  const html = marked.parse(markdown, { async: false })
+  const body = new DOMParser().parseFromString(html, "text/html").body
+  return (body.textContent || "")
+    .replace(/\u00a0/g, " ")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n\s*\n+/g, "\n")
+    .trim()
 }
 
 /**

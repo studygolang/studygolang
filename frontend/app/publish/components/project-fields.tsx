@@ -13,6 +13,8 @@ import {
 interface ProjectFieldsProps {
   src: string
   setSrc: (src: string) => void
+  uri: string
+  setUri: (uri: string) => void
   category: string
   setCategory: (category: string) => void
   lang: string
@@ -21,6 +23,12 @@ interface ProjectFieldsProps {
   setHome: (home: string) => void
   doc: string
   setDoc: (doc: string) => void
+  download: string
+  setDownload: (download: string) => void
+  logo: string
+  setLogo: (logo: string) => void
+  author: string
+  setAuthor: (author: string) => void
   licence: string
   setLicence: (licence: string) => void
   os: string
@@ -30,6 +38,8 @@ interface ProjectFieldsProps {
 export function ProjectFields({
   src,
   setSrc,
+  uri,
+  setUri,
   category,
   setCategory,
   lang,
@@ -38,6 +48,12 @@ export function ProjectFields({
   setHome,
   doc,
   setDoc,
+  download,
+  setDownload,
+  logo,
+  setLogo,
+  author,
+  setAuthor,
   licence,
   setLicence,
   os,
@@ -59,10 +75,21 @@ export function ProjectFields({
         />
       </div>
 
+      <div className="space-y-1.5">
+        <Label htmlFor="uri" className="text-sm font-medium">个性 URI</Label>
+        <Input
+          id="uri"
+          placeholder="留空则根据项目名称生成"
+          value={uri}
+          onChange={(e) => setUri(e.target.value)}
+          className="h-10"
+        />
+      </div>
+
       {/* 项目分类 + 开发语言 */}
-      <div className="flex gap-4">
-        <div className="flex-1 space-y-1.5">
-          <Label htmlFor="category" className="text-sm font-medium">项目分类</Label>
+      <div className="flex flex-col gap-4 sm:flex-row">
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <Label htmlFor="category" className="text-sm font-medium">项目分类 <span className="text-destructive">*</span></Label>
           <Input
             id="category"
             placeholder="例如：Web框架、CLI工具"
@@ -71,8 +98,8 @@ export function ProjectFields({
             className="h-10"
           />
         </div>
-        <div className="flex-1 space-y-1.5">
-          <Label htmlFor="lang" className="text-sm font-medium">开发语言</Label>
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <Label htmlFor="lang" className="text-sm font-medium">开发语言 <span className="text-destructive">*</span></Label>
           <Select value={lang} onValueChange={setLang}>
             <SelectTrigger className="h-10">
               <SelectValue placeholder="选择语言" />
@@ -93,9 +120,9 @@ export function ProjectFields({
       </div>
 
       {/* 项目主页 + 文档地址 */}
-      <div className="flex gap-4">
-        <div className="flex-1 space-y-1.5">
-          <Label htmlFor="home" className="text-sm font-medium">项目主页</Label>
+      <div className="flex flex-col gap-4 sm:flex-row">
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <Label htmlFor="home" className="text-sm font-medium">项目主页 <span className="text-destructive">*</span></Label>
           <Input
             id="home"
             placeholder="https://example.com"
@@ -104,8 +131,8 @@ export function ProjectFields({
             className="h-10"
           />
         </div>
-        <div className="flex-1 space-y-1.5">
-          <Label htmlFor="doc" className="text-sm font-medium">文档地址</Label>
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <Label htmlFor="doc" className="text-sm font-medium">文档地址 <span className="text-destructive">*</span></Label>
           <Input
             id="doc"
             placeholder="https://docs.example.com"
@@ -116,9 +143,43 @@ export function ProjectFields({
         </div>
       </div>
 
+      <div className="flex flex-col gap-4 sm:flex-row">
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <Label htmlFor="download" className="text-sm font-medium">下载地址</Label>
+          <Input
+            id="download"
+            placeholder="https://example.com/download"
+            value={download}
+            onChange={(e) => setDownload(e.target.value)}
+            className="h-10"
+          />
+        </div>
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <Label htmlFor="logo" className="text-sm font-medium">Logo URL</Label>
+          <Input
+            id="logo"
+            placeholder="https://example.com/logo.png"
+            value={logo}
+            onChange={(e) => setLogo(e.target.value)}
+            className="h-10"
+          />
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="author" className="text-sm font-medium">作者</Label>
+        <Input
+          id="author"
+          placeholder="项目作者或组织"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          className="h-10"
+        />
+      </div>
+
       {/* 开源协议 + 操作系统 */}
-      <div className="flex gap-4">
-        <div className="flex-1 space-y-1.5">
+      <div className="flex flex-col gap-4 sm:flex-row">
+        <div className="min-w-0 flex-1 space-y-1.5">
           <Label htmlFor="licence" className="text-sm font-medium">开源协议</Label>
           <Select value={licence} onValueChange={setLicence}>
             <SelectTrigger className="h-10">
@@ -134,7 +195,7 @@ export function ProjectFields({
             </SelectContent>
           </Select>
         </div>
-        <div className="flex-1 space-y-1.5">
+        <div className="min-w-0 flex-1 space-y-1.5">
           <Label htmlFor="os" className="text-sm font-medium">操作系统</Label>
           <Select value={os} onValueChange={setOs}>
             <SelectTrigger className="h-10">

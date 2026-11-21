@@ -94,6 +94,8 @@ function PublishContent() {
               <ProjectFields
                 src={publishState.src}
                 setSrc={publishState.setSrc}
+                uri={publishState.uri}
+                setUri={publishState.setUri}
                 category={publishState.category}
                 setCategory={publishState.setCategory}
                 lang={publishState.lang}
@@ -102,6 +104,12 @@ function PublishContent() {
                 setHome={publishState.setHome}
                 doc={publishState.doc}
                 setDoc={publishState.setDoc}
+                download={publishState.download}
+                setDownload={publishState.setDownload}
+                logo={publishState.logo}
+                setLogo={publishState.setLogo}
+                author={publishState.author}
+                setAuthor={publishState.setAuthor}
                 licence={publishState.licence}
                 setLicence={publishState.setLicence}
                 os={publishState.os}
@@ -116,6 +124,9 @@ function PublishContent() {
                 setResourceForm={publishState.setResourceForm}
                 resourceUrl={publishState.resourceUrl}
                 setResourceUrl={publishState.setResourceUrl}
+                resourceCatid={publishState.resourceCatid}
+                setResourceCatid={publishState.setResourceCatid}
+                categories={publishState.resourceCategories}
               />
             )}
 
@@ -146,7 +157,7 @@ function PublishContent() {
             )}
 
             {/* 节点 + 标签（并排） */}
-            <div className="flex gap-4">
+            <div className="flex flex-col gap-4 md:flex-row">
               {/* 节点（仅话题类型显示） */}
               {publishState.contentType === "topic" && (
                 <TopicFields

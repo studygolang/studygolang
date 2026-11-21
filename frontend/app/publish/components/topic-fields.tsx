@@ -54,7 +54,7 @@ export function TopicFields({
 
   return (
     <>
-    <div className="w-56 space-y-1.5">
+    <div className="w-full space-y-1.5 md:w-56 md:shrink-0">
       <Label htmlFor="nid" className="text-sm font-medium">
         节点 <span className="text-destructive">*</span>
       </Label>
@@ -108,7 +108,7 @@ export function TopicFields({
     </div>
 
     {/* 可见性：与旧版 template/topics/new.html 一致，付费可见仅 root/VIP 可选 */}
-    <div className="w-56 space-y-1.5">
+    <div className="w-full space-y-1.5 md:w-56 md:shrink-0">
       <Label htmlFor="permission" className="text-sm font-medium">
         可见性
       </Label>

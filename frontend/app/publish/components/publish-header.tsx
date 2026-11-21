@@ -26,14 +26,14 @@ interface PublishHeaderProps {
 
 export function PublishHeader({ contentType, onContentTypeChange }: PublishHeaderProps) {
   return (
-    <div className="mb-6 flex items-center justify-between">
+    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h1 className="text-xl font-semibold text-foreground">发布内容</h1>
         <p className="mt-1 text-sm text-muted-foreground">与社区分享你的知识和发现</p>
       </div>
 
       {/* 内容类型选择 - 紧凑的标签页样式 */}
-      <div className="flex items-center gap-1 rounded-lg border border-border bg-muted/50 p-1">
+      <div className="flex flex-wrap items-center gap-1 rounded-lg border border-border bg-muted/50 p-1">
         {CONTENT_TYPES.map(({ type, icon, label }) => (
           <button
             key={type}

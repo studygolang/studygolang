@@ -128,6 +128,19 @@ func (TopicController) NodeTopics(ctx echo.Context) error {
 	})
 }
 
+func canViewTopic(permission, ownerUID int, me *model.Me) bool {
+	switch permission {
+	case model.PermissionOnlyMe:
+		return me != nil && (me.Uid == ownerUID || me.IsRoot)
+	case model.PermissionLogin:
+		return me != nil
+	case model.PermissionPay:
+		return me != nil && (me.IsVip || me.IsRoot || me.Uid == ownerUID)
+	default:
+		return true
+	}
+}
+
 // Detail 话题详情，增加浏览量
 func (TopicController) Detail(ctx echo.Context) error {
 	tid := goutils.MustInt(ctx.Param("tid"))
@@ -158,27 +171,19 @@ func (TopicController) Detail(ctx echo.Context) error {
 	// 内容可见性：master 用模板 can_view 标志位控制 content + replies 渲染，
 	// refactor 改 JSON 后必须显式屏蔽 content 与 replies，否则未授权用户仍能读到
 	// 评论（虽然话题正文被替换为占位文案）。
-	hideReplies := false
-	switch permission {
-	case model.PermissionOnlyMe:
-		// 仅作者和管理员可见
-		if !ok || (uid != me.Uid && !me.IsRoot) {
-			return fail(ctx, "话题不存在")
-		}
-	case model.PermissionLogin:
-		if !ok {
-			topic["content"] = "登录用户可见！"
-			hideReplies = true
-		}
-	case model.PermissionPay:
-		if !ok || (!me.IsVip && !me.IsRoot && uid != me.Uid) {
-			topic["content"] = "付费用户可见！"
-			hideReplies = true
-		}
+	canView := canViewTopic(permission, uid, me)
+	if permission == model.PermissionOnlyMe && !canView {
+		return fail(ctx, "话题不存在")
 	}
 
+	hideReplies := !canView
 	if hideReplies {
 		replies = nil
+		if permission == model.PermissionLogin {
+			topic["content"] = "登录用户可见！"
+		} else if permission == model.PermissionPay {
+			topic["content"] = "付费用户可见！"
+		}
 	}
 
 	// 已登录用户的附加信息
@@ -187,8 +192,9 @@ func (TopicController) Detail(ctx echo.Context) error {
 		viewerUID = me.Uid
 	}
 	result := map[string]interface{}{
-		"topic":   topic,
-		"replies": normalizeReplies(ctx, replies, viewerUID),
+		"topic":    topic,
+		"replies":  normalizeReplies(ctx, replies, viewerUID),
+		"can_view": canView,
 	}
 
 	if ok {
@@ -213,12 +219,7 @@ func (TopicController) Detail(ctx echo.Context) error {
 		logic.Views.Incr(Request(ctx), model.TypeTopic, tid)
 	}
 
-	// 附言：公开、登录可见且已登录、付费且已满足条件
-	canViewAppends := permission == model.PermissionPublic ||
-		(permission == model.PermissionLogin && ok) ||
-		(permission == model.PermissionPay && ok && (me.IsVip || me.IsRoot || uid == me.Uid)) ||
-		permission == model.PermissionOnlyMe
-	if canViewAppends {
+	if canView {
 		result["appends"] = logic.DefaultTopic.FindAppend(context.EchoContext(ctx), tid)
 	}
 
@@ -446,22 +447,13 @@ func (TopicController) Appends(ctx echo.Context) error {
 	permission, _ := topic["permission"].(int)
 	ownerUID, _ := topic["uid"].(int)
 
-	me, ok := ctx.Get("user").(*model.Me)
-
-	// 与 Detail 中的可见性判断完全对齐
-	switch permission {
-	case model.PermissionOnlyMe:
-		if !ok || (ownerUID != me.Uid && !me.IsRoot) {
-			return fail(ctx, "话题不存在")
-		}
-	case model.PermissionLogin:
-		if !ok {
-			return success(ctx, map[string]interface{}{"appends": []*model.TopicAppend{}})
-		}
-	case model.PermissionPay:
-		if !ok || (!me.IsVip && !me.IsRoot && ownerUID != me.Uid) {
-			return success(ctx, map[string]interface{}{"appends": []*model.TopicAppend{}})
-		}
+	me, _ := ctx.Get("user").(*model.Me)
+	canView := canViewTopic(permission, ownerUID, me)
+	if permission == model.PermissionOnlyMe && !canView {
+		return fail(ctx, "话题不存在")
+	}
+	if !canView {
+		return success(ctx, map[string]interface{}{"appends": []*model.TopicAppend{}})
 	}
 
 	appends := logic.DefaultTopic.FindAppend(context.EchoContext(ctx), tid)

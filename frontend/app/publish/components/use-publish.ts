@@ -2,7 +2,8 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import type { TopicNode } from "@/lib/types"
 import { loadDraft, clearDraft, draftKey, type DraftData } from "@/lib/draft"
-import { encodeProjectUri, extractMentionedUsernames } from "@/lib/utils"
+import { encodeProjectUri, extractMentionedUsernames, markdownToPlainText } from "@/lib/utils"
+import { resourceAPI } from "@/lib/api"
 
 // 客户端组件使用相对路径，通过 next.config.mjs 中的 rewrites 代理到后端
 const API_BASE = ""
@@ -83,10 +84,13 @@ export function usePublish({ initialType }: UsePublishProps) {
 
   // 项目特定字段
   const [src, setSrc] = useState("")
+  const [uri, setUri] = useState("")
   const [category, setCategory] = useState("")
   const [home, setHome] = useState("")
   const [doc, setDoc] = useState("")
   const [download, setDownload] = useState("")
+  const [logo, setLogo] = useState("")
+  const [author, setAuthor] = useState("")
   const [licence, setLicence] = useState("")
   const [lang, setLang] = useState("Go")
   const [os, setOs] = useState("")
@@ -95,6 +99,7 @@ export function usePublish({ initialType }: UsePublishProps) {
   const [resourceForm, setResourceForm] = useState("link")
   const [resourceUrl, setResourceUrl] = useState("")
   const [resourceCatid, setResourceCatid] = useState("")
+  const [resourceCategories, setResourceCategories] = useState<Array<{ catid: number; name: string }>>([])
 
   // 图书特定字段
   const [bookAuthor, setBookAuthor] = useState("")
@@ -111,6 +116,9 @@ export function usePublish({ initialType }: UsePublishProps) {
   // 加载节点
   useEffect(() => {
     fetchNodes().then(setNodeGroups)
+    resourceAPI.getCategories()
+      .then((data) => setResourceCategories(data.categories || []))
+      .catch(() => setResourceCategories([]))
   }, [])
 
   // 查询当前用户发布是否需要验证码
@@ -196,7 +204,17 @@ export function usePublish({ initialType }: UsePublishProps) {
     setError("")
     if (!title.trim()) { setError("请填写标题"); return }
     if (contentType === "topic" && !nid) { setError("请选择节点"); return }
+    if ((contentType === "topic" || contentType === "article") && !content.trim()) {
+      setError("请填写内容")
+      return
+    }
     if (contentType === "project" && !src.trim()) { setError("请填写源码地址"); return }
+    if (contentType === "project" && !category.trim()) { setError("请填写项目分类"); return }
+    if (contentType === "project" && !home.trim()) { setError("请填写项目主页"); return }
+    if (contentType === "project" && !doc.trim()) { setError("请填写文档地址"); return }
+    if (contentType === "project" && !lang.trim()) { setError("请填写开发语言"); return }
+    if (contentType === "project" && !content.trim()) { setError("请填写项目描述"); return }
+    if (contentType === "resource" && !resourceCatid) { setError("请选择资源分类"); return }
     if (contentType === "resource" && resourceForm === "link" && !resourceUrl.trim()) { setError("请填写资源链接"); return }
     if (contentType === "resource" && resourceForm === "content" && !content.trim()) { setError("请填写资源内容"); return }
     if (contentType === "book" && !bookAuthor.trim()) { setError("请填写作者"); return }
@@ -233,7 +251,7 @@ export function usePublish({ initialType }: UsePublishProps) {
         const form = newPublishForm()
         form.set("title", title.trim())
         form.set("content", content.trim())
-        form.set("txt", content.trim())
+        form.set("txt", markdownToPlainText(content))
         // 编辑器输出 Markdown，必须置位，否则详情页按富文本 HTML 渲染出源码
         form.set("markdown", "1")
         form.set("cover", "")
@@ -256,10 +274,13 @@ export function usePublish({ initialType }: UsePublishProps) {
         form.set("name", title.trim())
         form.set("src", src.trim())
         form.set("desc", content.trim())
+        if (uri.trim()) form.set("uri", uri.trim())
         if (category.trim()) form.set("category", category.trim())
         if (home.trim()) form.set("home", home.trim())
         if (doc.trim()) form.set("doc", doc.trim())
         if (download.trim()) form.set("download", download.trim())
+        if (logo.trim()) form.set("logo", logo.trim())
+        if (author.trim()) form.set("author", author.trim())
         if (licence.trim()) form.set("licence", licence.trim())
         if (lang.trim()) form.set("lang", lang.trim())
         if (os.trim()) form.set("os", os.trim())
@@ -382,6 +403,8 @@ export function usePublish({ initialType }: UsePublishProps) {
     // 项目字段
     src,
     setSrc,
+    uri,
+    setUri,
     category,
     setCategory,
     home,
@@ -390,6 +413,10 @@ export function usePublish({ initialType }: UsePublishProps) {
     setDoc,
     download,
     setDownload,
+    logo,
+    setLogo,
+    author,
+    setAuthor,
     licence,
     setLicence,
     lang,
@@ -403,6 +430,7 @@ export function usePublish({ initialType }: UsePublishProps) {
     setResourceUrl,
     resourceCatid,
     setResourceCatid,
+    resourceCategories,
     // 图书字段
     bookAuthor,
     setBookAuthor,

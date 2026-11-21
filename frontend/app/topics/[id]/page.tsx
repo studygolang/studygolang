@@ -131,6 +131,7 @@ export default async function TopicDetailPage({
         topic={topic}
         replies={replies}
         appends={appends}
+        canView={data?.can_view ?? true}
         likeflag={data?.likeflag}
         hadcollect={data?.hadcollect}
       />

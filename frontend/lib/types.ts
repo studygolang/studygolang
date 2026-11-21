@@ -118,6 +118,7 @@ export interface TopicListData extends Pagination {
 export interface TopicDetailData {
   topic: Topic
   replies: TopicReply[]
+  can_view?: boolean
   likeflag?: number
   hadcollect?: number
 }

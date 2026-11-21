@@ -12,6 +12,7 @@ import (
 
 	"github.com/studygolang/studygolang/context"
 	"github.com/studygolang/studygolang/internal/logic"
+	"github.com/studygolang/studygolang/internal/model"
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/polaris1119/goutils"
@@ -42,12 +43,24 @@ func (CommentController) List(ctx echo.Context) error {
 		return fail(ctx, "参数有误")
 	}
 
+	me := optionalAuth(ctx)
+	if objtype == model.TypeTopic {
+		topics := logic.DefaultTopic.FindByTids([]int{objid})
+		if len(topics) == 0 {
+			return fail(ctx, "话题不存在")
+		}
+		topic := topics[0]
+		if !canViewTopic(topic.Permission, topic.Uid, me) {
+			return success(ctx, map[string]interface{}{"comments": []map[string]interface{}{}})
+		}
+	}
+
 	comments, _, _ := logic.DefaultComment.FindObjComments(
 		context.EchoContext(ctx), objid, objtype, 0, 0,
 	)
 
 	viewerUID := 0
-	if me := optionalAuth(ctx); me != nil {
+	if me != nil {
 		viewerUID = me.Uid
 	}
 
@@ -114,6 +127,16 @@ func (CommentController) Create(ctx echo.Context) error {
 	//   2) 保护楼层计数器（key 含 objtype），防止恶意构造的 objtype 污染计数器空间
 	if !isValidObjType(objtype) {
 		return fail(ctx, "objtype 参数非法")
+	}
+
+	if objtype == model.TypeTopic {
+		topics := logic.DefaultTopic.FindByTids([]int{objid})
+		if len(topics) == 0 || !canViewTopic(topics[0].Permission, topics[0].Uid, me) {
+			return fail(ctx, "没有评论权限")
+		}
+		if topics[0].CloseReply {
+			return fail(ctx, "作者关闭了回复功能")
+		}
 	}
 
 	// 空内容会白占一个楼层号并渲染成空白评论，与 Modify 的校验保持一致

@@ -27,7 +27,7 @@ async function getAnnouncementsData(page: number, type: number | undefined) {
   try {
     const data = await announcementAPI.getList(
       { p: page, type },
-      { next: { revalidate: 60 } }
+      { cache: "no-store" }
     )
     return data
   } catch (error) {

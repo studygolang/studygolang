@@ -19,11 +19,12 @@ interface TopicDetailProps {
   topic?: Topic
   replies?: TopicReply[]
   appends?: TopicAppend[]
+  canView?: boolean
   likeflag?: number
   hadcollect?: number
 }
 
-export function TopicDetail({ id, topic, replies = [], appends = [], likeflag, hadcollect }: TopicDetailProps) {
+export function TopicDetail({ id, topic, replies = [], appends = [], canView = true, likeflag, hadcollect }: TopicDetailProps) {
   if (!topic) {
     return (
       <Card>
@@ -121,13 +122,15 @@ export function TopicDetail({ id, topic, replies = [], appends = [], likeflag, h
       {/* 追加表单（仅作者可见，客户端判断） */}
       <TopicAppendSection tid={tid} topicUid={topic.uid} />
 
-      <CommentSection
-        objid={tid}
-        objtype={OBJTYPE_TOPIC}
-        comments={replies}
-        ownerUid={topic.uid}
-        closed={topic.close_reply}
-      />
+      {canView && (
+        <CommentSection
+          objid={tid}
+          objtype={OBJTYPE_TOPIC}
+          comments={replies}
+          ownerUid={topic.uid}
+          closed={topic.close_reply}
+        />
+      )}
     </div>
   )
 }

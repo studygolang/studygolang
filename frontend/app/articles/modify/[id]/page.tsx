@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
 import { useAuth } from "@/lib/auth-context"
+import { markdownToPlainText } from "@/lib/utils"
 
 const BlockNoteEditor = dynamic(
   () => import("@/components/blocknote-editor").then((mod) => ({ default: mod.BlockNoteEditor })),
@@ -67,7 +68,7 @@ export default function ArticleModifyPage() {
       }
       const article: Article = json.data.article
       setTitle(article.title || "")
-      setContent(article.txt || article.content || "")
+      setContent(article.content || article.txt || "")
       if (article.tags) {
         setTags(article.tags.split(",").filter(Boolean))
       }
@@ -106,9 +107,7 @@ export default function ArticleModifyPage() {
       const form = new URLSearchParams()
       form.set("title", title.trim())
       form.set("content", content.trim())
-      // 编辑器输出 Markdown：同步 txt（阅读时长/搜索用）并置位 markdown，
-      // 否则详情页继续按旧的渲染轨道显示，且下次编辑会读到陈旧 txt
-      form.set("txt", content.trim())
+      form.set("txt", markdownToPlainText(content))
       form.set("markdown", "1")
       if (tags.length > 0) form.set("tags", tags.join(","))
 

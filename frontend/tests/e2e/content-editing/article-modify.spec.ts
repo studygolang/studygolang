@@ -76,7 +76,7 @@ test.describe("文章修改页 /articles/modify/:id", () => {
       await expect(titleInput).toHaveValue("测试文章标题", { timeout: 10000 })
     })
 
-    test("应该优先使用 txt 字段作为内容", async ({ page }) => {
+    test("应该使用 content 源文而不是 txt 摘要", async ({ page }) => {
       await page.route(`**/api/v1/articles/${ARTICLE_ID}/edit`, async (route) => {
         await route.fulfill({
           status: 200,
@@ -87,8 +87,8 @@ test.describe("文章修改页 /articles/modify/:id", () => {
               article: {
                 id: 1,
                 title: "测试文章标题",
-                content: "<p>HTML内容</p>",
-                txt: "纯文本内容",
+                content: "# Markdown 标题\n\n**Markdown 源文**",
+                txt: "纯文本摘要",
                 tags: "golang",
               },
             },
@@ -97,12 +97,10 @@ test.describe("文章修改页 /articles/modify/:id", () => {
       })
 
       await page.goto(`/articles/modify/${ARTICLE_ID}`)
-      await expect(page.locator("h1")).toContainText("编辑文章", { timeout: 10000 })
-
-      // 等待编辑器加载
-      await page.waitForTimeout(2000)
-      // txt 字段应该被优先使用
-      // 注意：实际内容在编辑器内部，这里只是验证页面加载成功
+      const editor = page.locator(".bn-editor")
+      await expect(editor).toContainText("Markdown 源文", { timeout: 10000 })
+      await expect(editor).toContainText("Markdown 标题")
+      await expect(editor).not.toContainText("纯文本摘要")
     })
 
     test("应该回填标签", async ({ page }) => {
@@ -129,9 +127,9 @@ test.describe("文章修改页 /articles/modify/:id", () => {
       await expect(page.locator("h1")).toContainText("编辑文章", { timeout: 10000 })
 
       // 标签应该被回填
-      await expect(page.getByText("golang")).toBeVisible({ timeout: 10000 })
-      await expect(page.getByText("test")).toBeVisible({ timeout: 10000 })
-      await expect(page.getByText("article")).toBeVisible({ timeout: 10000 })
+      await expect(page.getByRole("button", { name: "删除标签 golang", exact: true })).toBeVisible({ timeout: 10000 })
+      await expect(page.getByRole("button", { name: "删除标签 test", exact: true })).toBeVisible({ timeout: 10000 })
+      await expect(page.getByRole("button", { name: "删除标签 article", exact: true })).toBeVisible({ timeout: 10000 })
     })
 
     test("API 返回错误时应该显示错误信息", async ({ page }) => {
@@ -300,7 +298,7 @@ test.describe("文章修改页 /articles/modify/:id", () => {
       await page.goto(`/articles/modify/${ARTICLE_ID}`)
       await expect(page.locator("h1")).toContainText("编辑文章", { timeout: 10000 })
 
-      const tagInput = page.locator('input[placeholder*="标签"]')
+      const tagInput = page.locator("#tag-input")
       await tagInput.fill("newtag")
       await tagInput.press("Enter")
       await expect(page.getByText("newtag")).toBeVisible()
@@ -330,12 +328,12 @@ test.describe("文章修改页 /articles/modify/:id", () => {
       await expect(page.locator("h1")).toContainText("编辑文章", { timeout: 10000 })
 
       // 等待标签加载
-      await expect(page.getByText("golang")).toBeVisible({ timeout: 10000 })
+      await expect(page.getByRole("button", { name: "删除标签 golang", exact: true })).toBeVisible({ timeout: 10000 })
 
       // 删除第一个标签
       const removeButton = page.locator('button[aria-label*="删除"]').first()
       await removeButton.click()
-      await expect(page.getByText("golang")).not.toBeVisible()
+      await expect(page.getByRole("button", { name: "删除标签 golang", exact: true })).not.toBeVisible()
     })
 
     test("点击取消应该返回上一页", async ({ page }) => {
@@ -368,6 +366,7 @@ test.describe("文章修改页 /articles/modify/:id", () => {
     })
 
     test("保存成功后应该显示成功消息", async ({ page }) => {
+      const submittedForms: URLSearchParams[] = []
       await page.route(`**/api/v1/articles/${ARTICLE_ID}/edit`, async (route) => {
         await route.fulfill({
           status: 200,
@@ -378,8 +377,8 @@ test.describe("文章修改页 /articles/modify/:id", () => {
               article: {
                 id: 1,
                 title: "测试",
-                content: "内容",
-                txt: "内容",
+                content: "**Markdown 内容**",
+                txt: "旧摘要",
                 tags: "",
               },
             },
@@ -389,6 +388,7 @@ test.describe("文章修改页 /articles/modify/:id", () => {
 
       await page.route(`**/api/v1/articles/${ARTICLE_ID}`, async (route) => {
         if (route.request().method() === "PUT") {
+          submittedForms.push(new URLSearchParams(route.request().postData() || ""))
           await route.fulfill({
             status: 200,
             contentType: "application/json",
@@ -406,6 +406,8 @@ test.describe("文章修改页 /articles/modify/:id", () => {
       const saveButton = page.getByRole("button", { name: /保存/ })
       await saveButton.click()
       await expect(page.getByText(/保存成功/)).toBeVisible({ timeout: 10000 })
+      expect(submittedForms[0]?.get("content")).toBe("**Markdown 内容**")
+      expect(submittedForms[0]?.get("txt")).toBe("Markdown 内容")
     })
 
     test("保存失败时应该显示错误消息", async ({ page }) => {

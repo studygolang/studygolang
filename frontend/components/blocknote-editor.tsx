@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { useCreateBlockNote } from "@blocknote/react"
 import { BlockNoteView } from "@blocknote/mantine"
 import type { BlockNoteEditor as BlockNoteEditorType } from "@blocknote/core"
@@ -29,13 +29,17 @@ export function BlockNoteEditor({ content, onChange, placeholder }: BlockNoteEdi
     uploadFile,
   })
 
-  // 初始化时加载内容
-  useEffect(() => {
-    if (!editor || !content) return
+  const lastMarkdownRef = useRef<string | null>(null)
 
+  useEffect(() => {
+    if (!content || content === lastMarkdownRef.current) return
+
+    let cancelled = false
     const loadContent = async () => {
       try {
         const blocks = await editor.tryParseMarkdownToBlocks(content)
+        if (cancelled) return
+        lastMarkdownRef.current = content
         editor.replaceBlocks(editor.document, blocks)
       } catch (error) {
         console.error("Failed to parse markdown:", error)
@@ -43,22 +47,22 @@ export function BlockNoteEditor({ content, onChange, placeholder }: BlockNoteEdi
     }
 
     loadContent()
-  }, []) // 只在初始化时加载一次
+    return () => {
+      cancelled = true
+    }
+  }, [editor, content])
 
-  // 监听编辑器变化，转换为 Markdown
   useEffect(() => {
-    if (!editor) return
-
     const handleChange = async () => {
       try {
         const markdown = await editor.blocksToMarkdownLossy(editor.document)
+        lastMarkdownRef.current = markdown
         onChange(markdown)
       } catch (error) {
         console.error("Failed to convert to markdown:", error)
       }
     }
 
-    // 订阅编辑器变化
     return editor.onChange(handleChange)
   }, [editor, onChange])
 

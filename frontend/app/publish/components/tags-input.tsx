@@ -20,13 +20,14 @@ export function TagsInput({ tags, setTags, tagInput, setTagInput, onTagKeyDown }
       </Label>
       <div className="flex min-h-10 flex-wrap items-center gap-1.5 rounded-md border border-input bg-background px-3 py-1.5 text-sm focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-0">
         {tags.map((tag) => (
-          <Badge
-            key={tag}
-            variant="secondary"
-            className="gap-1 py-0.5 text-xs cursor-pointer"
-            onClick={() => setTags(tags.filter((t) => t !== tag))}
-          >
-            {tag} ×
+          <Badge key={tag} asChild variant="secondary" className="gap-1 py-0.5 text-xs cursor-pointer">
+            <button
+              type="button"
+              aria-label={`删除标签 ${tag}`}
+              onClick={() => setTags(tags.filter((t) => t !== tag))}
+            >
+              {tag} ×
+            </button>
           </Badge>
         ))}
         {tags.length < 5 && (

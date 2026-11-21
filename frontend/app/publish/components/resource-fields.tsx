@@ -2,12 +2,22 @@
 
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface ResourceFieldsProps {
   resourceForm: string
   setResourceForm: (form: string) => void
   resourceUrl: string
   setResourceUrl: (url: string) => void
+  resourceCatid: string
+  setResourceCatid: (catid: string) => void
+  categories: Array<{ catid: number; name: string }>
 }
 
 export function ResourceFields({
@@ -15,9 +25,30 @@ export function ResourceFields({
   setResourceForm,
   resourceUrl,
   setResourceUrl,
+  resourceCatid,
+  setResourceCatid,
+  categories,
 }: ResourceFieldsProps) {
   return (
     <>
+      <div className="space-y-1.5">
+        <Label htmlFor="resourceCatid" className="text-sm font-medium">
+          资源分类 <span className="text-destructive">*</span>
+        </Label>
+        <Select value={resourceCatid} onValueChange={setResourceCatid}>
+          <SelectTrigger id="resourceCatid" className="h-10">
+            <SelectValue placeholder="选择资源分类" />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((category) => (
+              <SelectItem key={category.catid} value={String(category.catid)}>
+                {category.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* 资源类型选择 */}
       <div className="space-y-1.5">
         <Label className="text-sm font-medium">资源类型 <span className="text-destructive">*</span></Label>
