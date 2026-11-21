@@ -28,6 +28,8 @@ export function createWebSocket(opts: WSOptions): WSController {
   let retryCount = 0
   const maxRetries = 10
   let retryTimer: ReturnType<typeof setTimeout>
+  // 主动断开时置 true，阻止 onclose 里的自动重连
+  let closed = false
 
   function connect() {
     ws = new WebSocket(wsUrl)
@@ -39,8 +41,12 @@ export function createWebSocket(opts: WSOptions): WSController {
 
     ws.onmessage = (event) => {
       try {
-        const data = JSON.parse(event.data)
-        opts.onMessage(data)
+        // 服务端 writePump 会把同批消息用 \n 拼进一帧，必须逐行解析，
+        // 否则拼帧时 JSON.parse 失败导致整批消息静默丢失
+        for (const line of String(event.data).split("\n")) {
+          if (!line) continue
+          opts.onMessage(JSON.parse(line))
+        }
       } catch {
         // 非 JSON 消息忽略
       }
@@ -48,7 +54,7 @@ export function createWebSocket(opts: WSOptions): WSController {
 
     ws.onclose = () => {
       opts.onClose?.()
-      reconnect()
+      if (!closed) reconnect()
     }
 
     ws.onerror = (err) => {
@@ -65,6 +71,7 @@ export function createWebSocket(opts: WSOptions): WSController {
   }
 
   function disconnect() {
+    closed = true
     clearTimeout(retryTimer)
     ws?.close()
     ws = null
