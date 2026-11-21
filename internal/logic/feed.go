@@ -42,7 +42,8 @@ func (self FeedLogic) FindRecentWithPaginator(ctx context.Context, paginator *Pa
 
 	feeds := cache.Feed.GetList(ctx, paginator.curPage, tab)
 	if len(feeds) > 0 {
-		return feeds
+		// 缓存里的列表可能是内容下线前写入的，命中后仍需按主表状态过滤
+		return filterByObjectStatus(ctx, feeds)
 	}
 
 	feeds = make([]*model.Feed, 0)
@@ -81,7 +82,7 @@ func (self FeedLogic) FindTop(ctx context.Context) []*model.Feed {
 
 	feeds := cache.Feed.GetTop(ctx)
 	if feeds != nil {
-		return feeds
+		return filterByObjectStatus(ctx, feeds)
 	}
 
 	feeds = make([]*model.Feed, 0)
@@ -231,6 +232,12 @@ func (FeedLogic) fillOtherInfo(ctx context.Context, feeds []*model.Feed, filterT
 		feed.Uri = model.PathUrlMap[feed.Objtype] + strconv.Itoa(feed.Objid)
 	}
 
+	// 主表状态过滤：feed.state 只在节点隐藏等少数场景维护，
+	// 文章下线（status=Offline）、项目下线、话题删除（flag=FlagAuditDelete）
+	// 不会同步 feed 表——读侧统一兜底，保证任何入口（含 SQL 直改）的
+	// 下线内容都不会出现在首页动态里。过滤后的干净列表再进缓存。
+	newFeeds = filterByObjectStatus(ctx, newFeeds)
+
 	usersMap := DefaultUser.FindUserInfos(ctx, set.IntSlice(uidSet))
 	nodesMap := GetNodesByNids(set.IntSlice(nidSet))
 	for _, feed := range newFeeds {
@@ -250,6 +257,83 @@ func (FeedLogic) fillOtherInfo(ctx context.Context, feeds []*model.Feed, filterT
 	}
 
 	return newFeeds
+}
+
+// filterByObjectStatus 批量校验 feed 指向的主体是否仍有效，剔除已下线/删除的内容。
+// 每次 1~3 个 IN 查询（仅涉及有状态语义的类型），成本远低于 join。
+func filterByObjectStatus(ctx context.Context, feeds []*model.Feed) []*model.Feed {
+	if len(feeds) == 0 {
+		return feeds
+	}
+	objLog := GetLogger(ctx)
+
+	topicIds := make([]int, 0, len(feeds))
+	articleIds := make([]int, 0, len(feeds))
+	projectIds := make([]int, 0, len(feeds))
+	for _, feed := range feeds {
+		switch feed.Objtype {
+		case model.TypeTopic:
+			topicIds = append(topicIds, feed.Objid)
+		case model.TypeArticle:
+			articleIds = append(articleIds, feed.Objid)
+		case model.TypeProject:
+			projectIds = append(projectIds, feed.Objid)
+		}
+	}
+
+	valid := make(map[string]bool, len(topicIds)+len(articleIds)+len(projectIds))
+	if len(topicIds) > 0 {
+		topics := make([]*model.Topic, 0, len(topicIds))
+		if err := MasterDB.In("tid", topicIds).Where("flag<?", model.FlagAuditDelete).Find(&topics); err != nil {
+			objLog.Errorln("feed filterByObjectStatus topics error:", err)
+		} else {
+			for _, t := range topics {
+				valid["t"+strconv.Itoa(t.Tid)] = true
+			}
+		}
+	}
+	if len(articleIds) > 0 {
+		articles := make([]*model.Article, 0, len(articleIds))
+		if err := MasterDB.In("id", articleIds).Where("status<?", model.ArticleStatusOffline).Find(&articles); err != nil {
+			objLog.Errorln("feed filterByObjectStatus articles error:", err)
+		} else {
+			for _, a := range articles {
+				valid["a"+strconv.Itoa(a.Id)] = true
+			}
+		}
+	}
+	if len(projectIds) > 0 {
+		projects := make([]*model.OpenProject, 0, len(projectIds))
+		if err := MasterDB.In("id", projectIds).
+			Where("status IN(?,?)", model.ProjectStatusNew, model.ProjectStatusOnline).Find(&projects); err != nil {
+			objLog.Errorln("feed filterByObjectStatus projects error:", err)
+		} else {
+			for _, p := range projects {
+				valid["p"+strconv.Itoa(p.Id)] = true
+			}
+		}
+	}
+
+	result := make([]*model.Feed, 0, len(feeds))
+	for _, feed := range feeds {
+		var key string
+		switch feed.Objtype {
+		case model.TypeTopic:
+			key = "t" + strconv.Itoa(feed.Objid)
+		case model.TypeArticle:
+			key = "a" + strconv.Itoa(feed.Objid)
+		case model.TypeProject:
+			key = "p" + strconv.Itoa(feed.Objid)
+		default:
+			// 资源/书籍/Wiki 等无下线语义，直接保留
+			result = append(result, feed)
+			continue
+		}
+		if valid[key] {
+			result = append(result, feed)
+		}
+	}
+	return result
 }
 
 // publish 发布动态
