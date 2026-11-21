@@ -40,8 +40,11 @@ func init() {
 }
 
 func main() {
-	if len(os.Args) >= 2 {
-		switch os.Args[1] {
+	// 子命令允许与 flag 混合出现（如 `studygolang -manual indexer`）。
+	// 不能只看 os.Args[1]：flag 在子命令之后会停止解析（`indexer -manual` 读不到 -manual），
+	// flag 放到最前面时 os.Args[1] 又是 flag 本身——两种写法都必须支持。
+	for _, arg := range os.Args[1:] {
+		switch arg {
 		case "indexer":
 			cmd.Indexer()
 			return
