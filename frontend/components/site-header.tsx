@@ -127,9 +127,6 @@ export function SiteHeader() {
             alt="Go语言中文网"
             className="h-8 w-auto"
           />
-          <span className="hidden text-lg font-bold tracking-tight text-foreground sm:inline-block">
-            Go<span className="text-primary">中文网</span>
-          </span>
         </Link>
 
         {/* Desktop Nav */}
