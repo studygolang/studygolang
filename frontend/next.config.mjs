@@ -78,6 +78,11 @@ const nextConfig = {
         source: '/sitemap/:path*',
         destination: `${backend}/sitemap/:path*`,
       },
+      // Go 安装包历史下载地址，由后端校验文件名并代理到官方源
+      {
+        source: '/dl/golang/:filename',
+        destination: `${backend}/dl/golang/:filename`,
+      },
       // RSS Feed 代理；旧版订阅说明页交给新版页面渲染
       {
         source: '/feed.xml',

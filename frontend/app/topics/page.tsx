@@ -53,7 +53,7 @@ interface TopicsPageProps {
 export default async function TopicsPage({ searchParams }: TopicsPageProps) {
   const { tab: tabParam, p: pageStr, sort: sortParam } = await searchParams
   const tab = tabParam ?? 'all'
-  const sort = sortParam ?? 'hot'
+  const sort = sortParam ?? 'active'
   const page = Math.max(1, parseInt(pageStr ?? '1', 10) || 1)
 
   const { topicsData, nodes } = await getTopicsData(tab, sort, page)

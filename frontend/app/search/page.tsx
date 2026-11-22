@@ -47,7 +47,7 @@ function buildResultUrl(objtype: number, objid: number): string {
 }
 
 interface SearchPageProps {
-  searchParams: Promise<{ q?: string; page?: string; type?: string }>
+  searchParams: Promise<{ q?: string; page?: string; p?: string; type?: string; f?: string }>
 }
 
 // 搜索字段过滤（对应后端 DoSearch 的 df）：空=全文，title=标题，author=作者。
@@ -207,8 +207,9 @@ async function SearchResults({ q, page, field }: { q: string; page: number; fiel
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams
   const q = params.q?.trim() || ""
-  const page = Math.max(1, parseInt(params.page || "1", 10))
-  const field = allowedSearchFields.includes(params.type || "") ? (params.type || "") : ""
+  const page = Math.max(1, parseInt(params.p || params.page || "1", 10) || 1)
+  const requestedField = params.type ?? params.f ?? ""
+  const field = allowedSearchFields.includes(requestedField) ? requestedField : ""
 
   return (
     <PageLayout sidebar={false}>

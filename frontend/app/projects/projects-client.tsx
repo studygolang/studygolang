@@ -26,24 +26,33 @@ export function ProjectsClient({ page, sort, total: initialTotal, projects: init
   const [count, setCount] = useState(initialTotal)
 
   useEffect(() => {
-    // 如果没有初始数据（SSR 未提供），则客户端请求
-    if (initialProjects.length === 0) {
-      setLoading(true)
-      fetchAPINullable<ProjectListData>(
-        `/projects?p=${page}&sort=${sort}`,
-        { cache: "no-store" }
-      ).then((data) => {
-        if (data && data.projects) {
-          setProjects(data.projects)
-          setHasMore(data.has_more)
-          if (data.total) {
-            setCount(data.total)
-          }
-        }
-        setLoading(false)
-      })
+    setProjects(initialProjects)
+    setHasMore(initialHasMore)
+    setCount(initialTotal)
+
+    if (initialProjects.length > 0) {
+      setLoading(false)
+      return
     }
-  }, [page, sort, initialProjects.length])
+
+    let cancelled = false
+    setLoading(true)
+    fetchAPINullable<ProjectListData>(
+      `/projects?p=${page}&sort=${sort}`,
+      { cache: "no-store" }
+    ).then((data) => {
+      if (cancelled) return
+      if (data?.projects) {
+        setProjects(data.projects)
+        setHasMore(data.has_more)
+        setCount(data.total)
+      }
+      setLoading(false)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [page, sort, initialProjects, initialHasMore, initialTotal])
 
   return (
     <div className="rounded-lg border border-border bg-card p-4">

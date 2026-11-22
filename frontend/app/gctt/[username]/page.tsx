@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 import { notFound } from "next/navigation"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
@@ -16,12 +17,16 @@ interface GCTTUser {
   joined_at: number
 }
 
-async function getUser(username: string): Promise<GCTTUser | null> {
+interface GCTTUserData {
+  user: GCTTUser
+  articles: Array<{ id: number; title: string }>
+}
+
+async function getUser(username: string): Promise<GCTTUserData | null> {
   try {
-    const data = await fetchAPI<{ user: GCTTUser }>(`/gctt/${username}`, {
+    return await fetchAPI<GCTTUserData>(`/gctt/${username}`, {
       cache: "no-store",
     })
-    return data.user ?? null
   } catch {
     return null
   }
@@ -33,7 +38,8 @@ export async function generateMetadata({
   params: Promise<{ username: string }>
 }): Promise<Metadata> {
   const { username } = await params
-  const user = await getUser(username)
+  const data = await getUser(username)
+  const user = data?.user
   return {
     title: user
       ? `${user.username} - GCTT 译者 - Go语言中文网`
@@ -50,7 +56,9 @@ export default async function GCTTUserPage({
   params: Promise<{ username: string }>
 }) {
   const { username } = await params
-  const user = await getUser(username)
+  const data = await getUser(username)
+  const user = data?.user
+  const articles = data?.articles ?? []
 
   if (!user || user.id === 0) {
     return notFound()
@@ -101,6 +109,27 @@ export default async function GCTTUserPage({
             <div className="mt-4 text-sm text-muted-foreground">
               加入时间：{new Date(user.joined_at * 1000).toISOString().slice(0, 10)}
             </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="mt-6">
+        <CardContent className="p-6">
+          <h2 className="text-base font-semibold">翻译作品</h2>
+          {articles.length > 0 ? (
+            <div className="mt-4 divide-y divide-border">
+              {articles.map((article) => (
+                <Link
+                  key={article.id}
+                  href={`/articles/${article.id}`}
+                  className="block py-3 text-sm font-medium hover:text-primary"
+                >
+                  {article.title}
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-4 text-sm text-muted-foreground">暂无已发布译文</p>
           )}
         </CardContent>
       </Card>

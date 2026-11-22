@@ -225,6 +225,9 @@ func (SubjectController) Create(ctx echo.Context) error {
 	if !sensitiveCheck(ctx, me) {
 		return failSensitive(ctx)
 	}
+	if !balanceCheck(me, false) {
+		return failBalance(ctx)
+	}
 
 	forms, _ := ctx.FormParams()
 	sid, err2 := logic.DefaultSubject.Publish(context.EchoContext(ctx), me, forms)

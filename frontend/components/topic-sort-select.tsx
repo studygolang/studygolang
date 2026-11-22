@@ -10,6 +10,7 @@ import {
 import { useRouter } from "next/navigation"
 
 const SORT_OPTIONS = [
+  { value: "active", label: "最近活跃" },
   { value: "hot", label: "最热" },
   { value: "latest", label: "最新" },
   { value: "noreply", label: "零回复" },

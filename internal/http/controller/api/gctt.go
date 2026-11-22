@@ -106,7 +106,8 @@ func (GCTTController) UserDetail(ctx echo.Context) error {
 	}
 
 	return success(ctx, map[string]interface{}{
-		"user": gcttUser,
+		"user":     gcttUser,
+		"articles": logic.DefaultArticle.FindTaGCTTArticles(context.EchoContext(ctx), username),
 	})
 }
 

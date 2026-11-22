@@ -21,10 +21,10 @@ export const metadata: Metadata = {
 
 import { fetchAPI } from "@/lib/api"
 
-async function getArticles(page: number) {
+async function getArticles(page: number, sort: string) {
   try {
     return await fetchAPI<ArticleListData>(
-      `/articles?p=${page}`,
+      `/articles?p=${page}&sort=${encodeURIComponent(sort)}`,
       { cache: 'no-store' }
     )
   } catch {
@@ -34,14 +34,16 @@ async function getArticles(page: number) {
 }
 
 interface ArticlesPageProps {
-  searchParams: Promise<{ p?: string }>
+  searchParams: Promise<{ p?: string; sort?: string }>
 }
 
 export default async function ArticlesPage({ searchParams }: ArticlesPageProps) {
-  const { p: pageStr } = await searchParams
+  const { p: pageStr, sort: sortParam } = await searchParams
   const page = Math.max(1, parseInt(pageStr ?? '1', 10) || 1)
+  const sort = ['latest', 'hot', 'noreply'].includes(sortParam ?? '') ? sortParam! : 'latest'
+  const pageUrl = (targetPage: number) => `/articles?p=${targetPage}&sort=${sort}`
 
-  const data = await getArticles(page)
+  const data = await getArticles(page, sort)
   // 后端文章列表返回字段名为 list（非 articles）
   const articles = data.list ?? []
   const total = data.total ?? 0
@@ -85,7 +87,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
         <div className="mt-6 flex items-center justify-center gap-2">
           {page > 1 ? (
             <Link
-              href={`/articles?p=${page - 1}`}
+              href={pageUrl(page - 1)}
               className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
             >
               {"上一页"}
@@ -101,7 +103,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
           {pageNumbers.map((p) => (
             <Link
               key={p}
-              href={`/articles?p=${p}`}
+              href={pageUrl(p)}
               className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                 p === page
                   ? "bg-primary text-primary-foreground"
@@ -115,7 +117,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
             <>
               <span className="px-1 text-sm text-muted-foreground">...</span>
               <Link
-                href={`/articles?p=${totalPages}`}
+                href={pageUrl(totalPages)}
                 className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
               >
                 {totalPages}
@@ -124,7 +126,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
           )}
           {(hasMore || page < totalPages) ? (
             <Link
-              href={`/articles?p=${page + 1}`}
+              href={pageUrl(page + 1)}
               className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
             >
               {"下一页"}

@@ -4,6 +4,7 @@ import { Plus, ExternalLink, ThumbsUp, MessageSquare, Clock } from "lucide-react
 import { Metadata } from "next"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
+import { ResourceCategoryNav } from "@/components/resource-category-nav"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -163,6 +164,7 @@ export default async function ResourceCatPage({ params, searchParams }: Resource
           </Link>
         }
       />
+      <ResourceCategoryNav currentCatid={catid} />
       <Suspense
         fallback={
           <div className="space-y-3">

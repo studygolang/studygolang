@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 const sortTabs = [
   { id: "latest", label: "最新" },
   { id: "hot", label: "热门" },
-  { id: "recommend", label: "推荐" },
+  { id: "noreply", label: "零回复" },
 ]
 
 const categories = [
@@ -37,7 +37,7 @@ export function ArticleFilter() {
     const params = new URLSearchParams(searchParams.toString())
     params.set("sort", sortId)
     // 切换排序时重置到第一页
-    params.delete("page")
+    params.delete("p")
     router.push(`/articles?${params.toString()}`)
   }
 

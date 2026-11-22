@@ -114,13 +114,24 @@ func (InterviewController) Question(ctx echo.Context) error {
 		return fail(ctx, "面试题不存在")
 	}
 
+	me := optionalAuth(ctx)
+	viewerUID := 0
+	result := map[string]interface{}{"question": question}
+
 	// 浏览计数（与 master interview.detail 一致）：登录用户记录 uid 并异步留痕，匿名用户仅计数
-	if me := optionalAuth(ctx); me != nil {
+	if me != nil {
+		viewerUID = me.Uid
+		result["likeflag"] = logic.DefaultLike.HadLike(context.EchoContext(ctx), me.Uid, question.Id, model.TypeInterview)
 		logic.Views.Incr(ctx.Request(), model.TypeInterview, question.Id, me.Uid)
 		go logic.DefaultViewRecord.Record(question.Id, model.TypeInterview, me.Uid)
 	} else {
 		logic.Views.Incr(ctx.Request(), model.TypeInterview, question.Id)
 	}
 
-	return success(ctx, map[string]interface{}{"question": question})
+	replies, _, _ := logic.DefaultComment.FindObjComments(
+		context.EchoContext(ctx), question.Id, model.TypeInterview, 0, 0,
+	)
+	result["replies"] = normalizeReplies(ctx, replies, viewerUID)
+
+	return success(ctx, result)
 }

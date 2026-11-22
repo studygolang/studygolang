@@ -31,6 +31,8 @@ export function SearchBox({ defaultValue = "", defaultType = "" }: SearchBoxProp
       const params = new URLSearchParams(searchParams.toString())
       params.set("q", q)
       params.delete("page")
+      params.delete("p")
+      params.delete("f")
       if (field) {
         params.set("type", field)
       } else {

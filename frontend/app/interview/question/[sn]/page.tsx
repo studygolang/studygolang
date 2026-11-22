@@ -1,13 +1,24 @@
 import Link from "next/link"
-import { BookOpen, ChevronLeft, Eye, MessageSquare, ThumbsUp } from "lucide-react"
+import { BookOpen, ChevronLeft, Eye, MessageSquare } from "lucide-react"
 import { Metadata } from "next"
+import { cookies } from "next/headers"
 import { notFound } from "next/navigation"
 import { PageLayout } from "@/components/page-layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import type { InterviewQuestion } from "@/lib/types"
+import { OBJTYPE_INTERVIEW, type Comment, type InterviewQuestion } from "@/lib/types"
 import { fetchAPINullable } from "@/lib/api"
 import { SafeHtml } from "@/components/safe-html"
+import { LikeButton } from "@/components/like-button"
+import { CommentSection } from "@/components/comment-section"
+
+export const dynamic = "force-dynamic"
+
+interface InterviewQuestionData {
+  question: InterviewQuestion
+  replies?: Comment[]
+  likeflag?: number
+}
 
 const levelLabels = ["初级", "中级", "高级"]
 const levelColors = [
@@ -22,13 +33,6 @@ interface QuestionPageProps {
 
 export async function generateMetadata({ params }: QuestionPageProps): Promise<Metadata> {
   const { sn } = await params
-  const data = await fetchAPINullable<{ question: InterviewQuestion }>(
-    `/interviews/question/${sn}`,
-    { next: { revalidate: 3600 } }
-  )
-  if (!data?.question) {
-    return { title: "面试题不存在 - Go语言中文网" }
-  }
   return {
     title: `Go 面试题 #${sn} - Go语言中文网`,
     description: `Go 语言面试题详情及答案解析`,
@@ -37,9 +41,13 @@ export async function generateMetadata({ params }: QuestionPageProps): Promise<M
 
 export default async function InterviewQuestionPage({ params }: QuestionPageProps) {
   const { sn } = await params
-  const data = await fetchAPINullable<{ question: InterviewQuestion }>(
+  const requestCookies = await cookies()
+  const data = await fetchAPINullable<InterviewQuestionData>(
     `/interviews/question/${sn}`,
-    { next: { revalidate: 3600 } }
+    {
+      cache: "no-store",
+      headers: { Cookie: requestCookies.toString() },
+    }
   )
 
   if (!data?.question) {
@@ -104,10 +112,13 @@ export default async function InterviewQuestionPage({ params }: QuestionPageProp
           <Eye className="h-3 w-3" />
           {question.viewnum} 次查看
         </span>
-        <span className="flex items-center gap-1">
-          <ThumbsUp className="h-3 w-3" />
-          {question.likenum} 赞
-        </span>
+        <LikeButton
+          objid={question.id}
+          objtype={OBJTYPE_INTERVIEW}
+          initialLiked={Boolean(data.likeflag)}
+          initialCount={question.likenum}
+          className="-ml-3 h-auto px-3 py-0 text-xs"
+        />
         <span className="flex items-center gap-1">
           <MessageSquare className="h-3 w-3" />
           {question.cmtnum} 评论
@@ -115,6 +126,14 @@ export default async function InterviewQuestionPage({ params }: QuestionPageProp
         {question.source && (
           <span>来源：{question.source}</span>
         )}
+      </div>
+
+      <div className="mt-4">
+        <CommentSection
+          objid={question.id}
+          objtype={OBJTYPE_INTERVIEW}
+          comments={data.replies ?? []}
+        />
       </div>
     </PageLayout>
   )

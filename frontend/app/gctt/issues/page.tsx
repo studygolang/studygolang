@@ -92,7 +92,14 @@ export default async function GCTTIssuesPage({
           {issues.map((issue) => (
             <Card key={issue.id}>
               <CardContent className="p-4">
-                <div className="font-medium">{issue.title}</div>
+                <a
+                  href={`https://github.com/studygolang/GCTT/issues/${issue.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium hover:text-primary"
+                >
+                  {issue.title}
+                </a>
                 <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
                   {issue.label && (
                     <span className="rounded bg-primary/10 px-1.5 py-0.5 text-primary">
@@ -104,6 +111,16 @@ export default async function GCTTIssuesPage({
                   </span>
                   {issue.translator && <span>译者: {issue.translator}</span>}
                   <span>{issue.created_at?.slice(0, 10)}</span>
+                  {issue.label === "待认领" && (
+                    <a
+                      href={`https://github.com/studygolang/GCTT/issues/${issue.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-auto font-medium text-primary hover:underline"
+                    >
+                      去认领
+                    </a>
+                  )}
                 </div>
               </CardContent>
             </Card>

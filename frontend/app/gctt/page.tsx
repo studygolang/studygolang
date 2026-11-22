@@ -110,7 +110,14 @@ export default async function GCTTPage() {
             <div className="space-y-3">
               {data.untranslated_issues.map((issue) => (
                 <div key={issue.id} className="rounded-lg border border-border p-3">
-                  <div className="font-medium">{issue.title}</div>
+                  <a
+                    href={`https://github.com/studygolang/GCTT/issues/${issue.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium hover:text-primary"
+                  >
+                    {issue.title}
+                  </a>
                   <div className="mt-1 text-xs text-muted-foreground">
                     {issue.label && (
                       <span className="mr-2 rounded bg-primary/10 px-1.5 py-0.5 text-primary">
