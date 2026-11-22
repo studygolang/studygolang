@@ -26,6 +26,10 @@ TimeoutStopSec=30
 
 # 环境变量
 Environment=GOTRACEBACK=crash
+# developer 启动必需的密钥放独立 env 文件（chmod 600，勿提交）：
+#   TOKEN_SALT=...  JWT_SECRET=...  ALLOWED_ORIGINS=https://studygolang.com,...
+# 缺 JWT_SECRET 或 ALLOWED_ORIGINS 时生产模式直接 panic（http.go 强校验）
+EnvironmentFile=/opt/studygolang/env
 
 # 进程管理
 Restart=on-failure

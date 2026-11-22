@@ -1,0 +1,25 @@
+[Unit]
+Description=StudyGolang Next.js 前端（新版 UI）
+After=network-online.target studygolang.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/studygolang/frontend
+# NEXT_PUBLIC_* 在构建时已固化进产物，运行时无需再设；
+# 端口与 Nginx upstream nextjs_backend 保持一致
+Environment=PORT=3000
+Environment=NODE_ENV=production
+ExecStart=/opt/studygolang/frontend/node_modules/.bin/next start -p 3000
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=studygolang-next
+
+[Install]
+WantedBy=multi-user.target
