@@ -39,7 +39,7 @@ export default function PkgDocPage() {
       />
 
       {available === null && (
-        <div className="flex h-[700px] items-center justify-center rounded-lg border border-border">
+        <div className="flex h-[calc(100dvh-13rem)] min-h-[600px] items-center justify-center rounded-lg border border-border">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       )}
@@ -76,7 +76,8 @@ export default function PkgDocPage() {
 
       {available === true && (
         <>
-          <div className="flex h-[700px] overflow-hidden rounded-lg border border-border">
+          {/* 撑满剩余视口，接近旧版整页 frameset 的体验 */}
+          <div className="flex h-[calc(100dvh-13rem)] min-h-[600px] overflow-hidden rounded-lg border border-border">
             <iframe
               src={INDEX_URL}
               className="h-full w-1/5 min-w-[180px] border-0 border-r border-border"
@@ -88,18 +89,6 @@ export default function PkgDocPage() {
               className="h-full flex-1 border-0"
               title="标准库文档内容"
             />
-          </div>
-          <div className="mt-3 text-center text-sm text-muted-foreground">
-            文档无法加载？{" "}
-            <a
-              href="https://studygolang.com/pkgdoc"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-primary hover:underline"
-            >
-              访问线上版本
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
           </div>
         </>
       )}
