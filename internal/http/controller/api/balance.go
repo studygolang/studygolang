@@ -31,24 +31,15 @@ func (self BalanceController) RegisterRoute(g *echo.Group) {
 // expenses = Num < 0 的明细（消费/处罚等）
 // details  = 全部明细（保留以便老客户端兼容）
 func (BalanceController) MyBalance(ctx echo.Context) error {
-	uid, err := parseAuthUID(ctx)
+	me, err := requireAuth(ctx)
 	if err != nil {
 		return err
 	}
 
-	// 查询用户信息以获取总余额
-	user := logic.DefaultUser.FindOne(context.EchoContext(ctx), "uid", uid)
-	if user == nil || user.Uid == 0 {
-		return fail(ctx, "用户不存在")
-	}
-
-	// 构造 Me 对象供 FindBalanceDetail 使用
-	me := &model.Me{Uid: uid}
-
 	p := goutils.MustInt(ctx.QueryParam("p"), 1)
 
 	details := logic.DefaultUserRich.FindBalanceDetail(context.EchoContext(ctx), me, p)
-	total := logic.DefaultUserRich.Total(context.EchoContext(ctx), uid)
+	total := logic.DefaultUserRich.Total(context.EchoContext(ctx), me.Uid)
 
 	// 计算是否有更多（FindBalanceDetail 用 logic.CommentPerNum 作为每页大小）
 	hasMore := int64(p*logic.CommentPerNum) < total
@@ -76,7 +67,7 @@ func (BalanceController) MyBalance(ctx echo.Context) error {
 	}
 
 	return success(ctx, map[string]interface{}{
-		"balance":  user.Balance,
+		"balance":  me.Balance,
 		"incomes":  incomes,
 		"expenses": expenses,
 		// 兼容字段（旧客户端或调试用）
@@ -105,6 +96,7 @@ func (BalanceController) Add(ctx echo.Context) error {
 	}
 
 	return success(ctx, map[string]interface{}{
+		"balance":         me.Balance,
 		"details":         details,
 		"recharge_amount": rechargeAmount,
 		"page":            p,

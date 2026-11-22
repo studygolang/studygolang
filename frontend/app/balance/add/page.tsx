@@ -1,9 +1,15 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { cookies } from "next/headers"
+import { redirect } from "next/navigation"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
+import { SafeHtml } from "@/components/safe-html"
 import { Card, CardContent } from "@/components/ui/card"
+import { fetchAPI, needRelogin } from "@/lib/api"
 import { Coins, Smartphone } from "lucide-react"
+
+export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
   title: "充值 - Go语言中文网",
@@ -18,7 +24,44 @@ const priceTable = [
   { amount: 50, coins: 30000 },
 ]
 
-export default function BalanceAddPage() {
+interface BalanceDetail {
+  id: number
+  desc: string
+  type_show: string
+  num: number
+  balance: number
+  created_at: string
+}
+
+interface RechargeData {
+  balance: number
+  details: BalanceDetail[]
+  recharge_amount: number
+}
+
+async function getRechargeData(page: number, cookieHeader: string): Promise<RechargeData | null> {
+  try {
+    return await fetchAPI<RechargeData>(`/balance/add?p=${page}`, {
+      cache: "no-store",
+      headers: { Cookie: cookieHeader },
+    })
+  } catch (err: unknown) {
+    if (needRelogin(err)) {
+      const target = page > 1 ? `/balance/add?p=${page}` : "/balance/add"
+      redirect(`/account/login?redirect=${encodeURIComponent(target)}`)
+    }
+    return null
+  }
+}
+
+export default async function BalanceAddPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ p?: string }>
+}) {
+  const [{ p }, requestCookies] = await Promise.all([searchParams, cookies()])
+  const page = Math.max(1, parseInt(p ?? "1", 10) || 1)
+  const data = await getRechargeData(page, requestCookies.toString())
   return (
     <PageLayout sidebar={false}>
       <PageHeader
@@ -97,6 +140,54 @@ export default function BalanceAddPage() {
                 </div>
               ))}
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            {data ? (
+              <>
+                <div className="mb-6 grid gap-4 rounded-lg bg-secondary/50 p-4 sm:grid-cols-2">
+                  <div>
+                    <p className="text-xs text-muted-foreground">历史充值金额总计</p>
+                    <p className="mt-1 text-2xl font-semibold text-foreground">￥{data.recharge_amount}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">当前账户余额</p>
+                    <p className="mt-1 text-2xl font-semibold text-amber-600">{data.balance} 铜币</p>
+                  </div>
+                </div>
+                <h3 className="mb-2 text-base font-semibold">充值记录</h3>
+                {data.details.length > 0 ? (
+                  <div className="divide-y divide-border">
+                    {data.details.map((item) => (
+                      <div key={item.id} className="flex flex-col gap-2 py-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <p className="text-sm font-medium">{item.type_show}</p>
+                          <p className="text-xs text-muted-foreground">{item.created_at}</p>
+                          {item.desc && (
+                            <SafeHtml
+                              html={item.desc}
+                              className="mt-1 text-xs text-muted-foreground [&_a]:text-primary [&_a]:hover:underline"
+                            />
+                          )}
+                        </div>
+                        <div className="shrink-0 sm:text-right">
+                          <p className={`text-sm font-semibold ${item.num >= 0 ? "text-green-600" : "text-red-600"}`}>
+                            {item.num >= 0 ? `+${item.num}` : item.num}
+                          </p>
+                          <p className="text-xs text-muted-foreground">余额 {item.balance}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="py-8 text-center text-sm text-muted-foreground">暂无充值记录</p>
+                )}
+              </>
+            ) : (
+              <p className="py-8 text-center text-sm text-muted-foreground">充值记录加载失败，请稍后重试</p>
+            )}
           </CardContent>
         </Card>
 

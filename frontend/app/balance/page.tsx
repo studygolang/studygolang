@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { Suspense, useEffect, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { PageLayout } from "@/components/page-layout"
 import { PageHeader } from "@/components/page-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -40,12 +40,13 @@ async function fetchBalance(page: number): Promise<BalanceData> {
   return fetchAPI<BalanceData>(`/balance?p=${page}`, { credentials: "include" })
 }
 
-export default function BalancePage() {
+function BalanceContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const page = Math.max(1, Number(searchParams.get("p")) || 1)
   const [data, setData] = useState<BalanceData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [page, setPage] = useState(1)
   const [reload, setReload] = useState(0)
   const [claiming, setClaiming] = useState(false)
 
@@ -56,13 +57,25 @@ export default function BalancePage() {
       .then(setData)
       .catch((err: Error) => {
         if (needRelogin(err)) {
-          router.push("/account/login?redirect=/balance")
+          const target = page > 1 ? `/balance?p=${page}` : "/balance"
+          router.push(`/account/login?redirect=${encodeURIComponent(target)}`)
         } else {
           setError(err.message)
         }
       })
       .finally(() => setLoading(false))
   }, [page, reload, router])
+
+  const goToPage = (targetPage: number) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (targetPage > 1) {
+      params.set("p", String(targetPage))
+    } else {
+      params.delete("p")
+    }
+    const query = params.toString()
+    router.push(query ? `/balance?${query}` : "/balance")
+  }
 
   const handleClaimInitial = async () => {
     const mission = data?.initial_mission
@@ -74,7 +87,7 @@ export default function BalancePage() {
         credentials: "include",
       })
       toast.success(`已领取初始资本 +${mission.fixed} 铜币`)
-      setPage(1)
+      if (page > 1) router.push("/balance")
       setReload((r) => r + 1)
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "领取失败")
@@ -201,7 +214,7 @@ export default function BalancePage() {
               <div className="mt-4 flex items-center justify-center gap-2">
                 {page > 1 && (
                   <button
-                    onClick={() => setPage((p) => p - 1)}
+                    onClick={() => goToPage(page - 1)}
                     className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
                   >
                     上一页
@@ -212,7 +225,7 @@ export default function BalancePage() {
                 </span>
                 {data.has_more && (
                   <button
-                    onClick={() => setPage((p) => p + 1)}
+                    onClick={() => goToPage(page + 1)}
                     className="rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80"
                   >
                     下一页
@@ -236,5 +249,13 @@ export default function BalancePage() {
         </Link>
       </div>
     </PageLayout>
+  )
+}
+
+export default function BalancePage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-40 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>}>
+      <BalanceContent />
+    </Suspense>
   )
 }

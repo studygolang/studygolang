@@ -320,17 +320,20 @@ export function LatestComments({ comments }: LatestCommentsProps) {
 /* ---------- Active Members ---------- */
 interface ActiveMembersProps {
   users?: User[]
+  title?: string
 }
 
-export function ActiveMembers({ users }: ActiveMembersProps) {
+export function ActiveMembers({ users, title = "活跃会员" }: ActiveMembersProps) {
   if (!users || users.length === 0) return null
+
+  const MemberIcon = title === "新会员" ? Users : Trophy
 
   return (
     <Card>
       <CardHeader className="p-4 pb-2">
         <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-          <Trophy className="h-4 w-4 text-primary" />
-          {"活跃会员"}
+          <MemberIcon className="h-4 w-4 text-primary" />
+          {title}
         </CardTitle>
       </CardHeader>
       <CardContent className="px-4 pb-4">
@@ -437,6 +440,7 @@ export function AutoSidebar() {
     readings: Reading[]
     comments: Comment[]
     activeUsers: User[]
+    newUsers: User[]
     friendLinks: FriendLink[]
     nodes: TopicNode[]
   } | null>(null)
@@ -448,15 +452,17 @@ export function AutoSidebar() {
       fetchAPINullable<{ readings: Reading[] }>("/sidebar/readings/recent?limit=7", { cache: "no-store" }),
       fetchAPINullable<{ comments: Comment[] }>("/sidebar/comments/recent", { cache: "no-store" }),
       fetchAPINullable<{ users: User[] }>("/sidebar/users/active", { cache: "no-store" }),
+      fetchAPINullable<{ users: User[] }>("/sidebar/users/newest", { cache: "no-store" }),
       fetchAPINullable<{ links: FriendLink[] }>("/sidebar/friend/links", { cache: "no-store" }),
       fetchAPINullable<{ nodes: TopicNode[] }>("/sidebar/nodes/hot", { cache: "no-store" }),
-    ]).then(([stats, readings, comments, activeUsers, friendLinks, nodes]) => {
+    ]).then(([stats, readings, comments, activeUsers, newUsers, friendLinks, nodes]) => {
       if (cancelled) return
       setData({
         stats: stats ?? undefined,
         readings: readings?.readings ?? [],
         comments: comments?.comments ?? [],
         activeUsers: activeUsers?.users ?? [],
+        newUsers: newUsers?.users ?? [],
         friendLinks: friendLinks?.links ?? [],
         nodes: nodes?.nodes ?? [],
       })
@@ -486,6 +492,7 @@ export function AutoSidebar() {
         <NodeNavigation nodes={data.nodes} />
       </div>
       <LatestComments comments={data.comments} />
+      <ActiveMembers users={data.newUsers} title="新会员" />
       <ActiveMembers users={data.activeUsers} />
       <StatsCard stats={data.stats} />
       <FriendLinks links={data.friendLinks} />

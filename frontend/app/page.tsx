@@ -56,6 +56,7 @@ interface HomeDataResult {
   friendLinks: FriendLink[]
   recentComments: Comment[]
   activeUsers: User[]
+  newUsers: User[]
 }
 
 async function getHomeData(tab: string = 'all', page: number = 1): Promise<HomeDataResult> {
@@ -67,6 +68,7 @@ async function getHomeData(tab: string = 'all', page: number = 1): Promise<HomeD
     friendLinksData,
     recentCommentsData,
     activeUsersData,
+    newestUsersData,
   ] = await Promise.allSettled([
     fetchAPI<FeedListData>(`/home?tab=${tab}&p=${page}`, { cache: 'no-store' }),
     fetchAPI<SiteStats>('/stat/site', { cache: 'no-store' }),
@@ -75,6 +77,7 @@ async function getHomeData(tab: string = 'all', page: number = 1): Promise<HomeD
     fetchAPI<{ links: FriendLink[] }>('/sidebar/friend/links', { cache: 'no-store' }),
     fetchAPI<{ comments: Comment[] }>('/sidebar/comments/recent', { cache: 'no-store' }),
     fetchAPI<{ users: User[] }>('/sidebar/users/active', { cache: 'no-store' }),
+    fetchAPI<{ users: User[] }>('/sidebar/users/newest', { cache: 'no-store' }),
   ])
 
   const homeValue = homeData.status === 'fulfilled' ? homeData.value : null
@@ -104,6 +107,7 @@ async function getHomeData(tab: string = 'all', page: number = 1): Promise<HomeD
     friendLinks: friendLinksData.status === 'fulfilled' ? (friendLinksData.value.links ?? []) : [] as FriendLink[],
     recentComments: recentCommentsData.status === 'fulfilled' ? (recentCommentsData.value.comments ?? []) : [] as Comment[],
     activeUsers: activeUsersData.status === 'fulfilled' ? (activeUsersData.value.users ?? []) : [] as User[],
+    newUsers: newestUsersData.status === 'fulfilled' ? (newestUsersData.value.users ?? []) : [] as User[],
   }
 }
 
@@ -129,6 +133,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     friendLinks,
     recentComments,
     activeUsers,
+    newUsers,
   } = await getHomeData(tab, currentPage)
 
   return (
@@ -179,6 +184,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               <NodeNavigation nodes={hotNodes} />
             </div>
             <LatestComments comments={recentComments} />
+            <ActiveMembers users={newUsers} title="新会员" />
             <ActiveMembers users={activeUsers} />
             <StatsCard stats={stats} />
             <FriendLinks links={friendLinks} />
