@@ -75,6 +75,38 @@ export interface FeedListData extends Pagination {
   tab_list: TopicNode[]
 }
 
+export interface IndexNavChild {
+  uri: string
+  name: string
+}
+
+export interface IndexNav {
+  tab: string
+  name: string
+  data_source: string
+  children?: IndexNavChild[] | null
+}
+
+export interface HomeDocument {
+  id: string
+  objid: number
+  objtype: number
+  title: string
+  author: string
+  uid: number
+  pub_time: string
+  tags: string
+  viewnum: number
+  cmtnum: number
+  likenum: number
+  lastreplyuid: number
+  lastreplytime: string
+  created_at: string
+  updated_at: string
+  top: number
+  nid: number
+}
+
 // ======================== 话题相关 ========================
 export interface TopicNode {
   nid: number
@@ -549,6 +581,9 @@ export interface Subject {
   username?: string
   follower_num?: number
   had_add?: number
+  created_at?: string
+  updated_at?: string
+  user?: User
 }
 
 export interface SubjectListData {

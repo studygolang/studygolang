@@ -23,11 +23,12 @@ func (self IndexController) RegisterRoute(g *echo.Group) {
 	g.GET("/stat/site", self.WebsiteStat)
 }
 
-// Home 首页动态列表，使用 feed 表聚合多种类型内容
-// 支持 tab 参数：all（默认，feed 动态）、recommend（推荐）、no_reply（未回复话题）
-// 返回格式：feeds/tab/tab_list/total/page/has_more
+// Home 首页动态列表，优先按后台 IndexNavs 配置返回对应数据源。
 func (IndexController) Home(ctx echo.Context) error {
 	tab := ctx.QueryParam("tab")
+	if tab == "" && len(logic.WebsiteSetting.IndexNavs) > 0 {
+		tab = logic.WebsiteSetting.IndexNavs[0].Tab
+	}
 	if tab == "" {
 		tab = model.TabAll
 	}
@@ -37,7 +38,24 @@ func (IndexController) Home(ctx echo.Context) error {
 
 	hotNodes := logic.DefaultTopic.FindHotNodes(context.EchoContext(ctx))
 
-	// 默认使用 feed 聚合动态（话题、文章、项目、资源等）
+	if len(logic.WebsiteSetting.IndexNavs) > 0 {
+		data := logic.DefaultIndex.FindData(context.EchoContext(ctx), tab, paginator)
+		sanitizeHomeDataForPublic(data)
+		data["tab_list"] = hotNodes
+		data["page"] = curPage
+		data["has_more"] = false
+
+		currentTab := data["tab"]
+		if currentTab == model.TabAll || currentTab == model.TabRecommend {
+			total := logic.DefaultFeed.GetTotalCount(context.EchoContext(ctx))
+			data["total"] = total
+			data["has_more"] = paginator.SetTotal(total).HasMorePage()
+		}
+
+		return success(ctx, data)
+	}
+
+	// 未配置 IndexNavs 时保留原首页 API 行为。
 	if tab == model.TabAll || tab == model.TabRecommend {
 		// 获取置顶动态
 		topFeeds := logic.DefaultFeed.FindTop(context.EchoContext(ctx))
@@ -94,6 +112,32 @@ func (IndexController) Home(ctx echo.Context) error {
 		"page":     curPage,
 		"has_more": hasMore,
 	})
+}
+
+func sanitizeHomeDataForPublic(data map[string]interface{}) {
+	if feeds, ok := data["feeds"].([]*model.Feed); ok {
+		sanitizeFeedsForPublic(feeds)
+	}
+	if topics, ok := data["topics"].([]map[string]interface{}); ok {
+		for _, topic := range topics {
+			if user, ok := topic["user"].(*model.User); ok {
+				sanitizeUserForPublic(user)
+			}
+		}
+	}
+	if articles, ok := data["articles"].([]*model.Article); ok {
+		for _, article := range articles {
+			sanitizeUserForPublic(article.LastReplyUser)
+		}
+	}
+	if users, ok := data["users"].(map[int]*model.User); ok {
+		for _, user := range users {
+			sanitizeUserForPublic(user)
+		}
+	}
+	if subjects, ok := data["subjects"].([]*model.Subject); ok {
+		sanitizeSubjectsForPublic(subjects)
+	}
 }
 
 // WebsiteStat 网站统计信息
