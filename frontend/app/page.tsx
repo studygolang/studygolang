@@ -25,6 +25,7 @@ import type {
   Feed,
   HomeDocument,
   IndexNav,
+  NodeNavigationGroup,
   SiteStats,
   Reading,
   Comment,
@@ -57,6 +58,7 @@ interface HomeResponse {
   nodes?: Record<number, TopicNode> | null
   index_navs?: IndexNav[] | null
   cur_nav?: IndexNav | null
+  all_nodes?: NodeNavigationGroup[] | null
   tab: string
   has_more?: boolean
 }
@@ -262,7 +264,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </div>
 
             <div className="mt-6 lg:hidden">
-              <NodeNavigation nodes={hotNodes} />
+              <NodeNavigation nodes={hotNodes} groups={home?.all_nodes ?? undefined} />
             </div>
           </div>
 
@@ -272,7 +274,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             <MorningReading readings={readings} />
             <TrendingTopics topics={trendingTopics} />
             <div className="hidden lg:block">
-              <NodeNavigation nodes={hotNodes} />
+              <NodeNavigation nodes={hotNodes} groups={home?.all_nodes ?? undefined} />
             </div>
             <LatestComments comments={recentComments} />
             <ActiveMembers users={newUsers} title="新会员" />

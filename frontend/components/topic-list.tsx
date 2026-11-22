@@ -76,12 +76,14 @@ export function TopicList({ topics = fallbackTopics }: TopicListProps) {
 
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               {topic.node && (
-                <Badge
-                  variant="secondary"
-                  className="bg-primary/10 text-xs font-medium text-primary"
-                >
-                  {topic.node.name}
-                </Badge>
+                <Link href={`/go/${encodeURIComponent(topic.node.ename)}`}>
+                  <Badge
+                    variant="secondary"
+                    className="bg-primary/10 text-xs font-medium text-primary"
+                  >
+                    {topic.node.name}
+                  </Badge>
+                </Link>
               )}
               <span className="text-xs text-muted-foreground">
                 {topic.user?.username || topic.name || "匿名"}

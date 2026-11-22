@@ -97,6 +97,7 @@ export function FeedList({ feeds = fallbackFeeds }: FeedListProps) {
         const typeBadge = getTypeBadge(feed.Objtype)
         const detailUrl = getDetailUrl(feed)
         const nodeName = feed.Node && 'name' in feed.Node ? feed.Node.name : undefined
+        const nodeEname = feed.Node && 'ename' in feed.Node ? feed.Node.ename : undefined
 
         return (
           <article
@@ -135,12 +136,23 @@ export function FeedList({ feeds = fallbackFeeds }: FeedListProps) {
                 </Badge>
                 {/* 节点标签（仅话题显示） */}
                 {nodeName && feed.Objtype === 0 && (
-                  <Badge
-                    variant="secondary"
-                    className="bg-primary/10 text-xs font-medium text-primary"
-                  >
-                    {nodeName}
-                  </Badge>
+                  nodeEname ? (
+                    <Link href={`/go/${encodeURIComponent(nodeEname)}`}>
+                      <Badge
+                        variant="secondary"
+                        className="bg-primary/10 text-xs font-medium text-primary"
+                      >
+                        {nodeName}
+                      </Badge>
+                    </Link>
+                  ) : (
+                    <Badge
+                      variant="secondary"
+                      className="bg-primary/10 text-xs font-medium text-primary"
+                    >
+                      {nodeName}
+                    </Badge>
+                  )
                 )}
                 <span className="text-xs text-muted-foreground">
                   {feed.User?.username || feed.Author || "匿名"}

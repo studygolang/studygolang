@@ -63,6 +63,23 @@ test.describe("首页", () => {
     await expect(nav.getByRole("link", { name: target.name, exact: true })).toHaveAttribute("aria-current", "page")
   })
 
+  test("首页完整节点导航使用旧版节点链接", async ({ page, request }) => {
+    const response = await request.get("/api/v1/home")
+    const home = (await response.json()).data
+    const groups = (home.all_nodes ?? []) as Record<string, { name: string; ename: string }[]>[]
+    const children = groups.flatMap((group) => Object.values(group).flat())
+    test.skip(children.length === 0, "需要至少一个导航节点")
+
+    const nav = page.getByRole("navigation", { name: "节点导航" })
+    await expect(nav.getByRole("link", { name: "浏览全部节点", exact: true })).toHaveAttribute("href", "/nodes")
+    for (const node of children) {
+      await expect(nav.getByRole("link", { name: node.name, exact: true })).toHaveAttribute(
+        "href",
+        `/go/${encodeURIComponent(node.ename)}?fr=index_node`
+      )
+    }
+  })
+
   test("页面底部有 SiteFooter", async ({ page }) => {
     const footer = page.locator("footer")
     await expect(footer).toBeVisible()

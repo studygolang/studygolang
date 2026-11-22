@@ -119,6 +119,14 @@ export interface TopicNode {
   show_index: boolean
 }
 
+export interface NodeNavigationItem {
+  nid?: number
+  name: string
+  ename: string
+}
+
+export type NodeNavigationGroup = Record<string, NodeNavigationItem[]>
+
 export interface Topic {
   tid: number
   title: string

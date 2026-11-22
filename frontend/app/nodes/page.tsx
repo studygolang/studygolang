@@ -76,7 +76,7 @@ export default async function NodesPage() {
                   {displayNodes.map((node) => (
                     <Link
                       key={node.nid}
-                      href={`/topics/node/${node.nid}`}
+                      href={`/go/${encodeURIComponent(node.ename)}`}
                       className="group"
                     >
                       <Card className="h-full transition-all hover:border-primary/30 hover:shadow-sm">
@@ -115,7 +115,7 @@ export default async function NodesPage() {
         // 无父级层级时，平铺所有节点
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {nodeList.map((node) => (
-            <Link key={node.nid} href={`/topics/node/${node.nid}`} className="group">
+            <Link key={node.nid} href={`/go/${encodeURIComponent(node.ename)}`} className="group">
               <Card className="h-full transition-all hover:border-primary/30 hover:shadow-sm">
                 <CardContent className="flex flex-col items-center gap-2 p-4 text-center">
                   {node.logo ? (

@@ -37,11 +37,13 @@ func (IndexController) Home(ctx echo.Context) error {
 	paginator := logic.NewPaginatorWithPerPage(curPage, perPage)
 
 	hotNodes := logic.DefaultTopic.FindHotNodes(context.EchoContext(ctx))
+	allNodes := logic.GenNodes()
 
 	if len(logic.WebsiteSetting.IndexNavs) > 0 {
 		data := logic.DefaultIndex.FindData(context.EchoContext(ctx), tab, paginator)
 		sanitizeHomeDataForPublic(data)
 		data["tab_list"] = hotNodes
+		data["all_nodes"] = allNodes
 		data["page"] = curPage
 		data["has_more"] = false
 
@@ -71,12 +73,13 @@ func (IndexController) Home(ctx echo.Context) error {
 		sanitizeFeedsForPublic(allFeeds)
 
 		return success(ctx, map[string]interface{}{
-			"feeds":    allFeeds,
-			"tab":      tab,
-			"tab_list": hotNodes,
-			"total":    total,
-			"page":     curPage,
-			"has_more": hasMore,
+			"feeds":     allFeeds,
+			"tab":       tab,
+			"tab_list":  hotNodes,
+			"all_nodes": allNodes,
+			"total":     total,
+			"page":      curPage,
+			"has_more":  hasMore,
 		})
 	}
 
@@ -105,12 +108,13 @@ func (IndexController) Home(ctx echo.Context) error {
 	hasMore := paginator.SetTotal(total).HasMorePage()
 
 	return success(ctx, map[string]interface{}{
-		"topics":   topics,
-		"tab":      tab,
-		"tab_list": hotNodes,
-		"total":    total,
-		"page":     curPage,
-		"has_more": hasMore,
+		"topics":    topics,
+		"tab":       tab,
+		"tab_list":  hotNodes,
+		"all_nodes": allNodes,
+		"total":     total,
+		"page":      curPage,
+		"has_more":  hasMore,
 	})
 }
 
