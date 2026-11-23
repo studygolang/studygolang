@@ -49,7 +49,8 @@ export function ContentActions({
       (!!ownerUsername && user.username === ownerUsername))
   const isStaff = !!user && (user.is_root || user.is_admin)
   const canEdit = !!editHref && (isOwner || isStaff)
-  const canTop = showTop && !isTop && (isOwner || isStaff)
+  // isTop 时仍渲染按钮：显示"已置顶"禁用态，让作者/管理员知道当前状态（到期由后端定时任务自动取消）
+  const canTop = showTop && (isOwner || isStaff)
 
   async function handleShare() {
     try {

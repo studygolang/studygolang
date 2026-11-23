@@ -30,8 +30,7 @@ const footerSections: FooterSection[] = [
     title: "\u5b66\u4e60",
     links: [
       { label: "Go \u56fe\u4e66", href: "/books" },
-      // /docs/guide 前端暂无此页面，临时指向 /wiki
-      { label: "Go \u6307\u5357", href: "/wiki" },
+      { label: "Go \u6307\u5357", href: "https://tour.studygolang.com", external: true },
       // /docs/stdlib 前端暂无此页面，指向外部标准库文档
       {
         label: "\u6807\u51c6\u5e93\u6587\u6863",

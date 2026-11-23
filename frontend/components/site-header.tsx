@@ -23,6 +23,10 @@ import {
   Briefcase,
   User,
   LogOut,
+  Settings,
+  Heart,
+  Coins,
+  LayoutDashboard,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -62,8 +66,7 @@ const docItems: DocItem[] = [
     label: "\u6807\u51c6\u5e93\u4e2d\u6587\u7248",
     href: "/pkgdoc",
   },
-  // Go 指南指向 wiki 内部页面
-  { label: "Go \u6307\u5357", href: "/wiki" },
+  { label: "Go \u6307\u5357", href: "https://tour.studygolang.com", external: true },
 ]
 
 export function SiteHeader() {
@@ -246,6 +249,32 @@ export function SiteHeader() {
                     {"个人主页"}
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={`/user/${auth.username}/settings`} className="flex items-center gap-2">
+                    <Settings className="h-4 w-4" />
+                    {"个人资料设置"}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={`/favorites/${auth.username}`} className="flex items-center gap-2">
+                    <Heart className="h-4 w-4" />
+                    {"我的收藏"}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/balance" className="flex items-center gap-2">
+                    <Coins className="h-4 w-4" />
+                    {"我的财富"}
+                  </Link>
+                </DropdownMenuItem>
+                {user && (user.is_root || user.is_admin) && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin" className="flex items-center gap-2">
+                      <LayoutDashboard className="h-4 w-4" />
+                      {"管理后台"}
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 text-destructive focus:text-destructive">
                   <LogOut className="h-4 w-4" />
