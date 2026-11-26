@@ -135,6 +135,7 @@ export default async function TopicDetailPage({
         canView={data?.can_view ?? true}
         likeflag={data?.likeflag}
         hadcollect={data?.hadcollect}
+        prevNext={data?.prev_next}
       />
       <ViewStats viewUserNum={data?.view_user_num} viewSource={data?.view_source} />
     </PageLayout>

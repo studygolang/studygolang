@@ -22,9 +22,10 @@ interface TopicDetailProps {
   canView?: boolean
   likeflag?: number
   hadcollect?: number
+  prevNext?: { tid: number; title: string }[] | null
 }
 
-export function TopicDetail({ id, topic, replies = [], appends = [], canView = true, likeflag, hadcollect }: TopicDetailProps) {
+export function TopicDetail({ id, topic, replies = [], appends = [], canView = true, likeflag, hadcollect, prevNext }: TopicDetailProps) {
   if (!topic) {
     return (
       <Card>
@@ -130,6 +131,24 @@ export function TopicDetail({ id, topic, replies = [], appends = [], canView = t
           ownerUid={topic.uid}
           closed={topic.close_reply}
         />
+      )}
+
+      {/* 上一篇 / 下一篇（对齐旧版话题详情的相邻导航） */}
+      {(prevNext?.[0] || prevNext?.[1]) && (
+        <div className="mt-4 flex items-center justify-between gap-4 border-t border-border pt-4 text-sm">
+          {prevNext[0] ? (
+            <Link href={`/topics/${prevNext[0].tid}`} className="min-w-0 flex-1 truncate text-muted-foreground transition-colors hover:text-primary" title={prevNext[0].title}>
+              上一篇：{prevNext[0].title}
+            </Link>
+          ) : (
+            <span className="flex-1" />
+          )}
+          {prevNext[1] && (
+            <Link href={`/topics/${prevNext[1].tid}`} className="min-w-0 flex-1 truncate text-right text-muted-foreground transition-colors hover:text-primary" title={prevNext[1].title}>
+              下一篇：{prevNext[1].title}
+            </Link>
+          )}
+        </div>
       )}
     </div>
   )

@@ -176,6 +176,7 @@ export interface TopicDetailData extends ViewStatsData {
   can_view?: boolean
   likeflag?: number
   hadcollect?: number
+  prev_next?: { tid: number; title: string }[] | null
 }
 
 // ======================== 文章相关 ========================

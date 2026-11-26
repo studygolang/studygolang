@@ -503,6 +503,28 @@ func (TopicLogic) findByTid(tid int) *model.Topic {
 	return topic
 }
 
+// FindPrevNext 获取当前(tid)话题的前后话题（对齐 ArticleLogic.FindByIdAndPreNext 的 ±5 逻辑）
+func (TopicLogic) FindPrevNext(tid int) []*model.Topic {
+	topics := make([]*model.Topic, 0)
+	if err := MasterDB.Where("tid BETWEEN ? AND ?", tid-5, tid+5).Find(&topics); err != nil {
+		logger.Errorln("TopicLogic FindPrevNext error:", err)
+		return nil
+	}
+
+	prevNext := make([]*model.Topic, 2)
+	prevTid, nextTid := topics[0].Tid, topics[len(topics)-1].Tid
+	for _, topic := range topics {
+		if topic.Tid < tid && topic.Tid > prevTid {
+			prevTid = topic.Tid
+			prevNext[0] = topic
+		} else if topic.Tid > tid && topic.Tid < nextTid {
+			nextTid = topic.Tid
+			prevNext[1] = topic
+		}
+	}
+	return prevNext
+}
+
 // findByTids 获取多个主题详细信息 包内用
 func (TopicLogic) findByTids(tids []int) map[int]*model.Topic {
 	if len(tids) == 0 {

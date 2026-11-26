@@ -203,6 +203,9 @@ func (TopicController) Detail(ctx echo.Context) error {
 		"replies":  normalizeReplies(ctx, replies, viewerUID),
 		"can_view": canView,
 	}
+	if prevNext := logic.DefaultTopic.FindPrevNext(tid); prevNext != nil {
+		result["prev_next"] = prevNext
+	}
 
 	if me != nil {
 		tidInt, _ := topic["tid"].(int)
