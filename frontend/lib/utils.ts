@@ -38,6 +38,16 @@ export function formatNum(n: number): string {
   return String(num)
 }
 
+// 服务端安全的纯文本摘要（meta description 用）：strip 标签 + 压空白，不依赖 DOMParser
+export function toPlainExcerpt(html: string, max = 150): string {
+  return html
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, max)
+}
+
 /**
  * 格式化日期字符串为中文日期格式
  */

@@ -4,6 +4,7 @@ import { cookies } from "next/headers"
 import { ExternalLink, ThumbsUp, MessageSquare, Clock, Eye } from "lucide-react"
 import { Metadata } from "next"
 import { PageLayout } from "@/components/page-layout"
+import { toPlainExcerpt } from "@/lib/utils"
 import { PageHeader } from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -57,7 +58,7 @@ export async function generateMetadata({ params }: ResourceDetailPageProps): Pro
   // 后端 Resource 无 desc 字段（用 content），无 cover 字段
   return {
     title: `${resource.title} - Go 资源 - Go语言中文网`,
-    description: resource.content || `${resource.title} - Go语言中文网资源`,
+    description: (resource.content ? toPlainExcerpt(resource.content, 300) : "") || `${resource.title} - Go语言中文网资源`,
     openGraph: {
       title: resource.title,
       description: resource.content || "",

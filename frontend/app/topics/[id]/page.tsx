@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { cookies } from "next/headers"
 import { PageLayout } from "@/components/page-layout"
+import { toPlainExcerpt } from "@/lib/utils"
 import { PageHeader } from "@/components/page-header"
 import { TopicDetail } from "@/components/topic-detail"
 import { ViewStats } from "@/components/view-stats"
@@ -61,7 +62,7 @@ export async function generateMetadata({
   }
 
   const { topic } = data
-  const description = topic.content?.slice(0, 150) || "Go语言中文社区话题讨论"
+  const description = (topic.content ? toPlainExcerpt(topic.content) : "") || "Go语言中文社区话题讨论"
 
   return {
     title: `${topic.title} - Go语言中文网`,

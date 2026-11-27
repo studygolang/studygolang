@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { cookies } from "next/headers"
 import { PageLayout } from "@/components/page-layout"
+import { toPlainExcerpt } from "@/lib/utils"
 import { PageHeader } from "@/components/page-header"
 import { ArticleDetail } from "@/components/article-detail"
 import { ViewStats } from "@/components/view-stats"
@@ -49,7 +50,7 @@ export async function generateMetadata({
 
   const { article } = data
   // 后端 Article 无 summary 字段，截取 content 前 150 字作描述
-  const description = article.content?.slice(0, 150) || "Go语言技术文章"
+  const description = (article.content ? toPlainExcerpt(article.content) : "") || "Go语言技术文章"
 
   return {
     title: `${article.title} - Go语言中文网`,
@@ -87,7 +88,7 @@ export default async function ArticleDetailPage({
         "@type": "Article",
         headline: article.title,
         // 后端 Article 无 summary 字段，截取 content 作描述
-        description: article.content?.slice(0, 150),
+        description: article.content ? toPlainExcerpt(article.content) : "",
         author: {
           "@type": "Person",
           name: article.author,
